@@ -183,6 +183,7 @@ export default function Invoices() {
                                                 <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'due_date') }} >Due Date          <span className="arr"> &darr;</span></Th>
                                                 <Th scope="col"  >Customer   </Th>
                                                 <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'status') }}  >Status            <span className="arr"> &darr;</span></Th>
+                                                <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'status') }}  >Doc Status        <span className="arr"> &darr;</span></Th>
                                                 <Th scope="col"  >Transaction ID/Ref.</Th>
                                                 <Th scope="col"  >Payment Mode</Th>
                                                 <Th scope="col">Action</Th>
@@ -205,6 +206,9 @@ export default function Invoices() {
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
+                                                                {item.invoice_icount_status}
+                                                            </Td>
+                                                            <Td>
                                                                 {item.txn_id ? item.txn_id : 'NA'}
                                                             </Td>
                                                             <Td>
@@ -221,6 +225,11 @@ export default function Invoices() {
                                                                         {
                                                                             item.status != 'Paid' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
                                                                             >Add Payment</button>
+                                                                        }
+                                                                       
+                                                                        {
+                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            >Close Doc</button>
                                                                         }
                                                                         <button onClick={e => handleDelete(item.id)} className="dropdown-item"
                                                                         >Delete</button>

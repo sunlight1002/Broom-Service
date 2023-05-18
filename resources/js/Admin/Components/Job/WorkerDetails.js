@@ -24,7 +24,7 @@ export default function WorkerDetails({worker, job}) {
                                 <div className='col-sm-6'>
                                     <div className='form-group'>
                                         <label className='control-label'>Worker Phone</label>
-                                       <p>{worker.phone}</p>
+                                       <p><a href={`tel:${worker.phone}`}>{worker.phone}</a></p>
                                     </div>
                                 </div>
                                 <div className='col-sm-8'>

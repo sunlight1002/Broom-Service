@@ -22,7 +22,7 @@ export default function ClientDetails({client}) {
                                 <div className='col-sm-6'>
                                     <div className='form-group'>
                                         <label className='control-label'>Client Phone</label>
-                                         <p>{client.phone}</p>
+                                         <p><a href={`tel:${client.phone}`}>{client.phone}</a></p>
                                     </div>
                                 </div>
                                 <div className='col-sm-4'>

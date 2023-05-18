@@ -21,6 +21,7 @@ class Invoices extends Model
         'session_id',
         'callback',
         'pay_method',
+        'invoice_icount_status',
         'status'
     ];
 
