@@ -168,6 +168,67 @@ export default function Invoices() {
                         </div>*/}
                     </div>
                 </div>
+                <div className="sales-filter">
+                    <div className="row">
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">From Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">To Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Invoice ID</label>
+                                <input type="text" className="form-control" placeholder="Order ID" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Customer</label>
+                                <input type="text" className="form-control" placeholder="Customer" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Transaction ID/Ref.</label>
+                                <input type="text" className="form-control" placeholder="Customer" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Payment mode</label>
+                                <select className="form-control">
+                                    <option>Please Select</option>
+                                    <option>Credit Card</option>
+                                    <option>Bank Transfer</option>
+                                    <option>By Cheque</option>
+                                    <option>By Cash</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Status</label>
+                                <select className="form-control">
+                                    <option>Please Select</option>
+                                    <option>Paid</option>
+                                    <option>Unpaid</option>
+                                    <option>Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <label className="control-label d-block">&nbsp;</label>
+                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                        </div>
+                    </div>
+                </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">

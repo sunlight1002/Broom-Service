@@ -27,7 +27,6 @@ host('development')
     ->set('keep_releases', 2);
 
 // Hooks
-
 task('deploy', [
     'deploy:prepare',
     'deploy:vendors',
