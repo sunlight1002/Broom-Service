@@ -146,6 +146,33 @@ export default function Invoices() {
         });
     };
 
+    const closeDoc = (id,type) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Close Invoice!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/close-doc/${id}/${type}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Closed",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getInvoices();
+                        }, 1000);
+                    });
+            }
+        });
+    };
+
     useEffect(() => {
         getInvoices();
     }, []);
@@ -289,7 +316,7 @@ export default function Invoices() {
                                                                         }
                                                                        
                                                                         {
-                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => {closeDoc(item.invoice_id,item.type)}} className="dropdown-item"
                                                                             >Close Doc</button>
                                                                         }
                                                                         <button onClick={e => handleDelete(item.id)} className="dropdown-item"

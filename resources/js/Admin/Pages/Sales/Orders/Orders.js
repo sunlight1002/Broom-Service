@@ -110,6 +110,83 @@ export default function Orders() {
             });
     };
 
+    const closeDoc = (id,type) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Close Order!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/close-doc/${id}/${type}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Closed",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders();
+                        }, 1000);
+                    });
+            }
+        });
+    };
+
+    const GenInvoice = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to generate invoice for this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Generate Invoice!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/order-manual-invoice/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Invoice Generated",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders();
+                        }, 1000);
+                    });
+            }
+        });
+    }
+
+    const filter = (e) =>{
+        e.preventDefault();
+        let fils = document.querySelectorAll('.filter');
+        let d = '';
+        fils.forEach((el,i)=>{ 
+          if(el.value !== 'Please Select')
+          d+= el.name +"="+el.value+"&";
+          
+        }) 
+        console.log(d);
+        axios
+            .get(`/api/admin/orders?${d}`,{ headers })
+            .then((res) => {
+                if (res.data.orders.data.length > 0) {
+                    setOrders(res.data.orders.data);
+                    setPageCount(res.data.orders.last_page);
+                } else {
+                    setOrders([]);
+                    setLoading('No Order Found');
+                }
+            })
+    }
+
     useEffect(() => {
         getOrders();
     }, []);
@@ -125,40 +202,40 @@ export default function Orders() {
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">From Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" name="from_date" className="form-control filter" />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">To Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" name="to_date" className="form-control filter" />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">Order ID</label>
-                                <input type="text" className="form-control" placeholder="Order ID" />
+                                <input type="text" className="form-control filter" name="order_id" placeholder="Order ID" />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">Customer</label>
-                                <input type="text" className="form-control" placeholder="Customer" />
+                                <input type="text" className="form-control filter" name="client" placeholder="Customer" />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">Status</label>
-                                <select className="form-control">
+                                <select className="form-control filter" name="status">
                                     <option>Please Select</option>
-                                    <option>Open</option>
-                                    <option>Close</option>
+                                    <option value="Open">Open</option>
+                                    <option value="Closed">Closed</option>
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <label className="control-label d-block">&nbsp;</label>
-                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                            <button className="btn btn-pink" onClick={e=>filter(e)} style={{minWidth: "100px"}}>Filter</button>
                         </div>
                     </div>
                 </div>
@@ -201,8 +278,17 @@ export default function Orders() {
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
+
                                                                 <div className="dropdown-menu">
                                                                     <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>
+                                                                    {
+                                                                        item.status == 'Open' &&  <button  onClick={e=>closeDoc(item.order_id,'order')} className="dropdown-item"
+                                                                        >Close Doc</button>
+                                                                    }
+                                                                    {
+                                                                        item.status == 'Open' &&  <button  onClick={e=>GenInvoice(item.id)} className="dropdown-item"
+                                                                        >Generate Invoice</button>
+                                                                    }
                                                                     <button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
                                                                     >Delete</button>
                                                                 </div>

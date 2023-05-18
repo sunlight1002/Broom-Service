@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from 'moment';
 import { Base64 } from "js-base64";
@@ -11,6 +11,8 @@ export default function Order() {
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [orders, setOrders]   = useState([]);
+    const params = useParams();
+    const id = params.id;
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -19,7 +21,7 @@ export default function Order() {
 
     const getOrders = () => {
         axios
-            .get('/api/admin/orders', { headers })
+            .get(`/api/admin/client-orders/${id}`, { headers })
             .then((res) => {
                 if (res.data.orders.data.length > 0) {
                     setOrders(res.data.orders.data);
@@ -98,7 +100,7 @@ export default function Order() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/orders?page=" + currentPage, { headers })
+            .get(`/api/admin/client-orders/${id}?page=` + currentPage, { headers })
             .then((response) => {
                 if (response.data.orders.data.length > 0) {
                     setOrders(response.data.orders.data);

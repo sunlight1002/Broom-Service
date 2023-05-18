@@ -236,7 +236,7 @@ class JobController extends Controller
                 $start  =  Carbon::createFromFormat('Y-m-d H:i:s', $_start);
                 $end    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
                 $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
-               
+                
                 if( ($start->lt($now) ) && ($end->gt($now))  ){
                     $this->order($job->id);
                 }
@@ -543,7 +543,7 @@ class JobController extends Controller
             'job_id'     => $id,
             'amount'     => $total,
             'paid_amount'=> $total,
-            'pay_method' => 'Credit Card',
+            'pay_method' => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? 'Credit Card' : 'NA',
             'customer'   => $job->client->id,
             'doc_url'    => $json['doc_url'],
             'type'       => $doctype,
@@ -606,7 +606,7 @@ class JobController extends Controller
 
 public function scheduledInvoice($id, $oid){
    
-        $job = Job::where(['id'=>$id , 'status' => 'progress'])->with('jobservice','client','contract','order')->get()->first();
+        $job = Job::where('id',$id)->with('jobservice','client','contract','order')->get()->first();
         $services = json_decode($job->order->items);
         $total = 0;
         
@@ -699,7 +699,7 @@ public function scheduledInvoice($id, $oid){
               'job_id'     => $id,
               'amount'     => $total,
               'paid_amount'=> $total,
-              'pay_method' => 'Credit Card',
+              'pay_method' => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? 'Credit Card' : 'NA',
               'customer'   => $job->client->id,
               'doc_url'    => $json['doc_url'],
               'type'       => $doctype,

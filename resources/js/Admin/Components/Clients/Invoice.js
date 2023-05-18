@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from 'moment';
 import { Base64 } from "js-base64";
@@ -11,6 +11,8 @@ export default function Invoice() {
     const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
+    const params = useParams();
+    const id = params.id;
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -24,7 +26,7 @@ export default function Invoice() {
 
     const getInvoices = () => {
         axios
-            .get('/api/admin/invoices', { headers })
+            .get(`/api/admin/client-invoices/${id}`, { headers })
             .then((res) => {
                 if (res.data.invoices.data.length > 0) {
                     setInvoices(res.data.invoices.data);
@@ -76,7 +78,7 @@ export default function Invoice() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/invoices?page=" + currentPage, { headers })
+            .get(`/api/admin/client-invoices/${id}?page=` + currentPage, { headers })
             .then((response) => {
                 if (response.data.invoices.data.length > 0) {
                     setInvoices(response.data.invoices.data);
