@@ -341,11 +341,14 @@ class DashboardController extends Controller
     public function updateCard(Request $request){
         
         if(isset( $request->cdata['cid'] )):
+            $cc = ClientCard::where('id',$request->cdata['cid'])->get('cc_charge')->first();
+            $nc = (int)$cc->cc_charge +  (int)$request->cdata['cc_charge'];
             $args = [
             'card_type'   => $request->cdata['card_type'],  
             'card_number' => $request->cdata['card_number'],
             'valid'       => $request->cdata['valid'],
             'cvv'         => $request->cdata['cvv'],
+            'cc_charge'   => $nc,
             'card_token'  => $request->cdata['card_token'],
             ];
             
@@ -358,6 +361,7 @@ class DashboardController extends Controller
                 'card_number' => $request->cdata['card_number'],
                 'valid'       => $request->cdata['valid'],
                 'cvv'         => $request->cdata['cvv'],
+                'cc_charge'   => $request->cdata['cc_charge'],
                 'card_token'  => $request->cdata['card_token'],
               ];
               

@@ -155,6 +155,7 @@ export default function card() {
                           "cid": (card.length > 0) ?  card[0].id: '',
                           "card_type": ctype,
                           "card_number": ncard,
+                          "cc_charge": 1,
                           "valid": exy + "-" + exm,
                           "card_token": res.data.Token,
                           "cvv": cvv.substring(0, 3),

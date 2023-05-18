@@ -410,7 +410,7 @@ class JobController extends Controller
 
     }
 
-    public function closeDoc($docnum){
+    public function closeDoc($docnum,$type){
 
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
         $params = Array(
@@ -418,7 +418,7 @@ class JobController extends Controller
         "cid"  => env('ICOUNT_COMPANYID'),
         "user" => env('ICOUNT_USERNAME'),
         "pass" => env('ICOUNT_PASS'),
-        "doctype" => "order",
+        "doctype" => $type,
         "docnum"  => $docnum,
         "based_on"=> $docnum
         );
@@ -531,7 +531,7 @@ class JobController extends Controller
         }
 
     /*Close Order */
-        $this->closeDoc($job->order->order_id);
+        $this->closeDoc($job->order->order_id,'order');
     
         job::where('id',$id)->update([
             'invoice_no'    =>$json["docnum"],
@@ -548,12 +548,19 @@ class JobController extends Controller
             'doc_url'    => $json['doc_url'],
             'type'       => $doctype,
             'due_date'   => $due,
+            'invoice_icount_status' => 'Open',
             'txn_id'     => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? $pres->ReferenceNumber : '',
             'callback'   => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
             'status'     => ( (isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ( (isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
         ];
         
         $inv = Invoices::create($invoice);
+        if((isset($pres))  && $pres->HasError == false && $doctype == 'invrec' ){
+            //close invoice
+            $this->closeDoc($json['docnum'],'invrec');
+            Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed']);
+
+        }
         Order::where('id',$job->order->id)->update(['status'=>'Closed']);
         JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
         Order::where('id',$oid)->update(['invoice_status'=>2]);
@@ -602,6 +609,7 @@ public function scheduledInvoice($id, $oid){
         $job = Job::where(['id'=>$id , 'status' => 'progress'])->with('jobservice','client','contract','order')->get()->first();
         $services = json_decode($job->order->items);
         $total = 0;
+        
         $card = ClientCard::where('client_id',$job->client_id)->get()->first();
         $p_method = $job->client->payment_method;
         $contract = $job->contract; 
@@ -679,7 +687,7 @@ public function scheduledInvoice($id, $oid){
           }
   
       /*Close Order */
-          $this->closeDoc($job->order->order_id);
+          $this->closeDoc($job->order->order_id,'order');
       
           job::where('id',$id)->update([
               'invoice_no'    =>$json["docnum"],
@@ -695,6 +703,7 @@ public function scheduledInvoice($id, $oid){
               'customer'   => $job->client->id,
               'doc_url'    => $json['doc_url'],
               'type'       => $doctype,
+              'invoice_icount_status' => 'Open',
               'due_date'   => $due,
               'txn_id'     => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? $pres->ReferenceNumber : '',
               'callback'   => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
@@ -702,6 +711,12 @@ public function scheduledInvoice($id, $oid){
           ];
           
           $inv = Invoices::create($invoice);
+           if((isset($pres))  && $pres->HasError == false && $doctype == 'invrec' ){
+            //close invoice
+            $this->closeDoc($json['docnum'],'invrec');
+            Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed']);
+
+        }
           Order::where('id',$job->order->id)->update(['status'=>'Closed']);
           JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
           Order::where('id',$oid)->update(['invoice_status'=>2]);

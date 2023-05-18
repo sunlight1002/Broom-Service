@@ -266,6 +266,7 @@ export default function WorkContract() {
                             "card_type": ctype,
                             "card_number": card,
                             "valid": exy + "-" + exm,
+                            "cc_charge": 1,
                             "card_token": res.data.Token,
                             "cvv": cvv.substring(0, 3),
                         }

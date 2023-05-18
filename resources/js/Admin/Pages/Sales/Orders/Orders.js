@@ -118,18 +118,48 @@ export default function Orders() {
             <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
+                    <h1 className="page-title">Manage Orders</h1>
+                </div>
+                <div className="sales-filter">
                     <div className="row">
-                        <div className="col-sm-6">
-                            <h1 className="page-title">Manage Orders</h1>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">From Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
                         </div>
-                        {/*<div className="col-sm-6">
-                            <Link
-                                to="/admin/add-invoice"
-                                className="ml-2 btn btn-pink addButton">
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                Create Invoice
-                            </Link>
-                        </div>*/}
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">To Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Order ID</label>
+                                <input type="text" className="form-control" placeholder="Order ID" />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Customer</label>
+                                <input type="text" className="form-control" placeholder="Customer" />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Status</label>
+                                <select className="form-control">
+                                    <option>Please Select</option>
+                                    <option>Open</option>
+                                    <option>Close</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <label className="control-label d-block">&nbsp;</label>
+                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                        </div>
                     </div>
                 </div>
                 <div className="card">
@@ -164,7 +194,7 @@ export default function Orders() {
                                                             {item.status}
                                                         </Td>
                                                         <Td>
-                                                            { item.invoice_status == 0 ? "Not Generated": "Generated" }
+                                                            { item.invoice_status == 2 ? "Generated": "Not Generated" }
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">

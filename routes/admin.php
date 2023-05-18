@@ -167,6 +167,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     //Orders
     Route::get('orders',[InvoiceController::class,'getOrders']);
+    Route::get('delete-oders/{id}',[InvoiceController::class,'deleteOrders']);
 
 
     //Notifications

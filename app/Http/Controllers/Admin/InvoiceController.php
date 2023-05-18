@@ -274,14 +274,44 @@ class InvoiceController extends Controller
         Invoices::where('id',$id)->delete();
     }
 
+    public function CloseDoc($docnum){
+
+        $url = "https://api.icount.co.il/api/v3.php/doc/close";
+        $params = Array(
+    
+        "cid"  => env('ICOUNT_COMPANYID'),
+        "user" => env('ICOUNT_USERNAME'),
+        "pass" => env('ICOUNT_PASS'),
+        "doctype" => "order",
+        "docnum"  => $docnum,
+        "based_on"=> $docnum
+        );
+    
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+           $resp =  curl_exec($ch);
+           $res  =  json_decode($resp);
+
+           $msg = ($res->status == 'true') ? 'Doc closed successfully!' : $res->reason;
+           return response()->json(['msg'=>$msg]); 
+
+    }
+
+
     /*Orders Apis */
 
     public function getOrders(){
 
-        $orders = Order::with('job','client')->paginate(20);
+        $orders = Order::with('job','client')->orderBy('id','desc')->paginate(20);
         return response()->json([
             'orders' =>$orders
         ]);
+    }
+
+    public function deleteOrders($id){
+      Order::where('id',$id)->delete();
     }
 
     public function getPayments(){

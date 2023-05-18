@@ -178,6 +178,7 @@ class ClientEmailController extends Controller
       'card_number' => $request->cdata['card_number'],
       'valid'       => $request->cdata['valid'],
       'cvv'         => $request->cdata['cvv'],
+      'cc_charge'   => $request->cdata['cc_charge'],
       'card_token'  => $request->cdata['card_token'],
     ];
     

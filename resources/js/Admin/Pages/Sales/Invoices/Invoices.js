@@ -168,6 +168,67 @@ export default function Invoices() {
                         </div>*/}
                     </div>
                 </div>
+                <div className="sales-filter">
+                    <div className="row">
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">From Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">To Date</label>
+                                <input type="date" className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Invoice ID</label>
+                                <input type="text" className="form-control" placeholder="Order ID" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Customer</label>
+                                <input type="text" className="form-control" placeholder="Customer" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Transaction ID/Ref.</label>
+                                <input type="text" className="form-control" placeholder="Customer" />
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Payment mode</label>
+                                <select className="form-control">
+                                    <option>Please Select</option>
+                                    <option>Credit Card</option>
+                                    <option>Bank Transfer</option>
+                                    <option>By Cheque</option>
+                                    <option>By Cash</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Status</label>
+                                <select className="form-control">
+                                    <option>Please Select</option>
+                                    <option>Paid</option>
+                                    <option>Unpaid</option>
+                                    <option>Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <label className="control-label d-block">&nbsp;</label>
+                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                        </div>
+                    </div>
+                </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
@@ -183,6 +244,7 @@ export default function Invoices() {
                                                 <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'due_date') }} >Due Date          <span className="arr"> &darr;</span></Th>
                                                 <Th scope="col"  >Customer   </Th>
                                                 <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'status') }}  >Status            <span className="arr"> &darr;</span></Th>
+                                                <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'status') }}  >Doc Status        <span className="arr"> &darr;</span></Th>
                                                 <Th scope="col"  >Transaction ID/Ref.</Th>
                                                 <Th scope="col"  >Payment Mode</Th>
                                                 <Th scope="col">Action</Th>
@@ -205,6 +267,9 @@ export default function Invoices() {
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
+                                                                {item.invoice_icount_status}
+                                                            </Td>
+                                                            <Td>
                                                                 {item.txn_id ? item.txn_id : 'NA'}
                                                             </Td>
                                                             <Td>
@@ -221,6 +286,11 @@ export default function Invoices() {
                                                                         {
                                                                             item.status != 'Paid' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
                                                                             >Add Payment</button>
+                                                                        }
+                                                                       
+                                                                        {
+                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            >Close Doc</button>
                                                                         }
                                                                         <button onClick={e => handleDelete(item.id)} className="dropdown-item"
                                                                         >Delete</button>

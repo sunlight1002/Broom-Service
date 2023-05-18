@@ -20,6 +20,7 @@ class ClientCard extends Migration
             $table->string('card_type');
             $table->longText('valid');
             $table->longText('cvv');
+            $table->string('cc_charge')->default(0);
             $table->longText('card_token');
             $table->timestamps();
         });
