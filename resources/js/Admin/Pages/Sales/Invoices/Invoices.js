@@ -173,6 +173,29 @@ export default function Invoices() {
         });
     };
 
+    const filter = (e) =>{
+        e.preventDefault();
+        let fils = document.querySelectorAll('.filter');
+        let d = '';
+        fils.forEach((el,i)=>{ 
+          if(el.value !== 'Please Select')
+          d+= el.name +"="+el.value+"&";
+          
+        }) 
+        
+        axios
+            .get(`/api/admin/invoices?${d}`,{ headers })
+            .then((res) => {
+                if (res.data.invoices.data.length > 0) {
+                    setInvoices(res.data.invoices.data);
+                    setPageCount(res.data.invoices.last_page);
+                } else {
+                    setInvoices([]);
+                    setLoading('No Invoice Found');
+                }
+            })
+    }
+
     useEffect(() => {
         getInvoices();
     }, []);
@@ -200,59 +223,59 @@ export default function Invoices() {
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">From Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" name="from_date" className="form-control filter" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">To Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" name="to_date" className="form-control filter" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Invoice ID</label>
-                                <input type="text" className="form-control" placeholder="Order ID" />
+                                <input type="text" className="form-control filter" name="invoice_id" placeholder="Invoice ID" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Customer</label>
-                                <input type="text" className="form-control" placeholder="Customer" />
+                                <input type="text" className="form-control filter" name="client" placeholder="Customer" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Transaction ID/Ref.</label>
-                                <input type="text" className="form-control" placeholder="Customer" />
+                                <input type="text" className="form-control filter" name="txn_id" placeholder="Transaction ID/Ref." />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Payment mode</label>
-                                <select className="form-control">
+                                <select className="form-control filter" name="pay_method">
                                     <option>Please Select</option>
-                                    <option>Credit Card</option>
-                                    <option>Bank Transfer</option>
-                                    <option>By Cheque</option>
-                                    <option>By Cash</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cheque">By Cheque</option>
+                                    <option value="Cash">By Cash</option>
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">Status</label>
-                                <select className="form-control">
+                                <select className="form-control filter" name="status">
                                     <option>Please Select</option>
-                                    <option>Paid</option>
-                                    <option>Unpaid</option>
-                                    <option>Cancelled</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Cancelled">Cancelled</option>
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <label className="control-label d-block">&nbsp;</label>
-                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                            <button className="btn btn-pink" onClick={e=>filter(e)} style={{minWidth: "100px"}}>Filter</button>
                         </div>
                     </div>
                 </div>

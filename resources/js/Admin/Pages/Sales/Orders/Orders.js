@@ -173,7 +173,7 @@ export default function Orders() {
           d+= el.name +"="+el.value+"&";
           
         }) 
-        console.log(d);
+        
         axios
             .get(`/api/admin/orders?${d}`,{ headers })
             .then((res) => {

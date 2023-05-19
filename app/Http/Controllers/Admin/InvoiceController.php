@@ -13,8 +13,44 @@ use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use PDF;
 class InvoiceController extends Controller
 {
-    public function index(){
-       $invoices = Invoices::with('client')->orderBy('id', 'desc')->paginate(20);
+    public function index(Request $request){
+       $invoices = Invoices::with('client');
+
+       if(isset($request->from_date) && isset($request->to_date)){
+          $invoices = $invoices->whereDate('created_at','>=',$request->from_date)
+                               ->whereDate('created_at','<=',$request->to_date);
+       }
+
+       if(isset($request->invoice_id)){
+          $invoices = $invoices->where('invoice_id',$request->invoice_id);
+       }
+
+       if(isset($request->txn_id)){
+        $invoices = $invoices->where('txn_id',$request->txn_id);
+       }
+
+       if(isset($request->pay_method)){
+        $invoices = $invoices->where('pay_method',$request->pay_method);
+       }
+
+       if(isset($request->status)){
+        $invoices = $invoices->where('status',$request->status);
+       }
+
+        if(isset($request->client)){
+            $q = $request->client;
+            $ex = explode(' ',$q); 
+            $invoices = $invoices->WhereHas('client',function ($qr) use ($q,$ex){
+                $qr->where(function($qr) use ($q,$ex) {
+                $qr->where('firstname', 'like','%'.$ex[0].'%');
+                if(isset($ex[1]))
+                $qr->where('lastname', 'like','%'.$ex[1].'%');
+            });
+        });
+
+    }
+
+       $invoices = $invoices->orderBy('id', 'desc')->paginate(20);
        return response()->json([
         'invoices' => $invoices
        ]);
@@ -545,7 +581,7 @@ class InvoiceController extends Controller
             $orders = $orders->where('order_id',$request->order_id);
         }
 
-        if(isset($request->from_date) && isset($request->to_date)){
+        if(isset($request->from_dat ) && isset($request->to_date)){
 
             $orders = $orders->whereDate('created_at','>=',$request->from_date)
                               ->whereDate('created_at','<=',$request->to_date);
@@ -581,9 +617,42 @@ class InvoiceController extends Controller
       Order::where('id',$id)->delete();
     }
 
-    public function getPayments(){
+    public function getPayments(Request $request){
 
-        $payments = Invoices::where('status','Paid')->orWhere('status','Partial Paid')->with('job','client')->orderBy('id','desc')->paginate(20);
+        $payments = Invoices::with('job','client');
+
+        if(isset($request->from_date) && isset($request->to_date)){
+            $payments = $payments->whereDate('created_at','>=',$request->from_date)
+                                 ->whereDate('created_at','<=',$request->to_date);
+         }
+  
+         if(isset($request->invoice_id)){
+            $payments = $payments->where('invoice_id',$request->invoice_id);
+         }
+  
+         if(isset($request->txn_id)){
+          $payments = $payments->where('txn_id',$request->txn_id);
+         }
+  
+         if(isset($request->pay_method)){
+          $payments = $payments->where('pay_method',$request->pay_method);
+         }
+  
+  
+          if(isset($request->client)){
+              $q = $request->client;
+              $ex = explode(' ',$q); 
+              $payments = $payments->WhereHas('client',function ($qr) use ($q,$ex){
+                  $qr->where(function($qr) use ($q,$ex) {
+                  $qr->where('firstname', 'like','%'.$ex[0].'%');
+                  if(isset($ex[1]))
+                  $qr->where('lastname', 'like','%'.$ex[1].'%');
+              });
+          });
+        }
+         
+        $payments = $payments->orderBy('id','desc')->where('status','Paid')->orWhere('status','Partial Paid')->paginate(20);
+       
         return response()->json([
             'pay' =>$payments
         ]);
