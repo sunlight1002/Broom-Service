@@ -10,16 +10,12 @@ import Select from 'react-select';
 
 export default function AddInvoce() {
 
-    const [amount, setAmount] = useState();
+    const [amount, setAmount] = useState(0);
     const [dueDate, setDueDate] = useState();
     const [customer, setCustomer] = useState();
-    const [job, setJob] = useState();
-    const [subtotal, setSubtotal] = useState();
-    const [taxper, setTaxPer] = useState();
-    const [taxAmount, setTaxAmount] = useState();
-    const [services, setServices] = useState();
     const [selectedJobs, setSelectedJobs] = useState(null);
-    const [lng,setLng] = useState();
+    const [job,setJob] = useState();
+    const [lng, setLng] = useState();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -29,7 +25,10 @@ export default function AddInvoce() {
 
     const [clients, setClients] = useState();
     const [cjobs, setCjobs] = useState();
-    const [jservices, setjServices] = useState();
+    const [jservices, setjServices] = useState([]);
+
+    const [corders, setCOrders] = useState();
+    const [codes,setCodes] = useState();
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -42,23 +41,24 @@ export default function AddInvoce() {
             });
     }
 
-    const clientJobs = (cid) => {
-        setSelectedJobs(null);
-        setCjobs([]);
+
+    const clientOrders = (cid) => {
+        setCOrders([]);
         axios
-            .post(`/api/admin/get-client-jobs`, { cid }, { headers })
+            .post(`/api/admin/get-client-invorders`, { cid }, { headers })
             .then((res) => {
                 let jar = [];
-                const j = res.data.jobs;
+                const j = res.data.orders;
+
 
                 if (j.length > 0) {
                     for (let i in j) {
-                        let n = Moment(j[i].start_date).format('DD - MMM') + " | " + j[i].shifts;
+                        let n = Moment(j[i].start_date).format('DD - MMM') + " | #" + j[i].order_id;
                         jar.push(
-                            {  value: j[i].id, label: n },
+                            { value: j[i].id, label: n },
                         );
                     }
-                    setCjobs(jar);
+                    setCOrders(jar);
                 }
 
             })
@@ -68,103 +68,70 @@ export default function AddInvoce() {
         return array.indexOf(value) === index;
     }
 
+    const getJobs = (cid) => {
+        setCjobs([]);
+        axios
+            .post(`/api/admin/invoice-jobs`, { cid }, { headers })
+            .then((res) => {
+                setCjobs(res.data.jobs);
+            });
+    }
+
 
     const getServices = (sel) => {
 
-       
         let r_code = [];
         sel && sel.map((s, i) => {
             r_code.push(s.value);
         })
         let codes = r_code.filter(onlyUnique);
-        
+        setCodes(codes);
+        let total = 0;
         axios
-            .post(`/api/admin/invoice-jobs`, { codes }, { headers })
+            .post(`/api/admin/get-codes-order`, { codes }, { headers })
             .then((res) => {
-
                 let resp = res.data.services;
                 if (resp.length > 0) {
-                    setjServices(resp);
-                    setTimeout(()=>{
-                        let st = 0;
-                        for(let r in resp){
-                            $('.job_hour'+r).val(resp[r].job_hour);
-                            $('.price'+r).val(resp[r].total);
-                            st += parseFloat(resp[r].total);
-                        }
-                        $('.subtotal').val(st);
-                        document.querySelector('.total').innerHTML = (st);
-                    },500);
+                    for (let r in resp) {
+                        total += parseFloat(resp[r].unitprice);
+                    }
                 }
-
+                setAmount(total);
+                setjServices(resp);
             })
-
     }
 
-    const changePrice = (e) => {
 
-        setTimeout(()=>{
 
-            let pa = document.querySelectorAll('input[name="price"]');
-            let st = 0;
-            pa.forEach((e,i)=>{
-              if( e.value == null ){ e.value = 0 }
-              st += parseFloat(e.value);
-            });
-            $('.subtotal').val(st);
-            document.querySelector('.total').innerHTML = (st);
-            let t = $('.taxper').val();
-            let tx = (t != undefined) ? t: 0; 
-            changeTax(tx);
-
-        },200);
-    }
-
-    const changeTax = (tax) => {
-
-        let sub = document.querySelector('.subtotal').value;
-        document.querySelector('.total').innerHTML = 0;
-        if (sub == '') { alert.error('Please enter subtotal'); return; }
-        let ta = Math.ceil(((tax / 100) * sub));
-        setTaxAmount(ta);
-        document.querySelector('.total').innerHTML = parseFloat(ta) + parseFloat(sub);
-
+    const curr = (v) => {
+        let c = (v).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'ILS',
+        });
+        return c;
     }
 
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if(lng == undefined) { window.alert('client language is not set!'); return; }
+        if (lng == undefined) { window.alert('client language is not set!'); return; }
 
         if (customer == null) { alert.error('Please select customer'); return; }
         if (jservices == null) { alert.error('Please select job'); return; }
-       
-        const sdata = [];
-        jservices.forEach((js,i)=>{
+        let type = $('.doc').val();
+        if (type == 0) { alert.error('Please select document type'); return; }
 
-          sdata.push(
-            {
-                'id':js.id,
-                'service':  ( js.name != undefined ) ? ( ( lng == 'en') ? js.name : js.heb_name) : js.service,
-                'description': $('.description'+i).val(),
-                'job_hour': $('.job_hour'+i).val(),
-                'price': $('.price'+i).val(),
-            }
-          )
-        });
-      
 
         const data = {
             customer: customer,
-            job:JSON.stringify(selectedJobs),
-            services: (JSON.stringify(sdata)),
+            job:job,
+            codes:codes,
+            doctype:type,
+            services: (JSON.stringify(jservices)),
             due_date: (dueDate != undefined) ? dueDate : '',
-            subtotal: parseFloat(  $('.subtotal').val() ),
-            taxper: (taxper != undefined) ? taxper : 0,
-            total_tax: (taxAmount != undefined) ? parseFloat(taxAmount) : 0,
-            amount: parseFloat($('.total').text()),
-            status: 'pending'
+            amount: amount,
+            status: (type == 'invrec') ? 'Paid' : 'Unpaid'
 
         }
 
@@ -181,10 +148,10 @@ export default function AddInvoce() {
 
     useEffect(() => {
         getCustomers();
-        setTimeout(()=>{
+        setTimeout(() => {
             const cus = $('.cus').val();
-            axios.get(`/api/admin/clients/${1}`,{ headers }).then((res)=>{ setLng(res.data.client.lng )});
-           },1000);
+            axios.get(`/api/admin/clients/${1}`, { headers }).then((res) => { setLng(res.data.client.lng) });
+        }, 1000);
     }, []);
 
     return (
@@ -197,11 +164,24 @@ export default function AddInvoce() {
                         <form>
                             <div className="row">
                                 <div className="col-sm-12">
+
+                                <div className="form-group">
+                                        <label className="control-label">
+                                            Document Type
+                                        </label>
+                                        <select className='form-control doc'>
+                                            <option value={0}>-- select document --</option>
+                                            <option value="invoice">Invoice</option>
+                                            <option value="invrec">Invoice Receipt( Payment deduct from save card )</option>
+                                        </select>
+
+                                    </div>
+
                                     <div className="form-group">
                                         <label className="control-label">
                                             Customer
                                         </label>
-                                        <select className='form-control' onChange={(e) => { setCustomer(e.target.value); clientJobs(e.target.value) }}>
+                                        <select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
                                             <option value={0}>-- select customer --</option>
                                             {
                                                 clients && clients.map((c, i) => {
@@ -217,105 +197,78 @@ export default function AddInvoce() {
                                         <label className="control-label">
                                             Job
                                         </label>
+                                        <select className='form-control' onChange={(e) => {setJob(e.target.value);clientOrders(e.target.value);}}>
+                                            <option value={0}>-- Select Job --</option>
+                                            {
+                                                cjobs && cjobs.map((j, i) => {
+                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts}</option>)
+                                                })
+                                            }
+                                        </select>
+
+
+                                    </div>
+
+
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Orders
+                                        </label>
                                         <Select
-                                                isMulti
-                                                name="colors"
-                                                options={cjobs}
-                                                className="basic-multi-single"
-                                                isClearable={true}
-                                                value={selectedJobs}
-                                                classNamePrefix="select"
-                                                onChange={(e) => { setSelectedJobs(e); getServices(e); }}
-                                            />
+                                            isMulti
+                                            name="colors"
+                                            options={corders}
+                                            className="basic-multi-single"
+                                            isClearable={true}
+                                            value={selectedJobs}
+                                            classNamePrefix="select"
+                                            onChange={(e) => { setSelectedJobs(e); getServices(e); }}
+                                        />
 
                                     </div>
                                 </div>
 
-                                {
-                                    jservices && jservices.map((js, i) => {
+                                {jservices.length > 0 && <div className="row col-sm-12" style={{ "margin": "3px" }}>
+                                    <table className='table table-bordered'>
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2">Details</th>
+                                                <th>unitprice</th>
+                                                <th>quantity</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                        return (
-                                            <>
+                                            {
+                                                jservices && jservices.map((js, i) => {
 
-                                                <div className="row col-sm-12" style={{"margin":"3px"}}>
+                                                    return (
+                                                        <>
+                                                            <tr>
+                                                                <td colspan="2">{js.description}</td>
+                                                                <td>{curr(js.unitprice)}</td>
+                                                                <td>{js.quantity}</td>
+                                                                <td>{curr(js.unitprice)}</td>
+                                                            </tr>
 
-                                                    <div className=''>
-                                                        <span className="hpoint">&#9755;</span>
-                                                    </div>
 
-                                                    <div className='col-sm-3'>
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Service
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                readOnly
-                                                                name="service"
-                                                                value={js.name}
-                                                                className="form-control"
-                                                                placeholder="Service"
-                                                                required
-                                                            />
+                                                        </>
+                                                    )
+                                                })
 
-                                                        </div>
-                                                    </div>
-                                                    <div className='col-sm-3'>
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Description
-                                                            </label>
-                                                            <textarea
-                                                                name="description"
-                                                                className={`form-control description`+i}
-                                                                placeholder="Description"
+                                            }
 
-                                                            />
-
-                                                        </div>
-                                                    </div>
-                                                    <div className='col-sm-3'>
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Job Hours
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="hours"
-                                                                className={`form-control job_hour`+i}
-                                                                placeholder="Job Hours"
-                                                                required
-                                                            />
-
-                                                        </div>
-                                                    </div>
-                                                    <div className='col-sm-2'>
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Price
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="price"
-                                                                onChange = {(e)=>changePrice(e)}
-                                                                className={`form-control price`+i}
-                                                                placeholder="Price"
-                                                                required
-                                                            />
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )
-                                    })
-
+                                        </tbody>
+                                    </table>
+                                </div>
                                 }
 
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Due Date
+                                            Due Date &nbsp;
+                                            <small color="red">( Default end of month )</small>
                                         </label>
                                         <input
                                             type="date"
@@ -331,61 +284,25 @@ export default function AddInvoce() {
                                     </div>
                                 </div>
 
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Subtotal
-                                        </label>
-                                        <input
-                                            type="number"
-                                            onChange={(e) =>
-                                                setSubtotal(e.target.value)
-                                            }
-                                            className="form-control subtotal"
-                                            placeholder="Subtotal"
-                                            required
-                                        />
+
+                                {amount != 0 && <div className="col-sm-12">
+                                    <div className="form-group text-center">
+
+                                        <h5>Total Amount : <span className="total">{curr(amount)}</span></h5>
 
                                     </div>
                                 </div>
-
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Tax percentage
-                                        </label>
-                                        <input
-                                            type="number"
-                                            onChange={(e) => {
-                                                setTaxPer(e.target.value);
-                                                changeTax(e.target.value);
-                                            }
-
-                                            }
-                                            className="form-control taxper"
-                                            placeholder="Tax %"
-                                            required
-                                        />
-
-                                    </div>
-                                </div>
-
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-
-                                        <h5>Total Payable Amount : <span className="total"></span></h5>
-
-                                    </div>
-                                </div>
+                                }
 
 
 
                                 <div className="form-group text-center col-sm-12">
                                     <input
                                         type="submit"
-                                        value="SAVE"
+                                        value="Generate Document"
                                         onClick={handleSubmit}
-                                        className="btn btn-pink saveBtn"
+                                        className="btn btn-success saveBtn"
+                                        disabled={amount == 0}
                                     />
                                 </div>
                             </div>

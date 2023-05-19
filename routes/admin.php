@@ -164,7 +164,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('invoice-jobs',[InvoiceController::class,'invoiceJobs']);
     Route::get('delete-invoice/{id}',[InvoiceController::class,'deleteInvoice']);
     Route::get('payments',[InvoiceController::class,'getPayments']);
+
     Route::get('close-doc/{id}/{type}',[InvoiceController::class,'closeDoc']);
+    Route::post('cancel-doc',[InvoiceController::class,'cancelDoc']);
+
     Route::get('order-manual-invoice/{id}',[InvoiceController::class,'manualInvoice']);
     Route::get('client-invoices/{id}',[InvoiceController::class,'getClientInvoices']);
 
@@ -174,7 +177,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::get('orders',[InvoiceController::class,'getOrders']);
     Route::get('client-orders/{id}',[InvoiceController::class,'getClientOrders']);
     Route::get('delete-oders/{id}',[InvoiceController::class,'deleteOrders']);
+    Route::post('get-codes-order',[InvoiceController::class,'getCodesOrders']);
 
+    //ManualInvoice
+    Route::get('client-invoice-job',[InvoiceController::class,'getClientInvoiceJob']);
+    Route::post('get-client-invorders',[InvoiceController::class,'clientInvoiceOrders']);
+    
 
     //Notifications
     Route::get('head-notice',[DashboardController::class,'headNotice'])->name('head-notice');

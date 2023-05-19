@@ -6,22 +6,29 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Moment from 'moment';
 import { Base64 } from "js-base64";
+import Swal from "sweetalert2";
 
 export default function Invoices() {
 
     const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
+    const [bt, setBt] = useState(true);
+    const [ch, setCh] = useState(false);
+    const [cancelDoc,setCancelDoc] = useState('');
+    const [dtype,setDtype] = useState('');
+    const [reason,setReason] = useState('');
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const [payId,setPayID] = useState(0);
-    const [paidAmount,setPaidAmount] = useState('');
-    const [amount,setAmount]         = useState();
-    const [txn,setTxn]               = useState('');
+    const [payId, setPayID] = useState(0);
+    const [paidAmount, setPaidAmount] = useState('');
+    const [amount, setAmount] = useState();
+    const [txn, setTxn] = useState('');
 
     const getInvoices = () => {
         axios
@@ -92,28 +99,72 @@ export default function Invoices() {
         if (paidAmount == '') { window.alert('Please enter amount'); return; }
 
         const m = document.querySelector('.mode').value;
+
+
         const stat = ((paidAmount) >= (amount)) ? 'Paid' : 'Partially Paid';
         const pm = {
-                'cc' : 'Credit Card',
-                'mt' : 'Bank Transfer',
-                'cash' : 'Cash',
-                'cheque': 'Cheque'
-            }
-        const data = {
+            'cc': 'Credit Card',
+            'mt': 'Bank Transfer',
+            'cash': 'Cash',
+            'cheque': 'Cheque'
+        }
+        const mdata = {
             'paid_amount': paidAmount,
             'pay_method': paidAmount > 0 ? pm[m] : '',
             'txn_id': txn,
             'status': paidAmount > 0 ? stat : 'Unpaid',
         }
-       
-      
+        let data = {};
+
+        if (m == 'mt') {
+            const btd = document.querySelector('.btd').value;
+            const ba = document.querySelector('.ba').value;
+            if(btd == ''){ window.alert('Please select bank transfer date'); return;}
+            if(ba == ''){ window.alert('please enter bank account'); return;}
+            data = {
+               ...mdata,
+               'date':btd,
+               'account':ba
+            }
+
+        } else if (m == 'cheque') {
+
+            const cd = document.querySelector('.cd').value;
+            const cbk = document.querySelector('.cbk').value;
+            const cb = document.querySelector('.cb').value;
+            const ca = document.querySelector('.ca').value;
+            const cno = document.querySelector('.cno').value;
+            if(cd == ''){ window.alert('please select cheque date'); return;}
+            if(cbk == ''){ window.alert('please enter cheque bank'); return;}
+            if(cb == ''){ window.alert('please enter cheque branch'); return;}
+            if(ca == ''){ window.alert('please enter cheque account'); return;}
+            if(cno == ''){ window.alert('please enter cheque number'); return;}
+
+            data = {
+                ...mdata,
+                'date':cd,
+                'bank':cbk,
+                'branch':cb,
+                'account':ca,
+                'number':cno,
+             }
+
+
+        } else {
+            data = {...mdata};
+        }
+
+        let sb = $('.sbtn').prop('disabled',true);
+        sb.html('Please wait..');
         axios.post(`/api/admin/update-invoice/${payId}`, { data }, { headers })
             .then((res) => {
                 document.querySelector('.closeb1').click();
+                sb.prop('disabled',false);
+                sb.html('Save Payment');
                 getInvoices('');
                 setPaidAmount('');
                 setPayID(0);
-             
+
             })
 
     }
@@ -146,7 +197,7 @@ export default function Invoices() {
         });
     };
 
-    const closeDoc = (id,type) => {
+    const closeDoc = (id, type) => {
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -173,18 +224,36 @@ export default function Invoices() {
         });
     };
 
-    const filter = (e) =>{
+    const handleCancel = (e) => {
+
+        e.preventDefault();
+        const data = {
+            "doctype":dtype,
+            "docnum" :cancelDoc,
+            "reason" :reason
+        }
+       
+      axios
+      .post(`/api/admin/cancel-doc`,{ data },{ headers })
+      .then((res)=>{
+        $(".closeb11").click();
+        Swal.fire(res.data.msg,"","info");
+        getInvoices();
+      })
+    }
+
+    const filter = (e) => {
         e.preventDefault();
         let fils = document.querySelectorAll('.filter');
         let d = '';
-        fils.forEach((el,i)=>{ 
-          if(el.value !== 'Please Select')
-          d+= el.name +"="+el.value+"&";
-          
-        }) 
-        
+        fils.forEach((el, i) => {
+            if (el.value !== 'Please Select')
+                d += el.name + "=" + el.value + "&";
+
+        })
+
         axios
-            .get(`/api/admin/invoices?${d}`,{ headers })
+            .get(`/api/admin/invoices?${d}`, { headers })
             .then((res) => {
                 if (res.data.invoices.data.length > 0) {
                     setInvoices(res.data.invoices.data);
@@ -194,6 +263,22 @@ export default function Invoices() {
                     setLoading('No Invoice Found');
                 }
             })
+    }
+
+    const handleMethod = (e) => {
+        let v = e.target.value;
+        if (v == 'mt') {
+            setBt(true);
+            setCh(false);
+        }
+        else if (v == 'cheque') {
+            setBt(false);
+            setCh(true);
+        } else {
+            setBt(false);
+            setCh(false);
+        }
+
     }
 
     useEffect(() => {
@@ -208,14 +293,14 @@ export default function Invoices() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Manage Invoices</h1>
                         </div>
-                        {/*<div className="col-sm-6">
+                        <div className="col-sm-6">
                             <Link
                                 to="/admin/add-invoice"
                                 className="ml-2 btn btn-pink addButton">
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Create Invoice
                             </Link>
-                        </div>*/}
+                        </div>
                     </div>
                 </div>
                 <div className="sales-filter">
@@ -275,7 +360,7 @@ export default function Invoices() {
                         </div>
                         <div className="col-sm-2 col-6">
                             <label className="control-label d-block">&nbsp;</label>
-                            <button className="btn btn-pink" onClick={e=>filter(e)} style={{minWidth: "100px"}}>Filter</button>
+                            <button className="btn btn-pink" onClick={e => filter(e)} style={{ minWidth: "100px" }}>Filter</button>
                         </div>
                     </div>
                 </div>
@@ -334,13 +419,16 @@ export default function Invoices() {
                                                                     <div className="dropdown-menu">
                                                                         <a target="_blank" href={item.doc_url} className="dropdown-item">View Invoice</a>
                                                                         {
-                                                                            item.status != 'Paid' && <button onClick={(e) => {setPayID(item.id);setAmount(item.amount)}} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
                                                                             >Add Payment</button>
                                                                         }
-                                                                       
+
                                                                         {
-                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => {closeDoc(item.invoice_id,item.type)}} className="dropdown-item"
+                                                                            item.invoice_icount_status == 'Open' && <button onClick={(e) => { closeDoc(item.invoice_id, item.type) }} className="dropdown-item"
                                                                             >Close Doc</button>
+                                                                        }
+                                                                        { item.invoice_icount_status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                                            >Cancel Doc</button>
                                                                         }
                                                                         <button onClick={e => handleDelete(item.id)} className="dropdown-item"
                                                                         >Delete</button>
@@ -388,10 +476,232 @@ export default function Invoices() {
                 </div>
 
                 <div className="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="exampleModal">Add Payment</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Amount
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={paidAmount}
+                                                onChange={(e) =>
+                                                    setPaidAmount(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter Amount"
+                                            ></input>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Transaction / Refrence ID
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={txn}
+                                                onChange={(e) =>
+                                                    setTxn(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter Transaction / Refrence ID"
+                                            ></input>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Payment Mode
+                                            </label>
+                                            <select name='mode' className='form-control mode' onChange={e => handleMethod(e)} >
+                                                <option value='mt'    >Bank Transfer</option>
+                                                <option value='cash' >By Cash</option>
+                                                <option value='cc'     >Credit Card</option>
+                                                <option value='cheque' >By Cheque</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                {bt == true &&
+                                    <div>
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Bank Transfer Date
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        className="form-control btd"
+                                                        required
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Account
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control ba"
+                                                        placeholder="Bank account ID where BankTransfer was deposited"
+                                                        required
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                }
+
+                                {ch == true &&
+                                    <div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Cheque Date
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        className="form-control cd"
+                                                        required
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Cheque Bank
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control cbk"
+                                                        required
+                                                        placeholder="Cheque Bank"
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Cheque Branch
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control cb"
+                                                        required
+                                                        placeholder="Cheque Branch"
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Cheque account
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control ca"
+                                                        required
+                                                        placeholder="Cheque account"
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Cheque number
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control cno"
+                                                        required
+                                                        placeholder="Cheque number"
+                                                    ></input>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+
+
+
+
+
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary closeb1" data-dismiss="modal">Close</button>
+                                <button type="button" onClick={handlePayment} className="btn btn-primary sbtn">Save Payment</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModal">Add Payment</h5>
+                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -401,75 +711,31 @@ export default function Invoices() {
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">
-                                            Amount
-                                        </label>
-                                        <input
-                                            type="text"
-                                             value={paidAmount}
+                                       
+                                        <textarea
                                                 onChange={(e) =>
-                                                    setPaidAmount(e.target.value)
+                                                    setReason(e.target.value)
                                                 }
                                             className="form-control"
                                             required
-                                            placeholder="Enter Amount"
-                                        ></input>
+                                            placeholder="Enter Reason(optional)"
+                                        ></textarea>
 
                                     </div>
                                 </div>
                                     
                             </div>
 
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Transaction / Refrence ID
-                                        </label>
-                                        <input
-                                            type="text"
-                                             value={txn}
-                                            onChange={(e) =>
-                                                setTxn(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Enter Transaction / Refrence ID"
-                                        ></input>
-
-                                    </div>
-                                </div>
-                                    
-                            </div>
-
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                        Payment Mode
-                                        </label>
-                                        <select   name='mode' className='form-control mode'>
-                                         <option  value='mt'    >Bank Transfer</option>
-                                         <option  value='cash' >By Cash</option>
-                                         <option  value='cc'     >Credit Card</option>
-                                         <option  value='cheque' >By Cheque</option>
-                                        </select>
-
-                                    </div>
-                                </div>
-                                    
-                            </div>
                             
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary closeb1" data-dismiss="modal">Close</button>
-                            <button type="button" onClick={handlePayment} className="btn btn-primary">Save Payment</button>
+                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
+                            <button type="button" onClick={e=>handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            </div>
         </div>
 
     )

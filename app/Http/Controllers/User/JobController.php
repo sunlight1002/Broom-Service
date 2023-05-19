@@ -643,8 +643,8 @@ public function scheduledInvoice($id, $oid){
                 "duedate"        => $due,
                 "based_on"       =>['docnum'=>$order->order_id,'doctype'=>'order'],
                 
-                "send_email"      => 0, 
-                "email_to_client" => 0, 
+                "send_email"      => 1, 
+                "email_to_client" => 1, 
                 "email_to"        => $job->client->email, 
                 
         );
