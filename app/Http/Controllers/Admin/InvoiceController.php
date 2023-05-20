@@ -9,13 +9,14 @@ use App\Models\Job;
 use App\Models\Order;
 use App\Models\ClientCard;
 use App\Models\JobService;
+use App\Models\Receipts;
 use App\Models\Refunds;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use PDF;
 class InvoiceController extends Controller
 {
     public function index(Request $request){
-       $invoices = Invoices::with('client');
+       $invoices = Invoices::with('client','receipt');
 
        if(isset($request->from_date) && isset($request->to_date)){
           $invoices = $invoices->whereDate('created_at','>=',$request->from_date)
@@ -199,22 +200,53 @@ class InvoiceController extends Controller
             'invoice' => $invoice
         ]);
     }
+
+    public function getInvoiceIcount($docnum){
+        
+        $url = "https://api.icount.co.il/api/v3.php/doc/info";
+        $params = Array(
+
+                "cid"            => env('ICOUNT_COMPANYID'),
+                "user"           => env('ICOUNT_USERNAME'),
+                "pass"           => env('ICOUNT_PASS'),
+                "doctype"        => 'invoice',
+                "docnum"         => $docnum,
+                "get_items"      =>1
+                
+        );
+      
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        $re = json_decode($response);
+        return $re;
+
+    }
+
     public function updateInvoice( Request $request, $id ){
-      /*  $inv = Invoices::where('id',$id)->with('client')->get()->first();
-        $orders = Order::where('job_id',$inv->job_id)->get();
+
+        $inv = Invoices::where('id',$id)->with('client')->get()->first();
+        $client = $inv->client;
         $mode = $request->data['pay_method'];
         $pdata = $request->data;
         $total = 0;
-        if(!empty($orders)){
-            $client = $orders[0]->client;
-            $card   = ClientCard::where('client_id',$client->id)->get()->first();
-            $services = [];
-            foreach($orders as $od){
-              $s = json_decode($od->items);
-              $services[] = $s[0];
-            }
-           
-            $name     =  ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
+        
+        if($inv->amount <= $pdata['paid_amount'] && $inv->type == 'invoice'):
+
+            $services = $this->getInvoiceIcount($inv->invoice_id);
+
+            $sum = 0;
+            $items = ($services->doc_info->items);
+            if(!empty($items)){
+                foreach($items as $itm){
+                    $sum += (int)$itm->unitprice;
+                }
+    
+
+            $card = ClientCard::where('client_id',$client->id)->get();
+            $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
             $url = "https://api.icount.co.il/api/v3.php/doc/create";
             $params = Array(
     
@@ -229,7 +261,7 @@ class InvoiceController extends Controller
                     "lang"           => $client->lng,
                     "currency_code"  => "ILS",
                     "doc_lang"       => $client->lng,
-                    "items"          => $services,
+                    "items"          => $items,
                     "based_on"       =>['docnum'=>$inv->invoice_id,'doctype'=>'invoice'],
                     
                     "send_email"      => 1, 
@@ -241,7 +273,7 @@ class InvoiceController extends Controller
     
                 $ex = explode('-',$card->valid);
                 $cc = ['cc'=>[
-                    "sum" => $pdata['paid_amount'],
+                    "sum" => $sum,
                     "card_type" => $card->card_type,
                     "card_number" => substr($card->card_number,12), 
                     "exp_year" => $ex[0],
@@ -255,26 +287,26 @@ class InvoiceController extends Controller
             }
             else if($mode == "Bank Transfer"){
                     $bt = ["banktransfer" =>[
-                        "sum"    => $pdata['paid_amount'],
+                        "sum"    => $sum,
                         "date"   => $pdata['date'],
                         "account"=> $pdata['account'],
                     ]];
                     $_params = array_merge($params,$bt);
             }
             else if($mode == "Cheque"){
-                $ch = ["cheques" =>[
-                    "sum"    => $pdata['paid_amount'],
+                $ch = ["cheques" =>[[
+                    "sum"    => $sum,
                     "date"   => $pdata['date'],
                     "bank"   => $pdata['bank'],
                     "branch" => $pdata['branch'],
-                    "account" => $pdata['account'],
+                    "account" =>$pdata['account'],
                     "number" => $pdata['number']
-                ]];
+                ]]];
                 $_params = array_merge($params,$ch);
            }
            else if($mode == "Cash"){
                 $cs = ["cash" =>[
-                    "sum"    => $pdata['paid_amount'],
+                    "sum"    => $sum,
                 ]];
                 $_params = array_merge($params,$cs);
            }
@@ -282,7 +314,7 @@ class InvoiceController extends Controller
             else {
                 $_params = $params;
             }
-         
+           
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_params, null, '&'));
@@ -292,17 +324,28 @@ class InvoiceController extends Controller
             
             //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
             $json = json_decode($response, true);
-            echo "<pre>";
-            print_r($json);
            
-            dd($request->data['pay_method']);
+            if(!empty($json)){
+                $args = [
+                    'invoice_id' => $inv->id,
+                    'invoice_icount_id' => $inv->invoice_id,
+                    'receipt_id' => $json['docnum'],
+                    'docurl' => $json['doc_url'],
+                ];
+                $rcp = Receipts::create($args);
+                $this->closeDoc($inv->invoice_id,'invoice');
+                Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed','receipt_id'=>$rcp->id]);
+            }
           
-          
-        }*/
+        }
+           
+    endif;
+
         $idata = [
             'pay_method'=>$request->data['pay_method'],
             'txn_id'    =>$request->data['txn_id'],
-            'paid_amount'=>$request->data['paid_amount']
+            'paid_amount'=>$request->data['paid_amount'],
+            'status'     => $request->data['status']
         ];
         
         Invoices::where('id',$id)->update($idata);

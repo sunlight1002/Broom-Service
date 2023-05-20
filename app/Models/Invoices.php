@@ -22,6 +22,7 @@ class Invoices extends Model
         'callback',
         'pay_method',
         'invoice_icount_status',
+        'receipt_id',
         'status'
     ];
 
@@ -30,6 +31,9 @@ class Invoices extends Model
     }
     public function job(){
         return $this->belongsTo(Job::class,'job_id');
+    }
+    public function receipt(){
+        return $this->belongsTo(Receipts::class,'receipt_id');
     }
    
 }

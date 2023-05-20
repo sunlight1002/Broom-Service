@@ -427,8 +427,11 @@ export default function Invoices() {
                                                                             item.invoice_icount_status == 'Open' && <button onClick={(e) => { closeDoc(item.invoice_id, item.type) }} className="dropdown-item"
                                                                             >Close Doc</button>
                                                                         }
-                                                                        { item.invoice_icount_status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                                        { item.invoice_icount_status != 'Cancelled' && item.invoice_icount_status != 'Closed' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
                                                                             >Cancel Doc</button>
+                                                                        }
+                                                                        {
+                                                                            item.receipt &&  <a target="_blank" href={item.receipt.docurl} className="dropdown-item">View Receipt</a>
                                                                         }
                                                                         <button onClick={e => handleDelete(item.id)} className="dropdown-item"
                                                                         >Delete</button>
