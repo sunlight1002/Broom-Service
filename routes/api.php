@@ -28,6 +28,7 @@ Route::get('get101/{id}',[AuthController::class, 'get101']);
 
 Route::get('order_generate',[JobController::class, 'jobOrderGenerate']); 
 Route::get('invoice_every1630',[JobController::class, 'jobInvoiceGenerate']); 
+Route::get('invoice_every1700',[JobController::class, 'regularInvoice']); 
 
 // Authenticated Routes
 Route::group( ['middleware' => ['auth:api','scopes:user'] ],function(){

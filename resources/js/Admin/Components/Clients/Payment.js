@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from 'moment';
 import { Base64 } from "js-base64";
@@ -11,6 +11,9 @@ export default function Payment() {
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [pay, setPay]   = useState([]);
+    const params = useParams();
+    const id = params.id;
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -19,7 +22,7 @@ export default function Payment() {
 
     const getOrders = () => {
         axios
-            .get('/api/admin/payments', { headers })
+            .get(`/api/admin/client-payments/${id}`, { headers })
             .then((res) => {
                 if (res.data.pay.data.length > 0) {
                     setPay(res.data.pay.data);
@@ -72,7 +75,7 @@ export default function Payment() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/payments?page=" + currentPage, { headers })
+            .get(`/api/admin/client-payments/${id}?page=` + currentPage, { headers })
             .then((response) => {
                 if (response.data.pay.data.length > 0) {
                     setPay(response.data.pay.data);

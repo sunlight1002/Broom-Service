@@ -203,6 +203,7 @@ class JobController extends Controller
     public function jobOrderGenerate(){
       
         $jobs = Job::where(['start_date'=>Carbon::today()->format('Y-m-d'),'isOrdered'=>0])->get();
+    
         $_shifts = [
             'fullday-8am-16pm'   => '08:30:00-16:00:00',
             'morning'            => '08:30:00-10:00:10',
@@ -236,7 +237,7 @@ class JobController extends Controller
                 $start  =  Carbon::createFromFormat('Y-m-d H:i:s', $_start);
                 $end    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
                 $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
-               
+                
                 if( ($start->lt($now) ) && ($end->gt($now))  ){
                     $this->order($job->id);
                 }
@@ -287,8 +288,8 @@ class JobController extends Controller
         "items" => $items,
     
 
-        "send_email" => 1, 
-        "email_to_client" => 1, 
+        "send_email" => 0, 
+        "email_to_client" => 0, 
         "email_to" => $job->client->email, 
         );
        
@@ -309,6 +310,7 @@ class JobController extends Controller
                 'order_id'=>$json['docnum'],
                 'doc_url' =>$json['doc_url'],
                 'job_id'=>$id,
+                'contract_id'=>$job->contract_id,
                 'client_id'=>$job->client->id,
                 'response' => $response,
                 'items' => json_encode($items),
@@ -543,7 +545,7 @@ class JobController extends Controller
             'job_id'     => $id,
             'amount'     => $total,
             'paid_amount'=> $total,
-            'pay_method' => 'Credit Card',
+            'pay_method' => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? 'Credit Card' : 'NA',
             'customer'   => $job->client->id,
             'doc_url'    => $json['doc_url'],
             'type'       => $doctype,
@@ -565,62 +567,179 @@ class JobController extends Controller
         JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
         Order::where('id',$oid)->update(['invoice_status'=>2]);
 
-    } // demand services invoices
-
-     else {
-       
-        if($job->schedule == 'w'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addDays(7);
-        }
-        if($job->schedule == '2w'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addDays(14);
-        }
-        if($job->schedule == '3w'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addDays(21);
-        }
-        if($job->schedule == 'm'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addMonths(1);
-        }
-        if($job->schedule == '2m'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addMonths(2);
-        }
-        if($job->schedule == '3m'){
-            $date = Carbon::parse($job->start_date);
-            $newDate = $date->addMonths(3);
-        }
-    
-        $today = Carbon::today()->format('Y-m-d');
-    
-        if( $today == $newDate->format('Y-m-d') ){
-           $this->scheduledInvoice($id,$oid);
-        }
-     }
+    } 
 
     }
 
+    public function commitRegularInvoicePayment($service , $total, $token, $client){
 
-public function scheduledInvoice($id, $oid){
    
-        $job = Job::where(['id'=>$id , 'status' => 'progress'])->with('jobservice','client','contract','order')->get()->first();
-        $services = json_decode($job->order->items);
+        $pitems[] = [
+            'ItemDescription' => $service[0]->description,
+            'ItemQuantity'    => $service[0]->quantity,
+            'ItemPrice'       => $total,
+            'IsTaxFree'       => "false"
+        ];
+               
+
+      $pay_items = json_encode($pitems);
+
+      $curl = curl_init();
+
+      $pdata = '{
+        "TerminalNumber": "'.env("ZCREDIT_TERMINALNUMBER").'",
+        "Password": "'.env("ZCREDIT_TERMINALPASSWORD").'",
+        "Track2": "",
+        "CardNumber": "'.$token.'",
+        "CVV": "",
+        "ExpDate_MMYY": "",
+        "TransactionSum": "'.$total.'",
+        "NumberOfPayments": "1",
+        "FirstPaymentSum": "0",
+        "OtherPaymentsSum": "0",
+        "TransactionType": "01",
+        "CurrencyType": "1",
+        "CreditType": "1",
+        "J": "0",
+        "IsCustomerPresent": "true",
+        "AuthNum": "",
+        "HolderID": "",
+        "ExtraData": "",
+        "CustomerName":"'.$client->firstname." ".$client->lastname.'",
+        "CustomerAddress": "'.$client->geo_address.'",
+        "CustomerEmail": "",
+        "PhoneNumber": "",
+        "ItemDescription": "",
+        "ObeligoAction": "",
+        "OriginalZCreditReferenceNumber": "",
+        "TransactionUniqueIdForQuery": "",
+        "TransactionUniqueID": "",
+        "UseAdvancedDuplicatesCheck": "",
+        "ZCreditInvoiceReceipt": {
+          "Type": "0",
+          "RecepientName": "",
+          "RecepientCompanyID": "",
+          "Address": "",
+          "City": "",
+          "ZipCode": "",
+          "PhoneNum": "",
+          "FaxNum": "",
+          "TaxRate": "17",
+          "Comment": "",
+          "ReceipientEmail": "",
+          "EmailDocumentToReceipient": "",
+          "ReturnDocumentInResponse": "",
+          "Items": '.$pay_items.'
+        }
+      }';
+    
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/CommitFullTransaction',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS =>$pdata,
+        CURLOPT_HTTPHEADER => array(
+          'Content-Type: application/json'
+        ),
+      ));
+     
+      $pre = curl_exec($curl);
+      $pres = json_decode($pre);
+      curl_close($curl);
+      return $pres;
+
+    }
+
+    public function regularInvoice(){
+        $orders = Order::Where('invoice_status',0)->get()->groupBy('contract_id');
+        if(!empty($orders)){
+           foreach($orders as $c => $od){
+               $this->scheduledInvoice($c);
+           }
+        } 
+    }
+
+    public function scheduledInvoice($cnid){
+        
+        $contract = Contract::where('id',$cnid)->with('client')->get()->first();
+        $client   = $contract->client;
+      
+        $orders = Order::where('contract_id',$cnid)->Where('invoice_status',0)->get();
+        
+        $st = 0;
+        $based_on = [];
+        $services = [];
+        $jids = [];
+        $makeInvoice = false;
+
+        if(!empty($orders)){
+            foreach($orders as $o){
+              
+              $bo = ['docnum'=>$o->order_id,'doctype'=>'order'];
+              $based_on[] = $bo;
+
+              $s = json_decode($o->items);
+              $st += (int)$s[0]->unitprice;
+              $services[] = $s[0];
+              
+              $job = Job::where('id',$o->job_id)->get()->first();
+
+            if($job->schedule == 'w'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(7);
+            }
+            if($job->schedule == '2w'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(14);
+            }
+            if($job->schedule == '3w'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(21);
+            }
+            if($job->schedule == 'm'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(1);
+            }
+            if($job->schedule == '2m'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(2);
+            }
+            if($job->schedule == '3m'){
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(3);
+            }
+        
+            $today = Carbon::today()->format('Y-m-d');
+            
+            if( $today !== $newDate->format('Y-m-d') ){
+              $jids[] = $job->id;
+              $makeInvoice = true;
+            }
+
+            }
+        }
+        
+        
+       if( $makeInvoice == true ):
+       
         $total = 0;
         
-        $card = ClientCard::where('client_id',$job->client_id)->get()->first();
-        $p_method = $job->client->payment_method;
-        $contract = $job->contract; 
+        $card = ClientCard::where('client_id',$client->id)->get()->first();
+        $p_method = $client->payment_method;
+        
         $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice"; 
        
-        $subtotal = (int)$services[0]->unitprice;
+        $subtotal = (int)$st;
         $tax = (17/100) * $subtotal;
         $total = $tax+$subtotal;
+        
       
-        $order = Order::where('job_id',$id)->get()->first();
-        $o_res = json_decode($order->response);
+        $o_res = json_decode($orders[0]->response);
      
         $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
         $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
@@ -641,10 +760,10 @@ public function scheduledInvoice($id, $oid){
                 "doc_lang"       => $job->client->lng,
                 "items"          => $services,
                 "duedate"        => $due,
-                "based_on"       =>['docnum'=>$order->order_id,'doctype'=>'order'],
+                "based_on"       =>$based_on,
                 
-                "send_email"      => 0, 
-                "email_to_client" => 0, 
+                "send_email"      => 1, 
+                "email_to_client" => 1, 
                 "email_to"        => $job->client->email, 
                 
         );
@@ -667,7 +786,8 @@ public function scheduledInvoice($id, $oid){
         } else {
             $_params = $params;
         }
-      
+        
+        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_params, null, '&'));
@@ -682,24 +802,24 @@ public function scheduledInvoice($id, $oid){
 
         /* Auto payment */
         if( $doctype == 'invrec'){
-            $pres = $this->commitPayment($services, $id, $card->card_token);
+            $pres = $this->commitRegularInvoicePayment($services, $total, $card->card_token, $client);
             $pre = json_encode($pres);
-          }
+        }
   
-      /*Close Order */
-          $this->closeDoc($job->order->order_id,'order');
-      
-          job::where('id',$id)->update([
+        foreach($jids as $j):
+          job::where('id',$j)->update([
               'invoice_no'    =>$json["docnum"],
               'invoice_url'   =>$json["doc_url"],
               'isOrdered'     => 2
           ]);
+        endforeach;
+
           $invoice = [
               'invoice_id' => $json['docnum'],
-              'job_id'     => $id,
+              'job_id'     => end($jids),
               'amount'     => $total,
               'paid_amount'=> $total,
-              'pay_method' => 'Credit Card',
+              'pay_method' => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? 'Credit Card' : 'NA',
               'customer'   => $job->client->id,
               'doc_url'    => $json['doc_url'],
               'type'       => $doctype,
@@ -717,10 +837,18 @@ public function scheduledInvoice($id, $oid){
             Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed']);
 
         }
-          Order::where('id',$job->order->id)->update(['status'=>'Closed']);
-          JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
-          Order::where('id',$oid)->update(['invoice_status'=>2]);
-      
+          
+      /*Close Order */
+
+      if(!empty($orders)){
+        foreach($orders as $o){
+          $this->closeDoc($o->order_id,'order');
+            Order::where('id',$o->id)->update(['status'=>'Closed','invoice_status'=>2]);
+            }
+    }
+
+    endif;
+    
  }
 
 }

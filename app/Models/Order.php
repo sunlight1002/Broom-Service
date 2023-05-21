@@ -14,6 +14,7 @@ class Order extends Model
         'job_id',
         'client_id',
         'doc_url',
+        'contract_id',
         'response',
         'items',
         'status',

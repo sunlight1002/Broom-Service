@@ -84,6 +84,29 @@ export default function Payments() {
             });
     };
 
+    const filter = (e) =>{
+        e.preventDefault();
+        let fils = document.querySelectorAll('.filter');
+        let d = '';
+        fils.forEach((el,i)=>{ 
+          if(el.value !== 'Please Select')
+          d+= el.name +"="+el.value+"&";
+          
+        }) 
+        
+        axios
+            .get(`/api/admin/payments?${d}`,{ headers })
+            .then((res) => {
+                if (res.data.pay.data.length > 0) {
+                    setPay(res.data.pay.data);
+                    setPageCount(res.data.pay.last_page);
+                } else {
+                    setPay([]);
+                    setLoading('No Payment Found');
+                }
+            })
+    }
+
     useEffect(() => {
         getOrders();
     }, []);
@@ -111,48 +134,48 @@ export default function Payments() {
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">From Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" className="form-control filter" name="from_date" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">To Date</label>
-                                <input type="date" className="form-control" />
+                                <input type="date" className="form-control filter" name="to_date"/>
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Invoice ID</label>
-                                <input type="text" className="form-control" placeholder="Order ID" />
+                                <input type="text" className="form-control filter" name="invoice_id" placeholder="Invoice ID" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Customer</label>
-                                <input type="text" className="form-control" placeholder="Customer" />
+                                <input type="text" className="form-control filter" name="client" placeholder="Customer" />
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Payment mode</label>
-                                <select className="form-control">
+                                <select className="form-control filter" name="pay_method">
                                     <option>Please Select</option>
-                                    <option>Credit Card</option>
-                                    <option>Bank Transfer</option>
-                                    <option>By Cheque</option>
-                                    <option>By Cash</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cheque">By Cheque</option>
+                                    <option value="Cash">By Cash</option>
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-3 col-6">
                             <div className="form-group">
                                 <label className="control-label">Transaction ID/Ref.</label>
-                                <input type="text" className="form-control" placeholder="Customer" />
+                                <input type="text" className="form-control filter" name="txn_id" placeholder="Transaction Id/Ref." />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <label className="control-label d-block">&nbsp;</label>
-                            <button className="btn btn-pink" style={{minWidth: "100px"}}>Filter</button>
+                            <button className="btn btn-pink" onClick={e=>filter(e)} style={{minWidth: "100px"}}>Filter</button>
                         </div>
                     </div>
                 </div>
@@ -182,7 +205,7 @@ export default function Payments() {
                                                     <Tr>
                                                         <Td>#{item.id}</Td>
                                                         <Td><a href={item.doc_url} target="_blank">{item.invoice_id}</a></Td>
-                                                        <Td>{ item.callback != null ? 'Credit Card' : item.pay_method }</Td>
+                                                        <Td>{ item.pay_method }</Td>
                                                         <Td>
                                                             {item.txn_id ? item.txn_id : 'NA'}
                                                         </Td>

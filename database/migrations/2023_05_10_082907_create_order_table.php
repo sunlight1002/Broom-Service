@@ -17,6 +17,7 @@ class CreateOrderTable extends Migration
             $table->id();
             $table->string('order_id');
             $table->string('job_id');
+            $table->unsignedBigInteger('contract_id');
             $table->unsignedBigInteger('client_id');
             $table->longText('doc_url');
             $table->longText('response');

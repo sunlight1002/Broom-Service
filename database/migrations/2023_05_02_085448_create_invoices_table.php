@@ -27,6 +27,7 @@ class CreateInvoicesTable extends Migration
             $table->string('txn_id')->nullable();
             $table->longText('session_id')->nullable();
             $table->longText('callback')->nullable();
+            $table->unsignedBigInteger('receipt_id')->nullable();
             $table->string('status');
             $table->string('invoice_icount_status')->default('Open');
             $table->timestamps();
