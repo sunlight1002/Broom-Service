@@ -227,6 +227,7 @@ class ClientEmailController extends Controller
       else {$offer->add_card = 1; }
 
       return response()->json([
+        'old_contract'=>env('OLD_CONTRACT'),
         'offer' => $goffer,
         'contract'=>$offer,
       ]);

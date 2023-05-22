@@ -14,7 +14,7 @@ export default function Schedule() {
   const [loading, setLoading] = useState("Loading...");
   const [pageCount, setPageCount] = useState(0);
   const navigate = useNavigate();
-  
+  const [filter,setFilter] = useState('');
   const headers = {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export default function Schedule() {
   const handlePageClick = async (data) => {
     let currentPage = data.selected + 1;
     axios
-      .get("/api/admin/schedule?page=" + currentPage, { headers })
+      .get("/api/admin/schedule?page=" + currentPage+"&q="+filter, { headers })
       .then((response) => {
         if (response.data.schedules.data.length > 0) {
           setSchedules(response.data.schedules.data);
@@ -148,7 +148,7 @@ export default function Schedule() {
             </div>
             <div className="col-sm-6">
               <div className="search-data">
-                <input type='text' className="form-control" onChange={filterSchedules} placeholder="Search" />
+                <input type='text' className="form-control" onChange={(e)=>{filterSchedules(e);setFilter(e.target.value);}} placeholder="Search" />
               </div>
             </div>
             <div className='col-sm-6 hidden-xl mt-4'>

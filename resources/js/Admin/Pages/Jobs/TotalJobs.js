@@ -17,6 +17,7 @@ export default function TotalJobs() {
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
+    const [filter,setFilter] = useState('');
     const [from,setFrom] = useState([]);
     const [to,setTo] = useState([]);
     const alert = useAlert();
@@ -76,7 +77,7 @@ export default function TotalJobs() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/jobs?page=" + currentPage+"&filter_week=all", { headers })
+            .get("/api/admin/jobs?page=" + currentPage+"&filter_week=all&q="+filter, { headers })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
@@ -350,7 +351,7 @@ export default function TotalJobs() {
                         <div className="col-sm-7 hidden-xs">
                             <div className="job-buttons">
                                 <input type="hidden" id="filter-week" />
-                                <button className="btn btn-info" onClick={(e)=>{filterJobDate('all')}} style={{background: "#858282", borderColor: "#858282"}}> All Jobs</button>
+                                <button className="btn btn-info" onClick={(e)=>{filterJobDate('all');setFilter(e.target.value)}} style={{background: "#858282", borderColor: "#858282"}}> All Jobs</button>
                                 <button className="ml-2 btn btn-success" onClick={(e)=>{filterJobDate('current')}}> Current week</button>
                                 <button className="ml-2 btn btn-pink" onClick={(e)=>{filterJobDate('next')}}> Next week</button>
                                 <button className="ml-2 btn btn-primary" onClick={(e)=>{filterJobDate('nextnext')}}> Next Next week</button>

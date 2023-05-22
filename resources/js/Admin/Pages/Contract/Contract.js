@@ -12,6 +12,7 @@ export default function Contract() {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
+    const [filter,setFilter] = useState('');
     const navigate = useNavigate();
     
     const headers = {
@@ -49,7 +50,7 @@ export default function Contract() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/contract?page=" + currentPage, { headers })
+            .get("/api/admin/contract?page=" + currentPage+"&q="+filter, { headers })
             .then((response) => {
                 if (response.data.contracts.data.length > 0) {
                     setContracts(response.data.contracts.data);
@@ -177,7 +178,7 @@ export default function Contract() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input type='text' className="mr-0 form-control" onChange={filterContracts} placeholder="Search" />
+                                <input type='text' className="mr-0 form-control" onChange={(e)=>{filterContracts(e);setFilter(e.target.value)}} placeholder="Search" />
                             </div>
                         </div>
                         <div className='col-sm-6 hidden-xl mt-4'>

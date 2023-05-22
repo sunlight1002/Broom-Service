@@ -12,6 +12,7 @@ export default function OfferPrice() {
     const [offers, setOffers] = useState();
     const [totalOffers, setTotalOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
+    const [filter,setFilter] = useState('');
     const [pageCount, setPageCount] = useState(0);
     const navigate = useNavigate();
     const [copy,setCopy] = useState([]);
@@ -41,7 +42,7 @@ export default function OfferPrice() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/offers?page=" + currentPage, { headers })
+            .get("/api/admin/offers?page=" + currentPage+"&q="+filter, { headers })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
                     setTotalOffers(response.data.offers.data);
@@ -154,7 +155,7 @@ export default function OfferPrice() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input type='text' className="form-control" onChange={filterOffers} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e)=>{filterOffers(e);setFilter(e.target.value);}} placeholder="Search" />
                                 <Link to="/admin/add-offer" className="btn btn-pink addButton"><i class="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>
