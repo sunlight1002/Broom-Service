@@ -25,7 +25,7 @@ return [
    ],
     'thanks' => [
         'head_txt'=>'הכרטיס שלך נוסף בהצלחה',
-        'sub_txt'=>'TPlease proceed to sign the contract.',
+        'sub_txt'=>'אנא חזור לדף הקודם וחתום על ההסכם',
     ]
 ];
 ?>

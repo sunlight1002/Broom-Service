@@ -20,6 +20,7 @@ Route::get('/view-invoice/{id}',[InvoiceController::class,'viewInvoice']);
 Route::get('/generate-payment/{id}',[InvoiceController::class,'generatePayment']);
 Route::get('/record-invoice/{sesid}/{cid}',[InvoiceController::class,'recordInvoice']);
 Route::get('/thanks/{id}',[InvoiceController::class,'displayThanks'])->name('thanks');
+Route::get('/webhook_fb',[DashboardController::class,'fbWebhook'])->name('webhook_fb');
 
 // Auth::routes();
 Route::any( '/{path?}', function(){

@@ -11,6 +11,7 @@ use App\Models\Schedule;
 use App\Models\Contract;
 use App\Models\notifications;
 use App\Models\Admin;
+use App\Models\Fblead;
 use App\Models\Services;
 use App\Models\JobService;
 use App\Models\serviceSchedules;
@@ -414,5 +415,17 @@ class DashboardController extends Controller
       
   }
 
-   
+  public function fbWebhook(Request $request){
+
+    $challenge = $request->hub_challenge;
+    if(!empty($challenge)):
+    $verify_token = env('FB_WEBHOOK_TOKEN');
+    
+    if ($verify_token === '598b0b618076e48a3b772f9ae155ba32') {
+        Fblead::create(json_encode($challenge));
+        return $challenge;
+    }
+  endif;
+  }
+ 
 }
