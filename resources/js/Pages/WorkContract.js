@@ -908,8 +908,8 @@ export default function WorkContract() {
                             <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
                                 <div className="modal-content" >
                                     <div className="modal-header">
-                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
+                                        <button type="button" className="btn btn-secondary" data-dismiss="modal" aria-label="Close">
+                                        {t('work-contract.back_btn')}
                                         </button>
                                     </div>
                                     <div className="modal-body">
