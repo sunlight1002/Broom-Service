@@ -394,9 +394,9 @@ class InvoiceController extends Controller
             "Key": "'.env("ZCREDIT_KEY").'",
             "Local": "He",
             "UniqueId": "",
-            "SuccessUrl": "",
+            "SuccessUrl": "'.url('/thanks').'/'.$cid.'",
             "CancelUrl": "",
-            "CallbackUrl": "",
+            "CallbackUrl": "'.url('/thanks').'/'.$cid.'",
             "PaymentType": "regular",
             "CreateInvoice": "false",
             "AdditionalText": "",
@@ -462,22 +462,12 @@ class InvoiceController extends Controller
                 die('Something went wrong ! Please contact Administrator !');
             }
             //Invoices::where('id',$id)->update(['session_id'=>$re->Data->SessionId]);
-            return response()->json(["url"=>$re->Data->SessionUrl]);
+            return response()->json(["url"=>$re->Data->SessionUrl,'session_id'=>$re->Data->SessionId]);
     }
-    public function recordInvoice(Request $request){
-       
-        $id = base64_decode($request->cb);
-       
-        $invoice = Invoices::where('id',$id)->get()->first();
-        $job = Job::where('id',$invoice->job_id)->with('order','client')->get()->first();
-        $isreceipt = 0;
-        if($job->client->payment_method != 'cc'){ $isreceipt = 1; }
-       
-        $docnum = $job->order->order_id;
-        $sid = $invoice->session_id;
+   
+    public function recordInvoice($sid, $cid){
+
         $key = env('ZCREDIT_KEY');
-       
-    if(is_null($invoice->callback)):
 
         $curl = curl_init();
       
@@ -503,57 +493,25 @@ class InvoiceController extends Controller
         $re = json_decode($response);
         curl_close($curl);
         $cb = json_decode($re->CallBackJSON);
+   
+        $x = explode('/',$cb->ExpDate_MMYY);
+        $expiry = "20".$x[1]."-".$x[0];
         if(!empty($cb)){
            $args = [
-             'callback' => $re->CallBackJSON,
-             'status' => 'paid',
-             'txn_id' => $re->TransactionID,
+             'client_id' => $cid,
+             'card_token'=>$cb->Token,
+             'valid'     =>$expiry,
+             'cc_charge' => 1,
            ];
-
-        // $services = json_decode($invoice->services);
-    
-        // if(!empty($services)){
-        //     foreach($services as $s){
-        //         JobService::where('id',$s->id)->update(['pay_status'=>1]);
-        //     }
-        // }
-      
-        $url = "https://api.icount.co.il/api/v3.php/doc/close";
-        $params = Array(
-
-        "cid"  => env('ICOUNT_COMPANYID'),
-        "user" => env('ICOUNT_USERNAME'),
-        "pass" => env('ICOUNT_PASS'),
-        "doctype" => "order",
-        "docnum"  => $docnum,
-        "based_on"=> $docnum
-        );
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $rec = curl_exec($ch);
-            $r_info = curl_getinfo($ch);
-
-            //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
-           // $json = json_decode($response, true);
-        Order::where('id',$job->order->id)->update(['status'=>'Closed']);
-        Invoices::where('id',$id)->update($args);
+        ClientCard::create($args);
         
-        } else {
-            die('Something went wrong ! Please contact Administrator !');
-        }
-       
-    endif;
-    return redirect('thanks?cb='.$request->cb.'');
-     
+    
     }
+}
 
-    public function displayThanks(Request $request){
-        $invoice = Invoices::where('id',base64_decode($request->cb))->with('client')->get()->first();
-        $pm = json_decode($invoice->callback)->Total;
-        return view('thanks',compact('invoice','pm'));
+    public function displayThanks($id){
+        $client = Client::where('id',$id)->get()->first()->toArray();
+        return view('thanks',compact('client'));
     
     } 
     public function deleteInvoice($id){

@@ -36,7 +36,7 @@ export default function WorkContract() {
     const [submit, setSubmit] = useState(false);
     const [oc, setOc] = useState(null);
     const [gurl,setGurl] = useState('');
-
+    const [sesid,setSesid] = useState(null);
     const handleAccept = (e) => {
 
         if (!cname) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
@@ -57,7 +57,7 @@ export default function WorkContract() {
             signature: signature,
             card_sign: signature2
         }
-        if (submit == false) { window.alert(t('work-contract.messages.add_card_err')); return; }
+        if (submit == false && sesid == null) { window.alert(t('work-contract.messages.add_card_err')); return; }
 
         if (oc == true) {
             const cdata = {
@@ -71,9 +71,18 @@ export default function WorkContract() {
                 "cvv": cvv.substring(0, 3),
             }
 
-            axios.
-                post(`/api/client/save-card`, { cdata })
-                .then((re) => {})
+            // axios.
+            //     post(`/api/client/save-card`, { cdata })
+            //     .then((re) => {})
+        } 
+
+        if(oc == false){
+
+            if(sesid == null){ window.alert(t('Something went work with adding card. Please try again')); return;  }
+            axios
+            .get(`/record-invoice/${sesid}/${client.id}`)
+            .then((res)=>{});
+            
         }
 
         axios
@@ -173,11 +182,12 @@ export default function WorkContract() {
     }
 
     const handleCard = (e) => {
-
+       
         axios
         .get(`/generate-payment/${client.id}`)
         .then((res)=>{
             setGurl(res.data.url);
+            setSesid(res.data.session_id);
             $("#exampleModal2").modal('show');
         });
         /*
@@ -621,7 +631,7 @@ export default function WorkContract() {
                                     <td style={{ width: "60%" }}>{t('work-contract.add_card_txt')}</td>
                                     <td>
                                         {
-                                            (status == 'not-signed') && <button className='btn btn-success' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
+                                            (status == 'not-signed' && sesid == null) && <button className='btn btn-success ac' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
                                         }
                                         {
                                             (status != 'not-signed') && <span className='text text-success font-weight-bold' > Verified </span>
@@ -898,7 +908,6 @@ export default function WorkContract() {
                             <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
                                 <div className="modal-content" >
                                     <div className="modal-header">
-                                        
                                         <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
