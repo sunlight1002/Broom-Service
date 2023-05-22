@@ -10,6 +10,7 @@ export default function Clients() {
 
     const [clients, setClients] = useState([]);
     const [pageCount, setPageCount] = useState(0);
+    const [filter,setFilter] = useState('');
     const [loading, setLoading] = useState("Loading...");
     const navigate = useNavigate();
     const headers = {
@@ -54,7 +55,7 @@ export default function Clients() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/clients?page=" + currentPage, { headers })
+            .get("/api/admin/clients?page=" + currentPage+"&q="+filter, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -145,7 +146,7 @@ export default function Clients() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input type='text' className="form-control" onChange={filterClients} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e)=>{filterClients(e);setFilter(e.target.value)}} placeholder="Search" />
                                 <Link to="/admin/add-client" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>

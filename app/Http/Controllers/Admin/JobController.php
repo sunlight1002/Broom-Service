@@ -32,6 +32,7 @@ class JobController extends Controller
         $jobs = Job::with('worker', 'client','offer','jobservice');
 
         if($q != ''){
+            
             $jobs = $jobs->orWhereHas('worker',function ($qr) use ($q){
                      $qr->where(function($qr) use ($q) {
                      $qr->where(DB::raw('firstname'), 'like','%'.$q.'%');
@@ -50,6 +51,7 @@ class JobController extends Controller
                      $qr->orWhere(DB::raw('heb_name'), 'like','%'.$q.'%');
                  });
              });
+             $jobs = $jobs->orWhere('status', 'like','%'.$q.'%');
         }
          // if($w != ''){
            if( (is_null($w) || $w == 'current') && $w != 'all'){

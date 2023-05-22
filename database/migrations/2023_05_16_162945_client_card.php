@@ -16,10 +16,10 @@ class ClientCard extends Migration
         Schema::create('client_card', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id');
-            $table->string('card_number');
-            $table->string('card_type');
-            $table->longText('valid');
-            $table->longText('cvv');
+            $table->string('card_number')->nullable();
+            $table->string('card_type')->nullable();
+            $table->longText('valid')->nullable();
+            $table->longText('cvv')->nullable();
             $table->string('cc_charge')->default(0);
             $table->longText('card_token');
             $table->timestamps();

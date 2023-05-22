@@ -23,7 +23,15 @@ class ContractController extends Controller
         $q = $request->q;
         $result = Contract::query()->with('client','offer');  
         
-        $result->orWhere('status','like','%'.$q.'%');
+        $status = '';
+        if(strtolower($q) === 'un-verified'){ $status = 'un-verified';}
+        if(strtolower($q) === 'verified'){ $status = 'verified';}
+        if(strtolower($q) === 'not-signed'){ $status = 'not-signed';}
+        if(strtolower($q) === 'declined'){ $status = '';}
+      
+        if($status != ''){
+        $result->orWhere('status','=',$status);
+        }
         
         $result = $result->orWhereHas('client',function ($qr) use ($q){
              $qr->where(function($qr) use ($q) {

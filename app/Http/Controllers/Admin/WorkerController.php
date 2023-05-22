@@ -27,12 +27,20 @@ class WorkerController extends Controller
    
         $q = $request->q;
         $result = User::query();
+
+        $status = '';
+        if(strtolower($q) === "active"){ $status = 1; }
+        if(strtolower($q) === "inactive"){ $status = 0; }
+
         $result->where('firstname',  'like','%'.$q.'%');
         $result->orWhere('lastname', 'like','%'.$q.'%');
         $result->orWhere('phone',    'like','%'.$q.'%');
         $result->orWhere('address',  'like','%'.$q.'%');
-        $result->orWhere('status',   'like','%'.$q.'%');
+       
         // $result->orWhere('email',    'like','%'.$q.'%');
+        if($status != ''){
+            $result->orWhere('status',   'like','%'.$status.'%');
+        }
 
         $result = $result->orderBy('id', 'desc')->paginate(20);
 

@@ -34,12 +34,18 @@ export default function WorkContract() {
     const [exy, setExy] = useState('0');
     const [exm, setExm] = useState('0');
     const [submit, setSubmit] = useState(false);
+    const [oc, setOc] = useState(null);
+
     const handleAccept = (e) => {
 
         if (!cname) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
         if (!signature2) { swal(t('work-contract.messages.sign_card_err'), '', 'error'); return false; }
         if (!signature) { swal(t('work-contract.messages.sign_err'), '', 'error'); return false; }
+        if( oc == true){
+            if (!ctype) { window.alert(t('work-contract.messages.card_type_err')); return false; }
+            if (!cvv) { window.alert(t('work-contract.messages.cvv_err')); return false; }
 
+        }
         const data = {
             unique_hash: param.id,
             offer_id: offer[0].id,
@@ -51,6 +57,24 @@ export default function WorkContract() {
             card_sign: signature2
         }
         if (submit == false) { window.alert(t('work-contract.messages.add_card_err')); return; }
+
+        if (oc == true) {
+            const cdata = {
+
+                "cid": client.id,
+                "card_type": ctype,
+                "card_number": "",
+                "valid": "",
+                "cc_charge": 0,
+                "card_token": "",
+                "cvv": cvv.substring(0, 3),
+            }
+
+            axios.
+                post(`/api/client/save-card`, { cdata })
+                .then((re) => {})
+        }
+
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
@@ -96,7 +120,8 @@ export default function WorkContract() {
                     setClient(res.data.offer[0].client);
                     setContract(res.data.contract);
                     setStatus(res.data.contract.status);
-                    if (res.data.contract.add_card == 0) { setSubmit(true); }
+                    setOc(res.data.old_contract);
+                    if (res.data.contract.add_card == 0 || res.data.old_contract == true) { setSubmit(true); }
                     i18next.changeLanguage(res.data.offer[0].client.lng);
 
                     if (res.data.offer[0].client.lng == 'heb') {
@@ -270,7 +295,8 @@ export default function WorkContract() {
                             "card_token": res.data.Token,
                             "cvv": cvv.substring(0, 3),
                         }
-
+                     
+                      
                         axios.
                             post(`/api/client/save-card`, { cdata })
                             .then((re) => {
@@ -522,6 +548,23 @@ export default function WorkContract() {
                                     </td>
                                 </tr>*/}
 
+                                {
+                                    oc != false &&
+                                    <tr>
+                                        <td><label className="control-label">
+                                            {t('work-contract.card_type')}
+                                        </label></td>
+                                        <td>
+                                            <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                                <option> {t('work-contract.please_select')}</option>
+                                                <option value='Visa'>Visa</option>
+                                                <option value='Master Card'>Master Card</option>
+                                                <option value='American Express'>American Express</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                }
+
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
@@ -532,6 +575,18 @@ export default function WorkContract() {
                                         }
                                     </td>
                                 </tr>
+
+                                {
+                                    oc != false &&
+                                    <tr>
+                                        <td> <label className="control-label">
+                                            {t('work-contract.card_cvv')}
+                                        </label></td>
+                                        <td>
+                                            <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
+                                        </td>
+                                    </tr>
+                                }
 
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.signature')}</td>
@@ -552,7 +607,7 @@ export default function WorkContract() {
 
                                     </td>
                                 </tr>
-                                {contract.add_card == 1 && <tr>
+                                {oc == false && contract.add_card == 1 && <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.add_card_txt')}</td>
                                     <td>
                                         {
@@ -810,7 +865,7 @@ export default function WorkContract() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        {t('work-contract.card_ex_month')}
+                                                        {t('work-contract.card_cvv')}
                                                     </label>
                                                     <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
                                                 </div>

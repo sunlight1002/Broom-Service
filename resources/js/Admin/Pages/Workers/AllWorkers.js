@@ -10,6 +10,7 @@ export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
+    const [filter,setFilter] = useState('');
     const navigate = useNavigate();
 
     const headers = {
@@ -35,7 +36,7 @@ export default function AllWorkers() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/workers?page=" + currentPage, { headers })
+            .get("/api/admin/workers?page=" + currentPage+"&q="+filter, { headers })
             .then((response) => {
                 if (response.data.workers.data.length > 0) {
                     setWorkers(response.data.workers.data);
@@ -143,7 +144,7 @@ export default function AllWorkers() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input type='text' className="form-control" onChange={filterWorker} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e)=>{filterWorker(e);filterWorker(e.target.value)}} placeholder="Search" />
                                 <Link to="/admin/add-worker" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>

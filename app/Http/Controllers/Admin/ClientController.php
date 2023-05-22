@@ -31,15 +31,25 @@ class ClientController extends Controller
     {
        
         $q = $request->q;
+        $s = $request->q;
         $result = Client::query();
+        
+        $status = '';
+        if(strtolower($s) === "lead"){ $status = 0; }
+        if(strtolower($s) === "potential customer"){ $status = 1; }
+        if(strtolower($s) === "customer"){ $status = 2; }
+
         $result->where('firstname',    'like','%'.$q.'%');
         $result->orWhere('lastname',   'like','%'.$q.'%');
         $result->orWhere('phone',      'like','%'.$q.'%');
         $result->orWhere('city',       'like','%'.$q.'%');
         $result->orWhere('street_n_no','like','%'.$q.'%');
         $result->orWhere('zipcode',    'like','%'.$q.'%');
-        $result->orWhere('status',     'like','%'.$q.'%');
         $result->orWhere('email',      'like','%'.$q.'%');
+
+        if($status != ''){
+            $result->orWhere('status',     'like','%'.$status.'%');
+        }
 
         $result = $result->orderBy('id', 'desc')->paginate(20);
         if(isset($result)){
