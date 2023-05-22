@@ -35,6 +35,7 @@ export default function WorkContract() {
     const [exm, setExm] = useState('0');
     const [submit, setSubmit] = useState(false);
     const [oc, setOc] = useState(null);
+    const [gurl,setGurl] = useState('');
 
     const handleAccept = (e) => {
 
@@ -173,6 +174,14 @@ export default function WorkContract() {
 
     const handleCard = (e) => {
 
+        axios
+        .get(`/generate-payment/${client.id}`)
+        .then((res)=>{
+            setGurl(res.data.url);
+            $("#exampleModal2").modal('show');
+        });
+        /*
+
         e.preventDefault();
         if (!ctype) { window.alert(t('work-contract.messages.card_type_err')); return false; }
         if (!card) { window.alert(t('work-contract.messages.card_msg')); return false; }
@@ -308,6 +317,7 @@ export default function WorkContract() {
                     })
 
             });
+            */
 
     }
 
@@ -611,7 +621,7 @@ export default function WorkContract() {
                                     <td style={{ width: "60%" }}>{t('work-contract.add_card_txt')}</td>
                                     <td>
                                         {
-                                            (status == 'not-signed') && <button className='btn btn-success' data-toggle="modal" data-target="#exampleModal">{t('work-contract.add_card_btn')}</button>
+                                            (status == 'not-signed') && <button className='btn btn-success' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
                                         }
                                         {
                                             (status != 'not-signed') && <span className='text text-success font-weight-bold' > Verified </span>
@@ -882,8 +892,45 @@ export default function WorkContract() {
                                 </div>
                             </div>
                         </div>
+
+                        {/*Iframe*/}
+                        <div className="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                            <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div className="modal-content" >
+                                    <div className="modal-header">
+                                        
+                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+
+                                        <div className="row">
+
+
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                <iframe src={gurl} title="Pay Card Transaction" width="100%" height="800"></iframe>
+                                                </div>
+                                            </div>
+
+                                          
+
+                                        </div>
+
+
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
+
+              
+  
             </div>
         </div>
 
