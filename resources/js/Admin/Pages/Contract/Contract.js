@@ -83,6 +83,7 @@ export default function Contract() {
             .then((res) => {
                 if (res.data.contracts.data.length > 0) {
                     setContracts(res.data.contracts.data);
+                    setPageCount(res.data.contracts.last_page);
                 } else {
                     setLoading("No contract found");
                 }

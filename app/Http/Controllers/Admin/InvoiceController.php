@@ -369,36 +369,24 @@ class InvoiceController extends Controller
         return $pdf->stream('invoice_'.$id.'.pdf');
     }
 
-    public function generatePayment($nid){
+    public function generatePayment($cid){
         
-        $id = base64_decode($nid);
-        $invoice = Invoices::where('id',$id)->get()->first();
-        $job  = Job::where('id',$invoice->job_id)->with('client','jobservice','order')->get()->first();
-        $_services = json_decode($job->order->items);
-        $client = $job->client;
-        
-        $subtotal = (int)$_services[0]->unitprice;
-        $tax = (17/100) * $subtotal;
-        $total = $tax+$subtotal;
-        
-        $services = array();
-       
-        foreach( $_services as $serv ){
+        $client = Client::where('id',$cid)->get()->first();
+      
            $services[] = [
             
-            "Amount"       => $total,
+            "Amount"       => "1.00",
             "Currency"     => "ILS",
-            "Name"         => $serv->description,
-            "Description"  => '', 
-            "Quantity"     =>  $serv->quantity,
+            "Name"         => "card Validation - ".$client->firstname." ".$client->lastname,
+            "Description"  => 'card validation transaction', 
+            "Quantity"     =>  1,
             "Image"        =>  "" ,
             "IsTaxFree"    =>  "false",
             "AdjustAmount" => "false"
             
            ];
-        }
         $se = json_encode($services);
-       
+      
         $username = '0882016016';
         $password = 'Z0882016016';
 
@@ -406,9 +394,9 @@ class InvoiceController extends Controller
             "Key": "'.env("ZCREDIT_KEY").'",
             "Local": "He",
             "UniqueId": "",
-            "SuccessUrl": "'.url('/record-invoice?cb='.$nid).'",
+            "SuccessUrl": "",
             "CancelUrl": "",
-            "CallbackUrl": "'.url('/record-invoice?cb='.$nid).'",
+            "CallbackUrl": "",
             "PaymentType": "regular",
             "CreateInvoice": "false",
             "AdditionalText": "",
@@ -473,8 +461,8 @@ class InvoiceController extends Controller
             if($re->HasError == true){
                 die('Something went wrong ! Please contact Administrator !');
             }
-            Invoices::where('id',$id)->update(['session_id'=>$re->Data->SessionId]);
-            return redirect($re->Data->SessionUrl);
+            //Invoices::where('id',$id)->update(['session_id'=>$re->Data->SessionId]);
+            return response()->json(["url"=>$re->Data->SessionUrl]);
     }
     public function recordInvoice(Request $request){
        
