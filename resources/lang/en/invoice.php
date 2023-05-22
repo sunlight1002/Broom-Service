@@ -24,12 +24,8 @@ return [
        'mailsubject'=>'Job Invoice'
    ],
    'thanks' => [
-        'head_txt'=>'YOUR PAYMENT HAS BEEN RECEIVED',
-        'sub_txt'=>'Thank you for your payment, it’s processing',
-        'txn_txt'=>'Your Transaction Id is',
-        'paid_txt'=>'Paid amount is',
-        'invoice_txt'=>'Invoice Id is',
-        'btn_txt'=>'CONTINUE'
+        'head_txt'=>'YOUR CARD IS ADDED SUCCESSFULLY',
+        'sub_txt'=>'Please proceed to sign the contract.',
    ]
 ];
 ?>
