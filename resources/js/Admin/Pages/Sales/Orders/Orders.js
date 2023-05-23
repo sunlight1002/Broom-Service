@@ -215,8 +215,20 @@ export default function Orders() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <div className="titleBox customer-title">
-                    <h1 className="page-title">Manage Orders</h1>
+            <div className="titleBox customer-title">
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <h1 className="page-title">Manage Orders</h1>
+                        </div>
+                        <div className="col-sm-6">
+                            <Link
+                                to="/admin/add-order"
+                                className="ml-2 btn btn-pink addButton">
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                Create Order
+                            </Link>
+                        </div>
+                    </div>
                 </div>
                 <div className="sales-filter">
                     <div className="row">

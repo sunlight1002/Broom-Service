@@ -108,8 +108,8 @@ import Notification from './Admin/Pages/Notification/Notification';
 import Income from './Admin/Pages/Income'
 import Invoices from './Admin/Pages/Sales/Invoices/Invoices';
 import AddInvoice from './Admin/Pages/Sales/Invoices/AddInvoice';
-import EditInvoice from './Admin/Pages/Sales/Invoices/EditInvoice';
 import Orders from './Admin/Pages/Sales/Orders/Orders';
+import AddOrder from './Admin/Pages/Sales/Orders/AddOrder';
 import Payments from './Admin/Pages/Sales/Payments/payments';
 
 TimeAgo.addDefaultLocale(en)
@@ -236,7 +236,7 @@ export default function MyRoutes() {
                      <Route exact path="income" element={<Income />} />
                      <Route exact path="invoices" element={<Invoices />} />
                      <Route exact path="add-invoice" element={<AddInvoice />} />
-                     <Route exact path="edit-invoice/:id" element={<EditInvoice />} />
+                     <Route exact path="add-order" element={<AddOrder />} />
                      <Route exact path="orders" element={<Orders />} />
                      <Route exact path="payments" element={<Payments />} />
                   </Route>
