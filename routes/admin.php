@@ -162,6 +162,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::get('get-invoice/{id}',[InvoiceController::class,'getInvoice']);
     Route::post('update-invoice/{id}',[InvoiceController::class,'updateInvoice']);
     Route::post('invoice-jobs',[InvoiceController::class,'invoiceJobs']);
+    Route::post('order-jobs',[InvoiceController::class,'orderJobs']);
     Route::get('delete-invoice/{id}',[InvoiceController::class,'deleteInvoice']);
     Route::get('payments',[InvoiceController::class,'getPayments']);
 
@@ -178,6 +179,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::get('client-orders/{id}',[InvoiceController::class,'getClientOrders']);
     Route::get('delete-oders/{id}',[InvoiceController::class,'deleteOrders']);
     Route::post('get-codes-order',[InvoiceController::class,'getCodesOrders']);
+    Route::post('add-order',[InvoiceController::class,'AddOrder']);
 
     //ManualInvoice
     Route::get('client-invoice-job',[InvoiceController::class,'getClientInvoiceJob']);

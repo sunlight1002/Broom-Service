@@ -361,6 +361,13 @@ class InvoiceController extends Controller
         ]);
     }
 
+    public function orderJobs( Request $request ){
+        $services = Job::where('id',$request->id)->with('jobservice','client')->get();            
+        return response()->json([
+            'services' => $services
+        ]);
+    }
+
     public function viewInvoice($gid){
         $id = base64_decode($gid); 
         $invoice = Invoices::where('id',$id)->with('client')->get()->first();
@@ -884,6 +891,82 @@ class InvoiceController extends Controller
         return response()->json([
             'orders' =>$orders
         ]);
+    }
+
+    public function AddOrder(Request $request){
+
+        $id = $request->data['job'];
+        $job = Job::where('id',$id)->with('jobservice','client')->get()->first();
+      
+        $services = json_decode($request->data['services']);
+
+        // $items = []; 
+        // if(isset($services)){
+        //     foreach($services as $service){
+                
+        //       $itm = [
+        //         "description" => $service->name." - ".\Carbon\Carbon::today()->format('d, M Y'),
+        //         "unitprice"   => $service->total,
+        //         "quantity"    => 1,
+        //       ];
+        //       array_push($items,$itm);
+        //     }
+        //     JobService::where('id',$service->id)->update(['order_status'=>1]);
+        // }
+     
+        $invoice  = 1;
+        if( str_contains($job->schedule,'w') ){ 
+            $invoice = 0;
+        }
+        $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
+        $url = "https://api.icount.co.il/api/v3.php/doc/create";
+        $params = Array(
+
+        "cid"  => env('ICOUNT_COMPANYID'),
+        "user" => env('ICOUNT_USERNAME'),
+        "pass" => env('ICOUNT_PASS'),
+        "doctype" => "order",
+        "client_name" => $name, 
+        "client_address" => $job->client->geo_address,
+        "email" => $job->client->email, 
+        "lang" => $job->client->lng,
+        "currency_code" => "ILS",
+        
+        "items" => $services,
+    
+
+        "send_email" => 0, 
+        "email_to_client" => 0, 
+        "email_to" => $job->client->email, 
+        );
+       
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($ch);
+            $info = curl_getinfo($ch);
+         
+            //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
+            $json = json_decode($response, true);
+           
+           //if(!$json["status"]) die($json["reason"]);
+           
+            Order::create([
+                'order_id'=>$json['docnum'],
+                'doc_url' =>$json['doc_url'],
+                'job_id'=>$id,
+                'contract_id'=>$job->contract_id,
+                'client_id'=>$job->client->id,
+                'response' => $response,
+                'items' => json_encode($services),
+                'status' => 'Open',
+                'invoice_status'=>( $invoice == 1) ? 1 : 0,
+            ]);   
+            Job::where('id',$id)->update(['isOrdered'=>1]);   
+
+    
     }
 
     public function getClientOrders($id){
