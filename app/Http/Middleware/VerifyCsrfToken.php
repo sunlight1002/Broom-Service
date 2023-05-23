@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
 
-        'record-invoice/'
+        'record-invoice/',
+        'webhook_fb'
     ];
 }
