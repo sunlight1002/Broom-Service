@@ -418,13 +418,14 @@ class DashboardController extends Controller
   public function fbWebhook(Request $request){
     
     $challenge = $request->hub_challenge;
+  
     if(!empty($challenge)):
-
-    $verify_token = env('FB_WEBHOOK_TOKEN');
+      
+    $verify_token = $request->hub_verify_token;
     
-    if ($verify_token === '598b0b618076e48a3b772f9ae155ba32') {
+    if ( $verify_token === env('FB_WEBHOOK_TOKEN') ) {
 
-        Fblead::create(json_encode($challenge));
+        Fblead::create(["challenge"=>$challenge]);
         return $challenge;
 
     }
