@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Contract;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Validator;
 use Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail as FacadesMail;
+
 class JobController extends Controller
 {
     /**
@@ -519,7 +522,31 @@ class JobController extends Controller
             ], 200);
     }
     public function cancelJob(Request $request){ 
+        $job = Job::with('worker','client','jobservice')->find($request->id); 
         Job::where('id',$request->id)->update(['status'=>'cancel']);
+
+        $admin = Admin::find(1)->first();
+        \App::setLocale('en');
+        $data = array(
+           'by'         =>'admin',
+           'email'      =>$admin->email,
+           'admin'      =>$admin->toArray(),
+           'job'        => $job->toArray(),
+        );
+
+        FacadesMail::send('/ClientPanelMail/JobStatusNotification',$data,function($messages) use ($data){
+           $messages->to($data['job']['client']['email']);
+           $ln = $data['job']['client']['lng'];
+           
+           ($data['by'] == 'admin') ?
+           $sub = ($ln == 'en') ? ('Job has been cancelled')." #".$data['job']['id']:
+           $data['job']['id']."# ".('העבודה בוטלה')
+           :
+           $sub = __('mail.client_job_status.subject')." #".$data['job']['id'];
+
+           $messages->subject($sub);
+         });
+
         return response()->json([
             'msg'=>'Job cancelled succesfully!'
         ]);

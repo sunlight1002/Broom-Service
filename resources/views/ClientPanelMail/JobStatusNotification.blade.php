@@ -13,13 +13,22 @@
 		<table cellpadding="0" cellspacing="0" width="100%" >
 			<tr>
 				<td width="100%">
-					<img src="http://broom-service.n2rtech.com/images/sample.png" style="margin: 0 auto;display: block">
+					<img src='{{url("/images/sample.png")}}' style="margin: 0 auto;display: block">
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.client_job_status.hi')}}, {{$admin['name']}} </h1>
+		<h1 style="text-align: center;">{{__('mail.client_job_status.hi')}}, {{($by == 'client') ? $admin['name'] : $job['client']['firstname']." ".$job['client']['lastname'] }} </h1>
+		
+		@if($by == 'client')
 		<p style="text-align: center;line-height: 30px"> {{__('mail.client_job_status.content')}} {{ ucfirst($job['status']) }}. 
-		{{__('mail.client_job_status.cancellation_fee')}} {{ $job['rate'] }}ILS.
+		@if(  $job['rate'] != '' ) 
+		{{__('mail.client_job_status.cancellation_fee')}} {{  $job['rate'] }} ILS.
+		@endif
+
+		@else
+		<p style="text-align: center;line-height: 30px"> Job is marked as  {{ ucfirst($job['status']) }} by admin/team. 
+
+		@endif
 	   </p>
 		
          <table cellpadding="0" cellspacing="0" width="100%">
@@ -43,7 +52,7 @@
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['start_time'] }} to {{ $job['end_time'] }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px;display:flex;height: 38px">
-						<a href='{{ url("worker/view-job/".$job["id"] ) }}' style="font-size: 13px;color: #007bff;min-width: 51px">View Job</a>
+						<a href='{{ url("client/login") }}' style="font-size: 13px;color: #007bff;min-width: 51px">View Job</a>
 					</td>
 				</tr>
 			</tbody>
