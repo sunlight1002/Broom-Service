@@ -1,8 +1,11 @@
 import React  from 'react'
 import { Base64 } from 'js-base64'
+import { Link } from 'react-router-dom';
 
 export default function WorkerDetails({worker, job}) {
-
+    var cords = (worker.latitude && worker.longitude)
+    ? worker.latitude + "," + worker.longitude : 'NA';
+   
   return (
     <>
                     <h2 className="text-custom">Worker Details</h2>
@@ -12,7 +15,7 @@ export default function WorkerDetails({worker, job}) {
                                 <div className='col-sm-6'>
                                     <div className='form-group'>
                                         <label className='control-label'>Worker Name</label>
-                                         <p>{worker.firstname} {worker.lastname}</p>
+                                         <p><Link  to={`/admin/view-worker/${worker.id}`}> {worker.firstname} </Link> {worker.lastname}</p>
                                     </div>
                                 </div>
                                 <div className='col-sm-6'>
@@ -30,7 +33,7 @@ export default function WorkerDetails({worker, job}) {
                                 <div className='col-sm-8'>
                                     <div className='form-group'>
                                         <label className='control-label'>Address</label>
-                                        <p>{worker.address}</p>
+                                        <p><Link target="_blank" to={`https://maps.google.com?q=${cords}`}>{worker.address}</Link></p>
                                     </div>
                                 </div>
                                 {
