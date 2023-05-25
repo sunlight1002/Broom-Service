@@ -42,8 +42,8 @@
 					           {{ $js['heb_name'].', ' }}
 						  @else
 						       {{ $js['name'].', ' }}
-						  @endif;
-					   @endforeach;
+						  @endif
+					   @endforeach
 					
 				   </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>

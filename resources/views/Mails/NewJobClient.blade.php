@@ -26,7 +26,8 @@
 		<h1 style="text-align: center;">{{__('mail.client_new_job.hi')}}, {{ $name }}</h1>
 		
 		@if($lng == 'heb')
-		<p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}}{{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>
+		<!--<p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}}{{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>-->
+		<p style="text-align: center;line-height: 30px"> לקוח יקר, זהו אישור על השירות שהזמנת. לצפיה בפרטים. </p>
 		@else
         <p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}} {{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>
 		@endif
@@ -55,8 +56,8 @@
 					           {{ $js['heb_name'].', ' }}
 						  @else
 						       {{ $js['name'].', ' }}
-						  @endif;
-					@endforeach;
+						  @endif
+					@endforeach
 
 				      </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['job']['shifts'] }} </td>

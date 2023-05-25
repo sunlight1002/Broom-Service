@@ -107,11 +107,11 @@ class JobController extends Controller
 
              );
 
-            //  Mail::send('/WorkerPanelMail/JobStatusNotification',$data,function($messages) use ($data){
-            //     $messages->to($data['email']);
-            //     $sub = __('mail.job_status.subject');
-            //     $messages->subject($sub);
-            //   });
+             Mail::send('/WorkerPanelMail/JobStatusNotification',$data,function($messages) use ($data){
+                $messages->to($data['email']);
+                $sub = __('mail.job_status.subject');
+                $messages->subject($sub);
+              });
 
         return response()->json([
             'message'        => 'job completed',            

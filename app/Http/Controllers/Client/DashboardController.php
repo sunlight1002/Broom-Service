@@ -406,6 +406,7 @@ class DashboardController extends Controller
              $admin = Admin::find(1)->first();
              \App::setLocale('en');
              $data = array(
+                'by'         =>'client',
                 'email'      =>$admin->email,
                 'admin'      =>$admin->toArray(),
                 'job'        => $job->toArray(),
