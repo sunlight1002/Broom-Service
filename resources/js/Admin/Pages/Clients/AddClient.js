@@ -39,8 +39,8 @@ export default function AddClient() {
     const navigate = useNavigate();
 
     const [libraries] = useState(["places", "geometry"]);
-    const [latitude, setLatitude] = useState(-33.865143);
-    const [longitude, setLongitude] = useState(151.2099);
+    const [latitude, setLatitude] = useState(32.109333);
+    const [longitude, setLongitude] = useState(34.855499);
     const [address, setAddress] = useState("");
     const [place, setPlace] = useState();
     Geocode.setApiKey("AIzaSyDVR2fXPoEVoCNLIqagX5GQzna3feez4lI");
