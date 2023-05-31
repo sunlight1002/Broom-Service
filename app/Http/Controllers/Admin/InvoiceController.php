@@ -113,7 +113,14 @@ class InvoiceController extends Controller
                 
         );
         if($doctype == "invrec"){
-   
+            
+            if($card == null){
+                return response()->json([
+                    'rescode' => 401,
+                    'msg' => 'Card Not Added for this user'
+                ]);
+            }
+
             $ex = explode('-',$card->valid);
             $cc = ['cc'=>[
                 "sum" => $total,
@@ -198,7 +205,10 @@ class InvoiceController extends Controller
     public function getInvoice($id){
         $invoice = Invoices::where('id',$id)->with('client')->get()->first();
         return response()->json([
+
+            'rescode' => 201,
             'invoice' => $invoice
+
         ]);
     }
 

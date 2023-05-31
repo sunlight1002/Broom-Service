@@ -7,6 +7,8 @@ import { useAlert } from 'react-alert';
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
 import { SelectPicker } from 'rsuite';
+import swal from 'sweetalert';
+import { error } from 'jquery';
 
 export default function AddInvoce() {
 
@@ -137,10 +139,17 @@ export default function AddInvoce() {
 
         axios.post(`/api/admin/add-invoice`, { data }, { headers })
             .then((res) => {
+               
+                if(res.data.rescode != 401){
                 alert.success('Invoice created successfully');
                 setTimeout(() => {
                     navigate('/admin/invoices');
                 }, 1000);
+
+            } else{
+                swal(res.data.msg,'','error');
+            }
+
             })
 
     }
@@ -148,13 +157,12 @@ export default function AddInvoce() {
         return { value: c.id, label: (c.firstname + ' ' + c.lastname) };
     });
 
-
+    const fetchLng = (cus) => {
+        axios.get(`/api/admin/clients/${cus}`, { headers }).then((res) => { setLng(res.data.client.lng) });
+    }
     useEffect(() => {
         getCustomers();
-        setTimeout(() => {
-            const cus = $('.cus').val();
-            axios.get(`/api/admin/clients/${1}`, { headers }).then((res) => { setLng(res.data.client.lng) });
-        }, 1000);
+      
     }, []);
 
     return (
@@ -184,7 +192,7 @@ export default function AddInvoce() {
                                         <label className="control-label">
                                             Customer
                                         </label>
-                                        <SelectPicker data={cData} onChange={(value, event) => {setCustomer(value);getJobs(value);}} size="lg" required />
+                                        <SelectPicker data={cData} onChange={(value, event) => {setCustomer(value);getJobs(value);fetchLng(value)}} size="lg" required />
                                         {/*<select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
                                             <option value={0}>-- select customer --</option>
                                             {
