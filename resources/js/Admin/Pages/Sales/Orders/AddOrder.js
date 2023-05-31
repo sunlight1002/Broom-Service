@@ -102,7 +102,7 @@ export default function AddOrder() {
                         for (let r in resp) {
 
                             let d = Moment(res.data.services[r].start_date).format('DD MMM, Y');
-                            console.log(resp[r].name+" - "+d);
+                          
                             (lng == 'heb') ?
                             $('.details' + r).val(resp[r].heb_name+" - "+d)
                             :$('.details' + r).val(resp[r].name+" - "+d);
@@ -220,7 +220,7 @@ export default function AddOrder() {
                                             <option value={0}>-- Select Job --</option>
                                             {
                                                 cjobs && cjobs.map((j, i) => {
-                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts}</option>)
+                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts+" | "+j.service_name}</option>)
                                                 })
                                             }
                                         </select>

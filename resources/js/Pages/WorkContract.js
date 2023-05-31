@@ -631,7 +631,7 @@ export default function WorkContract() {
                                     <td style={{ width: "60%" }}>{t('work-contract.add_card_txt')}</td>
                                     <td>
                                         {
-                                            (status == 'not-signed' && sesid == null) && <button className='btn btn-success ac' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
+                                            (status == 'not-signed' && submit == false) && <button className='btn btn-success ac' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
                                         }
                                         {
                                             (status != 'not-signed') && <span className='text text-success font-weight-bold' > Verified </span>

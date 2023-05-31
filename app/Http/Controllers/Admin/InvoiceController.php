@@ -11,6 +11,7 @@ use App\Models\ClientCard;
 use App\Models\JobService;
 use App\Models\Receipts;
 use App\Models\Refunds;
+use App\Models\Services;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use PDF;
 class InvoiceController extends Controller
@@ -355,7 +356,13 @@ class InvoiceController extends Controller
     }
     public function invoiceJobs( Request $request){
 
-        $jobs = Job::where('client_id',$request->cid)->where('status','!=','completed')->get();            
+        $jobs = Job::where('client_id',$request->cid)->where('status','!=','completed')->get();    
+        if(!empty($jobs)){
+            foreach($jobs as $j => $job){
+                $sv = Services::where('id',$job->schedule_id)->get('name')->first();
+                $jobs[$j]['service_name'] = $sv->name;
+            }
+        }        
         return response()->json([
             'jobs' => $jobs
         ]);
@@ -384,22 +391,23 @@ class InvoiceController extends Controller
             
             "Amount"       => "1.00",
             "Currency"     => "ILS",
-            "Name"         => "card Validation - ".$client->firstname." ".$client->lastname,
+            "Name"         => ( ($client->lng =='heb') ? "הוספת כרטיס - ": "Add a Card - ") .$client->firstname." ".$client->lastname,
             "Description"  => 'card validation transaction', 
             "Quantity"     =>  1,
-            "Image"        =>  "" ,
+            "Image"        =>  "https://i.ibb.co/m8fr72P/sample.png",
             "IsTaxFree"    =>  "false",
             "AdjustAmount" => "false"
             
            ];
         $se = json_encode($services);
       
-        $username = '0882016016';
-        $password = 'Z0882016016';
+        $username = env("ZCREDIT_TERMINALNUMBER");
+        $password = env("ZCREDIT_TERMINALPASSWORD");
 
+        $ln = ($client->lng == 'heb') ? 'He' : 'En';
         $data = '{
             "Key": "'.env("ZCREDIT_KEY").'",
-            "Local": "He",
+            "Local": "'.$ln.'",
             "UniqueId": "",
             "SuccessUrl": "'.url('/thanks').'/'.$cid.'",
             "CancelUrl": "",
@@ -409,7 +417,7 @@ class InvoiceController extends Controller
             "AdditionalText": "",
             "ShowCart": "true",
             "ThemeColor": "005ebb",
-            "BitButtonEnabled": "true",
+            "BitButtonEnabled": "false",
             "ApplePayButtonEnabled": "true",
             "GooglePayButtonEnabled": "true",   
             "Installments": {
@@ -562,8 +570,8 @@ class InvoiceController extends Controller
         $curl = curl_init();
         
         $data = '{
-            "TerminalNumber": "0882016016",
-            "Password": "Z0882016016",
+            "TerminalNumber": "'.env("ZCREDIT_TERMINALNUMBER").'",
+            "Password": "'.env("ZCREDIT_TERMINALPASSWORD").'",
             "TransactionIdToCancelOrRefund": "'.$tid.'",
             "TransactionSum": "'.$amount.'"
             }';

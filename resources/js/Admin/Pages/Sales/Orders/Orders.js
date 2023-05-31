@@ -313,7 +313,8 @@ export default function Orders() {
                                                                     </button>
 
                                                                     <div className="dropdown-menu">
-                                                                        <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>
+                                                                        {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
+                                                                        
                                                                         {
                                                                             item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
                                                                             >Close Doc</button>

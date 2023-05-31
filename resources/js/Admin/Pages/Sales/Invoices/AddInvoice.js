@@ -201,7 +201,7 @@ export default function AddInvoce() {
                                             <option value={0}>-- Select Job --</option>
                                             {
                                                 cjobs && cjobs.map((j, i) => {
-                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts}</option>)
+                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts+" | "+j.service_name}</option>)
                                                 })
                                             }
                                         </select>
