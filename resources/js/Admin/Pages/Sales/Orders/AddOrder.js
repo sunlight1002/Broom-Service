@@ -6,7 +6,7 @@ import Moment from 'moment';
 import { useAlert } from 'react-alert';
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
-
+import { SelectPicker } from 'rsuite';
 
 export default function AddOrder() {
 
@@ -175,6 +175,10 @@ export default function AddOrder() {
         $('.rtotal0').val(v);
     }
    
+    const cData = clients && clients.map((c, i) => {
+        return { value: c.id, label: (c.firstname + ' ' + c.lastname) };
+    });
+
 
     useEffect(() => {
         getCustomers();
@@ -200,7 +204,8 @@ export default function AddOrder() {
                                         <label className="control-label">
                                             Customer
                                         </label>
-                                        <select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
+                                        <SelectPicker data={cData} onChange={(value, event) => {setCustomer(value);getJobs(value);}} size="lg" required />
+                                       {/* <select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
                                             <option value={0}>-- select customer --</option>
                                             {
                                                 clients && clients.map((c, i) => {
@@ -208,7 +213,7 @@ export default function AddOrder() {
                                                 })
                                             }
 
-                                        </select>
+                                        </select>*/}
 
                                     </div>
 

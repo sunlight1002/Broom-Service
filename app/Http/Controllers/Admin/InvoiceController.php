@@ -356,7 +356,30 @@ class InvoiceController extends Controller
     }
     public function invoiceJobs( Request $request){
 
-        $jobs = Job::where('client_id',$request->cid)->where('status','!=','completed')->get();    
+        $jobs = Job::where('client_id',$request->cid)
+        ->where('status','!=','completed')
+        ->where('isOrdered',0)
+        ->orWhere('isOrdered','c')
+        ->get();    
+
+        if(!empty($jobs)){
+            foreach($jobs as $j => $job){
+                $sv = Services::where('id',$job->schedule_id)->get('name')->first();
+                $jobs[$j]['service_name'] = $sv->name;
+            }
+        }        
+        return response()->json([
+            'jobs' => $jobs
+        ]);
+    }
+
+    public function invoiceJobOrder(Request $request){
+
+        $jobs = Job::where('client_id',$request->cid)
+        ->where('status','!=','completed')
+        ->where('isOrdered',1)
+        ->get();    
+
         if(!empty($jobs)){
             foreach($jobs as $j => $job){
                 $sv = Services::where('id',$job->schedule_id)->get('name')->first();
@@ -642,7 +665,11 @@ class InvoiceController extends Controller
                 Invoices::where('invoice_id',$docnum)->update(['invoice_icount_status'=>'Cancelled']);
              }
              if($type == 'order'){
+
+                $jid = Order::where('order_id',$docnum)->get('job_id')->first();
+                Job::where('id',$jid->job_id)->update(['isOrdered'=>'c']);
                 Order::where('order_id',$docnum)->update(['status'=>'Cancelled']);
+
              }
            }
            return response()->json(['msg'=>$msg]); 

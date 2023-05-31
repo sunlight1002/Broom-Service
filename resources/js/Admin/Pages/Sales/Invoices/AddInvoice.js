@@ -6,7 +6,7 @@ import Moment from 'moment';
 import { useAlert } from 'react-alert';
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
-
+import { SelectPicker } from 'rsuite';
 
 export default function AddInvoce() {
 
@@ -71,7 +71,7 @@ export default function AddInvoce() {
     const getJobs = (cid) => {
         setCjobs([]);
         axios
-            .post(`/api/admin/invoice-jobs`, { cid }, { headers })
+            .post(`/api/admin/invoice-jobs-order`, { cid }, { headers })
             .then((res) => {
                 setCjobs(res.data.jobs);
             });
@@ -144,6 +144,9 @@ export default function AddInvoce() {
             })
 
     }
+    const cData = clients && clients.map((c, i) => {
+        return { value: c.id, label: (c.firstname + ' ' + c.lastname) };
+    });
 
 
     useEffect(() => {
@@ -181,7 +184,8 @@ export default function AddInvoce() {
                                         <label className="control-label">
                                             Customer
                                         </label>
-                                        <select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
+                                        <SelectPicker data={cData} onChange={(value, event) => {setCustomer(value);getJobs(value);}} size="lg" required />
+                                        {/*<select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
                                             <option value={0}>-- select customer --</option>
                                             {
                                                 clients && clients.map((c, i) => {
@@ -189,7 +193,7 @@ export default function AddInvoce() {
                                                 })
                                             }
 
-                                        </select>
+                                        </select>*/}
 
                                     </div>
 
