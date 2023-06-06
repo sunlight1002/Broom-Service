@@ -32,7 +32,7 @@ class JobController extends Controller
        
         $q =  $request->q;
         $w = $request->filter_week;
-        $jobs = Job::with('worker', 'client','offer','jobservice');
+        $jobs = Job::with('worker', 'client','offer','jobservice','order','invoice');
 
         if($q != ''){
             
@@ -375,7 +375,12 @@ class JobController extends Controller
                  $job = Job::with('client','worker','jobservice')->where('id',$new->id)->first();
                   $_timeShift = $worker['shifts'];
                  if($_timeShift != ''){
-                    $_timeShift = explode('-',$_timeShift)[1];
+                    $_timeShift1 = explode('-',$_timeShift)[1];
+                    
+                    $_ts = preg_replace('/[^0-9]/','', $_timeShift1).":00"; 
+                    $ttime = strtotime($_ts) + 60*90;
+                    $atime = date('H:i', $ttime);
+                    $_timeShift = $_ts." - ".$atime;
                     
                 }
                  $data = array(
@@ -414,6 +419,7 @@ class JobController extends Controller
         );
         
           if(!is_null($client_email) && $client_email != 'Null'){
+           
          Mail::send('/Mails/NewJobClient',$client_data,function($messages) use ($client_data){
                 $messages->to($client_data['email']);
                 $id = $client_data['jobs'][0]['job']['id'];

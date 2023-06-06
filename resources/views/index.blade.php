@@ -34,7 +34,5 @@
     <script defer src="{{asset('js/app.js')}}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
-<center>
-{{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}
-</center>
+
 </html>

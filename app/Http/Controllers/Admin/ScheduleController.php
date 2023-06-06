@@ -200,7 +200,7 @@ class ScheduleController extends Controller
         $time_bw     = $request->start_time. " - ".$request->end_time;
         $c_email     = $schedule->client->email;
         $cnct        = (!empty($schedule->client->phone)) ? $schedule->client->phone : 'phone N/A';
-        $this->PushEvent($event_title,$event_date,$time_bw,$c_email,$cnct);
+        //$this->PushEvent($event_title,$event_date,$time_bw,$c_email,$cnct);
         $this->sendMeetingMail($schedule);
         return response()->json([
             'message' => 'Metting scheduled  successfully'

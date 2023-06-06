@@ -20,7 +20,7 @@ export default function ClientHistory({ contracts ,setContracts, latestContract,
             <li className="nav-item" role="presentation"><a id="order-tab" className="nav-link" data-toggle="tab" href="#tab-order" aria-selected="false" role="tab">Orders</a></li>
             <li className="nav-item" role="presentation"><a id="invoice-tab" className="nav-link" data-toggle="tab" href="#tab-invoice" aria-selected="false" role="tab">Invoice</a></li>
             <li className="nav-item" role="presentation"><a id="payment-tab" className="nav-link" data-toggle="tab" href="#tab-payment" aria-selected="false" role="tab">Payment</a></li>
-            <li className="nav-item" role="presentation"><a id="creditCard-tab" className="nav-link" data-toggle="tab" href="#tab-creditCard" aria-selected="false" role="tab">Card details</a></li>
+            <li className="nav-item" role="presentation"><a id="creditCard-tab" className="nav-link" data-toggle="tab" href="#tab-creditCard" aria-selected="false" role="tab">Card Token</a></li>
         </ul>
         <div className='tab-content'>
             <div id="tab-schedule" className="tab-pane active show" role="tab-panel" aria-labelledby="schedule-meeting"><ScheduledMeeting/></div>

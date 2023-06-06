@@ -337,6 +337,8 @@ export default function TotalJobs() {
             { bg: '#DBF9DB', tc: '#444',  shift: 'evening' },
             { bg: '#B09FCA', tc: '#fff',  shift: 'night' }
     ];
+
+
    
     return (
         <div id="container">
@@ -417,6 +419,8 @@ export default function TotalJobs() {
                                                              return allShifts.indexOf(el.shift);
                                                           }}
                                                     });
+
+                                                    let pstatus = null;
                                                   
                                                     return (
                                                         <tr key={index} style={{ "cursor": "pointer" }}>
@@ -467,50 +471,45 @@ export default function TotalJobs() {
                                                                
 
                                                             }</td>
-                                                            <td style={ item.status.includes('cancel') ? {color:'red',textTransform:"capitalize"} : {textTransform:"capitalize"}} className="hidden-xs" onClick={(e)=>handleNavigate(e,item.id)}
+                                                            <td style={ item.status.includes('cancel') ? {color:'red',textTransform:"capitalize"} : {textTransform:"capitalize"}} className="hidden-xs"
                                                               
                                                             >
                                                                 {item.status}
+                                                               
+                                                                {
+                                                                    item.order && item.order.map((o,i)=>{
+
+                                                                        return (<> <br/><Link target='_blank' to={o.doc_url} className="jorder"> order -{o.order_id} </Link><br/></>);
+                                                                    })
+                                                                }
+
+                                                                {
+                                                                    item.invoice && item.invoice.map((inv,i)=>{
+
+                                                                        if( i == 0 ){ pstatus = inv.status; }
+
+                                                                        return (<> <br/><Link target='_blank' to={inv.doc_url} className="jinv"> Invoice -{inv.invoice_id} </Link><br/></>);
+                                                                    })
+                                                                }
+
+                                                                {
+                                                                    pstatus != null && <> <br/><span class='jorder'>{ pstatus }</span><br/></>
+                                                                }
+
                                                                 <p>
                                                                 {(item.status=='cancel' && item.rate != null)?`(With Cancellatiom fees ${item.rate} ILS)`:''}
                                                                 </p>
                                                             </td>
-                                                            {/* <td onClick={(e)=>handleNavigate(e,item.id)}>
-                                                                {(item.start_time != '') ? (`${item.start_time} to ${item.end_time}`) : ''}
-
-                                                            </td>
-                                                            <Td><Link target='_blank' to={ (item.client.latitude && item.client.longitude)
-                                                                 ? `https://maps.google.com/?q=${(item.client.latitude+","+item.client.longitude)}` 
-                                                                 : '#' }>
-                                                                {
-                                                                item.client
-                                                                    ? item.client.geo_address
-                                                                    : "NA"
-                                                            }
-                                                            </Link>
-                                                            </Td>
-                                                            <Td onClick={(e)=>handleNavigate(e,item.id)}>
-                                                                {
-                                                                    item.end_time && item.start_time ?
-                                                                        parseFloat(`${item.end_time}.replace(":", ".")`)
-                                                                        - parseFloat(`${item.start_time}.replace(":", ".")`)
-                                                                        + " Hours"
-                                                                        : "NA"
-                                                                }
-                                                            </Td>
-                                                            </Td>*/}
-                                                            {/* 
-                                                            <Td onClick={(e)=>handleNavigate(e,item.id)}>
-                                                                {item.jobservice
-                                                                   ? item.jobservice.total:'0'} ILS + VAT
-                                                    
-                                                            </Td> */}
+                                                           
                                                             <td className='text-center'>
                                                                 <div className="action-dropdown dropdown pb-2">
                                                                     <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                         <i className="fa fa-ellipsis-vertical"></i>
                                                                     </button>
+                                                                 
                                                                     <div className="dropdown-menu">
+                                                                    { item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
+                                                                    { item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
                                                                         <Link to={`/admin/view-job/${item.id}`} className="dropdown-item">View</Link>
                                                                         <button className="dropdown-item" onClick={() => handleDelete(item.id)}>Delete</button>
                                                                     </div>

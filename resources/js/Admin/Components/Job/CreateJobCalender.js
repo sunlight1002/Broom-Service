@@ -104,10 +104,15 @@ export default function CreateJobCalender() {
     const handleSubmit = () => {
 
         let formdata = { 'workers': data, 'services': services };
-        let viewbtn = document.querySelector('.viewBtn');
+        let viewbtn = document.querySelectorAll('.viewBtn');
         if (data.length > 0) {
-            viewbtn.setAttribute('disabled',true);
-            viewbtn.value = 'please wait ...'
+
+            viewbtn[0].setAttribute('disabled',true);
+            viewbtn[0].value = 'please wait ...'
+
+            viewbtn[1].setAttribute('disabled',true);
+            viewbtn[1].value = 'please wait ...'
+
             axios
                 .post(`/api/admin/create-job/${params.id}`, formdata, { headers })
                 .then((res) => {
@@ -118,8 +123,10 @@ export default function CreateJobCalender() {
 
                 });
         } else {
-            viewbtn.removeAttribute('disabled');
-            viewbtn.value = 'View Job'
+            viewbtn[0].removeAttribute('disabled');
+            viewbtn[0].value = 'View Job'
+            viewbtn[1].removeAttribute('disabled');
+            viewbtn[1].value = 'View Job'
             alert.error("Please Select the Workers");
         }
 
@@ -332,7 +339,11 @@ export default function CreateJobCalender() {
             <li className="nav-item" role="presentation"><a id="worker-availability" className="nav-link active" data-toggle="tab" href="#tab-worker-availability" aria-selected="true" role="tab">Current Week</a></li>
             <li className="nav-item" role="presentation"><a id="current-job" className="nav-link" data-toggle="tab" href="#tab-current-job" aria-selected="true" role="tab">Next Week</a></li>
             <li className="nav-item" role="presentation"><a id="current-next-job" className="nav-link" data-toggle="tab" href="#tab-current-next-job" aria-selected="true" role="tab">Next Next Week</a></li>
+
         </ul>
+        <div className="form-group text-right pr-2">
+                <input type='button' value='View Job' className="btn btn-pink viewBtn" data-toggle="modal" data-target="#exampleModal" />
+        </div>
         <div className='tab-content' style={{background: "#fff"}}>
              <div id="tab-worker-availability" className="tab-pane active show" role="tab-panel" aria-labelledby="current-job">
                <Table className='table table-bordered crt-jb'>
@@ -356,14 +367,37 @@ export default function CreateJobCalender() {
                                     <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                 </Td>
                                 {week.map((element, index) => {
+
                                     let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                    
+
                                         return ( <Td align="center" >
-                                        <span className="text-success">{person[aval[element]]}</span>
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                        
                                         
                                         {shifts.map((s,i)=>{
-                                            return <div className="text-danger">{s}</div>
+                                            return (
+                                                <div className="text-danger">{s}</div>
+                                            )
                                         })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
+
                                         {(aval[element] && aval[element] != '')?
+                                         
                                             <Select
                                                 isMulti
                                                 name="colors"
@@ -407,13 +441,30 @@ export default function CreateJobCalender() {
                                    <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                </Td>
                                {nextweek.map((element, index) => {
-                                   let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
+
+                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                    
                                       
                                        {shifts.map((s,i)=>{
                                         return <div className="text-danger">{s}</div>
                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
                                        
                                         {(aval[element] && aval[element] != '')?
                                         <Select
@@ -460,23 +511,39 @@ export default function CreateJobCalender() {
                                   <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                </Td>
                                {nextnextweek.map((element, index) => {
+
                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
+                                   let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                   let list = (shifts.length > 0 ) ? true : false ;
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
                                       
                                        {shifts.map((s,i)=>{
                                         return <div className="text-danger">{s}</div>
                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
                                          {(aval[element] && aval[element] != '')?
-                                        <Select
-                                            isMulti
-                                            name="colors"
-                                            options={filterOptions(colourOptions[aval[element]],shifts)}
-                                            className="basic-multi-single"
-                                            isClearable={true}
-                                            classNamePrefix="select"
-                                            onChange={(e)=>changeShift(w.id,element,e)}
-                                          />
+                                            <Select
+                                                isMulti
+                                                name="colors"
+                                                options={filterOptions(colourOptions[aval[element]],shifts)}
+                                                className="basic-multi-single"
+                                                isClearable={true}
+                                                classNamePrefix="select"
+                                                onChange={(e)=>changeShift(w.id,element,e)}
+                                        />
                                           :
                                           <div className="text-danger">Not Available</div>
                                          }

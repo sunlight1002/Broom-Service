@@ -17,6 +17,10 @@ export default function AddOrder() {
     const [job,setJob] = useState();
     const [lng, setLng] = useState();
 
+    const queryParams = new URLSearchParams(window.location.search);
+    const jid = queryParams.get("j");
+    const cid = queryParams.get('c');
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -182,6 +186,18 @@ export default function AddOrder() {
 
     useEffect(() => {
         getCustomers();
+        
+
+        if(jid != null && cid != null){
+
+        getJobs(cid);
+        setJob(jid);
+        getServices(jid);
+
+        setCustomer(cid);
+        }
+
+
         setTimeout(() => {
             const cus = $('.cus').val();
             axios.get(`/api/admin/clients/${1}`, { headers }).then((res) => { setLng(res.data.client.lng) });
@@ -204,17 +220,7 @@ export default function AddOrder() {
                                         <label className="control-label">
                                             Customer
                                         </label>
-                                        <SelectPicker data={cData} onChange={(value, event) => {setCustomer(value);getJobs(value);}} size="lg" required />
-                                       {/* <select className='form-control' onChange={(e) => { setCustomer(e.target.value); getJobs(e.target.value); }}>
-                                            <option value={0}>-- select customer --</option>
-                                            {
-                                                clients && clients.map((c, i) => {
-                                                    return (<option value={c.id}>{c.firstname + " " + c.lastname}</option>);
-                                                })
-                                            }
-
-                                        </select>*/}
-
+                                        <SelectPicker data={cData} defaultValue={ parseInt(cid) } onChange={(value, event) => {setCustomer(value);getJobs(value);}} size="lg" required />
                                     </div>
 
                                     <div className="form-group">
@@ -225,7 +231,7 @@ export default function AddOrder() {
                                             <option value={0}>-- Select Job --</option>
                                             {
                                                 cjobs && cjobs.map((j, i) => {
-                                                    return (<option value={j.id} > {j.start_date + " | " + j.shifts+" | "+j.service_name}</option>)
+                                                    return (<option selected = {j.id == parseInt(jid) } value={j.id} > {j.start_date + " | " + j.shifts+" | "+j.service_name}</option>)
                                                 })
                                             }
                                         </select>

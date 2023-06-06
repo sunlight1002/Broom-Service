@@ -85,7 +85,7 @@ export default function WorkContract() {
             
         }
 
-        axios
+        /*axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
                 if (res.data.error) {
@@ -97,7 +97,7 @@ export default function WorkContract() {
                         window.location.reload(true);
                     }, 2000);
                 }
-            })
+            })*/
     }
 
     const handleSignatureEnd = () => {

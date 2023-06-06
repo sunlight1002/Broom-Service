@@ -166,6 +166,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('order-jobs',[InvoiceController::class,'orderJobs']);
     Route::get('delete-invoice/{id}',[InvoiceController::class,'deleteInvoice']);
     Route::get('payments',[InvoiceController::class,'getPayments']);
+    Route::get('card_token/{id}',[ClientController::class,'cardToken']);
 
     Route::get('close-doc/{id}/{type}',[InvoiceController::class,'closeDoc']);
     Route::post('cancel-doc',[InvoiceController::class,'cancelDoc']);

@@ -73,6 +73,7 @@ class InvoiceController extends Controller
     public function AddInvoice( Request $request ){
        
         $req = $request->data;
+        
         $client = Client::where('id',$req['customer'])->get()->first();
        
         $services = json_decode($req['services']);
@@ -88,7 +89,7 @@ class InvoiceController extends Controller
      
         $due      = ($req['due_date'] == null) ? \Carbon\Carbon::now()->endOfMonth()->toDateString() : $req['due_date'];
         $name     = ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
- 
+        $ln = ($client->lng == 'heb') ? 'he' : 'en'; 
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
    
@@ -101,9 +102,9 @@ class InvoiceController extends Controller
                 "client_name"    => $name, 
                 "client_address" => $client->geo_address,
                 "email"          => $client->email, 
-                "lang"           => $client->lng,
+                "lang"           => $ln,
                 "currency_code"  => "ILS",
-                "doc_lang"       => $client->lng,
+                "doc_lang"       => $ln,
                 "items"          => $services,
                 "duedate"        => $due,
                 
@@ -125,7 +126,7 @@ class InvoiceController extends Controller
             $cc = ['cc'=>[
                 "sum" => $total,
                 "card_type" => $card->card_type,
-                "card_number" => substr($card->card_number,12), 
+                "card_number" => substr($card->card_number,3), 
                 "exp_year" => $ex[0],
                 "exp_month" => $ex[1],
                 "holder_id" => "",
@@ -144,15 +145,17 @@ class InvoiceController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
         $info = curl_getinfo($ch);
-        
+       
+       
         //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
         $json = json_decode($response, true);
+      
         //dd($json);
         //if(!$json["status"]) die($json["reason"]);
    
         /* Auto payment */
         if( $doctype == 'invrec'){
-            $pres = $this->commitInvoicePayment($services, $req['job'], $card->card_token);
+            $pres = $this->commitInvoicePayment($services, $req['job'], $card->card_token, $total);
             $pre = json_encode($pres);
           }
           
@@ -259,6 +262,7 @@ class InvoiceController extends Controller
             $card = ClientCard::where('client_id',$client->id)->get();
             $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
             $url = "https://api.icount.co.il/api/v3.php/doc/create";
+            $ln = ($client->lng == 'heb') ? 'he' : 'en'; 
             $params = Array(
     
                     "cid"            => env('ICOUNT_COMPANYID'),
@@ -269,9 +273,9 @@ class InvoiceController extends Controller
                     "client_name"    => $name, 
                     "client_address" => $client->geo_address,
                     "email"          => $client->email, 
-                    "lang"           => $client->lng,
+                    "lang"           => $ln,
                     "currency_code"  => "ILS",
-                    "doc_lang"       => $client->lng,
+                    "doc_lang"       => $ln,
                     "items"          => $items,
                     "based_on"       =>['docnum'=>$inv->invoice_id,'doctype'=>'invoice'],
                     
@@ -286,7 +290,7 @@ class InvoiceController extends Controller
                 $cc = ['cc'=>[
                     "sum" => $sum,
                     "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number,12), 
+                    "card_number" => substr($card->card_number,3), 
                     "exp_year" => $ex[0],
                     "exp_month" => $ex[1],
                     "holder_id" => "",
@@ -419,6 +423,7 @@ class InvoiceController extends Controller
     public function generatePayment($cid){
         
         $client = Client::where('id',$cid)->get()->first();
+       
       
            $services[] = [
             
@@ -440,6 +445,7 @@ class InvoiceController extends Controller
         $ln = ($client->lng == 'heb') ? 'He' : 'En';
         $data = '{
             "Key": "'.env("ZCREDIT_KEY").'",
+            "j"  : "5",
             "Local": "'.$ln.'",
             "UniqueId": "",
             "SuccessUrl": "'.url('/thanks').'/'.$cid.'",
@@ -449,6 +455,8 @@ class InvoiceController extends Controller
             "CreateInvoice": "false",
             "AdditionalText": "",
             "ShowCart": "true",
+            "ClientReciept": "",
+            "SellerReciept": "",
             "ThemeColor": "005ebb",
             "BitButtonEnabled": "false",
             "ApplePayButtonEnabled": "true",
@@ -506,6 +514,7 @@ class InvoiceController extends Controller
 
             $response = curl_exec($curl);
             $re = json_decode($response);
+           
             if($re->HasError == true){
                 die('Something went wrong ! Please contact Administrator !');
             }
@@ -541,13 +550,14 @@ class InvoiceController extends Controller
         $re = json_decode($response);
         curl_close($curl);
         $cb = json_decode($re->CallBackJSON);
-   
+       
         $x = explode('/',$cb->ExpDate_MMYY);
         $expiry = "20".$x[1]."-".$x[0];
         if(!empty($cb)){
            $args = [
              'client_id' => $cid,
              'card_token'=>$cb->Token,
+             'card_number' =>$cb->CardNumber,
              'valid'     =>$expiry,
              'cc_charge' => 1,
            ];
@@ -686,26 +696,30 @@ class InvoiceController extends Controller
 
     }
 
-    public function commitInvoicePayment( $services , $id, $token){
+    public function commitInvoicePayment( $services , $id, $token, $stotal){
 
         $job = Job::where('id',$id)->with('jobservice','client','contract','order')->get()->first();
         $pitems = [];
-        $subtotal = (int)$services[0]->unitprice;
+
+        $subtotal = (int) $stotal;
         $tax = (17/100) * $subtotal;
         $total = $tax+$subtotal;
 
         if(!empty($services)){
-            foreach($services as $service){
+            foreach($services as $k => $service){
+                
+                if($k == 0){
                 $pitems[] = [
                     'ItemDescription' => $service->description,
                     'ItemQuantity'    => $service->quantity,
                     'ItemPrice'       => $total,
                     'IsTaxFree'       => "false"
                 ];
+            }
                
             }
         }
-        $pay_items = json_encode($pitems);
+      $pay_items = json_encode($pitems);
 
       $curl = curl_init();
 
@@ -801,6 +815,7 @@ class InvoiceController extends Controller
      $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
      $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
      $url = "https://api.icount.co.il/api/v3.php/doc/create";
+     $ln = ($job->client->lng == 'heb') ? 'he' : 'en'; 
      $params = Array(
 
              "cid"            => env('ICOUNT_COMPANYID'),
@@ -812,9 +827,9 @@ class InvoiceController extends Controller
              "client_name"    => $name, 
              "client_address" => $job->client->geo_address,
              "email"          => $job->client->email, 
-             "lang"           => $job->client->lng,
+             "lang"           => $ln,
              "currency_code"  => "ILS",
-             "doc_lang"       => $job->client->lng,
+             "doc_lang"       => $ln,
              "items"          => $services,
              "duedate"        => $due,
              "based_on"       =>['docnum'=>$order->order_id,'doctype'=>'order'],
@@ -830,7 +845,7 @@ class InvoiceController extends Controller
          $cc = ['cc'=>[
              "sum" => $total,
              "card_type" => $card->card_type,
-             "card_number" => substr($card->card_number,12), 
+             "card_number" => substr($card->card_number,3), 
              "exp_year" => $ex[0],
              "exp_month" => $ex[1],
              "holder_id" => "",
@@ -858,9 +873,10 @@ class InvoiceController extends Controller
 
      /* Auto payment */
      if( $doctype == 'invrec'){
-         $pres = $this->commitInvoicePayment($services, $id, $card->card_token);
+         $pres = $this->commitInvoicePayment($services, $id, $card->card_token, $total);
          $pre = json_encode($pres);
        }
+       dd($pre);
 
    /*Close Order */
        $this->closeDoc($job->order->order_id,'order');
@@ -965,6 +981,7 @@ class InvoiceController extends Controller
         }
         $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
+        $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
         $params = Array(
 
         "cid"  => env('ICOUNT_COMPANYID'),
@@ -974,7 +991,7 @@ class InvoiceController extends Controller
         "client_name" => $name, 
         "client_address" => $job->client->geo_address,
         "email" => $job->client->email, 
-        "lang" => $job->client->lng,
+        "lang" => $ln,
         "currency_code" => "ILS",
         
         "items" => $services,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\ClientCard;
 use App\Models\Files;
 use App\Models\Note;
 use App\Models\Offer;
@@ -529,5 +530,15 @@ class ClientController extends Controller
     public function deleteNote(Request $request){
         Note::where(['id'=>$request->id])->delete();
         return response()->json(['message'=>'Note deleted']);
+    }
+
+    public function cardToken( $id ){
+        
+        $card = ClientCard::where('client_id',$id)->get()->first();
+        
+        return response()->json([
+
+            'token'    => ( !empty($card) ) ? $card->card_token : 0
+        ]);
     }
 }

@@ -56,7 +56,10 @@ class Job extends Model
         return $this->hasMany(JobHours::class,'job_id');
     }
     public function order(){
-        return $this->hasOne(Order::class,'job_id');
+        return $this->hasMany(Order::class,'job_id');
+    }
+    public function invoice(){
+        return $this->hasMany(Invoices::class,'job_id');
     }
 
 

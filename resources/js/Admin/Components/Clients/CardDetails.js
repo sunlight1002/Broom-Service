@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from 'react'
 
 export default function CardDetails({ latestContract, client }) {
-    const cardType = (latestContract) ? latestContract.card_type : '';
-    const nameOnCard = (latestContract) ? latestContract.name_on_card : '';
-    const or_cvv = (latestContract) ? latestContract.cvv : '';
-    const [cvv, setCvv] = useState(null);
+
     const [pass, setPass] = useState(null);
     const [passVal, setPassVal] = useState(null);
+    const [token,setToken] = useState(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    const getToken = () =>{
+
+        if( client.latest_contract != 0 && client.latest_contract != undefined && client != undefined){
+        axios.get(`/api/admin/card_token/${client.id}`,{ headers })
+        .then((res) => {
+            setToken( res.data.token != 0 ? res.data.token : null );
+        })
+    }
+
+    }
+    
     const viewPass = () => {
 
         if (!passVal) { window.alert('Please enter your password'); return; }
@@ -28,6 +39,7 @@ export default function CardDetails({ latestContract, client }) {
     }
     
     useEffect(() => {
+        getToken();
         setTimeout(() => {
             if (client.latest_contract != 0 && client.latest_contract != undefined) {
                 let bookBtn = document.querySelector('#bookBtn');
@@ -38,16 +50,8 @@ export default function CardDetails({ latestContract, client }) {
     return (
         <div className='form-group'>
             <ul className='list-unstyled'>
-                <li><strong>Card Type: </strong>{cardType}</li>
-                <li><strong>Name on card: </strong>{nameOnCard}</li>
-                <li><strong>Cvv: </strong>
-                    {
-                        cvv == null && or_cvv != null ?
-                            <span  style={{ cursor: 'pointer' }} data-toggle="modal" data-target="#exampleModalPassCv">*** &#128274;</span>
-                            :
-                            <span>{cvv}</span>
-                    }</li>
-                {/* <li><strong>Signature: </strong>{signature}</li> */}
+                <li><strong>Card Token : </strong>{ token != null ? token : 'NA' }</li>
+              
             </ul>
             <div className="modal fade" id="exampleModalPassCv" tabindex="-1" role="dialog" aria-labelledby="exampleModalPassCv" aria-hidden="true">
                 <div className="modal-dialog" role="document">
