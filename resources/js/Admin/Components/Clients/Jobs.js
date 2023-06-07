@@ -23,6 +23,34 @@ export default function Jobs() {
             :setLoading('No job found');
         });
     }
+
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Delete Job!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .delete(`/api/admin/jobs/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Deleted!",
+                            "Job has been deleted.",
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getJobs();
+                        }, 1000);
+                    });
+            }
+        });
+    };
+    
     useEffect(()=>{
        getJobs();
     },[]);
@@ -107,15 +135,40 @@ export default function Jobs() {
                             <td> {total } ILS + VAT</td>
                             <td>{Moment(j.created_at).format('DD MMM,Y')}</td>
                             <td>{j.status}</td>
-                            <td>
+                           {/* <td>
                                 <div className="d-flex">
                                 { (j.worker) ? 
                                     <Link to={`/admin/edit-job/${j.id}`} className="btn bg-purple"><i className="fa fa-edit"></i></Link>
                                     :<Link to={`/admin/create-job/${j.contract_id}`} className="btn bg-purple"><i className="fa fa-edit"></i></Link>
                                 }
                                     <Link to={`/admin/view-job/${j.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-eye"></i></Link>
+
+                                    <Link to={`/admin/add-order/?j=${j.id}&c=${params.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-circle"></i></Link>
+                                    <Link to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-triangle"></i></Link>
+
                                     <button className="ml-2 btn bg-red" onClick={() => handleDelete( j.id )}><i className="fa fa-trash"></i></button>                            
                                 </div>
+                            </td>*/}
+                             <td className='text-center'>
+
+                                <div className="action-dropdown dropdown pb-2">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <i className="fa fa-ellipsis-vertical"></i>
+                                    </button>
+                                    
+                                    <div className="dropdown-menu">
+                                    { (!j.worker) && 
+                                    <Link to={`/admin/create-job/${j.contract_id}`}  className="dropdown-item" >Create Job</Link>
+                                    }
+                                     <Link to={`/admin/view-job/${j.id}`}  className="dropdown-item" >View Job</Link>
+
+                                    <Link to={`/admin/add-order/?j=${j.id}&c=${params.id}`}  className="dropdown-item" >Create Order</Link>
+                                    <Link to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`}  className="dropdown-item" >Create Invoice</Link>
+
+                                    <button  className="dropdown-item" onClick={() => handleDelete( j.id )}>Delete</button>                            
+                                    </div>
+                                </div>
+                               
                             </td>
                         </tr>    
                         )
