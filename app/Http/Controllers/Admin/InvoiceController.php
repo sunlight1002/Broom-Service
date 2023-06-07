@@ -163,7 +163,8 @@ class InvoiceController extends Controller
           job::where('id',$req['job'])->update([
               'invoice_no'    =>$json["docnum"],
               'invoice_url'   =>$json["doc_url"],
-              'isOrdered'     => 2
+              'isOrdered'     => 2,
+              'status'        =>'completed'
           ]);
           $invoice = [
               'invoice_id' => $json['docnum'],
@@ -884,7 +885,8 @@ class InvoiceController extends Controller
        job::where('id',$id)->update([
            'invoice_no'    =>$json["docnum"],
            'invoice_url'   =>$json["doc_url"],
-           'isOrdered'     => 2
+           'isOrdered'     => 2,
+           'status'        =>'completed'
        ]);
        $invoice = [
            'invoice_id' => $json['docnum'],
