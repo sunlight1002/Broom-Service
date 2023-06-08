@@ -85,19 +85,26 @@ export default function WorkContract() {
             
         }
 
-        /*axios
+        axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
                 if (res.data.error) {
+
                     swal('', res.data.error, 'error');
-                } else {
+
+                } else if(res.data.message == 0){
+                     
+                    window.alert(t('work-contract.messages.add_card_err'));
+                } 
+                
+                else {
                     setStatus('un-verified');
                     swal(t('work-contract.messages.success'), '', 'success');
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                 }
-            })*/
+            })
     }
 
     const handleSignatureEnd = () => {

@@ -149,10 +149,14 @@ class ClientEmailController extends Controller
    public function AcceptContract(Request $request){
      
     try{
+      $contract = Contract::with('client')->where('unique_hash',$request->unique_hash)->get()->first();
+      $card = ClientCard::where('client_id',$contract->client->id)->get()->first();
+      
+      if(!empty($card)){
 
       Contract::where('unique_hash',$request->unique_hash)->update($request->input());
-      $contract = Contract::with('client')->where('unique_hash',$request->unique_hash)->get()->first();
       Client::where('id',$contract->client_id)->update(['status'=>2]);
+
       notifications::create([
         'user_id'=>$contract->client_id,
         'type'=>'contract-accept',
@@ -162,6 +166,18 @@ class ClientEmailController extends Controller
       return response()->json([
         'message'=>"Thanks, for accepting contract"
        ],200);
+
+      }
+      
+      else{
+
+        return response()->json([
+          'message'=>0
+         ],200);
+
+        }
+
+     
 
     } catch(\Exception $e){
       

@@ -126,7 +126,7 @@ class InvoiceController extends Controller
             $cc = ['cc'=>[
                 "sum" => $total,
                 "card_type" => $card->card_type,
-                "card_number" => substr($card->card_number,3), 
+                "card_number" => $card->card_number, 
                 "exp_year" => $ex[0],
                 "exp_month" => $ex[1],
                 "holder_id" => "",
@@ -291,7 +291,7 @@ class InvoiceController extends Controller
                 $cc = ['cc'=>[
                     "sum" => $sum,
                     "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number,3), 
+                    "card_number" => $card->card_number, 
                     "exp_year" => $ex[0],
                     "exp_month" => $ex[1],
                     "holder_id" => "",
@@ -452,7 +452,7 @@ class InvoiceController extends Controller
             "SuccessUrl": "'.url('/thanks').'/'.$cid.'",
             "CancelUrl": "",
             "CallbackUrl": "'.url('/thanks').'/'.$cid.'",
-            "PaymentType": "regular",
+            "PaymentType": "authorize",
             "CreateInvoice": "false",
             "AdditionalText": "",
             "ShowCart": "true",
@@ -519,6 +519,7 @@ class InvoiceController extends Controller
             if($re->HasError == true){
                 die('Something went wrong ! Please contact Administrator !');
             }
+
             //Invoices::where('id',$id)->update(['session_id'=>$re->Data->SessionId]);
             return response()->json(["url"=>$re->Data->SessionUrl,'session_id'=>$re->Data->SessionId]);
     }
@@ -558,15 +559,57 @@ class InvoiceController extends Controller
            $args = [
              'client_id' => $cid,
              'card_token'=>$cb->Token,
-             'card_number' =>$cb->CardNumber,
+             'card_number' =>$cb->CardNum,
              'valid'     =>$expiry,
              'cc_charge' => 1,
            ];
+
+        $cap = $this->releaseCapure( $cb->Total, $re->TransactionID ,$cb->Token);
+
         ClientCard::create($args);
         
     
     }
 }
+    
+   public function releaseCapure($amount, $tid, $token){
+
+    $username = env("ZCREDIT_TERMINALNUMBER");
+    $password = env("ZCREDIT_TERMINALPASSWORD");
+
+    $data = '{
+        "TerminalNumber": "'.$username.'",
+        "Password": "'.$password.'",
+        "TransactionSum": "'.$amount.'",
+        "NumberOfPayments": "1",
+        "ObeligoAction": "2",
+        "OriginalZCreditReferenceNumber": "'.$tid.'",
+        "CardNumber":"'.$token.'",
+        "j":0
+        }';
+    
+    $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/CommitFullTransaction',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS =>$data,
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        ),
+        ));
+
+    $response = curl_exec($curl);
+    
+    return json_decode($response);
+
+   }
 
     public function displayThanks($id){
         $client = Client::where('id',$id)->get()->first()->toArray();
@@ -846,7 +889,7 @@ class InvoiceController extends Controller
          $cc = ['cc'=>[
              "sum" => $total,
              "card_type" => $card->card_type,
-             "card_number" => substr($card->card_number,3), 
+             "card_number" => $card->card_number, 
              "exp_year" => $ex[0],
              "exp_month" => $ex[1],
              "holder_id" => "",
