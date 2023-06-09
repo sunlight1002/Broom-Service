@@ -508,8 +508,8 @@ export default function TotalJobs() {
                                                                     </button>
                                                                  
                                                                     <div className="dropdown-menu">
-                                                                    { item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
-                                                                    { item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
+                                                                    { (item.client) && item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
+                                                                    { (item.client) && item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
                                                                         <Link to={`/admin/view-job/${item.id}`} className="dropdown-item">View</Link>
                                                                         <button className="dropdown-item" onClick={() => handleDelete(item.id)}>Delete</button>
                                                                     </div>
