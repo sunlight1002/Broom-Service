@@ -78,7 +78,7 @@ export default function WorkContract() {
 
         if(oc == false){
 
-            if(sesid == null){ window.alert(t('Something went work with adding card. Please try again')); return;  }
+           // if(sesid == null){ window.alert(t('Something went work with adding card. Please try again')); return;  }
             axios
             .get(`/record-invoice/${sesid}/${client.id}`)
             .then((res)=>{});
