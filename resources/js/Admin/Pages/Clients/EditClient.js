@@ -405,8 +405,11 @@ export default function EditClient() {
 
     const handleType = (e) => {
 
-        let fixed_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling;
-        let per_hour_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling.nextElementSibling;
+        let fixed_field = e.target.parentNode.nextSibling.nextElementSibling;
+        let per_hour_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling;
+
+        console.log(fixed_field);
+        console.log(per_hour_field);
 
         if (e.target.value == 'hourly') {
             fixed_field.style.display = 'none';
@@ -1001,7 +1004,7 @@ export default function EditClient() {
                                                                                 <textarea type="text" name="other_title" id={`other_title` + index} placeholder='Service Title' style={(element.other_title == '') ? { "display": "none" } : {}} className="form-control" value={element.other_title || ""} onChange={e => handleChange(index, e)} />
                                                                             </td>
                                                                             <td>
-                                                                                <select name="type" className="form-control" value={element.type || ""} onChange={(e) => { handleChange(index, e); handleType(e) }} >
+                                                                                <select name="type" className="form-control" value={element.type || ""} onChange={(e) => { handleChange(index, e); handleType(e); }} >
                                                                                     <option selected value="fixed">Fixed</option>
                                                                                     <option selected value="hourly">Hourly</option>
                                                                                 </select>

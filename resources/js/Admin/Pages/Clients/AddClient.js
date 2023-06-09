@@ -360,8 +360,8 @@ export default function AddClient() {
 
     const handleType = (e) => {
 
-        let fixed_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling;
-        let per_hour_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling.nextElementSibling;
+        let fixed_field = e.target.parentNode.nextSibling.nextElementSibling;
+        let per_hour_field = e.target.parentNode.nextSibling.nextElementSibling.nextElementSibling;
 
         if (e.target.value == 'hourly') {
             fixed_field.style.display = 'none';
