@@ -461,7 +461,7 @@ export default function TotalJobs() {
                                                                     item.jobservice && item.jobservice.map((js,i)=>{
                                                                        
                                                                         return (
-                                                                            (item.client.lng  == 'en')
+                                                                            (item.client && item.client.lng  == 'en')
                                                                                 ? (js.name + " ")
                                                                                 :
                                                                                 (js.heb_name + " ")
