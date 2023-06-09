@@ -397,7 +397,7 @@ export default function Invoices() {
                                                             <Td>{item.paid_amount} ILS</Td>
                                                             <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
                                                             <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
-                                                            <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
+                                                            <Td><Link to={`/admin/view-client/${ (item.client) ?item.client.id : 'NA'}`}>{ (item.client) ?item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                                             <Td>
                                                                 {item.status}
                                                             </Td>

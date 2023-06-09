@@ -138,9 +138,9 @@ export default function Order() {
                                 return (
                                     <Tr>
                                         <Td>#{item.order_id}</Td>
-                                        <Td><Link to={`/admin/view-job/${item.job.id}`}>{ Moment(item.job.start_date).format('DD-MM-Y')+ " | "+item.job.shifts  }</Link></Td>
+                                        <Td><Link to={`/admin/view-job/${(item.job) ? item.job.id : 'NA'}`}>{ (item.job) ? Moment(item.job.start_date).format('DD-MM-Y')+ " | "+item.job.shifts : 'NA'  }</Link></Td>
                                         <Td>{ Moment(item.created_at).format('DD, MMM Y')}</Td>
-                                        <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
+                                        <Td><Link to={`/admin/view-client/${item.client ? item.client.id : 'NA' }`}>{(item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                         <Td>
                                             {item.status}
                                         </Td>

@@ -524,7 +524,8 @@ class InvoiceController extends Controller
             return response()->json(["url"=>$re->Data->SessionUrl,'session_id'=>$re->Data->SessionId]);
     }
    
-    public function recordInvoice($sid, $cid){
+    public function recordInvoice($sid, $cid, $holder){
+        
 
         $key = env('ZCREDIT_KEY');
 
@@ -557,11 +558,13 @@ class InvoiceController extends Controller
         $expiry = "20".$x[1]."-".$x[0];
         if(!empty($cb)){
            $args = [
-             'client_id' => $cid,
-             'card_token'=>$cb->Token,
-             'card_number' =>$cb->CardNum,
-             'valid'     =>$expiry,
-             'cc_charge' => 1,
+             'client_id'   => $cid,
+             'card_token'  => $cb->Token,
+             'card_number' => $cb->CardNum,
+             'card_type'   => $cb->CardName,
+             'card_holder' => $holder,
+             'valid'       => $expiry,
+             'cc_charge'   => 1,
            ];
 
         $cap = $this->releaseCapure( $cb->Total, $re->TransactionID ,$cb->Token);
@@ -893,7 +896,7 @@ class InvoiceController extends Controller
              "exp_year" => $ex[0],
              "exp_month" => $ex[1],
              "holder_id" => "",
-             "holder_name" => $contract->name_on_card,
+             "holder_name" => $card->card_holder,
              "confirmation_code" => ""
          ]];
 

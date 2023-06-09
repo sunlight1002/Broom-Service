@@ -118,7 +118,7 @@ export default function Payment() {
                                         <Td>
                                             {item.txn_id ? item.txn_id : 'NA'}
                                         </Td>
-                                        <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
+                                        <Td><Link to={`/admin/view-client/${(item.client) ? item.client.id : 'NA'}`}>{ (item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                         <Td>{item.amount} ILS</Td>
                                         <Td>{item.paid_amount} ILS</Td>
                                         <Td>{ Moment(item.created_at).format('DD, MMM Y')}</Td>

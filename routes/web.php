@@ -18,7 +18,7 @@ Route::get('/import',[DashboardController::class,'import']);
 Route::get('/pdf/{id}',[AuthController::class,'pdf101']);
 Route::get('/view-invoice/{id}',[InvoiceController::class,'viewInvoice']);
 Route::get('/generate-payment/{id}',[InvoiceController::class,'generatePayment']);
-Route::get('/record-invoice/{sesid}/{cid}',[InvoiceController::class,'recordInvoice']);
+Route::get('/record-invoice/{sesid}/{cid}/{holder}',[InvoiceController::class,'recordInvoice']);
 Route::get('/thanks/{id}',[InvoiceController::class,'displayThanks'])->name('thanks');
 Route::any('/webhook_fb',[DashboardController::class,'fbWebhook'])->name('webhook_fb');
 

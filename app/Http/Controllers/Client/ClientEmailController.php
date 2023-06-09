@@ -246,6 +246,7 @@ class ClientEmailController extends Controller
         'old_contract'=>env('OLD_CONTRACT'),
         'offer' => $goffer,
         'contract'=>$offer,
+        'card'=>$exist_card,
       ]);
   }
 
