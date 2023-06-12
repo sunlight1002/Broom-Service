@@ -42,14 +42,17 @@ export default function WorkContract() {
 
     const handleAccept = (e) => {
 
-        if (!cname && csdata == null) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
-        if (!signature2) { swal(t('work-contract.messages.sign_card_err'), '', 'error'); return false; }
-        if (!signature) { swal(t('work-contract.messages.sign_err'), '', 'error'); return false; }
+        if (!cname && csdata == null && oc == false) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
+        
         if (oc == true) {
             if (!ctype) { window.alert(t('work-contract.messages.card_type_err')); return false; }
             if (!cvv) { window.alert(t('work-contract.messages.cvv_err')); return false; }
 
         }
+
+        if (!signature2) { swal(t('work-contract.messages.sign_card_err'), '', 'error'); return false; }
+        if (!signature) { swal(t('work-contract.messages.sign_err'), '', 'error'); return false; }
+       
         const data = {
             unique_hash: param.id,
             offer_id: offer[0].id,
@@ -58,7 +61,9 @@ export default function WorkContract() {
             name_on_card: cname,
             status: 'un-verified',
             signature: signature,
-            card_sign: signature2
+            card_sign: signature2,
+            card_type:ctype,
+            cvv:cvv.substring(0, 3)
         }
         if (submit == false && sesid == null) { window.alert(t('work-contract.messages.add_card_err')); return; }
 
@@ -599,15 +604,15 @@ export default function WorkContract() {
                                         <td>
                                             <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
                                                 <option> {t('work-contract.please_select')}</option>
-                                                <option value='Visa'>Visa</option>
-                                                <option value='Master Card'>Master Card</option>
-                                                <option value='American Express'>American Express</option>
+                                                <option value='Visa' selected={contract.card_type == 'Visa'}>Visa</option>
+                                                <option value='Master Card' selected={contract.card_type == 'Master Card'}>Master Card</option>
+                                                <option value='American Express' selected={contract.card_type == 'American Express'}>American Express</option>
                                             </select>
                                         </td>
                                     </tr>
                                 }
 
-                                {csdata == null && <tr>
+                                {(oc == true || csdata == null) && <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
                                         {contract && contract.name_on_card != null ?
@@ -618,7 +623,7 @@ export default function WorkContract() {
                                     </td>
                                 </tr>}
 
-                                {csdata &&
+                                {oc == false && csdata &&
                                     <>
                                         <tr>
                                             <td style={{ width: "60%" }}>{t('work-contract.card.four_digits')}</td>
@@ -659,7 +664,14 @@ export default function WorkContract() {
                                             {t('work-contract.card_cvv')}
                                         </label></td>
                                         <td>
+
+                                        {contract && contract.name_on_card != null ?
+                                            <input type="text" value={contract.cvv} className="form-control" readOnly />
+                                            :
                                             <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
+                                        }
+
+                                          
                                         </td>
                                     </tr>
                                 }

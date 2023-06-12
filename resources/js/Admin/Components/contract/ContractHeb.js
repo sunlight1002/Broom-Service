@@ -325,18 +325,18 @@ export default function WorkContractRHS() {
                                                     </>
                                                     :
                                                     <>
-                                                       {/* <Tr>
+                                                        { c.card_type != null && <Tr>
                                                             <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
                                                             <Td><span className='form-control'>{c.card_type}</span></Td>
-                                                        </Tr>*/}
+                                                        </Tr>}
                                                         <Tr>
                                                             <Td style={{ width: "60%" }}>{t('work-contract.card_name')}</Td>
                                                             <Td><span className='form-control'>{c.name_on_card}</span></Td>
                                                         </Tr>
-                                                       {/* <Tr>
+                                                       {c.cvv != null && <Tr>
                                                             <Td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</Td>
                                                             <Td ><span className='form-control'>{c.cvv}</span></Td>
-                                                        </Tr>*/}
+                                                        </Tr>}
                                                         <Tr>
                                                             <Td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</Td>
                                                             <img src={c.card_sign} className='img-fluid' alt='Company' />

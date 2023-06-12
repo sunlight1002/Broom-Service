@@ -9,6 +9,7 @@ export default function CardDetails({ latestContract, client }) {
     const [expiry,setExpiry]    = useState(null);
     const [ctype,setCtype]      = useState(null);
     const [holder,setHolder]    = useState(null);
+    const [cvv,setCvv]          = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -27,6 +28,7 @@ export default function CardDetails({ latestContract, client }) {
             setExpiry ( res.data.status_code  != 0  ? res.data.expiry  : null ); 
             setCtype  ( res.data.status_code  != 0  ? res.data.ctype   : null );
             setHolder ( res.data.status_code  != 0  ? res.data.holder  : null );
+            setCvv    (res.data.cvv.cvv != null && res.data.cvv != 0 ? res.data.cvv.cvv : null);
         })
     }
 
@@ -34,27 +36,27 @@ export default function CardDetails({ latestContract, client }) {
     
     const viewPass = () => {
 
-        if (!passVal) { window.alert('Please enter your password'); return; }
-        axios
-            .post(`/api/admin/viewpass`, { id: localStorage.getItem('admin-id'), pass: passVal }, { headers })
-            .then((res) => {
-                if (res.data.response == false) {
-                    window.alert('Wrong password!');
-                } else {
-                     setCvv(or_cvv);
-                    document.querySelector('.closeCv').click();
-                }
-            })
+        // if (!passVal) { window.alert('Please enter your password'); return; }
+        // axios
+        //     .post(`/api/admin/viewpass`, { id: localStorage.getItem('admin-id'), pass: passVal }, { headers })
+        //     .then((res) => {
+        //         if (res.data.response == false) {
+        //             window.alert('Wrong password!');
+        //         } else {
+        //              setCvv(or_cvv);
+        //             document.querySelector('.closeCv').click();
+        //         }
+        //     })
     }
     
     useEffect(() => {
         getToken();
-        setTimeout(() => {
-            if (client.latest_contract != 0 && client.latest_contract != undefined) {
-                let bookBtn = document.querySelector('#bookBtn');
-                bookBtn.style.display = 'block';
-            }
-        }, 200)
+        // setTimeout(() => {
+        //     if (client.latest_contract != 0 && client.latest_contract != undefined) {
+        //         let bookBtn = document.querySelector('#bookBtn');
+        //         bookBtn.style.display = 'block';
+        //     }
+        // }, 200)
     }, [client]);
     return (
         <div className='form-group'>
@@ -65,6 +67,7 @@ export default function CardDetails({ latestContract, client }) {
             <li><strong>Card Type : </strong>{ ctype != null ? ctype : 'NA' }</li>
             <li><strong>Card Holder : </strong>{ holder != null ? holder : 'NA' }</li>
             <li><strong>Card Token : </strong>{ token != null ? token : 'NA' }</li>
+            <li><strong>Cvv : </strong>{ cvv != null ? cvv : 'NA' }</li>
            
               
             </ul>
