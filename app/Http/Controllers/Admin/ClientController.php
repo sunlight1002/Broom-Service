@@ -557,6 +557,12 @@ class ClientController extends Controller
         else
         $clients = Client::where('status','!=','null')->get();
         
+        foreach ( $clients as $i => $c){
+
+            if($c->status == 0){ $clients[$i]['status'] = 'Lead';}
+            if($c->status == 1){ $clients[$i]['status'] = 'Potential Customer';}
+            if($c->status == 2){ $clients[$i]['status'] = 'Customer';}
+        }
         return response()->json([
             'clients' => $clients
         ]);
