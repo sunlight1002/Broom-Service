@@ -62,5 +62,17 @@ class Job extends Model
         return $this->hasMany(Invoices::class,'job_id');
     }
 
+    public static function boot() {
+        parent::boot();
+        static::deleting(function($job) { 
+            
+             Invoices::where('job_id',$job->id)->delete();
+             JobService::where('job_id',$job->id)->delete();
+             JobHours::where('job_id',$job->id)->delete();
+             JobComments::where('job_id',$job->id)->delete();
+           
+        });
+    }
+
 
 }

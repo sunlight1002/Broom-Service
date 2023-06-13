@@ -8,6 +8,13 @@ import Moment from 'moment';
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
 
+import { render } from "react-dom";
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
+
 export default function Invoices() {
 
     const [loading, setLoading] = useState("Loading...");
@@ -18,7 +25,7 @@ export default function Invoices() {
     const [cancelDoc,setCancelDoc] = useState('');
     const [dtype,setDtype] = useState('');
     const [reason,setReason] = useState('');
-
+    const [cbvalue,setCbvalue] = useState('');
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -281,6 +288,13 @@ export default function Invoices() {
 
     }
 
+    const displayCallback = (cb) =>{
+        $('.ace-tm').css({'background-color':'black','color':'#5cc527'});
+        // let c = JSON.parse(cb);
+        // console.log(c);
+        setCbvalue(cb);
+    }
+
     useEffect(() => {
         getInvoices();
     }, []);
@@ -398,7 +412,7 @@ export default function Invoices() {
                                                             <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
                                                             <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
                                                             <Td><Link to={`/admin/view-client/${ (item.client) ?item.client.id : 'NA'}`}>{ (item.client) ?item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
-                                                            <Td>
+                                                            <Td onClick={ e => displayCallback(item.callback) } data-toggle="modal" data-target="#callBack">
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
@@ -734,6 +748,50 @@ export default function Invoices() {
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
                             <button type="button" onClick={e=>handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div className="modal fade" id="callBack" tabindex="-1" role="dialog" aria-labelledby="callBack" aria-hidden="true">
+                <div className="modal-dialog modal-lg" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="callBack">Payment Response</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                       
+                                    {<AceEditor
+                                        mode="json"
+                                        theme="terminal"
+                                        width='100%'
+                                        name="cbfield"
+                                        fontSize="20px"
+                                        showPrintMargin={false}
+                                        value={cbvalue ? JSON.stringify(JSON.parse(cbvalue), null, 2) : ''}
+                                        editorProps={{ $blockScrolling: true }}
+                                        setOptions={{
+                                            useWorker: false
+                                          }}
+                                        />}
+                                        
+                                    </div>
+                                </div>
+                                    
+                            </div>
+
+                            
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

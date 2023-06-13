@@ -91,6 +91,8 @@ export default function Jobs() {
         
     }
 
+    let pstatus = null;
+
   return (
     <div className="boxPanel">
         <div className="table-responsive">
@@ -134,21 +136,29 @@ export default function Jobs() {
                              }</td>
                             <td> {total } ILS + VAT</td>
                             <td>{Moment(j.created_at).format('DD MMM,Y')}</td>
-                            <td>{j.status}</td>
-                           {/* <td>
-                                <div className="d-flex">
-                                { (j.worker) ? 
-                                    <Link to={`/admin/edit-job/${j.id}`} className="btn bg-purple"><i className="fa fa-edit"></i></Link>
-                                    :<Link to={`/admin/create-job/${j.contract_id}`} className="btn bg-purple"><i className="fa fa-edit"></i></Link>
-                                }
-                                    <Link to={`/admin/view-job/${j.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-eye"></i></Link>
+                            <td>{j.status}
 
-                                    <Link to={`/admin/add-order/?j=${j.id}&c=${params.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-circle"></i></Link>
-                                    <Link to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`} className="ml-2 btn bg-yellow"><i className="fa fa-triangle"></i></Link>
 
-                                    <button className="ml-2 btn bg-red" onClick={() => handleDelete( j.id )}><i className="fa fa-trash"></i></button>                            
-                                </div>
-                            </td>*/}
+                            {
+                                j.order && j.order.map((o,i)=>{
+
+                                    return (<> <br/><Link target='_blank' to={o.doc_url} className="jorder"> order -{o.order_id} </Link><br/></>);
+                                })
+                            }
+
+                            {
+                                j.invoice && j.invoice.map((inv,i)=>{
+
+                                    if( i == 0 ){ pstatus = inv.status; }
+
+                                    return (<> <br/><Link target='_blank' to={inv.doc_url} className="jinv"> Invoice -{inv.invoice_id} </Link><br/></>);
+                                })
+                            }
+
+                            {
+                                pstatus != null && <> <br/><span class='jorder'>{ pstatus }</span><br/></>
+                            }
+                            </td>
                              <td className='text-center'>
 
                                 <div className="action-dropdown dropdown pb-2">

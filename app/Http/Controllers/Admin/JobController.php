@@ -238,7 +238,7 @@ class JobController extends Controller
 
     public function getJobByClient(Request $request){
        
-       $jobs = Job::with('offer','worker','jobservice')->where('client_id',$request->cid)->orderBy('start_date', 'desc')->get();
+       $jobs = Job::with('offer','worker','jobservice','order','invoice')->where('client_id',$request->cid)->orderBy('start_date', 'desc')->get();
        return response()->json([
         'jobs' => $jobs
     ]);

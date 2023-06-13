@@ -82,6 +82,8 @@ class Client extends Authenticatable
              Offer::where('client_id',$Client->id)->delete();
              Contract::where('client_id',$Client->id)->delete();
              notifications::where('user_id',$Client->id)->delete();
+             Job::where('client_id',$Client->id)->delete();
+             Order::where('client_id',$Client->id)->delete();
         });
     }
 

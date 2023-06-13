@@ -17,7 +17,10 @@ export default function ClientHistory({ contracts ,setContracts, latestContract,
             <li className="nav-item" role="presentation"><a id="offered-price" className="nav-link" data-toggle="tab" href="#tab-offered" aria-selected="false" role="tab">Offered Price</a></li>
             <li className="nav-item" role="presentation"><a id="contract" className="nav-link" data-toggle="tab" href="#tab-contract" aria-selected="false" role="tab">Contracts</a></li>
             <li className="nav-item" role="presentation"><a id="jobs-tab" className="nav-link" data-toggle="tab" href="#tab-jobs" aria-selected="false" role="tab">Jobs</a></li>
-            <li className="nav-item" role="presentation"><a id="order-tab" className="nav-link" data-toggle="tab" href="#tab-order" aria-selected="false" role="tab">Orders</a></li>
+            
+            <li className="nav-item" role="presentation"><a id="order-tab" className="nav-link" data-toggle="tab" href="#tab-order" onClick={e=>{$('.order_drop').show();}} aria-selected="false" role="tab">Orders</a>
+            </li>
+
             <li className="nav-item" role="presentation"><a id="invoice-tab" className="nav-link" data-toggle="tab" href="#tab-invoice" aria-selected="false" role="tab">Invoice</a></li>
             <li className="nav-item" role="presentation"><a id="payment-tab" className="nav-link" data-toggle="tab" href="#tab-payment" aria-selected="false" role="tab">Payment</a></li>
             <li className="nav-item" role="presentation"><a id="creditCard-tab" className="nav-link" data-toggle="tab" href="#tab-creditCard" aria-selected="false" role="tab">Card Details</a></li>
