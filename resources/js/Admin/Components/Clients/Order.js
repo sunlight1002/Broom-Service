@@ -11,18 +11,21 @@ export default function Order() {
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [orders, setOrders]   = useState([]);
+    const [res,setRes] = useState(''); 
     const params = useParams();
     const id = params.id;
+   
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getOrders = () => {
+    const getOrders = (filter) => {
         axios
-            .get(`/api/admin/client-orders/${id}`, { headers })
+            .get(`/api/admin/client-orders/${id}?`+filter, { headers })
             .then((res) => {
+                setRes(res.data);
                 if (res.data.orders.data.length > 0) {
                     setOrders(res.data.orders.data);
                     setPageCount(res.data.orders.last_page);
@@ -33,6 +36,7 @@ export default function Order() {
             })
     }
 
+    
     const copy = [...orders];
     const [order,setOrder] = useState('ASC');
     const sortTable = (e,col) =>{
@@ -110,13 +114,25 @@ export default function Order() {
                 }
             });
     };
-
+   
     useEffect(() => {
-        getOrders();
+        getOrders('f=all');
     }, []);
     return (
         <div className="boxPanel">
+             <div className="action-dropdown dropdown order_drop text-right">
+                  <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                      <i className="fa fa-filter"></i>
+                  </button>
+                  <div className="dropdown-menu">
+                      <button className="dropdown-item"  onClick={e=>getOrders('status=Open')}          >Open         - { res.open }</button>
+                      <button className="dropdown-item"  onClick={e=>getOrders('status=Closed')}        >Closed       - { res.closed }</button>
+                      <button className="dropdown-item"  onClick={e=>getOrders('invoice_status=m')}     >Invoiced     - { res.generated }</button>
+                      <button className="dropdown-item"  onClick={e=>getOrders('invoice_status=0')}     >Not Invoiced - { res.not_generated } </button>
+                  </div>
+            </div>
             <div className="table-responsive">
+           
             { orders.length > 0 ?(
                 <Table className="table table-bordered">
                     <Thead>

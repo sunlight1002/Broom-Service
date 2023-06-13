@@ -61,10 +61,30 @@ class InvoiceController extends Controller
 
     }
 
-    public function getClientInvoices($id){
-        $invoices = Invoices::where('customer',$id)->with('client')->orderBy('id', 'desc')->paginate(20);
+    public function getClientInvoices(Request $request,$id){
+
+        if($request->f == 'all')
+        $invoices   = Invoices::where('customer',$id)->with('client')->orderBy('id', 'desc')->paginate(20);
+        if(isset($request->status))
+        $invoices   = Invoices::with('client')->where('status',$request->status)->where('customer',$id)->orderBy('id','desc')->paginate(20);
+        if(isset($request->icount_status))
+        $invoices   = Invoices::with('client')->where('invoice_icount_status',$request->icount_status)->where('customer',$id)->orderBy('id','desc')->paginate(20);
+      
+        $open       = Invoices::where('customer',$id)->where('invoice_icount_status','Open')->count();
+        $closed     = Invoices::where('customer',$id)->where('invoice_icount_status','Closed')->count();
+        $paid       = Invoices::where('customer',$id)->where('status','Paid')->count();
+        $unpaid     = Invoices::where('customer',$id)->where('status','Unpaid')->count();
+        $partial    = Invoices::where('customer',$id)->where('status','Partially Paid')->count();
+       
         return response()->json([
-         'invoices' => $invoices
+            
+         'invoices' => $invoices,
+         'paid'     => $paid,
+         'unpaid'   => $unpaid,
+         'open'     => $open,
+         'closed'   => $closed,
+         'partial'  => $partial,
+
         ]);
    
  
@@ -923,7 +943,7 @@ class InvoiceController extends Controller
          $pres = $this->commitInvoicePayment($services, $id, $card->card_token, $total);
          $pre = json_encode($pres);
        }
-       dd($pre);
+       
 
    /*Close Order */
        $this->closeDoc($job->order->order_id,'order');
@@ -1079,10 +1099,31 @@ class InvoiceController extends Controller
     
     }
 
-    public function getClientOrders($id){
-        $orders = Order::where('client_id',$id)->with('job','client')->orderBy('id','desc')->paginate(20);
+    public function getClientOrders(Request $request,$id){
+
+        if($request->f == 'all')
+        $orders   = Order::where('client_id',$id)->with('job','client')->orderBy('id','desc')->paginate(20);
+        if(isset($request->status))
+        $orders   = Order::with('job','client')->where('status',$request->status)->where('client_id',$id)->orderBy('id','desc')->paginate(20);
+        if(isset($request->invoice_status) && $request->invoice_status != 'm')
+        $orders   = Order::with('job','client')->where('invoice_status',$request->invoice_status)->where('client_id',$id)->orderBy('id','desc')->paginate(20);
+        if(isset($request->invoice_status) && $request->invoice_status == 'm')
+        $orders   = Order::with('job','client')->where('invoice_status',1)->orwhere('invoice_status',2)->where('client_id',$id)->orderBy('id','desc')->paginate(20);
+
+
+        $open     = Order::where('client_id',$id)->where('status','Open')->count();
+        $closed   = Order::where('client_id',$id)->where('status','Closed')->count();
+        $gen      = Order::where('invoice_status','1')->orwhere('invoice_status','2')->where('client_id',$id)->count();
+        $ngen     = Order::where('client_id',$id)->where('invoice_status','0')->count();
+
         return response()->json([
-            'orders' =>$orders
+
+            'orders'        =>$orders,
+            'open'          =>$open,
+            'closed'        =>$closed,
+            'generated'     =>$gen,
+            'not_generated' =>$ngen,
+
         ]);
     }
 

@@ -11,6 +11,7 @@ export default function Invoice() {
     const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
+    const [res,setRes] = useState(''); 
     const params = useParams();
     const id = params.id;
     const headers = {
@@ -24,10 +25,11 @@ export default function Invoice() {
     const [amount,setAmount]         = useState();
     const [txn,setTxn]               = useState('');
 
-    const getInvoices = () => {
+    const getInvoices = (filter) => {
         axios
-            .get(`/api/admin/client-invoices/${id}`, { headers })
+            .get(`/api/admin/client-invoices/${id}?`+filter, { headers })
             .then((res) => {
+                setRes(res.data);
                 if (res.data.invoices.data.length > 0) {
                     setInvoices(res.data.invoices.data);
                     setPageCount(res.data.invoices.last_page);
@@ -148,11 +150,23 @@ export default function Invoice() {
     };
 
     useEffect(() => {
-        getInvoices();
+        getInvoices('f=all');
     }, []);
     return (
         <>
         <div className="boxPanel">
+        <div className="action-dropdown dropdown order_drop text-right">
+                  <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                      <i className="fa fa-filter"></i>
+                  </button>
+                  <div className="dropdown-menu">
+                      <button className="dropdown-item"  onClick={e=>getInvoices('icount_status=Open')}          >Open         - { res.open }</button>
+                      <button className="dropdown-item"  onClick={e=>getInvoices('icount_status=Closed')}        >Closed       - { res.closed }</button>
+                      <button className="dropdown-item"  onClick={e=>getInvoices('status=Paid')}                 >Paid         - { res.paid }</button>
+                      <button className="dropdown-item"  onClick={e=>getInvoices('status=Unpaid')}               >Unpaid       - { res.unpaid } </button>
+                      <button className="dropdown-item"  onClick={e=>getInvoices('status=Partially Paid')}       >Partial paid - { res.partial } </button>
+                  </div>
+            </div>
             <div className="table-responsive">
                 {invoices.length > 0 ? (
                     <Table className="table table-bordered">

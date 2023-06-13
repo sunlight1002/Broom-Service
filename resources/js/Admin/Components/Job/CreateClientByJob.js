@@ -329,6 +329,47 @@ export default function CreateClientByJob() {
 
             })
         }
+
+        let remOptions = [];
+        
+        if(shifts.includes('morning 2 - 10am-12pm')){
+
+            remOptions.push('morning1-8am-10am');
+            remOptions.push('morning2-10am-12pm');
+        }
+        
+        if(shifts.includes('noon2 -14pm-16pm')){
+
+            remOptions.push('noon1-12pm-14pm');
+            remOptions.push('noon2-14pm-16pm');
+        }
+
+        if(shifts.includes('evening2 -18pm-20pm')){
+
+            remOptions.push('evening1-16pm-18pmm');
+            remOptions.push('evening2-18pm-20pm');
+        }
+
+        if(shifts.includes('night2 -22pm-24pm')){
+
+            remOptions.push('night1-20pm-22pm');
+            remOptions.push('night2-22pm-24pm');
+        }
+
+        
+
+        for (var i = 0; i < new_options.length; i++) {
+            var obj = new_options[i];
+
+          
+          
+            if (remOptions.indexOf((obj.label).replace(/\s/g,'')) !== -1) {
+                new_options.splice(i, 1);
+            }
+
+        }
+
+        
         return new_options;
 
     }
