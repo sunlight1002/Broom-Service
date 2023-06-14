@@ -412,7 +412,7 @@ export default function Invoices() {
                                                             <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
                                                             <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
                                                             <Td><Link to={`/admin/view-client/${ (item.client) ?item.client.id : 'NA'}`}>{ (item.client) ?item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
-                                                            <Td onClick={ e => displayCallback(item.callback) } data-toggle="modal" data-target="#callBack">
+                                                            <Td onClick={ e => displayCallback(item.callback) } style={{cursor:'pointer'}} data-toggle="modal" data-target="#callBack">
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
@@ -433,7 +433,7 @@ export default function Invoices() {
                                                                     <div className="dropdown-menu">
                                                                         <a target="_blank" href={item.doc_url} className="dropdown-item">View Invoice</a>
                                                                         {
-                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
                                                                             >Add Payment</button>
                                                                         }
 
@@ -441,14 +441,14 @@ export default function Invoices() {
                                                                             item.invoice_icount_status == 'Open' && <button onClick={(e) => { closeDoc(item.invoice_id, item.type) }} className="dropdown-item"
                                                                             >Close Doc</button>
                                                                         }
-                                                                        { item.invoice_icount_status != 'Cancelled' && item.invoice_icount_status != 'Closed' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                                        { item.invoice_icount_status != 'Cancelled' && item.invoice_icount_status != 'Closed' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModalCancel" className="dropdown-item"
                                                                             >Cancel Doc</button>
                                                                         }
                                                                         {
                                                                             item.receipt &&  <a target="_blank" href={item.receipt.docurl} className="dropdown-item">View Receipt</a>
                                                                         }
-                                                                        <button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                                        >Delete</button>
+                                                                       {/* <button onClick={e => handleDelete(item.id)} className="dropdown-item"
+                                                                        >Delete</button>*/}
                                                                     </div>
                                                                 </div>
                                                             </Td>
@@ -492,11 +492,11 @@ export default function Invoices() {
                     </div>
                 </div>
 
-                <div className="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
+                <div className="modal fade" id="exampleModaPaymentAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModaPaymentAdd" aria-hidden="true">
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title" id="exampleModal">Add Payment</h5>
+                                <h5 className="modal-title" id="exampleModaPaymentAdd">Add Payment</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -714,11 +714,11 @@ export default function Invoices() {
 
             </div>
 
-            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+            <div className="modal fade" id="exampleModalCancel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCancel" aria-hidden="true">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
+                            <h5 className="modal-title" id="exampleModalCancel">Cancel Reason</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>

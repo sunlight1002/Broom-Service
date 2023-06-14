@@ -12,6 +12,10 @@ export default function Order() {
     const [pageCount, setPageCount] = useState(0);
     const [orders, setOrders]   = useState([]);
     const [res,setRes] = useState(''); 
+    const [reason,setReason] = useState('');
+    const [cancelDoc,setCancelDoc] = useState('');
+    const [dtype,setDtype] = useState('');
+
     const params = useParams();
     const id = params.id;
    
@@ -114,6 +118,62 @@ export default function Order() {
                 }
             });
     };
+
+
+    const closeDoc = (id, type) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Close Order!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/close-doc/${id}/${type}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Closed",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders('f=all');
+                        }, 1000);
+                    });
+            }
+        });
+    };
+
+    const GenInvoice = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to generate invoice for this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Generate Invoice!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/order-manual-invoice/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Invoice Generated",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders('f=all');
+                        }, 1000);
+                    });
+            }
+        });
+    }
+
    
     useEffect(() => {
         getOrders('f=all');
@@ -161,7 +221,7 @@ export default function Order() {
                                             {item.status}
                                         </Td>
                                         <Td>
-                                            { item.invoice_status == 0 ? "Not Generated": "Generated" }
+                                            { item.invoice_status == "2" ?  "Generated" : "Not Generated" }
                                         </Td>
                                         <Td>
                                             <div className="action-dropdown dropdown">
@@ -169,9 +229,22 @@ export default function Order() {
                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                 </button>
                                                 <div className="dropdown-menu">
-                                                    <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>
-                                                    <button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
-                                                    >Delete</button>
+                                                {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
+                                                                         
+                                                {
+                                                    item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
+                                                    >Close Doc</button>
+                                                }
+                                                {
+                                                    item.status == 'Open' && <button onClick={e => GenInvoice(item.id)} className="dropdown-item"
+                                                    >Generate Invoice</button>
+                                                }
+                                                { item.status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.order_id);setDtype('order')} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                    >Cancel Doc</button>
+                                                }
+
+                                                {/*<button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
+                                                    >Delete</button>*/}
                                                 </div>
                                             </div>
                                         </Td>
@@ -210,7 +283,47 @@ export default function Order() {
 
 
             </div>
+            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+
+                                        <textarea
+                                            onChange={(e) =>
+                                                setReason(e.target.value)
+                                            }
+                                            className="form-control"
+                                            required
+                                            placeholder="Enter Reason(optional)"
+                                        ></textarea>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
+                            <button type="button" onClick={e => handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        
 
     )
 }

@@ -111,6 +111,17 @@ class InvoiceController extends Controller
         $name     = ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
         $ln = ($client->lng == 'heb') ? 'he' : 'en'; 
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
+        
+          /* Auto payment */
+       if( $doctype == 'invrec'){
+        $pres = $this->commitInvoicePayment($services, $req['job'], $card->card_token, $total);
+        $pre = json_encode($pres);
+        
+        if($pres->HasError == true){
+            $doctype = 'invoice';
+        }
+      }
+
         $params = Array(
    
                 "cid"            => env('ICOUNT_COMPANYID'),
@@ -172,12 +183,6 @@ class InvoiceController extends Controller
       
         //dd($json);
         //if(!$json["status"]) die($json["reason"]);
-   
-        /* Auto payment */
-        if( $doctype == 'invrec'){
-            $pres = $this->commitInvoicePayment($services, $req['job'], $card->card_token, $total);
-            $pre = json_encode($pres);
-          }
           
       
           job::where('id',$req['job'])->update([
@@ -198,7 +203,7 @@ class InvoiceController extends Controller
               'invoice_icount_status' => 'Open',
               'due_date'   => $due,
               'txn_id'     => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? $pres->ReferenceNumber : '',
-              'callback'   => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
+              'callback'   => ( (isset($pres))) ? $pre : '',
               'status'     => ( (isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ( (isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
           ];
         
@@ -414,6 +419,8 @@ class InvoiceController extends Controller
         ->where('status','!=','completed')
         ->where('isOrdered',1)
         ->get();    
+
+       // dd($jobs);
 
         if(!empty($jobs)){
             foreach($jobs as $j => $job){
@@ -861,10 +868,13 @@ class InvoiceController extends Controller
 
     public function manualInvoice($oid){
 
+   
      $_order = Order::where('id',$oid)->get()->first();
      $id = $_order->job_id;
      $job = Job::where('id',$id)->with('jobservice','client','contract','order')->get()->first();
-     $services = json_decode($job->order->items);
+     
+     $services = json_decode($job->order[0]->items);
+    
      $total = 0;
      
      $card = ClientCard::where('client_id',$job->client_id)->get()->first();
@@ -883,6 +893,18 @@ class InvoiceController extends Controller
      $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
      $url = "https://api.icount.co.il/api/v3.php/doc/create";
      $ln = ($job->client->lng == 'heb') ? 'he' : 'en'; 
+    
+    
+       /* Auto payment */
+       if( $doctype == 'invrec'){
+        $pres = $this->commitInvoicePayment($services, $id, $card->card_token, $total);
+        $pre = json_encode($pres);
+        
+        if($pres->HasError == true){
+            $doctype = 'invoice';
+        }
+      }
+    
      $params = Array(
 
              "cid"            => env('ICOUNT_COMPANYID'),
@@ -937,16 +959,10 @@ class InvoiceController extends Controller
      $json = json_decode($response, true);
    
      //if(!$json["status"]) die($json["reason"]);
-
-     /* Auto payment */
-     if( $doctype == 'invrec'){
-         $pres = $this->commitInvoicePayment($services, $id, $card->card_token, $total);
-         $pre = json_encode($pres);
-       }
        
 
    /*Close Order */
-       $this->closeDoc($job->order->order_id,'order');
+       $this->closeDoc($job->order[0]->order_id,'order');
    
        job::where('id',$id)->update([
            'invoice_no'    =>$json["docnum"],
@@ -966,7 +982,7 @@ class InvoiceController extends Controller
            'invoice_icount_status' => 'Open',
            'due_date'   => $due,
            'txn_id'     => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec' ) ? $pres->ReferenceNumber : '',
-           'callback'   => ( (isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
+           'callback'   => ( (isset($pres))) ? $pre : '',
            'status'     => ( (isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ( (isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
        ];
        
@@ -977,7 +993,7 @@ class InvoiceController extends Controller
          Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed']);
 
      }
-       Order::where('id',$job->order->id)->update(['status'=>'Closed']);
+       Order::where('id',$job->order[0]->id)->update(['status'=>'Closed']);
        JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
        Order::where('id',$oid)->update(['invoice_status'=>2]);
     }

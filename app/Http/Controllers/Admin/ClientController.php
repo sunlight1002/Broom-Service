@@ -211,6 +211,7 @@ class ClientController extends Controller
                      $new->offer_id      = $offer->id;
                      $new->contract_id   = $contract->id;
                  
+                 $new->schedule_id   = $s_id;
                  $new->start_date    = $job_date;
                  $new->shifts        = $shift;
                  $new->schedule      = $repeat_value;
@@ -329,6 +330,7 @@ class ClientController extends Controller
             /* Create job */
   
             $allServices = json_decode($request->jobdata['services'],true);
+           
             foreach($allServices as $service){
              
                      $service_schedules = serviceSchedules::where('id','=',$service['frequency'])->first();
@@ -386,6 +388,8 @@ class ClientController extends Controller
                        $new->client_id     = $client->id;
                        $new->offer_id      = $offer->id;
                        $new->contract_id   = $contract->id;
+                  
+                       $new->schedule_id       = $s_id;
                    
                    $new->start_date    = $job_date;
                    $new->shifts        = $shift;

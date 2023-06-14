@@ -178,7 +178,7 @@ export default function AddInvoce() {
         }
       
     }, []);
-
+    console.log(cjobs);
     return (
         <div id="container">
             <Sidebar />

@@ -313,7 +313,7 @@ export default function Orders() {
 
                                                                     <div className="dropdown-menu">
                                                                         {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
-                                                                        
+                                                                         
                                                                         {
                                                                             item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
                                                                             >Close Doc</button>
@@ -325,8 +325,8 @@ export default function Orders() {
                                                                         { item.status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.order_id);setDtype('order')} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
                                                                             >Cancel Doc</button>
                                                                         }
-                                                                        <button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                                        >Delete</button>
+                                                                        {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
+                                                                        >Delete</button>*/}
                                                                     </div>
                                                                 </div>
                                                             </Td>
