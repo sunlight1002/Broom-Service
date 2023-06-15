@@ -17,6 +17,7 @@ use PDF;
 class InvoiceController extends Controller
 {
     public function index(Request $request){
+
        $invoices = Invoices::with('client','receipt');
 
        if(isset($request->from_date) && isset($request->to_date)){
@@ -51,11 +52,58 @@ class InvoiceController extends Controller
             });
         });
 
+        
     }
+       
+        $ta         = 0;
+        $pa         = 0;
+        $ua         = 0;
+        $ppa        = 0;
+
+        $all        = 0;
+        $paid       = 0;
+        $unpaid     = 0;
+        $partial    = 0;
+
+     
+        $get_ta  = Invoices::get();
+        $get_pa  = Invoices::where('status','Paid')->get();
+        $get_ua  = Invoices::where('status','Unpaid')->get();
+        $get_ppa = Invoices::where('status','Partially Paid')->get();
+
+        if( !empty($get_ta) ){
+
+            foreach($get_ta as $inv){ $all++; $ta += (floatval($inv->amount));}
+        }
+
+        if(!empty($get_pa)){
+
+            foreach($get_pa as $gpa){ $paid++; $pa += $gpa->amount; }
+        }
+
+        if(!empty($get_ua)){
+
+            foreach($get_ua as $gua){ $unpaid++; $ua += $gua->amount; }
+        }
+
+        if(!empty($get_ppa)){
+
+            foreach($get_ppa as $gppa){ $partial ++; $ppa += $gppa->amount; }
+        }
 
        $invoices = $invoices->orderBy('id', 'desc')->paginate(20);
        return response()->json([
-        'invoices' => $invoices
+
+        'invoices' => $invoices,
+        'ta'       => round($ta,2),
+        'pa'       => $pa,
+        'ua'       => $ua,
+        'ppa'      => $ppa,
+        'paid'     => $paid,
+        'unpaid'   => $unpaid,
+        'partial'  => $partial,
+        'all'      => $all,
+        
        ]);
   
 
@@ -75,6 +123,36 @@ class InvoiceController extends Controller
         $paid       = Invoices::where('customer',$id)->where('status','Paid')->count();
         $unpaid     = Invoices::where('customer',$id)->where('status','Unpaid')->count();
         $partial    = Invoices::where('customer',$id)->where('status','Partially Paid')->count();
+        $all        = Invoices::where('customer',$id)->count();
+
+        $ta         = 0;
+        $pa         = 0;
+        $ua         = 0;
+        $ppa        = 0;
+
+        if( !empty($invoices) && $request->f == 'all' ){
+
+            foreach($invoices as $inv){
+                $ta += $inv->amount;
+            }
+        }
+
+        $get_pa  = Invoices::where('customer',$id)->where('status','Paid')->get();
+        $get_ua  = Invoices::where('customer',$id)->where('status','Unpaid')->get();
+        $get_ppa = Invoices::where('customer',$id)->where('status','Partially Paid')->get();
+
+        if(!empty($get_pa)){
+            foreach($get_pa as $gpa){ $pa += $gpa->amount; }
+        }
+
+        if(!empty($get_ua)){
+            foreach($get_ua as $gua){ $ua += $gua->amount; }
+        }
+
+        if(!empty($get_ppa)){
+            foreach($get_ppa as $gppa){ $ppa += $gppa->amount; }
+        }
+        
        
         return response()->json([
             
@@ -84,6 +162,11 @@ class InvoiceController extends Controller
          'open'     => $open,
          'closed'   => $closed,
          'partial'  => $partial,
+         'all'      => $all,
+         'ta'       => $ta,
+         'pa'       => $pa,
+         'ua'       => $ua,
+         'ppa'      => $ppa,
 
         ]);
    
@@ -181,7 +264,7 @@ class InvoiceController extends Controller
         //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
         $json = json_decode($response, true);
       
-        //dd($json);
+        dd($json);
         //if(!$json["status"]) die($json["reason"]);
           
       
@@ -276,6 +359,7 @@ class InvoiceController extends Controller
         if($inv->amount <= $pdata['paid_amount'] && $inv->type == 'invoice'):
 
             $services = $this->getInvoiceIcount($inv->invoice_id);
+            dd($services);
 
             $sum = 0;
             $items = ($services->doc_info->items);
@@ -1131,6 +1215,7 @@ class InvoiceController extends Controller
         $closed   = Order::where('client_id',$id)->where('status','Closed')->count();
         $gen      = Order::where('invoice_status','1')->orwhere('invoice_status','2')->where('client_id',$id)->count();
         $ngen     = Order::where('client_id',$id)->where('invoice_status','0')->count();
+        $all      = Order::where('client_id',$id)->count();
 
         return response()->json([
 
@@ -1139,6 +1224,7 @@ class InvoiceController extends Controller
             'closed'        =>$closed,
             'generated'     =>$gen,
             'not_generated' =>$ngen,
+            'all'           => $all,
 
         ]);
     }

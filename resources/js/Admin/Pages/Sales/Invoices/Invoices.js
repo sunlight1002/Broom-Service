@@ -26,6 +26,7 @@ export default function Invoices() {
     const [dtype,setDtype] = useState('');
     const [reason,setReason] = useState('');
     const [cbvalue,setCbvalue] = useState('');
+    const [res,setRes]         = useState('');
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -36,11 +37,13 @@ export default function Invoices() {
     const [paidAmount, setPaidAmount] = useState('');
     const [amount, setAmount] = useState();
     const [txn, setTxn] = useState('');
+    const [filtered,setFiltered] = useState('');
 
     const getInvoices = () => {
         axios
             .get('/api/admin/invoices', { headers })
             .then((res) => {
+                setRes(res.data);
                 if (res.data.invoices.data.length > 0) {
                     setInvoices(res.data.invoices.data);
                     setPageCount(res.data.invoices.last_page);
@@ -91,7 +94,7 @@ export default function Invoices() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/invoices?page=" + currentPage, { headers })
+            .get("/api/admin/invoices?page=" + currentPage+"&"+filtered, { headers })
             .then((response) => {
                 if (response.data.invoices.data.length > 0) {
                     setInvoices(response.data.invoices.data);
@@ -258,7 +261,7 @@ export default function Invoices() {
                 d += el.name + "=" + el.value + "&";
 
         })
-
+        setFiltered(d);
         axios
             .get(`/api/admin/invoices?${d}`, { headers })
             .then((res) => {
@@ -271,6 +274,25 @@ export default function Invoices() {
                 }
             })
     }
+
+    const dfilter = (fil) => {
+
+        setFiltered(fil);
+
+        axios
+            .get(`/api/admin/invoices?${fil}`, { headers })
+            .then((res) => {
+                if (res.data.invoices.data.length > 0) {
+                    setInvoices(res.data.invoices.data);
+                    setPageCount(res.data.invoices.last_page);
+                } else {
+                    setInvoices([]);
+                    setLoading('No Invoice Found');
+                }
+            })
+    }
+
+
 
     const handleMethod = (e) => {
         let v = e.target.value;
@@ -290,8 +312,8 @@ export default function Invoices() {
 
     const displayCallback = (cb) =>{
         $('.ace-tm').css({'background-color':'black','color':'#5cc527'});
-        // let c = JSON.parse(cb);
-        // console.log(c);
+
+        let c = (cb) ? JSON.parse(cb) : cb;
         setCbvalue(cb);
     }
 
@@ -368,6 +390,7 @@ export default function Invoices() {
                                     <option>Please Select</option>
                                     <option value="Paid">Paid</option>
                                     <option value="Unpaid">Unpaid</option>
+                                    <option value="Partially paid">Partially paid</option>
                                     <option value="Cancelled">Cancelled</option>
                                 </select>
                             </div>
@@ -378,6 +401,45 @@ export default function Invoices() {
                         </div>
                     </div>
                 </div>
+
+                <div className="InCards container mb-3" style={{ cursor: 'pointer' }}>
+                    <div className="row">
+
+                        <div onClick={(e) => { setFiltered('f=all'); dfilter('f=all') }} className="col-sm-2 bg-secondary p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.all} - Total</p><hr />
+                                <p className="lead"> {res.ta} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Paid'); dfilter('status=Paid') }} className="col-sm-3 bg-success p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.paid} - Paid</p><hr />
+                                <p className="lead"> {res.pa} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Unpaid'); dfilter('status=Unpaid') }} className="col-sm-3 bg-dark p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.unpaid} - Unpaid</p><hr />
+                                <p className="lead"> {res.ua} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Partially Paid'); dfilter('status=Partially Paid') }} className="col-sm-3 bg-warning p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.partial} - Partial Paid</p><hr />
+                                <p className="lead">{res.ppa} ILS</p>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">

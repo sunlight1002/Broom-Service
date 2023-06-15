@@ -15,7 +15,7 @@ export default function Order() {
     const [reason,setReason] = useState('');
     const [cancelDoc,setCancelDoc] = useState('');
     const [dtype,setDtype] = useState('');
-
+    const [filtered,setFiltered] = useState('');
     const params = useParams();
     const id = params.id;
    
@@ -108,7 +108,7 @@ export default function Order() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get(`/api/admin/client-orders/${id}?page=` + currentPage, { headers })
+            .get(`/api/admin/client-orders/${id}?page=` + currentPage+"&"+filtered, { headers })
             .then((response) => {
                 if (response.data.orders.data.length > 0) {
                     setOrders(response.data.orders.data);
@@ -176,19 +176,21 @@ export default function Order() {
 
    
     useEffect(() => {
+        setFiltered('f=all');
         getOrders('f=all');
     }, []);
     return (
         <div className="boxPanel">
-             <div className="action-dropdown dropdown order_drop text-right">
+             <div className="action-dropdown dropdown order_drop text-right mb-3">
                   <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                       <i className="fa fa-filter"></i>
                   </button>
                   <div className="dropdown-menu">
-                      <button className="dropdown-item"  onClick={e=>getOrders('status=Open')}          >Open         - { res.open }</button>
-                      <button className="dropdown-item"  onClick={e=>getOrders('status=Closed')}        >Closed       - { res.closed }</button>
-                      <button className="dropdown-item"  onClick={e=>getOrders('invoice_status=m')}     >Invoiced     - { res.generated }</button>
-                      <button className="dropdown-item"  onClick={e=>getOrders('invoice_status=0')}     >Not Invoiced - { res.not_generated } </button>
+                  <button className="dropdown-item"  onClick={(e)=>{setFiltered('f=all');getOrders('f=all')}}                            >All          - { res.all }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('status=Open');getOrders('status=Open')}}            >Open         - { res.open }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('status=Closed');getOrders('status=Closed')}}        >Closed       - { res.closed }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('invoice_status=m');getOrders('invoice_status=m')}}  >Invoiced     - { res.generated }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('invoice_status=0');getOrders('invoice_status=0')}}  >Not Invoiced - { res.not_generated } </button>
                   </div>
             </div>
             <div className="table-responsive">

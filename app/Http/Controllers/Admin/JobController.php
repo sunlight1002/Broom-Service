@@ -126,7 +126,7 @@ class JobController extends Controller
     }
 
     public function getAllJob(){
-        $jobs = Job::get();;
+        $jobs = Job::get();
         return response()->json([
             'jobs'       => $jobs,        
         ], 200);
@@ -169,7 +169,7 @@ class JobController extends Controller
     public function show($id)
     {
         $job                = Job::with('client','worker','service','offer','jobservice','order')->find($id);
-
+        
         return response()->json([
             'job'        => $job,            
         ], 200);
@@ -212,7 +212,7 @@ class JobController extends Controller
         $job->start_date    = $worker['date'];
         $job->start_time    = $worker['start'];
         $job->end_time      = $worker['end'];
-        $job->status   = 'scheduled';
+        $job->status        = 'scheduled';
         $job->save();
 
         $this->sendWorkerEmail($id);
@@ -237,10 +237,50 @@ class JobController extends Controller
     }
 
     public function getJobByClient(Request $request){
+
+       if(($request->f) == 'all')
+       $jobs = Job::with('offer','worker','jobservice','order','invoice')->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+       if(isset($request->status))
+       $jobs = Job::with('offer','worker','jobservice','order','invoice')->where('status',$request->status)->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+
+       if(isset($request->q)){
+          $q = $request->q;
+          if($q == 'ordered')
+          $jobs = Job::with('offer','worker','jobservice','order','invoice')->has('order')->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+          if($q == 'unordered')
+          $jobs = Job::with('offer','worker','jobservice','order','invoice')->whereDoesntHave('order')->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+          if($q == 'invoiced')
+          $jobs = Job::with('offer','worker','jobservice','order','invoice')->has('invoice')->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+          if($q == 'uninvoiced')
+          $jobs = Job::with('offer','worker','jobservice','order','invoice')->whereDoesntHave('invoice')->where('client_id',$request->cid)->orderBy('start_date', 'desc');
+       }
+
+       $sch        =  Job::where('status','scheduled')->where('client_id',$request->cid)->count();
+       $un_sch     =  Job::where('status','unscheduled')->where('client_id',$request->cid)->count();
+       $cancel     =  Job::where('status','canceled')->where('client_id',$request->cid)->count();
+       $progress   =  Job::where('status','progress')->where('client_id',$request->cid)->count();
+       $ordered    =  Job::with('order')->has('order')->where('client_id',$request->cid)->count();
+       $unordered  =  Job::with('order')->whereDoesntHave('order')->where('client_id',$request->cid)->count();
+       $invoiced   =  Job::with('invoice')->has('invoice')->where('client_id',$request->cid)->count();
+       $unordered  =  Job::with('invoice')->whereDoesntHave('invoice')->where('client_id',$request->cid)->count();
+
+       $jobs = $jobs->paginate(20);
+
+       $all = Job::where('client_id',$request->cid)->count();
        
-       $jobs = Job::with('offer','worker','jobservice','order','invoice')->where('client_id',$request->cid)->orderBy('start_date', 'desc')->get();
        return response()->json([
-        'jobs' => $jobs
+        
+        'all'         => $all,
+        'jobs'        => $jobs,
+        'scheduled'   => $sch,
+        'unscheduled' => $un_sch,
+        'canceled'    => $cancel,
+        'progress'    => $progress,
+        'ordered'     => $ordered,
+        'unordered'   => $unordered,
+        'invoiced'    => $invoiced,
+        'uninvoiced'   => $unordered
+
     ]);
     }
     public function getJobWorker(Request $request){
