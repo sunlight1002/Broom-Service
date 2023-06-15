@@ -475,7 +475,7 @@ export default function Invoices() {
                                                             <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
                                                             <Td><Link to={`/admin/view-client/${ (item.client) ?item.client.id : 'NA'}`}>{ (item.client) ?item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                                             <Td onClick={ e => displayCallback(item.callback) } style={{cursor:'pointer'}} data-toggle="modal" data-target="#callBack">
-                                                                {item.status}
+                                                                <a href="#">{item.status}</a>
                                                             </Td>
                                                             <Td>
                                                                 {item.invoice_icount_status}
