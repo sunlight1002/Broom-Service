@@ -266,9 +266,10 @@ export default function AdminDashboard() {
                                             <small className="text-muted"> Client</small>
                                         </div>
                                         <div className="ml-auto">
-                                            (c)
+                                            {(c) ?
                                             <Link  to={`/admin/view-client/${c.id}`} className="btn btn-sm btn-warning">View</Link>
                                             :  <Link  to={`#`} className="btn btn-sm btn-warning">View</Link>
+                                            }
                                         </div>
                                     </div>
 

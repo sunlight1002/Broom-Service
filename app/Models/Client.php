@@ -75,6 +75,10 @@ class Client extends Authenticatable
         return $this->hasOne(Subscription::class);
     }
 
+    public function contract(){
+        return $this->hasMany(Contract::class,'client_id');
+    }
+
     public static function boot() {
         parent::boot();
         static::deleting(function($Client) { 

@@ -52,7 +52,23 @@ class ClientController extends Controller
             $result->orWhere('status',     'like','%'.$status.'%');
         }
 
+        if(isset($request->action)){
+           
+            $result = '';
+
+            $ac = $request->action;
+
+            if($ac == 'booked')
+
+            $result = Client::with('jobs')->has('jobs');
+
+            if($ac == 'notbooked')
+
+            $result = Client::with('jobs')->whereDoesntHave('jobs');
+        }
+
         $result = $result->orderBy('id', 'desc')->paginate(20);
+        
         if(isset($result)){
             foreach($result as $k => $res){
                 $contract = Contract::where('client_id',$res->id)->where('status','verified')->get()->last();
@@ -556,10 +572,29 @@ class ClientController extends Controller
 
     public function export(Request $request){
         
-        if($request->f != null ) 
+       
+
+        if(isset($request->f) &&  $request->f != "null" ) 
+
         $clients = Client::where('status',$request->f)->get();
-        else
-        $clients = Client::where('status','!=','null')->get();
+
+        if( !is_null($request->action) ){
+            
+            $ac = $request->action;
+
+            if($ac == 'booked')
+
+            $clients = Client::with('jobs')->has('jobs')->get();
+
+            if($ac == 'notbooked')
+
+            $clients = Client::with('jobs')->whereDoesntHave('jobs')->get();
+
+        }
+
+        if($request->f == 'null')
+
+        $clients = Client::get();
         
         foreach ( $clients as $i => $c){
 

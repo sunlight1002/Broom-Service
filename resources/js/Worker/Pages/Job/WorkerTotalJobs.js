@@ -4,9 +4,9 @@ import axios from "axios";
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
-import {Table, Thead, Tbody, Tr, Th, Td} from 'react-super-responsive-table'
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import { useLocation } from 'react-router-dom'
-import Moment  from "moment";
+import Moment from "moment";
 import { useTranslation } from "react-i18next";
 
 export default function WorkerTotalJobs() {
@@ -14,10 +14,11 @@ export default function WorkerTotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
+    const [filter,setFilter] = useState('');
     const alert = useAlert();
     const location = useLocation();
     const id = localStorage.getItem('worker-id');
-    const {t,i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const w_lng = i18n.language;
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -44,7 +45,7 @@ export default function WorkerTotalJobs() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/jobs?id=${id}&page=" + currentPage, { headers })
+            .get(`/api/jobs?id=${id}&page=` + currentPage+"&filter_week=all", { headers })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
@@ -64,17 +65,41 @@ export default function WorkerTotalJobs() {
             setPageCount(response.data.jobs.last_page);
             setLoading("No Job found");
         }
-    };   
+    };
+
+    const filterJobDate = (w) => {
+        $('#filter-week').val(w)
+        filterJobs1();
+    }
+    const filterJobs1 = () => {
+       
+        let filter_week = $('#filter-week').val();
+
+        axios
+            .get(`/api/jobs?id=${id}&filter_week=${filter_week}`, { headers })
+            .then((response) => {
+                if (response.data.jobs.data.length > 0) {
+                    setTotalJobs(response.data.jobs.data);
+                    setPageCount(response.data.jobs.last_page);
+                } else {
+                    setTotalJobs([]);
+                    setPageCount(response.data.jobs.last_page);
+                    setLoading("No Jobs found");
+                }
+            })
+    }
+
+
     return (
         <div id="container">
             <WorkerSidebar />
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-6">
+                        <div className="col-sm-2 col-4">
                             <h1 className="page-title">{t('worker.jobs.title')}</h1>
                         </div>
-                        <div className="col-sm-6" style={{ display:"none" }}>
+                        <div className="col-sm-6" style={{ display: "none" }}>
                             <div className="search-data">
                                 <input type='text' className="form-control" placeholder="Search" />
                                 <Link to="/admin/add-job" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>
@@ -82,11 +107,37 @@ export default function WorkerTotalJobs() {
                                 </Link>
                             </div>
                         </div>
+
+
+
+                        <div className="col-sm-7 hidden-xs">
+                            <div className="job-buttons">
+                                <input type="hidden" id="filter-week" />
+                                <button className="btn btn-info" onClick={(e) => { filterJobDate('all'); setFilter(e.target.value) }} style={{ background: "#858282", borderColor: "#858282" }}> All Jobs</button>
+                                <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
+                                <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
+                                <button className="ml-2 btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
+                               
+                            </div>
+
+                        </div>
+                        <div className="col-12 hidden-xl">
+                            <div className="job-buttons">
+                                <input type="hidden" id="filter-week" />
+                                <button className="btn btn-info" onClick={(e) => { filterJobDate('all') }} style={{ background: "#858282", borderColor: "#858282" }}> All Jobs</button>
+                                <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
+                                <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
+                                <button className="btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
+                               
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+
                 <div className="card">
                     <div className="card-body">
-                      
+
                         <div className="boxPanel">
                             <div className="table-responsive">
                                 {totalJobs.length > 0 ? (
@@ -109,62 +160,63 @@ export default function WorkerTotalJobs() {
 
                                                     //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
                                                     let total = 0;
-                                                    return(
-                                                    <Tr key={index}>
-                                                        <Td>
-                                                           {Moment(item.start_date).format('DD MMM,Y')}
-                                                        </Td>
-                                                        <Td>{
-                                                            item.client
-                                                                ? item.client.firstname +
-                                                                " " + item.client.lastname
-                                                                : "NA"
-                                                        }
-                                                        </Td>
-                                                        <Td>{
-                                                            item.jobservice && item.jobservice.map((js,i)=>{
-                                                                total += parseInt(js.total);
-                                                                return (
-                                                                    (w_lng=='en')
-                                                                    ? (js.name)
-                                                                    :
-                                                                    (js.heb_name)
-                                                                )
-                                                            })
-                                                        
-                                                        }</Td>
-                                                        <Td>
-                                                             {item.shifts}
-                                                           
-                                                        </Td>
-                                                        <Td>{
-                                                            item.client
-                                                                ? item.client.geo_address
-                                                                : "NA"
-                                                        }
-                                                        </Td>
-                                                        <Td>
-                                                            {
-                                                            item.end_time && item.start_time ?
-                                                            parseFloat(`${item.end_time}.replace(":", ".")`)
-                                                             - parseFloat(`${item.start_time}.replace(":", ".")`)
-                                                             +" Hours"
-                                                             :"NA"
+                                                    return (
+                                                        <Tr key={index}>
+                                                            <Td>
+                                                                {Moment(item.start_date).format('DD MMM,Y')}
+                                                            </Td>
+                                                            <Td>{
+                                                                item.client
+                                                                    ? item.client.firstname +
+                                                                    " " + item.client.lastname
+                                                                    : "NA"
                                                             }
-                                                        </Td>
-                                                        <Td
-                                                            style={{
-                                                                textTransform:
-                                                                    "capitalize",
-                                                            }}
-                                                        >
-                                                            {item.status}
-                                                        </Td>
-                                                        <Td>
-                                                            <Link to={`/worker/view-job/${item.id}`} className="btn btn-primary">{t('worker.jobs.viewbtn')}</Link>
-                                                        </Td>
-                                                    </Tr>
-                                                )})}
+                                                            </Td>
+                                                            <Td>{
+                                                                item.jobservice && item.jobservice.map((js, i) => {
+                                                                    total += parseInt(js.total);
+                                                                    return (
+                                                                        (w_lng == 'en')
+                                                                            ? (js.name)
+                                                                            :
+                                                                            (js.heb_name)
+                                                                    )
+                                                                })
+
+                                                            }</Td>
+                                                            <Td>
+                                                                {item.shifts}
+
+                                                            </Td>
+                                                            <Td>{
+                                                                item.client
+                                                                    ? item.client.geo_address
+                                                                    : "NA"
+                                                            }
+                                                            </Td>
+                                                            <Td>
+                                                                {
+                                                                    item.end_time && item.start_time ?
+                                                                        parseFloat(`${item.end_time}.replace(":", ".")`)
+                                                                        - parseFloat(`${item.start_time}.replace(":", ".")`)
+                                                                        + " Hours"
+                                                                        : "NA"
+                                                                }
+                                                            </Td>
+                                                            <Td
+                                                                style={{
+                                                                    textTransform:
+                                                                        "capitalize",
+                                                                }}
+                                                            >
+                                                                {item.status}
+                                                            </Td>
+                                                            <Td>
+                                                                <Link to={`/worker/view-job/${item.id}`} className="btn btn-primary">{t('worker.jobs.viewbtn')}</Link>
+                                                            </Td>
+                                                        </Tr>
+                                                    )
+                                                })}
                                         </Tbody>
                                     </Table>
                                 ) : (
