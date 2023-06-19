@@ -23,7 +23,7 @@ export default function Jobs() {
 
     const getJobs = (filter) => {
         axios
-            .post(`/api/admin/get-client-jobs/?` + filter, { cid: params.id }, { headers })
+            .post(`/api/admin/get-client-jobs?` + filter, { cid: params.id }, { headers })
             .then((res) => {
 
                 setJres(res.data);
@@ -69,7 +69,7 @@ export default function Jobs() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .post(`/api/admin/get-client-jobs/?`+filtered+"&page=" + currentPage ,{ cid: params.id }, { headers })
+            .post(`/api/admin/get-client-jobs?`+filtered+"&page=" + currentPage ,{ cid: params.id }, { headers })
             .then((response) => {
                 console.log(response);
                 if (response.data.jobs.data.length > 0) {

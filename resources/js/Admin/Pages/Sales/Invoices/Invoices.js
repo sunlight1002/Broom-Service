@@ -34,6 +34,7 @@ export default function Invoices() {
     };
 
     const [payId, setPayID] = useState(0);
+    const [place,setPlace]   = useState('');
     const [paidAmount, setPaidAmount] = useState('');
     const [amount, setAmount] = useState();
     const [txn, setTxn] = useState('');
@@ -464,7 +465,11 @@ export default function Invoices() {
                                         <Tbody>
                                             {invoices &&
                                                 invoices.map((item, index) => {
-                                                    let services = (item.services != undefined && item.services != null) ? JSON.parse(item.services) : []
+                                                    
+                                                    let services = (item.services != undefined && item.services != null) ? JSON.parse(item.services) : [];
+                                                    
+                                                    let pl = item.amount != item.paid_amount ?  parseFloat(item.amount)-parseFloat(item.paid_amount) : item.amount;
+                                                    pl = "Total Payable -  "+pl+" ILS";
 
                                                     return (
                                                         <Tr>
@@ -495,7 +500,7 @@ export default function Invoices() {
                                                                     <div className="dropdown-menu">
                                                                         <a target="_blank" href={item.doc_url} className="dropdown-item">View Invoice</a>
                                                                         {
-                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
+                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setPlace(pl); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
                                                                             >Add Payment</button>
                                                                         }
 
@@ -579,7 +584,7 @@ export default function Invoices() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Amount"
+                                                placeholder={ place }
                                             ></input>
 
                                         </div>
