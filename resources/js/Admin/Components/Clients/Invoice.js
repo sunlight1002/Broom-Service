@@ -29,10 +29,11 @@ export default function Invoice() {
     };
 
     const [payId, setPayID] = useState(0);
+    const [place,setPlace]   = useState('');
     const [paidAmount, setPaidAmount] = useState('');
     const [amount, setAmount] = useState();
     const [txn, setTxn] = useState('');
-
+ 
     const [bt, setBt] = useState(true);
     const [ch, setCh] = useState(false);
     const [cancelDoc, setCancelDoc] = useState('');
@@ -316,6 +317,9 @@ export default function Invoice() {
                                 {invoices &&
                                     invoices.map((item, index) => {
                                         let services = (item.services != undefined && item.services != null) ? JSON.parse(item.services) : []
+                                         
+                                        let pl = item.amount != item.paid_amount ?  parseFloat(item.amount)-parseFloat(item.paid_amount) : item.amount;
+                                        pl = "Total Payable -  "+pl+" ILS";
 
                                         return (
                                             <Tr>
@@ -326,7 +330,7 @@ export default function Invoice() {
                                                 <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
                                                 <Td><Link to={`/admin/view-client/${(item.client) ? item.client.id : 'NA'}`}>{(item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                                 <Td onClick={e => displayCallback(item.callback)} style={{ cursor: 'pointer' }} data-toggle="modal" data-target="#callBack">
-                                                    {item.status}
+                                                <a href="#"> {item.status} </a>
                                                 </Td>
                                                 <Td>
                                                     {item.txn_id ? item.txn_id : 'NA'}
@@ -343,7 +347,7 @@ export default function Invoice() {
                                                         <div className="dropdown-menu">
                                                             <a target="_blank" href={item.doc_url} className="dropdown-item">View Invoice</a>
                                                             {
-                                                                item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
+                                                                item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setPlace(pl); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
                                                                 >Add Payment</button>
                                                             }
 
@@ -424,7 +428,7 @@ export default function Invoice() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Amount"
+                                                placeholder={ place }
                                             ></input>
 
                                         </div>
@@ -437,6 +441,7 @@ export default function Invoice() {
                                         <div className="form-group">
                                             <label className="control-label">
                                                 Transaction / Refrence ID
+                                                <small> ( Optional in credit card mode )</small>
                                             </label>
                                             <input
                                                 type="text"

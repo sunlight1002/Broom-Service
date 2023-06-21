@@ -41,6 +41,22 @@ class InvoiceController extends Controller
         $invoices = $invoices->where('status',$request->status);
        }
 
+       if(isset($request->type)){
+
+         if($request == 'receipt')
+         
+         $invoices = $invoices->where('receipt_id','!=','null');
+
+         else if($request == 'refund')
+         
+         $invoices = $invoices->where('callback','!=','null')->where('status','=','Cancelled');
+
+         else
+
+         $invoices = $invoices->where('type',$request->type);
+
+       }
+
         if(isset($request->client)){
             $q = $request->client;
             $ex = explode(' ',$q); 
@@ -78,17 +94,17 @@ class InvoiceController extends Controller
 
         if(!empty($get_pa)){
 
-            foreach($get_pa as $gpa){ $paid++; $pa += $gpa->amount; }
+            foreach($get_pa as $gpa){ $paid++; $pa += floatval($gpa->amount); }
         }
 
         if(!empty($get_ua)){
 
-            foreach($get_ua as $gua){ $unpaid++; $ua += $gua->amount; }
+            foreach($get_ua as $gua){ $unpaid++; $ua += floatval($gua->amount); }
         }
 
         if(!empty($get_ppa)){
 
-            foreach($get_ppa as $gppa){ $partial ++; $ppa += $gppa->amount; }
+            foreach($get_ppa as $gppa){ $partial ++; $ppa += floatval($gppa->amount); }
         }
 
        $invoices = $invoices->orderBy('id', 'desc')->paginate(20);
@@ -96,9 +112,9 @@ class InvoiceController extends Controller
 
         'invoices' => $invoices,
         'ta'       => round($ta,2),
-        'pa'       => $pa,
-        'ua'       => $ua,
-        'ppa'      => $ppa,
+        'pa'       => round($pa,2),
+        'ua'       => round($ua,2),
+        'ppa'      => round($ppa,2),
         'paid'     => $paid,
         'unpaid'   => $unpaid,
         'partial'  => $partial,
@@ -133,7 +149,7 @@ class InvoiceController extends Controller
         if( !empty($invoices) && $request->f == 'all' ){
 
             foreach($invoices as $inv){
-                $ta += $inv->amount;
+                $ta += floatval($inv->amount);
             }
         }
 
@@ -142,15 +158,15 @@ class InvoiceController extends Controller
         $get_ppa = Invoices::where('customer',$id)->where('status','Partially Paid')->get();
 
         if(!empty($get_pa)){
-            foreach($get_pa as $gpa){ $pa += $gpa->amount; }
+            foreach($get_pa as $gpa){ $pa += floatval($gpa->amount); }
         }
 
         if(!empty($get_ua)){
-            foreach($get_ua as $gua){ $ua += $gua->amount; }
+            foreach($get_ua as $gua){ $ua += floatval($gua->amount); }
         }
 
         if(!empty($get_ppa)){
-            foreach($get_ppa as $gppa){ $ppa += $gppa->amount; }
+            foreach($get_ppa as $gppa){ $ppa += floatval($gppa->amount); }
         }
         
        
@@ -163,10 +179,10 @@ class InvoiceController extends Controller
          'closed'   => $closed,
          'partial'  => $partial,
          'all'      => $all,
-         'ta'       => $ta,
-         'pa'       => $pa,
-         'ua'       => $ua,
-         'ppa'      => $ppa,
+         'ta'       => round($ta,2),
+         'pa'       => round($pa,2),
+         'ua'       => round($ua,2),
+         'ppa'      => round($ppa,2),
 
         ]);
    
@@ -264,7 +280,7 @@ class InvoiceController extends Controller
         //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
         $json = json_decode($response, true);
       
-        dd($json);
+       // dd($json);
         //if(!$json["status"]) die($json["reason"]);
           
       
@@ -355,11 +371,12 @@ class InvoiceController extends Controller
         $mode = $request->data['pay_method'];
         $pdata = $request->data;
         $total = 0;
-        
+        $cb =  '';
+
         if($inv->amount <= $pdata['paid_amount'] && $inv->type == 'invoice'):
 
             $services = $this->getInvoiceIcount($inv->invoice_id);
-            dd($services);
+           
 
             $sum = 0;
             $items = ($services->doc_info->items);
@@ -369,7 +386,7 @@ class InvoiceController extends Controller
                 }
     
 
-            $card = ClientCard::where('client_id',$client->id)->get();
+            $card = ClientCard::where('client_id',$client->id)->get()->first();
             $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname." ".$client->lastname;
             $url = "https://api.icount.co.il/api/v3.php/doc/create";
             $ln = ($client->lng == 'heb') ? 'he' : 'en'; 
@@ -394,7 +411,17 @@ class InvoiceController extends Controller
                     "email_to"        => $client->email, 
                     
             );
+
+            $txnID = $request->data['txn_id'];
+
             if($mode == "Credit Card"){
+
+                if($card == null){
+                    return response()->json([
+                        'rescode' => 401,
+                        'msg' => 'Card Not Added for this user'
+                    ]);
+                }
     
                 $ex = explode('-',$card->valid);
                 $cc = ['cc'=>[
@@ -407,7 +434,14 @@ class InvoiceController extends Controller
                     "confirmation_code" => ""
                 ]];
     
-                $_params = array_merge($params,$cc);
+               $_params = array_merge($params,$cc);
+
+               $payment =  $this->commitInvoicePayment($items, $inv->job_id, $card->card_token, $sum);
+              
+               $txnID  = $payment->ReferenceNumber;
+
+               $cb = json_encode($payment); 
+             
     
             }
             else if($mode == "Bank Transfer"){
@@ -467,11 +501,13 @@ class InvoiceController extends Controller
     endif;
 
         $idata = [
-            'pay_method'=>$request->data['pay_method'],
-            'txn_id'    =>$request->data['txn_id'],
-            'paid_amount'=>$request->data['paid_amount'],
-            'status'     => $request->data['status']
+            'pay_method'  => $request->data['pay_method'],
+            'txn_id'      => $txnID,
+            'callback'    => $cb,
+            'paid_amount' => $request->data['paid_amount'],
+            'status'      => $request->data['status']
         ];
+       
         
         Invoices::where('id',$id)->update($idata);
         return response()->json([
@@ -1013,6 +1049,14 @@ class InvoiceController extends Controller
              
      );
      if($doctype == "invrec"){
+
+        if($card == null){
+            return response()->json([
+                'rescode' => 401,
+                'msg' => 'Card Not Added for this user'
+            ]);
+        }
+
 
          $ex = explode('-',$card->valid);
          $cc = ['cc'=>[

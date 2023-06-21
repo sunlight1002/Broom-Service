@@ -169,6 +169,14 @@ export default function Invoices() {
         sb.html('Please wait..');
         axios.post(`/api/admin/update-invoice/${payId}`, { data }, { headers })
             .then((res) => {
+               
+                if(res.data.rescode != undefined && res.data.rescode == 401){
+
+                    window.alert(res.data.msg);
+                    sb.prop('disabled',false);
+                    sb.html('Save Payment');
+                    return;
+                }
                 document.querySelector('.closeb1').click();
                 sb.prop('disabled',false);
                 sb.html('Save Payment');
@@ -396,6 +404,19 @@ export default function Invoices() {
                                 </select>
                             </div>
                         </div>
+
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Invoice Type</label>
+                                <select className="form-control filter" name="type">
+                                    <option>Please Select</option>
+                                    <option value="invoice">Invoice</option>
+                                    <option value="invrec">Invoice Receipt</option>
+                                    <option value="receipt">Receipt</option>
+                                    <option value="refund">Refunded Invoice</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="col-sm-2 col-6">
                             <label className="control-label d-block">&nbsp;</label>
                             <button className="btn btn-pink" onClick={e => filter(e)} style={{ minWidth: "100px" }}>Filter</button>
@@ -597,6 +618,7 @@ export default function Invoices() {
                                         <div className="form-group">
                                             <label className="control-label">
                                                 Transaction / Refrence ID
+                                                <small> ( Optional in credit card mode )</small>
                                             </label>
                                             <input
                                                 type="text"
@@ -838,7 +860,7 @@ export default function Invoices() {
                                        
                                     {<AceEditor
                                         mode="json"
-                                        theme="terminal"
+                                        theme="twilight"
                                         width='100%'
                                         name="cbfield"
                                         fontSize="20px"
