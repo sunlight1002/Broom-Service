@@ -43,7 +43,7 @@ export default function AddClient() {
     const [longitude, setLongitude] = useState(34.855499);
     const [address, setAddress] = useState("");
     const [place, setPlace] = useState();
-    Geocode.setApiKey("AIzaSyDVR2fXPoEVoCNLIqagX5GQzna3feez4lI");
+    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
     const containerStyle = {
         width: "100%",
         height: "300px",
@@ -655,7 +655,7 @@ export default function AddClient() {
                                 <div className="form-group">
                                     <label className="control-label">Enter a location</label>
                                     <LoadScript
-                                        googleMapsApiKey="AIzaSyDVR2fXPoEVoCNLIqagX5GQzna3feez4lI"
+                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
                                         libraries={libraries}
                                     >
                                         <GoogleMap
