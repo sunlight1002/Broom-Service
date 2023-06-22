@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import Moment from 'moment';
 import ReactPaginate from "react-paginate";
+import { RotatingLines } from  'react-loader-spinner'
+
 
 export default function Jobs() {
 
@@ -14,6 +16,7 @@ export default function Jobs() {
     const [filtered, setFiltered] = useState('');
     const [pageCount, setPageCount] = useState(0);
     const params = useParams();
+    const [wait,setWait] = useState(true);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -26,14 +29,17 @@ export default function Jobs() {
             .post(`/api/admin/get-client-jobs?` + filter, { cid: params.id }, { headers })
             .then((res) => {
 
+                setWait(true);
                 setJres(res.data);
                 if (res.data.jobs.data.length > 0) {
 
                     setJobs(res.data.jobs.data);
+                    setWait(false);
                     setPageCount(res.data.jobs.last_page);
                 }
                 else {
                     setJobs([]);
+                    setWait(false);
                     setLoading('No job found');
                 }
             });
@@ -144,8 +150,17 @@ export default function Jobs() {
                     <button className="dropdown-item" onClick={e => { setFiltered('q=uninvoiced'); getJobs('q=uninvoiced') }}                 >UnInvoiced       - {jres.uninvoiced}</button>
                 </div>
             </div>
-            <div className="table-responsive">
-                {jobs.length > 0 ? (
+            <div className="table-responsive text-center">
+
+            <RotatingLines
+                strokeColor="grey"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="96"
+                visible={wait}
+            />
+
+                {wait == false && jobs.length > 0 ? (
                     <table className="table table-bordered">
                         <thead>
                             <tr>
@@ -159,6 +174,7 @@ export default function Jobs() {
                             </tr>
                         </thead>
                         <tbody>
+
                             {jobs && jobs.map((j, i) => {
                                 // let services = (j.offer.services) ? JSON.parse(j.offer.services) : [];
                                 let total = 0;

@@ -63,6 +63,7 @@
         "react-google-recaptcha": "^2.1.0",
         "react-i18next": "^12.1.5",
         "react-icons": "^4.7.1",
+        "react-loader-spinner": "^5.3.4",
         "react-multi-select-component": "^4.3.4",
         "react-paginate": "^8.1.4",
         "react-phone-number-input": "^3.2.16",
