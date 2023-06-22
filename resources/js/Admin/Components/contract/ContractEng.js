@@ -303,18 +303,18 @@ export default function WorkContract() {
                                                 </>
                                                 :
                                                 <>
-                                                  {/* <tr>
+                                                { c.card_type != null && <tr>
                                                         <td style={{ width: "60%" }}>Card Type</td>
                                                         <td><span className='form-control'>{c.card_type ? c.card_type : "NA"}</span></td>
-                                                </tr>*/}
+                                                </tr>}
                                                     <tr>
                                                         <td style={{ width: "60%" }}>Name on the Card</td>
                                                         <td><span className='form-control'>{c.name_on_card ? c.name_on_card : "NA"}</span></td>
                                                     </tr>
-                                                    {/*<tr>
+                                                    {c.cvv != null && <tr>
                                                         <td style={{ width: "60%" }}>CVV</td>
                                                         <td ><span className='form-control'>{c.cvv ? c.cvv : "NA"}</span></td>
-                                                    </tr>*/}
+                                                    </tr>}
                                                     <tr>
                                                         <td style={{ width: "60%" }}>Signature on the Card</td>
                                                         <img src={c.card_sign ? c.card_sign : "/images/NA.jpg"} className='img-fluid' alt='Company' />

@@ -18,6 +18,7 @@ class ClientCard extends Migration
             $table->unsignedBigInteger('client_id');
             $table->string('card_number')->nullable();
             $table->string('card_type')->nullable();
+            $table->string('card_holder')->nullable();
             $table->longText('valid')->nullable();
             $table->longText('cvv')->nullable();
             $table->string('cc_charge')->default(0);

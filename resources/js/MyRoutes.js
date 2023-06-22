@@ -127,7 +127,7 @@ export default function MyRoutes() {
                <Route exact path="/" element={<ClientLogin />} />
                <Route exact path="client/login" element={<ClientLogin />} />
                <Route exact path="worker/login" element={<WorkerLogin />} />
-               <Route exact path="meeting-status/:id" element={<MeetingStatus />} />
+               <Route exact path="meeting-status/:id/:response" element={<MeetingStatus />} />
                <Route exact path="price-offer/:id" element={<PriceOffer />} />
                <Route exact path="insurance-eng" element={<InsuranceEng />} />
                <Route exact path="insurance-heb" element={<InsuranceHeb />} />

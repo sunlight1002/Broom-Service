@@ -15,6 +15,7 @@ class ClientCard extends Model
         'card_type',
         'cvv',
         'cc_charge',
+        'card_holder',
         'valid',
         'card_token',
     ];

@@ -18,6 +18,13 @@ export default function MeetingStatus() {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json",
   };
+
+  const updateMeeting = () => {
+    let res = (param.response == 're') ? 'rescheduled' :'';
+    axios
+      .post(`/api/client/accept-meeting`, { id: Base64.decode(param.id), response: res })
+  }
+
   const getMeeting = () => {
     axios
       .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
@@ -36,6 +43,7 @@ export default function MeetingStatus() {
   }
   useEffect(() => {
     getMeeting();
+    updateMeeting();
     setTimeout(() => {
       document.querySelector(".meeting").style.display = "block";
     }, 1000)

@@ -32,10 +32,44 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {   
+
         
-        $q =  $request->q;
+        $w = $request->filter_week;
+       
         $jobs = Job::with('worker', 'client','offer','jobservice')->where('worker_id',$request->id);
-        $jobs = $jobs->orderBy('id', 'desc')->paginate(20);
+
+           if( (is_null($w) || $w == 'current') && $w != 'all'){
+           
+              $startDate = Carbon::now()->toDateString();
+              $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5)->toDateString(); 
+           }
+           if($w == 'next'){
+              $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6)->toDateString();
+              $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(12)->toDateString(); 
+             
+          }
+           if($w == 'nextnext'){
+              $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(13)->toDateString();
+              $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(19)->toDateString();
+          }
+          if($w == 'today'){
+            $startDate = Carbon::today()->toDateString();
+            $endDate = Carbon::today()->toDateString();
+            
+        }
+
+    
+        if($w == 'all' ){
+            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
+       
+        } else{
+            $jobs = $jobs->whereDate('start_date','>=',$startDate);
+            $jobs = $jobs->whereDate('start_date','<=',$endDate);
+            $pcount = Job::count();
+            $jobs = $jobs->orderBy('created_at', 'desc')->paginate($pcount);
+        }
+
+        
         return response()->json([
             'jobs'       => $jobs,        
         ], 200);

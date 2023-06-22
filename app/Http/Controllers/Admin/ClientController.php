@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\ClientCard;
 use App\Models\Files;
 use App\Models\Note;
 use App\Models\Offer;
@@ -51,7 +52,23 @@ class ClientController extends Controller
             $result->orWhere('status',     'like','%'.$status.'%');
         }
 
+        if(isset($request->action)){
+           
+            $result = '';
+
+            $ac = $request->action;
+
+            if($ac == 'booked')
+
+            $result = Client::with('jobs')->has('jobs');
+
+            if($ac == 'notbooked')
+
+            $result = Client::with('jobs')->whereDoesntHave('jobs');
+        }
+
         $result = $result->orderBy('id', 'desc')->paginate(20);
+        
         if(isset($result)){
             foreach($result as $k => $res){
                 $contract = Contract::where('client_id',$res->id)->where('status','verified')->get()->last();
@@ -210,6 +227,7 @@ class ClientController extends Controller
                      $new->offer_id      = $offer->id;
                      $new->contract_id   = $contract->id;
                  
+                 $new->schedule_id   = $s_id;
                  $new->start_date    = $job_date;
                  $new->shifts        = $shift;
                  $new->schedule      = $repeat_value;
@@ -328,6 +346,7 @@ class ClientController extends Controller
             /* Create job */
   
             $allServices = json_decode($request->jobdata['services'],true);
+           
             foreach($allServices as $service){
              
                      $service_schedules = serviceSchedules::where('id','=',$service['frequency'])->first();
@@ -385,6 +404,8 @@ class ClientController extends Controller
                        $new->client_id     = $client->id;
                        $new->offer_id      = $offer->id;
                        $new->contract_id   = $contract->id;
+                  
+                       $new->schedule_id       = $s_id;
                    
                    $new->start_date    = $job_date;
                    $new->shifts        = $shift;
@@ -529,5 +550,61 @@ class ClientController extends Controller
     public function deleteNote(Request $request){
         Note::where(['id'=>$request->id])->delete();
         return response()->json(['message'=>'Note deleted']);
+    }
+
+    public function cardToken( $id ){
+        
+        $card = ClientCard::where('client_id',$id)->get()->first();
+        $cvv  = Contract::where('client_id',$id)->where('cvv','!=','null')->get('cvv')->last();
+
+        return response()->json([
+
+            'status_code'  => ( !empty($card) ) ? 200 : 0,
+            'card'         => ( !empty($card) ) ? $card->card_number : 0,
+            'expiry'       => ( !empty($card) ) ? $card->valid : 0,
+            'token'        => ( !empty($card) ) ? $card->card_token : 0,
+            'ctype'        => ( !empty($card) ) ? $card->card_type : 0,
+            'holder'       => ( !empty($card) ) ? $card->card_holder : 0,
+            'cvv'          => ( !empty($cvv)  ) ? $cvv : 0,
+
+        ]);
+    }
+
+    public function export(Request $request){
+        
+       
+
+        if(isset($request->f) &&  $request->f != "null" ) 
+
+        $clients = Client::where('status',$request->f)->get();
+
+        if( !is_null($request->action) ){
+            
+            $ac = $request->action;
+
+            if($ac == 'booked')
+
+            $clients = Client::with('jobs')->has('jobs')->get();
+
+            if($ac == 'notbooked')
+
+            $clients = Client::with('jobs')->whereDoesntHave('jobs')->get();
+
+        }
+
+        if($request->f == 'null')
+
+        $clients = Client::get();
+        
+        foreach ( $clients as $i => $c){
+
+            if($c->status == 0){ $clients[$i]['status'] = 'Lead';}
+            if($c->status == 1){ $clients[$i]['status'] = 'Potential Customer';}
+            if($c->status == 2){ $clients[$i]['status'] = 'Customer';}
+        }
+        return response()->json([
+            'clients' => $clients
+        ]);
+    
     }
 }

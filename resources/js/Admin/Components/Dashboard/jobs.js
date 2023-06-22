@@ -217,7 +217,7 @@ export default function jobs() {
                                                             j.jobservice && j.jobservice.map((js, i) => {
 
                                                                 return (
-                                                                    (j.client.lng == 'en')
+                                                                    ((j.client) &&  j.client.lng == 'en')
                                                                         ? (js.name + " ")
                                                                         :
                                                                         (js.heb_name + " ")
@@ -299,7 +299,7 @@ export default function jobs() {
                                                             j.jobservice && j.jobservice.map((js, i) => {
 
                                                                 return (
-                                                                    (j.client.lng == 'en')
+                                                                    ((j.client) && j.client.lng == 'en')
                                                                         ? (js.name + " ")
                                                                         :
                                                                         (js.heb_name + " ")

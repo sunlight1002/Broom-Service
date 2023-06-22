@@ -215,10 +215,7 @@ export default function card() {
                         <label className='control-label'> {t('work-contract.card_expiry')} : </label>
                         <span>{exp }</span>
                     </div>
-                    <div className='form-group'>
-                        <label className='control-label'> {t('work-contract.card_cvv')} : </label>
-                        <span> {card[0].cvv}</span>
-                    </div>
+                  
 
                 </form>)
                 :(

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
+use App\Models\ClientCard;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -139,8 +140,11 @@ class ContractController extends Controller
     public function getContract(Request $request){
        
         $contract = Contract::where('id',$request->id)->with('client','offer')->get();
+        $card = ClientCard::where('client_id',$contract[0]->client->id)->get()->first();
+        $contract[0]['card'] = $card;
+
         return response()->json([
-            'contract'=>$contract
+            'contract'=>$contract,
         ],200);
     }
     public function verifyContract(Request $request){

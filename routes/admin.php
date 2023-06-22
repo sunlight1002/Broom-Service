@@ -162,9 +162,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::get('get-invoice/{id}',[InvoiceController::class,'getInvoice']);
     Route::post('update-invoice/{id}',[InvoiceController::class,'updateInvoice']);
     Route::post('invoice-jobs',[InvoiceController::class,'invoiceJobs']);
+    Route::post('invoice-jobs-order',[InvoiceController::class,'invoiceJobOrder']);
     Route::post('order-jobs',[InvoiceController::class,'orderJobs']);
     Route::get('delete-invoice/{id}',[InvoiceController::class,'deleteInvoice']);
     Route::get('payments',[InvoiceController::class,'getPayments']);
+    Route::get('card_token/{id}',[ClientController::class,'cardToken']);
+    
+    Route::get('clients_export',[ClientController::class,'export']);
 
     Route::get('close-doc/{id}/{type}',[InvoiceController::class,'closeDoc']);
     Route::post('cancel-doc',[InvoiceController::class,'cancelDoc']);

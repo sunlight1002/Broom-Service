@@ -262,11 +262,14 @@ export default function AdminDashboard() {
                                             <img className="img-profile rounded-circle" src={UserIcon} alt="User Today" style={{width: "3rem", height: "3rem"}} />
                                         </div>
                                         <div className="users">
-                                            <div className="font-weight-semibold user-add">{ c.firstname+" "+c.lastname}</div>
+                                            <div className="font-weight-semibold user-add">{ (c) ? c.firstname+" "+c.lastname: 'NA'}</div>
                                             <small className="text-muted"> Client</small>
                                         </div>
                                         <div className="ml-auto">
-                                            <Link to={`/admin/view-client/${c.id}`} className="btn btn-sm btn-warning">View</Link>
+                                            {(c) ?
+                                            <Link  to={`/admin/view-client/${c.id}`} className="btn btn-sm btn-warning">View</Link>
+                                            :  <Link  to={`#`} className="btn btn-sm btn-warning">View</Link>
+                                            }
                                         </div>
                                     </div>
 

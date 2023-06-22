@@ -104,10 +104,15 @@ export default function CreateJobCalender() {
     const handleSubmit = () => {
 
         let formdata = { 'workers': data, 'services': services };
-        let viewbtn = document.querySelector('.viewBtn');
+        let viewbtn = document.querySelectorAll('.viewBtn');
         if (data.length > 0) {
-            viewbtn.setAttribute('disabled',true);
-            viewbtn.value = 'please wait ...'
+
+            viewbtn[0].setAttribute('disabled',true);
+            viewbtn[0].value = 'please wait ...'
+
+            viewbtn[1].setAttribute('disabled',true);
+            viewbtn[1].value = 'please wait ...'
+
             axios
                 .post(`/api/admin/create-job/${params.id}`, formdata, { headers })
                 .then((res) => {
@@ -118,8 +123,10 @@ export default function CreateJobCalender() {
 
                 });
         } else {
-            viewbtn.removeAttribute('disabled');
-            viewbtn.value = 'View Job'
+            viewbtn[0].removeAttribute('disabled');
+            viewbtn[0].value = 'View Job'
+            viewbtn[1].removeAttribute('disabled');
+            viewbtn[1].value = 'View Job'
             alert.error("Please Select the Workers");
         }
 
@@ -266,6 +273,7 @@ export default function CreateJobCalender() {
         '20pm-24am': 'Night'
     };
     const filterOptions = (options, shifts) => {
+       
         let new_options = [];
         let new_s = [];
         let new_end = [];
@@ -278,7 +286,8 @@ export default function CreateJobCalender() {
             new_end.push((s).split("-")[2])
         })
         if (full_day == '') {
-            options.map((o, i) => {
+           
+           options &&  options.map((o, i) => {
                 let check = true;
                 if (options.length == 3 && i == 2 && new_s.length > 0) {
                     check = false;
@@ -323,6 +332,54 @@ export default function CreateJobCalender() {
 
             })
         }
+
+
+        let remOptions = [];
+
+        shifts = shifts.map(function (el) {
+        return el.replace(/\s/g,'');
+        });
+                
+        if(shifts.includes('morning2-10am-12pm') || shifts.includes('morning')){
+           
+            remOptions.push('morning1-8am-10am');
+            remOptions.push('morning2-10am-12pm');
+            remOptions.push('morning-8am-12pm');
+            remOptions.push('morning');
+        }
+        
+        if(shifts.includes('noon2-14pm-16pm')){
+
+            remOptions.push('noon1-12pm-14pm');
+            remOptions.push('noon2-14pm-16pm');
+            remOptions.push('noon');
+        }
+
+        if(shifts.includes('evening2-18pm-20pm')){
+
+            remOptions.push('evening1-16pm-18pmm');
+            remOptions.push('evening2-18pm-20pm');
+            remOptions.push('evening');
+        }
+
+        if(shifts.includes('night2-22pm-24pm')){
+
+            remOptions.push('night1-20pm-22pm');
+            remOptions.push('night2-22pm-24pm');
+            remOptions.push('night');
+        }
+
+        
+
+        for (var i = 0; i < new_options.length; i++) {
+            var obj = new_options[i];
+         
+            if (remOptions.indexOf((obj.label).replace(/\s/g,'')) !== -1) {
+                new_options.splice(i, 1);
+            }
+
+        }
+
         return new_options;
 
     }
@@ -332,7 +389,11 @@ export default function CreateJobCalender() {
             <li className="nav-item" role="presentation"><a id="worker-availability" className="nav-link active" data-toggle="tab" href="#tab-worker-availability" aria-selected="true" role="tab">Current Week</a></li>
             <li className="nav-item" role="presentation"><a id="current-job" className="nav-link" data-toggle="tab" href="#tab-current-job" aria-selected="true" role="tab">Next Week</a></li>
             <li className="nav-item" role="presentation"><a id="current-next-job" className="nav-link" data-toggle="tab" href="#tab-current-next-job" aria-selected="true" role="tab">Next Next Week</a></li>
+
         </ul>
+        <div className="form-group text-right pr-2">
+                <input type='button' value='View Job' className="btn btn-pink viewBtn" data-toggle="modal" data-target="#exampleModal" />
+        </div>
         <div className='tab-content' style={{background: "#fff"}}>
              <div id="tab-worker-availability" className="tab-pane active show" role="tab-panel" aria-labelledby="current-job">
                <Table className='table table-bordered crt-jb'>
@@ -356,14 +417,37 @@ export default function CreateJobCalender() {
                                     <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                 </Td>
                                 {week.map((element, index) => {
+
                                     let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                    
+
                                         return ( <Td align="center" >
-                                        <span className="text-success">{person[aval[element]]}</span>
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                        
                                         
                                         {shifts.map((s,i)=>{
-                                            return <div className="text-danger">{s}</div>
+                                            return (
+                                                <div className="text-danger">{s}</div>
+                                            )
                                         })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
+
                                         {(aval[element] && aval[element] != '')?
+                                         
                                             <Select
                                                 isMulti
                                                 name="colors"
@@ -407,13 +491,30 @@ export default function CreateJobCalender() {
                                    <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                </Td>
                                {nextweek.map((element, index) => {
-                                   let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
+
+                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                    
                                       
                                        {shifts.map((s,i)=>{
                                         return <div className="text-danger">{s}</div>
                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
                                        
                                         {(aval[element] && aval[element] != '')?
                                         <Select
@@ -460,23 +561,39 @@ export default function CreateJobCalender() {
                                   <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                </Td>
                                {nextnextweek.map((element, index) => {
+
                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
+                                   let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                   let list = (shifts.length > 0 ) ? true : false ;
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
                                       
                                        {shifts.map((s,i)=>{
                                         return <div className="text-danger">{s}</div>
                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
                                          {(aval[element] && aval[element] != '')?
-                                        <Select
-                                            isMulti
-                                            name="colors"
-                                            options={filterOptions(colourOptions[aval[element]],shifts)}
-                                            className="basic-multi-single"
-                                            isClearable={true}
-                                            classNamePrefix="select"
-                                            onChange={(e)=>changeShift(w.id,element,e)}
-                                          />
+                                            <Select
+                                                isMulti
+                                                name="colors"
+                                                options={filterOptions(colourOptions[aval[element]],shifts)}
+                                                className="basic-multi-single"
+                                                isClearable={true}
+                                                classNamePrefix="select"
+                                                onChange={(e)=>changeShift(w.id,element,e)}
+                                        />
                                           :
                                           <div className="text-danger">Not Available</div>
                                          }

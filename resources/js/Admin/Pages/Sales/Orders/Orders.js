@@ -290,16 +290,15 @@ export default function Orders() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {orders &&
-                                                orders.map((item, index) => {
+                                            {orders?.map((item, index) => {
                                                     let services = (item.items != undefined && item.items != null) ? JSON.parse(item.items) : []
 
                                                     return (
                                                         <Tr>
                                                             <Td>#{item.order_id}</Td>
-                                                            <Td><Link to={`/admin/view-job/${item.job.id}`}>{Moment(item.job.start_date).format('DD-MM-Y') + " | " + item.job.shifts}</Link></Td>
+                                                            <Td><Link to={`/admin/view-job/${ item.job ? item.job.id : 'NA'}`}>{item.job ? Moment(item.job.start_date).format('DD-MM-Y') + " | " + item.job.shifts : 'NA'}</Link></Td>
                                                             <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
-                                                            <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
+                                                            <Td><Link to={`/admin/view-client/${(item.client) ? item.client.id : 'NA'}`}>{(item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                                             <Td>
                                                                 {item.status}
                                                             </Td>
@@ -313,7 +312,8 @@ export default function Orders() {
                                                                     </button>
 
                                                                     <div className="dropdown-menu">
-                                                                        <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>
+                                                                        {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
+                                                                         
                                                                         {
                                                                             item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
                                                                             >Close Doc</button>
@@ -325,8 +325,8 @@ export default function Orders() {
                                                                         { item.status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.order_id);setDtype('order')} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
                                                                             >Cancel Doc</button>
                                                                         }
-                                                                        <button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                                        >Delete</button>
+                                                                        {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
+                                                                        >Delete</button>*/}
                                                                     </div>
                                                                 </div>
                                                             </Td>

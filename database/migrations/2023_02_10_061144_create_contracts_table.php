@@ -19,6 +19,8 @@ class CreateContractsTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->string('additional_address')->nullable();
             $table->string('name_on_card')->nullable();
+            $table->string('cvv')->nullable();
+            $table->string('card_type')->nullable();
             $table->longText('card_sign')->nullable();
             $table->longText('signature')->nullable();
             $table->enum('status',['verified','un-verified','not-signed','declined'])->default('not-signed');

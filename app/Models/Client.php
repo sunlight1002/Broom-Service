@@ -75,6 +75,10 @@ class Client extends Authenticatable
         return $this->hasOne(Subscription::class);
     }
 
+    public function contract(){
+        return $this->hasMany(Contract::class,'client_id');
+    }
+
     public static function boot() {
         parent::boot();
         static::deleting(function($Client) { 
@@ -82,6 +86,8 @@ class Client extends Authenticatable
              Offer::where('client_id',$Client->id)->delete();
              Contract::where('client_id',$Client->id)->delete();
              notifications::where('user_id',$Client->id)->delete();
+             Job::where('client_id',$Client->id)->delete();
+             Order::where('client_id',$Client->id)->delete();
         });
     }
 

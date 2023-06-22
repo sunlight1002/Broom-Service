@@ -36,4 +36,5 @@ class Invoices extends Model
         return $this->belongsTo(Receipts::class,'receipt_id');
     }
    
+    
 }

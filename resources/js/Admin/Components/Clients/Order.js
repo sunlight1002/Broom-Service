@@ -11,18 +11,25 @@ export default function Order() {
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [orders, setOrders]   = useState([]);
+    const [res,setRes] = useState(''); 
+    const [reason,setReason] = useState('');
+    const [cancelDoc,setCancelDoc] = useState('');
+    const [dtype,setDtype] = useState('');
+    const [filtered,setFiltered] = useState('');
     const params = useParams();
     const id = params.id;
+   
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getOrders = () => {
+    const getOrders = (filter) => {
         axios
-            .get(`/api/admin/client-orders/${id}`, { headers })
+            .get(`/api/admin/client-orders/${id}?`+filter, { headers })
             .then((res) => {
+                setRes(res.data);
                 if (res.data.orders.data.length > 0) {
                     setOrders(res.data.orders.data);
                     setPageCount(res.data.orders.last_page);
@@ -33,6 +40,7 @@ export default function Order() {
             })
     }
 
+    
     const copy = [...orders];
     const [order,setOrder] = useState('ASC');
     const sortTable = (e,col) =>{
@@ -100,7 +108,7 @@ export default function Order() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get(`/api/admin/client-orders/${id}?page=` + currentPage, { headers })
+            .get(`/api/admin/client-orders/${id}?page=` + currentPage+"&"+filtered, { headers })
             .then((response) => {
                 if (response.data.orders.data.length > 0) {
                     setOrders(response.data.orders.data);
@@ -111,12 +119,82 @@ export default function Order() {
             });
     };
 
+
+    const closeDoc = (id, type) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Close Order!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/close-doc/${id}/${type}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Closed",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders('f=all');
+                        }, 1000);
+                    });
+            }
+        });
+    };
+
+    const GenInvoice = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to generate invoice for this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Generate Invoice!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .get(`/api/admin/order-manual-invoice/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Invoice Generated",
+                            response.data.msg,
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getOrders('f=all');
+                        }, 1000);
+                    });
+            }
+        });
+    }
+
+   
     useEffect(() => {
-        getOrders();
+        setFiltered('f=all');
+        getOrders('f=all');
     }, []);
     return (
         <div className="boxPanel">
+             <div className="action-dropdown dropdown order_drop text-right mb-3">
+                  <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                      <i className="fa fa-filter"></i>
+                  </button>
+                  <div className="dropdown-menu">
+                  <button className="dropdown-item"  onClick={(e)=>{setFiltered('f=all');getOrders('f=all')}}                            >All          - { res.all }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('status=Open');getOrders('status=Open')}}            >Open         - { res.open }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('status=Closed');getOrders('status=Closed')}}        >Closed       - { res.closed }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('invoice_status=m');getOrders('invoice_status=m')}}  >Invoiced     - { res.generated }</button>
+                      <button className="dropdown-item"  onClick={(e)=>{setFiltered('invoice_status=0');getOrders('invoice_status=0')}}  >Not Invoiced - { res.not_generated } </button>
+                  </div>
+            </div>
             <div className="table-responsive">
+           
             { orders.length > 0 ?(
                 <Table className="table table-bordered">
                     <Thead>
@@ -138,14 +216,14 @@ export default function Order() {
                                 return (
                                     <Tr>
                                         <Td>#{item.order_id}</Td>
-                                        <Td><Link to={`/admin/view-job/${item.job.id}`}>{ Moment(item.job.start_date).format('DD-MM-Y')+ " | "+item.job.shifts  }</Link></Td>
+                                        <Td><Link to={`/admin/view-job/${(item.job) ? item.job.id : 'NA'}`}>{ (item.job) ? Moment(item.job.start_date).format('DD-MM-Y')+ " | "+item.job.shifts : 'NA'  }</Link></Td>
                                         <Td>{ Moment(item.created_at).format('DD, MMM Y')}</Td>
-                                        <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
+                                        <Td><Link to={`/admin/view-client/${item.client ? item.client.id : 'NA' }`}>{(item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
                                         <Td>
                                             {item.status}
                                         </Td>
                                         <Td>
-                                            { item.invoice_status == 0 ? "Not Generated": "Generated" }
+                                            { item.invoice_status == "2" ?  "Generated" : "Not Generated" }
                                         </Td>
                                         <Td>
                                             <div className="action-dropdown dropdown">
@@ -153,9 +231,22 @@ export default function Order() {
                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                 </button>
                                                 <div className="dropdown-menu">
-                                                    <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>
-                                                    <button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
-                                                    >Delete</button>
+                                                {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
+                                                                         
+                                                {
+                                                    item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
+                                                    >Close Doc</button>
+                                                }
+                                                {
+                                                    item.status == 'Open' && <button onClick={e => GenInvoice(item.id)} className="dropdown-item"
+                                                    >Generate Invoice</button>
+                                                }
+                                                { item.status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.order_id);setDtype('order')} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                    >Cancel Doc</button>
+                                                }
+
+                                                {/*<button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
+                                                    >Delete</button>*/}
                                                 </div>
                                             </div>
                                         </Td>
@@ -194,7 +285,47 @@ export default function Order() {
 
 
             </div>
+            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+
+                                        <textarea
+                                            onChange={(e) =>
+                                                setReason(e.target.value)
+                                            }
+                                            className="form-control"
+                                            required
+                                            placeholder="Enter Reason(optional)"
+                                        ></textarea>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
+                            <button type="button" onClick={e => handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        
 
     )
 }

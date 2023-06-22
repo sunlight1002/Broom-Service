@@ -8,6 +8,13 @@ import Moment from 'moment';
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
 
+import { render } from "react-dom";
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
+
 export default function Invoices() {
 
     const [loading, setLoading] = useState("Loading...");
@@ -18,7 +25,8 @@ export default function Invoices() {
     const [cancelDoc,setCancelDoc] = useState('');
     const [dtype,setDtype] = useState('');
     const [reason,setReason] = useState('');
-
+    const [cbvalue,setCbvalue] = useState('');
+    const [res,setRes]         = useState('');
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -26,14 +34,17 @@ export default function Invoices() {
     };
 
     const [payId, setPayID] = useState(0);
+    const [place,setPlace]   = useState('');
     const [paidAmount, setPaidAmount] = useState('');
     const [amount, setAmount] = useState();
     const [txn, setTxn] = useState('');
+    const [filtered,setFiltered] = useState('');
 
     const getInvoices = () => {
         axios
             .get('/api/admin/invoices', { headers })
             .then((res) => {
+                setRes(res.data);
                 if (res.data.invoices.data.length > 0) {
                     setInvoices(res.data.invoices.data);
                     setPageCount(res.data.invoices.last_page);
@@ -84,7 +95,7 @@ export default function Invoices() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/invoices?page=" + currentPage, { headers })
+            .get("/api/admin/invoices?page=" + currentPage+"&"+filtered, { headers })
             .then((response) => {
                 if (response.data.invoices.data.length > 0) {
                     setInvoices(response.data.invoices.data);
@@ -158,6 +169,14 @@ export default function Invoices() {
         sb.html('Please wait..');
         axios.post(`/api/admin/update-invoice/${payId}`, { data }, { headers })
             .then((res) => {
+               
+                if(res.data.rescode != undefined && res.data.rescode == 401){
+
+                    window.alert(res.data.msg);
+                    sb.prop('disabled',false);
+                    sb.html('Save Payment');
+                    return;
+                }
                 document.querySelector('.closeb1').click();
                 sb.prop('disabled',false);
                 sb.html('Save Payment');
@@ -251,7 +270,7 @@ export default function Invoices() {
                 d += el.name + "=" + el.value + "&";
 
         })
-
+        setFiltered(d);
         axios
             .get(`/api/admin/invoices?${d}`, { headers })
             .then((res) => {
@@ -264,6 +283,25 @@ export default function Invoices() {
                 }
             })
     }
+
+    const dfilter = (fil) => {
+
+        setFiltered(fil);
+
+        axios
+            .get(`/api/admin/invoices?${fil}`, { headers })
+            .then((res) => {
+                if (res.data.invoices.data.length > 0) {
+                    setInvoices(res.data.invoices.data);
+                    setPageCount(res.data.invoices.last_page);
+                } else {
+                    setInvoices([]);
+                    setLoading('No Invoice Found');
+                }
+            })
+    }
+
+
 
     const handleMethod = (e) => {
         let v = e.target.value;
@@ -279,6 +317,13 @@ export default function Invoices() {
             setCh(false);
         }
 
+    }
+
+    const displayCallback = (cb) =>{
+        $('.ace-tm').css({'background-color':'black','color':'#5cc527'});
+
+        let c = (cb) ? JSON.parse(cb) : cb;
+        setCbvalue(cb);
     }
 
     useEffect(() => {
@@ -354,7 +399,21 @@ export default function Invoices() {
                                     <option>Please Select</option>
                                     <option value="Paid">Paid</option>
                                     <option value="Unpaid">Unpaid</option>
+                                    <option value="Partially paid">Partially paid</option>
                                     <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label className="control-label">Invoice Type</label>
+                                <select className="form-control filter" name="type">
+                                    <option>Please Select</option>
+                                    <option value="invoice">Invoice</option>
+                                    <option value="invrec">Invoice Receipt</option>
+                                    <option value="receipt">Receipt</option>
+                                    <option value="refund">Refunded Invoice</option>
                                 </select>
                             </div>
                         </div>
@@ -364,6 +423,45 @@ export default function Invoices() {
                         </div>
                     </div>
                 </div>
+
+                <div className="InCards container mb-3" style={{ cursor: 'pointer' }}>
+                    <div className="row">
+
+                        <div onClick={(e) => { setFiltered('f=all'); dfilter('f=all') }} className="col-sm-2 bg-secondary p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.all} - Total</p><hr />
+                                <p className="lead"> {res.ta} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Paid'); dfilter('status=Paid') }} className="col-sm-3 bg-success p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.paid} - Paid</p><hr />
+                                <p className="lead"> {res.pa} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Unpaid'); dfilter('status=Unpaid') }} className="col-sm-3 bg-dark p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.unpaid} - Unpaid</p><hr />
+                                <p className="lead"> {res.ua} ILS</p>
+                            </div>
+                        </div>
+
+                        <div onClick={(e) => { setFiltered('status=Partially Paid'); dfilter('status=Partially Paid') }} className="col-sm-3 bg-warning p-1 m-1 text-white rounded text-center">
+                            <div className="card-body">
+                                <p className="lead">{res.partial} - Partial Paid</p><hr />
+                                <p className="lead">{res.ppa} ILS</p>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
@@ -388,7 +486,11 @@ export default function Invoices() {
                                         <Tbody>
                                             {invoices &&
                                                 invoices.map((item, index) => {
-                                                    let services = (item.services != undefined && item.services != null) ? JSON.parse(item.services) : []
+                                                    
+                                                    let services = (item.services != undefined && item.services != null) ? JSON.parse(item.services) : [];
+                                                    
+                                                    let pl = item.amount != item.paid_amount ?  parseFloat(item.amount)-parseFloat(item.paid_amount) : item.amount;
+                                                    pl = "Total Payable -  "+pl+" ILS";
 
                                                     return (
                                                         <Tr>
@@ -397,9 +499,9 @@ export default function Invoices() {
                                                             <Td>{item.paid_amount} ILS</Td>
                                                             <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
                                                             <Td>{(item.due_date != null) ? Moment(item.due_date).format('DD, MMM Y') : 'NA'}</Td>
-                                                            <Td><Link to={`/admin/view-client/${item.client.id}`}>{item.client.firstname + " " + item.client.lastname}</Link></Td>
-                                                            <Td>
-                                                                {item.status}
+                                                            <Td><Link to={`/admin/view-client/${ (item.client) ?item.client.id : 'NA'}`}>{ (item.client) ?item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
+                                                            <Td onClick={ e => displayCallback(item.callback) } style={{cursor:'pointer'}} data-toggle="modal" data-target="#callBack">
+                                                                <a href="#">{item.status}</a>
                                                             </Td>
                                                             <Td>
                                                                 {item.invoice_icount_status}
@@ -419,7 +521,7 @@ export default function Invoices() {
                                                                     <div className="dropdown-menu">
                                                                         <a target="_blank" href={item.doc_url} className="dropdown-item">View Invoice</a>
                                                                         {
-                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModal" className="dropdown-item"
+                                                                            item.status != 'Paid' && <button onClick={(e) => { setPayID(item.id); setPlace(pl); setAmount(item.amount) }} data-toggle="modal" data-target="#exampleModaPaymentAdd" className="dropdown-item"
                                                                             >Add Payment</button>
                                                                         }
 
@@ -427,14 +529,14 @@ export default function Invoices() {
                                                                             item.invoice_icount_status == 'Open' && <button onClick={(e) => { closeDoc(item.invoice_id, item.type) }} className="dropdown-item"
                                                                             >Close Doc</button>
                                                                         }
-                                                                        { item.invoice_icount_status != 'Cancelled' && item.invoice_icount_status != 'Closed' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
+                                                                        { item.invoice_icount_status != 'Cancelled' && item.invoice_icount_status != 'Closed' && <button onClick= {(e)=>{setCancelDoc(item.invoice_id);setDtype(item.type)} } data-toggle="modal" data-target="#exampleModalCancel" className="dropdown-item"
                                                                             >Cancel Doc</button>
                                                                         }
                                                                         {
                                                                             item.receipt &&  <a target="_blank" href={item.receipt.docurl} className="dropdown-item">View Receipt</a>
                                                                         }
-                                                                        <button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                                        >Delete</button>
+                                                                       {/* <button onClick={e => handleDelete(item.id)} className="dropdown-item"
+                                                                        >Delete</button>*/}
                                                                     </div>
                                                                 </div>
                                                             </Td>
@@ -478,11 +580,11 @@ export default function Invoices() {
                     </div>
                 </div>
 
-                <div className="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
+                <div className="modal fade" id="exampleModaPaymentAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModaPaymentAdd" aria-hidden="true">
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title" id="exampleModal">Add Payment</h5>
+                                <h5 className="modal-title" id="exampleModaPaymentAdd">Add Payment</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -503,7 +605,7 @@ export default function Invoices() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Amount"
+                                                placeholder={ place }
                                             ></input>
 
                                         </div>
@@ -516,6 +618,7 @@ export default function Invoices() {
                                         <div className="form-group">
                                             <label className="control-label">
                                                 Transaction / Refrence ID
+                                                <small> ( Optional in credit card mode )</small>
                                             </label>
                                             <input
                                                 type="text"
@@ -700,11 +803,11 @@ export default function Invoices() {
 
             </div>
 
-            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+            <div className="modal fade" id="exampleModalCancel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCancel" aria-hidden="true">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
+                            <h5 className="modal-title" id="exampleModalCancel">Cancel Reason</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -734,6 +837,50 @@ export default function Invoices() {
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
                             <button type="button" onClick={e=>handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div className="modal fade" id="callBack" tabindex="-1" role="dialog" aria-labelledby="callBack" aria-hidden="true">
+                <div className="modal-dialog modal-lg" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="callBack">Payment Response</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                       
+                                    {<AceEditor
+                                        mode="json"
+                                        theme="twilight"
+                                        width='100%'
+                                        name="cbfield"
+                                        fontSize="20px"
+                                        showPrintMargin={false}
+                                        value={cbvalue ? JSON.stringify(JSON.parse(cbvalue), null, 2) : ''}
+                                        editorProps={{ $blockScrolling: true }}
+                                        setOptions={{
+                                            useWorker: false
+                                          }}
+                                        />}
+                                        
+                                    </div>
+                                </div>
+                                    
+                            </div>
+
+                            
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

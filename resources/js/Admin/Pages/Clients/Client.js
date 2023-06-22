@@ -5,6 +5,7 @@ import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import { useNavigate } from "react-router-dom";
+import { CSVLink } from "react-csv";
 
 export default function Clients() {
 
@@ -12,6 +13,9 @@ export default function Clients() {
     const [pageCount, setPageCount] = useState(0);
     const [filter,setFilter] = useState('');
     const [loading, setLoading] = useState("Loading...");
+
+    const [stat,setStat] = useState(null);
+    
     const navigate = useNavigate();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -52,10 +56,46 @@ export default function Clients() {
             })
     }
 
+    const filterClientsStat = (s) => {
+        setFilter(s);
+        axios
+            .get(`/api/admin/clients?q=${s}`, { headers })
+            .then((response) => {
+                if (response.data.clients.data.length > 0) {
+                    setClients(response.data.clients.data);
+                    setPageCount(response.data.clients.last_page);
+                } else {
+                    setClients([]);
+                    setPageCount(response.data.clients.last_page);
+                    setLoading("No client found");
+                }
+            })
+    }
+
+    const booknun = (s) => {
+
+        setFilter(s);
+        axios
+            .get(`/api/admin/clients?action=${s}`, { headers })
+            .then((response) => {
+                if (response.data.clients.data.length > 0) {
+                    setClients(response.data.clients.data);
+                    setPageCount(response.data.clients.last_page);
+                } else {
+                    setClients([]);
+                    setPageCount(response.data.clients.last_page);
+                    setLoading("No client found");
+                }
+            })
+      
+    }
+
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
+        let cn = (filter == 'booked' || filter == 'notbooked') ? "&action=" : "&q=";
+
         axios
-            .get("/api/admin/clients?page=" + currentPage+"&q="+filter, { headers })
+            .get("/api/admin/clients?page=" + currentPage+cn+filter, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -135,6 +175,42 @@ export default function Clients() {
     }
 
 
+    const [Alldata, setAllData] = useState([]);
+   
+    const handleReport = (e) => {
+        e.preventDefault();
+
+        let cn = (stat == 'booked' || stat == 'notbooked') ? "action=" : "f=";
+
+        axios.get("/api/admin/clients_export?"+cn+stat, { headers }).then((response) => {
+
+            if (response.data.clients.length > 0) {
+
+                let r = response.data.clients;
+
+                if(r.length > 0){
+                    for (let k in r){
+                        delete r[k]['extra'];
+                        delete r[k]['jobs'];
+                    }
+                }
+                 console.log(r)
+                 setAllData(r);
+                 document.querySelector('#csv').click();
+
+            } else {
+               
+            }
+        });
+
+    }
+
+    const csvReport = {
+        data: Alldata,
+        filename: 'clients'
+    };
+
+
     return (
         <div id="container">
             <Sidebar />
@@ -144,8 +220,31 @@ export default function Clients() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Clients</h1>
                         </div>
+
+                       
+
                         <div className="col-sm-6">
                             <div className="search-data">
+
+                            <div classname="App" style={{display:"none"}}>
+                                <CSVLink {...csvReport}  id="csv">Export to CSV</CSVLink>
+                            </div>
+
+                            <div className="action-dropdown dropdown mt-4 mr-2">
+                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <div className="dropdown-menu">
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('null');getclients()}}>All</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(1);filterClientsStat('potential customer')}}>Potential Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('booked');booknun('booked')}}>Booked Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('notbooked');booknun('notbooked')}}>Not Booked Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>handleReport(e)}>Export</button>
+                                </div>
+                            </div>
+
                                 <input type='text' className="form-control" onChange={(e)=>{filterClients(e);setFilter(e.target.value)}} placeholder="Search" />
                                 <Link to="/admin/add-client" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>

@@ -329,6 +329,47 @@ export default function CreateClientByJob() {
 
             })
         }
+
+        let remOptions = [];
+        
+        if(shifts.includes('morning 2 - 10am-12pm')){
+
+            remOptions.push('morning1-8am-10am');
+            remOptions.push('morning2-10am-12pm');
+        }
+        
+        if(shifts.includes('noon2 -14pm-16pm')){
+
+            remOptions.push('noon1-12pm-14pm');
+            remOptions.push('noon2-14pm-16pm');
+        }
+
+        if(shifts.includes('evening2 -18pm-20pm')){
+
+            remOptions.push('evening1-16pm-18pmm');
+            remOptions.push('evening2-18pm-20pm');
+        }
+
+        if(shifts.includes('night2 -22pm-24pm')){
+
+            remOptions.push('night1-20pm-22pm');
+            remOptions.push('night2-22pm-24pm');
+        }
+
+        
+
+        for (var i = 0; i < new_options.length; i++) {
+            var obj = new_options[i];
+
+          
+          
+            if (remOptions.indexOf((obj.label).replace(/\s/g,'')) !== -1) {
+                new_options.splice(i, 1);
+            }
+
+        }
+
+        
         return new_options;
 
     }
@@ -339,6 +380,9 @@ export default function CreateClientByJob() {
             <li className="nav-item" role="presentation"><a id="current-job" className="nav-link" data-toggle="tab" href="#tab-current-job" aria-selected="true" role="tab">Next Week</a></li>
             <li className="nav-item" role="presentation"><a id="current-next-job" className="nav-link" data-toggle="tab" href="#tab-current-next-job" aria-selected="true" role="tab">Next Next Week</a></li>
         </ul>
+        <div className="form-group text-right pr-2">
+                <input type='button' value='View Job' className="btn btn-pink viewBtn" data-toggle="modal" data-target="#exampleModal" />
+        </div>
         <div className='tab-content' style={{background: "#fff"}}>
              <div id="tab-worker-availability" className="tab-pane active show" role="tab-panel" aria-labelledby="current-job">
                <Table className='table table-bordered crt-jb'>
@@ -363,12 +407,32 @@ export default function CreateClientByJob() {
                                 </Td>
                                 {week.map((element, index) => {
                                     let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                        return ( <Td align="center" id={`shift-${w.id}-${element}`} >
-                                        <span className="text-success">{person[aval[element]]}</span>
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                    
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                        
                                         
                                         {shifts.map((s,i)=>{
-                                            return <div className="text-danger">{s}</div>
+                                            return (
+                                                <div className="text-danger">{s}</div>
+                                            )
                                         })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+
                                         {(aval[element] && aval[element] != '')?
                                             <Select
                                                 isMulti
@@ -413,13 +477,33 @@ export default function CreateClientByJob() {
                                    <span id={`worker-${w.id}`}>{w.firstname} {w.lastname}</span>
                                </Td>
                                {nextweek.map((element, index) => {
+
                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
-                                      
-                                       {shifts.map((s,i)=>{
-                                        return <div className="text-danger">{s}</div>
-                                       })}
+                                   let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                    
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                        
+                                        
+                                        {shifts.map((s,i)=>{
+                                            return (
+                                                <div className="text-danger">{s}</div>
+                                            )
+                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
                                        
                                         {(aval[element] && aval[element] != '')?
                                         <Select
@@ -467,12 +551,32 @@ export default function CreateClientByJob() {
                                </Td>
                                {nextnextweek.map((element, index) => {
                                    let shifts = (wjobs[element]) ? (wjobs[element]).split(",") : [];
-                                    return ( <Td align="center" >
-                                       <span className="text-success">{person[aval[element]]}</span>
-                                      
-                                       {shifts.map((s,i)=>{
-                                        return <div className="text-danger">{s}</div>
-                                       })}
+                                    let sav = (shifts.length > 0 ) ?  filterOptions(colourOptions[aval[element]],shifts) : [];
+                                    let list = (shifts.length > 0 ) ? true : false ;
+
+                                    
+
+                                        return ( <Td align="center" >
+                                        {
+                                            (list) ? 
+                                            <span className="text-primary">{ 'Partial Day' }</span>
+
+                                            :<span className="text-success">{person[aval[element]]}</span>
+                                        }
+                                        
+                                        
+                                        {shifts.map((s,i)=>{
+                                            return (
+                                                <div className="text-danger">{s}</div>
+                                            )
+                                        })}
+
+                                        {list && sav.map((s,i)=>{
+                                            return (
+                                                <div className="text-success">{s.label}</div>
+                                            )
+                                        })}
+                                        
                                          {(aval[element] && aval[element] != '')?
                                         <Select
                                             isMulti

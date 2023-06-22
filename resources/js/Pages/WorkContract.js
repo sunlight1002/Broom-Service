@@ -35,18 +35,24 @@ export default function WorkContract() {
     const [exm, setExm] = useState('0');
     const [submit, setSubmit] = useState(false);
     const [oc, setOc] = useState(null);
-    const [gurl,setGurl] = useState('');
-    const [sesid,setSesid] = useState(null);
+    const [gurl, setGurl] = useState('');
+    const [sesid, setSesid] = useState(null);
+    const [csdata, setCsdata] = useState(null);
+    const [formatValid, setFormatvalid] = useState();
+
     const handleAccept = (e) => {
 
-        if (!cname) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
-        if (!signature2) { swal(t('work-contract.messages.sign_card_err'), '', 'error'); return false; }
-        if (!signature) { swal(t('work-contract.messages.sign_err'), '', 'error'); return false; }
-        if( oc == true){
+        if (!cname && csdata == null && oc == false) { swal(t('work-contract.messages.card_holder_err'), '', 'error'); return false; }
+        
+        if (oc == true) {
             if (!ctype) { window.alert(t('work-contract.messages.card_type_err')); return false; }
             if (!cvv) { window.alert(t('work-contract.messages.cvv_err')); return false; }
 
         }
+
+        if (!signature2) { swal(t('work-contract.messages.sign_card_err'), '', 'error'); return false; }
+        if (!signature) { swal(t('work-contract.messages.sign_err'), '', 'error'); return false; }
+       
         const data = {
             unique_hash: param.id,
             offer_id: offer[0].id,
@@ -55,7 +61,9 @@ export default function WorkContract() {
             name_on_card: cname,
             status: 'un-verified',
             signature: signature,
-            card_sign: signature2
+            card_sign: signature2,
+            card_type:ctype,
+            cvv:cvv.substring(0, 3)
         }
         if (submit == false && sesid == null) { window.alert(t('work-contract.messages.add_card_err')); return; }
 
@@ -74,23 +82,33 @@ export default function WorkContract() {
             // axios.
             //     post(`/api/client/save-card`, { cdata })
             //     .then((re) => {})
-        } 
+        }
 
-        if(oc == false){
+        if (oc == false && submit == false && sesid == null) {
 
-            if(sesid == null){ window.alert(t('Something went work with adding card. Please try again')); return;  }
+            window.alert(t('Something went work with adding card. Please try again')); return;
+
+
+        } else if (csdata == null) {
+
             axios
-            .get(`/record-invoice/${sesid}/${client.id}`)
-            .then((res)=>{});
-            
+                .get(`/record-invoice/${sesid}/${client.id}/${cname}`)
+                .then((res) => { });
         }
 
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
                 if (res.data.error) {
+
                     swal('', res.data.error, 'error');
-                } else {
+
+                } else if (res.data.message == 0) {
+
+                    window.alert(t('work-contract.messages.add_card_err'));
+                }
+
+                else {
                     setStatus('un-verified');
                     swal(t('work-contract.messages.success'), '', 'success');
                     setTimeout(() => {
@@ -132,6 +150,15 @@ export default function WorkContract() {
                     setStatus(res.data.contract.status);
                     setOc(res.data.old_contract);
                     if (res.data.contract.add_card == 0 || res.data.old_contract == true) { setSubmit(true); }
+
+                    if (res.data.card != null) {
+                       
+                        setCsdata(res.data.card);
+                        let s = (res.data.card.valid).split('-');
+                        let fs = ( s[1]+" / "+s[0].substring(2,4) )
+                        console.log(fs);
+                        setFormatvalid(fs);
+                    }
                     i18next.changeLanguage(res.data.offer[0].client.lng);
 
                     if (res.data.offer[0].client.lng == 'heb') {
@@ -182,14 +209,14 @@ export default function WorkContract() {
     }
 
     const handleCard = (e) => {
-       
+
         axios
-        .get(`/generate-payment/${client.id}`)
-        .then((res)=>{
-            setGurl(res.data.url);
-            setSesid(res.data.session_id);
-            $("#exampleModal2").modal('show');
-        });
+            .get(`/generate-payment/${client.id}`)
+            .then((res) => {
+                setGurl(res.data.url);
+                setSesid(res.data.session_id);
+                $("#exampleModal2").modal('show');
+            });
         /*
 
         e.preventDefault();
@@ -357,7 +384,7 @@ export default function WorkContract() {
 
 
     }, []);
-
+   
     return (
 
         <div className='container parent' style={{ display: "none" }}>
@@ -577,15 +604,15 @@ export default function WorkContract() {
                                         <td>
                                             <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
                                                 <option> {t('work-contract.please_select')}</option>
-                                                <option value='Visa'>Visa</option>
-                                                <option value='Master Card'>Master Card</option>
-                                                <option value='American Express'>American Express</option>
+                                                <option value='Visa' selected={contract.card_type == 'Visa'}>Visa</option>
+                                                <option value='Master Card' selected={contract.card_type == 'Master Card'}>Master Card</option>
+                                                <option value='American Express' selected={contract.card_type == 'American Express'}>American Express</option>
                                             </select>
                                         </td>
                                     </tr>
                                 }
 
-                                <tr>
+                                {(oc == true || csdata == null) && <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
                                         {contract && contract.name_on_card != null ?
@@ -594,7 +621,41 @@ export default function WorkContract() {
                                             <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_name')} />
                                         }
                                     </td>
-                                </tr>
+                                </tr>}
+
+                                {oc == false && csdata &&
+                                    <>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>{t('work-contract.card.four_digits')}</td>
+                                            <td>
+                                               <span className='form-control'>{ csdata.card_number}</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style={{ width: "60%" }}>{t('work-contract.card.valid')}</td>
+                                            <td>
+                                               <span className='form-control'>{ formatValid }</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style={{ width: "60%" }}>{t('work-contract.card.type')}</td>
+                                            <td>
+                                               <span className='form-control'>{ csdata.card_type}</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style={{ width: "60%" }}>{t('work-contract.card.holder')}</td>
+                                            <td>
+                                               <span className='form-control'>{ csdata.card_holder}</span>
+                                            </td>
+                                        </tr>
+                                    </>
+                                }
+
+
 
                                 {
                                     oc != false &&
@@ -603,7 +664,14 @@ export default function WorkContract() {
                                             {t('work-contract.card_cvv')}
                                         </label></td>
                                         <td>
+
+                                        {contract && contract.name_on_card != null ?
+                                            <input type="text" value={contract.cvv} className="form-control" readOnly />
+                                            :
                                             <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
+                                        }
+
+                                          
                                         </td>
                                     </tr>
                                 }
@@ -627,11 +695,13 @@ export default function WorkContract() {
 
                                     </td>
                                 </tr>
+                               
+
                                 {oc == false && contract.add_card == 1 && <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.add_card_txt')}</td>
                                     <td>
                                         {
-                                            (status == 'not-signed' && sesid == null) && <button className='btn btn-success ac' onClick={e=>handleCard(e)}>{t('work-contract.add_card_btn')}</button>
+                                            (status == 'not-signed' && submit == false) && <button className='btn btn-success ac' onClick={e => handleCard(e)}>{t('work-contract.add_card_btn')}</button>
                                         }
                                         {
                                             (status != 'not-signed') && <span className='text text-success font-weight-bold' > Verified </span>
@@ -639,6 +709,9 @@ export default function WorkContract() {
                                     </td>
                                 </tr>
                                 }
+
+                              
+
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.miscellaneous_txt')}</td>
                                     <td>{t('work-contract.employees_txt')}</td>
@@ -909,7 +982,7 @@ export default function WorkContract() {
                                 <div className="modal-content" >
                                     <div className="modal-header">
                                         <button type="button" className="btn btn-secondary" data-dismiss="modal" aria-label="Close">
-                                        {t('work-contract.back_btn')}
+                                            {t('work-contract.back_btn')}
                                         </button>
                                     </div>
                                     <div className="modal-body">
@@ -919,17 +992,17 @@ export default function WorkContract() {
 
                                             <div className="col-sm-12">
                                                 <div className="form-group">
-                                                <iframe src={gurl} title="Pay Card Transaction" width="100%" height="800"></iframe>
+                                                    <iframe src={gurl} title="Pay Card Transaction" width="100%" height="800"></iframe>
                                                 </div>
                                             </div>
 
-                                          
+
 
                                         </div>
 
 
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -938,8 +1011,8 @@ export default function WorkContract() {
                     </div>
                 </div>
 
-              
-  
+
+
             </div>
         </div>
 

@@ -694,3 +694,22 @@ footer .copyright{
     font-size: 20px;
     margin-inline-end: 4px;
 }
+
+.jorder{
+
+    background: #2481e157;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+
+}
+
+.jinv{
+
+    background: #24e12a57;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
