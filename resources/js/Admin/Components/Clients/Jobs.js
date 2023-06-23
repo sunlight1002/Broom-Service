@@ -203,6 +203,7 @@ export default function Jobs() {
                     <button className="dropdown-item" onClick={e => { setFiltered('status=scheduled'); getJobs('status=scheduled') }}         >Scheduled        - {jres.scheduled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=unscheduled'); getJobs('status=unscheduled') }}     >Unscheduled      - {jres.unscheduled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=progress'); getJobs('status=progress') }}           >Progress         - {jres.progress}</button>
+                    <button className="dropdown-item" onClick={e => { setFiltered('status=completed'); getJobs('status=completed') }}         >completed        - {jres.completed}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=canceled'); getJobs('status=canceled') }}           >Canceled         - {jres.canceled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('q=ordered'); getJobs('q=ordered') }}                       >Ordered          - {jres.ordered}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('q=unordered'); getJobs('q=unordered') }}                   >unordered        - {jres.unordered}</button>
