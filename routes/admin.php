@@ -26,7 +26,7 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
-
+use App\Models\Invoices;
 
 /*
 |--------------------------------------------------------------------------
@@ -188,8 +188,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     //ManualInvoice
     Route::get('client-invoice-job',[InvoiceController::class,'getClientInvoiceJob']);
     Route::post('get-client-invorders',[InvoiceController::class,'clientInvoiceOrders']);
-    
 
+    //Multiple Orders
+    Route::post('multiple-orders',[InvoiceController::class,'multipleOrders']);
+    Route::post('multiple-invoices',[InvoiceController::class,'multipleInvoices']);
+    
+   
     //Notifications
     Route::get('head-notice',[DashboardController::class,'headNotice'])->name('head-notice');
     Route::post('notice',[DashboardController::class,'Notice'])->name('notice');
