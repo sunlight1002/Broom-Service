@@ -259,6 +259,7 @@ class JobController extends Controller
        $un_sch     =  Job::where('status','unscheduled')->where('client_id',$request->cid)->count();
        $cancel     =  Job::where('status','canceled')->where('client_id',$request->cid)->count();
        $progress   =  Job::where('status','progress')->where('client_id',$request->cid)->count();
+       $completed  =  Job::where('status','completed')->where('client_id',$request->cid)->count();
        $ordered    =  Job::with('order')->has('order')->where('client_id',$request->cid)->count();
        $unordered  =  Job::with('order')->whereDoesntHave('order')->where('client_id',$request->cid)->count();
        $invoiced   =  Job::with('invoice')->has('invoice')->where('client_id',$request->cid)->count();
@@ -276,6 +277,7 @@ class JobController extends Controller
         'unscheduled' => $un_sch,
         'canceled'    => $cancel,
         'progress'    => $progress,
+        'completed'   => $completed,
         'ordered'     => $ordered,
         'unordered'   => $unordered,
         'invoiced'    => $invoiced,

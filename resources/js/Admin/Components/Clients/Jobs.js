@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import Moment from 'moment';
 import ReactPaginate from "react-paginate";
-import { RotatingLines } from  'react-loader-spinner'
-
+import { RotatingLines } from 'react-loader-spinner'
+import { useAlert } from 'react-alert';
 
 export default function Jobs() {
 
@@ -16,8 +16,8 @@ export default function Jobs() {
     const [filtered, setFiltered] = useState('');
     const [pageCount, setPageCount] = useState(0);
     const params = useParams();
-    const [wait,setWait] = useState(true);
-
+    const [wait, setWait] = useState(true);
+    const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export default function Jobs() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .post(`/api/admin/get-client-jobs?`+filtered+"&page=" + currentPage ,{ cid: params.id }, { headers })
+            .post(`/api/admin/get-client-jobs?` + filtered + "&page=" + currentPage, { cid: params.id }, { headers })
             .then((response) => {
                 console.log(response);
                 if (response.data.jobs.data.length > 0) {
@@ -130,19 +130,80 @@ export default function Jobs() {
 
     }
 
-    let pstatus = null;
+    
+    const checkAllBox = (e) => {
+
+        let cb = document.querySelectorAll('.cb');
+
+        if (e.target.checked) {
+
+            cb.forEach((c,i)=>{
+                c.checked = true;
+            });
+            
+        } else {
+            cb.forEach((c,i)=>{
+                c.checked = false;
+            });
+        }
+    }
+
+    const genOrder = () =>{
+        
+        let cb = document.querySelectorAll('.cb');
+        let ar = [];
+        cb.forEach((c,i)=>{
+            if(c.checked == true){
+              ar.push(c.value);
+            }
+        });
+        if(ar.length == 0){ alert.error('Please check job'); return; }
+        
+        axios
+        .post(`/api/admin/multiple-orders`,{ar},{ headers })
+        .then((res)=>{
+            getJobs(filtered);
+            alert.success('Job Order(s) created successfully');
+
+        });
+    }
+
+    const genInvoice = () =>{
+        
+        let cb = document.querySelectorAll('.cb');
+        let ar = [];
+        cb.forEach((c,i)=>{
+            if(c.checked == true){
+            let id = c.getAttribute('oid');
+            if(id != '')
+              ar.push(id);
+            }
+        });
+        if(ar.length == 0){ alert.error('Please check job'); return; }
+       
+        axios
+        .post(`/api/admin/multiple-invoices`,{ar},{ headers })
+        .then((res)=>{
+            getJobs(filtered);
+            alert.success('Job Invoice(s) created successfully');
+
+        });
+    }
 
     return (
         <div className="boxPanel">
             <div className="action-dropdown dropdown order_drop text-right mb-3">
+            <button className="btn btn-pink mr-3" onClick={e=>genOrder(e)} >Generate Orders</button>
+            <button className="btn btn-primary mr-3 ml-3" onClick={e=>genInvoice(e)} >Generate Invoice</button>
                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <i className="fa fa-filter"></i>
                 </button>
                 <div className="dropdown-menu">
-                <button className="dropdown-item"     onClick={e => { setFiltered('f=all'); getJobs('f=all') }}                               >All              - {jres.all}</button>
+                    <button className="dropdown-item" onClick={e => { setFiltered('f=all'); getJobs('f=all') }}                               >All              - {jres.all}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=scheduled'); getJobs('status=scheduled') }}         >Scheduled        - {jres.scheduled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=unscheduled'); getJobs('status=unscheduled') }}     >Unscheduled      - {jres.unscheduled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=progress'); getJobs('status=progress') }}           >Progress         - {jres.progress}</button>
+                    <button className="dropdown-item" onClick={e => { setFiltered('status=completed'); getJobs('status=completed') }}         >completed        - {jres.completed}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('status=canceled'); getJobs('status=canceled') }}           >Canceled         - {jres.canceled}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('q=ordered'); getJobs('q=ordered') }}                       >Ordered          - {jres.ordered}</button>
                     <button className="dropdown-item" onClick={e => { setFiltered('q=unordered'); getJobs('q=unordered') }}                   >unordered        - {jres.unordered}</button>
@@ -152,18 +213,19 @@ export default function Jobs() {
             </div>
             <div className="table-responsive text-center">
 
-            <RotatingLines
-                strokeColor="grey"
-                strokeWidth="5"
-                animationDuration="0.75"
-                width="96"
-                visible={wait}
-            />
+                <RotatingLines
+                    strokeColor="grey"
+                    strokeWidth="5"
+                    animationDuration="0.75"
+                    width="96"
+                    visible={wait}
+                />
 
                 {wait == false && jobs.length > 0 ? (
                     <table className="table table-bordered">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" name="cbh" onClick={e => checkAllBox(e)} className='form-control cbh' /></th>
                                 <th onClick={(e) => sortTable(e, 'id')} style={{ cursor: 'pointer' }}>ID <span className='arr'> &darr; </span></th>
                                 <th>Service Name</th>
                                 <th>Worker Name</th>
@@ -176,11 +238,14 @@ export default function Jobs() {
                         <tbody>
 
                             {jobs && jobs.map((j, i) => {
+
                                 // let services = (j.offer.services) ? JSON.parse(j.offer.services) : [];
                                 let total = 0;
+                                let pstatus = null;
 
                                 return (
                                     <tr>
+                                        <td><input type="checkbox" name="cb" value={j.id} oid={j.order.length > 0 ? j.order[0].id : ''} className='form-control cb' /></td>
                                         <td>#{j.id}</td>
                                         <td>
                                             {
@@ -215,6 +280,8 @@ export default function Jobs() {
                                                 j.invoice && j.invoice.map((inv, i) => {
 
                                                     if (i == 0) { pstatus = inv.status; }
+
+                                                    console.log(pstatus);
 
                                                     return (<> <br /><Link target='_blank' to={inv.doc_url} className="jinv"> Invoice -{inv.invoice_id} </Link><br /></>);
                                                 })
