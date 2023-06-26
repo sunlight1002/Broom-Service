@@ -89,7 +89,7 @@ export default function WorkContract() {
             window.alert(t('Something went work with adding card. Please try again')); return;
 
 
-        } else if (csdata == null) {
+        } else if (csdata == null && oc == false) {
 
             axios
                 .get(`/record-invoice/${sesid}/${client.id}/${cname}`)
@@ -115,7 +115,10 @@ export default function WorkContract() {
                         window.location.reload(true);
                     }, 2000);
                 }
-            })
+            });
+
+        
+
     }
 
     const handleSignatureEnd = () => {

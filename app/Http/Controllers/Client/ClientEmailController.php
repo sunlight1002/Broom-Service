@@ -152,7 +152,7 @@ class ClientEmailController extends Controller
       $contract = Contract::with('client')->where('unique_hash',$request->unique_hash)->get()->first();
       $card = ClientCard::where('client_id',$contract->client->id)->get()->first();
       
-      if(!empty($card)){
+      if( env('OLD_CONTRACT') == true || ( env('OLD_CONTRACT') == false && !empty($card) ) ){
 
       Contract::where('unique_hash',$request->unique_hash)->update($request->input());
       Client::where('id',$contract->client_id)->update(['status'=>2]);
