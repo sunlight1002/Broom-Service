@@ -335,7 +335,14 @@ export default function CreateClientByJob() {
         if(shifts.includes('morning 2 - 10am-12pm')){
 
             remOptions.push('morning1-8am-10am');
+            remOptions.push('morning1-08am-10am');
             remOptions.push('morning2-10am-12pm');
+        }
+
+        if(shifts.includes('morning1 - 8am-10am')){
+
+            remOptions.push('morning-8am-12pm');
+           
         }
         
         if(shifts.includes('noon2 -14pm-16pm')){
@@ -356,13 +363,11 @@ export default function CreateClientByJob() {
             remOptions.push('night2-22pm-24pm');
         }
 
-        
-
+       
         for (var i = 0; i < new_options.length; i++) {
             var obj = new_options[i];
 
-          
-          
+            
             if (remOptions.indexOf((obj.label).replace(/\s/g,'')) !== -1) {
                 new_options.splice(i, 1);
             }
