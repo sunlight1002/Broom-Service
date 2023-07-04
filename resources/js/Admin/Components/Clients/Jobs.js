@@ -230,7 +230,7 @@ export default function Jobs() {
                                 <th>Service Name</th>
                                 <th>Worker Name</th>
                                 <th>Total Price</th>
-                                <th onClick={(e) => sortTable(e, 'created_at')} style={{ cursor: 'pointer' }}>Date Created <span className='arr'> &darr; </span></th>
+                                <th onClick={(e) => sortTable(e, 'created_at')} style={{ cursor: 'pointer' }}>Start Date <span className='arr'> &darr; </span></th>
                                 <th onClick={(e) => sortTable(e, 'status')} style={{ cursor: 'pointer' }}>Status <span className='arr'> &darr; </span></th>
                                 <th>Action</th>
                             </tr>
@@ -265,7 +265,7 @@ export default function Jobs() {
                                                 : "NA"
                                         }</td>
                                         <td> {total} ILS + VAT</td>
-                                        <td>{Moment(j.created_at).format('DD MMM,Y')}</td>
+                                        <td>{Moment(j.start_date).format('DD MMM,Y')}</td>
                                         <td>{j.status}
 
 
