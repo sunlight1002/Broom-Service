@@ -998,7 +998,8 @@ export default function AddClient() {
                                                                                     <option value="tuesday">Tuesday</option>
                                                                                     <option value="wednesday">Wednesday</option>
                                                                                     <option value="thrusday">Thrusday</option>
-
+                                                                                    <option value="friday">Friday</option>
+                                                                                    <option value="saturday">Saturday</option>    
                                                                                 </select>
 
                                                                             </td>
