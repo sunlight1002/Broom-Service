@@ -432,11 +432,13 @@ class ClientController extends Controller
                 }
                 $worker = $service['worker'];
                 $shift =  $service['shift'];
-
+                
                 for ($i = 0; $i < $count; $i++) {
 
                     if (isset($service['days'])) :
-                        foreach ($service['days'] as $sd) : (!empty($service['days'])) ?
+                        foreach ($service['days'] as $sd) : 
+                           
+                            (!empty($service['days'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -489,7 +491,7 @@ class ClientController extends Controller
                     endif;
                 }
             }
-
+           
             if (!empty($jds)) {
                 foreach ($jds as $jd) {
 
