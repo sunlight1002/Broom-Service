@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import React, { useEffect, useRef, useState } from 'react'
+=======
+import React, { useEffect,useRef, useState } from 'react'
+>>>>>>> Stashed changes
 import logo from "../Assets/image/logo.png";
 import check from "../Assets/image/icons/check-mark.png";
 import SignatureCanvas from 'react-signature-canvas'
@@ -416,6 +420,7 @@ export default function Form101() {
     } 
 
   }, []);
+  console.log(file)
 
   const handleFile = (data) => {
     const reader = new FileReader()
@@ -639,8 +644,13 @@ export default function Form101() {
                   </div>
                   <div className='col-sm-4 col-xs-6'>
                     <div className='form-group'>
+<<<<<<< Updated upstream
                       <label className="control-label">{t('form101.id_photocopy')}</label>
                       <input type="file" name="photocopy_id_appendix" className='bid' onChange={(e) => { handleFile(e.target.files[0]) }} style={{ display: "block" }} />
+=======
+                      <label className="control-label">Photocopy of ID card and appendix</label>
+                      <input type="file" name="photocopy_id_appendix" className='bid' onChange={(e) => { setFile(e.target.files[0]) }} style={{ display: "block" }} />
+>>>>>>> Stashed changes
                       <img src={(file)} className="img-fluid" style={{ maxWidth: "70px", marginTop: "10px" }} />
                       {
                         form && form.signature != null && form.photocopy_id_appendix != null && <button type="button" className="btn btn-pink m-2"

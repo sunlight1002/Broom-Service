@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LeadController;
 use App\Models\Invoices;
 
 /*
@@ -47,7 +48,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-
+     Route::post('save-lead', [LeadController::class, 'saveLead']);
 
 });
 
@@ -78,6 +79,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('add-job-time', [JobController::class, 'addJobTime']);
     Route::post('update-job-time', [JobController::class, 'updateJobTime']);
     Route::delete('delete-job-time/{id}', [JobController::class, 'deleteJobTime']);
+
+    // Lead Api
+    Route::resource('leads', LeadController::class);
 
     // workers Api
     Route::resource('workers', WorkerController::class);
@@ -220,3 +224,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);
 });
+
+
+
