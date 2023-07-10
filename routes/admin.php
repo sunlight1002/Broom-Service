@@ -133,6 +133,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('get-notes', [ClientController::class,'getNotes']);
     Route::post('add-note', [ClientController::class,'addNote']);
     Route::post('delete-note', [ClientController::class,'deleteNote']);
+
+    //Lead Comment
+    Route::post('get-comments', [LeadController::class,'getComments']);
+    Route::post('add-comment', [LeadController::class,'addComment']);
+    Route::post('delete-comment', [LeadController::class,'deleteComment']);
    
     //Meeting Schedules
     Route::resource('schedule',ScheduleController::class);

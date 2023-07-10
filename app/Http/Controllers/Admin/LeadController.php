@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Lead;
+use App\Models\LeadComment;
 
 class LeadController extends Controller
 {
@@ -139,5 +140,35 @@ class LeadController extends Controller
         return response()->json([
             'message'     => "Lead has been deleted"         
         ], 200);
+    }
+    public function addComment(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'comment'     => 'required',
+            'lead_id'  => 'required',
+            'team_id'  => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+        LeadComment::create([
+            'comment'   => $request->comment,
+            'lead_id' => $request->lead_id,
+            'team_id' => $request->team_id
+        ]);
+        return response()->json(['message' => 'comment added']);
+    }
+
+    public function getComments(Request $request)
+    {
+        $comments = LeadComment::where('lead_id',$request->id)->with('team')->get();
+        return response()->json(['comments' => $comments]);
+    }
+
+    public function deleteComment(Request $request)
+    {
+        LeadComment::where(['id' => $request->id])->delete();
+        return response()->json(['message' => 'comment deleted']);
     }
 }
