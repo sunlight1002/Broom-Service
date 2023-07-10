@@ -48,7 +48,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-     Route::post('save-lead', [LeadController::class, 'saveLead']);
+     Route::post('save-lead', [LeadController::class, 'saveLead'])->middleware('api_token');
 
 });
 
