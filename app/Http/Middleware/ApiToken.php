@@ -16,7 +16,7 @@ class ApiToken
      */
     public function handle($request, Closure $next)
     {
-        if ($request->api_token != env('API_KEY')) {
+        if ($request->api_token != env('LEAD_TOKEN')) {
             return response()->json('Unauthorized', 401);
         } 
 
