@@ -140,28 +140,4 @@ class LeadController extends Controller
             'message'     => "Lead has been deleted"         
         ], 200);
     }
-    public function saveLead(Request $request){
-
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'phone'     => ['required'],
-            'email'     => ['required'],
-        ]);
-        
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->messages()]);
-        }
-        $lead                = new Lead;
-        $lead->name          = $request->name;
-        $lead->phone         = $request->phone;
-        $lead->email         = $request->email;
-        $lead->lead_status   = 'lead';
-        $lead->meta          = $request->has('meta') ? $request->meta : 0;
-        $lead->save();
-
-        return response()->json([
-            'message'       => 'Lead created successfully',            
-        ], 200);
-
-    }
 }

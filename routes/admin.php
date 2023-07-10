@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
+use App\Http\Controllers\Api\LeadWebhookController;
 use App\Models\Invoices;
 
 /*
@@ -48,7 +49,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-     Route::post('save-lead', [LeadController::class, 'saveLead'])->middleware('api_token');
+     Route::post('save-lead', [LeadWebhookController::class, 'saveLead'])->middleware('api_token');
 
 });
 
