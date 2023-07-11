@@ -62,7 +62,7 @@ export default function Sidebar() {
                     <NavLink to="/admin/dashboard"><i className="fa-solid fa-gauge"></i>Dashboard</NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/leads"><i className="fa-solid fa-user-tie"></i>Leads</NavLink>
+                    <NavLink to="/admin/leads"><i className="fa-solid fa-poll-h"></i>Leads</NavLink>
                 </li>  
                 <li className="list-group-item">
                     <NavLink to="/admin/clients"><i className="fa-solid fa-user-tie"></i>Clients</NavLink>

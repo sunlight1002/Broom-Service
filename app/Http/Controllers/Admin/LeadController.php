@@ -78,9 +78,14 @@ class LeadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
-        //
+        $lead                = Lead::find($id);
+        $lead->lead_status   =$request->lead_status;
+        $lead->save();
+        return response()->json([
+            'message'        => 'status updated',            
+        ], 200);
     }
 
     /**
@@ -139,6 +144,15 @@ class LeadController extends Controller
          Lead::find($id)->delete();
         return response()->json([
             'message'     => "Lead has been deleted"         
+        ], 200);
+    }
+     public function updateStatus(Request $request,$id)
+    {
+        $lead                = Lead::find($id);
+        $lead->lead_status   =$request->lead_status;
+        $lead->save();
+        return response()->json([
+            'message'        => 'status updated',            
         ], 200);
     }
     public function addComment(Request $request)

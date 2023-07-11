@@ -49,6 +49,7 @@ export default function Lead() {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
                     setPageCount(response.data.leads.last_page);
+                    setLoading("Loading...");
                 } else {
                     setLeads([]);
                     setPageCount(response.data.leads.last_page);
@@ -65,6 +66,7 @@ export default function Lead() {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
                     setPageCount(response.data.leads.last_page);
+                    setLoading("Loading...");
                 } else {
                     setLeads([]);
                     setPageCount(response.data.leads.last_page);
@@ -201,7 +203,7 @@ export default function Lead() {
                                 </div>
                             </div>
 
-                                <input type='text' className="form-control" onChange={(e)=>{filterLeads(e);setLeads(e.target.value)}} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e)=>{filterLeads(e)}} placeholder="Search" />
                                 <Link to="/admin/add-lead" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>

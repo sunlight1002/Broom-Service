@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-     Route::post('save-lead', [LeadWebhookController::class, 'saveLead'])->middleware('api_token');
+     Route::post('save-lead', [LeadWebhookController::class, 'saveLead']);
 
 });
 
@@ -83,6 +83,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     // Lead Api
     Route::resource('leads', LeadController::class);
+    Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
 
     // workers Api
     Route::resource('workers', WorkerController::class);
