@@ -187,13 +187,24 @@ export default function AddLeadClient() {
                     setErrors(response.data.errors);
                 } else {
                     alert.success("Client has been created successfully");
+                    
                     setTimeout(() => {
+                        updateLeadStatus()
                         navigate("/admin/clients");
                     }, 1000);
                 }
             });
     };
-
+    const lead_data = {
+            lead_status: 'converted to customer',
+        }
+    const updateLeadStatus = () => {
+          axios
+            .post(`/api/admin/update-lead-status/${params.id}`,{lead_data}, { headers })
+            .then((res) => {
+         })
+    }
+    
     const addPhone = (e) => {
         e.preventDefault();
         var cont = document.querySelectorAll('.phone')[0].firstChild.innerHTML;

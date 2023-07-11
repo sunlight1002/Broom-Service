@@ -6,10 +6,21 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Lead;
+use App\Models\Fblead;
 
 class LeadWebhookController extends Controller
 {
     public function saveLead(Request $request){
+        
+        $challenge = $request->hub_challenge;
+        if(!empty($challenge)){
+
+            $verify_token = $request->hub_verify_token;
+            if ( $verify_token === env('FB_WEBHOOK_TOKEN') ) {
+                Fblead::create(["challenge"=>$challenge]);
+                return $challenge;
+            }
+        }else{
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
@@ -111,7 +122,7 @@ class LeadWebhookController extends Controller
 
            
         // }
-
+         }
         return response()->json([
             'message'       => 'Lead created successfully',            
         ], 200);
