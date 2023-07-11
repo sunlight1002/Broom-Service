@@ -26,6 +26,8 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LeadController;
+use App\Http\Controllers\Api\LeadWebhookController;
 use App\Models\Invoices;
 
 /*
@@ -47,7 +49,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-
+     Route::post('save-lead', [LeadWebhookController::class, 'saveLead'])->middleware('api_token');
 
 });
 
@@ -78,6 +80,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('add-job-time', [JobController::class, 'addJobTime']);
     Route::post('update-job-time', [JobController::class, 'updateJobTime']);
     Route::delete('delete-job-time/{id}', [JobController::class, 'deleteJobTime']);
+
+    // Lead Api
+    Route::resource('leads', LeadController::class);
 
     // workers Api
     Route::resource('workers', WorkerController::class);
@@ -128,6 +133,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('get-notes', [ClientController::class,'getNotes']);
     Route::post('add-note', [ClientController::class,'addNote']);
     Route::post('delete-note', [ClientController::class,'deleteNote']);
+
+    //Lead Comment
+    Route::post('get-comments', [LeadController::class,'getComments']);
+    Route::post('add-comment', [LeadController::class,'addComment']);
+    Route::post('delete-comment', [LeadController::class,'deleteComment']);
    
     //Meeting Schedules
     Route::resource('schedule',ScheduleController::class);
@@ -220,3 +230,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);
 });
+
+
+
