@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('update_worker', [CronController::class, 'WorkerUpdate']);
     Route::get('countries', [SettingController::class, 'getCountries']);
     Route::get('get_services',[ServicesController::class, 'create']);
-     Route::post('save-lead', [LeadWebhookController::class, 'saveLead']);
+    Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
 });
 
