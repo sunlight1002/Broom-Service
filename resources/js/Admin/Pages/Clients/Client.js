@@ -236,7 +236,7 @@ export default function Clients() {
                                 </button>
                                 <div className="dropdown-menu">
                                     <button className="dropdown-item" onClick={(e)=>{setStat('null');getclients()}}>All</button>
-                                    {/* <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button> */}
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button>
                                     <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
                                     <button className="dropdown-item" onClick={(e)=>{setStat(1);filterClientsStat('potential customer')}}>Potential Customer</button>
                                     <button className="dropdown-item" onClick={(e)=>{setStat('booked');booknun('booked')}}>Booked Customer</button>
@@ -281,7 +281,7 @@ export default function Clients() {
                                     <Tbody>
                                         {clients &&
                                             clients.map((item, index) => {
-                                                if(item){
+
                                                 let address = (item.geo_address) ? item.geo_address : "NA";
                                                 let cords = (item.latitude && item.longitude) ? item.latitude + "," + item.longitude : "";
                                                 let status = '';
@@ -341,7 +341,6 @@ export default function Clients() {
                                                             </div>
                                                         </Td>
                                                     </Tr>)
-                                                }
                                             })}
                                     </Tbody>
                                 </Table>

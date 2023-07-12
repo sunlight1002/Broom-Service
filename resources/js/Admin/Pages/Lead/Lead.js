@@ -198,6 +198,8 @@ export default function Lead() {
                                 </button>
                                 <div className="dropdown-menu">
                                     <button className="dropdown-item" onClick={(e)=>{setStat('null');getleads()}}>All</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(0);filterLeadsStat('lead')}}>Lead</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(2);filterLeadsStat('customer')}}>Customer</button>
                                 </div>
                             </div>
 
@@ -225,7 +227,7 @@ export default function Lead() {
                                     <Thead>
                                         <Tr style={{cursor:'pointer'}}>
                                             <Th onClick={(e)=>{sortTable(e,'id')}} >ID  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'firstname')}}>Name  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e)=>{sortTable(e,'name')}}>Name  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
@@ -235,24 +237,18 @@ export default function Lead() {
                                     <Tbody>
                                         {leads &&
                                             leads.map((item, index) => {
-                                                 if (item.status == 0)
-                                                    status = "Lead";
-                                                if (item.status == 1)
-                                                    status = "Potential Customer";
-                                                if (item.status == 2)
-                                                    status = "Customer";
                                                 return (
                                                     <Tr style={{ "cursor": "pointer" }}>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.id}</Td>
                                                         <Td>
-                                                            <Link to={`/admin/view-lead/${item.id}`}>{item.firstname}</Link>
+                                                            <Link to={`/admin/view-lead/${item.id}`}>{item.name}</Link>
                                                         </Td>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.email}</Td>
                                                         <Td>
                                                             {item.phone}
                                                         </Td>
                                                         <Td>
-                                                            {status}
+                                                            lead
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
