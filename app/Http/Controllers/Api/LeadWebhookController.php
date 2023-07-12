@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Lead;
 use App\Models\Fblead;
-use App\Models\Client;
-use Illuminate\Support\Facades\Hash;
 
 class LeadWebhookController extends Controller
 {
@@ -34,22 +32,21 @@ class LeadWebhookController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $lead_exists = Client::where('phone', $request->phone)->orWhere('email', $request->email)->exists();
+        $lead_exists = Lead::where('phone', $request->phone)->orWhere('email', $request->email)->exists();
         if(!$lead_exists){
-            $lead                = new Client;
+            $lead                = new Lead;
         }else{
-            $lead = Client::where('phone', $request->phone)->first();
+            $lead = Lead::where('phone', $request->phone)->first();
             if(empty($lead)){
-                $lead = Client::where('email', $request->email)->first();
+                $lead = Lead::where('email', $request->email)->first();
             }
-            $lead                = Client::find($lead->id);
+            $lead                = Lead::find($lead->id);
         }
-        $lead->firstname     = $request->name;
+        $lead->name          = $request->name;
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
-        $lead->status        = 0;
-        $lead->password      = Hash::make($request->phone);
-        $lead->geo_address       = $request->has('address') ? $request->address : '';
+        $lead->lead_status   = 'lead';
+        $lead->meta          = $request->has('meta') ? $request->meta : 0;
         $lead->save();
 
         // $ch = curl_init();
