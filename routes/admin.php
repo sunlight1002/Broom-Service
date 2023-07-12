@@ -83,7 +83,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     // Lead Api
     Route::resource('leads', LeadController::class);
-    Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
+    Route::post('update-lead-status/{id}', [LeadController::class, 'updateStatus']);
 
     // workers Api
     Route::resource('workers', WorkerController::class);

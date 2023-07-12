@@ -40,6 +40,9 @@ class ClientController extends Controller
         if (strtolower($s) === "lead") {
             $status = 0;
         }
+        if (isset($request->l)) {
+            $status = 0;
+        }
         if (strtolower($s) === "potential customer") {
             $status = 1;
         }
@@ -55,7 +58,7 @@ class ClientController extends Controller
         $result->orWhere('zipcode',    'like', '%' . $q . '%');
         $result->orWhere('email',      'like', '%' . $q . '%');
 
-        if ($status != '') {
+        if ($status != '' && !isset($request->l)) {
             $result->orWhere('status',     'like', '%' . $status . '%');
         }
 
@@ -75,15 +78,42 @@ class ClientController extends Controller
         }
 
         $result = $result->orderBy('id', 'desc')->paginate(20);
+        $itemsTransformed = $result
+            ->getCollection()
+            ->map(function($item) use ($status){
+                if($status == ''){
+                    if($item->status > 0){
+                      return $item;
+                    }
+                }else{
+                     if($item->status == $status){
+                      return $item;
+                    }
+                }
+        });
+
+        $result = new \Illuminate\Pagination\LengthAwarePaginator(
+            $itemsTransformed,
+            $result->total(),
+            $result->perPage(),
+            $result->currentPage(), [
+                'path' => \Request::url(),
+                'query' => [
+                    'page' => $result->currentPage()
+                ]
+            ]
+        );
 
         if (isset($result)) {
             foreach ($result as $k => $res) {
+                if(!empty($res)){
                 $contract = Contract::where('client_id', $res->id)->where('status', 'verified')->get()->last();
                 if ($contract != null) {
                     $result[$k]->latest_contract = $contract->id;
                 } else {
                     $result[$k]->latest_contract = 0;
                 }
+               }
             }
         }
 

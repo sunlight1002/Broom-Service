@@ -11,6 +11,7 @@ export default function AddLead() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
     const alert = useAlert();
     const navigate = useNavigate();
     const [errors, setErrors] = useState([]);
@@ -27,6 +28,7 @@ export default function AddLead() {
             name: name,
             email: email,
             phone: phone,
+            address: address,
             lead_status: 'lead',
             meta:''
         };
@@ -50,7 +52,7 @@ export default function AddLead() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Add Client</h1>
+                    <h1 className="page-title addEmployer">Add Lead</h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -127,6 +129,31 @@ export default function AddLead() {
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
                                                     {errors.phone}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+
+                                    </div>
+                                     <div className="col-sm-12 phone">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Address
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={address}
+                                                name={'address'}
+                                                onChange={(e) =>
+                                                    setAddress(e.target.value)
+                                                }
+                                                className="form-control pphone"
+                                                placeholder="Address"
+                                            />
+                                            {errors.address ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.address}
                                                 </small>
                                             ) : (
                                                 ""
