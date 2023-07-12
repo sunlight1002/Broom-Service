@@ -241,7 +241,7 @@ export default function Lead() {
                             </div>
 
                                 <input type='text' className="form-control" onChange={(e)=>{filterClients(e);setFilter(e.target.value)}} placeholder="Search" />
-                                <Link to="/admin/add-client" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
+                                <Link to="/admin/add-lead" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>
                         <div className='col-sm-6 hidden-xl mt-4'>
@@ -321,15 +321,9 @@ export default function Lead() {
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
-                                                                <div className="dropdown-menu">
-                                                                    {
-                                                                        item.latest_contract != 0 
-                                                                        ? <Link to={`/admin/create-job/${item.latest_contract}`} className="dropdown-item">Create Job</Link>
-                                                                        :''
-                                                                    }
-                                                                    
-                                                                    <Link to={`/admin/edit-client/${item.id}`} className="dropdown-item">Edit</Link>
-                                                                    <Link to={`/admin/view-client/${item.id}`} className="dropdown-item">View</Link>
+                                                                <div className="dropdown-menu">                
+                                                                    <Link to={`/admin/edit-lead/${item.id}`} className="dropdown-item">Edit</Link>
+                                                                    <Link to={`/admin/view-lead/${item.id}`} className="dropdown-item">View</Link>
                                                                     <button className="dropdown-item" onClick={() => handleDelete(item.id)}
                                                                     >Delete</button>
                                                                 </div>

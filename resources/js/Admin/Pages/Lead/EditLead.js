@@ -7,6 +7,7 @@ export default function EditWorker() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [address, setAddress] = useState("");
 
   const [errors, setErrors] = useState([]);
   const params = useParams();
@@ -27,6 +28,7 @@ export default function EditWorker() {
         "name": name,
         "phone": phone,
         "email":email,
+        "address":address,
         "lead_status": 'lead',
         "meta":''
     }
@@ -51,9 +53,10 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/leads/${params.id}/edit`, { headers })
             .then((response) => {
-                setName(response.data.lead.name);
+                setName(response.data.lead.firstname);
                 setEmail(response.data.lead.email);
-                setPhone(response.data.lead.phone);               
+                setPhone(response.data.lead.phone);
+                setAddress(response.data.lead.geo_address);                
             });
     };
     
@@ -110,6 +113,31 @@ export default function EditWorker() {
                                     </div>
                                 </div>
                             </div>
+                            <div className="col-sm-12 phone">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Address
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={address}
+                                                name={'address'}
+                                                onChange={(e) =>
+                                                    setAddress(e.target.value)
+                                                }
+                                                className="form-control pphone"
+                                                placeholder="Address"
+                                            />
+                                            {errors.address ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.address}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+
+                                    </div>
                             <div className="form-group text-center">
                                 <input type='submit' value='Update'  onClick={handleUpdate} className="btn btn-danger saveBtn"/>
                             </div>

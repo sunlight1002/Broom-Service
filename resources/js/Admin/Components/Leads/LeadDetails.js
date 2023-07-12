@@ -9,10 +9,10 @@ import Notes from './Notes'
 export default function LeadDetails({ lead }) {
 
     const navigate = useNavigate();
-    const name = lead.name;
+    const name = lead.firstname;
     const phone = lead.phone;
     const email = lead.email;
-    const meta = lead.meta;
+    const address = lead.geo_address;
     const lead_status = lead.lead_status;
     const generated_on = Moment(lead.created_at).format('DD/MM/Y') + " " + Moment(lead.created_at).format('dddd');
 
@@ -64,7 +64,7 @@ export default function LeadDetails({ lead }) {
                                         <div className='col-sm-6'>
                                             <div className='form-group'>
                                                 <label>status</label>
-                                                <p>{lead_status}</p>
+                                                <p>Lead</p>
                                             </div>
 
                                         </div>
@@ -77,8 +77,8 @@ export default function LeadDetails({ lead }) {
                                         </div>
                                         <div className='col-sm-12'>
                                             <div className='form-group'>
-                                                <label>Meta</label>
-                                                <p>{meta}</p>
+                                                <label>Address</label>
+                                                <p>{address}</p>
                                             </div>
 
                                         </div>
@@ -104,7 +104,7 @@ export default function LeadDetails({ lead }) {
 
                             <div className='form-group'>
                                 <label className='d-block'>Covert to Client</label>
-                                <Link to={`/admin/add-lead-client/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Convert</Link>
+                                <Link to={`/admin/edit-client/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Convert</Link>
                             </div>
 
                         </div>
