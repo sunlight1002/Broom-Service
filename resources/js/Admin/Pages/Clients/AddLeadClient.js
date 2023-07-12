@@ -200,7 +200,7 @@ export default function AddLeadClient() {
         }
     const updateLeadStatus = () => {
           axios
-            .post(`/api/admin/update-lead-status/${params.id}`,{lead_data}, { headers })
+            .post(`/api/admin/update-lead-status/${params.id}`,lead_data, { headers })
             .then((res) => {
          })
     }

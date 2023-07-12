@@ -148,6 +148,13 @@ class LeadController extends Controller
     }
      public function updateStatus(Request $request,$id)
     {
+         $validator = Validator::make($request->all(), [
+            'lead_status'     => ['required'],
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
         $lead                = Lead::find($id);
         $lead->lead_status   =$request->lead_status;
         $lead->save();
