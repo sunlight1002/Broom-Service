@@ -235,6 +235,12 @@ export default function Lead() {
                                     <Tbody>
                                         {leads &&
                                             leads.map((item, index) => {
+                                                 if (item.status == 0)
+                                                    status = "Lead";
+                                                if (item.status == 1)
+                                                    status = "Potential Customer";
+                                                if (item.status == 2)
+                                                    status = "Customer";
                                                 return (
                                                     <Tr style={{ "cursor": "pointer" }}>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.id}</Td>
@@ -246,7 +252,7 @@ export default function Lead() {
                                                             {item.phone}
                                                         </Td>
                                                         <Td>
-                                                            lead
+                                                            {status}
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">

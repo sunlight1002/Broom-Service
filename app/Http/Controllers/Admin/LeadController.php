@@ -23,10 +23,11 @@ class LeadController extends Controller
         $result = Client::query();
 
         $result->where('status','0');
-        // $result->orWhere('email',   'like', '%' . $q . '%');
-        // $result->orWhere('phone',       'like', '%' . $q . '%');
-        // $result->orWhere('meta', 'like', '%' . $q . '%');
-
+        $result->where(function($query) use ($q) {
+                $query->where('email',       'like', '%' . $q . '%')
+                     ->orWhere('firstname',       'like', '%' . $q . '%')
+                    ->orWhere('phone',       'like', '%' . $q . '%');
+            });
         $result = $result->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
