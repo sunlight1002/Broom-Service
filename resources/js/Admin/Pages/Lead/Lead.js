@@ -43,7 +43,7 @@ export default function Lead() {
 
     const filterClients = (e) => {
         axios
-            .get(`/api/admin/clients?q=${e.target.value}`, { headers })
+            .get(`/api/admin/clients?l=lead&q=${e.target.value}`, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -59,7 +59,7 @@ export default function Lead() {
     const filterClientsStat = (s) => {
         setFilter(s);
         axios
-            .get(`/api/admin/clients?q=${s}`, { headers })
+            .get(`/api/admin/clients?l=lead&q=${s}`, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -76,7 +76,7 @@ export default function Lead() {
 
         setFilter(s);
         axios
-            .get(`/api/admin/clients?action=${s}`, { headers })
+            .get(`/api/admin/clients?l=lead&action=${s}`, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -95,7 +95,7 @@ export default function Lead() {
         let cn = (filter == 'booked' || filter == 'notbooked') ? "&action=" : "&q=";
 
         axios
-            .get("/api/admin/clients?page=" + currentPage+cn+filter, { headers })
+            .get("/api/admin/clients?l=lead&page=" + currentPage+cn+filter, { headers })
             .then((response) => {
                 if (response.data.clients.data.length > 0) {
                     setClients(response.data.clients.data);
@@ -276,7 +276,7 @@ export default function Lead() {
                                     <Tbody>
                                         {clients &&
                                             clients.map((item, index) => {
-
+                                              if(item){
                                                 let address = (item.geo_address) ? item.geo_address : "NA";
                                                 let cords = (item.latitude && item.longitude) ? item.latitude + "," + item.longitude : "";
                                                 let status = '';
@@ -336,6 +336,7 @@ export default function Lead() {
                                                             </div>
                                                         </Td>
                                                     </Tr>)
+                                                }
                                             })}
                                     </Tbody>
                                 </Table>
