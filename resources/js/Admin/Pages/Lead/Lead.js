@@ -9,7 +9,7 @@ import { CSVLink } from "react-csv";
 
 export default function Lead() {
 
-    const [clients, setClients] = useState([]);
+    const [leads, setLeads] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [filter,setFilter] = useState('');
     const [loading, setLoading] = useState("Loading...");
@@ -23,51 +23,54 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getclients = () => {
-        axios.get("/api/admin/clients?q=lead", { headers }).then((response) => {
+    const getleads = () => {
+        axios.get("/api/admin/leads", { headers }).then((response) => {
 
-            if (response.data.clients.data.length > 0) {
-                setClients(response.data.clients.data);
-                setPageCount(response.data.clients.last_page);
+            if (response.data.leads.data.length > 0) {
+                setLeads(response.data.leads.data);
+                setPageCount(response.data.leads.last_page);
             } else {
-                setLoading("No client found");
+                setLeads([]);
+                setLoading("No lead found");
             }
         });
     };
 
     
     useEffect(() => {
-        getclients();
+        getleads();
     }, []);
 
 
-    const filterClients = (e) => {
+    const filterLeads = (e) => {
         axios
-            .get(`/api/admin/clients?l=lead&q=${e.target.value}`, { headers })
+            .get(`/api/admin/leads?q=${e.target.value}`, { headers })
             .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
+                if (response.data.leads.data.length > 0) {
+                    setLeads(response.data.leads.data);
+                    setPageCount(response.data.leads.last_page);
+                    setLoading("Loading...");
                 } else {
-                    setClients([]);
-                    setPageCount(response.data.clients.last_page);
-                    setLoading("No client found");
+                    setLeads([]);
+                    setPageCount(response.data.leads.last_page);
+                    setLoading("No lead found");
                 }
             })
     }
 
-    const filterClientsStat = (s) => {
+    const filterLeadsStat = (s) => {
         setFilter(s);
         axios
-            .get(`/api/admin/clients?l=lead&q=${s}`, { headers })
+            .get(`/api/admin/leads?q=${s}`, { headers })
             .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
+                if (response.data.leads.data.length > 0) {
+                    setLeads(response.data.leads.data);
+                    setPageCount(response.data.leads.last_page);
+                    setLoading("Loading...");
                 } else {
-                    setClients([]);
-                    setPageCount(response.data.clients.last_page);
-                    setLoading("No client found");
+                    setLeads([]);
+                    setPageCount(response.data.leads.last_page);
+                    setLoading("No lead found");
                 }
             })
     }
@@ -76,15 +79,15 @@ export default function Lead() {
 
         setFilter(s);
         axios
-            .get(`/api/admin/clients?l=lead&action=${s}`, { headers })
+            .get(`/api/admin/leads?action=${s}`, { headers })
             .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
+                if (response.data.leads.data.length > 0) {
+                    setLeads(response.data.leads.data);
+                    setPageCount(response.data.leads.last_page);
                 } else {
-                    setClients([]);
-                    setPageCount(response.data.clients.last_page);
-                    setLoading("No client found");
+                    setLeads([]);
+                    setPageCount(response.data.leads.last_page);
+                    setLoading("No lead found");
                 }
             })
       
@@ -92,16 +95,17 @@ export default function Lead() {
 
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
-        let cn = (filter == 'booked' || filter == 'notbooked') ? "&action=" : "&q=";
+        let cn = "&q=";
 
         axios
-            .get("/api/admin/clients?l=lead&page=" + currentPage+cn+filter, { headers })
+            .get("/api/admin/leads?page=" + currentPage+cn+filter, { headers })
             .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
+                if (response.data.leads.data.length > 0) {
+                    setLeads(response.data.leads.data);
+                    setPageCount(response.data.leads.last_page);
                 } else {
-                    setLoading("No client found");
+                    setLeads([]);
+                    setLoading("No lead found");
                 }
             });
     };
@@ -114,19 +118,19 @@ export default function Lead() {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Client!",
+            confirmButtonText: "Yes, Delete Lead!",
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`/api/admin/clients/${id}`, { headers })
+                    .delete(`/api/admin/leads/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
                             "Deleted!",
-                            "Client has been deleted.",
+                            "Lead has been deleted.",
                             "success"
                         );
                         setTimeout(() => {
-                            getclients();
+                            getleads();
                         }, 1000);
                     });
             }
@@ -134,10 +138,10 @@ export default function Lead() {
     };
     const handleNavigate = (e, id) => {
         e.preventDefault();
-        navigate(`/admin/view-client/${id}`);
+        navigate(`/admin/view-lead/${id}`);
     }
 
-    const copy = [...clients];
+    const copy = [...leads];
     const [order,setOrder] = useState('ASC');
     const sortTable = (e,col) =>{
         
@@ -163,54 +167,16 @@ export default function Lead() {
 
         if(order == 'ASC'){
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? 1 : -1));
-            setClients(sortData);
+            setLeads(sortData);
             setOrder('DESC');
         }
         if(order == 'DESC'){
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? -1 : 1));
-            setClients(sortData);
+            setLeads(sortData);
             setOrder('ASC');
         }
         
     }
-
-
-    const [Alldata, setAllData] = useState([]);
-   
-    const handleReport = (e) => {
-        e.preventDefault();
-
-        let cn = (stat == 'booked' || stat == 'notbooked') ? "action=" : "f=";
-
-        axios.get("/api/admin/clients_export?"+cn+stat, { headers }).then((response) => {
-
-            if (response.data.clients.length > 0) {
-
-                let r = response.data.clients;
-
-                if(r.length > 0){
-                    for (let k in r){
-                        delete r[k]['extra'];
-                        delete r[k]['jobs'];
-                    }
-                }
-                 console.log(r)
-                 setAllData(r);
-                 document.querySelector('#csv').click();
-
-            } else {
-               
-            }
-        });
-
-    }
-
-    const csvReport = {
-        data: Alldata,
-        filename: 'clients'
-    };
-
-
     return (
         <div id="container">
             <Sidebar />
@@ -226,21 +192,16 @@ export default function Lead() {
                         <div className="col-sm-6">
                             <div className="search-data">
 
-                            <div classname="App" style={{display:"none"}}>
-                                <CSVLink {...csvReport}  id="csv">Export to CSV</CSVLink>
-                            </div>
-
                             <div className="action-dropdown dropdown mt-4 mr-2">
                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     <i className="fa fa-filter"></i>
                                 </button>
                                 <div className="dropdown-menu">
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('null');getclients()}}>All</button>
-                                    <button className="dropdown-item" onClick={(e)=>handleReport(e)}>Export</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('null');getleads()}}>All</button>
                                 </div>
                             </div>
 
-                                <input type='text' className="form-control" onChange={(e)=>{filterClients(e);setFilter(e.target.value)}} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e)=>{filterLeads(e)}} placeholder="Search" />
                                 <Link to="/admin/add-lead" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>
@@ -248,8 +209,7 @@ export default function Lead() {
                           <select className='form-control' onChange={e => sortTable(e,e.target.value)}>
                           <option selected>-- Sort By--</option>
                            <option value="id">ID</option>
-                           <option value="firstname">Client Name</option>
-                           <option value="address">Address</option>
+                           <option value="name">Name</option>
                            <option value="email">Email</option>
                            <option value="phone">Phone</option>
                            <option value="status">Status</option>
@@ -260,68 +220,40 @@ export default function Lead() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            {clients.length > 0 ? (
+                            {leads.length > 0 ? (
                                 <Table className='table table-bordered'>
                                     <Thead>
                                         <Tr style={{cursor:'pointer'}}>
                                             <Th onClick={(e)=>{sortTable(e,'id')}} >ID  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'firstname')}}>Client Name  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e)=>{sortTable(e,'firstname')}}>Name  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'address')}}>Address  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {clients &&
-                                            clients.map((item, index) => {
-                                              if(item){
-                                                let address = (item.geo_address) ? item.geo_address : "NA";
-                                                let cords = (item.latitude && item.longitude) ? item.latitude + "," + item.longitude : "";
-                                                let status = '';
-                                                if (item.status == 0)
-                                                    status = "Lead";
-                                                if (item.status == 1)
-                                                    status = "Potential Customer";
-                                                if (item.status == 2)
-                                                    status = "Customer";
-                                               
-                                                let phone = (item.phone) ? item.phone.toString().split(",") : [];
-
+                                        {leads &&
+                                            leads.map((item, index) => {
                                                 return (
                                                     <Tr style={{ "cursor": "pointer" }}>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.id}</Td>
                                                         <Td>
-                                                            <Link to={`/admin/view-client/${item.id}`}>{item.firstname}{" "}{item.lastname}</Link>
+                                                            <Link to={`/admin/view-lead/${item.id}`}>{item.firstname}</Link>
                                                         </Td>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.email}</Td>
-                                                        <Td><a href={`https://maps.google.com?q=${cords}`} target='_blank'>{address}</a></Td>
-                                                        {/*<Td><a  href={`tel:${item.phone.toString().split(",").join(' | ')}`}>{(item.phone) ? item.phone.toString().split(",").join(' | ') : ''}</a></Td>*/}
-                                                        
                                                         <Td>
-                                                            {
-                                                                phone && phone.map((p,i)=>{
-                                                                  return(
-                                                                    (phone.length > 1) ?
-                                                                    <a href={`tel:${p}`}>{ p } | </a> 
-                                                                    : <a href={`tel:${p}`}>{ p }</a>
-                                                                  )
-                                                                })
-                                                            }
+                                                            {item.phone}
                                                         </Td>
-                                                       
-                                                        <Td onClick={(e) => handleNavigate(e, item.id)}>
-                                                            {
-                                                                status
-                                                            }
+                                                        <Td>
+                                                            lead
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
-                                                                <div className="dropdown-menu">                
+                                                                <div className="dropdown-menu"> 
                                                                     <Link to={`/admin/edit-lead/${item.id}`} className="dropdown-item">Edit</Link>
                                                                     <Link to={`/admin/view-lead/${item.id}`} className="dropdown-item">View</Link>
                                                                     <button className="dropdown-item" onClick={() => handleDelete(item.id)}
@@ -330,14 +262,13 @@ export default function Lead() {
                                                             </div>
                                                         </Td>
                                                     </Tr>)
-                                                }
                                             })}
                                     </Tbody>
                                 </Table>
                             ) : (
                                 <p className="text-center mt-5">{loading}</p>
                             )}
-                            {clients.length > 0 ? (
+                            {leads.length > 0 ? (
                                 <ReactPaginate
                                     previousLabel={"Previous"}
                                     nextLabel={"Next"}

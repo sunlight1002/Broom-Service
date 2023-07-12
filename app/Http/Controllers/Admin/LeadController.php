@@ -20,12 +20,12 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
-        $result = Lead::query();
+        $result = Client::query();
 
-        $result->where('name',    'like', '%' . $q . '%');
-        $result->orWhere('email',   'like', '%' . $q . '%');
-        $result->orWhere('phone',       'like', '%' . $q . '%');
-        $result->orWhere('meta', 'like', '%' . $q . '%');
+        $result->where('status','0');
+        // $result->orWhere('email',   'like', '%' . $q . '%');
+        // $result->orWhere('phone',       'like', '%' . $q . '%');
+        // $result->orWhere('meta', 'like', '%' . $q . '%');
 
         $result = $result->orderBy('id', 'desc')->paginate(20);
 
