@@ -89,7 +89,7 @@ class LeadWebhookController extends Controller
               ]);
 
                $data_returned = $get_data['entry'][0]['changes'][0]['value'];
-
+              
 
                 if ( isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
 
@@ -108,7 +108,7 @@ class LeadWebhookController extends Controller
                          $text_message='message_0';
                     }
                     $response = WebhookResponse::getWhatsappMessage($text_message,'en');
-                    $result = Helper::sendWhatsappMessage($to,'',array('message'=>$response));
+                    $result = Helper::sendWhatsappMessage($from,'',array('message'=>$response));
                 }
 
                 die('sent');
