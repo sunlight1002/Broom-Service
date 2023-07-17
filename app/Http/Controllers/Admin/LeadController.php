@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Lead;
+use App\Models\Client;
 use App\Models\LeadComment;
+use Illuminate\Support\Facades\Hash;
 
 class LeadController extends Controller
 {
@@ -54,18 +56,20 @@ class LeadController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'phone'     => ['required'],
-            'email'     => ['required'],
+            'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
         ]);
         
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $lead                = new Lead;
-        $lead->name          = $request->name;
+        $lead                = new Client;
+        $lead->firstname          = $request->name;
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
-        $lead->lead_status   = $request->lead_status;
-        $lead->meta          = $request->meta;
+        $lead->geo_address   = $request->address;
+        $lead->status        = 0;
+        $lead->password      = Hash::make($request->phone);
+        $lead->extra         = $request->meta;
         $lead->save();
 
         return response()->json([
@@ -81,7 +85,7 @@ class LeadController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $lead                = Lead::find($id);
+        $lead                = Client::find($id);
         $lead->lead_status   =$request->lead_status;
         $lead->save();
         return response()->json([
@@ -97,7 +101,7 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-         $lead                = Lead::find($id);
+         $lead                = Client::find($id);
         return response()->json([
             'lead'        => $lead,            
         ], 200);
@@ -115,18 +119,20 @@ class LeadController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'phone'     => ['required'],
-            'email'     => ['required'],
+            'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
         
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $lead                = Lead::find($id);
-        $lead->name          = $request->name;
+        $lead                = Client::find($id);
+        $lead->firstname          = $request->name;
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
-        $lead->lead_status   = $request->lead_status;
-        $lead->meta          = $request->meta;
+        $lead->geo_address   = $request->address;
+        $lead->status        = 0;
+        $lead->password      = Hash::make($request->phone);
+        $lead->extra         = $request->meta;
         $lead->save();
 
         return response()->json([
@@ -142,16 +148,14 @@ class LeadController extends Controller
      */
     public function destroy($id)
     {
-         Lead::find($id)->delete();
+         Client::find($id)->delete();
         return response()->json([
             'message'     => "Lead has been deleted"         
         ], 200);
     }
      public function updateStatus(Request $request,$id)
     {
-        $lead                = Lead::find($id);
-        $lead->lead_status   =$request->lead_status;
-        $lead->save();
+        
         return response()->json([
             'message'        => 'status updated',            
         ], 200);
