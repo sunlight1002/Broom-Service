@@ -34,26 +34,48 @@ class Helper {
 
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
     }
-   public static function sendWhatsappMessage($number,$template,$data=array())
+   public static function sendWhatsappMessage($number,$template='',$data=array())
         {
              $ch = curl_init();
 
             $mobile_no = $number;
-
-            $params = [
-                "messaging_product" => "whatsapp", 
-                "recipient_type" => "individual", 
-                "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
-                "type" => "template", 
-                "template" => [
-                    "name" => $template, 
-                    "language" => [
-                        "code" => "en_US"
-                    ], 
-                    "components" => [
+            if($template==''){
+                 $params = [
+                    "messaging_product" => "whatsapp", 
+                    "recipient_type" => "individual", 
+                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "type" => "text", 
+                    "text" => [
+                        "preview_url"=> false,
+                        "body"=> $data['message']
                     ] 
-                ] 
-            ]; 
+                ]; 
+            }else{
+                $params = [
+                    "messaging_product" => "whatsapp", 
+                    "recipient_type" => "individual", 
+                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "type" => "template", 
+                    "template" => [
+                        "name" => $template, 
+                        "language" => [
+                            "code" => "en_US"
+                        ], 
+                        "components" => [
+                            [
+                                "type" => "header", 
+                                "parameters" => [
+                                    [
+                                        "type" => "text", 
+                                        "text" => @$data['name']
+                                    ] 
+                                ]
+                            ],
+                        ] 
+                    ] 
+                ]; 
+            }
+
 
         curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v16.0/'.env('WHATSAPP_API_CODE').'/messages');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

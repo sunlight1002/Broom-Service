@@ -16,6 +16,7 @@ use App\Models\Services;
 use App\Models\JobService;
 use App\Models\serviceSchedules;
 use App\Models\ManageTime;
+use App\Models\WebhookResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -413,24 +414,6 @@ class DashboardController extends Controller
       
 
       
-  }
-
-  public function fbWebhook(Request $request){
-    
-    $challenge = $request->hub_challenge;
-  
-    if(!empty($challenge)):
-      
-    $verify_token = $request->hub_verify_token;
-    
-    if ( $verify_token === env('FB_WEBHOOK_TOKEN') ) {
-
-        Fblead::create(["challenge"=>$challenge]);
-        return $challenge;
-
-    }
-    
-  endif;
   }
  
 }
