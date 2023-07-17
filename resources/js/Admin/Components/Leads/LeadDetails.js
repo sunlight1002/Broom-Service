@@ -9,7 +9,7 @@ import Notes from './Notes'
 export default function LeadDetails({ lead }) {
 
     const navigate = useNavigate();
-    const name = lead.firstname;
+    const name = lead.firstname+' '+lead.lastname;
     const phone = lead.phone;
     const email = lead.email;
     const address = lead.geo_address;

@@ -245,7 +245,7 @@ export default function Lead() {
                                                     <Tr style={{ "cursor": "pointer" }}>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.id}</Td>
                                                         <Td>
-                                                            <Link to={`/admin/view-lead/${item.id}`}>{item.firstname}</Link>
+                                                            <Link to={`/admin/view-lead/${item.id}`}>{item.firstname}{" "}{item.lastname}</Link>
                                                         </Td>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.email}</Td>
                                                         <Td>
