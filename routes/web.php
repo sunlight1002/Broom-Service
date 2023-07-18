@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\User\Auth\AuthController;
+use App\Http\Controllers\Api\LeadWebhookController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,7 +21,7 @@ Route::get('/view-invoice/{id}',[InvoiceController::class,'viewInvoice']);
 Route::get('/generate-payment/{id}',[InvoiceController::class,'generatePayment']);
 Route::get('/record-invoice/{sesid}/{cid}/{holder}',[InvoiceController::class,'recordInvoice']);
 Route::get('/thanks/{id}',[InvoiceController::class,'displayThanks'])->name('thanks');
-Route::any('/webhook_fb',[DashboardController::class,'fbWebhook'])->name('webhook_fb');
+Route::any('/webhook_fb',[LeadWebhookController::class,'fbWebhook'])->name('webhook_fb');
 
 // Auth::routes();
 Route::any( '/{path?}', function(){

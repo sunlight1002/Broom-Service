@@ -34,5 +34,72 @@ class Helper {
 
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
     }
+   public static function sendWhatsappMessage($number,$template='',$data=array())
+        {
+             $ch = curl_init();
+
+            $mobile_no = $number;
+            if($template==''){
+                 $params = [
+                    "messaging_product" => "whatsapp", 
+                    "recipient_type" => "individual", 
+                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "type" => "text", 
+                    "text" => [
+                        "preview_url"=> false,
+                        "body"=> $data['message']
+                    ] 
+                ]; 
+            }else{
+                $params = [
+                    "messaging_product" => "whatsapp", 
+                    "recipient_type" => "individual", 
+                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "type" => "template", 
+                    "template" => [
+                        "name" => $template, 
+                        "language" => [
+                            "code" => "en_US"
+                        ], 
+                        "components" => [
+                            [
+                                "type" => "header", 
+                                "parameters" => [
+                                    [
+                                        "type" => "text", 
+                                        "text" => @$data['name']
+                                    ] 
+                                ]
+                            ],
+                        ] 
+                    ] 
+                ]; 
+            }
+
+
+        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v16.0/'.env('WHATSAPP_API_CODE').'/messages');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+
+        $headers = array();
+        $headers[] = 'Authorization: Bearer '.env('WHATSAPP_API_SECRET');
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        $data = json_decode($result, 1);
+
+        curl_close($ch);
+            if ($data && isset($data['error']) && !empty( $data['error'])) {
+                 return $data['error'];
+               
+            }else{
+                return 'message sent successfully.';
+            }
+    }
 
 }

@@ -54,6 +54,7 @@ import EditLead from './Admin/Pages/Lead/EditLead';
 import ViewLead from './Admin/Pages/Lead/ViewLead';
 import Clients from './Admin/Pages/Clients/Client';
 import AddClient from './Admin/Pages/Clients/AddClient';
+import AddLeadClient from './Admin/Pages/Clients/AddLeadClient';
 import EditClient from './Admin/Pages/Clients/EditClient';
 import ViewClient from './Admin/Pages/Clients/ViewClient';
 import AllWorkers from './Admin/Pages/Workers/AllWorkers';
@@ -201,6 +202,7 @@ export default function MyRoutes() {
                      <Route exact path="view-lead/:id" element={<ViewLead />} />
                      <Route exact path="clients" element={<Clients />} />
                      <Route exact path="add-client" element={<AddClient />} />
+                     <Route exact path="add-lead-client/:id" element={<AddLeadClient />} />
                      <Route exact path="edit-client/:id" element={<EditClient />} />
                      <Route exact path="view-client/:id" element={<ViewClient />} />
                      <Route exact path="workers" element={<AllWorkers />} />
