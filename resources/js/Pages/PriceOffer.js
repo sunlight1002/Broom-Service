@@ -126,7 +126,8 @@ export default function PriceOffer() {
         }, 500);
     }, []);
     services && services.filter((s, i, a) => {
-        if (i == 0 && s.service == '10' && a.length >= 2 && rg.includes(parseInt(s.service))) {
+        //rg.includes(parseInt(s.service)) in IF commented
+        if (i == 0 && s.service == '10' && a.length >= 2 ) {
             [a[0], a[a.length - 1]] = [a[a.length - 1], a[0]];
             return a;
         }
