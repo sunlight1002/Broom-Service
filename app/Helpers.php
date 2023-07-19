@@ -46,6 +46,7 @@ class Helper {
             $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
              $mobile_no = '972'.$mobile_no;
             }
+           
             if($template==''){
                  $params = [
                     "messaging_product" => "whatsapp", 
@@ -99,7 +100,7 @@ class Helper {
             echo 'Error:' . curl_error($ch);
         }
         $data = json_decode($result, 1);
-
+        dd($data);
         curl_close($ch);
             if ($data && isset($data['error']) && !empty( $data['error'])) {
                  return $data['error'];
