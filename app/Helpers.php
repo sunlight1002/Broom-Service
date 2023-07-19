@@ -43,7 +43,7 @@ class Helper {
                  $params = [
                     "messaging_product" => "whatsapp", 
                     "recipient_type" => "individual", 
-                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "to" => (strlen($mobile_no) <=10) ? '97'.$mobile_no : $mobile_no,
                     "type" => "text", 
                     "text" => [
                         "preview_url"=> false,
