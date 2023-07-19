@@ -39,11 +39,18 @@ class Helper {
              $ch = curl_init();
 
             $mobile_no = $number;
+            $mobile_no = str_replace("-","","$mobile_no");
+            if(strlen($mobile_no)>10){
+             $mobile_no =$mobile_no;
+            }else{
+            $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
+             $mobile_no = '972'.$mobile_no;
+            }
             if($template==''){
                  $params = [
                     "messaging_product" => "whatsapp", 
                     "recipient_type" => "individual", 
-                    "to" => (strlen($mobile_no) <=10) ? '97'.$mobile_no : $mobile_no,
+                    "to" =>$mobile_no,
                     "type" => "text", 
                     "text" => [
                         "preview_url"=> false,
@@ -54,7 +61,7 @@ class Helper {
                 $params = [
                     "messaging_product" => "whatsapp", 
                     "recipient_type" => "individual", 
-                    "to" => (strlen($mobile_no) <=10) ? '91'.$mobile_no : $mobile_no,
+                    "to" =>$mobile_no,
                     "type" => "template", 
                     "template" => [
                         "name" => $template, 
