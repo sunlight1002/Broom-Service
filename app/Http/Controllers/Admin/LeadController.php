@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Lead;
 use App\Models\Client;
 use App\Models\LeadComment;
+use App\Models\Offer;
+use App\Models\Schedule;
 use Illuminate\Support\Facades\Hash;
 
 class LeadController extends Controller
@@ -115,6 +117,16 @@ class LeadController extends Controller
     public function edit($id)
     {
         $lead                = Client::with('offers','meetings')->find($id);
+
+        if( !empty($lead) ){
+
+            $offer = Offer::where('client_id', $id)->get()->last();
+            $lead->latest_offer = $offer;
+
+            $meeting = Schedule::where('client_id', $id)->get()->last();
+            $lead->latest_meeting = $meeting;
+
+        }
         return response()->json([
             'lead'        => $lead,
         ], 200);
