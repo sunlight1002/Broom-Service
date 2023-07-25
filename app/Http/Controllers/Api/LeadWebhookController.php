@@ -9,8 +9,10 @@ use App\Models\Lead;
 use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\WebhookResponse;
+use App\Models\WhatsappLastReply;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Helper;
 
 class LeadWebhookController extends Controller
@@ -102,11 +104,52 @@ class LeadWebhookController extends Controller
                     if ($message == '' || $from == '') {
                         return 'Destination or Sender number and message value required';
                     }
-                   if (in_array($message, [1,2,3,4,5])){
-                          $text_message='message_'.$message;
+                    $result = DB::table('whatsapp_last_replies')->where('phone','=',$from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
+                    if(!empty($result)){
+                        $last_reply = $result->message;
+                        if($last_reply == 2 && $message=='yes'){
+                           $message=$last_reply.'_yes';
+                        }
+                        if($last_reply == 2 && $message=='no'){
+                           $message=$last_reply.'_no';
+                        }
+                        if($last_reply==4 && $message=='1'){
+                            $message=$last_reply.'_1';
+                        }
+                        if($last_reply==4 && $message=='2'){
+                            $message=$last_reply.'_2';
+                        }
+                        if($last_reply==4 && $message=='3'){
+                            $message=$last_reply.'_3';
+                        }
+                        if($last_reply==4 && $message=='4'){
+                            $message=$last_reply.'_4';
+                        }
+                        $reply = WhatsappLastReply::find($result->id);
+                        $reply->phone=$from;
+                        $reply->message=$message;
+                        $reply->updated_at=now();
+                        $reply->save();
+                        $message=$reply->message;
                     }else{
+                         DB::table('whatsapp_last_replies')->where('phone','=',$from)->delete();
+                        $reply = new WhatsappLastReply;
+                        $reply->phone=$from;
+                        $reply->message=$message;
+                        $reply->save();
+                    }
+                    if (in_array($message, [1,2,3,4,5])){
+                          $text_message='message_'.$message;
+                    }else if(str_contains($message, '_')){
+                           if($message=='2_yes'){
+                             $text_message='message_3';
+                           }else{
+                            $text_message='message_'.$message;
+                           }
+                    } else{
                          $text_message='message_0';
                     }
+                    
                     $response = WebhookResponse::getWhatsappMessage($text_message,'en');
                     $result = Helper::sendWhatsappMessage($from,'',array('message'=>$response));
                 }

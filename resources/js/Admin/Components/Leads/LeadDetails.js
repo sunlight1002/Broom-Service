@@ -9,7 +9,7 @@ import Notes from './Notes'
 export default function LeadDetails({ lead }) {
 
     const navigate = useNavigate();
-    const name = lead.firstname+' '+lead.lastname;
+    const name = lead.firstname + ' ' + lead.lastname;
     const phone = lead.phone;
     const email = lead.email;
     const meta = lead.meta;
@@ -27,13 +27,13 @@ export default function LeadDetails({ lead }) {
             document.querySelector('#contract').click();
 
     }
-   const param = useParams();
+    const param = useParams();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    
+
     return (
         <>
 
@@ -82,7 +82,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
 
                                         </div>
-                                        
+
                                         <div className='col-sm-12'>
                                             <div className='form-group'>
                                                 <p><Link className='btn btn-success' to={`/admin/edit-lead/${param.id}`}>Edit lead</Link></p>
@@ -92,10 +92,10 @@ export default function LeadDetails({ lead }) {
                                 </div>
                                 <div id="tab-note-details" className="tab-pane" role="tab-panel" aria-labelledby="card-details">
                                     <div className='form-group'>
-                                        <Notes/>
+                                        <Notes />
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -108,9 +108,44 @@ export default function LeadDetails({ lead }) {
                             </div>
 
                         </div>
+
+                        <div className='dashBox p-4 mt-3'>
+
+                            <div className='form-group'>
+                                <label className='d-block'>Meeting Status</label>
+                                <span  id="ms" className='dashStatus' style={{ background: '#7e7e56', cursor: "pointer" }}>{lead.latest_meeting?lead.latest_meeting.booking_status:"Not Send"}</span>
+                            </div>
+
+                            <div className='form-group'>
+                                <label className='d-block'>Price Offer</label>
+                                <span id="os" className='dashStatus' style={{ background: '#7e7e56', cursor: "pointer" }}>{lead.latest_offer? lead.latest_offer.status:'Not Send'}</span>
+                            </div>
+
+                        </div>
+
+                        <div className='buttonBlocks dashBox mt-3 p-4'>
+                            <Link to={`/admin/view-schedule/${param.id}`}><i className="fas fa-hand-point-right"></i> 
+
+                            {
+                                lead.meetings?.length == 0 
+                                ? 'Schedule Meeting'
+                                : 'Re-schedule Meeting'
+                            }
+                            
+                            </Link>
+                            <Link to={`/admin/add-offer?c=${param.id}`}><i className="fas fa-hand-point-right"></i> 
+                            {
+                                lead.offers?.length == 0 
+                                ? 'Send Offer'
+                                : 'Re-send Offer'
+                            }
+                            </Link>
+                            <Link to={`/admin/create-client-job/${param.id}`} id="bookBtn" style={{display:'none'}} ><i className="fas fa-hand-point-right"></i> Book Client</Link>
+                        </div>
+                        
                     </div>
                 </div>
-               </div> 
+            </div>
         </>
     )
 }

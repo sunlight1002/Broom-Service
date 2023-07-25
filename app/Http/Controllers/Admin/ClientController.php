@@ -33,20 +33,23 @@ class ClientController extends Controller
     {
 
         $q = $request->q;
-        $s = $request->q;
-        $result = Client::query();
+       // $s = $request->q;
+
+        $result = Client::where('status',2);
 
         $status = '';
-        if (strtolower($s) === "lead") {
-            $status = 0;
-        }
-        if (strtolower($s) === "potential customer") {
-            $status = 1;
-        }
-        if (strtolower($s) === "customer") {
-            $status = 2;
-        }
-
+        // if (strtolower($s) === "lead") {
+        //     $status = 0;
+        // }
+        // if (strtolower($s) === "potential customer") {
+        //     $status = 1;
+        // }
+        // if (strtolower($s) === "customer") {
+        //     $status = 2;
+        // }
+        
+         if( !is_null($q) ){
+          
         $result->where('firstname',    'like', '%' . $q . '%');
         $result->orWhere('lastname',   'like', '%' . $q . '%');
         $result->orWhere('phone',      'like', '%' . $q . '%');
@@ -55,8 +58,10 @@ class ClientController extends Controller
         $result->orWhere('zipcode',    'like', '%' . $q . '%');
         $result->orWhere('email',      'like', '%' . $q . '%');
 
+        }
+
         if ($status != '') {
-            $result->orWhere('status',     'like', '%' . $status . '%');
+           // $result->orWhere('status',     'like', '%' . $status . '%');
         }
 
         if (isset($request->action)) {
@@ -74,7 +79,7 @@ class ClientController extends Controller
                 $result = Client::with('jobs')->whereDoesntHave('jobs');
         }
 
-        $result = $result->orderBy('id', 'desc')->paginate(20);
+        $result = $result->where('status',2)->orderBy('id', 'desc')->paginate(20);
 
         if (isset($result)) {
             foreach ($result as $k => $res) {
