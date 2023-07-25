@@ -43,6 +43,7 @@ export default function Lead() {
 
 
     const filterLeads = (e) => {
+        setFilter(e.target.value);
         axios
             .get(`/api/admin/leads?q=${e.target.value}`, { headers })
             .then((response) => {
@@ -59,6 +60,7 @@ export default function Lead() {
     }
 
     const filterLeadsStat = (s) => {
+       
         setFilter(s);
         axios
             .get(`/api/admin/leads?q=${s}`, { headers })
@@ -197,7 +199,9 @@ export default function Lead() {
                                     <i className="fa fa-filter"></i>
                                 </button>
                                 <div className="dropdown-menu">
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('null');getleads()}}>All</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('all'); setFilter('all');getleads()}}>All</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('0'); filterLeadsStat('0'); }}>Leads</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('1'); filterLeadsStat('1'); }}>Potential Customer</button>
                                 </div>
                             </div>
 
@@ -271,6 +275,8 @@ export default function Lead() {
                                             })}
                                     </Tbody>
                                 </Table>
+
+                                
                             ) : (
                                 <p className="text-center mt-5">{loading}</p>
                             )}

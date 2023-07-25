@@ -237,8 +237,8 @@ export default function Clients() {
                                 <div className="dropdown-menu">
                                     <button className="dropdown-item" onClick={(e)=>{setStat('null');getclients()}}>All</button>
                                     {/* <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button> */}
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(1);filterClientsStat('potential customer')}}>Potential Customer</button>
+                                    {/* <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat(1);filterClientsStat('potential customer')}}>Potential Customer</button> */}
                                     <button className="dropdown-item" onClick={(e)=>{setStat('booked');booknun('booked')}}>Booked Customer</button>
                                     <button className="dropdown-item" onClick={(e)=>{setStat('notbooked');booknun('notbooked')}}>Not Booked Customer</button>
                                     <button className="dropdown-item" onClick={(e)=>handleReport(e)}>Export</button>
@@ -257,7 +257,7 @@ export default function Clients() {
                            <option value="address">Address</option>
                            <option value="email">Email</option>
                            <option value="phone">Phone</option>
-                           <option value="status">Status</option>
+                           {/* <option value="status">Status</option> */}
                           </select>
                         </div>
                     </div>
@@ -274,7 +274,7 @@ export default function Clients() {
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'address')}}>Address  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
+                                            {/* <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th> */}
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
@@ -284,13 +284,13 @@ export default function Clients() {
                                                 if(item){
                                                 let address = (item.geo_address) ? item.geo_address : "NA";
                                                 let cords = (item.latitude && item.longitude) ? item.latitude + "," + item.longitude : "";
-                                                let status = '';
-                                                if (item.status == 0)
-                                                    status = "Lead";
-                                                if (item.status == 1)
-                                                    status = "Potential Customer";
-                                                if (item.status == 2)
-                                                    status = "Customer";
+                                                // let status = '';
+                                                // if (item.status == 0)
+                                                //     status = "Lead";
+                                                // if (item.status == 1)
+                                                //     status = "Potential Customer";
+                                                // if (item.status == 2)
+                                                //     status = "Customer";
                                                
                                                 let phone = (item.phone) ? item.phone.toString().split(",") : [];
 
@@ -316,11 +316,11 @@ export default function Clients() {
                                                             }
                                                         </Td>
                                                        
-                                                        <Td onClick={(e) => handleNavigate(e, item.id)}>
+                                                        {/* <Td onClick={(e) => handleNavigate(e, item.id)}>
                                                             {
                                                                 status
                                                             }
-                                                        </Td>
+                                                        </Td> */}
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">

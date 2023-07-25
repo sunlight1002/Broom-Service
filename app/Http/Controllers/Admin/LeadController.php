@@ -20,15 +20,29 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
+
         $result = Client::query();
 
-        $result->where('status','0');
-        $result->where(function($query) use ($q) {
+        if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all')) {
+
+            $result->where(function ($query) use ($q) {
                 $query->where('email',       'like', '%' . $q . '%')
-                     ->orWhere('firstname',       'like', '%' . $q . '%')
+                    ->orWhere('firstname',       'like', '%' . $q . '%')
                     ->orWhere('phone',       'like', '%' . $q . '%');
             });
-        $result = $result->orderBy('id', 'desc')->paginate(20);
+        }
+
+        if (!is_null($q) &&  ($q == 1 || $q == 0)) {
+
+            $result->where('status', $q);
+
+        } else if( is_null($q) ) {
+
+            $result->where('status', '0')->orWhere('status', '1');
+        }
+
+
+        $result = $result->where('status','!=',2)->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
             'leads'       => $result,
@@ -42,7 +56,6 @@ class LeadController extends Controller
      */
     public function create()
     {
-
     }
 
     /**
@@ -58,7 +71,7 @@ class LeadController extends Controller
             'phone'     => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
@@ -73,7 +86,7 @@ class LeadController extends Controller
         $lead->save();
 
         return response()->json([
-            'message'       => 'Lead created successfully',            
+            'message'       => 'Lead created successfully',
         ], 200);
     }
 
@@ -83,13 +96,13 @@ class LeadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$id)
+    public function show(Request $request, $id)
     {
         $lead                = Client::find($id);
-        $lead->lead_status   =$request->lead_status;
+        $lead->lead_status   = $request->lead_status;
         $lead->save();
         return response()->json([
-            'message'        => 'status updated',            
+            'message'        => 'status updated',
         ], 200);
     }
 
@@ -101,9 +114,9 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-         $lead                = Client::find($id);
+        $lead                = Client::with('offers','meetings')->find($id);
         return response()->json([
-            'lead'        => $lead,            
+            'lead'        => $lead,
         ], 200);
     }
 
@@ -121,7 +134,7 @@ class LeadController extends Controller
             'phone'     => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
@@ -136,7 +149,7 @@ class LeadController extends Controller
         $lead->save();
 
         return response()->json([
-            'message'       => 'Lead updated successfully',            
+            'message'       => 'Lead updated successfully',
         ], 200);
     }
 
@@ -148,16 +161,16 @@ class LeadController extends Controller
      */
     public function destroy($id)
     {
-         Client::find($id)->delete();
+        Client::find($id)->delete();
         return response()->json([
-            'message'     => "Lead has been deleted"         
+            'message'     => "Lead has been deleted"
         ], 200);
     }
-     public function updateStatus(Request $request,$id)
+    public function updateStatus(Request $request, $id)
     {
-        
+
         return response()->json([
-            'message'        => 'status updated',            
+            'message'        => 'status updated',
         ], 200);
     }
     public function addComment(Request $request)
@@ -181,7 +194,7 @@ class LeadController extends Controller
 
     public function getComments(Request $request)
     {
-        $comments = LeadComment::where('lead_id',$request->id)->with('team')->get();
+        $comments = LeadComment::where('lead_id', $request->id)->with('team')->get();
         return response()->json(['comments' => $comments]);
     }
 
