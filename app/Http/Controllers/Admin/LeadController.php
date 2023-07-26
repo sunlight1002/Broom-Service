@@ -10,6 +10,8 @@ use App\Models\Client;
 use App\Models\LeadComment;
 use App\Models\Offer;
 use App\Models\Schedule;
+use App\Models\WebhookResponse;
+use App\Models\WhatsappLastReply;
 use Illuminate\Support\Facades\Hash;
 
 class LeadController extends Controller
@@ -81,8 +83,18 @@ class LeadController extends Controller
               });
         }
 
+        $result = $result->where('status','!=',2);
+        
+        if( $q == 'uninterested'){
+            
+            $result = $result->reply();
+            $result = $result->paginate(20);
 
-        $result = $result->where('status','!=',2)->orderBy('id', 'desc')->paginate(20);
+        } else{
+            $result = $result->orderBy('id', 'desc')->paginate(20);
+        }
+
+        
 
         return response()->json([
             'leads'       => $result,
@@ -163,6 +175,15 @@ class LeadController extends Controller
 
             $meeting = Schedule::where('client_id', $id)->get()->last();
             $lead->latest_meeting = $meeting;
+
+            $reply  = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
+                        WhatsappLastReply::where('phone','like','%'.$lead->phone.'%')
+                                                    
+                                ->get()->first() : null;
+
+            if( !empty($reply) )
+            $reply->msg = WebhookResponse::getWhatsappMessage('message_'.$reply->message,'en');
+            $lead->reply = $reply;
 
         }
         return response()->json([

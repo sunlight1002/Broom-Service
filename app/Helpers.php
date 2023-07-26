@@ -100,7 +100,6 @@ class Helper {
             echo 'Error:' . curl_error($ch);
         }
         $data = json_decode($result, 1);
-        dd($data);
         curl_close($ch);
             if ($data && isset($data['error']) && !empty( $data['error'])) {
                  return $data['error'];

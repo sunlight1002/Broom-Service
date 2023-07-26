@@ -89,6 +89,19 @@ class Client extends Authenticatable
         return $this->hasMany(Contract::class,'client_id');
     }
 
+
+    public function ScopeReply( $query ){
+
+        return WhatsappLastReply::where('message','=','0')
+        ->join('clients','whatsapp_last_replies.phone','like',\DB::raw( "CONCAT('%', clients.phone, '%')"))
+        ->orWhere('message','=','2_no')
+        ->orWhere('message','=','2')
+        ->where('clients.phone','!=','')
+        ->where('clients.phone','!=',0)
+        ->where('clients.phone','!=',NULL);
+
+    }
+
     public static function boot() {
         parent::boot();
         static::deleting(function($Client) { 
