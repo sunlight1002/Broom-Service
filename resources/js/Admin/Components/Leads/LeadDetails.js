@@ -12,7 +12,7 @@ export default function LeadDetails({ lead }) {
     const name = lead.firstname + ' ' + lead.lastname;
     const phone = lead.phone;
     const email = lead.email;
-    const address = lead.geo_address;
+    const meta = lead.meta;
     const lead_status = lead.lead_status;
     const generated_on = Moment(lead.created_at).format('DD/MM/Y') + " " + Moment(lead.created_at).format('dddd');
 
@@ -65,7 +65,7 @@ export default function LeadDetails({ lead }) {
                                         <div className='col-sm-6'>
                                             <div className='form-group'>
                                                 <label>status</label>
-                                                <p>Lead</p>
+                                                <p>{lead_status}</p>
                                             </div>
 
                                         </div>
@@ -78,8 +78,8 @@ export default function LeadDetails({ lead }) {
                                         </div>
                                         <div className='col-sm-12'>
                                             <div className='form-group'>
-                                                <label>Address</label>
-                                                <p>{address}</p>
+                                                <label>Meta</label>
+                                                <p>{meta}</p>
                                             </div>
 
                                         </div>
@@ -130,7 +130,7 @@ export default function LeadDetails({ lead }) {
 
                             <div className='form-group'>
                                 <label className='d-block'>Covert to Client</label>
-                                <Link to={`/admin/edit-client/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Convert</Link>
+                                <Link to={`/admin/add-lead-client/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Convert</Link>
                             </div>
 
                         </div>

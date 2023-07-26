@@ -240,7 +240,7 @@ export default function Lead() {
                                     <Thead>
                                         <Tr style={{cursor:'pointer'}}>
                                             <Th onClick={(e)=>{sortTable(e,'id')}} >ID  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'firstname')}}>Name  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e)=>{sortTable(e,'name')}}>Name  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
@@ -250,12 +250,6 @@ export default function Lead() {
                                     <Tbody>
                                         {leads &&
                                             leads.map((item, index) => {
-                                                 if (item.status == 0)
-                                                    status = "Lead";
-                                                if (item.status == 1)
-                                                    status = "Potential Customer";
-                                                if (item.status == 2)
-                                                    status = "Customer";
                                                 return (
                                                     <Tr style={{ "cursor": "pointer" }}>
                                                         <Td onClick={(e) => handleNavigate(e, item.id)}>{item.id}</Td>
@@ -267,7 +261,7 @@ export default function Lead() {
                                                             {item.phone}
                                                         </Td>
                                                         <Td>
-                                                            {status}
+                                                            lead
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
@@ -286,8 +280,6 @@ export default function Lead() {
                                             })}
                                     </Tbody>
                                 </Table>
-
-                                
                             ) : (
                                 <p className="text-center mt-5">{loading}</p>
                             )}

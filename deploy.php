@@ -17,7 +17,8 @@ host('production')
     ->set('hostname','104.248.17.6' )
     ->set('branch', 'main')
     ->set('remote_user', 'root')
-    ->set('deploy_path', '/var/www/html');
+    ->set('deploy_path', '/var/www/html')
+    ->set('keep_releases', 1);
 
 host('development')
     ->set('hostname','38.242.196.238' )
