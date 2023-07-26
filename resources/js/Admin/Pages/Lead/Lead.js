@@ -12,6 +12,7 @@ export default function Lead() {
     const [leads, setLeads] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [filter,setFilter] = useState('');
+    const [condition,setCondition] = useState('');
     const [loading, setLoading] = useState("Loading...");
 
     const [stat,setStat] = useState(null);
@@ -43,8 +44,11 @@ export default function Lead() {
 
 
     const filterLeads = (e) => {
+        setFilter(e.target.value);
+        setCondition('search');
+      
         axios
-            .get(`/api/admin/leads?q=${e.target.value}`, { headers })
+            .get(`/api/admin/leads?q=${e.target.value}`+"&condition=search", { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -59,9 +63,12 @@ export default function Lead() {
     }
 
     const filterLeadsStat = (s) => {
+        
         setFilter(s);
+        setCondition('filter');
+     
         axios
-            .get(`/api/admin/leads?q=${s}`, { headers })
+            .get(`/api/admin/leads?q=${s}`+"&condition=filter", { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -98,7 +105,7 @@ export default function Lead() {
         let cn = "&q=";
 
         axios
-            .get("/api/admin/leads?page=" + currentPage+cn+filter, { headers })
+            .get("/api/admin/leads?page=" + currentPage+cn+filter+"&condition="+condition, { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -197,9 +204,15 @@ export default function Lead() {
                                     <i className="fa fa-filter"></i>
                                 </button>
                                 <div className="dropdown-menu">
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('null');getleads()}}>All</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(0);filterLeadsStat('lead')}}>Lead</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(2);filterLeadsStat('customer')}}>Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('all'); setCondition('filter'); setFilter('all');getleads()}}>All</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('0'); setCondition('filter');filterLeadsStat('0'); }}>Leads</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('1'); setCondition('filter');filterLeadsStat('1'); }}>Potential Customer</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('pending'); setCondition('filter'); filterLeadsStat('pending'); }}>Pending</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('uninterested'); setCondition('filter');filterLeadsStat('uninterested'); }}>Uninterested</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('set'); setCondition('filter');filterLeadsStat('set'); }}>Meeting set</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('offersend'); setCondition('filter');filterLeadsStat('offersend'); }}>Price offer sent</button>
+                                    <button className="dropdown-item" onClick={(e)=>{setStat('offerdecline'); setCondition('filter');filterLeadsStat('offerdecline'); }}>Declined price offer</button>
+
                                 </div>
                             </div>
 
