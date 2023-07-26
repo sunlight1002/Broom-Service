@@ -22,10 +22,11 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
+        $c = $request->condition;
 
-        $result = Client::query();
+        $result = Client::with('meetings','offers');
 
-        if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all')) {
+        if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 
             $result->where(function ($query) use ($q) {
                 $query->where('email',       'like', '%' . $q . '%')
@@ -34,6 +35,7 @@ class LeadController extends Controller
             });
         }
 
+
         if (!is_null($q) &&  ($q == 1 || $q == 0)) {
 
             $result->where('status', $q);
@@ -41,6 +43,42 @@ class LeadController extends Controller
         } else if( is_null($q) ) {
 
             $result->where('status', '0')->orWhere('status', '1');
+        }
+
+        if( $q == 'pending'){
+
+            $result = $result->WhereHas('meetings', function ($q) {
+                $q->where(function ($q) {
+                  $q->where('booking_status', 'pending');
+                });
+              });
+        }
+
+        if( $q == 'set'){
+
+            $result = $result->WhereHas('meetings', function ($q) {
+                $q->where(function ($q) {
+                  $q->where('booking_status', 'confirmed');
+                });
+              });
+        }
+
+        if( $q == 'offersend'){
+
+            $result = $result->WhereHas('offers', function ($q) {
+                $q->where(function ($q) {
+                  $q->where('status', 'accepted');
+                });
+              });
+        }
+
+        if( $q == 'offerdecline'){
+
+            $result = $result->WhereHas('offers', function ($q) {
+                $q->where(function ($q) {
+                  $q->where('status', 'declined');
+                });
+              });
         }
 
 
