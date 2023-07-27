@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import logo from "../../Assets/image/sample.svg";
 import bars from "../../Assets/image/icons/bars.svg";
 import { useAlert } from "react-alert";
-import { useNavigate } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { NavLink } from 'react-router-dom';
 
 export default function MobileHeader() {
     const alert = useAlert();
@@ -67,6 +67,9 @@ export default function MobileHeader() {
                         <a href="/admin/dashboard"><i className="fa-solid fa-gauge"></i>Dashboard</a>
                     </li>
                     <li className='nav-item'>
+                        <a href="/admin/leads"><i className="fa-solid fa-poll-h"></i>Leads</a>
+                    </li>
+                    <li className='nav-item'>
                         <a href="/admin/clients"><i className="fa-solid fa-user-tie"></i>Clients</a>
                     </li>
                     <li className='nav-item'>
@@ -84,6 +87,30 @@ export default function MobileHeader() {
                     <li className='nav-item'>
                         <a href="/admin/jobs"><i className="fa-solid fa-briefcase"></i>Jobs</a>
                     </li>
+                    <li className="nav-item">
+                    <div id="myFencePay" className='fence commonDropdown'>
+                        <div id="fenceheadpay">
+                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fencepay" aria-expanded="true" aria-controls="fencepay">
+                                <i className="fas fa-file-invoice"></i> Sales <i className="fa-solid fa-angle-down"></i>
+                            </a>
+                        </div>
+                        <div id="fencepay" className="collapse" aria-labelledby="fenceheadpay" data-parent="#fencepay">
+                            <div className="card-body">
+                                <ul className='list-group'>
+                                    <li className='list-group-item'>
+                                        <a href="/admin/orders"><i className="fa fa-angle-right"></i> Orders </a>
+                                    </li>
+                                    <li className='list-group-item'>
+                                        <a href="/admin/invoices"><i className="fa fa-angle-right"></i> Invoices </a>
+                                    </li>
+                                    <li className='list-group-item'>
+                                        <a href="/admin/payments"><i className="fa fa-angle-right"></i> Payments </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
                     {
                     role !== 'member' &&
                     <li className='nav-item'>
