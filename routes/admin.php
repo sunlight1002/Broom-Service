@@ -139,6 +139,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('get-comments', [LeadController::class,'getComments']);
     Route::post('add-comment', [LeadController::class,'addComment']);
     Route::post('delete-comment', [LeadController::class,'deleteComment']);
+    Route::post('uninterested/{id}',[LeadController::class,'uninterested']);
    
     //Meeting Schedules
     Route::resource('schedule',ScheduleController::class);

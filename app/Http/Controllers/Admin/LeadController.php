@@ -88,14 +88,15 @@ class LeadController extends Controller
         
         if( $q == 'uninterested'){
             
-            $result = $result->reply();
-            $result = $result->paginate(20);
+            $result = $result->WhereHas('lead_status', function ($q) {
+                $q->where(function ($q) {
+                  $q->where('lead_status', 'Uninterested');
+                });
+              });
 
-        } else{
+
+        } 
             $result = $result->orderBy('id', 'desc')->paginate(20);
-        }
-
-        
 
         return response()->json([
             'leads'       => $result,
@@ -139,7 +140,7 @@ class LeadController extends Controller
         $lead->extra         = $request->meta;
         $lead->save();
 
-        LeadStatus::createOrUpdate(
+        LeadStatus::UpdateOrCreate(
             [
               'client_id' => $lead->id
             ],
@@ -285,5 +286,18 @@ class LeadController extends Controller
     {
         LeadComment::where(['id' => $request->id])->delete();
         return response()->json(['message' => 'comment deleted']);
+    }
+
+    public function uninterested( $id ){
+
+       LeadStatus::UpdateOrCreate(
+         [
+            'client_id' => $id
+         ],[
+            'client_id'   => $id,
+            'lead_status' => 'Uninterested'
+        ]
+       );
+       return response()->json(['message' => 'Marked Uninterested']);
     }
 }

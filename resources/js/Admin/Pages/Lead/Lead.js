@@ -143,6 +143,35 @@ export default function Lead() {
             }
         });
     };
+
+    const unintrested = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Mark Uninterested",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .post(`/api/admin/uninterested/${id}`, { id },{ headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Marked!",
+                            "Lead Marked Unintrested",
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getleads();
+                        }, 1000);
+                    });
+            }
+        });
+    };
+
+
     const handleNavigate = (e, id) => {
         e.preventDefault();
         navigate(`/admin/view-lead/${id}`);
@@ -273,6 +302,7 @@ export default function Lead() {
                                                                 <div className="dropdown-menu">
                                                                     <Link to={`/admin/edit-lead/${item.id}`} className="dropdown-item">Edit</Link>
                                                                     <Link to={`/admin/view-lead/${item.id}`} className="dropdown-item">View</Link>
+                                                                   { item.lead_status?.lead_status == 'Pending' || item.lead_status == null  && <button onClick={() => unintrested(item.id)} className="dropdown-item">Uninterested</button> }
                                                                     <button className="dropdown-item" onClick={() => handleDelete(item.id)}
                                                                     >Delete</button>
                                                                 </div>
