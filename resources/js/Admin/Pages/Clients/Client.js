@@ -274,7 +274,7 @@ export default function Clients() {
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'address')}}>Address  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
+                                            {/* <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th> */}
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
@@ -316,11 +316,11 @@ export default function Clients() {
                                                             }
                                                         </Td>
                                                        
-                                                        <Td onClick={(e) => handleNavigate(e, item.id)}>
+                                                        {/* <Td onClick={(e) => handleNavigate(e, item.id)}>
                                                             {
                                                                 status
                                                             }
-                                                        </Td>
+                                                        </Td> */}
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
