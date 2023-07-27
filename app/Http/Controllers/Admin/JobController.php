@@ -425,6 +425,8 @@ class JobController extends Controller
                     $_timeShift = $_ts." - ".$atime;
                     
                 }
+
+
                  $data = array(
                     'email'=> $job['worker']['email'],
                     'job'  => $job->toArray(),

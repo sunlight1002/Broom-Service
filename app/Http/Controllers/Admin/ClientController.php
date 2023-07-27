@@ -35,7 +35,7 @@ class ClientController extends Controller
         $q = $request->q;
        // $s = $request->q;
 
-        $result = Client::where('status',2);
+        $result = Client::where('status',2)->with('lead_status');
 
         $status = '';
         // if (strtolower($s) === "lead") {

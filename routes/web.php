@@ -23,6 +23,8 @@ Route::get('/record-invoice/{sesid}/{cid}/{holder}',[InvoiceController::class,'r
 Route::get('/thanks/{id}',[InvoiceController::class,'displayThanks'])->name('thanks');
 Route::any('/webhook_fb',[LeadWebhookController::class,'fbWebhook'])->name('webhook_fb');
 
+Route::get('update-clients',[DashboardController::class,'updateClients'])->name('update-clients');
+
 // Auth::routes();
 Route::any( '/{path?}', function(){
     return view( 'index' );

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Lead;
 use App\Models\Client;
 use App\Models\LeadComment;
+use App\Models\LeadStatus;
 use App\Models\Offer;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
@@ -26,7 +27,7 @@ class LeadController extends Controller
         $q = $request->q;
         $c = $request->condition;
 
-        $result = Client::with('meetings','offers');
+        $result = Client::with('meetings','offers')->with('lead_status');
 
         if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 
@@ -49,36 +50,36 @@ class LeadController extends Controller
 
         if( $q == 'pending'){
 
-            $result = $result->WhereHas('meetings', function ($q) {
+            $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('booking_status', 'pending');
+                  $q->where('lead_status', 'Pending');
                 });
-              });
+              })->orWhereDoesntHave('lead_status');
         }
 
         if( $q == 'set'){
 
-            $result = $result->WhereHas('meetings', function ($q) {
+            $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('booking_status', 'confirmed');
+                  $q->where('lead_status', 'Meeting Set');
                 });
               });
         }
 
         if( $q == 'offersend'){
 
-            $result = $result->WhereHas('offers', function ($q) {
+            $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('status', 'accepted');
+                  $q->where('lead_status', 'Offer Sent');
                 });
               });
         }
 
         if( $q == 'offerdecline'){
 
-            $result = $result->WhereHas('offers', function ($q) {
+            $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('status', 'declined');
+                  $q->where('lead_status', 'Offer Rejected');
                 });
               });
         }
@@ -129,7 +130,7 @@ class LeadController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
         $lead                = new Client;
-        $lead->firstname          = $request->name;
+        $lead->firstname     = $request->name;
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
         $lead->geo_address   = $request->address;
@@ -137,6 +138,16 @@ class LeadController extends Controller
         $lead->password      = Hash::make($request->phone);
         $lead->extra         = $request->meta;
         $lead->save();
+
+        LeadStatus::createOrUpdate(
+            [
+              'client_id' => $lead->id
+            ],
+            [
+              'client_id' => $lead->id,
+              'lead_status' => 'Pending'
+            ]
+          );
 
         return response()->json([
             'message'       => 'Lead created successfully',            
@@ -167,7 +178,7 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-        $lead                = Client::with('offers','meetings')->find($id);
+        $lead                = Client::with('offers','meetings','lead_status')->find($id);
 
         if( !empty($lead) ){
 
@@ -211,7 +222,7 @@ class LeadController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
         $lead                = Client::find($id);
-        $lead->firstname          = $request->name;
+        $lead->firstname     = $request->name;
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
         $lead->geo_address   = $request->address;

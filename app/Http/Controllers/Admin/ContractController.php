@@ -7,6 +7,7 @@ use App\Models\Contract;
 use App\Models\Client;
 use App\Models\ClientCard;
 use App\Models\Job;
+use App\Models\LeadStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -151,6 +152,19 @@ class ContractController extends Controller
         Contract::where('id',$request->id)->update([
             'status'=>'verified'
         ]);
+
+        $contract = Contract::where('id',$request->id)->with('client')->get()->first();
+
+        LeadStatus::updateOrCreate(
+            [
+              'client_id' => $contract->client->id,
+            ],
+            [
+              'client_id' => $contract->client->id,
+              'lead_status' =>  'Contract Verified'
+            ]
+
+          );
         
         return response()->json([
              'message' => 'Contract verified successfully'

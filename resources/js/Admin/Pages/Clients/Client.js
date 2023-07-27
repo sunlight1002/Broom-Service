@@ -274,7 +274,7 @@ export default function Clients() {
                                             <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'address')}}>Address  <span className='arr'> &darr; </span></Th>
                                             <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
-                                            {/* <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th> */}
+                                            <Th>Status</Th>
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
@@ -316,11 +316,12 @@ export default function Clients() {
                                                             }
                                                         </Td>
                                                        
-                                                        {/* <Td onClick={(e) => handleNavigate(e, item.id)}>
-                                                            {
-                                                                status
+                                                        <Td onClick={(e) => handleNavigate(e, item.id)}>
+                                                            { 
+                                                                item.lead_status ? item.lead_status.lead_status : 'NA'
                                                             }
-                                                        </Td> */}
+                                                        </Td>
+
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">

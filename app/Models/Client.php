@@ -89,6 +89,10 @@ class Client extends Authenticatable
         return $this->hasMany(Contract::class,'client_id');
     }
 
+    public function lead_status(){
+        return $this->hasOne(LeadStatus::class,'client_id','id');
+    }
+
 
     public function ScopeReply( $query ){
 

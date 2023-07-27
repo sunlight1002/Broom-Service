@@ -11,12 +11,12 @@ export default function Lead() {
 
     const [leads, setLeads] = useState([]);
     const [pageCount, setPageCount] = useState(0);
-    const [filter,setFilter] = useState('');
-    const [condition,setCondition] = useState('');
+    const [filter, setFilter] = useState('');
+    const [condition, setCondition] = useState('');
     const [loading, setLoading] = useState("Loading...");
 
-    const [stat,setStat] = useState(null);
-    
+    const [stat, setStat] = useState(null);
+
     const navigate = useNavigate();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -37,7 +37,7 @@ export default function Lead() {
         });
     };
 
-    
+
     useEffect(() => {
         getleads();
     }, []);
@@ -46,9 +46,9 @@ export default function Lead() {
     const filterLeads = (e) => {
         setFilter(e.target.value);
         setCondition('search');
-      
+
         axios
-            .get(`/api/admin/leads?q=${e.target.value}`+"&condition=search", { headers })
+            .get(`/api/admin/leads?q=${e.target.value}` + "&condition=search", { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -63,12 +63,12 @@ export default function Lead() {
     }
 
     const filterLeadsStat = (s) => {
-        
+
         setFilter(s);
         setCondition('filter');
-     
+
         axios
-            .get(`/api/admin/leads?q=${s}`+"&condition=filter", { headers })
+            .get(`/api/admin/leads?q=${s}` + "&condition=filter", { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -97,7 +97,7 @@ export default function Lead() {
                     setLoading("No lead found");
                 }
             })
-      
+
     }
 
     const handlePageClick = async (data) => {
@@ -105,7 +105,7 @@ export default function Lead() {
         let cn = "&q=";
 
         axios
-            .get("/api/admin/leads?page=" + currentPage+cn+filter+"&condition="+condition, { headers })
+            .get("/api/admin/leads?page=" + currentPage + cn + filter + "&condition=" + condition, { headers })
             .then((response) => {
                 if (response.data.leads.data.length > 0) {
                     setLeads(response.data.leads.data);
@@ -149,40 +149,40 @@ export default function Lead() {
     }
 
     const copy = [...leads];
-    const [order,setOrder] = useState('ASC');
-    const sortTable = (e,col) =>{
-        
-        let n = e.target.nodeName;
-        if(n != "SELECT"){
-        if (n == "TH") {
-            let q = e.target.querySelector('span');
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
+    const [order, setOrder] = useState('ASC');
+    const sortTable = (e, col) => {
 
-        } else {
-            let q = e.target;
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
+        let n = e.target.nodeName;
+        if (n != "SELECT") {
+            if (n == "TH") {
+                let q = e.target.querySelector('span');
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
+
             } else {
-                q.innerHTML = "↑";
+                let q = e.target;
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
             }
         }
-    }
 
-        if(order == 'ASC'){
+        if (order == 'ASC') {
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? 1 : -1));
             setLeads(sortData);
             setOrder('DESC');
         }
-        if(order == 'DESC'){
+        if (order == 'DESC') {
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? -1 : 1));
             setLeads(sortData);
             setOrder('ASC');
         }
-        
+
     }
     return (
         <div id="container">
@@ -194,41 +194,41 @@ export default function Lead() {
                             <h1 className="page-title">Leads</h1>
                         </div>
 
-                       
+
 
                         <div className="col-sm-6">
                             <div className="search-data">
 
-                            <div className="action-dropdown dropdown mt-4 mr-2">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <i className="fa fa-filter"></i>
-                                </button>
-                                <div className="dropdown-menu">
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('all'); setCondition('filter'); setFilter('all');getleads()}}>All</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('0'); setCondition('filter');filterLeadsStat('0'); }}>Leads</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('1'); setCondition('filter');filterLeadsStat('1'); }}>Potential Customer</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('pending'); setCondition('filter'); filterLeadsStat('pending'); }}>Pending</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('uninterested'); setCondition('filter');filterLeadsStat('uninterested'); }}>Uninterested</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('set'); setCondition('filter');filterLeadsStat('set'); }}>Meeting set</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('offersend'); setCondition('filter');filterLeadsStat('offersend'); }}>Price offer sent</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat('offerdecline'); setCondition('filter');filterLeadsStat('offerdecline'); }}>Declined price offer</button>
+                                <div className="action-dropdown dropdown mt-4 mr-2">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <div className="dropdown-menu">
+                                        <button className="dropdown-item" onClick={(e) => { setStat('all'); setCondition('filter'); setFilter('all'); getleads() }}>All</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('0'); setCondition('filter'); filterLeadsStat('0'); }}>Leads</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('1'); setCondition('filter'); filterLeadsStat('1'); }}>Potential Customer</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('pending'); setCondition('filter'); filterLeadsStat('pending'); }}>Pending</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('uninterested'); setCondition('filter'); filterLeadsStat('uninterested'); }}>Uninterested</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('set'); setCondition('filter'); filterLeadsStat('set'); }}>Meeting set</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('offersend'); setCondition('filter'); filterLeadsStat('offersend'); }}>Price offer sent</button>
+                                        <button className="dropdown-item" onClick={(e) => { setStat('offerdecline'); setCondition('filter'); filterLeadsStat('offerdecline'); }}>Declined price offer</button>
 
+                                    </div>
                                 </div>
-                            </div>
 
-                                <input type='text' className="form-control" onChange={(e)=>{filterLeads(e)}} placeholder="Search" />
+                                <input type='text' className="form-control" onChange={(e) => { filterLeads(e) }} placeholder="Search" />
                                 <Link to="/admin/add-lead" className="btn btn-pink addButton"><i className="btn-icon fas fa-plus-circle"></i>Add New</Link>
                             </div>
                         </div>
                         <div className='col-sm-6 hidden-xl mt-4'>
-                          <select className='form-control' onChange={e => sortTable(e,e.target.value)}>
-                          <option selected>-- Sort By--</option>
-                           <option value="id">ID</option>
-                           <option value="name">Name</option>
-                           <option value="email">Email</option>
-                           <option value="phone">Phone</option>
-                           <option value="status">Status</option>
-                          </select>
+                            <select className='form-control' onChange={e => sortTable(e, e.target.value)}>
+                                <option selected>-- Sort By--</option>
+                                <option value="id">ID</option>
+                                <option value="name">Name</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Phone</option>
+                                <option value="status">Status</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -238,12 +238,12 @@ export default function Lead() {
                             {leads.length > 0 ? (
                                 <Table className='table table-bordered'>
                                     <Thead>
-                                        <Tr style={{cursor:'pointer'}}>
-                                            <Th onClick={(e)=>{sortTable(e,'id')}} >ID  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'name')}}>Name  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'email')}}>Email  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'phone')}}>Phone  <span className='arr'> &darr; </span></Th>
-                                            <Th onClick={(e)=>{sortTable(e,'status')}}>Status  <span className='arr'> &darr; </span></Th>
+                                        <Tr style={{ cursor: 'pointer' }}>
+                                            <Th onClick={(e) => { sortTable(e, 'id') }} >ID  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e) => { sortTable(e, 'name') }}>Name  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e) => { sortTable(e, 'email') }}>Email  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e) => { sortTable(e, 'phone') }}>Phone  <span className='arr'> &darr; </span></Th>
+                                            <Th onClick={(e) => { sortTable(e, 'status') }}>Status  <span className='arr'> &darr; </span></Th>
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
@@ -261,14 +261,16 @@ export default function Lead() {
                                                             {item.phone}
                                                         </Td>
                                                         <Td>
-                                                            lead
+                                                            {
+                                                                item.lead_status ? item.lead_status.lead_status : 'Pending'
+                                                            }
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
                                                                 <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
-                                                                <div className="dropdown-menu"> 
+                                                                <div className="dropdown-menu">
                                                                     <Link to={`/admin/edit-lead/${item.id}`} className="dropdown-item">Edit</Link>
                                                                     <Link to={`/admin/view-lead/${item.id}`} className="dropdown-item">View</Link>
                                                                     <button className="dropdown-item" onClick={() => handleDelete(item.id)}

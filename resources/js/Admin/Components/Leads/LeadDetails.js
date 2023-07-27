@@ -13,7 +13,7 @@ export default function LeadDetails({ lead }) {
     const phone = lead.phone;
     const email = lead.email;
     const meta = lead.meta;
-    const lead_status = lead.lead_status;
+    const lead_status = lead.lead_status ? lead.lead_status.lead_status : 'Pending' ;
     const generated_on = Moment(lead.created_at).format('DD/MM/Y') + " " + Moment(lead.created_at).format('dddd');
 
     const handleTab = (e) => {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LeadStatus;
 use App\Models\Schedule;
 use App\Models\Offer;
 use App\Models\Services;
@@ -188,6 +189,19 @@ class ScheduleController extends Controller
     
         $input  = $request->input(); 
         $sch = Schedule::create($input);
+
+        
+        LeadStatus::updateOrCreate(
+            [
+              'client_id' => $request->client_id,
+            ],
+            [
+              'client_id' => $request->client_id,
+              'lead_status' =>  'Meeting pending'
+            ]
+
+          );
+
         notifications::create([
             'user_id'=>$request->client_id,
             'type'=>'sent-meeting',

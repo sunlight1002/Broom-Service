@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\LeadStatus;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -86,6 +87,18 @@ class OfferController extends Controller
         $input = $request->except(['action']);
         $ofr = Offer::create($input);
         $offer = Offer::where('id',$ofr->id)->with('client','service')->get()->first();
+
+        LeadStatus::updateOrCreate(
+            [
+              'client_id' => $offer->client_id,
+            ],
+            [
+              'client_id' => $offer->client_id,
+              'lead_status' =>  'Offer Sent'
+            ]
+
+          );
+          
         if($request->action == 'Save and Send')
         $this->sendOfferMail($offer);
         return response()->json([
