@@ -142,7 +142,6 @@ class ClientController extends Controller
     public function store(Request $request)
     {
 
-
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             'phone'     => ['required'],

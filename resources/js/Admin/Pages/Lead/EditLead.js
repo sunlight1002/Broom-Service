@@ -21,8 +21,6 @@ export default function EditWorker() {
     const handleUpdate = (e) => {
         e.preventDefault();
         
-       
-       
         const data = {
         "name": name,
         "phone": phone,

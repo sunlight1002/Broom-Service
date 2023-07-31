@@ -67,7 +67,7 @@ class ClientEmailController extends Controller
       'status' => 'accepted'
     ]);
 
-    LeadStatus::createOrUpdate(
+    LeadStatus::UpdateOrCreate(
       [
         'client_id' => $ofr['client']['id']
       ],
@@ -118,7 +118,7 @@ class ClientEmailController extends Controller
       'status' => 'declined'
     ]);
 
-    LeadStatus::createOrUpdate(
+    LeadStatus::UpdateOrCreate(
       [
         'client_id' => $ofr['client']['id']
       ],
@@ -138,9 +138,10 @@ class ClientEmailController extends Controller
         'booking_status' => $request->response
       ]);
 
-      $sch = Schedule::find($request->id)->get('client_id')->first();
 
-      LeadStatus::createOrUpdate(
+      $sch = Schedule::where('id', $request->id)->get('client_id')->first();
+
+      $ls =  LeadStatus::UpdateOrCreate(
         [
           'client_id' => $sch->client_id
         ],
@@ -150,6 +151,7 @@ class ClientEmailController extends Controller
         ]
       );
 
+   
       if ($request->response == 'confirmed') :
 
         Client::where('id', $sch->client_id)->update(['status' => 1]);
@@ -204,7 +206,7 @@ class ClientEmailController extends Controller
           'status' => 'accepted'
         ]);
 
-        LeadStatus::createOrUpdate(
+        LeadStatus::UpdateOrCreate(
           [
             'client_id' => $contract->client->id
           ],
@@ -264,7 +266,7 @@ class ClientEmailController extends Controller
         'status' => 'declined'
       ]);
 
-      LeadStatus::createOrUpdate(
+      LeadStatus::UpdateOrCreate(
         [
           'client_id' => $contract->client->id
         ],
