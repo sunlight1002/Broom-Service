@@ -4,7 +4,8 @@ import { useParams,useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function EditWorker() {
-  const [name, setName] = useState('');
+  const [firstname, setFirstName] = useState('');
+  const [lastname, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
 
@@ -22,7 +23,8 @@ export default function EditWorker() {
         e.preventDefault();
         
         const data = {
-        "name": name,
+        "firstname": firstname,
+        "lastname":  lastname,
         "phone": phone,
         "email":email,
         "lead_status": 'lead',
@@ -49,7 +51,8 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/leads/${params.id}/edit`, { headers })
             .then((response) => {
-                setName(response.data.lead.name);
+                setFirstName(response.data.lead.firstname);
+                setLastName(response.data.lead.lastname);
                 setEmail(response.data.lead.email);
                 setPhone(response.data.lead.phone);               
             });
@@ -64,17 +67,30 @@ export default function EditWorker() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title editEmployer">Edit Worker</h1>
+                    <h1 className="page-title editEmployer">Edit Lead</h1>
                     <div className="dashBox p-4">
                         <form>
                             <div className='row'>
                                 <div className='col-sm-12'>
                                     <div className='form-group'>
-                                        <label className='control-label'>Name *</label>
-                                        <input type='text' value={name} onChange={(e) => setName(e.target.value)} className='form-control' required placeholder='Enter Name' />
+                                        <label className='control-label'>First Name *</label>
+                                        <input type='text' value={firstname} onChange={(e) => setFirstName(e.target.value)} className='form-control' required placeholder='Enter FirstName' />
                                         {errors.name ? (
                                             <small className="text-danger mb-1">
-                                                {errors.name}
+                                                {errors.firstname}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                                <div className='col-sm-12'>
+                                    <div className='form-group'>
+                                        <label className='control-label'>Last Name *</label>
+                                        <input type='text' value={lastname} onChange={(e) => setLastName(e.target.value)} className='form-control' required placeholder='Enter LastName' />
+                                        {errors.name ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.lastname}
                                             </small>
                                         ) : (
                                             ""

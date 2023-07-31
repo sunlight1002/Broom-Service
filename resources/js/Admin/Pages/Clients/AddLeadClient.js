@@ -181,7 +181,7 @@ export default function AddLeadClient() {
         };
 
         axios
-            .post(`/api/admin/clients`, { data: data, jobdata: (cjob == 1) ? jobdata : {} }, { headers })
+            .put(`/api/admin/clients/${params.id}`, { data: data, jobdata: (cjob == 1) ? jobdata : {} }, { headers })
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
@@ -189,7 +189,7 @@ export default function AddLeadClient() {
                     alert.success("Client has been created successfully");
                     
                     setTimeout(() => {
-                        updateLeadStatus()
+                        //updateLeadStatus()
                         navigate("/admin/clients");
                     }, 1000);
                 }
@@ -370,11 +370,51 @@ export default function AddLeadClient() {
             });
     }
 
+    const getClient = () => {
+        axios
+            .get(`/api/admin/clients/${params.id}/edit`, { headers })
+            .then((response) => {
+
+                setFirstName(response.data.client.firstname);
+                setLastName(response.data.client.lastname);
+                setEmail(response.data.client.email);
+                setPhone(response.data.client.phone);
+                setPassCode(response.data.client.passcode);
+                setCity(response.data.client.city);
+                setFloor(response.data.client.floor);
+                setApt(response.data.client.apt_no);
+                setDob(response.data.client.dob);
+                setEnterance(response.data.client.entrence_code);
+                setLng(response.data.client.lng);
+                handleServiceLng(response.data.client.lng);
+                setColor(response.data.client.color);
+                setInvoiceName(response.data.client.invoicename);
+                setStreetNumber(response.data.client.street_n_no);
+                setZip(response.data.client.zipcode);
+                setStatus(response.data.client.status);
+                setAddress(response.data.client.geo_address);
+                setPaymentMethod(response.data.client.payment_method);
+                (response.data.client.extra != null) ?
+                setExtra(JSON.parse(response.data.client.extra)):
+                setExtra([{"email":"","name":"","phone":""}]);
+                if (response.data.client.color) {
+                    let clr = document.querySelectorAll('input[name="swatch_demo"]');
+                    clr.forEach((e, i) => {
+                        e.getAttribute('color') == response.data.client.color
+                            ? e.checked = true
+                            : ''
+                    })
+                }
+
+            });
+    };
+  
     useEffect(() => {
-        getLead();
+       // getLead();
         getClients();
         handleServiceLng('heb');
         getWorkers();
+        getClient();
 
     }, []);
 
