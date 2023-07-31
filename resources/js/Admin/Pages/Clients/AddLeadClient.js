@@ -190,7 +190,7 @@ export default function AddLeadClient() {
                     
                     setTimeout(() => {
                         //updateLeadStatus()
-                        navigate("/admin/clients");
+                        navigate("/admin/leads");
                     }, 1000);
                 }
             });

@@ -39,8 +39,8 @@ export default function ViewLead() {
             </div>
             <div className="col-sm-6">
               <div className="search-data">
-
-                <Link to={`/admin/edit-lead/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-pencil"></i>Edit</Link>
+             
+                <Link to={`/admin/add-lead-client/${param.id}`} className="btn btn-pink addButton"><i className="btn-icon fas fa-pencil"></i>Edit</Link>
               </div>
             </div>
           </div>
