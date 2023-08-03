@@ -48,7 +48,10 @@ class LeadWebhookController extends Controller
             }
             $lead                = Client::find($lead->id);
         }
-        $lead->firstname     = $request->name;
+        $nm = explode(' ',$request->name);
+        
+        $lead->firstname     = $nm[0];
+        $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
         $lead->status        = 0;
@@ -56,7 +59,7 @@ class LeadWebhookController extends Controller
         $lead->geo_address       = $request->has('address') ? $request->address : '';
         $lead->save();
 
-        $result = Helper::sendWhatsappMessage($lead->phone,'new_leads',array('name'=>ucfirst($lead->firstname)));
+        $result = Helper::sendWhatsappMessage($lead->phone,'',array('name'=>ucfirst($lead->firstname)));
             
          }
         return response()->json([
@@ -98,6 +101,7 @@ class LeadWebhookController extends Controller
                     $message_data =  $data_returned['messages'];
                     $from      = $message_data[0]['from'];
                     $to      = $data_returned['metadata']['display_phone_number'];
+                    $client  = Client::where('phone','like','%'.$from.'%')->get()->first();
                     $to_name      = $data_returned['contacts'][0]['profile']['name'];
                     $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
 
@@ -150,8 +154,8 @@ class LeadWebhookController extends Controller
                          $text_message='message_0';
                     }
                     
-                    $response = WebhookResponse::getWhatsappMessage($text_message,'en');
-                    $result = Helper::sendWhatsappMessage($from,'',array('message'=>$response));
+                    $response = WebhookResponse::getWhatsappMessage($text_message,'heb',$client);
+                    $result = Helper::sendWhatsappMessage($from,'leads',array('message'=>$response));
                 }
 
                 die('sent');

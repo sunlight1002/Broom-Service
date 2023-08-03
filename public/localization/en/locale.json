@@ -11,7 +11,17 @@
         "night":"Night",
         "accepted":"Accepted",
         "rejected":"Rejected"
+        
 
+    },
+    "front_meet":{
+        "title":"Meeting time and date",
+        "date":"Date",
+        "start":"Start Time",
+        "end":"End Time",
+        "op_start":"Choose start time",
+        "op_end":"Choose end time",
+        "btn":"Schedule Meeting"
     },
     "res_txt": "Thankyou for your response",
     "meet_accept": {

@@ -36,6 +36,7 @@ class Helper {
     }
    public static function sendWhatsappMessage($number,$template='',$data=array())
         {
+            
              $ch = curl_init();
 
             $mobile_no = $number;
@@ -67,19 +68,8 @@ class Helper {
                     "template" => [
                         "name" => $template, 
                         "language" => [
-                            "code" => "en_US"
+                            "code" => "he"
                         ], 
-                        "components" => [
-                            [
-                                "type" => "header", 
-                                "parameters" => [
-                                    [
-                                        "type" => "text", 
-                                        "text" => @$data['name']
-                                    ] 
-                                ]
-                            ],
-                        ] 
                     ] 
                 ]; 
             }
@@ -96,10 +86,12 @@ class Helper {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
+       
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         $data = json_decode($result, 1);
+
         curl_close($ch);
             if ($data && isset($data['error']) && !empty( $data['error'])) {
                  return $data['error'];

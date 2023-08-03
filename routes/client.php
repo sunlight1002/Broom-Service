@@ -58,6 +58,9 @@ Route::group(['prefix' => 'client'], function () {
     Route::post('login', [AuthController::class, 'login']);
 
      // Emails Routes
+     Route::post('get-client',[ClientEmailController::class,'getClient'])->name('get-client');
+     Route::get('get-schedule/{id}',[ClientEmailController::class,'getSchedule'])->name('get-schedule');
+     Route::post('add-meet',[ClientEmailController::class,'addMeet'])->name('add-meet');
      Route::post('meeting', [ClientEmailController::class, 'ShowMeeting'])->name('meeting');
      Route::post('get-offer',[ClientEmailController::class,'GetOffer'])->name('get-offer');
      Route::post('accept-offer',[ClientEmailController::class,'AcceptOffer'])->name('accept-offer');

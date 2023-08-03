@@ -12,6 +12,7 @@ use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Models\notifications;
+use Carbon\Carbon;
 use Mail;
 
 class ClientEmailController extends Controller
@@ -151,7 +152,7 @@ class ClientEmailController extends Controller
         ]
       );
 
-   
+
       if ($request->response == 'confirmed') :
 
         Client::where('id', $sch->client_id)->update(['status' => 1]);
@@ -315,4 +316,55 @@ class ClientEmailController extends Controller
     $template = Services::where('id', $request->id)->get('template')->first();
     return response()->json(['template' => $template]);
   }
+
+  public function getClient(Request $request)
+  {
+
+    $client = Client::find($request->id);
+
+    return response()->json([
+      'client' => $client
+    ]);
+  }
+
+  public function addMeet(Request $request)
+  {
+
+    $sch = Schedule::create([
+      'booking_status' => 'pending',
+      'start_date'     => $request['data']['startDate'],
+      'start_time'     => $request['data']['startTime'],
+      'end_time'       => $request['data']['endTime'],
+      'client_id'      => $request['data']['client']['id'],
+    ]);
+
+    return response()->json([
+      'schedule' => $sch
+    ]);
+  }
+
+  public function getSchedule($id)
+  {
+    $sch = Schedule::where('client_id', $id)
+      ->where('booking_status', '!=', 'declined')
+      ->where('start_date', '>=', Carbon::now())
+      ->get();
+
+      if( count( $sch ) > 0 ){
+
+        return response()->json([
+          'status_code' => 200,
+          'schedule' => $sch[0]
+        ]);
+
+      } else{
+
+        return response()->json([
+          'status_code' => 400
+        ]);
+
+      }
+   
+  }
+
 }

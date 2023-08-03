@@ -116,6 +116,7 @@ import AddInvoice from './Admin/Pages/Sales/Invoices/AddInvoice';
 import Orders from './Admin/Pages/Sales/Orders/Orders';
 import AddOrder from './Admin/Pages/Sales/Orders/AddOrder';
 import Payments from './Admin/Pages/Sales/Payments/payments';
+import ScheduleMeet from './Pages/ScheduleMeet';
 
 TimeAgo.addDefaultLocale(en)
 const options = {
@@ -142,6 +143,7 @@ export default function MyRoutes() {
                <Route exact path="worker-contract/:id" element={<WorkerContract />} />
                <Route exact path="calendar" element={<CalendarTeam />} />
                <Route exact path="thankyou/:id/:response" element={<Thankyou />} />
+               <Route exact path="schedule-meet/:id" element={<ScheduleMeet />} />
 
                {/* Client Routes Start  */}
 

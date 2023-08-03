@@ -197,7 +197,7 @@ class LeadController extends Controller
                                 ->get()->first() : null;
 
             if( !empty($reply) )
-            $reply->msg = WebhookResponse::getWhatsappMessage('message_'.$reply->message,'en');
+            $reply->msg = WebhookResponse::getWhatsappMessage('message_'.$reply->message,'heb',$lead);
             $lead->reply = $reply;
 
         }

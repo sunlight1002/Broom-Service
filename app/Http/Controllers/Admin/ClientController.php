@@ -365,7 +365,7 @@ class ClientController extends Controller
 
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
-            'passcode'  => ['required', 'string', 'min:6'],
+           // 'passcode'  => ['required', 'string', 'min:6'],
             'phone'     => ['required'],
             'status'    => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
@@ -374,13 +374,19 @@ class ClientController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+        $client = Client::where('id', $id)->get()->first();
 
+       
         $input                  = $request->data;
-        if ((isset($input['passcode']) && $input['passcode'] != null))
+        if ((isset($input['passcode']) && $input['passcode'] != null)){
             $input['password']      = Hash::make($input['passcode']);
+        } else{
+            $input['password'] = $client->password;
+        }
+
         Client::where('id', $id)->update($input);
 
-        $client = Client::where('id', $id)->get()->first();
+       
 
         if (!empty($request->jobdata)) {
 
