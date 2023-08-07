@@ -156,7 +156,7 @@ class LeadWebhookController extends Controller
                   
                     $response = WebhookResponse::getWhatsappMessage($text_message,'heb',$client);
             
-                    $result = Helper::sendWhatsappMessage($from,'leads',array('message'=>$response));
+                    $result = Helper::sendWhatsappMessage($from,'',array('message'=>$response));
                 }
 
                 die('sent');
