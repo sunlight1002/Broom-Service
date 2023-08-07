@@ -25,7 +25,7 @@ class WebhookResponse extends Model
         } else {
           $link = '';
         }
-       
+       dd($client);
         $message =[
         'en' =>[
             "message_0"=>"Hi, this is Bar, the digital representative of Broom Service how can I help you?\n\n1. About Brom Service and details about the service\n2. Service areas\n3. Scheduling an appointment \n4. Service for existing customers \n5.human representative (during business hours)",

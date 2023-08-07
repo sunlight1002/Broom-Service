@@ -101,7 +101,12 @@ class LeadWebhookController extends Controller
                     $message_data =  $data_returned['messages'];
                     $from      = $message_data[0]['from'];
                     $to      = $data_returned['metadata']['display_phone_number'];
+                    
+                    if( strlen($from) > 10 )
+                    $client  = Client::where('phone','like','%'.substr($from, 2).'%')->get()->first();
+                    else
                     $client  = Client::where('phone','like','%'.$from.'%')->get()->first();
+                   
                     $to_name      = $data_returned['contacts'][0]['profile']['name'];
                     $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
 
