@@ -16,8 +16,15 @@ class WebhookResponse extends Model
     ];
     public static function getWhatsappMessage($message_no,$lang_type,$client){
 
+       
+        if( !is_null($client) ){
+
         $id   = base64_encode($client->id);
         $link = url('/schedule-meet/'.$id);
+
+        } else {
+          $link = '';
+        }
        
         $message =[
         'en' =>[

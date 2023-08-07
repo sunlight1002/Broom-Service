@@ -59,7 +59,7 @@ class LeadWebhookController extends Controller
         $lead->geo_address       = $request->has('address') ? $request->address : '';
         $lead->save();
 
-        $result = Helper::sendWhatsappMessage($lead->phone,'',array('name'=>ucfirst($lead->firstname)));
+        $result = Helper::sendWhatsappMessage($lead->phone,'leads',array('name'=>ucfirst($lead->firstname)));
             
          }
         return response()->json([
@@ -153,8 +153,9 @@ class LeadWebhookController extends Controller
                     } else{
                          $text_message='message_0';
                     }
-                    
+                  
                     $response = WebhookResponse::getWhatsappMessage($text_message,'heb',$client);
+            
                     $result = Helper::sendWhatsappMessage($from,'leads',array('message'=>$response));
                 }
 
