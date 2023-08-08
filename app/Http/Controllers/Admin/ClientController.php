@@ -49,7 +49,7 @@ class ClientController extends Controller
         // }
         
          if( !is_null($q) ){
-          
+        
         $result->where('firstname',    'like', '%' . $q . '%');
         $result->orWhere('lastname',   'like', '%' . $q . '%');
         $result->orWhere('phone',      'like', '%' . $q . '%');

@@ -51,15 +51,33 @@ class Helper {
           
             if($template==''){
                  $params = [
-                    "messaging_product" => "whatsapp", 
-                    "recipient_type" => "individual", 
-                    "to" =>$mobile_no,
-                    "type" => "text", 
-                    "text" => [
-                        "preview_url"=> false,
-                        "body"=> $data['message']
-                    ] 
+
+                     "messaging_product" => "whatsapp", 
+                     "recipient_type" => "individual", 
+                        "to" =>$mobile_no,
+                        "type" => "text", 
+                        "preview_url" =>  true,
+                        "text" => [
+                            "body" =>  $data['message']
+
+                        ],
+                   
                 ]; 
+                // "messaging_product" => "whatsapp", 
+                // "type" =>  "interactive",
+                // "interactive" =>  {
+                //      "type"=>  "address_message",
+                //      "body"=> {
+                //            "text"=> "Thanks for your order! Tell us what address you’d like this order delivered 
+                //             to."
+                //      },
+                //     "action"=> {
+                //           "name"=> "address_message",
+                //           "parameters"=> "JSON Payload"
+                //      }
+                // }
+
+
             }else{
                 $params = [
                     "messaging_product" => "whatsapp", 
@@ -92,7 +110,7 @@ class Helper {
             echo 'Error:' . curl_error($ch);
         }
         $data = json_decode($result, 1);
-       
+       dd( $data );
         curl_close($ch);
             if ($data && isset($data['error']) && !empty( $data['error'])) {
                  return $data['error'];

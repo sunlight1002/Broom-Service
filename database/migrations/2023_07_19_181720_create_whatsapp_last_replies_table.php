@@ -17,7 +17,7 @@ class CreateWhatsappLastRepliesTable extends Migration
             $table->id();
             $table->string('phone');
             $table->string('message');
-            $table->string('check_current');
+            $table->string('check_current')->nullable();
             $table->timestamps();
         });
     }
