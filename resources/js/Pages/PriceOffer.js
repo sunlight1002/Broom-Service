@@ -211,7 +211,7 @@ export default function PriceOffer() {
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p1')}</li>
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p2')}</li>
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p3')}</li>
-                                                <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li>
+                                                {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p5')}</li>
                                             </ul>
 
@@ -244,7 +244,7 @@ export default function PriceOffer() {
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p1')}</li>
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p2')}</li>
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p3')}</li>
-                                                <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li>
+                                                {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
                                                 <li><img src={star} /> {t('price_offer.regular_services.rs1_p5')}</li>
                                             </ul>
 
