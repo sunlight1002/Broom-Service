@@ -48,7 +48,7 @@ class Helper {
              //$mobile_no = '972'.$mobile_no;
              $mobile_no = '91'.$mobile_no;
             }  
-          
+            dd($data);
             if($template==''){
                  $params = [
 
