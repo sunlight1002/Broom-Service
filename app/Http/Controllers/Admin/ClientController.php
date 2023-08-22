@@ -33,37 +33,24 @@ class ClientController extends Controller
     {
 
         $q = $request->q;
-       // $s = $request->q;
+      
+        $result = Client::where('status','2');
 
-        $result = Client::where('status',2)->with('lead_status');
-
-        $status = '';
-        // if (strtolower($s) === "lead") {
-        //     $status = 0;
-        // }
-        // if (strtolower($s) === "potential customer") {
-        //     $status = 1;
-        // }
-        // if (strtolower($s) === "customer") {
-        //     $status = 2;
-        // }
         
          if( !is_null($q) ){
+
             $ex = explode(' ',$q);
             $q2 = isset( $ex[1] ) ? $ex[1] : $q;
-
+        
         $result->where('firstname',    'like', '%' . $ex[0] . '%');
         $result->orWhere('lastname',   'like', '%' . $q2 . '%');
-        $result->orWhere('phone',      'like', '%' . $q . '%');
-        $result->orWhere('city',       'like', '%' . $q . '%');
-        $result->orWhere('street_n_no', 'like', '%' . $q . '%');
-        $result->orWhere('zipcode',    'like', '%' . $q . '%');
         $result->orWhere('email',      'like', '%' . $q . '%');
-
-        }
-
-        if ($status != '') {
-           // $result->orWhere('status',     'like', '%' . $status . '%');
+        $result->orWhere('phone',      'like', '%' . $q . '%');
+        // $result->orWhere('city',       'like', '%' . $q . '%');
+        // $result->orWhere('street_n_no', 'like', '%' . $q . '%');
+        // $result->orWhere('zipcode',    'like', '%' . $q . '%');
+        // $result->orWhere('email',      'like', '%' . $q . '%');
+        // $result->where('status','2');
         }
 
         if (isset($request->action)) {
@@ -81,7 +68,7 @@ class ClientController extends Controller
                 $result = Client::with('jobs')->whereDoesntHave('jobs');
         }
 
-        $result = $result->where('status',2)->orderBy('id', 'desc')->paginate(20);
+        $result = $result->where('status','2')->orderBy('id', 'desc')->paginate(20);
 
         if (isset($result)) {
             foreach ($result as $k => $res) {
