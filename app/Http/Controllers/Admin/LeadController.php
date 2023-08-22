@@ -27,13 +27,16 @@ class LeadController extends Controller
         $q = $request->q;
         $c = $request->condition;
 
-        $result = Client::with('meetings','offers')->with('lead_status');
+        $result = Client::with('meetings', 'offers')->with('lead_status');
 
         if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 
             $result->where(function ($query) use ($q) {
+                $ex = explode(' ',$q);
+                $q2 = isset( $ex[1] ) ? $ex[1] : $q;
                 $query->where('email',       'like', '%' . $q . '%')
-                     ->orWhere('firstname',       'like', '%' . $q . '%')
+                    ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
+                    ->orWhere('lastname',       'like', '%' . $q2 . '%')
                     ->orWhere('phone',       'like', '%' . $q . '%');
             });
         }
@@ -42,61 +45,58 @@ class LeadController extends Controller
         if (!is_null($q) &&  ($q == 1 || $q == 0)) {
 
             $result->where('status', $q);
-
-        } else if( is_null($q) ) {
+        } else if (is_null($q)) {
 
             $result->where('status', '0')->orWhere('status', '1');
         }
 
-        if( $q == 'pending'){
+        if ($q == 'pending') {
 
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('lead_status', 'Pending');
+                    $q->where('lead_status', 'Pending');
                 });
-              })->orWhereDoesntHave('lead_status');
+            })->orWhereDoesntHave('lead_status');
         }
 
-        if( $q == 'set'){
+        if ($q == 'set') {
 
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('lead_status', 'Meeting Set');
+                    $q->where('lead_status', 'Meeting Set');
                 });
-              });
+            });
         }
 
-        if( $q == 'offersend'){
+        if ($q == 'offersend') {
 
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('lead_status', 'Offer Sent');
+                    $q->where('lead_status', 'Offer Sent');
                 });
-              });
+            });
         }
 
-        if( $q == 'offerdecline'){
+        if ($q == 'offerdecline') {
 
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('lead_status', 'Offer Rejected');
+                    $q->where('lead_status', 'Offer Rejected');
                 });
-              });
+            });
         }
 
-        $result = $result->where('status','!=',2);
-        
-        if( $q == 'uninterested'){
-            
+        $result = $result->where('status', '!=', 2);
+
+        if ($q == 'uninterested') {
+
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                  $q->where('lead_status', 'Uninterested');
+                    $q->where('lead_status', 'Uninterested');
                 });
-              });
-
-
-        } 
-            $result = $result->orderBy('id', 'desc')->paginate(20);
+            });
+        }
+        $result = $result->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
             'leads'       => $result,
@@ -110,7 +110,6 @@ class LeadController extends Controller
      */
     public function create()
     {
-
     }
 
     /**
@@ -126,11 +125,11 @@ class LeadController extends Controller
             'phone'     => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-       
+
         $lead                = new Client;
         $lead->firstname     = $request->firstname;
         $lead->firstname     = $request->lastname;
@@ -144,16 +143,16 @@ class LeadController extends Controller
 
         LeadStatus::UpdateOrCreate(
             [
-              'client_id' => $lead->id
+                'client_id' => $lead->id
             ],
             [
-              'client_id' => $lead->id,
-              'lead_status' => 'Pending'
+                'client_id' => $lead->id,
+                'lead_status' => 'Pending'
             ]
-          );
+        );
 
         return response()->json([
-            'message'       => 'Lead created successfully',            
+            'message'       => 'Lead created successfully',
         ], 200);
     }
 
@@ -163,13 +162,13 @@ class LeadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$id)
+    public function show(Request $request, $id)
     {
         $lead                = Client::find($id);
-        $lead->lead_status   =$request->lead_status;
+        $lead->lead_status   = $request->lead_status;
         $lead->save();
         return response()->json([
-            'message'        => 'status updated',            
+            'message'        => 'status updated',
         ], 200);
     }
 
@@ -181,9 +180,9 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-        $lead                = Client::with('offers','meetings','lead_status')->find($id);
+        $lead                = Client::with('offers', 'meetings', 'lead_status')->find($id);
 
-        if( !empty($lead) ){
+        if (!empty($lead)) {
 
             $offer = Offer::where('client_id', $id)->get()->last();
             $lead->latest_offer = $offer;
@@ -192,17 +191,16 @@ class LeadController extends Controller
             $lead->latest_meeting = $meeting;
 
             $reply  = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
-                        WhatsappLastReply::where('phone','like','%'.$lead->phone.'%')
-                                                    
-                                ->get()->first() : null;
+                WhatsappLastReply::where('phone', 'like', '%' . $lead->phone . '%')
 
-            if( !empty($reply) )
-            $reply->msg = WebhookResponse::getWhatsappMessage('message_'.$reply->message,'heb',$lead);
+                ->get()->first() : null;
+
+            if (!empty($reply))
+                $reply->msg = WebhookResponse::getWhatsappMessage('message_' . $reply->message, 'heb', $lead);
             $lead->reply = $reply;
-
         }
         return response()->json([
-            'lead'        => $lead,            
+            'lead'        => $lead,
         ], 200);
     }
 
@@ -221,11 +219,11 @@ class LeadController extends Controller
             'phone'     => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-      
+
         $lead                = Client::find($id);
         $lead->firstname     = $request->firstname;
         $lead->lastname      = $request->lastname;
@@ -238,7 +236,7 @@ class LeadController extends Controller
         $lead->save();
 
         return response()->json([
-            'message'       => 'Lead updated successfully',            
+            'message'       => 'Lead updated successfully',
         ], 200);
     }
 
@@ -250,16 +248,16 @@ class LeadController extends Controller
      */
     public function destroy($id)
     {
-         Client::find($id)->delete();
+        Client::find($id)->delete();
         return response()->json([
-            'message'     => "Lead has been deleted"         
+            'message'     => "Lead has been deleted"
         ], 200);
     }
-     public function updateStatus(Request $request,$id)
+    public function updateStatus(Request $request, $id)
     {
-        
+
         return response()->json([
-            'message'        => 'status updated',            
+            'message'        => 'status updated',
         ], 200);
     }
     public function addComment(Request $request)
@@ -283,7 +281,7 @@ class LeadController extends Controller
 
     public function getComments(Request $request)
     {
-        $comments = LeadComment::where('lead_id',$request->id)->with('team')->get();
+        $comments = LeadComment::where('lead_id', $request->id)->with('team')->get();
         return response()->json(['comments' => $comments]);
     }
 
@@ -293,16 +291,18 @@ class LeadController extends Controller
         return response()->json(['message' => 'comment deleted']);
     }
 
-    public function uninterested( $id ){
+    public function uninterested($id)
+    {
 
-       LeadStatus::UpdateOrCreate(
-         [
-            'client_id' => $id
-         ],[
-            'client_id'   => $id,
-            'lead_status' => 'Uninterested'
-        ]
-       );
-       return response()->json(['message' => 'Marked Uninterested']);
+        LeadStatus::UpdateOrCreate(
+            [
+                'client_id' => $id
+            ],
+            [
+                'client_id'   => $id,
+                'lead_status' => 'Uninterested'
+            ]
+        );
+        return response()->json(['message' => 'Marked Uninterested']);
     }
 }
