@@ -117,6 +117,7 @@ import Orders from './Admin/Pages/Sales/Orders/Orders';
 import AddOrder from './Admin/Pages/Sales/Orders/AddOrder';
 import Payments from './Admin/Pages/Sales/Payments/payments';
 import ScheduleMeet from './Pages/ScheduleMeet';
+import Chat from './Admin/Pages/Chat/chat';
 
 TimeAgo.addDefaultLocale(en)
 const options = {
@@ -251,6 +252,7 @@ export default function MyRoutes() {
                      <Route exact path="add-order" element={<AddOrder />} />
                      <Route exact path="orders" element={<Orders />} />
                      <Route exact path="payments" element={<Payments />} />
+                     <Route exact path="chat" element={<Chat />}/>
                   </Route>
                </Route>
                {/* Admin Routes End  */}

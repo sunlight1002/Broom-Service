@@ -12,8 +12,14 @@ class WebhookResponse extends Model
     protected $fillable = [
         'name',
         'status',
+        'entry_id',
+        'message',
+        'number',
+        'flex',
         'data'
     ];
+
+
     public static function getWhatsappMessage($message_no,$lang_type,$client){
 
        

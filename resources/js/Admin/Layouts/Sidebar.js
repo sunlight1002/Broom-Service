@@ -11,24 +11,24 @@ export default function Sidebar() {
     const alert = useAlert();
     const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
-    const [role,setRole] = useState();
-   const  headers= {
+    const [role, setRole] = useState();
+    const headers = {
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
         "Authorization": `Bearer ` + localStorage.getItem("admin-token"),
     }
 
-    const getAdmin = () =>{
+    const getAdmin = () => {
         axios
-        .get(`/api/admin/details`,{ headers })
-        .then((res)=>{
-            setRole(res.data.success.role);
-        });
+            .get(`/api/admin/details`, { headers })
+            .then((res) => {
+                setRole(res.data.success.role);
+            });
     };
     const HandleLogout = (e) => {
         fetch("/api/admin/logout", {
             method: "POST",
-             headers ,
+            headers,
         }).then((res) => {
             if (res.status === 200) {
                 localStorage.removeItem("admin-token");
@@ -44,17 +44,17 @@ export default function Sidebar() {
         navigate("/admin/login");
         alert.success("Logged Out Successfully");
     };
-    useEffect(()=>{
+    useEffect(() => {
         getAdmin();
-    },[]);
+    }, []);
 
     return (
         <div id="column-left">
             <div className="sideLogo">
                 <Link to="/admin/dashboard">
-                  <svg width="190" height="77" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">       
-                    <image xlinkHref={logo} width="190" height="77"></image>
-                  </svg>
+                    <svg width="190" height="77" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                        <image xlinkHref={logo} width="190" height="77"></image>
+                    </svg>
                 </Link>
             </div>
             <ul className="list-group">
@@ -63,10 +63,10 @@ export default function Sidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/leads"><i className="fa-solid fa-poll-h"></i>Leads</NavLink>
-                </li>  
+                </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/clients"><i className="fa-solid fa-user-tie"></i>Clients</NavLink>
-                </li>   
+                </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/workers"><i className="fa-solid fa-users"></i>Workers</NavLink>
                 </li>
@@ -82,16 +82,21 @@ export default function Sidebar() {
                 <li className="list-group-item">
                     <NavLink to="/admin/jobs"><i className="fa-solid fa-briefcase"></i>Jobs</NavLink>
                 </li>
-                 <li className="list-group-item">
-                    <div id="myFencePay" className='fence commonDropdown'>
-                        <div id="fenceheadpay">
-                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fencepay" aria-expanded="true" aria-controls="fencepay">
-                                <i className="fas fa-file-invoice"></i> Sales <i className="fa-solid fa-angle-down"></i>
+                <li className="list-group-item">
+                    <NavLink to="/admin/chat"><i className="fa-solid fa-message"></i>Chat History</NavLink>
+                </li>
+              
+
+                <li className="list-group-item">
+                    <div id="myFence" className='fence commonDropdown'>
+                        <div id="fencehead2">
+                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence21" aria-expanded="true" aria-controls="fence21">
+                                <i className="fa-solid fa-file-invoice"></i> Sales <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
-                        <div id="fencepay" className="collapse" aria-labelledby="fenceheadpay" data-parent="#fencepay">
+                        <div id="fence21" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
                             <div className="card-body">
-                                <ul className='list-group'>
+                            <ul className='list-group'>
                                     <li className='list-group-item'>
                                         <Link to="/admin/orders"><i className="fa fa-angle-right"></i> Orders </Link>
                                     </li>
@@ -106,18 +111,18 @@ export default function Sidebar() {
                         </div>
                     </div>
                 </li>
-                 
+
                 {
                     role !== 'member' &&
                     <li className="list-group-item">
                         <NavLink to="/admin/income"><i className="fa-solid fa-ils"></i>Income / Outcome</NavLink>
-                    </li> 
-                
+                    </li>
+
                 }
                 <li className="list-group-item">
                     <NavLink to="/admin/notifications"><i className="fa-solid fa-briefcase"></i>Notifications</NavLink>
                 </li>
-                
+
                 <li className="list-group-item">
                     <div id="myFence" className='fence commonDropdown'>
                         <div id="fencehead2">
@@ -128,12 +133,12 @@ export default function Sidebar() {
                         <div id="fence2" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
                             <div className="card-body">
                                 <ul className='list-group'>
-                                {
-                                    role !== 'member' &&
-                                    <li className='list-group-item'>
-                                        <Link to="/admin/manage-team"><i className="fa fa-angle-right"></i> Manage team</Link>
-                                    </li>
-                                }
+                                    {
+                                        role !== 'member' &&
+                                        <li className='list-group-item'>
+                                            <Link to="/admin/manage-team"><i className="fa fa-angle-right"></i> Manage team</Link>
+                                        </li>
+                                    }
                                     <li className='list-group-item'>
                                         <Link to="/admin/services"><i className="fa fa-angle-right"></i> Services</Link>
                                     </li>

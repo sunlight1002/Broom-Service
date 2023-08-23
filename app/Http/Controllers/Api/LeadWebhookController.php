@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Helper;
+use Illuminate\Support\Facades\Auth;
 
 class LeadWebhookController extends Controller
 {
@@ -85,16 +86,20 @@ class LeadWebhookController extends Controller
 
             Log::info($get_data);
             $get_data = json_decode($get_data, true);
-
+          
+            $data_returned = $get_data['entry'][0]['changes'][0]['value'];
+        
             $response = WebhookResponse::create([
                 'status'        => 1,
-                'name'    => 'whatsapp',
-                'data' => json_encode($get_data)
+                'name'          => 'whatsapp',
+                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '' ,
+                'message'       => $data_returned['messages'][0]['text']['body'],
+                'number'        => $data_returned['contacts'][0]['wa_id'],
+                'flex'          => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+                'data'          => json_encode($get_data)
             ]);
 
-            $data_returned = $get_data['entry'][0]['changes'][0]['value'];
-
-
+           
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
 
                 $message_data =  $data_returned['messages'];
@@ -112,7 +117,7 @@ class LeadWebhookController extends Controller
                 if ($message == '' || $from == '') {
                     return 'Destination or Sender number and message value required';
                 }
-                // $result = DB::table('whatsapp_last_replies')->where('phone','=',$from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
+                $result = DB::table('whatsapp_last_replies')->where('phone','=',$from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
                 $result = [];
                 if (!empty($result)) {
                     $last_reply = $result->message;
@@ -134,18 +139,18 @@ class LeadWebhookController extends Controller
                     if ($last_reply == 4 && $message == '4') {
                         $message = $last_reply . '_4';
                     }
-                    // $reply = WhatsappLastReply::find($result->id);
-                    // $reply->phone=$from;
-                    // $reply->message=$message;
-                    // $reply->updated_at=now();
-                    // $reply->save();
-                    // $message=$reply->message;
+                    $reply = WhatsappLastReply::find($result->id);
+                    $reply->phone=$from;
+                    $reply->message=$message;
+                    $reply->updated_at=now();
+                    $reply->save();
+                    $message=$reply->message;
                 } else {
-                    //  DB::table('whatsapp_last_replies')->where('phone','=',$from)->delete();
-                    // $reply = new WhatsappLastReply;
-                    // $reply->phone=$from;
-                    // $reply->message=$message;
-                    // $reply->save();
+                     DB::table('whatsapp_last_replies')->where('phone','=',$from)->delete();
+                    $reply = new WhatsappLastReply;
+                    $reply->phone=$from;
+                    $reply->message=$message;
+                    $reply->save();
                 }
                 if (in_array($message, [1, 2, 3, 4, 5])) {
 

@@ -231,6 +231,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::get('chats',[DashboardController::class,'chats']);
+    Route::get('chat-message/{no}',[DashboardController::class,'chatsMessages']);
+    Route::post('chat-reply',[DashboardController::class,'chatReply']);
+    
+    
 });
 
 
