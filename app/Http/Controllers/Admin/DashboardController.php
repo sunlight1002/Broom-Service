@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Helper;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -588,6 +589,14 @@ class DashboardController extends Controller
   {
 
     $result = Helper::sendWhatsappMessage($request->number, '', array('message' => $request->message));
+    
+    $response = WebhookResponse::create([
+      'status'        => 1,
+      'name'          => 'whatsapp',
+      'message'       => $request->message,
+      'number'        => $request->number,
+      'flex'          => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+  ]);
 
     return response()->json([
       'msg' => 'message send successfully'
