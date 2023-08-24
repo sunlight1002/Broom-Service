@@ -103,7 +103,8 @@ export default function LeadDetails({ lead }) {
                                     <div className='col-sm-6'>
                                             <div className='form-group'>
                                                 <label>Option</label>
-                                                <p>{lead.reply?.message}</p>
+
+                                                <p>{  lead.reply? ( (lead.reply.message.length < 2) ? lead.reply.message : 'Chat' ) : '' }</p>
                                             </div>
                                         </div>
                                         <div className='col-sm-12'>

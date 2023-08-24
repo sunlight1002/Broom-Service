@@ -194,9 +194,15 @@ class LeadController extends Controller
                 WhatsappLastReply::where('phone', 'like', '%' . $lead->phone . '%')
 
                 ->get()->first() : null;
-
-            if (!empty($reply))
+            
+            if (!empty($reply)){
+                
+                if( $reply->message < 2 )
                 $reply->msg = WebhookResponse::getWhatsappMessage('message_' . $reply->message, 'heb', $lead);
+                else
+                $reply->msg = $reply->message;
+            }
+               
             $lead->reply = $reply;
         }
         return response()->json([
