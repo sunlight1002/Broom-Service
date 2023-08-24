@@ -1702,4 +1702,80 @@ h1 {
   flex: 20%;
   max-width: 20%;
 } */
+
+/*chat messages*/
+
+.conversation-list {
+  list-style: none;
+  padding: 0 15px; }
+  .conversation-list li {
+    margin-bottom: 20px; }
+    .conversation-list li .conversation-actions {
+      float: right;
+      display: none; }
+    .conversation-list li:hover .conversation-actions {
+      display: block; }
+  .conversation-list .chat-avatar {
+    float: left;
+    text-align: center;
+    width: 42px; }
+    .conversation-list .chat-avatar img {
+      border-radius: 100%;
+      width: 100%; }
+    .conversation-list .chat-avatar i {
+      font-size: 12px;
+      font-style: normal; }
+  .conversation-list .ctext-wrap {
+    background: #fff;
+    border-radius: 3px;
+    display: inline-block;
+    padding: 12px;
+    max-width:40%;
+    position: relative; }
+    .conversation-list .ctext-wrap i {
+      display: block;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: bold;
+      position: relative; }
+    .conversation-list .ctext-wrap p {
+      margin: 0;
+      padding-top: 3px; }
+    .conversation-list .ctext-wrap:after {
+      left: -11px;
+      top: 0;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-top-color: #404954;
+      border-width: 6px;
+      margin-right: -1px;
+      border-right-color: #404954; }
+  .conversation-list .conversation-text {
+    float: left;
+    font-size: 13px;
+    margin-left: 12px;
+    width: 70%; }
+  .conversation-list .odd .chat-avatar {
+    float: right !important; }
+  .conversation-list .odd .conversation-text {
+    float: right !important;
+    margin-right: 12px;
+    text-align: right;
+    width: 70% !important; }
+  .conversation-list .odd .ctext-wrap {
+    background-color: #DCF8C6; }
+    .conversation-list .odd .ctext-wrap:after {
+      border-color: transparent;
+      border-left-color: #404954;
+      border-top-color: #404954;
+      right: -10px;
+      left: auto; }
+  .conversation-list .odd .conversation-actions {
+    float: left; }
+
+
 /*******End*************/

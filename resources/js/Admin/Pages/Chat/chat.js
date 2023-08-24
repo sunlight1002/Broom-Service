@@ -1,0 +1,167 @@
+import React, { useState, useEffect } from 'react'
+import Sidebar from '../../Layouts/Sidebar'
+import { useParams, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useAlert } from 'react-alert';
+
+export default function chat() {
+
+    const [data, setData] = useState(null);
+    const [messages, setMessages] = useState(null);
+    const [selectNumber, setSelectNumber] = useState(null);
+
+    const alert = useAlert();
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const getData = () => {
+
+        axios
+            .get(`/api/admin/chats`, { headers })
+            .then((res) => {
+                const r = res.data.data;
+                setData(r);
+            });
+    }
+
+    const getMessages = (no) => {
+
+        axios
+            .get(`/api/admin/chat-message/${no}`, { headers })
+            .then((res) => {
+                const c = res.data.chat;
+                setMessages(c);
+            });
+
+    }
+
+    const sendMessage = () => {
+        let msg = document.getElementById('message_typing').value;
+        if (msg == '') {
+            alert.error('Please type message');
+            return;
+        }
+        if (selectNumber == null) {
+            alert.error('Please open chat of number');
+            return;
+        }
+        const send = {
+            number: selectNumber,
+            message: msg
+        };
+        axios
+            .post(`/api/admin/chat-reply`, send, { headers })
+            .then((res) => {
+                document.getElementById('message_typing').value = '';
+                getData();
+            });
+    }
+
+    const callApi = (no) => {
+
+        localStorage.setItem('number', no);
+
+        const interval = setInterval(() => {
+            getMessages(localStorage.getItem('number'));
+        }, 2000);
+        return () => clearInterval(interval);
+    }
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    return (
+        <div id="container">
+            <Sidebar />
+            <div id="content">
+                <div className="view-applicant">
+                    <h1 className="page-title editJob">Chat History</h1>
+                    <div className='card'>
+                        <div className="card-body">
+                            <div className="row">
+                                <div className="col-sm-9">
+                                    <h4 className="header-title mb-3">Replies</h4><hr />
+                                    <div className="chat-conversation">
+                                        <div data-simplebar="init" style={{ height: "600px" }}>
+                                            <div className="simplebar-wrapper" style={{ margin: "0px" }}>
+                                                <div chat-content="" id="ko" style={{ overflowY: "scroll", width: "auto", height: "580px" }}>
+                                                    <div className="simplebar-content" style={{ padding: "0px" }}>
+                                                        <ul className="conversation-list" style={{ fontFamily: "sans-serif" }}>
+                                                            {
+                                                                messages?.map((m, i) => {
+                                                                    return (
+
+                                                                        <li class={(m.flex == 'C') ? "clearfix " : "clearfix odd"}>
+                                                                            <div class="chat-avatar">
+                                                                                <img src="/images/chat.png" alt="chatIcon" />
+                                                                            </div>
+                                                                            <div class="conversation-text">
+                                                                                <div class="ctext-wrap card">
+                                                                                    <p>
+                                                                                        {m.message}
+                                                                                    </p><br />
+                                                                                    <small>{new Date(m.created_at).toLocaleString("en-GB")}</small>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+
+                                                                    );
+                                                                })
+                                                            }
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="simplebar-track simplebar-horizontal" style={{ visibility: "hidden" }}>
+                                                <div className="simplebar-scrollbar" style={{ width: "0px", display: "none" }}></div>
+                                            </div>
+                                            <div className="simplebar-track simplebar-vertical" style={{ visibility: "visible" }}>
+                                                <div className="simplebar-scrollbar" style={{ height: "348px", transform: "translate3d(0px, 0px, 0px)", display: "block" }}></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="row m-3" style={{ marginTop: "2px", width: "90%" }}>
+
+
+                                            <div className="input-group">
+                                                <input type="hidden" name="support_id" value="1" />
+                                                <input type="text" name="message" id="message_typing" onKeyDown={e => e.key === 'Enter' ? sendMessage() : ''} chat-box="" className="form-control" placeholder="Type..." />
+                                                <div className="input-group-prepend">
+                                                    <button type="button" id="submitMessage" onClick={e => sendMessage()} className="btn chat-send btn-block waves-effect waves-light" style={{ background: "#00a4f39e!important", color: "black" }}><i className="fas fa-sharp fa-light fa-paper-plane"></i></button>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card col-sm-3 card-body " style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
+
+                                    {data?.slice(0).reverse().map((d, i) => {
+
+                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); callApi(d.number) }}>
+                                            <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><i class="fas fa-phone" ></i>{d.number}</h5>
+                                            {/* <p className="text-dark">Skin Buy and Sell</p> */}
+                                        </div>
+
+                                    })}
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    );
+}

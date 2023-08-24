@@ -44,11 +44,11 @@ class Helper {
             if(strlen($mobile_no)>10){
              $mobile_no =$mobile_no;
             }else{
-           // $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
-             //$mobile_no = '972'.$mobile_no;
-             $mobile_no = '91'.$mobile_no;
+             $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
+             $mobile_no = '972'.$mobile_no;
+             //$mobile_no = '91'.$mobile_no;
             }  
-          
+           
             if($template==''){
                  $params = [
 
@@ -63,20 +63,7 @@ class Helper {
                         ],
                    
                 ]; 
-                // "messaging_product" => "whatsapp", 
-                // "type" =>  "interactive",
-                // "interactive" =>  {
-                //      "type"=>  "address_message",
-                //      "body"=> {
-                //            "text"=> "Thanks for your order! Tell us what address you’d like this order delivered 
-                //             to."
-                //      },
-                //     "action"=> {
-                //           "name"=> "address_message",
-                //           "parameters"=> "JSON Payload"
-                //      }
-                // }
-
+            
 
             }else{
                 $params = [
@@ -110,7 +97,7 @@ class Helper {
             echo 'Error:' . curl_error($ch);
         }
         $data = json_decode($result, 1);
-       dd( $data );
+       
         curl_close($ch);
             if ($data && isset($data['error']) && !empty( $data['error'])) {
                  return $data['error'];

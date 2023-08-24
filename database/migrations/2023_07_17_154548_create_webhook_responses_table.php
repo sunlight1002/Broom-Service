@@ -17,7 +17,11 @@ class CreateWebhookResponsesTable extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('status')->nullable();
+            $table->string('entry_id')->nullable();
+            $table->longText('message')->nullable();
+            $table->string('number')->nullable();
             $table->text('data')->nullable();
+            $table->string('flex')->nullable();
             $table->timestamps();
         });
     }
