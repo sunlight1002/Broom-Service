@@ -10,7 +10,7 @@ export default function chat() {
     const [data, setData] = useState(null);
     const [messages, setMessages] = useState(null);
     const [selectNumber, setSelectNumber] = useState(null);
-    const [clients,setClients] = useState(null);
+    const [clients, setClients] = useState(null);
 
     const alert = useAlert();
     const headers = {
@@ -36,6 +36,12 @@ export default function chat() {
             .get(`/api/admin/chat-message/${no}`, { headers })
             .then((res) => {
                 const c = res.data.chat;
+                let cl = localStorage.getItem('chatLen');
+                if (cl > c.length) {
+                    scroller();
+                }
+
+                localStorage.setItem('chatLen', c.length);
                 setMessages(c);
             });
 
@@ -60,6 +66,7 @@ export default function chat() {
             .then((res) => {
                 document.getElementById('message_typing').value = '';
                 getData();
+                setTimeout(()=>{scroller();},200);
             });
     }
 
@@ -68,19 +75,24 @@ export default function chat() {
         localStorage.setItem('number', no);
 
         const interval = setInterval(() => {
+
             getMessages(localStorage.getItem('number'));
+
         }, 2000);
         return () => clearInterval(interval);
     }
 
+    const scroller = () => {
 
-    const clientData = (num) => {
-        return clients.num === num;
+        var objDiv = document.getElementById("ko");
+        objDiv.scrollTop = objDiv.scrollHeight;
     }
+
 
     useEffect(() => {
         getData();
     }, []);
+
 
     return (
         <div id="container">
@@ -152,11 +164,11 @@ export default function chat() {
                                 <div className="card col-sm-3 card-body " style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
 
                                     {data?.slice(0).reverse().map((d, i) => {
-                                        let cd = clients?.find( ({ num }) => num === d.number );
-                                        
-                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); callApi(d.number) }}>
-                                            { cd && 
-                                            <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={ (cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}` }><i class="fas fa-user" ></i>{cd.name}</Link></h5>
+                                        let cd = clients?.find(({ num }) => num == d.number);
+
+                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); callApi(d.number);setTimeout(()=>{scroller();},200) }}>
+                                            {cd &&
+                                                <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={(cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}`}><i class="fas fa-user" ></i>{cd.name}</Link></h5>
                                             }
                                             <h6 className="mt-0 mb-1" style={{ cursor: "pointer" }}><i class="fas fa-phone" ></i>{d.number}</h6>
                                             {/* <p className="text-dark">Skin Buy and Sell</p> */}

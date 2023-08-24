@@ -506,7 +506,7 @@ class DashboardController extends Controller
   public function chats()
   {
 
-    $data = WebhookResponse::distinct()->get(['number']);
+    $data = WebhookResponse::distinct()->where('number','!=',null)->get(['number']);
 
     $clients = [];
 
@@ -539,46 +539,6 @@ class DashboardController extends Controller
   {
 
     $chat = WebhookResponse::where('number', $no)->get();
-
-    if (strlen($no) > 10)
-      $client  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
-    else
-      $client  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
-
-    if (count($chat) > 0) {
-
-      foreach ($chat as $k =>  $_msg) {
-        $msg = $_msg->message;
-        if (strlen($msg) < 2 && in_array($msg, [1, 2, 3, 4, 5])) {
-
-          $text_message = 'message_' . $msg;
-        } else if (str_contains($msg, '_')) {
-          if ($msg == '2_yes') {
-            $text_message = 'message_3';
-          } else {
-            $text_message = 'message_' . $msg;
-          }
-        } else if (strlen($msg) < 2) {
-
-          $text_message = 'message_0';
-        } else {
-
-          $text_message = $msg;
-        }
-        // dd(strlen($text_message));
-
-        if (strlen($msg) > 2) {
-          $chat[$k]['message'] = $text_message;
-        } else {
-          $chat[$k]['message'] = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-        }
-
-
-        // $chat[$k]['message'] = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-      }
-    }
-
-
 
     return response()->json([
       'chat' => $chat
