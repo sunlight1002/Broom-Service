@@ -41,14 +41,15 @@ class Helper {
 
             $mobile_no = $number;
             $mobile_no = str_replace("-","","$mobile_no");
+         
             if(strlen($mobile_no)>10){
              $mobile_no =$mobile_no;
             }else{
-             $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
-             $mobile_no = '972'.$mobile_no;
+            $mobile_no = (strlen($mobile_no)==10)?substr($mobile_no, 1):$mobile_no;
+            $mobile_no = '972'.$mobile_no;
              //$mobile_no = '91'.$mobile_no;
             }  
-           
+          
             if($template==''){
                  $params = [
 

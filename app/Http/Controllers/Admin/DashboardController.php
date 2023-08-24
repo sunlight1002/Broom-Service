@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Helper;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -506,9 +507,31 @@ class DashboardController extends Controller
   {
 
     $data = WebhookResponse::distinct()->get(['number']);
-   
+
+    $clients = [];
+
+    if (count($data) > 0) {
+      foreach ($data as $k => $_no) {
+        $no = $_no->number;
+        if (strlen($no) > 10)
+          $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
+        else
+          $cl  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
+
+        if (!is_null($cl)) {
+          $clients[] = [
+            'name' => $cl->firstname . " " . $cl->lastname,
+            'id'   => $cl->id,
+            'num'  => $no,
+            'client' => ($cl->status == 0) ? 0 : 1
+          ];
+        }
+      }
+    }
+
     return response()->json([
-      'data' => $data
+      'data' => $data,
+      'clients' => $clients
     ]);
   }
 
@@ -535,7 +558,6 @@ class DashboardController extends Controller
           } else {
             $text_message = 'message_' . $msg;
           }
-
         } else if (strlen($msg) < 2) {
 
           $text_message = 'message_0';
@@ -543,16 +565,16 @@ class DashboardController extends Controller
 
           $text_message = $msg;
         }
-      // dd(strlen($text_message));
+        // dd(strlen($text_message));
 
         if (strlen($msg) > 2) {
-          $chat[$k]['message']= $text_message;
+          $chat[$k]['message'] = $text_message;
         } else {
           $chat[$k]['message'] = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
         }
 
 
-       // $chat[$k]['message'] = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
+        // $chat[$k]['message'] = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
       }
     }
 
@@ -563,9 +585,18 @@ class DashboardController extends Controller
     ]);
   }
 
-  public function chatReply(Request $request){
+  public function chatReply(Request $request)
+  {
 
     $result = Helper::sendWhatsappMessage($request->number, '', array('message' => $request->message));
+    
+    $response = WebhookResponse::create([
+      'status'        => 1,
+      'name'          => 'whatsapp',
+      'message'       => $request->message,
+      'number'        => $request->number,
+      'flex'          => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+  ]);
 
     return response()->json([
       'msg' => 'message send successfully'
