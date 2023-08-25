@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
@@ -22,6 +23,8 @@ Route::get('/generate-payment/{id}',[InvoiceController::class,'generatePayment']
 Route::get('/record-invoice/{sesid}/{cid}/{holder}',[InvoiceController::class,'recordInvoice']);
 Route::get('/thanks/{id}',[InvoiceController::class,'displayThanks'])->name('thanks');
 Route::any('/webhook_fb',[LeadWebhookController::class,'fbWebhook'])->name('webhook_fb');
+
+Route::get('response-import',[ChatController::class,'responseImport']);
 
 Route::get('update-clients',[DashboardController::class,'updateClients'])->name('update-clients');
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
+use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InformationPageController;
@@ -232,10 +233,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);
 
-    Route::get('chats',[DashboardController::class,'chats']);
-    Route::get('chat-message/{no}',[DashboardController::class,'chatsMessages']);
-    Route::post('chat-reply',[DashboardController::class,'chatReply']);
-    
+    Route::get('chats',[ChatController::class,'chats']);
+    Route::get('chat-message/{no}',[ChatController::class,'chatsMessages']);
+    Route::post('chat-reply',[ChatController::class,'chatReply']);
+    Route::post('save-response',[ChatController::class,'saveResponse']);
+    Route::get('chat-responses',[ChatController::class,'chatResponses']);
     
 });
 
