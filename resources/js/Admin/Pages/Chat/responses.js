@@ -137,7 +137,7 @@ export default function responses() {
 
 
                                                     <td>
-                                                        <input type="text" name="keyword" onChange={e => handleChange(index, e)} className="form-control" value={element.keyword || ""} required placeholder="Enter keyword" />
+                                                        <input type="text" name="keyword" onChange={e => handleChange(index, e)} className="form-control" value={element.keyword || ""} style={{lineHeight:"3"}} required placeholder="Enter keyword" />
                                                     </td>
                                                     <td>
                                                         <textarea name="heb" value={element.heb || ""} onChange={e => handleChange(index, e)} className="form-control" required placeholder="Enter hebrew Text"></textarea>
@@ -147,7 +147,7 @@ export default function responses() {
                                                     </td>
 
                                                     <td>
-                                                        <select name="status" className="form-control" value={element.status || ""} onChange={(e) => { handleChange(index, e); }} >
+                                                        <select name="status" className="form-control" value={element.status || ""} onChange={(e) => { handleChange(index, e); }} style={{height:"60px"}}  >
                                                             <option selected value="1">Enable</option>
                                                             <option value="0">Disable</option>
                                                         </select>
