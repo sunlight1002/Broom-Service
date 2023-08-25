@@ -30,7 +30,7 @@ class WebhookResponse extends Model
 
         } else {
           $link = '';
-        }
+        } 
        
         $message =[
         'en' =>[

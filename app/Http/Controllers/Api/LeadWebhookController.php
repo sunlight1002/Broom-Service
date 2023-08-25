@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Lead;
 use App\Models\Fblead;
 use App\Models\Client;
+use App\Models\TextResponse;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Helper;
 use Illuminate\Support\Facades\Auth;
+use Monolog\Processor\WebProcessor;
 
 class LeadWebhookController extends Controller
 {
@@ -58,7 +60,7 @@ class LeadWebhookController extends Controller
             $lead->email         = $request->email;
             $lead->status        = 0;
             $lead->password      = Hash::make($request->phone);
-            $lead->geo_address       = $request->has('address') ? $request->address : '';
+            $lead->geo_address   = $request->has('address') ? $request->address : '';
             $lead->save();
 
             $result = Helper::sendWhatsappMessage($lead->phone, 'leads', array('name' => ucfirst($lead->firstname)));
@@ -106,13 +108,24 @@ class LeadWebhookController extends Controller
                 $from      = $message_data[0]['from'];
                 $to      = $data_returned['metadata']['display_phone_number'];
 
+                $to_name      = $data_returned['contacts'][0]['profile']['name'];
+                $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
+
+                if ($message == '6') {
+
+                    if (strlen($from) > 10) {
+                        Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng'=>'en']);
+                    } else {
+                        Client::where('phone', 'like', '%' . $from . '%')->update(['lng'=>'en']);
+                    }
+                }
+
                 if (strlen($from) > 10)
                     $client  = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->get()->first();
                 else
                     $client  = Client::where('phone', 'like', '%' . $from . '%')->get()->first();
 
-                $to_name      = $data_returned['contacts'][0]['profile']['name'];
-                $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
+
 
                 if ($message == '' || $from == '') {
                     return 'Destination or Sender number and message value required';
@@ -169,23 +182,35 @@ class LeadWebhookController extends Controller
                     $text_message = $message;
                 }
 
-
+               
                 if (strlen($message) > 2) {
-                    $response = $text_message;
+                      $response = $text_message;
                 } else {
-                    $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
+                    // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
 
-                    WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $response,
-                        'number'        => $data_returned['contacts'][0]['wa_id'],
-                        'flex'          => 'A',
-                        'data'          => json_encode($get_data)
-                    ]);
+                    $_response = TextResponse::where(['status' => '1', 'keyword' => $message])->get()->first();
+                    
+                    if (!is_null($_response)) {
 
-                    $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+                        if ($client->lng == 'en') {
+                            $response =  $_response->eng;
+                        } else {
+                            $response =  $_response->heb;
+                        }
+                    
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $response,
+                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'flex'          => 'A',
+                            'data'          => json_encode($get_data)
+                        ]);
+                        
+
+                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+                    }
                 }
             }
 

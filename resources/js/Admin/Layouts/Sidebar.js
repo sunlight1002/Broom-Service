@@ -82,8 +82,29 @@ export default function Sidebar() {
                 <li className="list-group-item">
                     <NavLink to="/admin/jobs"><i className="fa-solid fa-briefcase"></i>Jobs</NavLink>
                 </li>
+              
+
                 <li className="list-group-item">
-                    <NavLink to="/admin/chat"><i className="fa-solid fa-message"></i>Chat History</NavLink>
+                    <div id="myFence" className='fence commonDropdown'>
+                        <div id="fencehead2">
+                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence212" aria-expanded="true" aria-controls="fence212">
+                                <i className="fa-solid fa-message"></i> Whatsapp chat <i className="fa-solid fa-angle-down"></i>
+                            </a>
+                        </div>
+                        <div id="fence212" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
+                            <div className="card-body">
+                            <ul className='list-group'>
+                                    <li className='list-group-item'>
+                                        <Link to="/admin/chat"><i className="fa fa-angle-right"></i> Chat History </Link>
+                                    </li>
+                                    <li className='list-group-item'>
+                                        <Link to="/admin/responses"><i className="fa fa-angle-right"></i> Whatsapp Responses </Link>
+                                    </li>
+                                 
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </li>
               
 
