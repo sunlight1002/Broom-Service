@@ -125,10 +125,10 @@ export default function responses() {
                                     <table class="table-sm">
                                         <thead>
                                             <tr>
-                                                <th style={{ width: "25%" }}>Keyword</th>
-                                                <th style={{ width: "25%" }}>Hebrew Text</th>
-                                                <th style={{ width: "25%" }}>English Text</th>
-                                                <th style={{ width: "25%" }}>Status</th>
+                                                <th style={{ width: "10%" }}>Keyword</th>
+                                                <th style={{ width: "40%" }}>Hebrew Text</th>
+                                                <th style={{ width: "40%" }}>English Text</th>
+                                                <th style={{ width: "10%" }}>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
