@@ -238,6 +238,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('chat-reply',[ChatController::class,'chatReply']);
     Route::post('save-response',[ChatController::class,'saveResponse']);
     Route::get('chat-responses',[ChatController::class,'chatResponses']);
+    Route::post('chat-restart',[ChatController::class,'chatRestart']);
     
 });
 

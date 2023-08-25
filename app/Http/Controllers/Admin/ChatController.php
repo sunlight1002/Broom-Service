@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\TextResponse;
 use App\Models\WebhookResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,8 +50,17 @@ class ChatController extends Controller
 
         $chat = WebhookResponse::where('number', $no)->get();
 
+        $lastMsg = WebhookResponse::where('number', $no)->get()->last();
+
+        ($lastMsg->created_at < Carbon::now()->subHours(24)->toDateTimeString())
+            ?
+            $expired = 1
+            : $expired = 0;
+
+
         return response()->json([
-            'chat' => $chat
+            'chat' => $chat,
+            'expired' => $expired
         ]);
     }
 
@@ -104,6 +114,27 @@ class ChatController extends Controller
 
         return response()->json([
             'responses' => $responses
+        ]);
+    }
+
+    public function chatRestart(Request $request)
+    {
+     
+       
+        Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
+
+        WebhookResponse::create([
+            'status'        => 1,
+            'name'          => 'whatsapp',
+            'entry_id'      => '',
+            'message'       => 'restart',
+            'number'        => $request->number,
+            'flex'          => 'A',
+            'data'          => '',
+        ]);
+
+        return response()->json([
+            'message' => 'chat restarted'
         ]);
     }
 
@@ -176,7 +207,7 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '4_3',
-                'heb'     =>"תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
                 'eng'     => "Thank you very much for your response, a human representative will contact you shortly.",
                 'status'  => '1'
             ]
@@ -195,7 +226,7 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '5',
-                'heb'     =>"אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
+                'heb'     => "אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
                 'eng'     => "Please remain available, a human representative will contact you shortly",
                 'status'  => '1'
             ]
