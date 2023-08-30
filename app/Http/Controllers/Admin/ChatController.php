@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\TextResponse;
 use App\Models\WebhookResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,8 +50,17 @@ class ChatController extends Controller
 
         $chat = WebhookResponse::where('number', $no)->get();
 
+        $lastMsg = WebhookResponse::where('number', $no)->get()->last();
+
+        ($lastMsg->created_at < Carbon::now()->subHours(24)->toDateTimeString())
+            ?
+            $expired = 1
+            : $expired = 0;
+
+
         return response()->json([
-            'chat' => $chat
+            'chat' => $chat,
+            'expired' => $expired
         ]);
     }
 
@@ -105,6 +115,89 @@ class ChatController extends Controller
         return response()->json([
             'responses' => $responses
         ]);
+    }
+
+    public function chatRestart(Request $request)
+    {
+
+
+        Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
+
+        WebhookResponse::create([
+            'status'        => 1,
+            'name'          => 'whatsapp',
+            'entry_id'      => '',
+            'message'       => 'restart',
+            'number'        => $request->number,
+            'flex'          => 'A',
+            'data'          => '',
+        ]);
+
+        return response()->json([
+            'message' => 'chat restarted'
+        ]);
+    }
+
+    public function chatSearch($s,$type)
+    {
+        if($type == 'number')
+        $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')->get(['number']);
+        else
+        $data = WebhookResponse::distinct()->whereIn('number',$s)->get(['number']);
+
+        $clients = [];
+
+        if (count($data) > 0) {
+            foreach ($data as $k => $_no) {
+                $no = $_no->number;
+                if (strlen($no) > 10)
+                    $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
+                else
+                    $cl  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
+
+                if (!is_null($cl)) {
+                    $clients[] = [
+                        'name' => $cl->firstname . " " . $cl->lastname,
+                        'id'   => $cl->id,
+                        'num'  => $no,
+                        'client' => ($cl->status == 0) ? 0 : 1
+                    ];
+                }
+            }
+
+            return response()->json([
+                'data' => $data,
+                'clients' => $clients
+            ]);
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $s = $request->s;
+
+        if (is_null($s)) {
+            return $this->chats();
+        }
+
+        if (is_numeric($s)) {
+
+            return $this->chatSearch($s,'number');
+        } else {
+
+            $clients = Client::where('firstname','like','%'.$s.'%')->orwhere('lastname','like','%'.$s.'%')->get('phone');
+         
+            if( count($clients) > 0 ){
+                $nos = [];
+                foreach( $clients as $client){
+                    $nos[] = $client->phone;
+                }
+                
+                return $this->chatSearch($nos,'name');
+            }
+        }
+
+        
     }
 
     public function responseImport()
@@ -176,7 +269,7 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '4_3',
-                'heb'     =>"תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
                 'eng'     => "Thank you very much for your response, a human representative will contact you shortly.",
                 'status'  => '1'
             ]
@@ -195,7 +288,7 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '5',
-                'heb'     =>"אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
+                'heb'     => "אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
                 'eng'     => "Please remain available, a human representative will contact you shortly",
                 'status'  => '1'
             ]
