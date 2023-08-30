@@ -46,7 +46,7 @@ class LeadWebhookController extends Controller
             if (!$lead_exists) {
                 $lead                = new Client;
             } else {
-                $lead = Client::where('phone', $request->phone)->first();
+                $lead = Client::where('phone', 'like','%'.$request->phone.'%')->first();
                 if (empty($lead)) {
                     $lead = Client::where('email', $request->email)->first();
                 }

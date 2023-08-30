@@ -115,10 +115,21 @@ export default function chat() {
 
     }
 
+    const search = (s) =>{
+     
+        axios.get(`/api/admin/chat-search?s=${s}`,{headers})
+        .then((res)=>{
+            const r = res.data.data;
+            setClients(res.data.clients)
+            setData(r);
+        })
+    }
+
 
     useEffect(() => {
         getData();
     }, []);
+
 
 
     return (
@@ -126,7 +137,19 @@ export default function chat() {
             <Sidebar />
             <div id="content">
                 <div className="view-applicant">
-                    <h1 className="page-title editJob">Chat History</h1>
+                    <div className='row'>
+
+                        <div className='col-sm-6'>
+                            <h1 className="page-title">Chat History</h1>
+                        </div>
+                        <div className='col-sm-6 text-right page-title'>
+                           
+                                <input type="text" name="smsg" className='form-control' onChange={e=>search(e.target.value)} placeholder='search name or number' style={{float:'right',width:'55%'}}/>
+                         
+                        </div>
+
+                    </div>
+
                     <div className='card'>
                         <div className="card-body">
                             <div className="row">
@@ -194,7 +217,7 @@ export default function chat() {
                                                     <div className="input-group">
 
                                                         <div className="text-center">
-                                                            <button type="button" className="btn btn-info text-white" data-toggle="modal" data-target="#exampleModalTemplate" >Restart Chat<i className="fas fa-refresh"></i></button>
+                                                            <button type="button" className="btn btn-info text-white" data-toggle="modal" data-target="#exampleModalTemplate" >Restart Chat <i className="fas fa-refresh"></i></button>
                                                         </div>
                                                     </div>
                                                 )
@@ -205,12 +228,12 @@ export default function chat() {
                                     </div>
                                 </div>
 
-                                <div className="card col-sm-3 card-body " style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
+                                <div className="card col-sm-3 card-body sidemsg" style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
 
                                     {data?.slice(0).reverse().map((d, i) => {
                                         let cd = clients?.find(({ num }) => num == d.number);
 
-                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  /*callApi(d.number);*/ setTimeout(() => { scroller(); }, 200) }}>
+                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  callApi(d.number); setTimeout(() => { scroller(); }, 200) }}>
                                             {cd &&
                                                 <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={(cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}`}><i class="fas fa-user" ></i>{cd.name}</Link></h5>
                                             }

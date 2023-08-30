@@ -119,8 +119,8 @@ class ChatController extends Controller
 
     public function chatRestart(Request $request)
     {
-     
-       
+
+
         Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
 
         WebhookResponse::create([
@@ -136,6 +136,68 @@ class ChatController extends Controller
         return response()->json([
             'message' => 'chat restarted'
         ]);
+    }
+
+    public function chatSearch($s,$type)
+    {
+        if($type == 'number')
+        $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')->get(['number']);
+        else
+        $data = WebhookResponse::distinct()->whereIn('number',$s)->get(['number']);
+
+        $clients = [];
+
+        if (count($data) > 0) {
+            foreach ($data as $k => $_no) {
+                $no = $_no->number;
+                if (strlen($no) > 10)
+                    $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
+                else
+                    $cl  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
+
+                if (!is_null($cl)) {
+                    $clients[] = [
+                        'name' => $cl->firstname . " " . $cl->lastname,
+                        'id'   => $cl->id,
+                        'num'  => $no,
+                        'client' => ($cl->status == 0) ? 0 : 1
+                    ];
+                }
+            }
+
+            return response()->json([
+                'data' => $data,
+                'clients' => $clients
+            ]);
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $s = $request->s;
+
+        if (is_null($s)) {
+            return $this->chats();
+        }
+
+        if (is_numeric($s)) {
+
+            return $this->chatSearch($s,'number');
+        } else {
+
+            $clients = Client::where('firstname','like','%'.$s.'%')->orwhere('lastname','like','%'.$s.'%')->get('phone');
+         
+            if( count($clients) > 0 ){
+                $nos = [];
+                foreach( $clients as $client){
+                    $nos[] = $client->phone;
+                }
+                
+                return $this->chatSearch($nos,'name');
+            }
+        }
+
+        
     }
 
     public function responseImport()
