@@ -138,12 +138,18 @@ class ChatController extends Controller
         ]);
     }
 
-    public function chatSearch($s,$type)
+    public function chatSearch($s, $type)
     {
-        if($type == 'number')
-        $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')->get(['number']);
+        if ($type == 'number')
+            $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')->get(['number']);
         else
-        $data = WebhookResponse::distinct()->whereIn('number',$s)->get(['number']);
+            $data = WebhookResponse::distinct()
+                ->Where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        $r = str_replace('+', '', $s[$i]);
+                        $query->orwhere('number', 'like',  '%' . $r . '%');
+                    }
+                })->get(['number']);
 
         $clients = [];
 
@@ -182,22 +188,24 @@ class ChatController extends Controller
 
         if (is_numeric($s)) {
 
-            return $this->chatSearch($s,'number');
+            return $this->chatSearch($s, 'number');
         } else {
 
-            $clients = Client::where('firstname','like','%'.$s.'%')->orwhere('lastname','like','%'.$s.'%')->get('phone');
-         
-            if( count($clients) > 0 ){
+            $cx = explode(' ',$s);
+            $fn  = $cx[0]; 
+            $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
+            $clients = Client::where('firstname','like','%'.$fn.'%')->orwhere('lastname','like','%'.$ln.'%')->get('phone');
+
+
+            if (count($clients) > 0) {
                 $nos = [];
-                foreach( $clients as $client){
+                foreach ($clients as $client) {
                     $nos[] = $client->phone;
                 }
-                
-                return $this->chatSearch($nos,'name');
+
+                return $this->chatSearch($nos, 'name');
             }
         }
-
-        
     }
 
     public function responseImport()
