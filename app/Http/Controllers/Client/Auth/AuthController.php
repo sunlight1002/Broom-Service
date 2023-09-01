@@ -27,7 +27,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-       // dd($request->all());
+      
 
         if (Auth::guard('client')->attempt([
             'email'     => $request->email,
