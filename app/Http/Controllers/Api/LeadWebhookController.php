@@ -69,10 +69,12 @@ class LeadWebhookController extends Controller
 
             $result = Helper::sendWhatsappMessage($lead->phone, 'leads', array('name' => ucfirst($lead->firstname)));
 
+            $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
+           
             $response = WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
-                'message'       => 'main_menu',
+                'message'       =>  $_msg->heb,
                 'number'        =>  $request->phone,
                 'flex'          => 'A',
             ]);
@@ -126,17 +128,17 @@ class LeadWebhookController extends Controller
                 $result = DB::table('whatsapp_last_replies')->where('phone', '=', $from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
 
 
-                if ($message == '0' && !is_null($result)) {
+                if ($message == '0') {
 
-                    $last = WebhookResponse::where('number', $from)->orderBy('created_at', 'desc')->where('message', '!=', '0')->skip(1)->take(1)->get()->first();
+                    $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
 
                     $message = $last->message;
                 }
 
                 if ($message == 'yes') {
 
-                    $last = WebhookResponse::where('number', $from)->orderBy('created_at', 'desc')->where('message', '!=', '0')->skip(1)->take(1)->get()->first();
-                    if ($last == '3') {
+                    $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
+                    if ($last->message == '3') {
                         $message = 'yes_כן';
                     } else {
                         $message = $last->message;
@@ -185,10 +187,10 @@ class LeadWebhookController extends Controller
                     $last_reply = $result->message;
 
                     if ((is_numeric(str_replace('-', '', $last_reply)) && strlen($last_reply) > 5) || str_contains($last_reply, '@')) {
-                        $last_reply = 4;
+                        $last_reply = 41;
                     }
 
-                    if ($last_reply == 4 && $message == '1') {
+                    if ($last_reply == 41 && $message == '1') {
                         $message = $last_reply . '_1';
                         $link_for = 'offer';
                         $ofrs = Offer::where('client_id', $client->id)->get();
@@ -198,7 +200,7 @@ class LeadWebhookController extends Controller
                             }
                         }
                     }
-                    if ($last_reply == 4 && $message == '2') {
+                    if ($last_reply == 41 && $message == '2') {
                         $message = $last_reply . '_2';
                         $link_for = 'contract';
                         $cncs = Contract::where('client_id', $client->id)->get();
@@ -208,7 +210,7 @@ class LeadWebhookController extends Controller
                             }
                         }
                     }
-                    if ($last_reply == 4 && $message == '3') {
+                    if ($last_reply == 41 && $message == '3') {
                         $message = $last_reply . '_3';
                         $link_for = 'jobs';
                         $jobs = Job::where('client_id', $client->id)->where('start_date', '>', Carbon::now())->get();
@@ -219,13 +221,13 @@ class LeadWebhookController extends Controller
                         }
                     }
 
-                    if ($last_reply == 4 && $message == '4') {
+                    if ($last_reply == 41 && $message == '4') {
                         $message = $last_reply . '_4';
                     }
-                    if ($last_reply == 4 && $message == '5') {
+                    if ($last_reply == 41 && $message == '5') {
                         $message = $last_reply . '_5';
                     }
-                    if ($last_reply == 4 && $message == '6') {
+                    if ($last_reply == 41 && $message == '6') {
                         $message = $last_reply . '_6';
                     }
                     $reply = WhatsappLastReply::find($result->id);
@@ -282,6 +284,15 @@ class LeadWebhookController extends Controller
                     }
                     $message .= $merge;
                 }
+
+                $message = match( $message ){
+                    '41_1' => $client->lng == 'en' ? "No quote found. \n press 9 for main menu 0 for back." : "לא נמצא ציטוט. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                    '41_2' => $client->lng == 'en' ? "No contract found. \n press 9 for main menu 0 for back." : "לא נמצא חוזה. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                    '41_3' => $client->lng == 'en' ? "No next service found. \n press 9 for main menu 0 for back." : "לא נמצא השירות הבא. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                    default => $message
+                };
+
+                dd($message);
 
 
                 if ($auth_check == true && ($auth_id) != '') {
@@ -346,11 +357,26 @@ class LeadWebhookController extends Controller
                         } else {
                             $response =  $_response->heb;
                         }
-                    } else {
-                        $response = $message;
-                    }
 
-                    WebhookResponse::create([
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $response,
+                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'flex'          => 'A',
+                            'data'          => json_encode($get_data)
+                        ]);
+    
+    
+                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+
+
+                    } else if( strlen($message) > 10 ) {
+
+                       $response = $message;
+
+                       WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
@@ -362,6 +388,9 @@ class LeadWebhookController extends Controller
 
 
                     $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+                    }
+
+                  
                 }
             }
 
