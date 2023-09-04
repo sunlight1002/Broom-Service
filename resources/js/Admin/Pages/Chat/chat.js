@@ -76,7 +76,7 @@ export default function chat() {
             });
     }
 
-    const callApi = (no) => {
+    const callApi = () => {
 
         const interval = setInterval(() => {
 
@@ -128,6 +128,7 @@ export default function chat() {
 
     useEffect(() => {
         getData();
+        callApi();
     }, []);
 
 
@@ -233,7 +234,7 @@ export default function chat() {
                                     {data?.slice(0).reverse().map((d, i) => {
                                         let cd = clients?.find(({ num }) => num == d.number);
 
-                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  callApi(d.number); setTimeout(() => { scroller(); }, 200) }}>
+                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  setTimeout(() => { scroller(); }, 200) }}>
                                             {cd &&
                                                 <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={(cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}`}><i class="fas fa-user" ></i>{cd.name}</Link></h5>
                                             }

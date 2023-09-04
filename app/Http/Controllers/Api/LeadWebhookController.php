@@ -264,10 +264,11 @@ class LeadWebhookController extends Controller
                 //       $response = $text_message;
                 // } else {
                 // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-
+                $n_f = false; 
 
                 if (count($link_data) > 0) {
                     $message = '';
+                    $n_f = true;
                     $prefix = ($link_for == 'offer') ? url('/') . '/price-offer/' : (($link_for == 'contract') ? url('/') . '/work-contract/' : url('/') . '/client/view-job/');
                     foreach ($link_data as $ld) {
                         $message .= $prefix . $ld . "\n";
@@ -285,14 +286,16 @@ class LeadWebhookController extends Controller
                     $message .= $merge;
                 }
 
+               
+                if( $message == '41_1' || $message == '41_2' || $message == '41_3'){ $n_f = true; }
+
+
                 $message = match( $message ){
                     '41_1' => $client->lng == 'en' ? "No quote found. \n press 9 for main menu 0 for back." : "לא נמצא ציטוט. \n הקש 9 לתפריט הראשי 0 לחזרה.",
                     '41_2' => $client->lng == 'en' ? "No contract found. \n press 9 for main menu 0 for back." : "לא נמצא חוזה. \n הקש 9 לתפריט הראשי 0 לחזרה.",
                     '41_3' => $client->lng == 'en' ? "No next service found. \n press 9 for main menu 0 for back." : "לא נמצא השירות הבא. \n הקש 9 לתפריט הראשי 0 לחזרה.",
                     default => $message
                 };
-
-                dd($message);
 
 
                 if ($auth_check == true && ($auth_id) != '') {
@@ -349,7 +352,7 @@ class LeadWebhookController extends Controller
 
 
                     $_response = TextResponse::where('status', '1')->where('keyword', 'like', '%' . $message . '%')->get()->first();
-
+                    
                     if (!is_null($_response)) {
 
                         if ($client->lng == 'en') {
@@ -372,7 +375,7 @@ class LeadWebhookController extends Controller
                         $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
 
 
-                    } else if( strlen($message) > 10 ) {
+                    } else if( $n_f == true ) {
 
                        $response = $message;
 
