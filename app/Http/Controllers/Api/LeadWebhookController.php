@@ -143,6 +143,17 @@ class LeadWebhookController extends Controller
                     'number'        =>  $data_returned['contacts'][0]['wa_id'],
                     'flex'          => 'A',
                 ]);
+
+                $lead                = new Client;
+                $lead->firstname     = 'lead';
+                $lead->lastname      = '';
+                $lead->phone         =  $data_returned['contacts'][0]['wa_id'];
+                $lead->email         = 'NULL';
+                $lead->status        = 3;
+                $lead->password      = Hash::make( $data_returned['contacts'][0]['wa_id'] );
+                $lead->geo_address   = '';
+                $lead->save();
+
                 die('Template send to new client');
             }
 
@@ -336,12 +347,12 @@ class LeadWebhookController extends Controller
                     default => $message
                 };
 
-                if ($last_reply == '3' && is_null($client) && $this->contain_phone($message)) {
+                if ($last_reply == '3' && !is_null($client) && $this->contain_phone($message)) {
 
                     $exm = explode(PHP_EOL,$message);
                     $nm = explode(' ',$exm[0] );
                  
-                    $lead                = new Client;
+                    $lead                = Client::find($client->id);
                     $lead->firstname     =  $nm[0];
                     $lead->lastname      = (isset($nm[1])) ? $nm[1] : '';
                     $lead->phone         =  $data_returned['contacts'][0]['wa_id'];
@@ -350,6 +361,8 @@ class LeadWebhookController extends Controller
                     $lead->password      = Hash::make( $data_returned['contacts'][0]['wa_id'] );
                     $lead->geo_address   = isset($exm[2]) ? $exm[2] : '';
                     $lead->save();
+
+                    $message = '3_r';
                 }
 
 
