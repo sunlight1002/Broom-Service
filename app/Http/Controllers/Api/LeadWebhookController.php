@@ -116,23 +116,27 @@ class LeadWebhookController extends Controller
             $get_data = json_decode($get_data, true);
 
             $data_returned = $get_data['entry'][0]['changes'][0]['value'];
-            $check_response = WebhookResponse::where('number', $data_returned['contacts'][0]['wa_id'])->get()->first();
+
+            $message_data =  $data_returned['messages'];
+            $from      = $message_data[0]['from'];
+
+            $check_response = WebhookResponse::where('number', $from)->get()->first();
 
             $response = WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
                 'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                 'message'       => $data_returned['messages'][0]['text']['body'],
-                'number'        => $data_returned['contacts'][0]['wa_id'],
+                'number'        => $from,
                 'flex'          => 'C',
                 'data'          => json_encode($get_data)
             ]);
 
-            $client_exist = Client::where('phone', '%' . $data_returned['contacts'][0]['wa_id'] . '%')->get()->first();
+            $client_exist = Client::where('phone', '%' . $from . '%')->get()->first();
           
             if (is_null($client_exist) && is_null($check_response)) {
                 
-                $result = Helper::sendWhatsappMessage($data_returned['contacts'][0]['wa_id'], 'leads', array('name' => ''));
+                $result = Helper::sendWhatsappMessage($from, 'leads', array('name' => ''));
 
                 $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
 
@@ -140,17 +144,17 @@ class LeadWebhookController extends Controller
                     'status'        => 1,
                     'name'          => 'whatsapp',
                     'message'       =>  $_msg->heb,
-                    'number'        =>  $data_returned['contacts'][0]['wa_id'],
+                    'number'        =>  $from,
                     'flex'          => 'A',
                 ]);
 
                 $lead                = new Client;
                 $lead->firstname     = 'lead';
                 $lead->lastname      = '';
-                $lead->phone         =  $data_returned['contacts'][0]['wa_id'];
+                $lead->phone         =  $from;
                 $lead->email         = 'NULL';
                 $lead->status        = 3;
-                $lead->password      = Hash::make( $data_returned['contacts'][0]['wa_id'] );
+                $lead->password      = Hash::make( $from );
                 $lead->geo_address   = '';
                 $lead->save();
 
@@ -159,10 +163,8 @@ class LeadWebhookController extends Controller
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
 
-                $message_data =  $data_returned['messages'];
-                $from      = $message_data[0]['from'];
+             
                 $to      = $data_returned['metadata']['display_phone_number'];
-
                 $to_name      = $data_returned['contacts'][0]['profile']['name'];
                 $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
 
@@ -355,10 +357,10 @@ class LeadWebhookController extends Controller
                     $lead                = Client::find($client->id);
                     $lead->firstname     =  $nm[0];
                     $lead->lastname      = (isset($nm[1])) ? $nm[1] : '';
-                    $lead->phone         =  $data_returned['contacts'][0]['wa_id'];
+                    $lead->phone         =  $from;
                     $lead->email         = 'NULL';
                     $lead->status        = 0;
-                    $lead->password      = Hash::make( $data_returned['contacts'][0]['wa_id'] );
+                    $lead->password      = Hash::make( $from );
                     $lead->geo_address   = isset($exm[2]) ? $exm[2] : '';
                     $lead->save();
 
@@ -383,7 +385,7 @@ class LeadWebhookController extends Controller
                             'name'          => 'whatsapp',
                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                             'message'       => $response,
-                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'number'        => $from,
                             'flex'          => 'A',
                             'data'          => json_encode($get_data)
                         ]);
@@ -409,7 +411,7 @@ class LeadWebhookController extends Controller
                         'name'          => 'whatsapp',
                         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                         'message'       => $response,
-                        'number'        => $data_returned['contacts'][0]['wa_id'],
+                        'number'        => $from,
                         'flex'          => 'A',
                         'data'          => json_encode($get_data)
                     ]);
@@ -434,7 +436,7 @@ class LeadWebhookController extends Controller
                             'name'          => 'whatsapp',
                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                             'message'       => $response,
-                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'number'        => $from,
                             'flex'          => 'A',
                             'data'          => json_encode($get_data)
                         ]);
@@ -450,7 +452,7 @@ class LeadWebhookController extends Controller
                             'name'          => 'whatsapp',
                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                             'message'       => $response,
-                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'number'        => $from,
                             'flex'          => 'A',
                             'data'          => json_encode($get_data)
                         ]);

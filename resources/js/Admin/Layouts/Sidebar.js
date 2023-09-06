@@ -91,7 +91,7 @@ export default function Sidebar() {
                                 <i className="fa-solid fa-message"></i> Whatsapp chat <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
-                        <div id="fence2121" className="collapse" aria-labelledby="fencehead20" data-parent="#fence">
+                        <div id="fence2121" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
                             <div className="card-body">
                             <ul className='list-group'>
                                     <li className='list-group-item'>
