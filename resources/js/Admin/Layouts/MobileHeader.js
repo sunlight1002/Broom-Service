@@ -87,6 +87,30 @@ export default function MobileHeader() {
                     <li className='nav-item'>
                         <a href="/admin/jobs"><i className="fa-solid fa-briefcase"></i>Jobs</a>
                     </li>
+
+                    <li className="nav-item">
+                    <div id="myFence" className='fence commonDropdown'>
+                        <div id="fencehead2">
+                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence212" aria-expanded="true" aria-controls="fence212">
+                                <i className="fa-solid fa-message"></i> Whatsapp chat <i className="fa-solid fa-angle-down"></i>
+                            </a>
+                        </div>
+                        <div id="fence212" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
+                            <div className="card-body">
+                            <ul className='list-group'>
+                                    <li className='list-group-item'>
+                                        <a href="/admin/chat"><i className="fa fa-angle-right"></i> Chat History </a>
+                                    </li>
+                                    <li className='list-group-item'>
+                                        <a href="/admin/responses"><i className="fa fa-angle-right"></i> Whatsapp Responses </a>
+                                    </li>
+                                 
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
                     <li className="nav-item">
                     <div id="myFencePay" className='fence commonDropdown'>
                         <div id="fenceheadpay">
@@ -118,7 +142,7 @@ export default function MobileHeader() {
                     </li>
                     }
                     <li className='nav-item'>
-                        <a href="/admin/notifications"><i className="fa-solid fa-briefcase"></i>Notifications</a>
+                        <a href="/admin/notifications"><i className="fa-solid fa-bullhorn"></i>Notifications</a>
                     </li>
                     <li className="nav-item">
                         <div id="fence" className='fence commonDropdown'>

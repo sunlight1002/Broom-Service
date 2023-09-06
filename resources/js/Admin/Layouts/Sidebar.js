@@ -141,7 +141,7 @@ export default function Sidebar() {
 
                 }
                 <li className="list-group-item">
-                    <NavLink to="/admin/notifications"><i className="fa-solid fa-briefcase"></i>Notifications</NavLink>
+                    <NavLink to="/admin/notifications"><i className="fa-solid fa-bullhorn"></i>Notifications</NavLink>
                 </li>
 
                 <li className="list-group-item">
