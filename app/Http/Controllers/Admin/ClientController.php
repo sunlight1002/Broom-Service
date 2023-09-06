@@ -39,9 +39,6 @@ class ClientController extends Controller
         
          if( !is_null($q) ){
 
-          
-       
-     
         // $result->where('email',      'like', '%' . $q . '%');
         // $result->orwhere('firstname',    'like', '%' . $ex[0] . '%');
         // $result->orWhere('lastname',   'like', '%' . $q2 . '%');
