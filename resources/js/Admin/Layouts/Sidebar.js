@@ -87,11 +87,11 @@ export default function Sidebar() {
                 <li className="list-group-item">
                     <div id="myFence" className='fence commonDropdown'>
                         <div id="fencehead2">
-                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence212" aria-expanded="true" aria-controls="fence212">
+                            <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence2121" aria-expanded="true" aria-controls="fence2121">
                                 <i className="fa-solid fa-message"></i> Whatsapp chat <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
-                        <div id="fence212" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
+                        <div id="fence2121" className="collapse" aria-labelledby="fencehead20" data-parent="#fence">
                             <div className="card-body">
                             <ul className='list-group'>
                                     <li className='list-group-item'>
@@ -106,7 +106,7 @@ export default function Sidebar() {
                         </div>
                     </div>
                 </li>
-              
+
 
                 <li className="list-group-item">
                     <div id="myFence" className='fence commonDropdown'>
