@@ -166,6 +166,7 @@ class LeadWebhookController extends Controller
              
                 $to      = $data_returned['metadata']['display_phone_number'];
                 $to_name      = $data_returned['contacts'][0]['profile']['name'];
+                $n_f = false;
                 $message =  ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
 
                 $result = DB::table('whatsapp_last_replies')->where('phone', '=', $from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
@@ -174,16 +175,17 @@ class LeadWebhookController extends Controller
                 if ($message == '0') {
 
                     $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
-
+                    $n_f = true;
                     $message = $last->message;
                 }
 
-                if ($message == 'yes') {
+                if ( str_contains($message ,'yes') || str_contains($message, 'כן') ) {
 
                     $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
                     if ($last->message == '3') {
                         $message = 'yes_כן';
                     } else {
+                        $n_f = true;
                         $message = $last->message;
                     }
                 }
@@ -314,7 +316,7 @@ class LeadWebhookController extends Controller
                 //       $response = $text_message;
                 // } else {
                 // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-                $n_f = false;
+               
 
                 if (count($link_data) > 0) {
                     $message = '';
