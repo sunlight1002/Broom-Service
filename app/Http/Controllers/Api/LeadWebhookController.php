@@ -70,7 +70,7 @@ class LeadWebhookController extends Controller
             $result = Helper::sendWhatsappMessage($lead->phone, 'leads', array('name' => ucfirst($lead->firstname)));
 
             $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
-           
+
             $response = WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
@@ -82,6 +82,18 @@ class LeadWebhookController extends Controller
         return response()->json([
             'message'       => $lead,
         ], 200);
+    }
+
+    public function contain_phone($str)
+    {
+
+        $nums  = "";
+        for ($i = 0; $i < strlen($str); $i++) {
+            if (ctype_digit($str[$i])) {
+                $nums .= $str[$i];
+            }
+        }
+        return ( $nums != "" && strlen($nums) > 8 ) ? true : false;
     }
     public function fbWebhook(Request $request)
     {
@@ -104,6 +116,7 @@ class LeadWebhookController extends Controller
             $get_data = json_decode($get_data, true);
 
             $data_returned = $get_data['entry'][0]['changes'][0]['value'];
+            $check_response = WebhookResponse::where('number', $data_returned['contacts'][0]['wa_id'])->get()->first();
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -115,6 +128,23 @@ class LeadWebhookController extends Controller
                 'data'          => json_encode($get_data)
             ]);
 
+            $client_exist = Client::where('phone', '%' . $data_returned['contacts'][0]['wa_id'] . '%')->get()->first();
+          
+            if (is_null($client_exist) && is_null($check_response)) {
+                
+                $result = Helper::sendWhatsappMessage($data_returned['contacts'][0]['wa_id'], 'leads', array('name' => ''));
+
+                $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
+
+                $response = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       =>  $_msg->heb,
+                    'number'        =>  $data_returned['contacts'][0]['wa_id'],
+                    'flex'          => 'A',
+                ]);
+                die('Template send to new client');
+            }
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
 
@@ -183,6 +213,7 @@ class LeadWebhookController extends Controller
 
                 $link_for = '';
                 $link_data = [];
+                $last_reply = '';
                 if (!empty($result)) {
                     $last_reply = $result->message;
 
@@ -193,30 +224,36 @@ class LeadWebhookController extends Controller
                     if ($last_reply == 41 && $message == '1') {
                         $message = $last_reply . '_1';
                         $link_for = 'offer';
-                        $ofrs = Offer::where('client_id', $client->id)->get();
-                        if (count($ofrs) > 0) {
-                            foreach ($ofrs as $ofr) {
-                                $link_data[] = base64_encode($ofr->id);
+                        if (!is_null($client)) {
+                            $ofrs = Offer::where('client_id', $client->id)->get();
+                            if (count($ofrs) > 0) {
+                                foreach ($ofrs as $ofr) {
+                                    $link_data[] = base64_encode($ofr->id);
+                                }
                             }
                         }
                     }
                     if ($last_reply == 41 && $message == '2') {
                         $message = $last_reply . '_2';
                         $link_for = 'contract';
-                        $cncs = Contract::where('client_id', $client->id)->get();
-                        if (count($cncs) > 0) {
-                            foreach ($cncs as $cn) {
-                                $link_data[] = ($cn->unique_hash);
+                        if (!is_null($client)) {
+                            $cncs = Contract::where('client_id', $client->id)->get();
+                            if (count($cncs) > 0) {
+                                foreach ($cncs as $cn) {
+                                    $link_data[] = ($cn->unique_hash);
+                                }
                             }
                         }
                     }
                     if ($last_reply == 41 && $message == '3') {
                         $message = $last_reply . '_3';
                         $link_for = 'jobs';
-                        $jobs = Job::where('client_id', $client->id)->where('start_date', '>', Carbon::now())->get();
-                        if (count($jobs) > 0) {
-                            foreach ($jobs as $j) {
-                                $link_data[] = base64_encode($j->id);
+                        if (!is_null($client)) {
+                            $jobs = Job::where('client_id', $client->id)->where('start_date', '>', Carbon::now())->get();
+                            if (count($jobs) > 0) {
+                                foreach ($jobs as $j) {
+                                    $link_data[] = base64_encode($j->id);
+                                }
                             }
                         }
                     }
@@ -264,7 +301,7 @@ class LeadWebhookController extends Controller
                 //       $response = $text_message;
                 // } else {
                 // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-                $n_f = false; 
+                $n_f = false;
 
                 if (count($link_data) > 0) {
                     $message = '';
@@ -277,7 +314,7 @@ class LeadWebhookController extends Controller
                     $_merge = TextResponse::where('status', '1')->where('keyword', 'anything')->get()->first();
                     if (!is_null($_merge)) {
 
-                        if ($client->lng == 'en') {
+                        if (!is_null($client) && $client->lng == 'en') {
                             $merge =  $_merge->eng;
                         } else {
                             $merge =  $_merge->heb;
@@ -286,16 +323,34 @@ class LeadWebhookController extends Controller
                     $message .= $merge;
                 }
 
-               
-                if( $message == '41_1' || $message == '41_2' || $message == '41_3'){ $n_f = true; }
+
+                if ($message == '41_1' || $message == '41_2' || $message == '41_3') {
+                    $n_f = true;
+                }
 
 
-                $message = match( $message ){
-                    '41_1' => $client->lng == 'en' ? "No quote found. \n press 9 for main menu 0 for back." : "לא נמצא ציטוט. \n הקש 9 לתפריט הראשי 0 לחזרה.",
-                    '41_2' => $client->lng == 'en' ? "No contract found. \n press 9 for main menu 0 for back." : "לא נמצא חוזה. \n הקש 9 לתפריט הראשי 0 לחזרה.",
-                    '41_3' => $client->lng == 'en' ? "No next service found. \n press 9 for main menu 0 for back." : "לא נמצא השירות הבא. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                $message = match ($message) {
+                    '41_1' => !is_null($client) && $client->lng == 'en' ? "No quote found. \n press 9 for main menu 0 for back." : "לא נמצא ציטוט. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                    '41_2' => !is_null($client) && $client->lng == 'en' ? "No contract found. \n press 9 for main menu 0 for back." : "לא נמצא חוזה. \n הקש 9 לתפריט הראשי 0 לחזרה.",
+                    '41_3' => !is_null($client)  &&  $client->lng == 'en' ? "No next service found. \n press 9 for main menu 0 for back." : "לא נמצא השירות הבא. \n הקש 9 לתפריט הראשי 0 לחזרה.",
                     default => $message
                 };
+
+                if ($last_reply == '3' && is_null($client) && $this->contain_phone($message)) {
+
+                    $exm = explode(PHP_EOL,$message);
+                    $nm = explode(' ',$exm[0] );
+                 
+                    $lead                = new Client;
+                    $lead->firstname     =  $nm[0];
+                    $lead->lastname      = (isset($nm[1])) ? $nm[1] : '';
+                    $lead->phone         =  $data_returned['contacts'][0]['wa_id'];
+                    $lead->email         = 'NULL';
+                    $lead->status        = 0;
+                    $lead->password      = Hash::make( $data_returned['contacts'][0]['wa_id'] );
+                    $lead->geo_address   = isset($exm[2]) ? $exm[2] : '';
+                    $lead->save();
+                }
 
 
                 if ($auth_check == true && ($auth_id) != '') {
@@ -304,7 +359,7 @@ class LeadWebhookController extends Controller
                     $_response = TextResponse::where('status', '1')->where('keyword', '4_r')->get()->first();
                     if (!is_null($_response)) {
 
-                        if ($client->lng == 'en') {
+                        if (!is_null($client) && $client->lng == 'en') {
                             $response =  $_response->eng;
                         } else {
                             $response =  $_response->heb;
@@ -329,7 +384,7 @@ class LeadWebhookController extends Controller
 
                     if (!is_null($_response)) {
 
-                        if ($client->lng == 'en') {
+                        if (!is_null($client) && $client->lng == 'en') {
                             $response =  $_response->eng;
                         } else {
                             $response =  $_response->heb;
@@ -352,10 +407,10 @@ class LeadWebhookController extends Controller
 
 
                     $_response = TextResponse::where('status', '1')->where('keyword', 'like', '%' . $message . '%')->get()->first();
-                    
+
                     if (!is_null($_response)) {
 
-                        if ($client->lng == 'en') {
+                        if (!is_null($client) && $client->lng == 'en') {
                             $response =  $_response->eng;
                         } else {
                             $response =  $_response->heb;
@@ -370,30 +425,26 @@ class LeadWebhookController extends Controller
                             'flex'          => 'A',
                             'data'          => json_encode($get_data)
                         ]);
-    
-    
+
+
                         $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+                    } else if ($n_f == true) {
+
+                        $response = $message;
+
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $response,
+                            'number'        => $data_returned['contacts'][0]['wa_id'],
+                            'flex'          => 'A',
+                            'data'          => json_encode($get_data)
+                        ]);
 
 
-                    } else if( $n_f == true ) {
-
-                       $response = $message;
-
-                       WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $response,
-                        'number'        => $data_returned['contacts'][0]['wa_id'],
-                        'flex'          => 'A',
-                        'data'          => json_encode($get_data)
-                    ]);
-
-
-                    $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
+                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
                     }
-
-                  
                 }
             }
 

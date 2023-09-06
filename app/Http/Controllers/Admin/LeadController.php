@@ -47,7 +47,7 @@ class LeadController extends Controller
             $result->where('status', $q);
         } else if (is_null($q)) {
 
-            $result->where('status', '0')->orWhere('status', '1');
+            $result->where('status', 0)->orWhere('status', 1);
         }
 
         if ($q == 'pending') {
