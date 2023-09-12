@@ -22,6 +22,10 @@ class LeadController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public $fburl = 'https://graph.facebook.com/v17.0/';
+    public $fbleads = [];
+    public $pa_token;
+
     public function index(Request $request)
     {
         $q = $request->q;
@@ -32,8 +36,8 @@ class LeadController extends Controller
         if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 
             $result->where(function ($query) use ($q) {
-                $ex = explode(' ',$q);
-                $q2 = isset( $ex[1] ) ? $ex[1] : $q;
+                $ex = explode(' ', $q);
+                $q2 = isset($ex[1]) ? $ex[1] : $q;
                 $query->where('email',       'like', '%' . $q . '%')
                     ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
                     ->orWhere('lastname',       'like', '%' . $q2 . '%')
@@ -194,16 +198,22 @@ class LeadController extends Controller
                 WhatsappLastReply::where('phone', 'like', '%' . $lead->phone . '%')
 
                 ->get()->first() : null;
-            
-            if (!empty($reply)){
-                
-                if( $reply->message < 2 )
-                $reply->msg = WebhookResponse::getWhatsappMessage('message_' . $reply->message, 'heb', $lead);
+
+            $_first_contact  = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
+                WebhookResponse::where('number', 'like', '%' . $lead->phone . '%')->where('flex', 'C')
+
+                ->get()->first() : null;
+
+            if (!empty($reply)) {
+
+                if ($reply->message < 2)
+                    $reply->msg = WebhookResponse::getWhatsappMessage('message_' . $reply->message, 'heb', $lead);
                 else
-                $reply->msg = $reply->message;
+                    $reply->msg = $reply->message;
             }
-               
+
             $lead->reply = $reply;
+            $lead->first_contact = $_first_contact;
         }
         return response()->json([
             'lead'        => $lead,
@@ -310,5 +320,117 @@ class LeadController extends Controller
             ]
         );
         return response()->json(['message' => 'Marked Uninterested']);
+    }
+
+    /* FB ADS LEADS */
+
+
+    public function longLivedToken()
+    {
+        $url = $this->fburl . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . env("FB_APP_ID") . '&client_secret=' . env("FB_APP_SECRET") . '&fb_exchange_token=' . env('FB_ACCESS_TOKEN');
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            return  'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        $result = json_decode($result);
+        if (isset($result->error)) {
+            return $result->error->message;
+        }
+        return $result->access_token;
+    }
+
+
+    public function pageAccessToken()
+    {
+
+        $url = $this->fburl . env('FB_APP_SCOPE_ID') . '/accounts?access_token=' .  env('FB_ACCESS_TOKEN');
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $result = json_decode($result);
+        if (isset($result->error)) {
+            return $result->error->message;
+        }
+        if (count($result->data) > 0) :
+            foreach ($result->data as $r) :
+                if ($r->id == env('FB_ACCOUNT_ID')) :
+                    return $r->access_token;
+                endif;
+            endforeach;
+        endif;
+    }
+
+    public function leadGenForms()
+    {
+        $pa_token =  $this->pageAccessToken();
+        $this->pa_token =  $pa_token;
+        $url = $this->fburl . env('FB_ACCOUNT_ID') . '/leadgen_forms?access_token=' . $pa_token . '&pretty=0&limit=2500';
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            return  'Error:' . curl_error($ch);
+        }
+      
+        $result = json_decode($result);
+ 
+        if (isset($result->error)) {
+            return $result->error->message;
+        }
+
+        return $result;
+    }
+
+    public function leadData($id)
+    {
+        $ch = curl_init();
+        $url = $this->fburl . $id . '/leads?access_token=' . $this->pa_token;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        $result = json_decode($result);
+
+        if (isset($result->error)) {
+            return $result->error->message;
+        }
+        if( isset($result->data) && count($result->data) > 0 )
+        {
+           
+          $_fd = $result->data[0]->field_data;
+          foreach($_fd as $fd){
+            echo "<pre>";
+            print_r($fd);
+          }
+
+          dd(1);
+         
+        }
+        return $result;
+    }
+    public function fbAdsLead()
+    {
+        $leadForms = $this->leadGenForms();
+       
+        if (count($leadForms->data) > 0) {
+            foreach ($leadForms->data as $lf) {
+                dd($this->leadData($lf->id));
+            }
+        }
     }
 }

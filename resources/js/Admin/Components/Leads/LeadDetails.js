@@ -46,6 +46,7 @@ export default function LeadDetails({ lead }) {
                                 <li className="nav-item" role="presentation"><a id="client-details" className="nav-link active" data-toggle="tab" href="#tab-client-details" aria-selected="true" role="tab">Lead info</a></li>
                                 <li className="nav-item" role="presentation"><a id="note-details" className="nav-link" data-toggle="tab" href="#tab-note-details" aria-selected="false" role="tab">Comments</a></li>
                                 <li className="nav-item" role="presentation"><a id="intrest-details" className="nav-link" data-toggle="tab" href="#tab-intrest" aria-selected="false" role="tab">Intrested In</a></li>
+                                {/* <li className="nav-item" role="presentation"><a id="contact-details" className="nav-link" data-toggle="tab" href="#tab-contact" aria-selected="false" role="tab">First Contacted</a></li> */}
                             </ul>
                             <div className='tab-content'>
                                 <div id="tab-client-details" className="tab-pane active show" role="tab-panel" aria-labelledby="client-details">
@@ -122,6 +123,32 @@ export default function LeadDetails({ lead }) {
                                 }
                                     
                                 </div>
+
+                                {/* <div id="tab-contact" className="tab-pane" role="tab-panel" aria-labelledby="card-details">
+                                   
+                                    { lead.reply ? (<div className='form-group'>
+                                    <div className='col-sm-6'>
+                                            <div className='form-group'>
+                                                <label>Option</label>
+
+                                                <p>{  lead.reply? ( (lead.reply.message.length < 2) ? lead.reply.message : 'Chat' ) : '' }</p>
+                                            </div>
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <div className='form-group'>
+                                                <label>Message</label>
+                                                <p>{lead.reply?.msg}</p>
+                                            </div>
+                                        </div>
+
+                                    </div>)
+                                    :(
+                                        <p className='text-center form-control'>Data not availabe.</p>
+                                    )
+                                    
+                                }
+                                    
+                                </div> */}
 
                             </div>
                         </div>

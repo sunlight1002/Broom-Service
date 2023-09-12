@@ -122,12 +122,14 @@ class ChatController extends Controller
 
 
         Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
+        $client = Client::where('phone','like','%'.$request->number.'%')->get()->first();
+        $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
 
         WebhookResponse::create([
             'status'        => 1,
             'name'          => 'whatsapp',
             'entry_id'      => '',
-            'message'       => 'restart',
+            'message'       => ($client->lng == 'en') ? $_msg->eng : $_msg->heb,
             'number'        => $request->number,
             'flex'          => 'A',
             'data'          => '',

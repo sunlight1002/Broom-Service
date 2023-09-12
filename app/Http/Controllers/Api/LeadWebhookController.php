@@ -93,7 +93,7 @@ class LeadWebhookController extends Controller
                 $nums .= $str[$i];
             }
         }
-        return ( $nums != "" && strlen($nums) > 8 ) ? true : false;
+        return ($nums != "" && strlen($nums) > 8) ? true : false;
     }
     public function fbWebhook(Request $request)
     {
@@ -133,9 +133,9 @@ class LeadWebhookController extends Controller
             ]);
 
             $client_exist = Client::where('phone', '%' . $from . '%')->get()->first();
-          
+
             if (is_null($client_exist) && is_null($check_response)) {
-                
+
                 $result = Helper::sendWhatsappMessage($from, 'leads', array('name' => ''));
 
                 $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
@@ -154,7 +154,7 @@ class LeadWebhookController extends Controller
                 $lead->phone         =  $from;
                 $lead->email         = 'NULL';
                 $lead->status        = 3;
-                $lead->password      = Hash::make( $from );
+                $lead->password      = Hash::make($from);
                 $lead->geo_address   = '';
                 $lead->save();
 
@@ -163,7 +163,7 @@ class LeadWebhookController extends Controller
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
 
-             
+
                 $to      = $data_returned['metadata']['display_phone_number'];
                 $to_name      = $data_returned['contacts'][0]['profile']['name'];
                 $n_f = false;
@@ -179,12 +179,13 @@ class LeadWebhookController extends Controller
                     $message = $last->message;
                 }
 
-                if ( str_contains($message ,'yes') || str_contains($message, 'כן') ) {
+                if (str_contains($message, 'yes') || str_contains($message, 'כן')) {
 
                     $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
+                    $ch   = TextResponse::where('eng', $last->mesage)->where('heb', $last->message)->get()->first();
                     if ($last->message == '3') {
                         $message = 'yes_כן';
-                    } else {
+                    } else if (!is_null($ch)) {
                         $n_f = true;
                         $message = $last->message;
                     }
@@ -197,6 +198,26 @@ class LeadWebhookController extends Controller
                     } else {
                         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'en']);
                     }
+                }
+
+                if ($message == '7') {
+
+                    if (strlen($from) > 10) {
+                        Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'heb']);
+                    } else {
+                        Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
+                    }
+                    $result = Helper::sendWhatsappMessage($from, 'leads', array('name' => ''));
+
+                    $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
+
+                    $response = WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'message'       =>  $_msg->heb,
+                        'number'        =>  $from,
+                        'flex'          => 'A',
+                    ]);
                 }
 
                 if (strlen($from) > 10)
@@ -316,7 +337,7 @@ class LeadWebhookController extends Controller
                 //       $response = $text_message;
                 // } else {
                 // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-               
+
 
                 if (count($link_data) > 0) {
                     $message = '';
@@ -353,16 +374,16 @@ class LeadWebhookController extends Controller
 
                 if ($last_reply == '3' && !is_null($client) && $this->contain_phone($message)) {
 
-                    $exm = explode(PHP_EOL,$message);
-                    $nm = explode(' ',$exm[0] );
-                 
+                    $exm = explode(PHP_EOL, $message);
+                    $nm = explode(' ', $exm[0]);
+
                     $lead                = Client::find($client->id);
                     $lead->firstname     =  $nm[0];
                     $lead->lastname      = (isset($nm[1])) ? $nm[1] : '';
                     $lead->phone         =  $from;
                     $lead->email         = 'NULL';
                     $lead->status        = 0;
-                    $lead->password      = Hash::make( $from );
+                    $lead->password      = Hash::make($from);
                     $lead->geo_address   = isset($exm[2]) ? $exm[2] : '';
                     $lead->save();
 
