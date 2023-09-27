@@ -122,7 +122,7 @@ class ChatController extends Controller
 
 
         Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
-        $client = Client::where('phone','like','%'.$request->number.'%')->get()->first();
+        $client = Client::where('phone', 'like', '%' . $request->number . '%')->get()->first();
         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
 
         WebhookResponse::create([
@@ -193,10 +193,10 @@ class ChatController extends Controller
             return $this->chatSearch($s, 'number');
         } else {
 
-            $cx = explode(' ',$s);
-            $fn  = $cx[0]; 
+            $cx = explode(' ', $s);
+            $fn  = $cx[0];
             $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
-            $clients = Client::where('firstname','like','%'.$fn.'%')->orwhere('lastname','like','%'.$ln.'%')->get('phone');
+            $clients = Client::where('firstname', 'like', '%' . $fn . '%')->orwhere('lastname', 'like', '%' . $ln . '%')->get('phone');
 
 
             if (count($clients) > 0) {
@@ -305,5 +305,76 @@ class ChatController extends Controller
         );
 
         return response()->json(['message' => 'chat responses added']);
+    }
+
+
+    public function Participants()
+    {
+
+        $url = 'https://graph.facebook.com/v18.0/' . env("FB_ACCOUNT_ID") . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . env("FB_ACCESS_TOKEN");
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        $_p = json_decode($result);
+
+        return response()->json([
+            'data' => $_p,
+            'page_id' => env("FB_ACCOUNT_ID")
+        ]);
+    }
+
+    public function messengerMessage($id)
+    {
+
+        $url = 'https://graph.facebook.com/v17.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . env('FB_ACCESS_TOKEN');
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        $_p = json_decode($result);
+
+        return response()->json([
+            'chat' => $_p,
+        ]);
+    }
+
+    public function messengerReply(Request $request)
+    {
+      
+        $ch = curl_init();
+        
+        $url = 'https://graph.facebook.com/v17.0/'.env("FB_ACCOUNT_ID").'/messages?recipient={id:'.$request->pid.'}&message={"text":"'.$request->message.'"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        dd($result);
+        $resp = json_decode($result);
+
+        return response()->json([
+            'data' => $resp
+        ]);
     }
 }

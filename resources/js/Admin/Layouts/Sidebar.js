@@ -107,6 +107,10 @@ export default function Sidebar() {
                     </div>
                 </li>
 
+                <li className="list-group-item">
+                        <NavLink to="/admin/messenger"><i className="fa-solid fa-comment"></i>Messenger Chat</NavLink>
+                </li>
+
 
                 <li className="list-group-item">
                     <div id="myFence" className='fence commonDropdown'>

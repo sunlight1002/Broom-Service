@@ -152,7 +152,7 @@ class LeadWebhookController extends Controller
                 $lead->firstname     = 'lead';
                 $lead->lastname      = '';
                 $lead->phone         =  $from;
-                $lead->email         = 'NULL';
+                $lead->email         = $from.'@lead.com';
                 $lead->status        = 3;
                 $lead->password      = Hash::make($from);
                 $lead->geo_address   = '';
@@ -218,6 +218,8 @@ class LeadWebhookController extends Controller
                         'number'        =>  $from,
                         'flex'          => 'A',
                     ]);
+
+                    die("Language switched to hebrew");
                 }
 
                 if (strlen($from) > 10)
@@ -316,28 +318,7 @@ class LeadWebhookController extends Controller
                     $reply->message = $message;
                     $reply->save();
                 }
-                // if (in_array($message, [1, 2, 3, 4, 5])) {
-
-                //     $text_message = 'message_' . $message;
-                // } else if (str_contains($message, '_')) {
-                //     if ($message == '2_yes') {
-                //         $text_message = 'message_3';
-                //     } else {
-                //         $text_message = 'message_' . $message;
-                //     }
-                // } else if (strlen($message) < 2) {
-
-                //     $text_message = 'message_0';
-                // } else {
-
-                //     $text_message = $message;
-                // }
-
-                // if (strlen($message) > 2) {
-                //       $response = $text_message;
-                // } else {
-                // $response = WebhookResponse::getWhatsappMessage($text_message, 'heb', $client);
-
+          
 
                 if (count($link_data) > 0) {
                     $message = '';
