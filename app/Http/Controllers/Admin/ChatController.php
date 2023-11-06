@@ -169,8 +169,14 @@ class ChatController extends Controller
         $clients = [];
 
         if (count($data) > 0) {
+
+            
             foreach ($data as $k => $_no) {
                 $no = $_no->number;
+                $_unreads = WebhookResponse::where(['number' => $no,'read' => 0])->pluck('read');
+
+                $data[$k]['unread'] = count($_unreads);
+                
                 if (strlen($no) > 10)
                     $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
                 else
@@ -348,6 +354,7 @@ class ChatController extends Controller
     {
 
         $url = 'https://graph.facebook.com/v17.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . env('FB_ACCESS_TOKEN');
+     
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
