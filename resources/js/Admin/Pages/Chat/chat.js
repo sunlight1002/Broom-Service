@@ -48,11 +48,13 @@ export default function chat() {
                 localStorage.setItem('chatLen', c.length);
                 setExpired(res.data.expired);
                 setMessages(c);
+               
             });
 
     }
 
     const sendMessage = () => {
+
         let msg = document.getElementById('message_typing').value;
         if (msg == '') {
             alert.error('Please type message');
@@ -84,6 +86,7 @@ export default function chat() {
 
         }, 2000);
         return () => clearInterval(interval);
+
     }
 
     const scroller = () => {
@@ -125,12 +128,10 @@ export default function chat() {
         })
     }
 
-
     useEffect(() => {
         getData();
         callApi();
     }, []);
-
 
 
     return (
@@ -231,17 +232,17 @@ export default function chat() {
 
                                 <div className="card col-sm-3 card-body sidemsg" style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
 
-                                    {data?.slice(0).reverse().map((d, i) => {
+                                    {data?.slice(0).reverse().sort((a, b) => b.unread - a.unread).map((d, i) => {
 
                                         let cd = clients?.find(({ num }) => num == d.number);
 
-                                        return <div className="mb-3 card p-3 mt-3" style={ d.unread > 0 ?  {background:'#e9dada'} : {} } onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  setTimeout(() => { scroller(); }, 200) }}>
+                                        return <div className={"mb-3 card p-3 mt-3 cl_"+d.number}   style={ d.unread > 0 ?  {background:'#e9dada'} : {} } onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  setTimeout(() => { scroller(); }, 200) ; document.querySelector('.cl_'+d.number).style.background = '#fff' ; document.querySelector('.cn_'+d.number).remove();  }}>
                                             {cd &&
                                                 <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={(cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}`}><i class="fas fa-user" ></i>{cd.name}</Link></h5>
                                             }
                                             <h6 className="mt-0 mb-1" style={{ cursor: "pointer" }}><i class="fas fa-phone" ></i>{d.number}
                                             {
-                                                d.unread > 0 && <span className='text-danger p-2'>{`(${d.unread})`}</span>
+                                                d.unread > 0 && <span className={'text-danger p-2 cn_'+d.number} >{`(${d.unread})`}</span>
                                             }
                                             </h6>
                                            

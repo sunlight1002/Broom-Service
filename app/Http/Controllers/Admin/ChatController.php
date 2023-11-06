@@ -18,11 +18,7 @@ class ChatController extends Controller
 
         $data = WebhookResponse::distinct()->where('number', '!=', null)->get(['number']);
 
-
-
         $clients = [];
-
-        $unreads = [];
 
         if (count($data) > 0) {
 
@@ -49,6 +45,7 @@ class ChatController extends Controller
             }
         }
 
+
         return response()->json([
             'data' => $data,
             'clients' => $clients,
@@ -59,6 +56,10 @@ class ChatController extends Controller
     {
 
         $chat = WebhookResponse::where('number', $no)->get();
+
+        WebhookResponse::where(['number' => $no, 'read' => 0 ])->update([
+            'read' => 1
+        ]);
 
         $lastMsg = WebhookResponse::where('number', $no)->get()->last();
 
