@@ -16,6 +16,7 @@ class WebhookResponse extends Model
         'message',
         'number',
         'flex',
+        'read',
         'data'
     ];
 

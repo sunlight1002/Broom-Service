@@ -232,14 +232,19 @@ export default function chat() {
                                 <div className="card col-sm-3 card-body sidemsg" style={{ backgroundColor: "#00a4f39e!important", borderRadius: "3%" }}>
 
                                     {data?.slice(0).reverse().map((d, i) => {
+
                                         let cd = clients?.find(({ num }) => num == d.number);
 
-                                        return <div className="mb-3 card p-3 mt-3" onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  setTimeout(() => { scroller(); }, 200) }}>
+                                        return <div className="mb-3 card p-3 mt-3" style={ d.unread > 0 ?  {background:'#e9dada'} : {} } onClick={e => { getMessages(d.number); setSelectNumber(d.number); localStorage.setItem('number', d.number);  setTimeout(() => { scroller(); }, 200) }}>
                                             {cd &&
                                                 <h5 className="mt-0 mb-1" style={{ cursor: "pointer" }}><Link to={(cd.client == 1) ? `/admin/view-client/${cd.id}` : `/admin/view-lead/${cd.id}`}><i class="fas fa-user" ></i>{cd.name}</Link></h5>
                                             }
-                                            <h6 className="mt-0 mb-1" style={{ cursor: "pointer" }}><i class="fas fa-phone" ></i>{d.number}</h6>
-                                            {/* <p className="text-dark">Skin Buy and Sell</p> */}
+                                            <h6 className="mt-0 mb-1" style={{ cursor: "pointer" }}><i class="fas fa-phone" ></i>{d.number}
+                                            {
+                                                d.unread > 0 && <span className='text-danger p-2'>{`(${d.unread})`}</span>
+                                            }
+                                            </h6>
+                                           
                                         </div>
 
                                     })}

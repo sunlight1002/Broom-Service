@@ -18,11 +18,21 @@ class ChatController extends Controller
 
         $data = WebhookResponse::distinct()->where('number', '!=', null)->get(['number']);
 
+
+
         $clients = [];
 
+        $unreads = [];
+
         if (count($data) > 0) {
+
+
             foreach ($data as $k => $_no) {
                 $no = $_no->number;
+                $_unreads = WebhookResponse::where(['number' => $no,'read' => 0])->pluck('read');
+
+                $data[$k]['unread'] = count($_unreads);
+
                 if (strlen($no) > 10)
                     $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
                 else
@@ -41,7 +51,7 @@ class ChatController extends Controller
 
         return response()->json([
             'data' => $data,
-            'clients' => $clients
+            'clients' => $clients,
         ]);
     }
 
@@ -74,6 +84,7 @@ class ChatController extends Controller
             'name'          => 'whatsapp',
             'message'       => $request->message,
             'number'        => $request->number,
+            'read'          => !is_null(Auth::guard('admin')) ? 1 : 0,
             'flex'          => !is_null(Auth::guard('admin')) ? 'A' : 'C',
         ]);
 
@@ -129,9 +140,10 @@ class ChatController extends Controller
             'status'        => 1,
             'name'          => 'whatsapp',
             'entry_id'      => '',
-            'message'       => ($client->lng == 'en') ? $_msg->eng : $_msg->heb,
+            'message'       => ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb,
             'number'        => $request->number,
             'flex'          => 'A',
+            'read'          => 1,
             'data'          => '',
         ]);
 

@@ -76,6 +76,7 @@ class LeadWebhookController extends Controller
                 'name'          => 'whatsapp',
                 'message'       =>  $_msg->heb,
                 'number'        =>  $request->phone,
+                'read'          =>  1,
                 'flex'          => 'A',
             ]);
         }
@@ -128,6 +129,7 @@ class LeadWebhookController extends Controller
                 'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
                 'message'       => $data_returned['messages'][0]['text']['body'],
                 'number'        => $from,
+                'read'          => 0,
                 'flex'          => 'C',
                 'data'          => json_encode($get_data)
             ]);
@@ -145,6 +147,7 @@ class LeadWebhookController extends Controller
                     'name'          => 'whatsapp',
                     'message'       =>  $_msg->heb,
                     'number'        =>  $from,
+                    'read'          => 1,
                     'flex'          => 'A',
                 ]);
 
@@ -216,6 +219,7 @@ class LeadWebhookController extends Controller
                         'name'          => 'whatsapp',
                         'message'       =>  $_msg->heb,
                         'number'        =>  $from,
+                        'read'          => 1,
                         'flex'          => 'A',
                     ]);
 
@@ -391,6 +395,7 @@ class LeadWebhookController extends Controller
                             'message'       => $response,
                             'number'        => $from,
                             'flex'          => 'A',
+                            'read'          => 1,
                             'data'          => json_encode($get_data)
                         ]);
 
@@ -417,6 +422,7 @@ class LeadWebhookController extends Controller
                         'message'       => $response,
                         'number'        => $from,
                         'flex'          => 'A',
+                        'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
 
@@ -442,6 +448,7 @@ class LeadWebhookController extends Controller
                             'message'       => $response,
                             'number'        => $from,
                             'flex'          => 'A',
+                            'read'          => 1,
                             'data'          => json_encode($get_data)
                         ]);
 
@@ -458,6 +465,7 @@ class LeadWebhookController extends Controller
                             'message'       => $response,
                             'number'        => $from,
                             'flex'          => 'A',
+                            'read'          => 1,
                             'data'          => json_encode($get_data)
                         ]);
 
