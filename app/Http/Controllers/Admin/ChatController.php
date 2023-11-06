@@ -355,15 +355,16 @@ class ChatController extends Controller
     public function messengerReply(Request $request)
     {
       
-        $ch = curl_init();
+        /*$ch = curl_init();
         
-        $url = 'https://graph.facebook.com/v17.0/'.env("FB_ACCOUNT_ID").'/messages?recipient={id:'.$request->pid.'}&message={"text":"'.$request->message.'"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
+        $url = 'https://graph.facebook.com/v18.0/'.env("FB_ACCOUNT_ID").'/messages?recipient={id:'.intval($request->pid).'}&message={text:"i am string"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
 
         curl_setopt($ch, CURLOPT_URL, $url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -372,7 +373,27 @@ class ChatController extends Controller
         curl_close($ch);
         dd($result);
         $resp = json_decode($result);
+        */
 
+        $accessToken = env("FB_ACCESS_TOKEN");
+
+        $url = "https://graph.facebook.com/v18.0/". env("FB_ACCOUNT_ID")."/messages";
+        $messageText = strtolower($request->message);
+        $senderId = env("FB_ACCOUNT_ID");
+        $recipientId = $request->pid;
+        $response = null;
+      
+        $response = ['recipient' => ['id' => $recipientId], 'sender' => ['id' => $senderId], 'message' => ['text' => $messageText], 'access_token' => $accessToken];
+
+        $ch = curl_init($url);                            
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($response));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+      
+        $resp = json_decode($result);
         return response()->json([
             'data' => $resp
         ]);
