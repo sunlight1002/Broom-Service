@@ -130,9 +130,11 @@ class LeadController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
+        $nm = explode(' ', $request->name);
+
         $lead                = new Client;
-        $lead->firstname     = $request->firstname;
-        $lead->firstname     = $request->lastname;
+        $lead->firstname     = $nm[0];
+        $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
         $lead->phone         = $request->phone;
         $lead->email         = $request->email;
         $lead->geo_address   = $request->address;
