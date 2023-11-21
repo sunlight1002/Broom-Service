@@ -257,6 +257,7 @@ class JobController extends Controller
             'night2-22pm-24pm'   => '22:30:00-00:00:00',
             'night-20pm-24pm'    => '20:30:00-00:00:00',
         ];
+
        
         if(!empty($jobs)){
             foreach($jobs as $job){
@@ -272,9 +273,10 @@ class JobController extends Controller
                 $end    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
                 $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
                 
-                if( ($start->lt($now) ) && ($end->gt($now))  ){
+               // if( ($start->lt($now) ) && ($end->gt($now))  ){
+                   // dd(1);
                     $this->order($job->id);
-                }
+               // }
     
             }
         }
@@ -338,7 +340,7 @@ class JobController extends Controller
             //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
             $json = json_decode($response, true);
            
-           //if(!$json["status"]) die($json["reason"]);
+           if(!$json["status"]) die($json["reason"]);
            
             Order::create([
                 'order_id'=>$json['docnum'],

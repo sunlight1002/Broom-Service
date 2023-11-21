@@ -222,8 +222,7 @@ class LeadController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'firstname' => ['required', 'string', 'max:255'],
-            'lastname' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'phone'     => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
@@ -232,7 +231,6 @@ class LeadController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
         $nm = explode(' ', $request->name);
-
 
         $lead                = Client::find($id);
         $lead->firstname     = $nm[0];

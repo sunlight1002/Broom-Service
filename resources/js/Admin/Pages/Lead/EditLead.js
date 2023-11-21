@@ -5,7 +5,6 @@ import Sidebar from "../../Layouts/Sidebar";
 
 export default function EditWorker() {
   const [firstname, setFirstName] = useState('');
-  const [lastname, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
 
@@ -23,8 +22,7 @@ export default function EditWorker() {
         e.preventDefault();
         
         const data = {
-        "firstname": firstname,
-        "lastname":  lastname,
+        "name": firstname,
         "phone": phone,
         "email":email,
         "lead_status": 'lead',
@@ -51,8 +49,7 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/leads/${params.id}/edit`, { headers })
             .then((response) => {
-                setFirstName(response.data.lead.firstname);
-                setLastName(response.data.lead.lastname);
+                setFirstName(response.data.lead.firstname+" "+response.data.lead.lastname);
                 setEmail(response.data.lead.email);
                 setPhone(response.data.lead.phone);               
             });
@@ -84,19 +81,7 @@ export default function EditWorker() {
                                         )}
                                     </div>
                                 </div>
-                                <div className='col-sm-12'>
-                                    <div className='form-group'>
-                                        <label className='control-label'>Last Name *</label>
-                                        <input type='text' value={lastname} onChange={(e) => setLastName(e.target.value)} className='form-control' required placeholder='Enter LastName' />
-                                        {errors.name ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.lastname}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
+                             
                                  <div className='col-sm-12'>
                                     <div className='form-group'>
                                         <label className='control-label'>Email</label>

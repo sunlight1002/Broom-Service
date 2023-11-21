@@ -240,6 +240,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::get('chat-responses',[ChatController::class,'chatResponses']);
     Route::post('chat-restart',[ChatController::class,'chatRestart']);
     Route::get('chat-search',[ChatController::class,'search'])->name('chat-search');
+
+    //settings
+
+    Route::get('get-settings',[SettingController::class,'getSettings']);
+    Route::post('update-settings',[SettingController::class,'updateSettings']);
+    
 });
 
 

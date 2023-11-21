@@ -44,7 +44,8 @@ class OfferController extends Controller
 
          if(!empty($result)){
             foreach($result as $i => $res){
-               if($res->client->lastname == null){
+
+               if($res->client && $res->client->lastname == null){
                  $result[$i]->client->lastname = '';
                }
             }

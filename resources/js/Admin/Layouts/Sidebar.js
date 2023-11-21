@@ -85,13 +85,13 @@ export default function Sidebar() {
               
 
                 <li className="list-group-item">
-                    <div id="myFence" className='fence commonDropdown'>
-                        <div id="fencehead2">
+                    <div id="myFenceR" className='fence commonDropdown'>
+                        <div id="fencehead212">
                             <a href="#" className="text-left btn btn-header-link" data-toggle="collapse" data-target="#fence212" aria-expanded="true" aria-controls="fence212">
                                 <i className="fa-solid fa-message"></i> Whatsapp chat <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
-                        <div id="fence212" className="collapse" aria-labelledby="fencehead2" data-parent="#fence">
+                        <div id="fence212" className="collapse" aria-labelledby="fencehead212" data-parent="#fence212">
                             <div className="card-body">
                             <ul className='list-group'>
                                     <li className='list-group-item'>
@@ -169,6 +169,9 @@ export default function Sidebar() {
                                     {/*<li className='list-group-item'>
                                         <Link to="/admin/languages"><i className="fa fa-angle-right"></i>Languages</Link>
                                     </li>*/}
+                                     <li className='list-group-item'>
+                                        <Link to="/admin/credentials"><i className="fa fa-angle-right"></i> Credentials </Link>
+                                    </li>
                                     <li className='list-group-item'>
                                         <Link to="/admin/settings"><i className="fa fa-angle-right"></i> My Account</Link>
                                     </li>
