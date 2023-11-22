@@ -3,6 +3,8 @@ import { useAlert } from 'react-alert';
 
 export default function Zcredit({ settings, refreshSettings }) {
 
+    settings.zcredit_key && console.log(settings.zcredit_key);
+
     const [key, setKey]                          = useState("");
     const [terminalNumnber, setTerminalNumber]   = useState("");
     const [terminalPass, setTerminalPass]        = useState("");
@@ -41,9 +43,9 @@ export default function Zcredit({ settings, refreshSettings }) {
     useEffect(()=>{
 
       
-        settings.zcredit_key ?? setKey( settings.zcredit_key )
-        settings.zcredit_terminal_number ?? setTerminalNumber( settings.zcredit_terminal_number )
-        settings.zcredit_terminal_pass ?? setTerminalPass( settings.zcredit_terminal_pass );
+        settings.zcredit_key && setKey( settings.zcredit_key )
+        settings.zcredit_terminal_number && setTerminalNumber( settings.zcredit_terminal_number )
+        settings.zcredit_terminal_pass && setTerminalPass( settings.zcredit_terminal_pass );
 
 
     },[ settings ])

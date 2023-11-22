@@ -22,6 +22,7 @@ use Mail;
 use Helper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
+use App\Helpers\Helper;
 
 class JobController extends Controller
 {
@@ -311,9 +312,9 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-        "cid"  => env('ICOUNT_COMPANYID'),
-        "user" => env('ICOUNT_USERNAME'),
-        "pass" => env('ICOUNT_PASS'),
+        "cid"  => Helper::get_setting('icount_company_id'),
+        "user" =>Helper::get_setting('icount_username'),
+        "pass" => Helper::get_setting('icount_password'),
         "doctype" => "order",
         "client_name" => $name, 
         "client_address" => $job->client->geo_address,
@@ -453,9 +454,9 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
         $params = Array(
     
-        "cid"  => env('ICOUNT_COMPANYID'),
-        "user" => env('ICOUNT_USERNAME'),
-        "pass" => env('ICOUNT_PASS'),
+        "cid"  => Helper::get_setting('icount_company_id'),
+        "user" =>Helper::get_setting('icount_username'),
+        "pass" => Helper::get_setting('icount_password'),
         "doctype" => $type,
         "docnum"  => $docnum,
         "based_on"=> $docnum
@@ -506,9 +507,9 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-                "cid"            => env('ICOUNT_COMPANYID'),
-                "user"           => env('ICOUNT_USERNAME'),
-                "pass"           => env('ICOUNT_PASS'),
+                "cid"            => Helper::get_setting('icount_company_id'),
+                "user"           =>Helper::get_setting('icount_username'),
+                "pass"           => Helper::get_setting('icount_password'),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,
@@ -782,9 +783,9 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-                "cid"            => env('ICOUNT_COMPANYID'),
-                "user"           => env('ICOUNT_USERNAME'),
-                "pass"           => env('ICOUNT_PASS'),
+                "cid"            => Helper::get_setting('icount_company_id'),
+                "user"           =>Helper::get_setting('icount_username'),
+                "pass"           => Helper::get_setting('icount_password'),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,

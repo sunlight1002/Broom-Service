@@ -42,9 +42,9 @@ export default function Icount({ settings , refreshSettings }) {
     useEffect(()=>{
 
        
-        setCompanyID( settings.icount_company_id )
-        setUsername( settings.icount_username )
-        setPassword( settings.icount_password );
+        settings.icount_company_id && setCompanyID( settings.icount_company_id )
+        settings.icount_username && setUsername( settings.icount_username )
+        settings.icount_password && setPassword( settings.icount_password );
 
 
     },[ settings ])
