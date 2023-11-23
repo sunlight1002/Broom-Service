@@ -3,8 +3,6 @@ import { useAlert } from 'react-alert';
 
 export default function Zcredit({ settings, refreshSettings }) {
 
-    settings.zcredit_key && console.log(settings.zcredit_key);
-
     const [key, setKey]                          = useState("");
     const [terminalNumnber, setTerminalNumber]   = useState("");
     const [terminalPass, setTerminalPass]        = useState("");
