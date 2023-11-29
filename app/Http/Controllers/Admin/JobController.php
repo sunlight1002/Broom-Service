@@ -78,16 +78,16 @@ class JobController extends Controller
       
       
         if($w == 'all' ){
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate(20);
         } else if($request->p == 1){
             $jobs = $jobs->whereDate('start_date','>=',$startDate);
             $jobs = $jobs->whereDate('start_date','<=',$endDate);
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(5);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate(5);
         } else{
             $jobs = $jobs->whereDate('start_date','>=',$startDate);
             $jobs = $jobs->whereDate('start_date','<=',$endDate);
             $pcount = Job::count();
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate($pcount);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate($pcount);
         }
      
         if(isset($jobs)):
