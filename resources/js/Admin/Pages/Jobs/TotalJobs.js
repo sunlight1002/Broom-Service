@@ -440,7 +440,7 @@ export default function TotalJobs() {
             newvalues['period'] = e.target.options[e.target.selectedIndex].getAttribute('period');
         }
         newvalues[e.target.name] = e.target.value;
-        console.log(newvalues);
+       
         setCshift(newvalues);
     }
 
@@ -822,7 +822,7 @@ export default function TotalJobs() {
                                                 >
                                                     <option value=""> Please select Job</option>
                                                     {totalJobs && totalJobs.map((j) => {
-
+                                                       
                                                         return <option
 
                                                             contract={j.contract_id}
@@ -830,7 +830,7 @@ export default function TotalJobs() {
                                                             value={j.id}
                                                             schedule_id={j.schedule_id}
                                                         >
-                                                            #{j.id} | {Moment(j.start_date).format('DD MMM,Y')}
+                                                            {j.client.firstname+" "+j.client.lastname}  | {j.shifts} | {Moment(j.start_date).format('DD MMM,Y')}
                                                         </option>
                                                     })}
 
