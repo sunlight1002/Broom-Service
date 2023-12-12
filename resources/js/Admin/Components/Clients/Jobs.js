@@ -26,6 +26,7 @@ export default function Jobs({ contracts, client }) {
     const [cshift, setCshift] = useState({
 
         contract: '',
+        client:'',
         repetency: '',
         job: '',
         from: '',
@@ -242,6 +243,7 @@ export default function Jobs({ contracts, client }) {
             {
 
                 contract: '',
+                client:'',
                 repetency: '',
                 job: '',
                 from: '',
@@ -259,14 +261,30 @@ export default function Jobs({ contracts, client }) {
 
     const handleShift = (e) => {
 
-        if (e.target.name == 'contract' && e.target.value) {
+        let newvalues = { ...cshift };
 
-            setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
+        if( e.target.name == "job" && e.target.value){
+
+            let j =  e.target.options[e.target.selectedIndex];
+           
+            newvalues['contract']  = j.getAttribute('contract');
+            newvalues['service']   = j.getAttribute('schedule_id');
+            newvalues['client']    = j.getAttribute('client');
+            //getWorker( j.getAttribute('schedule_id') );
         }
+
+        if( e.target.name  == 'shift_date' || e.target.name == 'shift_time'){
+            getWorker( cshift.service );
+        }
+
+        // if (e.target.name == 'contract' && e.target.value) {
+
+        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
+        // }
         if (e.target.name == "repetency" && e.target.value != 'one_time') {
             getFrequency(client.lng);
         }
-        let newvalues = { ...cshift };
+       
         if (e.target.name == "frequency") {
 
             newvalues['cycle'] = e.target.options[e.target.selectedIndex].getAttribute('cycle');
@@ -277,10 +295,10 @@ export default function Jobs({ contracts, client }) {
         setCshift(newvalues);
     }
 
-    const getWorker = (e) => {
+    const getWorker = (sid) => {
 
         axios
-            .get(`/api/admin/shift-change-worker/${e.target.value}/${cshift.shift_date}`, { headers })
+            .get(`/api/admin/shift-change-worker/${sid}/${cshift.shift_date}`, { headers })
             .then((res) => {
                 setWorkers(res.data.workers);
             });
@@ -317,7 +335,7 @@ export default function Jobs({ contracts, client }) {
             return;
         }
 
-        if (isEmptyOrSpaces(cshift.repetency)) {
+        if (isEmptyOrSpaces(cshift.repetency) ) {
             window.alert('Please select repetency');
             return;
         }
@@ -336,7 +354,7 @@ export default function Jobs({ contracts, client }) {
         }
 
         axios
-            .post(`/api/admin/update-shift/${client.id}`, { cshift }, { headers })
+            .post(`/api/admin/update-shift`, { cshift }, { headers })
             .then((res) => {
                 getJobs('f=all');
                 resetShift();
@@ -520,7 +538,7 @@ export default function Jobs({ contracts, client }) {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col-sm-12">
-                                    <label className="control-label">
+                                    {/* <label className="control-label">
                                         Contract
                                     </label>
                                     <select name="contract" value={cshift.contract} onChange={(e) => {
@@ -537,6 +555,31 @@ export default function Jobs({ contracts, client }) {
 
                                             }
                                             )}
+                                    </select> */}
+
+                                    <label className="control-label">
+                                        Job
+                                    </label>
+
+                                    <select className='form-control mb-3'
+                                        name="job"
+                                        value={cshift.job}
+                                        onChange={e => handleShift(e)}
+                                    >
+                                        <option value=""> Please select Job</option>
+                                        {jobs && jobs.map((j) => {
+                                            
+                                            return <option
+
+                                                    contract={j.contract_id} 
+                                                    client={j.client_id} 
+                                                    value={j.id}
+                                                    schedule_id={j.schedule_id}
+                                                    >
+                                                         #{j.id} | {Moment(j.start_date).format('DD MMM,Y')} 
+                                                 </option>
+                                        })}
+
                                     </select>
 
                                     <label className="control-label">
@@ -559,7 +602,7 @@ export default function Jobs({ contracts, client }) {
                                         value={cshift.shift_time}
                                         onChange={e => handleShift(e)}
                                     >
-                                        <option> Please select new shift time</option>
+                                        <option value=""> Please select new shift time</option>
                                         {
                                             slot?.map((s) => {
                                                 return (
@@ -570,7 +613,7 @@ export default function Jobs({ contracts, client }) {
 
                                     </select>
 
-                                    {
+                                    {/*
                                         cshift.contract != '' &&
                                         <>
                                             <label className="control-label">
@@ -590,9 +633,9 @@ export default function Jobs({ contracts, client }) {
                                                     )}
                                             </select>
                                         </>
-                                    }
+                                    */}
 
-                                    {cshift.service != '' &&
+                                    {cshift.job != '' &&
                                         <>
                                             <label className='control-label'>
                                                 Worker
@@ -603,7 +646,7 @@ export default function Jobs({ contracts, client }) {
                                                 value={cshift.worker}
                                                 onChange={e => handleShift(e)}
                                             >
-                                                <option> Please select available workers</option>
+                                                <option value=""> Please select available workers</option>
                                                 {workers &&
                                                     workers.map((item, index) => {
 
@@ -628,14 +671,14 @@ export default function Jobs({ contracts, client }) {
                                         className='form-control mb-3'
 
                                     >
-                                        <option> Please select repetnacy</option>
+                                        <option value=""> Please select repetnacy</option>
                                         <option value="one_time"> One Time ( for single job )</option>
                                         <option value="forever"> Forever </option>
                                         <option value="untill_date"> Untill Date </option>
 
                                     </select>
 
-                                    {cshift.repetency == 'one_time' &&
+                                    {/*cshift.repetency == 'one_time' &&
 
                                         <>
                                             <label className="control-label">
@@ -654,17 +697,17 @@ export default function Jobs({ contracts, client }) {
 
                                             </select>
                                         </>
-                                    }
+                                   */}
 
                                     {
-                                        cshift.repetency != 'one_time' &&
+                                        cshift.repetency  && cshift.repetency != 'one_time'  &&
                                         <>
                                             <label className="control-label">
                                                 New Frequency
                                             </label>
 
                                             <select name="frequency" className="form-control mb-3" value={cshift.frequency || ""} onChange={e => handleShift(e)} >
-                                                <option selected value={0}> -- Please select frequency --</option>
+                                                <option selected value=""> -- Please select frequency --</option>
                                                 {AllFreq && AllFreq.map((s, i) => {
                                                     return (
                                                         <option cycle={s.cycle} period={s.period} name={s.name} value={s.id}> {s.name} </option>

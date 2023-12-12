@@ -245,7 +245,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     Route::get('get-settings',[SettingController::class,'getSettings']);
     Route::post('update-settings',[SettingController::class,'updateSettings']);
-    Route::post('update-shift/{id}',[ClientController::class,'updateShift']);
+    Route::post('update-shift',[ClientController::class,'updateShift']);
     
 });
 

@@ -716,7 +716,7 @@ class ClientController extends Controller
         ]);
     }
 
-    public function updateShift(Request $request, $id)
+    public function updateShift(Request $request)
     {
         $req = (object)$request->cshift;
 
@@ -737,116 +737,112 @@ class ClientController extends Controller
                     'shifts' => $req->shift_time
                 ]);
             }
-
         } else {
 
             if ($req->repetency == 'forever') {
-              
+
                 $jobs =  Job::where([
 
-                    'client_id' => $id,
+                    'client_id' => $req->client,
                     'contract_id' => $req->contract,
                     //'schedule_id' => $req->service,
 
                 ])->whereIn('status', ['scheduled', 'unscheduled'])->get();
-
-               
             }
 
-            if( $req->repetency == 'untill_date' ){
-               
+            if ($req->repetency == 'untill_date') {
+
                 $jobs =  Job::where([
 
-                    'client_id' => $id,
+                    'client_id' => $req->client,
                     'contract_id' => $req->contract,
                     //'schedule_id' => $req->service,
 
                 ])->whereIn('status', ['scheduled', 'unscheduled'])
-                ->whereBetween('start_date',[$req->from, $req->to])->get();
-
+                    ->whereBetween('start_date', [$req->from, $req->to])->get();
             }
 
-           
+
 
             if (isset($jobs)) {
 
 
-            Shift::create([
+                Shift::create([
 
-                'contract_id' =>  $req->contract,
-                'repetency'   =>  $req->repetency,
-                'old_freq'    =>  $jobs[0]->schedule,
-                'new_freq'    =>  $req->period,
-                'shift_date'  =>  $req->shift_date,
-                'shift_time'  =>  $req->shift_time,
-                'from'        =>  $req->from,
-                'to'          =>  $req->to
+                    'contract_id' =>  $req->contract,
+                    'repetency'   =>  $req->repetency,
+                    'old_freq'    =>  $jobs[0]->schedule,
+                    'new_freq'    =>  $req->period,
+                    'shift_date'  =>  $req->shift_date,
+                    'shift_time'  =>  $req->shift_time,
+                    'from'        =>  $req->from,
+                    'to'          =>  $req->to
 
-            ]);
+                ]);
 
                 $firstDate = true;
 
                 foreach ($jobs as $k => $job) {
 
-                
-                   // if (Carbon::now()->format('Y-m-d') <= $job->start_date) {
 
-                        if ($req->period == 'w') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addDays(7);
-                        }
-                        if ($req->period == '2w') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addDays(14);
-                        }
-                        if ($req->period == '3w') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addDays(21);
-                        }
-                        if ($req->period == 'm') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addMonths(1);
-                        }
-                        if ($req->period == '2m') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addMonths(2);
-                        }
-                        if ($req->period == '3m') {
-                            $date = Carbon::parse($job->start_date);
-                            $newDate = $date->addMonths(3);
-                        }
+                    // if (Carbon::now()->format('Y-m-d') <= $job->start_date) {
+
+                    if ($req->period == 'w') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addDays(7);
+                    }
+                    if ($req->period == '2w') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addDays(14);
+                    }
+                    if ($req->period == '3w') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addDays(21);
+                    }
+                    if ($req->period == 'm') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addMonths(1);
+                    }
+                    if ($req->period == '2m') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addMonths(2);
+                    }
+                    if ($req->period == '3m') {
+                        $date = Carbon::parse($job->start_date);
+                        $newDate = $date->addMonths(3);
+                    }
 
 
-                        //if ($job->start_date >= $req->shift_date && $firstDate == true) {
-                        if( $k == 0 ){
+                    //if ($job->start_date >= $req->shift_date && $firstDate == true) {
+                    if ($k == 0) {
 
-                            Job::where('id', $job->id)->update([
+                        Job::where('id', $job->id)->update([
 
-                                'start_date'    => ($req->shift_date != '') ? $req->shift_date : $job->start_date,
-                                'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
-                                'schedule'      => $req->period,
-                                'schedule_id'   => $req->frequency,
-                                'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
-                            ]);
+                            'start_date'    => ($req->shift_date != '') ? $req->shift_date : $job->start_date,
+                            'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
+                            'schedule'      => $req->period,
+                            'schedule_id'   => $req->frequency,
+                            'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
+                        ]);
 
-                           // $firstDate = false;
-                        } else {
+                        // $firstDate = false;
+                    } else {
 
-                            Job::where('id', $job->id)->update([
+                        Job::where('id', $job->id)->update([
 
-                                'start_date'    => $newDate,
-                                'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
-                                'schedule'      => $req->period,
-                                'schedule_id'   => $req->frequency,
-                                'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
+                            'start_date'    => $newDate,
+                            'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
+                            'schedule'      => $req->period,
+                            'schedule_id'   => $req->frequency,
+                            'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
 
-                            ]);
-                        }
-                   // }
+                        ]);
+                    }
+                    // }
                 }
             }
         }
-        
+
         return response()->json([
             'success' => 'shift updated successfully'
         ]);
