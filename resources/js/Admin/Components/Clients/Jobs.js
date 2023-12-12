@@ -312,8 +312,8 @@ export default function Jobs({ contracts, client }) {
 
         e.preventDefault();
 
-        if (isEmptyOrSpaces(cshift.contract)) {
-            window.alert('Please select contract');
+        if (isEmptyOrSpaces(cshift.job)) {
+            window.alert('Please select job');
             return;
         }
         if (isEmptyOrSpaces(cshift.shift_date)) {
@@ -322,16 +322,6 @@ export default function Jobs({ contracts, client }) {
         }
         if (isEmptyOrSpaces(cshift.shift_time)) {
             window.alert('Please choose new shift time');
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.contract)) {
-            window.alert('Please select new shift time');
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.service)) {
-            window.alert('Please select service');
             return;
         }
 
@@ -344,10 +334,7 @@ export default function Jobs({ contracts, client }) {
             window.alert('Please select From and To date');
             return;
         }
-        if (cshift.repetency == 'one_time' && isEmptyOrSpaces(cshift.job)) {
-            window.alert('Please select job');
-            return;
-        }
+  
         if (cshift.repetency == 'forever' && isEmptyOrSpaces(cshift.frequency)) {
             window.alert('Please select frequency');
             return;

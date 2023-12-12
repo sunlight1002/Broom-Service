@@ -461,8 +461,8 @@ export default function TotalJobs() {
 
         e.preventDefault();
 
-        if (isEmptyOrSpaces(cshift.contract)) {
-            window.alert('Please select contract');
+        if (isEmptyOrSpaces(cshift.job)) {
+            window.alert('Please select job');
             return;
         }
         if (isEmptyOrSpaces(cshift.shift_date)) {
@@ -474,15 +474,6 @@ export default function TotalJobs() {
             return;
         }
 
-        if (isEmptyOrSpaces(cshift.contract)) {
-            window.alert('Please select new shift time');
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.service)) {
-            window.alert('Please select service');
-            return;
-        }
 
         if (isEmptyOrSpaces(cshift.repetency) ) {
             window.alert('Please select repetency');
