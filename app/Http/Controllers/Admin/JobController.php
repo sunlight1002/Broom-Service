@@ -99,6 +99,22 @@ class JobController extends Controller
 
 
     }
+
+    public function shiftChangeWorker($sid,$date) {
+     
+        $ava_workers = User::with('availabilities','jobs')->where('skill',  'like','%'.$sid.'%');
+        
+        $ava_workers = $ava_workers->whereHas('availabilities', function ($query) use( $date) {
+                $query->where('date', '=',$date);
+        });
+        $ava_workers = $ava_workers->where('status',1)->get()->toArray();
+
+        return response()->json([
+            'workers'       => $ava_workers,        
+        ], 200);
+
+    } 
+
     public function AvlWorker($id){
       $job = Job::where('id',$id)->get()->first();
       $serv = $job->jobservice;

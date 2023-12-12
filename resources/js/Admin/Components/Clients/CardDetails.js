@@ -58,7 +58,7 @@ export default function CardDetails({ latestContract, client }) {
         //     }
         // }, 200)
     }, [client]);
-    console.log(latestContract);
+   
     return (
         <div className='form-group'>
             <ul className='list-unstyled'>

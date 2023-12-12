@@ -273,10 +273,10 @@ class JobController extends Controller
                 $end    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
                 $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
                 
-               // if( ($start->lt($now) ) && ($end->gt($now))  ){
+                if( ($start->lt($now) ) && ($end->gt($now))  ){
                    // dd(1);
                     $this->order($job->id);
-               // }
+                }
     
             }
         }

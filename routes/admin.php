@@ -74,7 +74,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
     Route::post('get-worker-jobs',[JobController::class,'getJobWorker']);
     Route::post('cancel-job',[JobController::class,'cancelJob']);
     Route::get('job-worker/{id}',[JobController::class,'AvlWorker']);
-
+    Route::get('shift-change-worker/{sid}/{date}',[JobController::class,'shiftChangeWorker']);
     Route::resource('job-comments', JobCommentController::class);
 
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
@@ -245,6 +245,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:admin-api', 'scopes:ad
 
     Route::get('get-settings',[SettingController::class,'getSettings']);
     Route::post('update-settings',[SettingController::class,'updateSettings']);
+    Route::post('update-shift/{id}',[ClientController::class,'updateShift']);
     
 });
 
