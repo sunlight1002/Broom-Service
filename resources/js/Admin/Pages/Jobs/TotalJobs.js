@@ -29,6 +29,7 @@ export default function TotalJobs() {
     const [AllFreq, setAllFreq] = useState([]);
     const [service, setService] = useState([]);
     const [sworkers, setSworkers] = useState([]);
+    const [lng,setLng] = useState(null);
     const [cshift, setCshift] = useState({
 
         contract: '',
@@ -419,7 +420,8 @@ export default function TotalJobs() {
             newvalues['contract']  = j.getAttribute('contract');
             newvalues['service']   = j.getAttribute('schedule_id');
             newvalues['client']    = j.getAttribute('client');
-            //getWorker( j.getAttribute('schedule_id') );
+            setLng(j.getAttribute('lng'))
+          
         }
 
         if( e.target.name  == 'shift_date' || e.target.name == 'shift_time'){
@@ -431,7 +433,7 @@ export default function TotalJobs() {
         //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
         // }
         if (e.target.name == "repetency" && e.target.value != 'one_time') {
-            getFrequency(client.lng);
+            getFrequency(lng);
         }
        
         if (e.target.name == "frequency") {
@@ -819,6 +821,7 @@ export default function TotalJobs() {
                                                             contract={j.contract_id}
                                                             client={j.client_id}
                                                             value={j.id}
+                                                            lng={ j.client ? j.client.lng : 'heb' }
                                                             schedule_id={j.schedule_id}
                                                         >
                                                             {j.client ? (j.client.firstname+" "+j.client.lastname) : 'NA'}  | {j.shifts} | {Moment(j.start_date).format('DD MMM,Y')}
