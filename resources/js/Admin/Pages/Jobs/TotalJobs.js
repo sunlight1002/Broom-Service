@@ -541,7 +541,7 @@ export default function TotalJobs() {
                                 <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
                                 <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
                                 <button className="btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
-                                <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button>
+                                {/* <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button className="ml-2 reportModal btn btn-warning" data-toggle="modal" data-target="#exampleModal">Export Time Reports</button>
                             </div>
                         </div>
