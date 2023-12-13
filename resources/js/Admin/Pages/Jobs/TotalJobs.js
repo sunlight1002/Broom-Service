@@ -821,7 +821,7 @@ export default function TotalJobs() {
                                                             value={j.id}
                                                             schedule_id={j.schedule_id}
                                                         >
-                                                            {j.client.firstname+" "+j.client.lastname}  | {j.shifts} | {Moment(j.start_date).format('DD MMM,Y')}
+                                                            {j.client ? (j.client.firstname+" "+j.client.lastname) : 'NA'}  | {j.shifts} | {Moment(j.start_date).format('DD MMM,Y')}
                                                         </option>
                                                     })}
 
