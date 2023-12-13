@@ -442,7 +442,7 @@ export default function TotalJobs() {
             newvalues['period'] = e.target.options[e.target.selectedIndex].getAttribute('period');
         }
         newvalues[e.target.name] = e.target.value;
-       
+        console.log(newvalues)
         setCshift(newvalues);
     }
 
@@ -456,17 +456,18 @@ export default function TotalJobs() {
     }
 
     const isEmptyOrSpaces = (str) => {
-        return str === null || str.match(/^ *$/) !== null;
+        return str === null || str === '';
     }
 
     const changeShift = (e) => {
 
         e.preventDefault();
 
-        if (isEmptyOrSpaces(cshift.job)) {
-            window.alert('Please select job');
-            return;
-        }
+        // if (isEmptyOrSpaces(cshift.job)) {
+        //     window.alert('Please select job');
+        //     return;
+        // }
+       
         if (isEmptyOrSpaces(cshift.shift_date)) {
             window.alert('Please choose new shift date');
             return;
@@ -526,7 +527,7 @@ export default function TotalJobs() {
                                 <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
                                 <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
                                 <button className="ml-2 btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
-                                <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button>
+                                {/* <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button className="ml-2 btn btn-warning addButton" data-toggle="modal" data-target="#exampleModal">Export Time Reports</button>
                             </div>
                             <div classname="App" style={{ display: "none" }}>
@@ -683,6 +684,29 @@ export default function TotalJobs() {
                                                                         {(item.client) && item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
                                                                         {(item.client) && item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
                                                                         <Link to={`/admin/view-job/${item.id}`} className="dropdown-item">View</Link>
+                                                                        <button className="dropdown-item" onClick={() => 
+                                                                           
+                                                                           {setCshift(
+                                                                            {
+                                                                
+                                                                                contract: item.contract_id,
+                                                                                client: item.client_id,
+                                                                                repetency: '',
+                                                                                job: item.id,
+                                                                                from: '',
+                                                                                to: '',
+                                                                                worker: '',
+                                                                                service: item.schedule_id,
+                                                                                shift_date: '',
+                                                                                frequency: '',
+                                                                                cycle: '',
+                                                                                period: '',
+                                                                                shift_time: ''
+                                                                            });
+                                                                            $('#edit-shift').modal('show');
+                                                                        }
+
+                                                                        }>Change Shift</button>
                                                                         <button className="dropdown-item" onClick={() => handleDelete(item.id)}>Delete</button>
                                                                     </div>
                                                                     }
@@ -808,7 +832,7 @@ export default function TotalJobs() {
                                                     Job
                                                 </label>
 
-                                                <select className='form-control mb-3'
+                                                <select disabled className='form-control mb-3'
                                                     name="job"
                                                     value={cshift.job}
                                                     onChange={e => handleShift(e)}
