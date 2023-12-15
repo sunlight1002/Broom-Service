@@ -424,8 +424,8 @@ export default function TotalJobs() {
           
         }
 
-        if( e.target.name  == 'shift_date' || e.target.name == 'shift_time'){
-            getWorker( cshift.service );
+        if( e.target.name  == 'shift_date'){
+            getWorker( cshift.service,e.target.value );
         }
 
         // if (e.target.name == 'contract' && e.target.value) {
@@ -446,10 +446,10 @@ export default function TotalJobs() {
         setCshift(newvalues);
     }
 
-    const getWorker = (sid) => {
+    const getWorker = (sid,d) => {
 
         axios
-            .get(`/api/admin/shift-change-worker/${sid}/${cshift.shift_date}`, { headers })
+            .get(`/api/admin/shift-change-worker/${sid}/${d}`, { headers })
             .then((res) => {
                 setSworkers(res.data.workers);
             });
@@ -887,7 +887,7 @@ export default function TotalJobs() {
 
                                          
 
-                                                {cshift.job != '' &&
+                                                {cshift.shift_time != '' &&
                                                     <>
                                                         <label className='control-label'>
                                                             Worker
@@ -909,8 +909,7 @@ export default function TotalJobs() {
                                                                 }
                                                                 )}
                                                         </select>
-                                                    </>
-                                                }
+                                                  
 
                                                 <label className="control-label">
                                                     Repetnacy
@@ -929,6 +928,8 @@ export default function TotalJobs() {
                                                     <option value="untill_date"> Untill Date </option>
 
                                                 </select>
+                                                </>
+                                                }
 
                                               
 
