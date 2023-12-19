@@ -346,7 +346,7 @@ export default function TotalJobs() {
         { bg: '#d3d3d3', tc: '#444', shift: 'fullday-8am-16pm' },
         { bg: '#FFE87C', tc: '#444', shift: 'morning1-8am-10am' },
         { bg: '#FFAE42', tc: '#fff', shift: 'morning2-10am-12pm' },
-        { bg: 'yellow', tc: '#444', shift: 'morning-8am-12pm' },
+        { bg: 'yellow',  tc: '#444', shift: 'morning-8am-12pm' },
         { bg: '#79BAEC', tc: '#fff', shift: 'noon1-12pm-14pm' },
         { bg: '#1569C7', tc: '#fff', shift: 'noon2-14pm-16pm' },
         { bg: '#ADDFFF', tc: '#fff', shift: 'noon-12pm-16pm' },
