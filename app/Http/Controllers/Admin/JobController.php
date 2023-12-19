@@ -78,16 +78,16 @@ class JobController extends Controller
       
       
         if($w == 'all' ){
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate(20);
         } else if($request->p == 1){
             $jobs = $jobs->whereDate('start_date','>=',$startDate);
             $jobs = $jobs->whereDate('start_date','<=',$endDate);
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(5);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate(5);
         } else{
             $jobs = $jobs->whereDate('start_date','>=',$startDate);
             $jobs = $jobs->whereDate('start_date','<=',$endDate);
             $pcount = Job::count();
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate($pcount);
+            $jobs = $jobs->orderBy('created_at', 'ASC')->paginate($pcount);
         }
      
         if(isset($jobs)):
@@ -99,6 +99,22 @@ class JobController extends Controller
 
 
     }
+
+    public function shiftChangeWorker($sid,$date) {
+     
+        $ava_workers = User::with('availabilities','jobs')->where('skill',  'like','%'.$sid.'%');
+        
+        $ava_workers = $ava_workers->whereHas('availabilities', function ($query) use( $date) {
+                $query->where('date', '=',$date);
+        });
+        $ava_workers = $ava_workers->where('status',1)->get()->toArray();
+
+        return response()->json([
+            'workers'       => $ava_workers,        
+        ], 200);
+
+    } 
+
     public function AvlWorker($id){
       $job = Job::where('id',$id)->get()->first();
       $serv = $job->jobservice;

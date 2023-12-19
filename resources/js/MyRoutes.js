@@ -64,6 +64,7 @@ import ViewWorker from './Admin/Pages/Workers/ViewWorker';
 import ViewWorkerContract from './Admin/Pages/Workers/WorkerContract';
 import AdminLogin from './Admin/Pages/Auth/AdminLogin';
 import Setting from './Admin/Pages/Setting/Setting';
+import Credentials from './Admin/Pages/Setting/Credentials';
 import ManageTeam from './Admin/Pages/Setting/ManageTeam';
 import AddTeam from './Admin/Pages/Setting/AddTeam';
 import EditTeam from './Admin/Pages/Setting/EditTeam';
@@ -216,6 +217,7 @@ export default function MyRoutes() {
                      <Route exact path="view-worker/:id" element={<ViewWorker />} />
                      <Route exact path="worker-contract/:id" element={<ViewWorkerContract />} />
                      <Route exact path="settings" element={<Setting />} />
+                     <Route exact path="credentials" element={<Credentials />} />
                      <Route exact path="manage-team" element={<ManageTeam />} />
                      <Route exact path="add-team" element={<AddTeam />} />
                      <Route exact path="edit-team/:id" element={<EditTeam />} />

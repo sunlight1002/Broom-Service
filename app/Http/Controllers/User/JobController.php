@@ -19,9 +19,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Mail;
-use Helper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
+use App\Helpers\Helper;
 
 class JobController extends Controller
 {
@@ -257,6 +257,7 @@ class JobController extends Controller
             'night2-22pm-24pm'   => '22:30:00-00:00:00',
             'night-20pm-24pm'    => '20:30:00-00:00:00',
         ];
+
        
         if(!empty($jobs)){
             foreach($jobs as $job){
@@ -273,6 +274,7 @@ class JobController extends Controller
                 $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
                 
                 if( ($start->lt($now) ) && ($end->gt($now))  ){
+                   // dd(1);
                     $this->order($job->id);
                 }
     
@@ -309,14 +311,14 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-        "cid"  => env('ICOUNT_COMPANYID'),
-        "user" => env('ICOUNT_USERNAME'),
-        "pass" => env('ICOUNT_PASS'),
+        "cid"  => Helper::get_setting('icount_company_id'),
+        "user" =>Helper::get_setting('icount_username'),
+        "pass" => Helper::get_setting('icount_password'),
         "doctype" => "order",
         "client_name" => $name, 
         "client_address" => $job->client->geo_address,
         "email" => $job->client->email, 
-        "lang" => $job->client->lng,
+        "lang" => ( $job->client->lng == 'heb' ) ? 'he' : 'en' ,
         "currency_code" => "ILS",
         
         "items" => $items,
@@ -338,7 +340,7 @@ class JobController extends Controller
             //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
             $json = json_decode($response, true);
            
-           //if(!$json["status"]) die($json["reason"]);
+           if(!$json["status"]) die($json["reason"]);
            
             Order::create([
                 'order_id'=>$json['docnum'],
@@ -374,6 +376,7 @@ class JobController extends Controller
             }
         }
         $pay_items = json_encode($pitems);
+
 
       $curl = curl_init();
 
@@ -451,9 +454,9 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
         $params = Array(
     
-        "cid"  => env('ICOUNT_COMPANYID'),
-        "user" => env('ICOUNT_USERNAME'),
-        "pass" => env('ICOUNT_PASS'),
+        "cid"  => Helper::get_setting('icount_company_id'),
+        "user" =>Helper::get_setting('icount_username'),
+        "pass" => Helper::get_setting('icount_password'),
         "doctype" => $type,
         "docnum"  => $docnum,
         "based_on"=> $docnum
@@ -481,41 +484,42 @@ class JobController extends Controller
     public function invoice($id, $oid){
         
         $job = Job::where(['id'=>$id])->with('jobservice','client','contract','order')->get()->first();
-        $services = json_decode($job->order->items);
+        $services = json_decode($job->order[0]->items);
         $total = 0;
-          
+       
         $p_method = $job->client->payment_method;
         $contract = $job->contract; 
         $card = ClientCard::where('client_id',$job->client_id)->get()->first();
         $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice"; 
     
+       
 
         if( str_contains($job->schedule,'w') == false ) {
-        
+      
         $subtotal = (int)$services[0]->unitprice;
         $tax = (17/100) * $subtotal;
         $total = $tax+$subtotal;
       
         $order = Order::where('job_id',$id)->get()->first();
         $o_res = json_decode($order->response);
-     
+        
         $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
         $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname." ".$job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-                "cid"            => env('ICOUNT_COMPANYID'),
-                "user"           => env('ICOUNT_USERNAME'),
-                "pass"           => env('ICOUNT_PASS'),
+                "cid"            => Helper::get_setting('icount_company_id'),
+                "user"           =>Helper::get_setting('icount_username'),
+                "pass"           => Helper::get_setting('icount_password'),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,
                 "client_name"    => $name, 
                 "client_address" => $job->client->geo_address,
                 "email"          => $job->client->email, 
-                "lang"           => $job->client->lng,
+                "lang"           => ( $job->client->lng == 'heb' ) ? 'he' : 'en' ,
                 "currency_code"  => "ILS",
-                "doc_lang"       => $job->client->lng,
+                "doc_lang"       => ( $job->client->lng == 'heb' ) ? 'he' : 'en' ,
                 "items"          => $services,
                 "duedate"        => $due,
                 "based_on"       =>['docnum'=>$order->order_id,'doctype'=>'order'],
@@ -525,6 +529,7 @@ class JobController extends Controller
                 "email_to"        => $job->client->email, 
                 
         );
+       
         if($doctype == "invrec"){
 
             $ex = explode('-',$card->valid);
@@ -544,6 +549,8 @@ class JobController extends Controller
         } else {
             $_params = $params;
         }
+
+       
       
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, 1);
@@ -554,7 +561,7 @@ class JobController extends Controller
         
         //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
         $json = json_decode($response, true);
-      
+       
        // if(!$json["status"]) die($json["reason"]);
       
        // Helper::sendInvoicePayToClient($id, $json["doc_url"], $json["docnum"],$inv->id);
@@ -562,12 +569,14 @@ class JobController extends Controller
     
     /* Auto payment */
         if( $doctype == 'invrec'){
+          
           $pres = $this->commitPayment($services, $id, $card->card_token);
           $pre = json_encode($pres);
         }
-
+       // dd('DD');
+       //dd($job->order[0]);
     /*Close Order */
-        $this->closeDoc($job->order->order_id,'order');
+        $this->closeDoc($job->order[0]->order_id,'order');
     
         job::where('id',$id)->update([
             'invoice_no'    =>$json["docnum"],
@@ -597,7 +606,8 @@ class JobController extends Controller
             Invoices::where('id',$inv->id)->update(['invoice_icount_status'=>'Closed']);
 
         }
-        Order::where('id',$job->order->id)->update(['status'=>'Closed']);
+       
+        Order::where('id',$job->order[0]->id)->update(['status'=>'Closed']);
         JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
         Order::where('id',$oid)->update(['invoice_status'=>2]);
 
@@ -780,18 +790,18 @@ class JobController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $params = Array(
 
-                "cid"            => env('ICOUNT_COMPANYID'),
-                "user"           => env('ICOUNT_USERNAME'),
-                "pass"           => env('ICOUNT_PASS'),
+                "cid"            => Helper::get_setting('icount_company_id'),
+                "user"           =>Helper::get_setting('icount_username'),
+                "pass"           => Helper::get_setting('icount_password'),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,
                 "client_name"    => $name, 
                 "client_address" => $job->client->geo_address,
                 "email"          => $job->client->email, 
-                "lang"           => $job->client->lng,
+                "lang"           => ( $job->client->lng == 'heb' ) ? 'he' : 'en' ,
                 "currency_code"  => "ILS",
-                "doc_lang"       => $job->client->lng,
+                "doc_lang"       => ( $job->client->lng == 'heb' ) ? 'he' : 'en' ,
                 "items"          => $services,
                 "duedate"        => $due,
                 "based_on"       =>$based_on,

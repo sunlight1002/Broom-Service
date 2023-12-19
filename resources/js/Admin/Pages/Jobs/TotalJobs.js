@@ -17,13 +17,35 @@ export default function TotalJobs() {
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
-    const [filter,setFilter] = useState('');
-    const [from,setFrom] = useState([]);
-    const [to,setTo] = useState([]);
+    const [filter, setFilter] = useState('');
+    const [from, setFrom] = useState([]);
+    const [to, setTo] = useState([]);
     const alert = useAlert();
     const location = useLocation();
     const navigate = useNavigate();
     const query = (location.search.split('=')[1]);
+
+    const [lw, setLw] = useState('Change shift');
+    const [AllFreq, setAllFreq] = useState([]);
+    const [service, setService] = useState([]);
+    const [sworkers, setSworkers] = useState([]);
+    const [lng, setLng] = useState(null);
+    const [cshift, setCshift] = useState({
+
+        contract: '',
+        client: '',
+        repetency: '',
+        job: '',
+        from: '',
+        to: '',
+        worker: '',
+        service: '',
+        shift_date: '',
+        frequency: '',
+        cycle: '',
+        period: '',
+        shift_time: ''
+    })
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -60,10 +82,13 @@ export default function TotalJobs() {
     }
 
     const getWorkers = () => {
+
         axios
             .get('/api/admin/all-workers', { headers })
             .then((res) => {
+
                 setAllWorkers(res.data.workers);
+
             })
     }
 
@@ -77,7 +102,7 @@ export default function TotalJobs() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/jobs?page=" + currentPage+"&filter_week=all&q="+filter, { headers })
+            .get("/api/admin/jobs?page=" + currentPage + "&filter_week=all&q=" + filter, { headers })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
@@ -133,23 +158,23 @@ export default function TotalJobs() {
     }
 
     const [workers, setWorkers] = useState([]);
-    const [Aworker,setAworker] = useState([]);
+    const [Aworker, setAworker] = useState([]);
     const handleChange = (e, index) => {
         const id = (e.target.name);
         axios
-        .get(`/api/admin/job-worker/${id}`,{ headers })
-        .then((res)=>{
-            if(res.data.aworker.length > 0){
-                setAworker(res.data.aworker);
-            }else {
-                setAworker([]);
-            }
-           
-        })
-        
-       
+            .get(`/api/admin/job-worker/${id}`, { headers })
+            .then((res) => {
+                if (res.data.aworker.length > 0) {
+                    setAworker(res.data.aworker);
+                } else {
+                    setAworker([]);
+                }
+
+            })
+
+
     }
-    const upWorker=(e,index) =>{
+    const upWorker = (e, index) => {
 
         let newWorkers = [...workers];
         newWorkers[e.target.name] = e.target.value;
@@ -210,8 +235,8 @@ export default function TotalJobs() {
         var hours = parseInt(h, 10);
         var minutes = m ? parseInt(m, 10) : 0;
         var min = minutes / 60;
-         return hours + ":" + min.toString().substring(0, 4);
-       
+        return hours + ":" + min.toString().substring(0, 4);
+
 
     }
 
@@ -229,10 +254,10 @@ export default function TotalJobs() {
     const handleReport = (e) => {
         e.preventDefault();
 
-        if(!from) { window.alert("Please select form date!"); return false;}
-        if(!to) { window.alert("Please select to date!"); return false;}
+        if (!from) { window.alert("Please select form date!"); return false; }
+        if (!to) { window.alert("Please select to date!"); return false; }
 
-        axios.post(`/api/admin/export_report`, { type: 'all',from:from,to:to }, { headers })
+        axios.post(`/api/admin/export_report`, { type: 'all', from: from, to: to }, { headers })
             .then((res) => {
                 if (res.data.status_code == 404) {
                     alert.error(res.data.msg);
@@ -243,7 +268,7 @@ export default function TotalJobs() {
                         rep[r].time_diffrence = toHoursAndMinutes(rep[r].time_total);
 
                     }
-                   
+
                     setAllData(rep);
                     document.querySelector('#csv').click();
                 }
@@ -256,43 +281,43 @@ export default function TotalJobs() {
         filename: filename
     };
     const copy = [...totalJobs];
-    const [order,setOrder] = useState('ASC');
-    const sortTable = (e,col) =>{
-        
-        let n = e.target.nodeName;
-        if(n != "SELECT"){
-        if (n == "TH") {
-            let q = e.target.querySelector('span');
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
+    const [order, setOrder] = useState('ASC');
+    const sortTable = (e, col) => {
 
-        } else {
-            let q = e.target;
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
+        let n = e.target.nodeName;
+        if (n != "SELECT") {
+            if (n == "TH") {
+                let q = e.target.querySelector('span');
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
+
             } else {
-                q.innerHTML = "↑";
+                let q = e.target;
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
             }
         }
-    }
- 
-        if(order == 'ASC'){
+
+        if (order == 'ASC') {
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? 1 : -1));
             setTotalJobs(sortData);
             setOrder('DESC');
         }
-        if(order == 'DESC'){
+        if (order == 'DESC') {
             const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? -1 : 1));
             setTotalJobs(sortData);
             setOrder('ASC');
         }
-        
+
     }
     const filterJobs = (e) => {
-       filterJobs1();
+        filterJobs1();
     }
 
     const filterJobDate = (w) => {
@@ -318,28 +343,177 @@ export default function TotalJobs() {
 
     const allShifts = [
 
-            { bg: '#d3d3d3', tc: '#444',  shift: 'fullday-8am-16pm' },
-            { bg: '#FFE87C', tc: '#444',  shift: 'morning1-8am-10am' },
-            { bg: '#FFAE42', tc: '#fff',  shift: 'morning2-10am-12pm' },
-            { bg: 'yellow',  tc: '#444',  shift: 'morning-8am-12pm' },
-            { bg: '#79BAEC', tc: '#fff',  shift: 'noon1-12pm-14pm' },
-            { bg: '#1569C7', tc: '#fff',  shift: 'noon2-14pm-16pm' },
-            { bg: '#ADDFFF', tc: '#fff',  shift: 'noon-12pm-16pm' },
-            { bg: '#DBF9DB', tc: '#444',  shift: 'evening1-16pm-18pm' },
-            { bg: '#3EA055', tc: '#fff',  shift: 'evening2-18pm-20pm' },
-            { bg: '#B5EAAA', tc: '#fff',  shift: 'evening-16pm-20pm' },
-            { bg: '#B09FCA', tc: '#fff',  shift: 'night1-20pm-22pm' },
-            { bg: '#800080', tc: '#fff',  shift: 'night2-22pm-24pm' },
-            { bg: '#D2B9D3', tc: '#fff',  shift: 'night-20pm-24pm' },
+        { bg: '#d3d3d3', tc: '#444', shift: 'fullday-8am-16pm' },
+        { bg: '#FFE87C', tc: '#444', shift: 'morning1-8am-10am' },
+        { bg: '#FFAE42', tc: '#fff', shift: 'morning2-10am-12pm' },
+        { bg: 'yellow',  tc: '#444', shift: 'morning-8am-12pm' },
+        { bg: '#79BAEC', tc: '#fff', shift: 'noon1-12pm-14pm' },
+        { bg: '#1569C7', tc: '#fff', shift: 'noon2-14pm-16pm' },
+        { bg: '#ADDFFF', tc: '#fff', shift: 'noon-12pm-16pm' },
+        { bg: '#DBF9DB', tc: '#444', shift: 'evening1-16pm-18pm' },
+        { bg: '#3EA055', tc: '#fff', shift: 'evening2-18pm-20pm' },
+        { bg: '#B5EAAA', tc: '#fff', shift: 'evening-16pm-20pm' },
+        { bg: '#B09FCA', tc: '#fff', shift: 'night1-20pm-22pm' },
+        { bg: '#800080', tc: '#fff', shift: 'night2-22pm-24pm' },
+        { bg: '#D2B9D3', tc: '#fff', shift: 'night-20pm-24pm' },
 
-            { bg: 'yellow',  tc: '#444',  shift: 'morning' },
-            { bg: '#79BAEC', tc: '#fff',  shift: 'noon' },
-            { bg: '#DBF9DB', tc: '#444',  shift: 'evening' },
-            { bg: '#B09FCA', tc: '#fff',  shift: 'night' }
+        { bg: 'yellow', tc: '#444', shift: 'morning' },
+        { bg: '#79BAEC', tc: '#fff', shift: 'noon' },
+        { bg: '#DBF9DB', tc: '#444', shift: 'evening' },
+        { bg: '#B09FCA', tc: '#fff', shift: 'night' }
     ];
 
 
-   
+
+    const slot = [
+        ['full day- 8am-16pm'],
+        ['morning1 - 8am-10am'],
+        ['morning 2 - 10am-12pm'],
+        ['morning- 08am-12pm'],
+        ['noon1 -12pm-14pm'],
+        ['noon2 14pm-16pm'],
+        ['noon 12pm-16pm'],
+        ['ev1 20pm-22pm'],
+        ['ev2 22pm-24pm'],
+        ['evening 20pm-24am']
+    ];
+
+    const getFrequency = (lng) => {
+        axios
+            .post('/api/admin/all-service-schedule', { lng }, { headers })
+            .then((res) => {
+                setAllFreq(res.data.schedules);
+            })
+    }
+
+    const shiftChange = (e) => {
+        $('#edit-shift').modal('show');
+    }
+
+    const resetShift = () => {
+
+        setCshift(
+            {
+
+                contract: '',
+                client: '',
+                repetency: '',
+                job: '',
+                from: '',
+                to: '',
+                worker: '',
+                service: '',
+                shift_date: '',
+                frequency: '',
+                cycle: '',
+                period: '',
+                shift_time: ''
+            }
+        );
+    }
+
+    const handleShift = (e) => {
+
+        let newvalues = { ...cshift };
+
+        if (e.target.name == "job" && e.target.value) {
+
+            let j = e.target.options[e.target.selectedIndex];
+
+            newvalues['contract'] = j.getAttribute('contract');
+            newvalues['service'] = j.getAttribute('schedule_id');
+            newvalues['client'] = j.getAttribute('client');
+            setLng(j.getAttribute('lng'))
+
+        }
+
+        if (e.target.name == 'shift_date') {
+            getWorker(cshift.service, e.target.value);
+        }
+
+        // if (e.target.name == 'contract' && e.target.value) {
+
+        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
+        // }
+        if (e.target.name == "repetency" && e.target.value != 'one_time') {
+            getFrequency(lng);
+        }
+
+        if (e.target.name == "frequency") {
+
+            newvalues['cycle'] = e.target.options[e.target.selectedIndex].getAttribute('cycle');
+            newvalues['period'] = e.target.options[e.target.selectedIndex].getAttribute('period');
+        }
+        newvalues[e.target.name] = e.target.value;
+        console.log(newvalues)
+        setCshift(newvalues);
+    }
+
+    const getWorker = (sid, d) => {
+        setLw('Loading data..');
+        axios
+            .get(`/api/admin/shift-change-worker/${sid}/${d}`, { headers })
+            .then((res) => {
+                setSworkers(res.data.workers);
+                setLw('Change shift');
+            });
+    }
+
+    const isEmptyOrSpaces = (str) => {
+        return str === null || str === '';
+    }
+
+    const changeShift = (e) => {
+
+        e.preventDefault();
+
+        // if (isEmptyOrSpaces(cshift.job)) {
+        //     window.alert('Please select job');
+        //     return;
+        // }
+
+        if (isEmptyOrSpaces(cshift.shift_date)) {
+            window.alert('Please choose new shift date');
+            return;
+        }
+        if (isEmptyOrSpaces(cshift.shift_time)) {
+            window.alert('Please choose new shift time');
+            return;
+        }
+
+
+        if (isEmptyOrSpaces(cshift.repetency)) {
+            window.alert('Please select repetency');
+            return;
+        }
+
+        if (cshift.repetency == 'untill_date' && (isEmptyOrSpaces(cshift.from) || isEmptyOrSpaces(cshift.to))) {
+            window.alert('Please select From and To date');
+            return;
+        }
+        if (cshift.repetency == 'one_time' && isEmptyOrSpaces(cshift.job)) {
+            window.alert('Please select job');
+            return;
+        }
+        if (cshift.repetency == 'forever' && isEmptyOrSpaces(cshift.frequency)) {
+            window.alert('Please select frequency');
+            return;
+        }
+
+        axios
+            .post(`/api/admin/update-shift`, { cshift }, { headers })
+            .then((res) => {
+                getJobs();
+                resetShift();
+                $('#edit-shift').modal('hide');
+                alert.success(res.data.success);
+            })
+
+    }
+
+
+
+
     return (
         <div id="container">
             <Sidebar />
@@ -349,42 +523,44 @@ export default function TotalJobs() {
                         <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
                         </div>
-                       
-                        <div className="col-sm-7 hidden-xs">
+
+                        <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
                                 <input type="hidden" id="filter-week" />
-                                <button className="btn btn-info" onClick={(e)=>{filterJobDate('all');setFilter(e.target.value)}} style={{background: "#858282", borderColor: "#858282"}}> All Jobs</button>
-                                <button className="ml-2 btn btn-success" onClick={(e)=>{filterJobDate('current')}}> Current week</button>
-                                <button className="ml-2 btn btn-pink" onClick={(e)=>{filterJobDate('next')}}> Next week</button>
-                                <button className="ml-2 btn btn-primary" onClick={(e)=>{filterJobDate('nextnext')}}> Next Next week</button>
-                                <button className="ml-2 btn btn-warning addButton"  data-toggle="modal" data-target="#exampleModal">Export Time Reports</button>
+                                <button className="btn btn-info" onClick={(e) => { filterJobDate('all'); setFilter(e.target.value) }} style={{ background: "#858282", borderColor: "#858282" }}> All Jobs</button>
+                                <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
+                                <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
+                                <button className="ml-2 btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
+                                {/* <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button> */}
+                                <button className="ml-2 btn btn-warning addButton" data-toggle="modal" data-target="#exampleModal">Export Time Reports</button>
                             </div>
                             <div classname="App" style={{ display: "none" }}>
-                                <CSVLink {...csvReport} id="csv">Export to CSV</CSVLink> 
+                                <CSVLink {...csvReport} id="csv">Export to CSV</CSVLink>
                             </div>
                         </div>
                         <div className="col-12 hidden-xl">
                             <div className="job-buttons">
                                 <input type="hidden" id="filter-week" />
-                                <button className="btn btn-info" onClick={(e)=>{filterJobDate('all')}} style={{background: "#858282", borderColor: "#858282"}}> All Jobs</button>
-                                <button className="ml-2 btn btn-success" onClick={(e)=>{filterJobDate('current')}}> Current week</button>
-                                <button className="ml-2 btn btn-pink" onClick={(e)=>{filterJobDate('next')}}> Next week</button>
-                                <button className="btn btn-primary" onClick={(e)=>{filterJobDate('nextnext')}}> Next Next week</button>
-                                <button className="ml-2 reportModal btn btn-warning"  data-toggle="modal" data-target="#exampleModal">Export Time Reports</button> 
+                                <button className="btn btn-info" onClick={(e) => { filterJobDate('all') }} style={{ background: "#858282", borderColor: "#858282" }}> All Jobs</button>
+                                <button className="ml-2 btn btn-success" onClick={(e) => { filterJobDate('current') }}> Current week</button>
+                                <button className="ml-2 btn btn-pink" onClick={(e) => { filterJobDate('next') }}> Next week</button>
+                                <button className="btn btn-primary" onClick={(e) => { filterJobDate('nextnext') }}> Next Next week</button>
+                                {/* <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button> */}
+                                <button className="ml-2 reportModal btn btn-warning" data-toggle="modal" data-target="#exampleModal">Export Time Reports</button>
                             </div>
                         </div>
-                        <div className="col-sm-3 hidden-xs">
-                            <div className="search-data"> 
-                               <input type='text' id="search-field" className="form-control" placeholder="Search" onChange={filterJobs} style={{marginRight: "0"}} />
+                        <div className="col-sm-2 hidden-xs">
+                            <div className="search-data">
+                                <input type='text' id="search-field" className="form-control" placeholder="Search" onChange={filterJobs} style={{ marginRight: "0" }} />
                             </div>
                         </div>
 
                         <div className='col-sm-6 hidden-xl mt-4'>
-                          <select className='form-control' onChange={e => sortTable(e,e.target.value)}>
-                          <option selected>-- Sort By--</option>
-                           <option value="start_date">Job Date</option>
-                           <option value="status">Status</option>
-                          </select>
+                            <select className='form-control' onChange={e => sortTable(e, e.target.value)}>
+                                <option selected>-- Sort By--</option>
+                                <option value="start_date">Job Date</option>
+                                <option value="status">Status</option>
+                            </select>
                         </div>
 
                     </div>
@@ -398,33 +574,34 @@ export default function TotalJobs() {
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col" onClick={(e)=>{sortTable(e,'start_date')}} style={{ "cursor": "pointer" }}>Job Date <span className="arr"> &darr; </span></th>
+                                                <th scope="col" onClick={(e) => { sortTable(e, 'start_date') }} style={{ "cursor": "pointer" }}>Job Date <span className="arr"> &darr; </span></th>
                                                 <th scope="col" >Worker</th>
                                                 <th scope="col" >Client</th>
                                                 <th scope="col" >Service</th>
-                                                <th className="hidden-xs" onClick={(e)=>{sortTable(e,'status')}} style={{ "cursor": "pointer" }} scope="col">Status <span className="arr"> &darr; </span></th>
+                                                <th className="hidden-xs" onClick={(e) => { sortTable(e, 'status') }} style={{ "cursor": "pointer" }} scope="col">Status <span className="arr"> &darr; </span></th>
                                                 <th className='text-center' scope="col">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {totalJobs &&
                                                 totalJobs.map((item, index) => {
- 
-                                                    let ix = allShifts.find(function(el, i){
-                                                       
-                                                          if(item.shifts != null){
-                                                          
-                                                          if( el.shift.replace(/ /g,'') == item.shifts.replace(/ /g,'')){
-                                                           
-                                                             return allShifts.indexOf(el.shift);
-                                                          }}
+
+                                                    let ix = allShifts.find(function (el, i) {
+
+                                                        if (item.shifts != null) {
+
+                                                            if (el.shift.replace(/ /g, '') == item.shifts.replace(/ /g, '')) {
+
+                                                                return allShifts.indexOf(el.shift);
+                                                            }
+                                                        }
                                                     });
 
                                                     let pstatus = null;
-                                                  
+
                                                     return (
                                                         <tr key={index} style={{ "cursor": "pointer" }}>
-                                                            <td onClick={(e) => handleNavigate(e, item.id)} style={(ix != undefined) ? {background: ix.bg, color: ix.tc} : {background: '#d3d3d3', color: '#444'} }>
+                                                            <td onClick={(e) => handleNavigate(e, item.id)} style={(ix != undefined) ? { background: ix.bg, color: ix.tc } : { background: '#d3d3d3', color: '#444' }}>
                                                                 <span className="d-block mb-1">{Moment(item.start_date).format('DD-MM-YYYY')}</span>
                                                                 <span className="mBlue" >{item.shifts}</span>
                                                             </td>
@@ -436,19 +613,19 @@ export default function TotalJobs() {
                                                                         : "NA"
                                                                 }</h6>
                                                             </Link>
-                                                            <select name={item.id} className="form-control mb-3 mt-1" value={(workers[`${item.id}`]) ? workers[`${item.id}`] : ""} onFocus={e => handleChange(e, index)} onChange={(e)=>upWorker(e,index)} >
-                                                                <option selected>select</option>
-                                                                { ( Aworker.length > 0  ) ?
-                                                                Aworker && Aworker.map((w, i) => {
-                                                                    return (
-                                                                        <option value={w.id} key={i}> {w.firstname}  {w.lastname}</option>
-                                                                    )
-                                                                }):
-                                                                <option>No worker Match</option>
-                                                                }
-                                                            </select>
+                                                                <select name={item.id} className="form-control mb-3 mt-1" value={(workers[`${item.id}`]) ? workers[`${item.id}`] : ""} onFocus={e => handleChange(e, index)} onChange={(e) => upWorker(e, index)} >
+                                                                    <option selected>select</option>
+                                                                    {(Aworker.length > 0) ?
+                                                                        Aworker && Aworker.map((w, i) => {
+                                                                            return (
+                                                                                <option value={w.id} key={i}> {w.firstname}  {w.lastname}</option>
+                                                                            )
+                                                                        }) :
+                                                                        <option>No worker Match</option>
+                                                                    }
+                                                                </select>
                                                             </td>
-                                                            <td style={item.client ? {background:item.client.color} : {}}><Link to={item.client ? `/admin/view-client/${item.client.id}` : '#'}>{
+                                                            <td style={item.client ? { background: item.client.color } : {}}><Link to={item.client ? `/admin/view-client/${item.client.id}` : '#'}>{
                                                                 item.client
                                                                     ? item.client.firstname +
                                                                     " " + item.client.lastname
@@ -457,63 +634,85 @@ export default function TotalJobs() {
                                                             </Link>
                                                             </td>
                                                             <td onClick={(e) => handleNavigate(e, item.id)}>{
-                                                                
-                                                                    item.jobservice && item.jobservice.map((js,i)=>{
-                                                                       
-                                                                        return (
-                                                                            (item.client && item.client.lng  == 'en')
-                                                                                ? (js.name + " ")
-                                                                                :
-                                                                                (js.heb_name + " ")
-                                                                        )
-                                                                    })
-                                                                
-                                                               
+
+                                                                item.jobservice && item.jobservice.map((js, i) => {
+
+                                                                    return (
+                                                                        (item.client && item.client.lng == 'en')
+                                                                            ? (js.name + " ")
+                                                                            :
+                                                                            (js.heb_name + " ")
+                                                                    )
+                                                                })
+
+
 
                                                             }</td>
-                                                            <td style={ item.status.includes('cancel') ? {color:'red',textTransform:"capitalize"} : {textTransform:"capitalize"}} className="hidden-xs"
-                                                              
+                                                            <td style={item.status.includes('cancel') ? { color: 'red', textTransform: "capitalize" } : { textTransform: "capitalize" }} className="hidden-xs"
+
                                                             >
                                                                 {item.status}
-                                                               
-                                                                {
-                                                                    item.order && item.order.map((o,i)=>{
 
-                                                                        return (<> <br/><Link target='_blank' to={o.doc_url} className="jorder"> order -{o.order_id} </Link><br/></>);
+                                                                {
+                                                                    item.order && item.order.map((o, i) => {
+
+                                                                        return (<> <br /><Link target='_blank' to={o.doc_url} className="jorder"> order -{o.order_id} </Link><br /></>);
                                                                     })
                                                                 }
 
                                                                 {
-                                                                    item.invoice && item.invoice.map((inv,i)=>{
+                                                                    item.invoice && item.invoice.map((inv, i) => {
 
-                                                                        if( i == 0 ){ pstatus = inv.status; }
+                                                                        if (i == 0) { pstatus = inv.status; }
 
-                                                                        return (<> <br/><Link target='_blank' to={inv.doc_url} className="jinv"> Invoice -{inv.invoice_id} </Link><br/></>);
+                                                                        return (<> <br /><Link target='_blank' to={inv.doc_url} className="jinv"> Invoice -{inv.invoice_id} </Link><br /></>);
                                                                     })
                                                                 }
 
                                                                 {
-                                                                    pstatus != null && <> <br/><span class='jorder'>{ pstatus }</span><br/></>
+                                                                    pstatus != null && <> <br /><span class='jorder'>{pstatus}</span><br /></>
                                                                 }
 
                                                                 <p>
-                                                                {(item.status=='cancel' && item.rate != null)?`(With Cancellatiom fees ${item.rate} ILS)`:''}
+                                                                    {(item.status == 'cancel' && item.rate != null) ? `(With Cancellatiom fees ${item.rate} ILS)` : ''}
                                                                 </p>
                                                             </td>
-                                                           
+
                                                             <td className='text-center'>
                                                                 <div className="action-dropdown dropdown pb-2">
                                                                     <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                                         <i className="fa fa-ellipsis-vertical"></i>
                                                                     </button>
-                                                                 
-                                                                 {item.client && <div className="dropdown-menu">
-                                                                    { (item.client) && item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
-                                                                    { (item.client) && item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
+
+                                                                    {item.client && <div className="dropdown-menu">
+                                                                        {(item.client) && item.invoice.length == 0 && <Link to={`/admin/add-order?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Order</Link>}
+                                                                        {(item.client) && item.order.length > 0 && <Link to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`} className="dropdown-item">Create Invoice</Link>}
                                                                         <Link to={`/admin/view-job/${item.id}`} className="dropdown-item">View</Link>
+                                                                        <button className="dropdown-item" onClick={() => {
+                                                                            setCshift(
+                                                                                {
+
+                                                                                    contract: item.contract_id,
+                                                                                    client: item.client_id,
+                                                                                    repetency: '',
+                                                                                    job: item.id,
+                                                                                    from: '',
+                                                                                    to: '',
+                                                                                    worker: '',
+                                                                                    service: item.schedule_id,
+                                                                                    shift_date: '',
+                                                                                    frequency: '',
+                                                                                    cycle: '',
+                                                                                    period: '',
+                                                                                    shift_time: ''
+                                                                                });
+                                                                            $('#edit-shift').modal('show');
+                                                                        }
+
+                                                                        }>Change Shift</button>
                                                                         <button className="dropdown-item" onClick={() => handleDelete(item.id)}>Delete</button>
                                                                     </div>
-                                                                 }
+                                                                    }
                                                                 </div>
                                                                 <button type="button" style={{ display: 'none' }} className="btn btn-success" onClick={(e) => handleform(item.id, e)}>
                                                                     Update
@@ -568,7 +767,7 @@ export default function TotalJobs() {
 
 
                                         <div className="row">
-                                           
+
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
@@ -612,11 +811,191 @@ export default function TotalJobs() {
                                     </div>
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary closeb" data-dismiss="modal">Close</button>
-                                        <button type="button" onClick={(e)=> handleReport(e)} className="btn btn-primary">Export</button>
+                                        <button type="button" onClick={(e) => handleReport(e)} className="btn btn-primary">Export</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <div className="modal fade" id="edit-shift" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="exampleModalLabel">Change Shift</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={e => resetShift()}>
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+
+
+                                                <label className="control-label">
+                                                    Job
+                                                </label>
+
+                                                <select disabled className='form-control mb-3'
+                                                    name="job"
+                                                    value={cshift.job}
+                                                    onChange={e => handleShift(e)}
+                                                >
+                                                    <option value=""> Please select Job</option>
+                                                    {totalJobs && totalJobs.map((j) => {
+
+                                                        return <option
+
+                                                            contract={j.contract_id}
+                                                            client={j.client_id}
+                                                            value={j.id}
+                                                            lng={j.client ? j.client.lng : 'heb'}
+                                                            schedule_id={j.schedule_id}
+                                                        >
+                                                            {j.client ? (j.client.firstname + " " + j.client.lastname) : 'NA'}  | {j.shifts} | {Moment(j.start_date).format('DD MMM,Y')}
+                                                        </option>
+                                                    })}
+
+                                                </select>
+
+                                                <label className="control-label">
+                                                    New Shift date
+                                                </label>
+
+                                                <input className='form-control mb-3'
+                                                    name="shift_date"
+                                                    type="date"
+                                                    value={cshift.shift_date}
+                                                    onChange={e => handleShift(e)}
+                                                />
+
+                                                <label className="control-label">
+                                                    New Shift time
+                                                </label>
+
+                                                <select className='form-control mb-3'
+                                                    name="shift_time"
+                                                    value={cshift.shift_time}
+                                                    onChange={e => handleShift(e)}
+                                                >
+                                                    <option value=""> Please select new shift time</option>
+                                                    {
+                                                        slot?.map((s) => {
+                                                            return (
+                                                                <option value={s}>{s}</option>
+                                                            )
+                                                        })
+                                                    }
+
+                                                </select>
+
+
+
+                                                {lw == 'Change shift' && cshift.shift_time != '' &&
+                                                    <>
+                                                        <label className='control-label'>
+                                                            Worker
+                                                        </label>
+
+                                                        <select className='form-control mb-3'
+                                                            name="worker"
+                                                            value={cshift.worker}
+                                                            onChange={e => handleShift(e)}
+                                                        >
+                                                            <option value=""> Please select available workers</option>
+                                                            {sworkers &&
+                                                                sworkers.map((item, index) => {
+
+                                                                    return (
+                                                                        <option value={item.id} > {item.firstname}  {item.lastname}   </option>
+                                                                    )
+
+                                                                }
+                                                                )}
+                                                        </select>
+
+
+                                                        <label className="control-label">
+                                                            Repetnacy
+                                                        </label>
+
+                                                        <select
+                                                            name="repetency"
+                                                            onChange={(e) => handleShift(e)}
+                                                            value={cshift.repetency}
+                                                            className='form-control mb-3'
+
+                                                        >
+                                                            <option value=""> Please select repetnacy</option>
+                                                            <option value="one_time"> One Time ( for single job )</option>
+                                                            <option value="forever"> Forever </option>
+                                                            <option value="untill_date"> Untill Date </option>
+
+                                                        </select>
+                                                    </>
+                                                }
+
+
+
+                                                {
+                                                    cshift.repetency && cshift.repetency != 'one_time' &&
+                                                    <>
+                                                        <label className="control-label">
+                                                            New Frequency
+                                                        </label>
+
+                                                        <select name="frequency" className="form-control mb-3" value={cshift.frequency || ""} onChange={e => handleShift(e)} >
+                                                            <option selected value=""> -- Please select frequency --</option>
+                                                            {AllFreq && AllFreq.map((s, i) => {
+                                                                return (
+                                                                    <option cycle={s.cycle} period={s.period} name={s.name} value={s.id}> {s.name} </option>
+                                                                )
+                                                            })}
+                                                        </select>
+                                                    </>
+                                                }
+
+                                                {cshift.repetency == 'untill_date' &&
+
+                                                    <>
+                                                        <label className="control-label">
+                                                            From
+                                                        </label>
+
+                                                        <input className='form-control mb-3'
+                                                            type="date"
+                                                            placeholder='From date'
+                                                            name="from"
+                                                            value={cshift.from}
+                                                            onChange={e => handleShift(e)}
+                                                        />
+
+
+                                                        <label className="control-label">
+                                                            To
+                                                        </label>
+
+                                                        <input className='form-control mb-3'
+                                                            type="date"
+                                                            placeholder='To date'
+                                                            name="to"
+                                                            value={cshift.to}
+                                                            onChange={e => handleShift(e)}
+                                                        />
+
+                                                    </>
+
+                                                }
+
+                                                <button className='btn btn-success form-control' onClick={e => changeShift(e)}> {lw} </button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>

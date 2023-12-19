@@ -321,6 +321,12 @@
 
 
         },
+        "card":{
+            "four_digits":"Card last 4 digits",
+            "valid": "Validity of card",
+            "type":"Card type",
+            "holder":"Card holder name"
+          },
         "add_card_txt":"Add Credit Card ( charge of 1 ILS is aplicable )*",
         "add_card_btn":"Add Card Securely",
         "model_title":"Add Credit Card",

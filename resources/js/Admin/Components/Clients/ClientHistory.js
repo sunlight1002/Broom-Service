@@ -28,7 +28,7 @@ export default function ClientHistory({ contracts ,setContracts, latestContract,
             <div id="tab-schedule" className="tab-pane active show" role="tab-panel" aria-labelledby="schedule-meeting"><ScheduledMeeting/></div>
             <div id="tab-offered" className="tab-pane" role="tab-panel" aria-labelledby="offered-price"><OfferedPrice/></div>
             <div id="tab-contract" className="tab-pane" role="tab-panel" aria-labelledby="rejected-tab"><Contract contracts={ contracts } setContracts={setContracts} /></div>
-            <div id="tab-jobs" className="tab-pane" role="tab-panel" aria-labelledby="rejected-tab"><Jobs/></div>
+            <div id="tab-jobs" className="tab-pane" role="tab-panel" aria-labelledby="rejected-tab"><Jobs contracts={contracts} client={client}/></div>
             <div id="tab-order" className="tab-pane" role="tab-panel" aria-labelledby="order-tab"><Order/></div>
             <div id="tab-invoice" className="tab-pane" role="tab-panel" aria-labelledby="invoice-tab"><Invoice/></div>
             <div id="tab-payment" className="tab-pane" role="tab-panel" aria-labelledby="payment-tab"><Payment/></div>

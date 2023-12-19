@@ -15,6 +15,7 @@ use App\Models\Refunds;
 use App\Models\Services;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use PDF;
+use App\Helpers\Helper;
 
 class InvoiceController extends Controller
 {
@@ -239,9 +240,9 @@ class InvoiceController extends Controller
 
         $params = array(
 
-            "cid"            => env('ICOUNT_COMPANYID'),
-            "user"           => env('ICOUNT_USERNAME'),
-            "pass"           => env('ICOUNT_PASS'),
+            "cid"            => Helper::get_setting('icount_company_id'),
+            "user"           => Helper::get_setting('icount_username'),
+            "pass"           => Helper::get_setting('icount_password'),
 
             "doctype"        => $doctype,
             "client_id"      => $client->id,
@@ -361,9 +362,9 @@ class InvoiceController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/info";
         $params = array(
 
-            "cid"            => env('ICOUNT_COMPANYID'),
-            "user"           => env('ICOUNT_USERNAME'),
-            "pass"           => env('ICOUNT_PASS'),
+            "cid"            => Helper::get_setting('icount_company_id'),
+            "user"           => Helper::get_setting('icount_username'),
+            "pass"           => Helper::get_setting('icount_password'),
             "doctype"        => 'invoice',
             "docnum"         => $docnum,
             "get_items"      => 1
@@ -408,9 +409,9 @@ class InvoiceController extends Controller
                 $ln = ($client->lng == 'heb') ? 'he' : 'en';
                 $params = array(
 
-                    "cid"            => env('ICOUNT_COMPANYID'),
-                    "user"           => env('ICOUNT_USERNAME'),
-                    "pass"           => env('ICOUNT_PASS'),
+                    "cid"            => Helper::get_setting('icount_company_id'),
+                    "user"           => Helper::get_setting('icount_username'),
+                    "pass"           => Helper::get_setting('icount_password'),
 
                     "doctype"        => 'receipt',
                     "client_name"    => $name,
@@ -600,12 +601,12 @@ class InvoiceController extends Controller
         ];
         $se = json_encode($services);
 
-        $username = env("ZCREDIT_TERMINALNUMBER");
-        $password = env("ZCREDIT_TERMINALPASSWORD");
+        $username = Helper::get_setting('zcredit_terminal_number');
+        $password = Helper::get_setting('zcredit_terminal_pass');
 
         $ln = ($client->lng == 'heb') ? 'He' : 'En';
         $data = '{
-            "Key": "' . env("ZCREDIT_KEY") . '",
+            "Key": "' . Helper::get_setting('zcredit_key') . '",
             "j"  : "5",
             "Local": "' . $ln . '",
             "UniqueId": "",
@@ -737,8 +738,8 @@ class InvoiceController extends Controller
     public function releaseCapure($amount, $tid, $token)
     {
 
-        $username = env("ZCREDIT_TERMINALNUMBER");
-        $password = env("ZCREDIT_TERMINALPASSWORD");
+        $username = Helper::get_setting('zcredit_terminal_number');
+        $password = Helper::get_setting('zcredit_terminal_pass');
 
         $data = '{
         "TerminalNumber": "' . $username . '",
@@ -789,9 +790,9 @@ class InvoiceController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
         $params = array(
 
-            "cid"  => env('ICOUNT_COMPANYID'),
-            "user" => env('ICOUNT_USERNAME'),
-            "pass" => env('ICOUNT_PASS'),
+            "cid"  => Helper::get_setting('icount_company_id'),
+            "user" => Helper::get_setting('icount_username'),
+            "pass" => Helper::get_setting('icount_password'),
             "doctype" => $type,
             "docnum"  => $docnum,
             "based_on" => $docnum
@@ -821,8 +822,8 @@ class InvoiceController extends Controller
         $curl = curl_init();
 
         $data = '{
-            "TerminalNumber": "' . env("ZCREDIT_TERMINALNUMBER") . '",
-            "Password": "' . env("ZCREDIT_TERMINALPASSWORD") . '",
+            "TerminalNumber": "' . Helper::get_setting('zcredit_terminal_number') . '",
+            "Password": "' . Helper::get_setting('zcredit_terminal_pass') . '",
             "TransactionIdToCancelOrRefund": "' . $tid . '",
             "TransactionSum": "' . $amount . '"
             }';
@@ -853,9 +854,9 @@ class InvoiceController extends Controller
         $url = "https://api.icount.co.il/api/v3.php/doc/cancel";
         $params = array(
 
-            "cid"  => env('ICOUNT_COMPANYID'),
-            "user" => env('ICOUNT_USERNAME'),
-            "pass" => env('ICOUNT_PASS'),
+            "cid"  => Helper::get_setting('icount_company_id'),
+            "user" => Helper::get_setting('icount_username'),
+            "pass" => Helper::get_setting('icount_password'),
             "doctype" => $request->data['doctype'],
             "docnum"  => $request->data['docnum'],
             "reason"  => $request->data['reason'],
@@ -930,8 +931,8 @@ class InvoiceController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . env("ZCREDIT_TERMINALNUMBER") . '",
-        "Password": "' . env("ZCREDIT_TERMINALPASSWORD") . '",
+        "TerminalNumber": "' . Helper::get_setting('zcredit_terminal_number') . '",
+        "Password": "' . Helper::get_setting('zcredit_terminal_pass') . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -1039,9 +1040,9 @@ class InvoiceController extends Controller
 
         $params = array(
 
-            "cid"            => env('ICOUNT_COMPANYID'),
-            "user"           => env('ICOUNT_USERNAME'),
-            "pass"           => env('ICOUNT_PASS'),
+            "cid"            => Helper::get_setting('icount_company_id'),
+            "user"           => Helper::get_setting('icount_username'),
+            "pass"           => Helper::get_setting('icount_password'),
 
             "doctype"        => $doctype,
             "client_id"      => $o_res->client_id,
@@ -1224,9 +1225,9 @@ class InvoiceController extends Controller
         $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
         $params = array(
 
-            "cid"  => env('ICOUNT_COMPANYID'),
-            "user" => env('ICOUNT_USERNAME'),
-            "pass" => env('ICOUNT_PASS'),
+            "cid"  => Helper::get_setting('icount_company_id'),
+            "user" => Helper::get_setting('icount_username'),
+            "pass" => Helper::get_setting('icount_password'),
             "doctype" => "order",
             "client_name" => $name,
             "client_address" => $job->client->geo_address,
@@ -1302,9 +1303,9 @@ class InvoiceController extends Controller
                     $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
                     $params = array(
             
-                        "cid"  => env('ICOUNT_COMPANYID'),
-                        "user" => env('ICOUNT_USERNAME'),
-                        "pass" => env('ICOUNT_PASS'),
+                        "cid"  => Helper::get_setting('icount_company_id'),
+                        "user" => Helper::get_setting('icount_username'),
+                        "pass" => Helper::get_setting('icount_password'),
                         "doctype" => "order",
                         "client_name" => $name,
                         "client_address" => $job->client->geo_address,

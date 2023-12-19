@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Mail\MailInvoiceToClient;
 use App\Models\Invoices;
 use App\Models\Job;
+use App\Models\Settings;
 use Mail;
 use PDF;
 class Helper {
@@ -106,6 +107,16 @@ class Helper {
             }else{
                 return 'message sent successfully.';
             }
+    }
+
+    public static function get_setting( $key ){
+      
+        $value =  Settings::where('key',$key)->first();
+
+        $return = ( !is_null($value) ) ? $value->value : '';
+
+        return $return;
+        
     }
 
 }
