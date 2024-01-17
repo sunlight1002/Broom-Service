@@ -27,6 +27,14 @@ host('development')
     ->set('deploy_path', '/var/www/php81/broom-service-new')
     ->set('keep_releases', 1);
 
+host('portfolio')
+    ->set('hostname','216.158.239.213' )
+    ->set('branch', 'development')
+    ->set('remote_user', 'root')
+    ->set('deploy_path', '/var/www/broom-service')
+    ->set('keep_releases', 1);
+
+
 // Hooks
 task('deploy', [
     'deploy:prepare',
