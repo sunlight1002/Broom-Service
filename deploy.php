@@ -29,7 +29,7 @@ host('development')
 
 host('portfolio')
     ->set('hostname','216.158.239.213' )
-    ->set('branch', 'development')
+    ->set('branch', 'portfolio')
     ->set('remote_user', 'root')
     ->set('deploy_path', '/var/www/broom-service')
     ->set('keep_releases', 1);
