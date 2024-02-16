@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-
     /** 
      * Login api 
      * 
@@ -37,11 +36,11 @@ class AuthController extends Controller
             $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
 
             return response()->json($admin, 200);
-
         } else {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
         }
     }
+
     /** 
      * Register api 
      * 
@@ -67,6 +66,7 @@ class AuthController extends Controller
 
         return response()->json($admin, 200);
     }
+
     /** 
      * details api 
      * 

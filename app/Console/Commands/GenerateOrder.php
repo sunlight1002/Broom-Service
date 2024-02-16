@@ -3,10 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Mail;
 
-class order extends Command
+class GenerateOrder extends Command
 {
     /**
      * The name and signature of the console command.
@@ -41,7 +39,7 @@ class order extends Command
     {
         $url = url('/api/order_generate');
         //Http::get($url);
-      //Mail::raw('Hello World!', function($msg) {$msg->to('test@gmail.com')->subject('Test Email'); });
-      $this->info($url);
+        //Mail::raw('Hello World!', function($msg) {$msg->to('test@gmail.com')->subject('Test Email'); });
+        $this->info($url);
     }
 }

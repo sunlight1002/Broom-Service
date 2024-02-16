@@ -20,10 +20,13 @@ class Schedule extends Model
         'meet_link'
     ];
 
-    public function team(){
-        return $this->belongsTo(Admin::class,'team_id');
+    public function team()
+    {
+        return $this->belongsTo(Admin::class, 'team_id');
     }
-    public function client(){
-        return $this->belongsTo(Client::class,'client_id');
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }

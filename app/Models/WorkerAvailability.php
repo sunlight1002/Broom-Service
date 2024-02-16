@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WorkerAvialibilty extends Model
+class WorkerAvailability extends Model
 {
     use HasFactory;
+
+    protected $table = 'worker_avialibilties';
+
     protected $fillable = [
         'user_id',
         'day',

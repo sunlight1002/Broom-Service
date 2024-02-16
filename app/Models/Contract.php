@@ -9,7 +9,7 @@ class Contract extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'offer_id',        
+        'offer_id',
         'client_id',
         'additional_address',
         'name_on_card',
@@ -20,12 +20,12 @@ class Contract extends Model
         'status',
     ];
 
-    public function client(){
-        return $this->belongsTo(Client::class,'client_id');
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
-    public function offer(){
-        return $this->belongsTo(Offer::class,'offer_id');
+    public function offer()
+    {
+        return $this->belongsTo(Offer::class, 'offer_id');
     }
-  
-   
 }

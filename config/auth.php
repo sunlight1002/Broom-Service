@@ -43,15 +43,15 @@ return [
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
-        ], 
+        ],
         'client' => [
             'driver' => 'session',
             'provider' => 'clients',
-        ], 
+        ],
         'team' => [
             'driver' => 'session',
             'provider' => 'teams',
-        ],           
+        ],
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',
@@ -63,7 +63,7 @@ return [
         'client-api' => [
             'driver' => 'passport',
             'provider' => 'clients',
-        ],       
+        ],
     ],
 
     /*
@@ -91,7 +91,7 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
-        ], 
+        ],
         'clients' => [
             'driver' => 'eloquent',
             'model' => App\Models\Client::class,
@@ -99,7 +99,7 @@ return [
         'teams' => [
             'driver' => 'eloquent',
             'model' => App\Models\TeamMember::class,
-        ]       
+        ]
 
         // 'users' => [
         //     'driver' => 'database',
@@ -134,13 +134,13 @@ return [
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
-        ],    
-         'clients' => [
+        ],
+        'clients' => [
             'provider' => 'clients',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
-        ],     
+        ],
     ],
 
     /*

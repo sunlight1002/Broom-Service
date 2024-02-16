@@ -16,8 +16,8 @@ class Note extends Model
         'important'
     ];
 
-    public function team(){
-        return $this->belongsTo(Admin::class,'team_id');
+    public function team()
+    {
+        return $this->belongsTo(Admin::class, 'team_id');
     }
-   
 }

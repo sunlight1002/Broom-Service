@@ -9,13 +9,13 @@ use App\Models\Client;
 use App\Models\Offer;
 use App\Models\Schedule;
 use App\Models\Contract;
-use App\Models\notifications;
+use App\Models\Notification;
 use App\Models\Admin;
 use App\Models\Fblead;
 use App\Models\Services;
 use App\Models\JobService;
 use App\Models\LeadStatus;
-use App\Models\serviceSchedules;
+use App\Models\ServiceSchedule;
 use App\Models\ManageTime;
 use App\Models\WebhookResponse;
 use Illuminate\Http\Request;
@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use Helper;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -52,7 +51,6 @@ class DashboardController extends Controller
 
   public function updateTime(Request $request)
   {
-
     $validator = Validator::make($request->all(), [
       'start_time' => 'required',
       'end_time'  => 'required',
@@ -76,18 +74,16 @@ class DashboardController extends Controller
     ]);
   }
 
-
   public function Notice(Request $request)
   {
-
-    $count = notifications::count();
-    $seenCount = notifications::where('seen', 0)->count();
+    $count = Notification::count();
+    $seenCount = Notification::where('seen', 0)->count();
     if ($count > 0) :
 
       if ($request->head)
-        $noticeAll = notifications::with('client')->orderBy('id', 'desc')->take(5)->get();
+        $noticeAll = Notification::with('client')->orderBy('id', 'desc')->take(5)->get();
       if ($request->all)
-        $noticeAll = notifications::with('client')->orderBy('id', 'desc')->paginate(15);
+        $noticeAll = Notification::with('client')->orderBy('id', 'desc')->paginate(15);
 
       if (isset($noticeAll)) {
         foreach ($noticeAll as $k => $notice) {
@@ -188,6 +184,7 @@ class DashboardController extends Controller
 
     endif;
   }
+
   public function viewPass(Request $request)
   {
     $user = Admin::where('id', $request->id)->get()->first();
@@ -196,14 +193,17 @@ class DashboardController extends Controller
       'response' => $response
     ]);
   }
+
   public function seen()
   {
-    notifications::where('seen', 0)->update(['seen' => 1]);
+    Notification::where('seen', 0)->update(['seen' => 1]);
   }
+
   public function clearNotices()
   {
-    notifications::truncate();
+    Notification::truncate();
   }
+
   public function income(Request $request)
   {
 
@@ -299,7 +299,7 @@ class DashboardController extends Controller
           if ($serv != null) :
 
             $period = (substr((string)$cs[3], 0, 1) == 1) ? substr((string)$cs[3], 1)  : $cs[3];
-            $freq = serviceSchedules::where('period', $period)->get()->first();
+            $freq = ServiceSchedule::where('period', $period)->get()->first();
 
             if (!is_null($freq)) :
               $freq = $freq->toArray();
@@ -387,7 +387,7 @@ class DashboardController extends Controller
               $job = Job::create($jobA);
 
               $period = (substr((string)$ncs[3], 0, 1) == 1) ? substr((string)$ncs[3], 1)  : $ncs[3];
-              $freq = serviceSchedules::where('period', $period)->get()->first();
+              $freq = ServiceSchedule::where('period', $period)->get()->first();
               if (!is_null($freq)) :
                 $freq = $freq->toArray();
                 $s = Services::where('id', $ncs[2])->get()->first();
@@ -502,5 +502,4 @@ class DashboardController extends Controller
       echo "Updated client contracts lead status";
     }
   }
- 
 }

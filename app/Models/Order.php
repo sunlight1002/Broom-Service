@@ -21,11 +21,13 @@ class Order extends Model
         'invoice_status'
     ];
 
-    public function job(){
-        return $this->belongsTo(Job::class,'job_id');
+    public function job()
+    {
+        return $this->belongsTo(Job::class, 'job_id');
     }
-    public function client(){
-        return $this->belongsTo(Client::class,'client_id');
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
-   
 }

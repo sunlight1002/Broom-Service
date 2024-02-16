@@ -6,11 +6,14 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class MailInvoiceToClient extends Mailable
 {
     use Queueable, SerializesModels;
+
     public $data;
+
     /**
      * Create a new message instance.
      *
@@ -28,8 +31,8 @@ class MailInvoiceToClient extends Mailable
      */
     public function build()
     {
-        \App::setLocale($this->data['job']['client']['lng']);
-        $sub = __('invoice.pdf.mailsubject')." #".$this->data['docnum'];
+        App::setLocale($this->data['job']['client']['lng']);
+        $sub = __('invoice.pdf.mailsubject') . " #" . $this->data['docnum'];
         return $this->view('Mails.MailInvoiceToClient')->with(['data', $this->data])->subject($sub);
     }
 }

@@ -8,20 +8,20 @@ use App\Models\ClientCard;
 use App\Models\Files;
 use App\Models\Note;
 use App\Models\Offer;
-use App\Models\serviceSchedules;
+use App\Models\ServiceSchedule;
 use App\Models\Services;
 use App\Models\Contract;
 use App\Models\Job;
 use App\Models\JobHours;
 use App\Models\JobService;
 use App\Models\Shift;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
-use Image;
-use File;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class ClientController extends Controller
 {
@@ -32,39 +32,34 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-
         $q = $request->q;
-      
-        $result = Client::where('status',2);
 
-        
-         if( !is_null($q) ){
-
-        // $result->where('email',      'like', '%' . $q . '%');
-        // $result->orwhere('firstname',    'like', '%' . $ex[0] . '%');
-        // $result->orWhere('lastname',   'like', '%' . $q2 . '%');
-        // $result->orWhere('geo_address',   'like', '%' . $q . '%');
-        // $result->orWhere('phone',   'like', '%' . $q . '%');
-
-        // $result->orWhere('phone',      'like', '%' . $q . '%');
-        // $result->orWhere('city',       'like', '%' . $q . '%');
-        // $result->orWhere('street_n_no', 'like', '%' . $q . '%');
-        // $result->orWhere('zipcode',    'like', '%' . $q . '%');
-        // $result->orWhere('email',      'like', '%' . $q . '%');
-        // $result->where('status','2');
-
-        $result->where(function ($query) use ($q) {
-            $ex = explode(' ',$q);
-            $q2 = isset( $ex[1] ) ? $ex[1] : $q;
-            $query->where('email',       'like', '%' . $q . '%')
-                ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
-                ->orWhere('lastname',       'like', '%' . $q2 . '%')
-                ->orWhere('phone',       'like', '%' . $q . '%')
-                ->orWhere('geo_address',   'like', '%' . $q . '%');
-                
-        });
+        $result = Client::where('status', 2);
 
 
+        if (!is_null($q)) {
+            // $result->where('email',      'like', '%' . $q . '%');
+            // $result->orwhere('firstname',    'like', '%' . $ex[0] . '%');
+            // $result->orWhere('lastname',   'like', '%' . $q2 . '%');
+            // $result->orWhere('geo_address',   'like', '%' . $q . '%');
+            // $result->orWhere('phone',   'like', '%' . $q . '%');
+
+            // $result->orWhere('phone',      'like', '%' . $q . '%');
+            // $result->orWhere('city',       'like', '%' . $q . '%');
+            // $result->orWhere('street_n_no', 'like', '%' . $q . '%');
+            // $result->orWhere('zipcode',    'like', '%' . $q . '%');
+            // $result->orWhere('email',      'like', '%' . $q . '%');
+            // $result->where('status','2');
+
+            $result->where(function ($query) use ($q) {
+                $ex = explode(' ', $q);
+                $q2 = isset($ex[1]) ? $ex[1] : $q;
+                $query->where('email',       'like', '%' . $q . '%')
+                    ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
+                    ->orWhere('lastname',       'like', '%' . $q2 . '%')
+                    ->orWhere('phone',       'like', '%' . $q . '%')
+                    ->orWhere('geo_address',   'like', '%' . $q . '%');
+            });
         }
 
         if (isset($request->action)) {
@@ -102,7 +97,6 @@ class ClientController extends Controller
 
     public function AllClients()
     {
-
         $clients = Client::all();
 
         if (!empty($clients)) {
@@ -120,7 +114,6 @@ class ClientController extends Controller
 
     public function latestClients()
     {
-
         $clients = Client::latest()->paginate(5);
 
         if (!empty($clients)) {
@@ -144,7 +137,6 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             'phone'     => ['required'],
@@ -188,7 +180,7 @@ class ClientController extends Controller
 
             foreach ($allServices as $service) {
 
-                $service_schedules = serviceSchedules::where('id', '=', $service['frequency'])->first();
+                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
                 $ser = Services::where('id', '=', $service['service'])->first();
 
                 $repeat_value = $service_schedules->period;
@@ -268,8 +260,6 @@ class ClientController extends Controller
                                 ]
 
                             ];
-
-
                         endforeach;
                     endif;
                 }
@@ -365,7 +355,6 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             // 'passcode'  => ['required', 'string', 'min:6'],
@@ -379,7 +368,6 @@ class ClientController extends Controller
         }
         $client = Client::where('id', $id)->get()->first();
 
-
         $input                  = $request->data;
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
             $input['password']      = Hash::make($input['passcode']);
@@ -389,10 +377,7 @@ class ClientController extends Controller
 
         Client::where('id', $id)->update($input);
 
-
-
         if (!empty($request->jobdata)) {
-
             $offer = Offer::create([
                 'client_id' => $client->id,
                 'services' => $request->jobdata['services'],
@@ -416,7 +401,7 @@ class ClientController extends Controller
 
             foreach ($allServices as $service) {
 
-                $service_schedules = serviceSchedules::where('id', '=', $service['frequency'])->first();
+                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
                 $ser = Services::where('id', '=', $service['service'])->first();
 
                 $repeat_value = $service_schedules->period;
@@ -496,8 +481,6 @@ class ClientController extends Controller
                                 ]
 
                             ];
-
-
                         endforeach;
                     endif;
                 }
@@ -540,8 +523,6 @@ class ClientController extends Controller
                 }
             }
         }
-
-
         /*End create job */
 
         return response()->json([
@@ -565,8 +546,6 @@ class ClientController extends Controller
 
     public function addfile(Request $request)
     {
-
-
         $validator = Validator::make($request->all(), [
             'role'   => 'required',
             'user_id' => 'required'
@@ -607,7 +586,6 @@ class ClientController extends Controller
             'role'      => 'client',
             'type'      => $request->type,
             'file'      => $file_nm
-
         ]);
 
         return response()->json([
@@ -627,6 +605,7 @@ class ClientController extends Controller
             'files' => $files
         ], 200);
     }
+
     public function deletefile(Request $request)
     {
         Files::where('id', $request->id)->delete();
@@ -637,7 +616,6 @@ class ClientController extends Controller
 
     public function addNote(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'note'     => 'required',
             'team_id'  => 'required',
@@ -775,8 +753,6 @@ class ClientController extends Controller
                     ->whereBetween('start_date', [$req->from, $req->to])->get();
             }
 
-
-
             if (isset($jobs)) {
 
 
@@ -796,8 +772,6 @@ class ClientController extends Controller
                 $firstDate = true;
 
                 foreach ($jobs as $k => $job) {
-
-
                     // if (Carbon::now()->format('Y-m-d') <= $job->start_date) {
 
                     if ($req->period == 'w') {
@@ -828,7 +802,6 @@ class ClientController extends Controller
 
                     //if ($job->start_date >= $req->shift_date && $firstDate == true) {
                     if ($k == 0) {
-
                         Job::where('id', $job->id)->update([
 
                             'start_date'    => ($req->shift_date != '') ? $req->shift_date : $job->start_date,
@@ -840,7 +813,6 @@ class ClientController extends Controller
 
                         // $firstDate = false;
                     } else {
-
                         Job::where('id', $job->id)->update([
 
                             'start_date'    => $newDate,

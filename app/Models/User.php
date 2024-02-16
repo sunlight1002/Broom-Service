@@ -47,10 +47,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
     public function setSkillAttribute($value)
     {
         $this->attributes['skill'] = json_encode($value);
     }
+
     public function getSkillAttribute($value)
     {
         return $this->attributes['skill'] = $value;
@@ -58,12 +60,11 @@ class User extends Authenticatable
 
     public function jobs()
     {
-        return $this->hasMany(Job::class,'worker_id');
+        return $this->hasMany(Job::class, 'worker_id');
     }
 
     public function availabilities()
     {
-        return $this->hasMany(WorkerAvialibilty::class);
+        return $this->hasMany(WorkerAvailability::class);
     }
-
 }

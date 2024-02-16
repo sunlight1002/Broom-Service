@@ -10,7 +10,7 @@ class Job extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id',        
+        'client_id',
         'offer_id',
         'contract_id',
         'worker_id',
@@ -39,40 +39,50 @@ class Job extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+
     public function service()
     {
         return $this->belongsTo(Services::class, 'job_id');
     }
-    public function offer(){
+
+    public function offer()
+    {
         return $this->belongsTo(Offer::class, 'offer_id');
     }
-    public function contract(){
-        return $this->belongsTo(Contract::class,'contract_id');
-    }
-    public function jobservice(){
-        return $this->hasMany(JobService::class,'job_id');
-    }
-    public function hours(){
-        return $this->hasMany(JobHours::class,'job_id');
-    }
-    public function order(){
-        return $this->hasMany(Order::class,'job_id');
-    }
-    public function invoice(){
-        return $this->hasMany(Invoices::class,'job_id');
+
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class, 'contract_id');
     }
 
-    public static function boot() {
+    public function jobservice()
+    {
+        return $this->hasMany(JobService::class, 'job_id');
+    }
+
+    public function hours()
+    {
+        return $this->hasMany(JobHours::class, 'job_id');
+    }
+
+    public function order()
+    {
+        return $this->hasMany(Order::class, 'job_id');
+    }
+
+    public function invoice()
+    {
+        return $this->hasMany(Invoices::class, 'job_id');
+    }
+
+    public static function boot()
+    {
         parent::boot();
-        static::deleting(function($job) { 
-            
-             Invoices::where('job_id',$job->id)->delete();
-             JobService::where('job_id',$job->id)->delete();
-             JobHours::where('job_id',$job->id)->delete();
-             JobComments::where('job_id',$job->id)->delete();
-           
+        static::deleting(function ($job) {
+            Invoices::where('job_id', $job->id)->delete();
+            JobService::where('job_id', $job->id)->delete();
+            JobHours::where('job_id', $job->id)->delete();
+            JobComments::where('job_id', $job->id)->delete();
         });
     }
-
-
 }

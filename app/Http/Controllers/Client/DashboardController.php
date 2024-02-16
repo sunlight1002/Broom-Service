@@ -11,26 +11,27 @@ use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
 use App\Models\ClientCard;
-use App\Models\notifications;
+use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Image;
-use File;
-use Mail;
+use Illuminate\Support\Facades\Mail;
+use Intervention\Image\Facades\Image;
 
 class DashboardController extends Controller
 {
     public function dashboard(Request $request)
     {
         $id              = $request->id;
-        $total_jobs      = Job::where('client_id',$id)->count();
-        $total_offers    = Offer::where('client_id',$id)->count();
-        $total_schedules  = Schedule::where('client_id',$id)->count();
-        $total_contracts  = Contract::where('client_id',$id)->count();
-        $latest_jobs     = Job::where('client_id',$id)->with('client','service','worker','jobservice')->orderBy('id', 'desc')->take(10)->get();
+        $total_jobs      = Job::where('client_id', $id)->count();
+        $total_offers    = Offer::where('client_id', $id)->count();
+        $total_schedules  = Schedule::where('client_id', $id)->count();
+        $total_contracts  = Contract::where('client_id', $id)->count();
+        $latest_jobs     = Job::where('client_id', $id)->with('client', 'service', 'worker', 'jobservice')->orderBy('id', 'desc')->take(10)->get();
 
         return response()->json([
             'total_jobs'         => $total_jobs,
@@ -42,46 +43,40 @@ class DashboardController extends Controller
     }
 
     //Schedules
-
     public function meetings(Request $request)
     {
-
         $id = $request->id;
         $result = Schedule::with('team');
-         
-        if(isset($request->q)){
-          $q = $request->q;
 
-        $result = $result->orWhereHas('team',function ($qr) use ($q,$id) {
-            $qr->where(function($qr) use ($q,$id) {
-                $qr->where('name', 'like','%'.$q.'%')
-                   ->where('client_id',$id);
+        if (isset($request->q)) {
+            $q = $request->q;
+
+            $result = $result->orWhereHas('team', function ($qr) use ($q, $id) {
+                $qr->where(function ($qr) use ($q, $id) {
+                    $qr->where('name', 'like', '%' . $q . '%')
+                        ->where('client_id', $id);
                 });
-        });
+            });
 
-        $result->orWhere(function($qry) use($q,$id){
-            $qry->where('booking_status','like','%'.$q.'%')
-                 ->orWhere('end_time',   'like','%'.$q.'%')
-                 ->orWhere('start_date', 'like','%'.$q.'%')
-                 ->orWhere('start_time', 'like','%'.$q.'%')
-                 ->where('client_id',$id);
-        });
-        
+            $result->orWhere(function ($qry) use ($q, $id) {
+                $qry->where('booking_status', 'like', '%' . $q . '%')
+                    ->orWhere('end_time',   'like', '%' . $q . '%')
+                    ->orWhere('start_date', 'like', '%' . $q . '%')
+                    ->orWhere('start_time', 'like', '%' . $q . '%')
+                    ->where('client_id', $id);
+            });
         }
-         
-         $result = $result->where('client_id',$id)->paginate(20);
- 
-         return response()->json([
-             'schedules' => $result
-         ]);
- 
 
-        
+        $result = $result->where('client_id', $id)->paginate(20);
+
+        return response()->json([
+            'schedules' => $result
+        ]);
     }
 
     public function showMeetings($id)
     {
-        $schedule = Schedule::where('id',$id)->with('client','team')->get()->first();
+        $schedule = Schedule::where('id', $id)->with('client', 'team')->get()->first();
         return response()->json([
             'schedule' => $schedule
         ]);
@@ -91,35 +86,33 @@ class DashboardController extends Controller
     public function offers(Request $request)
     {
         $id = $request->id;
-        $result = Offer::query();  
-         
-        if(isset($request->q)){
-        $q = $request->q;
-        $result->orWhere(function($qry) use($q,$id){
-            $qry->where('status','like','%'.$q.'%')
-                 ->orWhere('total',   'like','%'.$q.'%')
-                 ->where('client_id',$id);
-                 
-        });
+        $result = Offer::query();
 
+        if (isset($request->q)) {
+            $q = $request->q;
+            $result->orWhere(function ($qry) use ($q, $id) {
+                $qry->where('status', 'like', '%' . $q . '%')
+                    ->orWhere('total',   'like', '%' . $q . '%')
+                    ->where('client_id', $id);
+            });
         }
-        
-         $result = $result->orderBy('id', 'desc')->where('client_id',$id)->paginate(20);
- 
+
+        $result = $result->orderBy('id', 'desc')->where('client_id', $id)->paginate(20);
+
         return response()->json([
-            'offers'=>$result
-        ],200);
+            'offers' => $result
+        ], 200);
     }
 
-    public function viewOffer(Request $request){
-        
-        $offer = Offer::where('id',$request->id)->with('client')->get()->first();
-        if(isset($offer)){
+    public function viewOffer(Request $request)
+    {
+        $offer = Offer::where('id', $request->id)->with('client')->get()->first();
+        if (isset($offer)) {
             $perhour = false;
             $services = json_decode($offer->services);
-            if(isset($services)){
-                foreach($services as $service){
-                    if($service->type == 'hourly'){
+            if (isset($services)) {
+                foreach ($services as $service) {
+                    if ($service->type == 'hourly') {
                         $perhour = true;
                     }
                 }
@@ -132,55 +125,52 @@ class DashboardController extends Controller
     }
 
     //Contracts
-
-    public function contracts(Request $request){
-         
+    public function contracts(Request $request)
+    {
         $q = $request->q;
-        $id= $request->id;
-        $result = Contract::with('client','offer');  
-        if(!is_null($q)):
-        
-        $result = $result->orWhereHas('client',function ($qr) use ($q,$id){
-             $qr->where(function($qr) use ($q,$id) {
-                 $qr->where('firstname', 'like','%'.$q.'%');
-                 $qr->orWhere('lastname', 'like','%'.$q.'%');
-                 $qr->orWhere('email', 'like','%'.$q.'%');
-                 $qr->orWhere('city', 'like','%'.$q.'%');
-                 $qr->orWhere('street_n_no', 'like','%'.$q.'%');
-                 $qr->orWhere('zipcode', 'like','%'.$q.'%');
-                 $qr->orWhere('phone', 'like','%'.$q.'%');
-                 $qr->where('client_id',$id);
-             });
-         });
+        $id = $request->id;
+        $result = Contract::with('client', 'offer');
+        if (!is_null($q)) :
 
-         $result->orWhere(function($qry) use($q,$id){
-            $qry->where('status','like','%'.$q.'%')
-                    ->where('client_id',$id);
-        });
+            $result = $result->orWhereHas('client', function ($qr) use ($q, $id) {
+                $qr->where(function ($qr) use ($q, $id) {
+                    $qr->where('firstname', 'like', '%' . $q . '%');
+                    $qr->orWhere('lastname', 'like', '%' . $q . '%');
+                    $qr->orWhere('email', 'like', '%' . $q . '%');
+                    $qr->orWhere('city', 'like', '%' . $q . '%');
+                    $qr->orWhere('street_n_no', 'like', '%' . $q . '%');
+                    $qr->orWhere('zipcode', 'like', '%' . $q . '%');
+                    $qr->orWhere('phone', 'like', '%' . $q . '%');
+                    $qr->where('client_id', $id);
+                });
+            });
+
+            $result->orWhere(function ($qry) use ($q, $id) {
+                $qry->where('status', 'like', '%' . $q . '%')
+                    ->where('client_id', $id);
+            });
 
         endif;
-         $result = $result->orderBy('id', 'desc')->where('client_id',$id)->paginate(20);
-        
-        return response()->json([
-            'contracts'=>$result
-        ],200);
+        $result = $result->orderBy('id', 'desc')->where('client_id', $id)->paginate(20);
 
+        return response()->json([
+            'contracts' => $result
+        ], 200);
     }
 
-
-    public function getContract(Request $request){
-       
-        $contract = Contract::where('id',$request->id)->with('client')->get();
+    public function getContract(Request $request)
+    {
+        $contract = Contract::where('id', $request->id)->with('client')->get();
         return response()->json([
-            'contract'=>$contract
-        ],200);
+            'contract' => $contract
+        ], 200);
     }
 
-    public function addfile(Request $request){
- 
+    public function addfile(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'role'   => 'required',
-            'user_id'=>'required'
+            'user_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -188,71 +178,74 @@ class DashboardController extends Controller
         }
 
         $file_nm = '';
-        if($request->type == 'video'){
+        if ($request->type == 'video') {
 
-        $video = $request->file('file');
-        $vname = $request->user_id."_".date('s')."_".$video->getClientOriginalName();
-        $path=storage_path().'/app/public/uploads/ClientFiles';
-        $video->move($path,$vname);
-        $file_nm = $vname;
-
+            $video = $request->file('file');
+            $vname = $request->user_id . "_" . date('s') . "_" . $video->getClientOriginalName();
+            $path = storage_path() . '/app/public/uploads/ClientFiles';
+            $video->move($path, $vname);
+            $file_nm = $vname;
         } else {
 
-        if($request->hasfile('file')){
+            if ($request->hasfile('file')) {
 
-            $image = $request->file('file');
-            $name = $image->getClientOriginalName();
-            $img = Image::make($image)->resize(350, 227);
-            $destinationPath=storage_path().'/app/public/uploads/ClientFiles/';
-            $fname = 'file_'.$request->user_id.'_'.date('s').'_'.$name;
-            $path=storage_path().'/app/public/uploads/ClientFiles/'. $fname;
-            File::exists($destinationPath) or File::makeDirectory($destinationPath,0777,true,true);
-            $img->save($path, 90);
-            $file_nm  = $fname; 
-        }}
-        
+                $image = $request->file('file');
+                $name = $image->getClientOriginalName();
+                $img = Image::make($image)->resize(350, 227);
+                $destinationPath = storage_path() . '/app/public/uploads/ClientFiles/';
+                $fname = 'file_' . $request->user_id . '_' . date('s') . '_' . $name;
+                $path = storage_path() . '/app/public/uploads/ClientFiles/' . $fname;
+                File::exists($destinationPath) or File::makeDirectory($destinationPath, 0777, true, true);
+                $img->save($path, 90);
+                $file_nm  = $fname;
+            }
+        }
+
         Files::create([
             'user_id'   => $request->user_id,
             'meeting'   => $request->meeting,
             'note'      => $request->note,
-            'role'      =>'client',
-            'type'      =>$request->type,
+            'role'      => 'client',
+            'type'      => $request->type,
             'file'      => $file_nm
 
         ]);
 
         return response()->json([
-            'message'=>'File uploaded',
-        ],200);
+            'message' => 'File uploaded',
+        ], 200);
     }
-    public function getfiles(Request $request){
-         $files = Files::where([
-            'user_id'=>$request->id,
-            'role' =>'client',
-            'meeting'=>$request->meet_id
-         ])->get();
-         if(isset($files)){
-            foreach($files as $k => $file){
-                
-                $files[$k]->path =  asset('storage/uploads/ClientFiles')."/".$file->file;
-                
+
+    public function getfiles(Request $request)
+    {
+        $files = Files::where([
+            'user_id' => $request->id,
+            'role' => 'client',
+            'meeting' => $request->meet_id
+        ])->get();
+        if (isset($files)) {
+            foreach ($files as $k => $file) {
+
+                $files[$k]->path =  asset('storage/uploads/ClientFiles') . "/" . $file->file;
             }
-         }
-         return response()->json([
-            'files'=>$files
-        ],200);
-    }
-    public function deletefile(Request $request){
-        Files::where('id',$request->id)->delete();
+        }
         return response()->json([
-            'message'=>'File deleted',
-        ],200);
+            'files' => $files
+        ], 200);
+    }
+
+    public function deletefile(Request $request)
+    {
+        Files::where('id', $request->id)->delete();
+        return response()->json([
+            'message' => 'File deleted',
+        ], 200);
     }
 
     public function getAccountDetails()
     {
         $account          = Auth::user();
-        $account->avatar  = $account->avatar ? asset('storage/uploads/client/'.$account->avatar) : asset('images/man.png');
+        $account->avatar  = $account->avatar ? asset('storage/uploads/client/' . $account->avatar) : asset('images/man.png');
         return response()->json([
             'account'         => $account,
         ], 200);
@@ -298,7 +291,6 @@ class DashboardController extends Controller
 
     public function changePassword(Request $request)
     {
-
         $id = Auth::user()->id;
 
         $validator = Validator::make($request->all(), [
@@ -330,98 +322,97 @@ class DashboardController extends Controller
         ], 200);
     }
 
-    public function getCard(){
-         $id = Auth::user()->id;
-         $res = ClientCard::where('client_id',$id)->get();
-         return response()->json([
+    public function getCard()
+    {
+        $id = Auth::user()->id;
+        $res = ClientCard::where('client_id', $id)->get();
+        return response()->json([
             'res'       => $res,
         ], 200);
     }
 
-    public function updateCard(Request $request){
-        
-        if(isset( $request->cdata['cid'] )):
-            $cc = ClientCard::where('id',$request->cdata['cid'])->get('cc_charge')->first();
+    public function updateCard(Request $request)
+    {
+        if (isset($request->cdata['cid'])) :
+            $cc = ClientCard::where('id', $request->cdata['cid'])->get('cc_charge')->first();
             $nc = (int)$cc->cc_charge +  (int)$request->cdata['cc_charge'];
             $args = [
-            'card_type'   => $request->cdata['card_type'],  
-            'card_number' => $request->cdata['card_number'],
-            'valid'       => $request->cdata['valid'],
-            'cvv'         => $request->cdata['cvv'],
-            'cc_charge'   => $nc,
-            'card_token'  => $request->cdata['card_token'],
+                'card_type'   => $request->cdata['card_type'],
+                'card_number' => $request->cdata['card_number'],
+                'valid'       => $request->cdata['valid'],
+                'cvv'         => $request->cdata['cvv'],
+                'cc_charge'   => $nc,
+                'card_token'  => $request->cdata['card_token'],
             ];
-            
+
             ClientCard::where('id', $request->cdata['cid'])->update($args);
 
         else :
             $args = [
-                'card_type'   => $request->cdata['card_type'],  
+                'card_type'   => $request->cdata['card_type'],
                 'client_id'   => Auth::user()->id,
                 'card_number' => $request->cdata['card_number'],
                 'valid'       => $request->cdata['valid'],
                 'cvv'         => $request->cdata['cvv'],
                 'cc_charge'   => $request->cdata['cc_charge'],
                 'card_token'  => $request->cdata['card_token'],
-              ];
-              
-              ClientCard::create($args);
+            ];
+
+            ClientCard::create($args);
         endif;
 
         return response()->json([
-          'message'=>"Card validated successfully"
-         ],200);
-    
-    }
-
-
-    //JOBS
-    public function listJobs(Request $request){
-        $jobs = Job::where('client_id',$request->cid)->with('offer','client','worker','jobservice')->get();;
-        return response()->json([
-            'jobs'       => $jobs,        
+            'message' => "Card validated successfully"
         ], 200);
     }
-    public function viewJob(Request $request){
-        $job = Job::where('id',$request->id)->with('client','worker','service','offer','jobservice')->get();
-        return response()->json([
-            'job'        => $job,            
-        ], 200);
 
+    public function listJobs(Request $request)
+    {
+        $jobs = Job::where('client_id', $request->cid)->with('offer', 'client', 'worker', 'jobservice')->get();;
+        return response()->json([
+            'jobs'       => $jobs,
+        ], 200);
     }
-    public function updateJobStatus(Request $request,$id){
-       
-        $job = Job::with('client','worker','jobservice')->find(base64_decode($id));
+
+    public function viewJob(Request $request)
+    {
+        $job = Job::where('id', $request->id)->with('client', 'worker', 'service', 'offer', 'jobservice')->get();
+        return response()->json([
+            'job'        => $job,
+        ], 200);
+    }
+
+    public function updateJobStatus(Request $request, $id)
+    {
+        $job = Job::with('client', 'worker', 'jobservice')->find(base64_decode($id));
         $job->status = $request->status;
         $job->rate  = $request->total;
         $job->save();
 
-        notifications::create([
-            'user_id'=>$job->client->id,
-            'type'=>'client-cancel-job',
-            'job_id'=>$job->id,
+        Notification::create([
+            'user_id' => $job->client->id,
+            'type' => 'client-cancel-job',
+            'job_id' => $job->id,
             'status' => 'declined'
-          ]);
+        ]);
 
-             $admin = Admin::find(1)->first();
-             \App::setLocale('en');
-             $data = array(
-                'by'         =>'client',
-                'email'      =>$admin->email,
-                'admin'      =>$admin->toArray(),
-                'job'        => $job->toArray(),
-             );
+        $admin = Admin::find(1)->first();
+        App::setLocale('en');
+        $data = array(
+            'by'         => 'client',
+            'email'      => $admin->email,
+            'admin'      => $admin->toArray(),
+            'job'        => $job->toArray(),
+        );
 
-             Mail::send('/ClientPanelMail/JobStatusNotification',$data,function($messages) use ($data){
-                $messages->to($data['email']);
-                $sub = __('mail.client_job_status.subject');
-                $messages->subject($sub);
-              });
+        Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+            $messages->to($data['email']);
+            $sub = __('mail.client_job_status.subject');
+            $messages->subject($sub);
+        });
 
-         return response()->json([
-            'job'        => $job,            
+        return response()->json([
+            'job'        => $job,
         ], 200);
-
     }
-
 }

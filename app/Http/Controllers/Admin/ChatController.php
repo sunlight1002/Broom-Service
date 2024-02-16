@@ -15,17 +15,14 @@ class ChatController extends Controller
 {
     public function chats()
     {
-
         $data = WebhookResponse::distinct()->where('number', '!=', null)->get(['number']);
 
         $clients = [];
 
         if (count($data) > 0) {
-
-
             foreach ($data as $k => $_no) {
                 $no = $_no->number;
-                $_unreads = WebhookResponse::where(['number' => $no,'read' => 0])->pluck('read');
+                $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
 
                 $data[$k]['unread'] = count($_unreads);
 
@@ -45,7 +42,6 @@ class ChatController extends Controller
             }
         }
 
-
         return response()->json([
             'data' => $data,
             'clients' => $clients,
@@ -54,10 +50,9 @@ class ChatController extends Controller
 
     public function chatsMessages($no)
     {
-
         $chat = WebhookResponse::where('number', $no)->get();
 
-        WebhookResponse::where(['number' => $no, 'read' => 0 ])->update([
+        WebhookResponse::where(['number' => $no, 'read' => 0])->update([
             'read' => 1
         ]);
 
@@ -68,7 +63,6 @@ class ChatController extends Controller
             $expired = 1
             : $expired = 0;
 
-
         return response()->json([
             'chat' => $chat,
             'expired' => $expired
@@ -77,7 +71,6 @@ class ChatController extends Controller
 
     public function chatReply(Request $request)
     {
-
         $result = Helper::sendWhatsappMessage($request->number, '', array('message' => $request->message));
 
         $response = WebhookResponse::create([
@@ -96,7 +89,6 @@ class ChatController extends Controller
 
     public function saveResponse(Request $request)
     {
-
         TextResponse::truncate();
         $responses = $request->data;
 
@@ -121,7 +113,6 @@ class ChatController extends Controller
 
     public function chatResponses()
     {
-
         $responses = TextResponse::all();
 
         return response()->json([
@@ -131,8 +122,6 @@ class ChatController extends Controller
 
     public function chatRestart(Request $request)
     {
-
-
         Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
         $client = Client::where('phone', 'like', '%' . $request->number . '%')->get()->first();
         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
@@ -169,14 +158,12 @@ class ChatController extends Controller
         $clients = [];
 
         if (count($data) > 0) {
-
-            
             foreach ($data as $k => $_no) {
                 $no = $_no->number;
-                $_unreads = WebhookResponse::where(['number' => $no,'read' => 0])->pluck('read');
+                $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
 
                 $data[$k]['unread'] = count($_unreads);
-                
+
                 if (strlen($no) > 10)
                     $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
                 else
@@ -217,7 +204,6 @@ class ChatController extends Controller
             $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
             $clients = Client::where('firstname', 'like', '%' . $fn . '%')->orwhere('lastname', 'like', '%' . $ln . '%')->get('phone');
 
-
             if (count($clients) > 0) {
                 $nos = [];
                 foreach ($clients as $client) {
@@ -231,7 +217,6 @@ class ChatController extends Controller
 
     public function responseImport()
     {
-
         TextResponse::truncate();
 
         TextResponse::create(
@@ -326,11 +311,9 @@ class ChatController extends Controller
         return response()->json(['message' => 'chat responses added']);
     }
 
-
     public function Participants()
     {
-
-        $url = 'https://graph.facebook.com/v18.0/' . env("FB_ACCOUNT_ID") . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . env("FB_ACCESS_TOKEN");
+        $url = 'https://graph.facebook.com/v18.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . config('services.facebook.access_token');
 
         $ch = curl_init();
 
@@ -346,15 +329,14 @@ class ChatController extends Controller
 
         return response()->json([
             'data' => $_p,
-            'page_id' => env("FB_ACCOUNT_ID")
+            'page_id' => config('services.facebook.account_id')
         ]);
     }
 
     public function messengerMessage($id)
     {
+        $url = 'https://graph.facebook.com/v17.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.access_token');
 
-        $url = 'https://graph.facebook.com/v17.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . env('FB_ACCESS_TOKEN');
-     
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -374,10 +356,9 @@ class ChatController extends Controller
 
     public function messengerReply(Request $request)
     {
-      
         /*$ch = curl_init();
         
-        $url = 'https://graph.facebook.com/v18.0/'.env("FB_ACCOUNT_ID").'/messages?recipient={id:'.intval($request->pid).'}&message={text:"i am string"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
+        $url = 'https://graph.facebook.com/v18.0/'.config('services.facebook.account_id').'/messages?recipient={id:'.intval($request->pid).'}&message={text:"i am string"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
 
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -395,24 +376,24 @@ class ChatController extends Controller
         $resp = json_decode($result);
         */
 
-        $accessToken = env("FB_ACCESS_TOKEN");
+        $accessToken = config('services.facebook.access_token');
 
-        $url = "https://graph.facebook.com/v18.0/". env("FB_ACCOUNT_ID")."/messages";
+        $url = "https://graph.facebook.com/v18.0/" . config('services.facebook.account_id') . "/messages";
         $messageText = strtolower($request->message);
-        $senderId = env("FB_ACCOUNT_ID");
+        $senderId = config('services.facebook.account_id');
         $recipientId = $request->pid;
         $response = null;
-      
+
         $response = ['recipient' => ['id' => $recipientId], 'sender' => ['id' => $senderId], 'message' => ['text' => $messageText], 'access_token' => $accessToken];
 
-        $ch = curl_init($url);                            
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($response));
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
         $result = curl_exec($ch);
         curl_close($ch);
-      
+
         $resp = json_decode($result);
         return response()->json([
             'data' => $resp

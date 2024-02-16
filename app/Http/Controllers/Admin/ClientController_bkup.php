@@ -8,7 +8,7 @@ use App\Models\ClientCard;
 use App\Models\Files;
 use App\Models\Note;
 use App\Models\Offer;
-use App\Models\serviceSchedules;
+use App\Models\ServiceSchedule;
 use App\Models\Services;
 use App\Models\Contract;
 use App\Models\Job;
@@ -80,23 +80,24 @@ class ClientController extends Controller
         $result = $result->orderBy('id', 'desc')->paginate(20);
         $itemsTransformed = $result
             ->getCollection()
-            ->map(function($item) use ($status){
-                if($status == ''){
-                    if($item->status > 0){
-                      return $item;
+            ->map(function ($item) use ($status) {
+                if ($status == '') {
+                    if ($item->status > 0) {
+                        return $item;
                     }
-                }else{
-                     if($item->status == $status){
-                      return $item;
+                } else {
+                    if ($item->status == $status) {
+                        return $item;
                     }
                 }
-        });
+            });
 
         $result = new \Illuminate\Pagination\LengthAwarePaginator(
             $itemsTransformed,
             $result->total(),
             $result->perPage(),
-            $result->currentPage(), [
+            $result->currentPage(),
+            [
                 'path' => \Request::url(),
                 'query' => [
                     'page' => $result->currentPage()
@@ -106,14 +107,14 @@ class ClientController extends Controller
 
         if (isset($result)) {
             foreach ($result as $k => $res) {
-                if(!empty($res)){
-                $contract = Contract::where('client_id', $res->id)->where('status', 'verified')->get()->last();
-                if ($contract != null) {
-                    $result[$k]->latest_contract = $contract->id;
-                } else {
-                    $result[$k]->latest_contract = 0;
+                if (!empty($res)) {
+                    $contract = Contract::where('client_id', $res->id)->where('status', 'verified')->get()->last();
+                    if ($contract != null) {
+                        $result[$k]->latest_contract = $contract->id;
+                    } else {
+                        $result[$k]->latest_contract = 0;
+                    }
                 }
-               }
             }
         }
 
@@ -211,7 +212,7 @@ class ClientController extends Controller
 
             foreach ($allServices as $service) {
 
-                $service_schedules = serviceSchedules::where('id', '=', $service['frequency'])->first();
+                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
                 $ser = Services::where('id', '=', $service['service'])->first();
 
                 $repeat_value = $service_schedules->period;
@@ -433,7 +434,7 @@ class ClientController extends Controller
 
             foreach ($allServices as $service) {
 
-                $service_schedules = serviceSchedules::where('id', '=', $service['frequency'])->first();
+                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
                 $ser = Services::where('id', '=', $service['service'])->first();
 
                 $repeat_value = $service_schedules->period;
@@ -462,13 +463,11 @@ class ClientController extends Controller
                 }
                 $worker = $service['worker'];
                 $shift =  $service['shift'];
-                
+
                 for ($i = 0; $i < $count; $i++) {
 
                     if (isset($service['days'])) :
-                        foreach ($service['days'] as $sd) : 
-                           
-                            (!empty($service['days'])) ?
+                        foreach ($service['days'] as $sd) : (!empty($service['days'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -521,7 +520,7 @@ class ClientController extends Controller
                     endif;
                 }
             }
-           
+
             if (!empty($jds)) {
                 foreach ($jds as $jd) {
 

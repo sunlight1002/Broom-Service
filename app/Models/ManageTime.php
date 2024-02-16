@@ -14,5 +14,4 @@ class ManageTime extends Model
         'end_time',
         'days',
     ];
-   
 }

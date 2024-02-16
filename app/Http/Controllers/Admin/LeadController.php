@@ -108,15 +108,6 @@ class LeadController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -271,6 +262,7 @@ class LeadController extends Controller
             'message'     => "Lead has been deleted"
         ], 200);
     }
+
     public function updateStatus(Request $request, $id)
     {
 
@@ -278,9 +270,9 @@ class LeadController extends Controller
             'message'        => 'status updated',
         ], 200);
     }
+
     public function addComment(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'comment'     => 'required',
             'lead_id'  => 'required',
@@ -311,7 +303,6 @@ class LeadController extends Controller
 
     public function uninterested($id)
     {
-
         LeadStatus::UpdateOrCreate(
             [
                 'client_id' => $id
@@ -325,11 +316,9 @@ class LeadController extends Controller
     }
 
     /* FB ADS LEADS */
-
-
     public function longLivedToken()
     {
-        $url = $this->fburl . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . env("FB_APP_ID") . '&client_secret=' . env("FB_APP_SECRET") . '&fb_exchange_token=' . env('FB_ACCESS_TOKEN');
+        $url = $this->fburl . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . config('services.facebook.app_id') . '&client_secret=' . config('services.facebook.app_secret') . '&fb_exchange_token=' . config('services.facebook.access_token');
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -347,11 +336,10 @@ class LeadController extends Controller
         return $result->access_token;
     }
 
-
     public function pageAccessToken()
     {
 
-        $url = $this->fburl . env('FB_APP_SCOPE_ID') . '/accounts?access_token=' .  env('FB_ACCESS_TOKEN');
+        $url = $this->fburl . config('services.facebook.app_scope_id') . '/accounts?access_token=' .  config('services.facebook.access_token');
 
         $ch = curl_init();
 
@@ -366,7 +354,7 @@ class LeadController extends Controller
         }
         if (count($result->data) > 0) :
             foreach ($result->data as $r) :
-                if ($r->id == env('FB_ACCOUNT_ID')) :
+                if ($r->id == config('services.facebook.account_id')) :
                     return $r->access_token;
                 endif;
             endforeach;
@@ -377,7 +365,7 @@ class LeadController extends Controller
     {
         $pa_token =  $this->pageAccessToken();
         $this->pa_token =  $pa_token;
-        $url = $this->fburl . env('FB_ACCOUNT_ID') . '/leadgen_forms?access_token=' . $pa_token . '&pretty=0&limit=2500';
+        $url = $this->fburl . config('services.facebook.account_id') . '/leadgen_forms?access_token=' . $pa_token . '&pretty=0&limit=2500';
 
         $ch = curl_init();
 
@@ -388,9 +376,9 @@ class LeadController extends Controller
         if (curl_errno($ch)) {
             return  'Error:' . curl_error($ch);
         }
-      
+
         $result = json_decode($result);
- 
+
         if (isset($result->error)) {
             return $result->error->message;
         }
@@ -411,24 +399,23 @@ class LeadController extends Controller
         if (isset($result->error)) {
             return $result->error->message;
         }
-        if( isset($result->data) && count($result->data) > 0 )
-        {
-           
-          $_fd = $result->data[0]->field_data;
-          foreach($_fd as $fd){
-            echo "<pre>";
-            print_r($fd);
-          }
+        if (isset($result->data) && count($result->data) > 0) {
 
-          dd(1);
-         
+            $_fd = $result->data[0]->field_data;
+            foreach ($_fd as $fd) {
+                echo "<pre>";
+                print_r($fd);
+            }
+
+            dd(1);
         }
         return $result;
     }
+
     public function fbAdsLead()
     {
         $leadForms = $this->leadGenForms();
-       
+
         if (count($leadForms->data) > 0) {
             foreach ($leadForms->data as $lf) {
                 dd($this->leadData($lf->id));

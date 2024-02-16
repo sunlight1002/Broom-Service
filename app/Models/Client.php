@@ -17,8 +17,8 @@ class Client extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $table="clients";
-    
+    protected $table = "clients";
+
     protected $fillable = [
         'firstname',
         'lastname',
@@ -64,7 +64,7 @@ class Client extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     public function jobs()
     {
         return $this->hasMany(Job::class);
@@ -72,12 +72,12 @@ class Client extends Authenticatable
 
     public function meetings()
     {
-        return $this->hasMany(Schedule::class,'client_id','id');
+        return $this->hasMany(Schedule::class, 'client_id', 'id');
     }
 
     public function offers()
     {
-        return $this->hasMany(Offer::class,'client_id','id');
+        return $this->hasMany(Offer::class, 'client_id', 'id');
     }
 
     public function subscription()
@@ -85,37 +85,37 @@ class Client extends Authenticatable
         return $this->hasOne(Subscription::class);
     }
 
-    public function contract(){
-        return $this->hasMany(Contract::class,'client_id');
+    public function contract()
+    {
+        return $this->hasMany(Contract::class, 'client_id');
     }
 
-    public function lead_status(){
-        return $this->hasOne(LeadStatus::class,'client_id','id');
+    public function lead_status()
+    {
+        return $this->hasOne(LeadStatus::class, 'client_id', 'id');
     }
 
-
-    public function ScopeReply( $query ){
-
-        return WhatsappLastReply::where('message','=','0')
-        ->join('clients','whatsapp_last_replies.phone','like',\DB::raw( "CONCAT('%', clients.phone, '%')"))
-        ->orWhere('message','=','2_no')
-        ->orWhere('message','=','2')
-        ->where('clients.phone','!=','')
-        ->where('clients.phone','!=',0)
-        ->where('clients.phone','!=',NULL);
-
+    public function ScopeReply($query)
+    {
+        return WhatsappLastReply::where('message', '=', '0')
+            ->join('clients', 'whatsapp_last_replies.phone', 'like', \DB::raw("CONCAT('%', clients.phone, '%')"))
+            ->orWhere('message', '=', '2_no')
+            ->orWhere('message', '=', '2')
+            ->where('clients.phone', '!=', '')
+            ->where('clients.phone', '!=', 0)
+            ->where('clients.phone', '!=', NULL);
     }
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
-        static::deleting(function($Client) { 
-             Schedule::where('client_id',$Client->id)->delete();
-             Offer::where('client_id',$Client->id)->delete();
-             Contract::where('client_id',$Client->id)->delete();
-             notifications::where('user_id',$Client->id)->delete();
-             Job::where('client_id',$Client->id)->delete();
-             Order::where('client_id',$Client->id)->delete();
+        static::deleting(function ($Client) {
+            Schedule::where('client_id', $Client->id)->delete();
+            Offer::where('client_id', $Client->id)->delete();
+            Contract::where('client_id', $Client->id)->delete();
+            Notification::where('user_id', $Client->id)->delete();
+            Job::where('client_id', $Client->id)->delete();
+            Order::where('client_id', $Client->id)->delete();
         });
     }
-
 }

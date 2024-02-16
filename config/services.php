@@ -30,4 +30,35 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'whatsapp_api' => [
+        'code' => env('WHATSAPP_API_CODE'),
+        'secret' => env('WHATSAPP_API_SECRET'),
+    ],
+
+    'app' => [
+        'lead_token' => env('LEAD_TOKEN'),
+        'old_contract' => env('OLD_CONTRACT'),
+    ],
+
+    'zcredit' => [
+        'key' => env('ZCREDIT_KEY'),
+        'terminalnumber' => env('ZCREDIT_TERMINALNUMBER'),
+        'terminalpassword' => env('ZCREDIT_TERMINALPASSWORD'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_REFRESH_TOKEN'),
+        'calendar_id' => env('GOOGLE_CALENDAR_ID'),
+    ],
+
+    'facebook' => [
+        'app_id' => env('FB_APP_ID'),
+        'app_secret' => env('FB_APP_SECRET'),
+        'app_scope_id' => env('FB_APP_SCOPE_ID'),
+        'account_id' => env('FB_ACCOUNT_ID'),
+        'access_token' => env('FB_ACCESS_TOKEN'),
+        'webhook_token' => env('FB_WEBHOOK_TOKEN'),
+    ]
 ];

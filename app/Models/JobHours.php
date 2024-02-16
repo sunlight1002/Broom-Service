@@ -9,7 +9,8 @@ class JobHours extends Model
 {
     use HasFactory;
 
-    public function worker(){
-        return $this->belongsTo(User::class,'worker_id');
+    public function worker()
+    {
+        return $this->belongsTo(User::class, 'worker_id');
     }
 }

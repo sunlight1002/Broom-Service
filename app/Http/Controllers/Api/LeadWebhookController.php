@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Helper;
 use Illuminate\Support\Facades\Auth;
 use Monolog\Processor\WebProcessor;
 
@@ -30,7 +30,7 @@ class LeadWebhookController extends Controller
         if (!empty($challenge)) {
 
             $verify_token = $request->hub_verify_token;
-            if ($verify_token === env('FB_WEBHOOK_TOKEN')) {
+            if ($verify_token === config('services.facebook.webhook_token')) {
                 Fblead::create(["challenge" => $challenge]);
                 return $challenge;
             }
@@ -96,17 +96,15 @@ class LeadWebhookController extends Controller
         }
         return ($nums != "" && strlen($nums) > 8) ? true : false;
     }
+
     public function fbWebhook(Request $request)
     {
-
         $challenge = $request->hub_challenge;
 
         if (!empty($challenge)) {
-
             $verify_token = $request->hub_verify_token;
 
-            if ($verify_token === env('FB_WEBHOOK_TOKEN')) {
-
+            if ($verify_token === config('services.facebook.webhook_token')) {
                 Fblead::create(["challenge" => $challenge]);
                 return $challenge;
             }
@@ -155,7 +153,7 @@ class LeadWebhookController extends Controller
                 $lead->firstname     = 'lead';
                 $lead->lastname      = '';
                 $lead->phone         =  $from;
-                $lead->email         = $from.'@lead.com';
+                $lead->email         = $from . '@lead.com';
                 $lead->status        = 3;
                 $lead->password      = Hash::make($from);
                 $lead->geo_address   = '';
@@ -165,8 +163,6 @@ class LeadWebhookController extends Controller
             }
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
-
-
                 $to      = $data_returned['metadata']['display_phone_number'];
                 $to_name      = $data_returned['contacts'][0]['profile']['name'];
                 $n_f = false;
@@ -174,9 +170,7 @@ class LeadWebhookController extends Controller
 
                 $result = DB::table('whatsapp_last_replies')->where('phone', '=', $from)->whereRaw('updated_at >= now() - interval 15 minute')->first();
 
-
                 if ($message == '0') {
-
                     $last = WebhookResponse::where('number', $from)->where('message', '!=', '0')->orderBy('created_at', 'desc')->skip(1)->take(1)->get()->first();
                     $n_f = true;
                     $message = $last->message;
@@ -231,8 +225,6 @@ class LeadWebhookController extends Controller
                 else
                     $client  = Client::where('phone', 'like', '%' . $from . '%')->get()->first();
 
-
-
                 if ($message == '' || $from == '') {
                     return 'Destination or Sender number and message value required';
                 }
@@ -251,7 +243,6 @@ class LeadWebhookController extends Controller
                     $auth_id = (!is_null($auth)) ? $auth->id : '';
                     $auth_check = true;
                 }
-
 
                 $link_for = '';
                 $link_data = [];
@@ -322,7 +313,6 @@ class LeadWebhookController extends Controller
                     $reply->message = $message;
                     $reply->save();
                 }
-          
 
                 if (count($link_data) > 0) {
                     $message = '';
@@ -344,11 +334,9 @@ class LeadWebhookController extends Controller
                     $message .= $merge;
                 }
 
-
                 if ($message == '41_1' || $message == '41_2' || $message == '41_3') {
                     $n_f = true;
                 }
-
 
                 $message = match ($message) {
                     '41_1' => !is_null($client) && $client->lng == 'en' ? "No quote found. \n press 9 for main menu 0 for back." : "לא נמצא ציטוט. \n הקש 9 לתפריט הראשי 0 לחזרה.",
@@ -375,10 +363,7 @@ class LeadWebhookController extends Controller
                     $message = '3_r';
                 }
 
-
                 if ($auth_check == true && ($auth_id) != '') {
-
-
                     $_response = TextResponse::where('status', '1')->where('keyword', '4_r')->get()->first();
                     if (!is_null($_response)) {
 
@@ -426,11 +411,8 @@ class LeadWebhookController extends Controller
                         'data'          => json_encode($get_data)
                     ]);
 
-
                     $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
                 } else {
-
-
                     $_response = TextResponse::where('status', '1')->where('keyword', 'like', '%' . $message . '%')->get()->first();
 
                     if (!is_null($_response)) {
@@ -452,7 +434,6 @@ class LeadWebhookController extends Controller
                             'data'          => json_encode($get_data)
                         ]);
 
-
                         $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
                     } else if ($n_f == true) {
 
@@ -469,13 +450,10 @@ class LeadWebhookController extends Controller
                             'data'          => json_encode($get_data)
                         ]);
 
-
                         $result = Helper::sendWhatsappMessage($from, '', array('message' => $response));
                     }
                 }
             }
-
-
 
             die('sent');
         }

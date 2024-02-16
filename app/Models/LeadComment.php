@@ -13,8 +13,9 @@ class LeadComment extends Model
         'team_id',
         'lead_id'
     ];
-    
-    public function team(){
-        return $this->belongsTo(Admin::class,'team_id');
+
+    public function team()
+    {
+        return $this->belongsTo(Admin::class, 'team_id');
     }
 }

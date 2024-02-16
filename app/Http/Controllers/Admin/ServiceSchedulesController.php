@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\serviceSchedules;
+use App\Models\ServiceSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,49 +16,39 @@ class ServiceSchedulesController extends Controller
      */
     public function index(Request $request)
     {
-        //
-        $schedule = serviceSchedules::query();
+        $schedule = ServiceSchedule::query();
         $schedule   = $schedule->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
-            'schedules'       => $schedule,            
+            'schedules'       => $schedule,
         ], 200);
-
-        
     }
-    public function allSchedules(){
 
-        $schedule = serviceSchedules::where('status',1)->get();
+    public function allSchedules()
+    {
+        $schedule = ServiceSchedule::where('status', 1)->get();
         return response()->json([
-            'schedules'       => $schedule,            
+            'schedules'       => $schedule,
         ], 200);
     }
-    public function allSchedulesByLng(Request $request){
-        $schedules = serviceSchedules::where('status',1)->get();
+
+    public function allSchedulesByLng(Request $request)
+    {
+        $schedules = ServiceSchedule::where('status', 1)->get();
         $result = [];
-        if(isset($schedules)){
-           foreach($schedules as $schedule){
-            
-             $res['name'] = ($request->lng == 'en') ? $schedule->name : $schedule->name_heb;
-             $res['id']   = $schedule->id; 
-             $res['cycle'] = $schedule->cycle;
-             $res['period'] = $schedule->period;
-             array_push($result,$res);
-           }
+        if (isset($schedules)) {
+            foreach ($schedules as $schedule) {
+
+                $res['name'] = ($request->lng == 'en') ? $schedule->name : $schedule->name_heb;
+                $res['id']   = $schedule->id;
+                $res['cycle'] = $schedule->cycle;
+                $res['period'] = $schedule->period;
+                array_push($result, $res);
+            }
         }
         return response()->json([
-            'schedules'       => $result,            
+            'schedules'       => $result,
         ], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -69,85 +59,68 @@ class ServiceSchedulesController extends Controller
      */
     public function store(Request $request)
     {
-        //
-       
-        $validator = Validator::make($request->input(),[
-            'name'=>'required',
-            'status' =>'required',
+        $validator = Validator::make($request->input(), [
+            'name' => 'required',
+            'status' => 'required',
         ]);
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->messages()]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
         }
-        
-        serviceSchedules::create($request->input());
+
+        ServiceSchedule::create($request->input());
         return response()->json([
             'message' => 'Schedule has been create successfully'
-        ],200);
-
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\serviceSchedules  $serviceSchedules
-     * @return \Illuminate\Http\Response
-     */
-    public function show(serviceSchedules $serviceSchedules)
-    {
-        //
+        ], 200);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\serviceSchedules  $serviceSchedules
+     * @param  \App\Models\ServiceSchedule  $serviceSchedules
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
-        $schedule = serviceSchedules::find($id);
+        $schedule = ServiceSchedule::find($id);
         return response()->json([
-            'schedule'=> $schedule
-        ],200);
+            'schedule' => $schedule
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\serviceSchedules  $serviceSchedules
+     * @param  \App\Models\ServiceSchedule  $serviceSchedules
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        //
-        $validator = Validator::make($request->input(),[
-            'name'=>'required',
-            'status' =>'required',
+        $validator = Validator::make($request->input(), [
+            'name' => 'required',
+            'status' => 'required',
         ]);
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->messages()]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
         }
-        
-        serviceSchedules::where('id',$id)->update($request->input());
+
+        ServiceSchedule::where('id', $id)->update($request->input());
         return response()->json([
             'message' => 'Schedule has been updated successfully'
-        ],200);
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\serviceSchedules  $serviceSchedules
+     * @param  \App\Models\ServiceSchedule  $serviceSchedules
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
-        serviceSchedules::find($id)->delete();
+        ServiceSchedule::find($id)->delete();
         return response()->json([
-            'message'     => "Schedule has been deleted"         
+            'message'     => "Schedule has been deleted"
         ], 200);
     }
 }

@@ -26,15 +26,18 @@ class Invoices extends Model
         'status'
     ];
 
-    public function client(){
-        return $this->belongsTo(Client::class,'customer');
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'customer');
     }
-    public function job(){
-        return $this->belongsTo(Job::class,'job_id');
+
+    public function job()
+    {
+        return $this->belongsTo(Job::class, 'job_id');
     }
-    public function receipt(){
-        return $this->belongsTo(Receipts::class,'receipt_id');
+
+    public function receipt()
+    {
+        return $this->belongsTo(Receipts::class, 'receipt_id');
     }
-   
-    
 }

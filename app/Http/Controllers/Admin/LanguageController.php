@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\language;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use Symfony\Component\Yaml\Yaml;
 
@@ -16,7 +16,7 @@ class LanguageController extends Controller
      */
     public function index()
     {
-        $languages = language::get();
+        $languages = Language::get();
         return response()->json([
             'languages' => $languages
         ]);
@@ -46,21 +46,21 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\language  $language
+     * @param  \App\Models\Language  $language
      * @return \Illuminate\Http\Response
      */
-    public function show(language $language)
+    public function show(Language $language)
     {
-         Yaml::parse($language->getLocaleArrayFromFile());
+        Yaml::parse($language->getLocaleArrayFromFile());
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\language  $language
+     * @param  \App\Models\Language  $language
      * @return \Illuminate\Http\Response
      */
-    public function edit(language $language)
+    public function edit(Language $language)
     {
         //
     }
@@ -69,10 +69,10 @@ class LanguageController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\language  $language
+     * @param  \App\Models\Language  $language
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, language $language)
+    public function update(Request $request, Language $language)
     {
         //
     }
@@ -80,10 +80,10 @@ class LanguageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\language  $language
+     * @param  \App\Models\Language  $language
      * @return \Illuminate\Http\Response
      */
-    public function destroy(language $language)
+    public function destroy(Language $language)
     {
         //
     }

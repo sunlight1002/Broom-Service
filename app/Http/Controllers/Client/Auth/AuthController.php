@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    
     /** 
      * Login api 
      * 
@@ -18,7 +17,6 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        
         $validator      = Validator::make($request->all(), [
             'email'     => ['required', 'string', 'email', 'max:255'],
             'password'  => ['required', 'string', 'min:6'],
@@ -27,7 +25,6 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-      
 
         if (Auth::guard('client')->attempt([
             'email'     => $request->email,
@@ -35,17 +32,15 @@ class AuthController extends Controller
         ])) {
 
             $client        = Client::find(auth()->guard('client')->user()->id);
-            if($client->status == 2):
+            if ($client->status == 2) :
 
                 $client->token = $client->createToken('Client', ['client'])->accessToken;
                 return response()->json($client, 200);
 
-            else:
+            else :
                 return response()->json(['errors' => ['email' => 'These credentials are not authorized to login for now. Please contact administrator.']]);
-           
+
             endif;
-
-
         } else {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
         }
@@ -87,6 +82,7 @@ class AuthController extends Controller
         $Client = Auth::Client();
         return response()->json(['success' => $Client], 200);
     }
+
     public function logout()
     {
         $user = Auth::user()->token();

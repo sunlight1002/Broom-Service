@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Schedule;
 use App\Models\Offer;
@@ -11,15 +10,16 @@ use App\Models\Services;
 use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
-use App\Models\notifications;
+use App\Models\Notification;
 use Carbon\Carbon;
-use Mail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
   public function ShowMeeting(Request $request)
   {
-
     $id = $request->id;
     $schedule = Schedule::where('id', $id)->with('client', 'team')->get()->first();
     $services = Offer::where('client_id', $schedule->client->id)->get()->last();
@@ -43,7 +43,6 @@ class ClientEmailController extends Controller
 
   public function GetOffer(Request $request)
   {
-
     $id = $request->id;
     $offer = Offer::where('id', $id)->with('client')->get();
     $services = ($offer[0]->services != '') ? json_decode($offer[0]->services) : [];
@@ -55,13 +54,12 @@ class ClientEmailController extends Controller
 
   public function AcceptOffer(Request $request)
   {
-
     Offer::where('id', $request->id)->update([
       'status' => 'accepted'
     ]);
 
     $ofr  = Offer::with('client')->where('id', $request->id)->get()->first()->toArray();
-    notifications::create([
+    Notification::create([
       'user_id' => $ofr['client']['id'],
       'type' => 'accept-offer',
       'offer_id' => $request->id,
@@ -88,7 +86,7 @@ class ClientEmailController extends Controller
     ]);
     $ofr['contract_id'] = $hash;
 
-    \App::setLocale($ofr['client']['lng']);
+    App::setLocale($ofr['client']['lng']);
 
     Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
       $messages->to($ofr['client']['email']);
@@ -98,7 +96,6 @@ class ClientEmailController extends Controller
       $messages->subject($sub);
     });
 
-
     return response()->json([
       'message' => 'Offer is accepted'
     ], 200);
@@ -106,13 +103,12 @@ class ClientEmailController extends Controller
 
   public function RejectOffer(Request $request)
   {
-
     Offer::where('id', $request->id)->update([
       'status' => 'declined'
     ]);
 
     $ofr  = Offer::with('client')->where('id', $request->id)->get()->first()->toArray();
-    notifications::create([
+    Notification::create([
       'user_id' => $ofr['client']['id'],
       'type' => 'reject-offer',
       'offer_id' => $request->id,
@@ -132,13 +128,11 @@ class ClientEmailController extends Controller
 
   public function AcceptMeeting(Request $request)
   {
-
     try {
 
       Schedule::where('id', $request->id)->update([
         'booking_status' => $request->response
       ]);
-
 
       $sch = Schedule::where('id', $request->id)->get('client_id')->first();
 
@@ -152,30 +146,25 @@ class ClientEmailController extends Controller
         ]
       );
 
-
       if ($request->response == 'confirmed') :
 
         Client::where('id', $sch->client_id)->update(['status' => 1]);
-        notifications::create([
+        Notification::create([
           'user_id' => $sch->client_id,
           'type' => 'accept-meeting',
           'meet_id' => $request->id,
           'status' => $request->response
         ]);
 
-
-
       else :
 
         Client::where('id', $sch->client_id)->update(['status' => 0]);
-        notifications::create([
+        Notification::create([
           'user_id' => $sch->client_id,
           'type' => 'reject-meeting',
           'meet_id' => $request->id,
           'status' => $request->response
         ]);
-
-
 
       endif;
 
@@ -190,17 +179,16 @@ class ClientEmailController extends Controller
 
   public function AcceptContract(Request $request)
   {
-
     try {
       $contract = Contract::with('client')->where('unique_hash', $request->unique_hash)->get()->first();
       $card = ClientCard::where('client_id', $contract->client->id)->get()->first();
 
-      if (env('OLD_CONTRACT') == true || (env('OLD_CONTRACT') == false && !empty($card))) {
+      if (config('services.app.old_contract') == true || (config('services.app.old_contract') == false && !empty($card))) {
 
         Contract::where('unique_hash', $request->unique_hash)->update($request->input());
         Client::where('id', $contract->client_id)->update(['status' => 2]);
 
-        notifications::create([
+        Notification::create([
           'user_id' => $contract->client_id,
           'type' => 'contract-accept',
           'contract_id' => $contract->id,
@@ -233,6 +221,7 @@ class ClientEmailController extends Controller
       ], 200);
     }
   }
+
   public function saveCard(Request $request)
   {
     $args = [
@@ -251,16 +240,13 @@ class ClientEmailController extends Controller
     ], 200);
   }
 
-
-
   public function RejectContract(Request $request)
   {
-
     try {
       Contract::where('id', $request->id)->update(['status' => 'declined']);
       $contract = Contract::with('client')->where('id', $request->id)->get()->first();
       Client::where('id', $contract->client_id)->update(['status' => 1]);
-      notifications::create([
+      Notification::create([
         'user_id' => $contract->client_id,
         'type' => 'contract-reject',
         'contract_id' => $contract->id,
@@ -304,7 +290,7 @@ class ClientEmailController extends Controller
     }
 
     return response()->json([
-      'old_contract' => env('OLD_CONTRACT'),
+      'old_contract' => config('services.app.old_contract'),
       'offer' => $goffer,
       'contract' => $offer,
       'card' => $exist_card,
@@ -319,7 +305,6 @@ class ClientEmailController extends Controller
 
   public function getClient(Request $request)
   {
-
     $client = Client::find($request->id);
 
     return response()->json([
@@ -329,7 +314,6 @@ class ClientEmailController extends Controller
 
   public function addMeet(Request $request)
   {
-
     $sch = Schedule::create([
       'booking_status' => 'pending',
       'start_date'     => $request['data']['startDate'],
@@ -350,21 +334,17 @@ class ClientEmailController extends Controller
       ->where('start_date', '>=', Carbon::now())
       ->get();
 
-      if( count( $sch ) > 0 ){
+    if (count($sch) > 0) {
 
-        return response()->json([
-          'status_code' => 200,
-          'schedule' => $sch[0]
-        ]);
+      return response()->json([
+        'status_code' => 200,
+        'schedule' => $sch[0]
+      ]);
+    } else {
 
-      } else{
-
-        return response()->json([
-          'status_code' => 400
-        ]);
-
-      }
-   
+      return response()->json([
+        'status_code' => 400
+      ]);
+    }
   }
-
 }

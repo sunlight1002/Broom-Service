@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class notifications extends Model
+class Notification extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -18,9 +18,8 @@ class notifications extends Model
         'meet_id',
     ];
 
-    public function client(){
-       return $this->belongsTo(Client::class,'user_id');
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'user_id');
     }
-
-   
 }

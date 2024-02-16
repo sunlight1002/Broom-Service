@@ -16,10 +16,13 @@ class Offer extends Model
         'status'
     ];
 
-    public function client(){
-        return $this->belongsTo(Client::class,'client_id');
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
-    public function service(){
-        return $this->belongsTo(Services::class,'job_id');
+
+    public function service()
+    {
+        return $this->belongsTo(Services::class, 'job_id');
     }
 }
