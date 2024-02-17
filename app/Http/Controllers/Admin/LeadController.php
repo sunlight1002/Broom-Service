@@ -115,35 +115,24 @@ class LeadController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'phone'     => ['required'],
+        $validator = Validator::make($request->data, [
+            'firstname' => ['required', 'string', 'max:255'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-
-        $nm = explode(' ', $request->name);
-
-        $lead                = new Client;
-        $lead->firstname     = $nm[0];
-        $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
-        $lead->phone         = $request->phone;
-        $lead->email         = $request->email;
-        $lead->geo_address   = $request->address;
-        $lead->status        = 0;
-        $lead->password      = Hash::make($request->phone);
-        $lead->extra         = $request->meta;
-        $lead->save();
+        $input  = $request->data;
+        $input['password']  = isset($input['phone']) && !empty($input['phone'])? Hash::make($input['phone']): Hash::make('password');
+        $client = Client::create($input);
 
         LeadStatus::UpdateOrCreate(
             [
-                'client_id' => $lead->id
+                'client_id' => $client->id
             ],
             [
-                'client_id' => $lead->id,
+                'client_id' => $client->id,
                 'lead_status' => 'Pending'
             ]
         );
@@ -222,28 +211,25 @@ class LeadController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'phone'     => ['required'],
+        $validator = Validator::make($request->data, [
+            'firstname' => ['required', 'string', 'max:255'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $nm = explode(' ', $request->name);
+        $client = Client::where('id', $id)->first();
 
-        $lead                = Client::find($id);
-        $lead->firstname     = $nm[0];
-        $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
-        $lead->phone         = $request->phone;
-        $lead->email         = $request->email;
-        $lead->geo_address   = $request->address;
-        $lead->status        = 0;
-        $lead->password      = Hash::make($request->phone);
-        $lead->extra         = $request->meta;
-        $lead->save();
+        $input  = $request->data;
+        if ((isset($input['passcode']) && $input['passcode'] != null)) {
+            $input['password'] = Hash::make($input['passcode']);
+        } else {
+            $input['password'] = $client->password;
+        }
 
+        Client::where('id', $id)->update($input);
+        
         return response()->json([
             'message'       => 'Lead updated successfully',
         ], 200);
