@@ -115,15 +115,18 @@ class LeadController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->data, [
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
+            'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $input  = $request->data;
+
+        $input  = $data;
         $input['password']  = isset($input['phone']) && !empty($input['phone'])? Hash::make($input['phone']): Hash::make('password');
         $client = Client::create($input);
 

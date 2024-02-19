@@ -313,6 +313,7 @@ export default function EditWorker() {
                                             className="form-control"
                                             required
                                             placeholder="Password"
+                                            autoComplete="new-password"
                                         />
                                         {errors.passcode ? (
                                             <small className="text-danger mb-1">
@@ -352,7 +353,7 @@ export default function EditWorker() {
                                 {extra &&
                                     extra.map((ex, i) => {
                                         return (
-                                            <>
+                                            <React.Fragment key={i}>
                                                 <div className="col-sm-4">
                                                     <div className="form-group">
                                                         <label className="control-label">
@@ -457,7 +458,7 @@ export default function EditWorker() {
                                                         </>
                                                     )}
                                                 </div>
-                                            </>
+                                            </React.Fragment>
                                         );
                                     })}
                             </div>
@@ -704,7 +705,10 @@ export default function EditWorker() {
                                     className="form-check form-check-inline1 pl-0"
                                     style={{ paddingLeft: "0" }}
                                 >
-                                    <label class="form-check-label" for="title">
+                                    <label
+                                        className="form-check-label"
+                                        for="title"
+                                    >
                                         Color
                                     </label>
                                 </div>
@@ -712,12 +716,12 @@ export default function EditWorker() {
                                     <input
                                         type="radio"
                                         name="swatch_demo"
-                                        id="swatch_2"
+                                        id="swatch_7"
                                         value="0"
                                         color="#fff"
                                         onChange={(e) => setColor("#fff")}
                                     />
-                                    <label for="swatch_2">
+                                    <label for="swatch_7">
                                         <i className="fa fa-check"></i>
                                     </label>
                                     <span>white</span>

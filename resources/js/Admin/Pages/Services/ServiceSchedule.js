@@ -3,10 +3,9 @@ import axios from "axios";
 import ReactPaginate from "react-paginate";
 import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
-import {Table, Thead, Tbody, Tr, Th, Td} from 'react-super-responsive-table'
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 
 export default function ServiceSchedule() {
-
     const [schedules, setSchedules] = useState("");
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
@@ -17,15 +16,17 @@ export default function ServiceSchedule() {
     };
 
     const getSchedules = () => {
-        axios.get("/api/admin/service-schedule", { headers }).then((response) => {
-            console.log(response);
-            if (response.data.schedules.data.length > 0) {
-                setSchedules(response.data.schedules.data);
-                setPageCount(response.data.schedules.last_page);
-            } else {
-                setLoading("No schedule found");
-            }
-        });
+        axios
+            .get("/api/admin/service-schedule", { headers })
+            .then((response) => {
+                console.log(response);
+                if (response.data.schedules.data.length > 0) {
+                    setSchedules(response.data.schedules.data);
+                    setPageCount(response.data.schedules.last_page);
+                } else {
+                    setLoading("No schedule found");
+                }
+            });
     };
     useEffect(() => {
         getSchedules();
@@ -84,7 +85,8 @@ export default function ServiceSchedule() {
                         <div className="col-sm-6">
                             <Link
                                 to="/admin/add-service-schedule"
-                                className="ml-2 btn btn-success addButton">
+                                className="ml-2 btn btn-success addButton"
+                            >
                                 Add Schedule
                             </Link>
                         </div>
@@ -92,7 +94,6 @@ export default function ServiceSchedule() {
                 </div>
                 <div className="card">
                     <div className="card-body">
-
                         <div className="boxPanel">
                             <div className="table-responsive">
                                 {schedules.length > 0 ? (
@@ -100,8 +101,12 @@ export default function ServiceSchedule() {
                                         <Thead>
                                             <Tr>
                                                 <Th scope="col">ID</Th>
-                                                <Th scope="col">Schedule- En</Th>
-                                                <Th scope="col">Schedule- Heb</Th>
+                                                <Th scope="col">
+                                                    Schedule- En
+                                                </Th>
+                                                <Th scope="col">
+                                                    Schedule- Heb
+                                                </Th>
                                                 <Th scope="col">Status</Th>
                                                 <Th scope="col">Action</Th>
                                             </Tr>
@@ -120,13 +125,30 @@ export default function ServiceSchedule() {
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
-                                                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                >
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
                                                                 <div className="dropdown-menu">
-                                                                    <Link to={`/admin/edit-service-schedule/${item.id}`} className="dropdown-item">Edit</Link>
-                                                                    <button className="dropdown-item" onClick={() => handleDelete(item.id)}
-                                                                    >Delete</button>
+                                                                    <Link
+                                                                        to={`/admin/edit-service-schedule/${item.id}`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        Edit
+                                                                    </Link>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
+                                                                            handleDelete(
+                                                                                item.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Delete
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </Td>
@@ -135,7 +157,9 @@ export default function ServiceSchedule() {
                                         </Tbody>
                                     </Table>
                                 ) : (
-                                    <p className="text-center mt-5">{loading}</p>
+                                    <p className="text-center mt-5">
+                                        {loading}
+                                    </p>
                                 )}
                                 {schedules.length > 0 ? (
                                     <ReactPaginate
@@ -168,7 +192,5 @@ export default function ServiceSchedule() {
                 </div>
             </div>
         </div>
-
-
     );
 }

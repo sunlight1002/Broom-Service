@@ -92,6 +92,7 @@ export default function Login() {
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
+                                        autoComplete="new-password"
                                     />
                                 </div>
                                 {errors.password ? (

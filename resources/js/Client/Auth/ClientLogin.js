@@ -100,6 +100,7 @@ export default function ClientLogin() {
                                     placeholder="Password"
                                     name="password"
                                     aria-label="Password"
+                                    autoComplete="new-password"
                                 />
                             </div>
                             {errors.password ? (

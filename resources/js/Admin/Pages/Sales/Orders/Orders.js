@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../../Layouts/Sidebar";
 import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import Moment from 'moment';
+import Moment from "moment";
 import { Base64 } from "js-base64";
 
 export default function Orders() {
-
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [orders, setOrders] = useState([]);
-    const [cancelDoc,setCancelDoc] = useState('');
-    const [dtype,setDtype] = useState('');
-    const [reason,setReason] = useState('');
+    const [cancelDoc, setCancelDoc] = useState("");
+    const [dtype, setDtype] = useState("");
+    const [reason, setReason] = useState("");
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -22,33 +21,29 @@ export default function Orders() {
     };
 
     const getOrders = () => {
-        axios
-            .get('/api/admin/orders', { headers })
-            .then((res) => {
-                if (res.data.orders.data.length > 0) {
-                    setOrders(res.data.orders.data);
-                    setPageCount(res.data.orders.last_page);
-                } else {
-                    setOrders([]);
-                    setLoading('No Order Found');
-                }
-            })
-    }
+        axios.get("/api/admin/orders", { headers }).then((res) => {
+            if (res.data.orders.data.length > 0) {
+                setOrders(res.data.orders.data);
+                setPageCount(res.data.orders.last_page);
+            } else {
+                setOrders([]);
+                setLoading("No Order Found");
+            }
+        });
+    };
 
     const copy = [...orders];
-    const [order, setOrder] = useState('ASC');
+    const [order, setOrder] = useState("ASC");
     const sortTable = (e, col) => {
-
         let n = e.target.nodeName;
         if (n != "SELECT") {
             if (n == "TH") {
-                let q = e.target.querySelector('span');
+                let q = e.target.querySelector("span");
                 if (q.innerHTML === "↑") {
                     q.innerHTML = "↓";
                 } else {
                     q.innerHTML = "↑";
                 }
-
             } else {
                 let q = e.target;
                 if (q.innerHTML === "↑") {
@@ -59,18 +54,21 @@ export default function Orders() {
             }
         }
 
-        if (order == 'ASC') {
-            const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? 1 : -1));
+        if (order == "ASC") {
+            const sortData = [...copy].sort((a, b) =>
+                a[col] < b[col] ? 1 : -1
+            );
             setOrders(sortData);
-            setOrder('DESC');
+            setOrder("DESC");
         }
-        if (order == 'DESC') {
-            const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? -1 : 1));
+        if (order == "DESC") {
+            const sortData = [...copy].sort((a, b) =>
+                a[col] < b[col] ? -1 : 1
+            );
             setOrders(sortData);
-            setOrder('ASC');
+            setOrder("ASC");
         }
-
-    }
+    };
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -127,11 +125,7 @@ export default function Orders() {
                 axios
                     .get(`/api/admin/close-doc/${id}/${type}`, { headers })
                     .then((response) => {
-                        Swal.fire(
-                            "Closed",
-                            response.data.msg,
-                            "success"
-                        );
+                        Swal.fire("Closed", response.data.msg, "success");
                         setTimeout(() => {
                             getOrders();
                         }, 1000);
@@ -165,48 +159,44 @@ export default function Orders() {
                     });
             }
         });
-    }
+    };
 
     const handleCancel = (e) => {
-
         e.preventDefault();
         const data = {
-            "doctype":dtype,
-            "docnum" :cancelDoc,
-            "reason" :reason
-        }
-       
+            doctype: dtype,
+            docnum: cancelDoc,
+            reason: reason,
+        };
+
         axios
-        .post(`/api/admin/cancel-doc`,{ data },{ headers })
-        .then((res)=>{
-            $(".closeb11").click();
-            Swal.fire(res.data.msg,"","info");
-            getOrders();
-        })
-    }
+            .post(`/api/admin/cancel-doc`, { data }, { headers })
+            .then((res) => {
+                $(".closeb11").click();
+                Swal.fire(res.data.msg, "", "info");
+                getOrders();
+            });
+    };
 
     const filter = (e) => {
         e.preventDefault();
-        let fils = document.querySelectorAll('.filter');
-        let d = '';
+        let fils = document.querySelectorAll(".filter");
+        let d = "";
         fils.forEach((el, i) => {
-            if (el.value !== 'Please Select')
+            if (el.value !== "Please Select")
                 d += el.name + "=" + el.value + "&";
+        });
 
-        })
-
-        axios
-            .get(`/api/admin/orders?${d}`, { headers })
-            .then((res) => {
-                if (res.data.orders.data.length > 0) {
-                    setOrders(res.data.orders.data);
-                    setPageCount(res.data.orders.last_page);
-                } else {
-                    setOrders([]);
-                    setLoading('No Order Found');
-                }
-            })
-    }
+        axios.get(`/api/admin/orders?${d}`, { headers }).then((res) => {
+            if (res.data.orders.data.length > 0) {
+                setOrders(res.data.orders.data);
+                setPageCount(res.data.orders.last_page);
+            } else {
+                setOrders([]);
+                setLoading("No Order Found");
+            }
+        });
+    };
 
     useEffect(() => {
         getOrders();
@@ -215,7 +205,7 @@ export default function Orders() {
         <div id="container">
             <Sidebar />
             <div id="content">
-            <div className="titleBox customer-title">
+                <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">Manage Orders</h1>
@@ -223,7 +213,8 @@ export default function Orders() {
                         <div className="col-sm-6">
                             <Link
                                 to="/admin/add-order"
-                                className="ml-2 btn btn-pink addButton">
+                                className="ml-2 btn btn-pink addButton"
+                            >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Create Order
                             </Link>
@@ -234,32 +225,59 @@ export default function Orders() {
                     <div className="row">
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
-                                <label className="control-label">From Date</label>
-                                <input type="date" name="from_date" className="form-control filter" />
+                                <label className="control-label">
+                                    From Date
+                                </label>
+                                <input
+                                    type="date"
+                                    name="from_date"
+                                    className="form-control filter"
+                                />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">To Date</label>
-                                <input type="date" name="to_date" className="form-control filter" />
+                                <input
+                                    type="date"
+                                    name="to_date"
+                                    className="form-control filter"
+                                />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
-                                <label className="control-label">Order ID</label>
-                                <input type="text" className="form-control filter" name="order_id" placeholder="Order ID" />
+                                <label className="control-label">
+                                    Order ID
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control filter"
+                                    name="order_id"
+                                    placeholder="Order ID"
+                                />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
-                                <label className="control-label">Customer</label>
-                                <input type="text" className="form-control filter" name="client" placeholder="Customer" />
+                                <label className="control-label">
+                                    Customer
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control filter"
+                                    name="client"
+                                    placeholder="Customer"
+                                />
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
                             <div className="form-group">
                                 <label className="control-label">Status</label>
-                                <select className="form-control filter" name="status">
+                                <select
+                                    className="form-control filter"
+                                    name="status"
+                                >
                                     <option>Please Select</option>
                                     <option value="Open">Open</option>
                                     <option value="Closed">Closed</option>
@@ -267,8 +285,16 @@ export default function Orders() {
                             </div>
                         </div>
                         <div className="col-sm-2 col-6">
-                            <label className="control-label d-block">&nbsp;</label>
-                            <button className="btn btn-pink" onClick={e => filter(e)} style={{ minWidth: "100px" }}>Filter</button>
+                            <label className="control-label d-block">
+                                &nbsp;
+                            </label>
+                            <button
+                                className="btn btn-pink"
+                                onClick={(e) => filter(e)}
+                                style={{ minWidth: "100px" }}
+                            >
+                                Filter
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -280,64 +306,230 @@ export default function Orders() {
                                     <Table className="table table-bordered">
                                         <Thead>
                                             <Tr>
-                                                <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'id') }}  > #Order ID           <span className="arr"> &darr;</span></Th>
-                                                <Th scope="col" >Job </Th>
-                                                <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'created_at') }} >Created Date   <span className="arr"> &darr;</span></Th>
-                                                <Th scope="col"  >Customer   </Th>
-                                                <Th scope="col" style={{ cursor: "pointer" }} onClick={(e) => { sortTable(e, 'status') }}>Status            <span className="arr"> &darr;</span></Th>
-                                                <Th scope="col">Invoice Status</Th>
+                                                <Th
+                                                    scope="col"
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={(e) => {
+                                                        sortTable(e, "id");
+                                                    }}
+                                                >
+                                                    {" "}
+                                                    #Order ID{" "}
+                                                    <span className="arr">
+                                                        {" "}
+                                                        &darr;
+                                                    </span>
+                                                </Th>
+                                                <Th scope="col">Job </Th>
+                                                <Th
+                                                    scope="col"
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={(e) => {
+                                                        sortTable(
+                                                            e,
+                                                            "created_at"
+                                                        );
+                                                    }}
+                                                >
+                                                    Created Date{" "}
+                                                    <span className="arr">
+                                                        {" "}
+                                                        &darr;
+                                                    </span>
+                                                </Th>
+                                                <Th scope="col">Customer </Th>
+                                                <Th
+                                                    scope="col"
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={(e) => {
+                                                        sortTable(e, "status");
+                                                    }}
+                                                >
+                                                    Status{" "}
+                                                    <span className="arr">
+                                                        {" "}
+                                                        &darr;
+                                                    </span>
+                                                </Th>
+                                                <Th scope="col">
+                                                    Invoice Status
+                                                </Th>
                                                 <Th scope="col">Action</Th>
                                             </Tr>
                                         </Thead>
                                         <Tbody>
                                             {orders?.map((item, index) => {
-                                                    let services = (item.items != undefined && item.items != null) ? JSON.parse(item.items) : []
+                                                let services =
+                                                    item.items != undefined &&
+                                                    item.items != null
+                                                        ? JSON.parse(item.items)
+                                                        : [];
 
-                                                    return (
-                                                        <Tr>
-                                                            <Td>#{item.order_id}</Td>
-                                                            <Td><Link to={`/admin/view-job/${ item.job ? item.job.id : 'NA'}`}>{item.job ? Moment(item.job.start_date).format('DD-MM-Y') + " | " + item.job.shifts : 'NA'}</Link></Td>
-                                                            <Td>{Moment(item.created_at).format('DD, MMM Y')}</Td>
-                                                            <Td><Link to={`/admin/view-client/${(item.client) ? item.client.id : 'NA'}`}>{(item.client) ? item.client.firstname + " " + item.client.lastname : 'NA'}</Link></Td>
-                                                            <Td>
-                                                                {item.status}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.invoice_status == 2 ? "Generated" : "Not Generated"}
-                                                            </Td>
-                                                            <Td>
-                                                                <div className="action-dropdown dropdown">
-                                                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                                    </button>
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            #{item.order_id}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/admin/view-job/${
+                                                                    item.job
+                                                                        ? item
+                                                                              .job
+                                                                              .id
+                                                                        : "NA"
+                                                                }`}
+                                                            >
+                                                                {item.job
+                                                                    ? Moment(
+                                                                          item
+                                                                              .job
+                                                                              .start_date
+                                                                      ).format(
+                                                                          "DD-MM-Y"
+                                                                      ) +
+                                                                      " | " +
+                                                                      item.job
+                                                                          .shifts
+                                                                    : "NA"}
+                                                            </Link>
+                                                        </Td>
+                                                        <Td>
+                                                            {Moment(
+                                                                item.created_at
+                                                            ).format(
+                                                                "DD, MMM Y"
+                                                            )}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/admin/view-client/${
+                                                                    item.client
+                                                                        ? item
+                                                                              .client
+                                                                              .id
+                                                                        : "NA"
+                                                                }`}
+                                                            >
+                                                                {item.client
+                                                                    ? item
+                                                                          .client
+                                                                          .firstname +
+                                                                      " " +
+                                                                      item
+                                                                          .client
+                                                                          .lastname
+                                                                    : "NA"}
+                                                            </Link>
+                                                        </Td>
+                                                        <Td>{item.status}</Td>
+                                                        <Td>
+                                                            {item.invoice_status ==
+                                                            2
+                                                                ? "Generated"
+                                                                : "Not Generated"}
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="action-dropdown dropdown">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                >
+                                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                                </button>
 
-                                                                    <div className="dropdown-menu">
-                                                                        {  item.status == 'Open' && <a target="_blank" href={item.doc_url} className="dropdown-item">View Order</a>}
-                                                                         
-                                                                        {
-                                                                            item.status == 'Open' && <button onClick={e => closeDoc(item.order_id, 'order')} className="dropdown-item"
-                                                                            >Close Doc</button>
-                                                                        }
-                                                                        {
-                                                                            item.status == 'Open' && <button onClick={e => GenInvoice(item.id)} className="dropdown-item"
-                                                                            >Generate Invoice</button>
-                                                                        }
-                                                                        { item.status != 'Cancelled' && <button onClick= {(e)=>{setCancelDoc(item.order_id);setDtype('order')} } data-toggle="modal" data-target="#exampleModal1" className="dropdown-item"
-                                                                            >Cancel Doc</button>
-                                                                        }
-                                                                        {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
+                                                                <div className="dropdown-menu">
+                                                                    {item.status ==
+                                                                        "Open" && (
+                                                                        <a
+                                                                            target="_blank"
+                                                                            href={
+                                                                                item.doc_url
+                                                                            }
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            View
+                                                                            Order
+                                                                        </a>
+                                                                    )}
+
+                                                                    {item.status ==
+                                                                        "Open" && (
+                                                                        <button
+                                                                            onClick={(
+                                                                                e
+                                                                            ) =>
+                                                                                closeDoc(
+                                                                                    item.order_id,
+                                                                                    "order"
+                                                                                )
+                                                                            }
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            Close
+                                                                            Doc
+                                                                        </button>
+                                                                    )}
+                                                                    {item.status ==
+                                                                        "Open" && (
+                                                                        <button
+                                                                            onClick={(
+                                                                                e
+                                                                            ) =>
+                                                                                GenInvoice(
+                                                                                    item.id
+                                                                                )
+                                                                            }
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            Generate
+                                                                            Invoice
+                                                                        </button>
+                                                                    )}
+                                                                    {item.status !=
+                                                                        "Cancelled" && (
+                                                                        <button
+                                                                            onClick={(
+                                                                                e
+                                                                            ) => {
+                                                                                setCancelDoc(
+                                                                                    item.order_id
+                                                                                );
+                                                                                setDtype(
+                                                                                    "order"
+                                                                                );
+                                                                            }}
+                                                                            data-toggle="modal"
+                                                                            data-target="#exampleModal1"
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            Cancel
+                                                                            Doc
+                                                                        </button>
+                                                                    )}
+                                                                    {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
                                                                         >Delete</button>*/}
-                                                                    </div>
                                                                 </div>
-                                                            </Td>
-                                                        </Tr>
-                                                    )
-                                                })}
+                                                            </div>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
-                                    </Table>)
-                                    : (
-                                        <div className="form-control text-center"> No Order Found</div>
-                                    )}
+                                    </Table>
+                                ) : (
+                                    <div className="form-control text-center">
+                                        {" "}
+                                        No Order Found
+                                    </div>
+                                )}
 
                                 {orders.length > 0 ? (
                                     <ReactPaginate
@@ -361,30 +553,41 @@ export default function Orders() {
                                         breakLinkClassName={"page-link"}
                                         activeClassName={"active"}
                                     />
-                                ) : ''}
-
-
+                                ) : (
+                                    ""
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-            <div className="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+            <div
+                className="modal fade"
+                id="exampleModal1"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="exampleModal1"
+                aria-hidden="true"
+            >
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModal1">Cancel Reason</h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                            <h5 className="modal-title" id="exampleModal1">
+                                Cancel Reason
+                            </h5>
+                            <button
+                                type="button"
+                                className="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div className="modal-body">
-
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
-
                                         <textarea
                                             onChange={(e) =>
                                                 setReason(e.target.value)
@@ -393,22 +596,29 @@ export default function Orders() {
                                             required
                                             placeholder="Enter Reason(optional)"
                                         ></textarea>
-
                                     </div>
                                 </div>
-
                             </div>
-
-
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary closeb11" data-dismiss="modal">Close</button>
-                            <button type="button" onClick={e => handleCancel(e)} className="btn btn-primary sbtn1">Cancel Doc</button>
+                            <button
+                                type="button"
+                                className="btn btn-secondary closeb11"
+                                data-dismiss="modal"
+                            >
+                                Close
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(e) => handleCancel(e)}
+                                className="btn btn-primary sbtn1"
+                            >
+                                Cancel Doc
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    )
+    );
 }

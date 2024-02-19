@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from 'react'
-import Sidebar from '../../Layouts/Sidebar'
-import Moment from 'moment';
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../Layouts/Sidebar";
+import Moment from "moment";
 import ReactPaginate from "react-paginate";
 
 export default function Notification() {
-
     const [notices, setNotices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState('Loading...');
+    const [loading, setLoading] = useState("Loading...");
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
     const headNotice = () => {
-        axios.post('/api/admin/notice', { all: 1 }, { headers })
-            .then((res) => {
-                if (res.data.notice.data) {
-                    setNotices(res.data.notice.data);
-                    setPageCount(res.data.notice.last_page);
-                } else {
-                    setNotices([]);
-                    setLoading('No notification yet');
-                }
-            })
-    }
+        axios.post("/api/admin/notice", { all: 1 }, { headers }).then((res) => {
+            if (res.data.notice.data) {
+                setNotices(res.data.notice.data);
+                setPageCount(res.data.notice.last_page);
+            } else {
+                setNotices([]);
+                setLoading("No notification yet");
+            }
+        });
+    };
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .post("/api/admin/notice?page=" + currentPage, { all: 1 }, { headers })
+            .post(
+                "/api/admin/notice?page=" + currentPage,
+                { all: 1 },
+                { headers }
+            )
             .then((response) => {
                 if (response.data.notice.data) {
                     setNotices(response.data.notice.data);
                     setPageCount(response.data.notice.last_page);
                 } else {
-                    setLoading('No notification yet');
+                    setLoading("No notification yet");
                 }
             });
     };
@@ -51,7 +53,7 @@ export default function Notification() {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .post(`/api/admin/clear-notices`, { all: 1 },{ headers })
+                    .post(`/api/admin/clear-notices`, { all: 1 }, { headers })
                     .then((response) => {
                         Swal.fire(
                             "Deleted!",
@@ -59,12 +61,12 @@ export default function Notification() {
                             "success"
                         );
                         setTimeout(() => {
-                           window.location.reload(1);
+                            window.location.reload(1);
                         }, 1000);
                     });
             }
         });
-    }
+    };
     useEffect(() => {
         headNotice();
     }, []);
@@ -79,34 +81,49 @@ export default function Notification() {
                             <h1 className="page-title">Notifications</h1>
                         </div>
                         <div className="col-sm-6">
-                            <button onClick={(e) => clearAll(e)} className="btn btn-danger float-right addButton">Clear All</button>
+                            <button
+                                onClick={(e) => clearAll(e)}
+                                className="btn btn-danger float-right addButton"
+                            >
+                                Clear All
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div className='notification-page'>
-                    <div className='card'>
-                        <div className='card-body'>
+                <div className="notification-page">
+                    <div className="card">
+                        <div className="card-body">
                             {notices.length > 0 ? (
-
-                                notices && notices.map((n, i) => {
+                                notices &&
+                                notices.map((n, i) => {
                                     return (
-
-                                        <div className="agg-list">
-                                            <div className="icons"><i className="fas fa-check-circle"></i></div>
+                                        <div className="agg-list" key={i}>
+                                            <div className="icons">
+                                                <i className="fas fa-check-circle"></i>
+                                            </div>
                                             <div className="agg-text">
-                                                <h6 dangerouslySetInnerHTML={{ __html: n.data }} />
-                                                <p>{Moment(n.created_at).format('DD MMM Y, HH:MM A')}</p>
+                                                <h6
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: n.data,
+                                                    }}
+                                                />
+                                                <p>
+                                                    {Moment(
+                                                        n.created_at
+                                                    ).format(
+                                                        "DD MMM Y, HH:MM A"
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
-
-                                    )
+                                    );
                                 })
-
-                            )
-                                :
-                                (<div className='form-control text-center'>{loading}</div>)
-                            }
+                            ) : (
+                                <div className="form-control text-center">
+                                    {loading}
+                                </div>
+                            )}
 
                             {notices.length > 0 ? (
                                 <ReactPaginate
@@ -134,10 +151,9 @@ export default function Notification() {
                                 <></>
                             )}
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }

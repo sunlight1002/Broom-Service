@@ -69,42 +69,42 @@ export default function AddLead() {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        {
-            /*lead Data */
-        }
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {
             phoneClc += p.value + ",";
         });
         phoneClc = phoneClc.replace(/,\s*$/, "");
-        const data = {
-            firstname: firstname,
-            lastname: lastname == null ? "" : lastname,
-            invoicename: invoiceName ? invoiceName : "",
-            floor: floor,
-            apt_no: Apt,
-            entrence_code: enterance,
-            city: city,
-            zipcode: zip,
-            dob: dob,
-            passcode: passcode,
-            lng: lng ? lng : "heb",
-            color: !color ? "#fff" : color,
-            geo_address: address,
-            latitude: latitude,
-            longitude: longitude,
-            email: email,
-            phone: phoneClc,
-            password: passcode,
-            payment_method: paymentMethod,
-            extra: JSON.stringify(extra),
-            status: !status ? 0 : parseInt(status),
-            meta: "",
-        };
 
         axios
-            .post(`/api/admin/leads`, { data: data, jobdata: {} }, { headers })
+            .post(
+                `/api/admin/leads`,
+                {
+                    firstname: firstname,
+                    lastname: lastname == null ? "" : lastname,
+                    invoicename: invoiceName ? invoiceName : "",
+                    floor: floor,
+                    apt_no: Apt,
+                    entrence_code: enterance,
+                    city: city,
+                    zipcode: zip,
+                    dob: dob,
+                    passcode: passcode,
+                    lng: lng ? lng : "heb",
+                    color: !color ? "#fff" : color,
+                    geo_address: address,
+                    latitude: latitude,
+                    longitude: longitude,
+                    email: email,
+                    phone: phoneClc,
+                    password: passcode,
+                    payment_method: paymentMethod,
+                    extra: JSON.stringify(extra),
+                    status: !status ? 0 : parseInt(status),
+                    meta: "",
+                },
+                { headers }
+            )
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
@@ -147,7 +147,7 @@ export default function AddLead() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Add Client</h1>
+                    <h1 className="page-title addEmployer">Add Lead</h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -155,7 +155,7 @@ export default function AddLead() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                First Name *
+                                                First name *
                                             </label>
                                             <input
                                                 type="text"
@@ -165,7 +165,7 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter First Name"
+                                                placeholder="Enter first name"
                                             />
                                             {errors.firstname ? (
                                                 <small className="text-danger mb-1">
@@ -179,7 +179,7 @@ export default function AddLead() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Last Name
+                                                Last name
                                             </label>
                                             <input
                                                 type="text"
@@ -189,14 +189,14 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Last Name"
+                                                placeholder="Enter last name"
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Invoice Name
+                                                Invoice name
                                             </label>
                                             <input
                                                 type="text"
@@ -208,14 +208,14 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Invoice Name"
+                                                placeholder="Enter invoice name"
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Primary Email *
+                                                Primary email *
                                             </label>
                                             <input
                                                 type="email"
@@ -225,7 +225,7 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Email"
+                                                placeholder="Enter primary email"
                                             />
                                             {errors.email ? (
                                                 <small className="text-danger mb-1">
@@ -250,7 +250,8 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Password"
+                                                placeholder="Enter password"
+                                                autoComplete="new-password"
                                             />
                                             {errors.passcode ? (
                                                 <small className="text-danger mb-1">
@@ -265,7 +266,7 @@ export default function AddLead() {
                                     <div className="col-sm-6 phone">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Primary Phone
+                                                Primary phone
                                             </label>
                                             <input
                                                 type="tel"
@@ -275,7 +276,7 @@ export default function AddLead() {
                                                     setPhone(e.target.value)
                                                 }
                                                 className="form-control pphone"
-                                                placeholder="Phone"
+                                                placeholder="Enter primary phone"
                                             />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
@@ -290,11 +291,11 @@ export default function AddLead() {
                                     {extra &&
                                         extra.map((ex, i) => {
                                             return (
-                                                <>
+                                                <React.Fragment key={i}>
                                                     <div className="col-sm-4">
                                                         <div className="form-group">
                                                             <label className="control-label">
-                                                                Alternate Email
+                                                                Alternate email
                                                             </label>
                                                             <input
                                                                 type="tel"
@@ -310,7 +311,7 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="email"
+                                                                placeholder="Enter alternate email"
                                                             />
                                                         </div>
                                                     </div>
@@ -318,7 +319,7 @@ export default function AddLead() {
                                                     <div className="col-sm-4">
                                                         <div className="form-group">
                                                             <label className="control-label">
-                                                                Person Name
+                                                                Person name
                                                             </label>
                                                             <input
                                                                 type="tel"
@@ -334,7 +335,7 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="person name"
+                                                                placeholder="Enter person name"
                                                             />
                                                         </div>
                                                     </div>
@@ -358,7 +359,7 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="Phone"
+                                                                placeholder="Enter alternate phone"
                                                             />
                                                         </div>
                                                     </div>
@@ -398,7 +399,7 @@ export default function AddLead() {
                                                             </>
                                                         )}
                                                     </div>
-                                                </>
+                                                </React.Fragment>
                                             );
                                         })}
                                 </div>
@@ -457,7 +458,7 @@ export default function AddLead() {
                                         >
                                             <input
                                                 type="text"
-                                                placeholder="Search Your Address"
+                                                placeholder="Search your address"
                                                 className="form-control mt-1"
                                             />
                                         </Autocomplete>
@@ -470,7 +471,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Full Address
+                                        Full address
                                         <small className="text-pink mb-1">
                                             &nbsp; (auto complete from google
                                             address)
@@ -481,6 +482,7 @@ export default function AddLead() {
                                         value={address}
                                         className="form-control"
                                         placeholder="Full Address"
+                                        readOnly
                                     />
                                 </div>
 
@@ -515,7 +517,7 @@ export default function AddLead() {
                                         value={Apt}
                                         onChange={(e) => setApt(e.target.value)}
                                         className="form-control"
-                                        placeholder="Enter Apt number and name"
+                                        placeholder="Enter Apt number and Apt name"
                                     />
                                     {errors.Apt ? (
                                         <small className="text-danger mb-1">
@@ -537,7 +539,7 @@ export default function AddLead() {
                                             setEnterance(e.target.value)
                                         }
                                         className="form-control"
-                                        placeholder="Enter enterance"
+                                        placeholder="Enter enterance code"
                                     />
                                     {errors.enterance ? (
                                         <small className="text-danger mb-1">
@@ -550,7 +552,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Zip Code
+                                        Zip code
                                     </label>
                                     <input
                                         type="text"
@@ -577,7 +579,6 @@ export default function AddLead() {
                                         value={dob}
                                         onChange={(e) => setDob(e.target.value)}
                                         className="form-control"
-                                        placeholder="Enter dob"
                                     />
                                     {errors.dob ? (
                                         <small className="text-danger mb-1">
@@ -590,7 +591,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Payment Method
+                                        Payment method
                                     </label>
 
                                     <select
@@ -633,8 +634,8 @@ export default function AddLead() {
                                         style={{ paddingLeft: "0" }}
                                     >
                                         <label
-                                            class="form-check-label"
-                                            for="title"
+                                            className="form-check-label"
+                                            htmlFor="title"
                                         >
                                             Color
                                         </label>
@@ -648,7 +649,7 @@ export default function AddLead() {
                                             color="#fff"
                                             onChange={(e) => setColor("#fff")}
                                         />
-                                        <label for="swatch_2">
+                                        <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>white</span>
@@ -657,14 +658,14 @@ export default function AddLead() {
                                         <input
                                             type="radio"
                                             name="swatch_demo"
-                                            id="swatch_2"
+                                            id="swatch_7"
                                             value="2"
                                             color="#28a745"
                                             onChange={(e) =>
                                                 setColor("#28a745")
                                             }
                                         />
-                                        <label for="swatch_2">
+                                        <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Green</span>
@@ -680,7 +681,7 @@ export default function AddLead() {
                                                 setColor("#007bff")
                                             }
                                         />
-                                        <label for="swatch_3">
+                                        <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Blue</span>
@@ -696,7 +697,7 @@ export default function AddLead() {
                                                 setColor("#6f42c1")
                                             }
                                         />
-                                        <label for="swatch_1">
+                                        <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Voilet</span>
@@ -712,7 +713,7 @@ export default function AddLead() {
                                                 setColor("#dc3545")
                                             }
                                         />
-                                        <label for="swatch_5">
+                                        <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Red</span>
@@ -728,7 +729,7 @@ export default function AddLead() {
                                                 setColor("#fd7e14")
                                             }
                                         />
-                                        <label for="swatch_4">
+                                        <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Orange</span>
@@ -744,7 +745,7 @@ export default function AddLead() {
                                                 setColor("#ffc107")
                                             }
                                         />
-                                        <label for="swatch_6">
+                                        <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Yellow</span>
@@ -762,7 +763,6 @@ export default function AddLead() {
                                 <div className="form-group text-center">
                                     <input
                                         type="submit"
-                                        value="SAVE"
                                         onClick={handleFormSubmit}
                                         className="btn btn-pink saveBtn"
                                     />

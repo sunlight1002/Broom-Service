@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { Link } from "react-router-dom";
-import Sidebar from '../../Layouts/Sidebar';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
-import { useNavigate } from 'react-router-dom';
+import Sidebar from "../../Layouts/Sidebar";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { useNavigate } from "react-router-dom";
 
 export default function OfferPrice() {
-
     const [offers, setOffers] = useState();
     const [totalOffers, setTotalOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
-    const [filter,setFilter] = useState('');
+    const [filter, setFilter] = useState("");
     const [pageCount, setPageCount] = useState(0);
     const navigate = useNavigate();
-    const [copy,setCopy] = useState([]);
+    const [copy, setCopy] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -24,25 +23,24 @@ export default function OfferPrice() {
     };
 
     const getOffers = () => {
-        axios
-            .get('/api/admin/offers', { headers })
-            .then((response) => {
-                if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
-                    setOffers(response.data.offers.data);
-                    setCopy(response.data.offers.data);
-                    setPageCount(response.data.offers.last_page);
-                } else {
-                    setLoading("No offer found");
-                }
-
-            });
-    }
+        axios.get("/api/admin/offers", { headers }).then((response) => {
+            if (response.data.offers.data.length > 0) {
+                setTotalOffers(response.data.offers.data);
+                setOffers(response.data.offers.data);
+                setCopy(response.data.offers.data);
+                setPageCount(response.data.offers.last_page);
+            } else {
+                setLoading("No offer found");
+            }
+        });
+    };
 
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/offers?page=" + currentPage+"&q="+filter, { headers })
+            .get("/api/admin/offers?page=" + currentPage + "&q=" + filter, {
+                headers,
+            })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
                     setTotalOffers(response.data.offers.data);
@@ -68,8 +66,7 @@ export default function OfferPrice() {
                     setLoading("No offer found");
                 }
             });
-    }
-
+    };
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -98,7 +95,6 @@ export default function OfferPrice() {
         });
     };
 
-
     useEffect(() => {
         getOffers();
     }, []);
@@ -106,43 +102,44 @@ export default function OfferPrice() {
     const handleNavigate = (e, id) => {
         e.preventDefault();
         navigate(`/admin/view-offer/${id}`);
-    }
-   
-    const [order, setOrder] = useState('ASC');
-    const sortTable = (e,col) => {
-        
+    };
+
+    const [order, setOrder] = useState("ASC");
+    const sortTable = (e, col) => {
         let n = e.target.nodeName;
-        if( n != "SELECT"){
-        if (n == "TH") {
-            let q = e.target.querySelector('span');
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
+        if (n != "SELECT") {
+            if (n == "TH") {
+                let q = e.target.querySelector("span");
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
             } else {
-                q.innerHTML = "↑";
-            }
-
-        } else {
-            let q = e.target;
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
+                let q = e.target;
+                if (q.innerHTML === "↑") {
+                    q.innerHTML = "↓";
+                } else {
+                    q.innerHTML = "↑";
+                }
             }
         }
-    }
 
-        if (order == 'ASC') {
-            const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? 1 : -1));
+        if (order == "ASC") {
+            const sortData = [...copy].sort((a, b) =>
+                a[col] < b[col] ? 1 : -1
+            );
             setOffers(sortData);
-            setOrder('DESC');
+            setOrder("DESC");
         }
-        if (order == 'DESC') {
-            const sortData = [...copy].sort((a, b) => (a[col] < b[col] ? -1 : 1));
+        if (order == "DESC") {
+            const sortData = [...copy].sort((a, b) =>
+                a[col] < b[col] ? -1 : 1
+            );
             setOffers(sortData);
-            setOrder('ASC');
+            setOrder("ASC");
         }
-
-    }
+    };
 
     return (
         <div id="container">
@@ -155,28 +152,42 @@ export default function OfferPrice() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input type='text' className="form-control" onChange={(e)=>{filterOffers(e);setFilter(e.target.value);}} placeholder="Search" />
-                                <Link to="/admin/add-offer" className="btn btn-pink addButton"><i class="btn-icon fas fa-plus-circle"></i>Add New</Link>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    onChange={(e) => {
+                                        filterOffers(e);
+                                        setFilter(e.target.value);
+                                    }}
+                                    placeholder="Search"
+                                />
+                                <Link
+                                    to="/admin/add-offer"
+                                    className="btn btn-pink addButton"
+                                >
+                                    <i className="btn-icon fas fa-plus-circle"></i>
+                                    Add New
+                                </Link>
                             </div>
                         </div>
 
-                        <div className='col-sm-6 hidden-xl mt-4'>
-                          <select className='form-control' onChange={e => sortTable(e,e.target.value)}>
-                          <option selected>-- Sort By--</option>
-                           <option value="subtotal">Total</option>
-                           <option value="status">Status</option>
-                          </select>
+                        <div className="col-sm-6 hidden-xl mt-4">
+                            <select
+                                className="form-control"
+                                onChange={(e) => sortTable(e, e.target.value)}
+                            >
+                                <option selected>-- Sort By--</option>
+                                <option value="subtotal">Total</option>
+                                <option value="status">Status</option>
+                            </select>
                         </div>
-
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
                             <div className="table-responsive">
-
                                 {totalOffers.length > 0 ? (
-
                                     <Table className="table table-bordered">
                                         <Thead>
                                             <Tr>
@@ -184,73 +195,237 @@ export default function OfferPrice() {
                                                 <Th scope="col">Email</Th>
                                                 <Th scope="col">Address</Th>
                                                 <Th scope="col">Phone</Th>
-                                                <Th style={{cursor:'pointer'}} onClick={(e)=>sortTable(e,'status')} scope="col">Status <span className='arr'> &darr; </span></Th>
-                                                <Th style={{cursor:'pointer'}} onClick={(e)=>sortTable(e,'subtotal')} scope="col">Total <span className='arr'> &darr; </span></Th>
+                                                <Th
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={(e) =>
+                                                        sortTable(e, "status")
+                                                    }
+                                                    scope="col"
+                                                >
+                                                    Status{" "}
+                                                    <span className="arr">
+                                                        {" "}
+                                                        &darr;{" "}
+                                                    </span>
+                                                </Th>
+                                                <Th
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={(e) =>
+                                                        sortTable(e, "subtotal")
+                                                    }
+                                                    scope="col"
+                                                >
+                                                    Total{" "}
+                                                    <span className="arr">
+                                                        {" "}
+                                                        &darr;{" "}
+                                                    </span>
+                                                </Th>
                                                 <Th scope="col">Action</Th>
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {offers && offers.map((ofr, i) => {
+                                            {offers &&
+                                                offers.map((ofr, i) => {
+                                                    if (ofr.client) {
+                                                        var address = ofr.client
+                                                            .geo_address
+                                                            ? ofr.client
+                                                                  .geo_address
+                                                            : "NA";
+                                                        var cords =
+                                                            ofr.client
+                                                                .latitude &&
+                                                            ofr.client.longitude
+                                                                ? ofr.client
+                                                                      .latitude +
+                                                                  "," +
+                                                                  ofr.client
+                                                                      .longitude
+                                                                : "NA";
+                                                        let color = "";
+                                                        if (
+                                                            ofr.status == "sent"
+                                                        ) {
+                                                            color = "purple";
+                                                        } else if (
+                                                            ofr.status ==
+                                                            "accepted"
+                                                        ) {
+                                                            color = "green";
+                                                        } else {
+                                                            color = "red";
+                                                        }
 
-                                                if (ofr.client) {
-                                                    var address = (ofr.client.geo_address) ? ofr.client.geo_address : 'NA';
-                                                    var cords = (ofr.client.latitude && ofr.client.longitude)
-                                                        ? ofr.client.latitude + "," + ofr.client.longitude : 'NA';
-                                                    let color = "";
-                                                    if (ofr.status == 'sent') { color = 'purple' }
-                                                    else if (ofr.status == 'accepted') { color = 'green' }
-                                                    else { color = 'red' }
-                                                    
-                                                    let phone = (ofr.client.phone != undefined ) ? ofr.client.phone.split(',') : [];
+                                                        let phone =
+                                                            ofr.client.phone !=
+                                                            undefined
+                                                                ? ofr.client.phone.split(
+                                                                      ","
+                                                                  )
+                                                                : [];
 
-                                                    return (
-                                                        <Tr style={{ "cursor": "pointer" }}>
-                                                            <Td><Link to={`/admin/view-client/${ofr.client.id}`}>
-                                                                {
-                                                                    ofr.client
-                                                                        ? ofr.client.firstname
-                                                                        + " " + ofr.client.lastname
-                                                                        : "NA"
-                                                                }
-                                                            </Link>
-                                                            </Td>
-                                                            <Td onClick={(e) => handleNavigate(e, ofr.id)}>{ofr.client.email}</Td>
-                                                            <Td><Link to={`https://maps.google.com?q=${cords}`}>{address}</Link></Td>
-                                                          
-                                                             <Td>
-                                                                {
-                                                                    phone && phone.map((p,i)=>{
-                                                                        return(
-                                                                            (phone.length > 1)?
-                                                                            <a href={`tel:${p}`}>{ p } | </a>
-                                                                            : <a href={`tel:${p}`}>{ p } </a>
+                                                        return (
+                                                            <Tr
+                                                                style={{
+                                                                    cursor: "pointer",
+                                                                }}
+                                                            >
+                                                                <Td>
+                                                                    <Link
+                                                                        to={`/admin/view-client/${ofr.client.id}`}
+                                                                    >
+                                                                        {ofr.client
+                                                                            ? ofr
+                                                                                  .client
+                                                                                  .firstname +
+                                                                              " " +
+                                                                              ofr
+                                                                                  .client
+                                                                                  .lastname
+                                                                            : "NA"}
+                                                                    </Link>
+                                                                </Td>
+                                                                <Td
+                                                                    onClick={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleNavigate(
+                                                                            e,
+                                                                            ofr.id
                                                                         )
-                                                                    })
-                                                                }
-                                                             </Td>
-                                                            <Td style={{ color }} onClick={(e) => handleNavigate(e, ofr.id)}>{ofr.status}</Td>
-                                                            <Td onClick={(e) => handleNavigate(e, ofr.id)}>{ofr.subtotal} ILS + VAT</Td>
-                                                            <Td>
-                                                                <div className="action-dropdown dropdown">
-                                                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                                    </button>
-                                                                    <div className="dropdown-menu">
-                                                                        <Link to={`/admin/edit-offer/${ofr.id}`} className="dropdown-item">Edit</Link>
-                                                                        <Link to={`/admin/view-offer/${ofr.id}`} className="dropdown-item">View</Link>
-                                                                        <button className="dropdown-item" onClick={() => handleDelete(ofr.id)}
-                                                                        >Delete</button>
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        ofr
+                                                                            .client
+                                                                            .email
+                                                                    }
+                                                                </Td>
+                                                                <Td>
+                                                                    <Link
+                                                                        to={`https://maps.google.com?q=${cords}`}
+                                                                    >
+                                                                        {
+                                                                            address
+                                                                        }
+                                                                    </Link>
+                                                                </Td>
+
+                                                                <Td>
+                                                                    {phone &&
+                                                                        phone.map(
+                                                                            (
+                                                                                p,
+                                                                                i
+                                                                            ) => {
+                                                                                return phone.length >
+                                                                                    1 ? (
+                                                                                    <a
+                                                                                        href={`tel:${p}`}
+                                                                                        key={
+                                                                                            i
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            p
+                                                                                        }{" "}
+                                                                                        |{" "}
+                                                                                    </a>
+                                                                                ) : (
+                                                                                    <a
+                                                                                        href={`tel:${p}`}
+                                                                                        key={
+                                                                                            i
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            p
+                                                                                        }{" "}
+                                                                                    </a>
+                                                                                );
+                                                                            }
+                                                                        )}
+                                                                </Td>
+                                                                <Td
+                                                                    style={{
+                                                                        color,
+                                                                    }}
+                                                                    onClick={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleNavigate(
+                                                                            e,
+                                                                            ofr.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {ofr.status}
+                                                                </Td>
+                                                                <Td
+                                                                    onClick={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleNavigate(
+                                                                            e,
+                                                                            ofr.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        ofr.subtotal
+                                                                    }{" "}
+                                                                    ILS + VAT
+                                                                </Td>
+                                                                <Td>
+                                                                    <div className="action-dropdown dropdown">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-default dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                        >
+                                                                            <i className="fa fa-ellipsis-vertical"></i>
+                                                                        </button>
+                                                                        <div className="dropdown-menu">
+                                                                            <Link
+                                                                                to={`/admin/edit-offer/${ofr.id}`}
+                                                                                className="dropdown-item"
+                                                                            >
+                                                                                Edit
+                                                                            </Link>
+                                                                            <Link
+                                                                                to={`/admin/view-offer/${ofr.id}`}
+                                                                                className="dropdown-item"
+                                                                            >
+                                                                                View
+                                                                            </Link>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() =>
+                                                                                    handleDelete(
+                                                                                        ofr.id
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                Delete
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </Td>
-                                                        </Tr>
-                                                    )
-                                                }
-                                            })}
+                                                                </Td>
+                                                            </Tr>
+                                                        );
+                                                    }
+                                                })}
                                         </Tbody>
                                     </Table>
                                 ) : (
-                                    <p className="text-center mt-5">{loading}</p>
+                                    <p className="text-center mt-5">
+                                        {loading}
+                                    </p>
                                 )}
                             </div>
 
@@ -276,7 +451,9 @@ export default function OfferPrice() {
                                     breakLinkClassName={"page-link"}
                                     activeClassName={"active"}
                                 />
-                            ) : ''}
+                            ) : (
+                                ""
+                            )}
                         </div>
                     </div>
                 </div>
