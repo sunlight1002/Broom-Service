@@ -15,12 +15,14 @@ use App\Models\Offer;
 use App\Models\TextResponse;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
+use App\Models\LeadStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Monolog\Processor\WebProcessor;
+use Twilio\TwiML\VoiceResponse;
 
 class LeadWebhookController extends Controller
 {
@@ -457,5 +459,49 @@ class LeadWebhookController extends Controller
 
             die('sent');
         }
+    }
+
+
+    public function twillioWebhook(Request $request){
+        \Log::info($request->all());
+        $request_data = $request->all();
+        //create or update lead with unique number
+
+        $webhook_response_client = Client::updateOrCreate([
+            'phone'    => $request_data['From'],
+        ],[
+            'email' => $request_data['From'].'@lead.com',
+            'payment_method'  => 'cc',
+            'password'  => Hash::make($request_data['From']),
+            'status'  => 0,
+            'lng'   => 'heb',
+            'firstname' => 'lead_'.$request_data['From']
+        ]);
+        LeadStatus::UpdateOrCreate(
+            [
+                'client_id' => $webhook_response_client->id
+            ],
+            [
+                'client_id' => $webhook_response_client->id,
+                'lead_status' => 'Pending'
+            ]
+        );
+
+        //Create twillio webhook response
+        $webhook_response = WebhookResponse::create([
+            'number'    => $request_data['From'],
+            'read'  => 1,
+            'name'  => 'twillio-voice-call',
+            'data'  => json_encode($request_data)
+        ]);
+
+        //send voice response back to user
+        $response = new VoiceResponse;
+        $response->say(
+            "Thank you for calling! Have a great day.",
+            array("voice" => "Polly.Amy")
+        );
+        \Log::info($response);
+        echo $response;
     }
 }

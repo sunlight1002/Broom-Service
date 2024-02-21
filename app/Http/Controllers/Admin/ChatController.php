@@ -58,7 +58,7 @@ class ChatController extends Controller
 
         $lastMsg = WebhookResponse::where('number', $no)->get()->last();
 
-        ($lastMsg->created_at < Carbon::now()->subHours(24)->toDateTimeString())
+        ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)->toDateTimeString())
             ?
             $expired = 1
             : $expired = 0;
