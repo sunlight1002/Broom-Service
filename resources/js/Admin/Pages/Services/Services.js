@@ -117,7 +117,7 @@ export default function Services() {
                         </div>
                         <div className="col-sm-6">
                             <Link
-                                to="/admin/add-service"
+                                to="/admin/services/create"
                                 className="ml-2 btn btn-success addButton"
                             >
                                 Add Service
@@ -234,7 +234,7 @@ export default function Services() {
                                                                 </button>
                                                                 <div className="dropdown-menu">
                                                                     <Link
-                                                                        to={`/admin/edit-service/${item.id}`}
+                                                                        to={`/admin/services/${item.id}/edit`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         Edit

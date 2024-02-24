@@ -197,7 +197,7 @@ export default function WorkerProfile() {
                 <div
                     className="modal fade"
                     id="exampleModalPass"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="exampleModalPass"
                     aria-hidden="true"

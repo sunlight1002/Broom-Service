@@ -309,7 +309,7 @@ export default function ProfileDetails({
                                                 <p>
                                                     <Link
                                                         className="btn btn-success"
-                                                        to={`/admin/edit-client/${param.id}`}
+                                                        to={`/admin/clients/${param.id}/edit`}
                                                     >
                                                         Edit client
                                                     </Link>
@@ -426,7 +426,7 @@ export default function ProfileDetails({
                 <div
                     className="modal fade"
                     id="exampleModalPass"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="exampleModalPass"
                     aria-hidden="true"

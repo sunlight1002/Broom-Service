@@ -1195,7 +1195,7 @@ export default function TotalJobs() {
                         <div
                             className="modal fade"
                             id="exampleModal"
-                            tabindex="-1"
+                            tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel"
                             aria-hidden="true"
@@ -1282,7 +1282,7 @@ export default function TotalJobs() {
                         <div
                             className="modal fade"
                             id="edit-shift"
-                            tabindex="-1"
+                            tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel"
                             aria-hidden="true"

@@ -305,7 +305,7 @@ export default function WorkerTiming({ job }) {
             <div
                 className="modal fade"
                 id="add-work-time"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
@@ -329,7 +329,7 @@ export default function WorkerTiming({ job }) {
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label for="timing_starts">
+                                        <label htmlFor="timing_starts">
                                             Timing Starts at
                                         </label>
                                         <input
@@ -343,7 +343,7 @@ export default function WorkerTiming({ job }) {
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label for="timing_starts">
+                                        <label htmlFor="timing_starts">
                                             Timing Ends at
                                         </label>
                                         <input
@@ -380,7 +380,7 @@ export default function WorkerTiming({ job }) {
             <div
                 className="modal fade"
                 id="edit-work-time"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
@@ -409,7 +409,7 @@ export default function WorkerTiming({ job }) {
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label for="timing_starts">
+                                        <label htmlFor="timing_starts">
                                             Timing Starts at
                                         </label>
                                         <input
@@ -423,7 +423,7 @@ export default function WorkerTiming({ job }) {
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label for="timing_starts">
+                                        <label htmlFor="timing_starts">
                                             Timing Ends at
                                         </label>
                                         <input

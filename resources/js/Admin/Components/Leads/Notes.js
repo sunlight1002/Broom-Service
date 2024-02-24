@@ -168,7 +168,7 @@ export default function notes() {
             <div
                 className="modal fade"
                 id="exampleModalNote"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalNote"
                 aria-hidden="true"
@@ -220,7 +220,7 @@ export default function notes() {
                                             name="important"
                                             style={{
                                                 height: "auto",
-                                                "margin-inline": "5px",
+                                                marginInline: "5px",
                                             }}
                                         />
                                     </div>

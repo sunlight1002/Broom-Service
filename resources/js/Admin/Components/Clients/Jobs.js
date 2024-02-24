@@ -730,7 +730,7 @@ export default function Jobs({ contracts, client }) {
             <div
                 className="modal fade"
                 id="edit-shift"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"

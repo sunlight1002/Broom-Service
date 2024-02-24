@@ -98,7 +98,7 @@ export default function CardDetails({ latestContract, client }) {
             <div
                 className="modal fade"
                 id="exampleModalPassCv"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalPassCv"
                 aria-hidden="true"

@@ -32,7 +32,6 @@ export default function ManageTeam() {
 
     const getMembers = () => {
         axios.get("/api/admin/team", { headers }).then((response) => {
-            console.log(response);
             if (response.data.team.data.length > 0) {
                 setItem(response.data.team.data);
                 setPageCount(response.data.team.last_page);
@@ -156,7 +155,7 @@ export default function ManageTeam() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="name">Name</option>
                                 <option value="email">Email</option>
                                 <option value="phone">Phone</option>

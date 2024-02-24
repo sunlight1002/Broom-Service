@@ -564,7 +564,7 @@ export default function Orders() {
             <div
                 className="modal fade"
                 id="exampleModal1"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModal1"
                 aria-hidden="true"

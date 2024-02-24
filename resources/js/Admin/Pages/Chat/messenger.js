@@ -342,7 +342,7 @@ export default function Messenger() {
             <div
                 className="modal fade"
                 id="exampleModalTemplate"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"

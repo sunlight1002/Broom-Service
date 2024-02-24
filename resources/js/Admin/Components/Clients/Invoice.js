@@ -661,7 +661,7 @@ export default function Invoice() {
                 <div
                     className="modal fade"
                     id="exampleModaPaymentAdd"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="exampleModaPaymentAdd"
                     aria-hidden="true"
@@ -902,7 +902,7 @@ export default function Invoice() {
                 <div
                     className="modal fade"
                     id="exampleModalCancel"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="exampleModalCancel"
                     aria-hidden="true"
@@ -964,7 +964,7 @@ export default function Invoice() {
                 <div
                     className="modal fade"
                     id="callBack"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="callBack"
                     aria-hidden="true"

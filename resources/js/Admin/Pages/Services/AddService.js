@@ -54,7 +54,7 @@ export default function AddService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service- En*
+                                                Service name - En*
                                             </label>
                                             <input
                                                 type="text"
@@ -64,20 +64,18 @@ export default function AddService() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Service"
+                                                placeholder="Enter service name (english)"
                                             />
-                                            {errors.service ? (
+                                            {errors.service && (
                                                 <small className="text-danger mb-1">
                                                     {errors.name}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
 
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service- Heb*
+                                                Service name - Heb*
                                             </label>
                                             <input
                                                 type="text"
@@ -89,14 +87,12 @@ export default function AddService() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter service hebrew name"
+                                                placeholder="Enter service name (hebrew)"
                                             />
-                                            {errors.service ? (
+                                            {errors.service && (
                                                 <small className="text-danger mb-1">
                                                     {errors.heb_name}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>
@@ -113,7 +109,9 @@ export default function AddService() {
                                                     setTemplate(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
                                                 <option value="regular">
                                                     Regular Services( 2*, 3*,
                                                     4*, 5* )
@@ -137,12 +135,10 @@ export default function AddService() {
                                                     Others
                                                 </option>
                                             </select>
-                                            {errors.template ? (
+                                            {errors.template && (
                                                 <small className="text-danger mb-1">
                                                     {errors.template}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>
@@ -159,7 +155,9 @@ export default function AddService() {
                                                     setStatus(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
                                                 <option value="1">
                                                     Active
                                                 </option>
@@ -167,12 +165,10 @@ export default function AddService() {
                                                     Inactive
                                                 </option>
                                             </select>
-                                            {errors.status ? (
+                                            {errors.status && (
                                                 <small className="text-danger mb-1">
                                                     {errors.status}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>

@@ -40,14 +40,15 @@ export default function ChangePass() {
                 <form>
                     <div className="form-group">
                         <label className="control-label">
-                            Current Password *
+                            Current password *
                         </label>
                         <input
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             className="form-control"
-                            placeholder="Current Password"
+                            placeholder="Current password"
+                            autoComplete="new-password"
                         />
                         {errors.current_password ? (
                             <small className="text-danger mb-1">
@@ -59,14 +60,15 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                            Update New Password *
+                            New password *
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="form-control"
-                            placeholder="Update New Password"
+                            placeholder="New password"
+                            autoComplete="new-password"
                         />
                         {errors.password ? (
                             <small className="text-danger mb-1">
@@ -78,7 +80,7 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                            Confirm New Password *
+                            Confirm new password *
                         </label>
                         <input
                             type="password"
@@ -87,7 +89,8 @@ export default function ChangePass() {
                                 setPasswordConfirmed(e.target.value)
                             }
                             className="form-control"
-                            placeholder="Confirm New Password"
+                            placeholder="Confirm new password"
+                            autoComplete="new-password"
                         />
                     </div>
                     <div className="form-group text-center">

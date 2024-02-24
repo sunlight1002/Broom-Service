@@ -1018,7 +1018,7 @@ export default function AddLeadClient() {
                                     >
                                         <label
                                             className="form-check-label"
-                                            for="title"
+                                            htmlFor="title"
                                         >
                                             Color
                                         </label>
@@ -1032,7 +1032,7 @@ export default function AddLeadClient() {
                                             color="#fff"
                                             onChange={(e) => setColor("#fff")}
                                         />
-                                        <label for="swatch_7">
+                                        <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>white</span>
@@ -1048,7 +1048,7 @@ export default function AddLeadClient() {
                                                 setColor("#28a745")
                                             }
                                         />
-                                        <label for="swatch_2">
+                                        <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Green</span>
@@ -1064,7 +1064,7 @@ export default function AddLeadClient() {
                                                 setColor("#007bff")
                                             }
                                         />
-                                        <label for="swatch_3">
+                                        <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Blue</span>
@@ -1080,7 +1080,7 @@ export default function AddLeadClient() {
                                                 setColor("#6f42c1")
                                             }
                                         />
-                                        <label for="swatch_1">
+                                        <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Voilet</span>
@@ -1096,7 +1096,7 @@ export default function AddLeadClient() {
                                                 setColor("#dc3545")
                                             }
                                         />
-                                        <label for="swatch_5">
+                                        <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Red</span>
@@ -1112,7 +1112,7 @@ export default function AddLeadClient() {
                                                 setColor("#fd7e14")
                                             }
                                         />
-                                        <label for="swatch_4">
+                                        <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Orange</span>
@@ -1128,7 +1128,7 @@ export default function AddLeadClient() {
                                                 setColor("#ffc107")
                                             }
                                         />
-                                        <label for="swatch_6">
+                                        <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>Yellow</span>

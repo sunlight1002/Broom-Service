@@ -213,621 +213,652 @@ export default function EditWorker() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title editEmployer">Edit Lead</h1>
-                    <div className="dashBox p-4">
-                        <form>
-                            <div className="row">
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            First Name *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={firstname}
-                                            onChange={(e) =>
-                                                setFirstName(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Enter First Name"
-                                        />
-                                        {errors.firstname ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.firstname}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
+                    <div className="card">
+                        <div className="card-body">
+                            <form>
+                                <div className="row">
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                First name *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={firstname}
+                                                onChange={(e) =>
+                                                    setFirstName(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter first name"
+                                            />
+                                            {errors.firstname ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.firstname}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Last Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={lastname}
-                                            onChange={(e) =>
-                                                setLastName(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Enter Last Name"
-                                        />
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Last name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={lastname}
+                                                onChange={(e) =>
+                                                    setLastName(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter last name"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Invoice Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={invoiceName}
-                                            onChange={(e) =>
-                                                setInvoiceName(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Enter Last Name"
-                                        />
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Invoice name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={invoiceName}
+                                                onChange={(e) =>
+                                                    setInvoiceName(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter invoice name"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Primary Email *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) =>
-                                                setEmail(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Email"
-                                        />
-                                        {errors.email ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.email}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Primary email *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) =>
+                                                    setEmail(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter primary email"
+                                            />
+                                            {errors.email ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.email}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Password
-                                        </label>
-                                        <input
-                                            type="password"
-                                            onChange={(e) =>
-                                                setPassCode(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder="Password"
-                                            autoComplete="new-password"
-                                        />
-                                        {errors.passcode ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.passcode}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                onChange={(e) =>
+                                                    setPassCode(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Enter password"
+                                                autoComplete="new-password"
+                                            />
+                                            {errors.passcode ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.passcode}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="col-sm-6 phone">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Primary Phone
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            value={phone}
-                                            name="phone"
-                                            onChange={(e) =>
-                                                setPhone(e.target.value)
-                                            }
-                                            className="form-control pphone"
-                                            placeholder="Phone"
-                                        />
-                                        {errors.phone ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.phone}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
+                                    <div className="col-sm-6 phone">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Primary phone
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={phone}
+                                                name="phone"
+                                                onChange={(e) =>
+                                                    setPhone(e.target.value)
+                                                }
+                                                className="form-control pphone"
+                                                placeholder="Enter primary phone"
+                                            />
+                                            {errors.phone ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.phone}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
 
-                                {extra &&
-                                    extra.map((ex, i) => {
-                                        return (
-                                            <React.Fragment key={i}>
-                                                <div className="col-sm-4">
-                                                    <div className="form-group">
-                                                        <label className="control-label">
-                                                            Alternate Email
-                                                        </label>
-                                                        <input
-                                                            type="tel"
-                                                            value={
-                                                                ex.email || ""
-                                                            }
-                                                            name="email"
-                                                            onChange={(e) =>
-                                                                handleAlternate(
-                                                                    i,
-                                                                    e
-                                                                )
-                                                            }
-                                                            className="form-control"
-                                                            placeholder="email"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="col-sm-4">
-                                                    <div className="form-group">
-                                                        <label className="control-label">
-                                                            Person Name
-                                                        </label>
-                                                        <input
-                                                            type="tel"
-                                                            value={
-                                                                ex.name || ""
-                                                            }
-                                                            name="name"
-                                                            onChange={(e) =>
-                                                                handleAlternate(
-                                                                    i,
-                                                                    e
-                                                                )
-                                                            }
-                                                            className="form-control"
-                                                            placeholder="person name"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="col-sm-3">
-                                                    <div className="form-group">
-                                                        <label className="control-label">
-                                                            Alternate phone
-                                                        </label>
-                                                        <input
-                                                            type="tel"
-                                                            value={
-                                                                ex.phone || ""
-                                                            }
-                                                            name="phone"
-                                                            onChange={(e) =>
-                                                                handleAlternate(
-                                                                    i,
-                                                                    e
-                                                                )
-                                                            }
-                                                            className="form-control"
-                                                            placeholder="Phone"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="col-sm-1">
-                                                    {i == 0 ? (
-                                                        <>
-                                                            <button
-                                                                className="mt-25 btn btn-success"
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    addExtras(
+                                    {extra &&
+                                        extra.map((ex, i) => {
+                                            return (
+                                                <React.Fragment key={i}>
+                                                    <div className="col-sm-4">
+                                                        <div className="form-group">
+                                                            <label className="control-label">
+                                                                Alternate email
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.email ||
+                                                                    ""
+                                                                }
+                                                                name="email"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
                                                                         e
-                                                                    );
-                                                                }}
-                                                            >
-                                                                {" "}
-                                                                +{" "}
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <button
-                                                                className="mt-25 btn bg-red"
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    removeExtras(
-                                                                        e,
-                                                                        i
-                                                                    );
-                                                                }}
-                                                            >
-                                                                {" "}
-                                                                <i className="fa fa-minus"></i>{" "}
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </React.Fragment>
-                                        );
-                                    })}
-                            </div>
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Enter a location
-                                </label>
-                                <LoadScript
-                                    googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
-                                    libraries={libraries}
-                                >
-                                    <GoogleMap
-                                        mapContainerStyle={containerStyle}
-                                        center={center}
-                                        zoom={15}
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder="Enter alternate email"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-4">
+                                                        <div className="form-group">
+                                                            <label className="control-label">
+                                                                Person name
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.name ||
+                                                                    ""
+                                                                }
+                                                                name="name"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
+                                                                        e
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder="Enter person name"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-3">
+                                                        <div className="form-group">
+                                                            <label className="control-label">
+                                                                Alternate phone
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.phone ||
+                                                                    ""
+                                                                }
+                                                                name="phone"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
+                                                                        e
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder="Enter alternate phone"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-sm-1">
+                                                        {i == 0 ? (
+                                                            <>
+                                                                <button
+                                                                    className="mt-25 btn btn-success"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        addExtras(
+                                                                            e
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    {" "}
+                                                                    +{" "}
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    className="mt-25 btn bg-red"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        removeExtras(
+                                                                            e,
+                                                                            i
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    {" "}
+                                                                    <i className="fa fa-minus"></i>{" "}
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                </div>
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Enter a location
+                                    </label>
+                                    <LoadScript
+                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
+                                        libraries={libraries}
                                     >
-                                        <Marker
-                                            draggable={true}
-                                            onDragEnd={(e) =>
-                                                onMarkerDragEnd(e)
-                                            }
-                                            position={{
-                                                lat: latitude,
-                                                lng: longitude,
-                                            }}
-                                        />
-                                        {address ? (
-                                            <InfoWindow
-                                                onClose={(e) =>
-                                                    onInfoWindowClose(e)
+                                        <GoogleMap
+                                            mapContainerStyle={containerStyle}
+                                            center={center}
+                                            zoom={15}
+                                        >
+                                            <Marker
+                                                draggable={true}
+                                                onDragEnd={(e) =>
+                                                    onMarkerDragEnd(e)
                                                 }
                                                 position={{
-                                                    lat: latitude + 0.0018,
+                                                    lat: latitude,
                                                     lng: longitude,
                                                 }}
-                                            >
-                                                <div>
-                                                    <span
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                        }}
-                                                    >
-                                                        {address}
-                                                    </span>
-                                                </div>
-                                            </InfoWindow>
-                                        ) : (
-                                            <></>
-                                        )}
-                                        <Marker />
-                                    </GoogleMap>
-                                    <Autocomplete
-                                        onLoad={(e) => setPlace(e)}
-                                        onPlaceChanged={handlePlaceChanged}
+                                            />
+                                            {address ? (
+                                                <InfoWindow
+                                                    onClose={(e) =>
+                                                        onInfoWindowClose(e)
+                                                    }
+                                                    position={{
+                                                        lat: latitude + 0.0018,
+                                                        lng: longitude,
+                                                    }}
+                                                >
+                                                    <div>
+                                                        <span
+                                                            style={{
+                                                                padding: 0,
+                                                                margin: 0,
+                                                            }}
+                                                        >
+                                                            {address}
+                                                        </span>
+                                                    </div>
+                                                </InfoWindow>
+                                            ) : (
+                                                <></>
+                                            )}
+                                            <Marker />
+                                        </GoogleMap>
+                                        <Autocomplete
+                                            onLoad={(e) => setPlace(e)}
+                                            onPlaceChanged={handlePlaceChanged}
+                                        >
+                                            <input
+                                                type="text"
+                                                placeholder="Search your address"
+                                                className="form-control mt-1"
+                                            />
+                                        </Autocomplete>
+                                    </LoadScript>
+                                </div>
+                                <h4 className="mt-2 mb-3">
+                                    Client Full Address
+                                </h4>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Full address
+                                        <small className="text-pink mb-1">
+                                            &nbsp; (auto complete from google
+                                            address)
+                                        </small>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={address}
+                                        className="form-control"
+                                        placeholder="Full address"
+                                        readOnly
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Floor
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={floor}
+                                        onChange={(e) =>
+                                            setFloor(e.target.value)
+                                        }
+                                        className="form-control"
+                                        placeholder="Enter floor"
+                                    />
+                                    {errors.floor ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.floor}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Apt number and Apt name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={Apt}
+                                        onChange={(e) => setApt(e.target.value)}
+                                        className="form-control"
+                                        placeholder="Enter Apt number and Apt name"
+                                    />
+                                    {errors.Apt ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.Apt}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Enterance code
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={enterance}
+                                        onChange={(e) =>
+                                            setEnterance(e.target.value)
+                                        }
+                                        className="form-control"
+                                        placeholder="Enter enterance code"
+                                    />
+                                    {errors.enterance ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.enterance}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Zip code
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={zip}
+                                        onChange={(e) => setZip(e.target.value)}
+                                        className="form-control"
+                                        placeholder="Enter zip code"
+                                    />
+                                    {errors.zip ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.zip}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Date of birth
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={dob}
+                                        onChange={(e) => setDob(e.target.value)}
+                                        className="form-control"
+                                    />
+                                    {errors.dob ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.dob}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Payment method
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={paymentMethod}
+                                        onChange={(e) => {
+                                            setPaymentMethod(e.target.value);
+                                        }}
                                     >
+                                        <option
+                                            value="cc"
+                                            selected={paymentMethod == "cc"}
+                                        >
+                                            Credit Card
+                                        </option>
+                                        <option
+                                            value="mt"
+                                            selected={paymentMethod == "mt"}
+                                        >
+                                            Money Transfer
+                                        </option>
+                                        <option
+                                            value="cheque"
+                                            selected={paymentMethod == "cheque"}
+                                        >
+                                            By Cheque
+                                        </option>
+                                        <option
+                                            value="cash"
+                                            selected={paymentMethod == "cash"}
+                                        >
+                                            By Cash
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Language
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={lng}
+                                        onChange={(e) => {
+                                            setLng(e.target.value);
+                                        }}
+                                    >
+                                        <option
+                                            value="heb"
+                                            selected={lng == "heb"}
+                                        >
+                                            Hebrew
+                                        </option>
+                                        <option
+                                            value="en"
+                                            selected={lng == "en"}
+                                        >
+                                            English
+                                        </option>
+                                    </select>
+                                </div>
+                                <div className="form-group lcs">
+                                    <div
+                                        className="form-check form-check-inline1 pl-0"
+                                        style={{ paddingLeft: "0" }}
+                                    >
+                                        <label
+                                            className="form-check-label"
+                                            htmlFor="title"
+                                        >
+                                            Color
+                                        </label>
+                                    </div>
+                                    <div className="swatch white">
                                         <input
-                                            type="text"
-                                            placeholder="Search Your Address"
-                                            className="form-control mt-1"
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_7"
+                                            value="0"
+                                            color="#fff"
+                                            onChange={(e) => setColor("#fff")}
                                         />
-                                    </Autocomplete>
-                                </LoadScript>
-                            </div>
-                            <h4 className="mt-2 mb-3">Client Full Address</h4>
+                                        <label htmlFor="swatch_7">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>white</span>
+                                    </div>
+                                    <div className="swatch green">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_2"
+                                            value="2"
+                                            color="#28a745"
+                                            onChange={(e) =>
+                                                setColor("#28a745")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_2">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Green</span>
+                                    </div>
+                                    <div className="swatch blue">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_3"
+                                            value="3"
+                                            color="#007bff"
+                                            onChange={(e) =>
+                                                setColor("#007bff")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_3">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Blue</span>
+                                    </div>
+                                    <div className="swatch purple">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_1"
+                                            value="1"
+                                            color="#6f42c1"
+                                            onChange={(e) =>
+                                                setColor("#6f42c1")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_1">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Voilet</span>
+                                    </div>
+                                    <div className="swatch red">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_5"
+                                            value="5"
+                                            color="#dc3545"
+                                            onChange={(e) =>
+                                                setColor("#dc3545")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_5">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Red</span>
+                                    </div>
+                                    <div className="swatch orange">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_4"
+                                            value="4"
+                                            color="#fd7e14"
+                                            onChange={(e) =>
+                                                setColor("#fd7e14")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_4">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Orange</span>
+                                    </div>
+                                    <div className="swatch yellow">
+                                        <input
+                                            type="radio"
+                                            name="swatch_demo"
+                                            id="swatch_6"
+                                            value="6"
+                                            color="#ffc107"
+                                            onChange={(e) =>
+                                                setColor("#ffc107")
+                                            }
+                                        />
+                                        <label htmlFor="swatch_6">
+                                            <i className="fa fa-check"></i>
+                                        </label>
+                                        <span>Yellow</span>
+                                    </div>
 
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Full Address
-                                    <small className="text-pink mb-1">
-                                        &nbsp; (auto complete from google
-                                        address)
-                                    </small>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={address}
-                                    className="form-control"
-                                    placeholder="Full Address"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">Floor</label>
-                                <input
-                                    type="text"
-                                    value={floor}
-                                    onChange={(e) => setFloor(e.target.value)}
-                                    className="form-control"
-                                    placeholder="Enter floor"
-                                />
-                                {errors.floor ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.floor}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Apt number and Apt name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={Apt}
-                                    onChange={(e) => setApt(e.target.value)}
-                                    className="form-control"
-                                    placeholder="Enter Apt number"
-                                />
-                                {errors.Apt ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.Apt}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Enterance code
-                                </label>
-                                <input
-                                    type="text"
-                                    value={enterance}
-                                    onChange={(e) =>
-                                        setEnterance(e.target.value)
-                                    }
-                                    className="form-control"
-                                    placeholder="Enter enterance"
-                                />
-                                {errors.enterance ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.enterance}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Zip Code
-                                </label>
-                                <input
-                                    type="text"
-                                    value={zip}
-                                    onChange={(e) => setZip(e.target.value)}
-                                    className="form-control"
-                                    placeholder="Enter zip code"
-                                />
-                                {errors.zip ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.zip}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Date of Birth
-                                </label>
-                                <input
-                                    type="date"
-                                    value={dob}
-                                    onChange={(e) => setDob(e.target.value)}
-                                    className="form-control"
-                                    placeholder="Enter dob"
-                                />
-                                {errors.dob ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.dob}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Payment Method
-                                </label>
-
-                                <select
-                                    className="form-control"
-                                    value={paymentMethod}
-                                    onChange={(e) => {
-                                        setPaymentMethod(e.target.value);
-                                    }}
-                                >
-                                    <option
-                                        value="cc"
-                                        selected={paymentMethod == "cc"}
-                                    >
-                                        Credit Card
-                                    </option>
-                                    <option
-                                        value="mt"
-                                        selected={paymentMethod == "mt"}
-                                    >
-                                        Money Transfer
-                                    </option>
-                                    <option
-                                        value="cheque"
-                                        selected={paymentMethod == "cheque"}
-                                    >
-                                        By Cheque
-                                    </option>
-                                    <option
-                                        value="cash"
-                                        selected={paymentMethod == "cash"}
-                                    >
-                                        By Cash
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="control-label">
-                                    Language
-                                </label>
-
-                                <select
-                                    className="form-control"
-                                    value={lng}
-                                    onChange={(e) => {
-                                        setLng(e.target.value);
-                                    }}
-                                >
-                                    <option value="heb" selected={lng == "heb"}>
-                                        Hebrew
-                                    </option>
-                                    <option value="en" selected={lng == "en"}>
-                                        English
-                                    </option>
-                                </select>
-                            </div>
-                            <div className="form-group lcs">
-                                <div
-                                    className="form-check form-check-inline1 pl-0"
-                                    style={{ paddingLeft: "0" }}
-                                >
-                                    <label
-                                        className="form-check-label"
-                                        for="title"
-                                    >
-                                        Color
-                                    </label>
+                                    {errors.color ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.color}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
-                                <div className="swatch white">
+
+                                <div className="form-group text-center">
                                     <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_7"
-                                        value="0"
-                                        color="#fff"
-                                        onChange={(e) => setColor("#fff")}
+                                        type="submit"
+                                        onClick={handleUpdate}
+                                        className="btn btn-pink saveBtn"
                                     />
-                                    <label for="swatch_7">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>white</span>
                                 </div>
-                                <div className="swatch green">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_2"
-                                        value="2"
-                                        color="#28a745"
-                                        onChange={(e) => setColor("#28a745")}
-                                    />
-                                    <label for="swatch_2">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Green</span>
-                                </div>
-                                <div className="swatch blue">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_3"
-                                        value="3"
-                                        color="#007bff"
-                                        onChange={(e) => setColor("#007bff")}
-                                    />
-                                    <label for="swatch_3">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Blue</span>
-                                </div>
-                                <div className="swatch purple">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_1"
-                                        value="1"
-                                        color="#6f42c1"
-                                        onChange={(e) => setColor("#6f42c1")}
-                                    />
-                                    <label for="swatch_1">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Voilet</span>
-                                </div>
-                                <div className="swatch red">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_5"
-                                        value="5"
-                                        color="#dc3545"
-                                        onChange={(e) => setColor("#dc3545")}
-                                    />
-                                    <label for="swatch_5">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Red</span>
-                                </div>
-                                <div className="swatch orange">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_4"
-                                        value="4"
-                                        color="#fd7e14"
-                                        onChange={(e) => setColor("#fd7e14")}
-                                    />
-                                    <label for="swatch_4">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Orange</span>
-                                </div>
-                                <div className="swatch yellow">
-                                    <input
-                                        type="radio"
-                                        name="swatch_demo"
-                                        id="swatch_6"
-                                        value="6"
-                                        color="#ffc107"
-                                        onChange={(e) => setColor("#ffc107")}
-                                    />
-                                    <label for="swatch_6">
-                                        <i className="fa fa-check"></i>
-                                    </label>
-                                    <span>Yellow</span>
-                                </div>
-
-                                {errors.color ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.color}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="form-group text-center">
-                                <input
-                                    type="submit"
-                                    onClick={handleUpdate}
-                                    className="btn btn-pink saveBtn"
-                                />
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

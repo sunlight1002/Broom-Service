@@ -100,7 +100,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם הסוכן
@@ -112,7 +112,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מספר הסוכן
@@ -126,7 +126,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם החברה/קולקטיב
@@ -138,7 +138,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 .פ.ח מס׳
@@ -150,7 +150,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מספר הסכם בפוליסה{" "}
@@ -174,7 +174,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 .ז.ת מס׳
@@ -186,7 +186,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם פרטי{" "}
@@ -198,7 +198,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם משפחה
@@ -212,7 +212,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מיקוד
@@ -224,7 +224,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 עיר
@@ -236,7 +236,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ בית
@@ -248,7 +248,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 רחוב / כתובת:
@@ -262,7 +262,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 דוא"ל לצורך קבלת הודעות, מידע
@@ -275,7 +275,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ טלפון נייד
@@ -287,7 +287,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ טלפון{" "}
@@ -310,7 +310,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם פרטי
@@ -322,7 +322,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם משפחה
@@ -334,7 +334,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ דרכון
@@ -348,7 +348,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מוצא ארץ
@@ -360,7 +360,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך לידה
@@ -372,7 +372,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך ראשון שבוטחת
@@ -384,7 +384,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מין
@@ -400,7 +400,7 @@ export default function InsuranceHeb() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         זכר
                                                     </label>
@@ -415,7 +415,7 @@ export default function InsuranceHeb() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio2"
+                                                        htmlFor="inlineRadio2"
                                                     >
                                                         נקבה{" "}
                                                     </label>
@@ -426,7 +426,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מיקוד
@@ -438,7 +438,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 עיר
@@ -450,7 +450,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ בית
@@ -462,7 +462,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 רחוב / כתובת:
@@ -476,7 +476,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 דוא״ל להודעות אישיות ודיוורים
@@ -488,7 +488,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ טלפון נייד{" "}
@@ -500,7 +500,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ טלפון
@@ -535,7 +535,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 עד לתאריך
@@ -547,7 +547,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מתאריך
@@ -583,7 +583,7 @@ export default function InsuranceHeb() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     אחר
                                                 </label>
@@ -600,7 +600,7 @@ export default function InsuranceHeb() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     בניין{" "}
                                                 </label>
@@ -617,7 +617,7 @@ export default function InsuranceHeb() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     חקלאות{" "}
                                                 </label>
@@ -634,7 +634,7 @@ export default function InsuranceHeb() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     סיעוד{" "}
                                                 </label>
@@ -672,7 +672,7 @@ export default function InsuranceHeb() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         לא
                                                     </label>
@@ -687,7 +687,7 @@ export default function InsuranceHeb() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         כן
                                                     </label>
@@ -703,7 +703,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td style={{ padding: "0" }}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                                 style={{
                                                     paddingRight: "10px",
@@ -714,7 +714,7 @@ export default function InsuranceHeb() {
                                             </label>
                                             <tr>
                                                 <td>
-                                                    {/* <label for="label" className="form-label">To</label> */}
+                                                    {/* <label htmlFor="label" className="form-label">To</label> */}
                                                     <input
                                                         type="text"
                                                         className="form-control"
@@ -722,7 +722,7 @@ export default function InsuranceHeb() {
                                                     />
                                                 </td>
                                                 <td>
-                                                    {/* <label for="label" className="form-label">From</label> */}
+                                                    {/* <label htmlFor="label" className="form-label">From</label> */}
                                                     <input
                                                         type="text"
                                                         className="form-control"
@@ -733,7 +733,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם החברה
@@ -745,7 +745,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ פוליסה
@@ -757,7 +757,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 חבר מס׳
@@ -804,7 +804,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם פרטי
@@ -816,7 +816,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם משפחה
@@ -828,7 +828,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ דרכון
@@ -849,7 +849,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ ת.ז.
@@ -861,7 +861,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם פרטי
@@ -873,7 +873,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם משפחה
@@ -887,7 +887,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מיקוד
@@ -899,7 +899,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 עיר
@@ -911,7 +911,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ בית
@@ -923,7 +923,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 כתובת: / רחוב
@@ -937,7 +937,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 בתוקף עד (חודש ושנה)
@@ -949,7 +949,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מספר כרטיס אשראי
@@ -963,7 +963,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 דוא״ל
@@ -975,7 +975,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ טלפון נייד{" "}
@@ -1008,7 +1008,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 חתימת בעל הכרטיס אשראי
@@ -1031,7 +1031,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך
@@ -1061,7 +1061,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 חותמת וחתימת המעסיק
@@ -1083,7 +1083,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם המעסיק{" "}
@@ -1095,7 +1095,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך
@@ -1133,7 +1133,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם פרטי{" "}
@@ -1145,7 +1145,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם משפחה{" "}
@@ -1157,7 +1157,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ דרכון{" "}
@@ -1503,7 +1503,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 חתימה
@@ -1525,7 +1525,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם המועמד לביטוח
@@ -1537,7 +1537,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך{" "}
@@ -1573,7 +1573,7 @@ export default function InsuranceHeb() {
                                             </p>
                                             <p>
                                                 <label
-                                                    for="label"
+                                                    htmlFor="label"
                                                     className="form-label"
                                                 >
                                                     חתימת המועמד לביטוח
@@ -1749,7 +1749,7 @@ export default function InsuranceHeb() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 חתימה
@@ -1771,7 +1771,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 מס׳ דרכון
@@ -1783,7 +1783,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 שם המועמד לביטוח
@@ -1795,7 +1795,7 @@ export default function InsuranceHeb() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 תאריך{" "}

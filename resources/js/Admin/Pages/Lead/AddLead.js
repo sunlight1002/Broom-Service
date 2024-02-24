@@ -481,7 +481,7 @@ export default function AddLead() {
                                         type="text"
                                         value={address}
                                         className="form-control"
-                                        placeholder="Full Address"
+                                        placeholder="Full address"
                                         readOnly
                                     />
                                 </div>
@@ -572,7 +572,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Date of Birth
+                                        Date of birth
                                     </label>
                                     <input
                                         type="date"

@@ -95,7 +95,7 @@ export default function ManageTime() {
                 <div className="card">
                     <div className="card-body">
                         <div className="form-group">
-                            <label for="days">Open Days</label>
+                            <label htmlFor="days">Open Days</label>
                             <br />
 
                             <div className="form-check form-check-inline">
@@ -109,7 +109,7 @@ export default function ManageTime() {
 
                                 <label
                                     className="form-check-label"
-                                    for="sunday"
+                                    htmlFor="sunday"
                                 >
                                     Sunday
                                 </label>
@@ -124,7 +124,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="monday"
+                                    htmlFor="monday"
                                 >
                                     Monday
                                 </label>
@@ -139,7 +139,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="tuesday"
+                                    htmlFor="tuesday"
                                 >
                                     Tuesday
                                 </label>
@@ -154,7 +154,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="wednesday"
+                                    htmlFor="wednesday"
                                 >
                                     Wednesday
                                 </label>
@@ -169,7 +169,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="thursday"
+                                    htmlFor="thursday"
                                 >
                                     Thursday
                                 </label>
@@ -184,7 +184,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="friday"
+                                    htmlFor="friday"
                                 >
                                     Friday
                                 </label>
@@ -199,7 +199,7 @@ export default function ManageTime() {
                                 />
                                 <label
                                     className="form-check-label"
-                                    for="saturday"
+                                    htmlFor="saturday"
                                 >
                                     Saturday
                                 </label>
@@ -207,7 +207,9 @@ export default function ManageTime() {
                         </div>
 
                         <div className="form-group">
-                            <label for="timing_starts">Timing Starts at</label>
+                            <label htmlFor="timing_starts">
+                                Timing Starts at
+                            </label>
                             <input
                                 type="time"
                                 className="form-control"
@@ -217,7 +219,9 @@ export default function ManageTime() {
                             />
                         </div>
                         <div className="form-group">
-                            <label for="timing_starts">Timing Ends at</label>
+                            <label htmlFor="timing_starts">
+                                Timing Ends at
+                            </label>
                             <input
                                 type="time"
                                 className="form-control"

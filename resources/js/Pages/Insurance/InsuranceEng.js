@@ -107,7 +107,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Name of agent.
@@ -119,7 +119,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Agent no.
@@ -133,7 +133,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Name Company/collective.
@@ -145,7 +145,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Private company no.
@@ -157,7 +157,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 agreement no in collective
@@ -183,7 +183,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 ID Number
@@ -195,7 +195,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First Name
@@ -207,7 +207,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Last Name
@@ -221,7 +221,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Zip code
@@ -233,7 +233,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Town
@@ -245,7 +245,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 House no
@@ -257,7 +257,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Street
@@ -271,7 +271,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Email for recepit of notices,
@@ -284,7 +284,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Cellphone no.
@@ -296,7 +296,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Telephone no.
@@ -319,7 +319,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First name
@@ -331,7 +331,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Last name
@@ -343,7 +343,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Passport no.
@@ -357,7 +357,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Country of ongin
@@ -369,7 +369,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Date of Birth
@@ -381,7 +381,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First date of insurance
@@ -393,7 +393,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Gender
@@ -409,7 +409,7 @@ export default function InsuranceEng() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         Male
                                                     </label>
@@ -424,7 +424,7 @@ export default function InsuranceEng() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio2"
+                                                        htmlFor="inlineRadio2"
                                                     >
                                                         Female
                                                     </label>
@@ -435,7 +435,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Zip code
@@ -447,7 +447,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Town
@@ -459,7 +459,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 House no
@@ -471,7 +471,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Street
@@ -485,7 +485,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Email for recepit of notices,
@@ -498,7 +498,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Cellphone no.
@@ -510,7 +510,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Telephone no.
@@ -548,7 +548,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 To
@@ -560,7 +560,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 From
@@ -597,7 +597,7 @@ export default function InsuranceEng() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     Other industry
                                                 </label>
@@ -614,7 +614,7 @@ export default function InsuranceEng() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     Construction
                                                 </label>
@@ -631,7 +631,7 @@ export default function InsuranceEng() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     Agriculture
                                                 </label>
@@ -648,7 +648,7 @@ export default function InsuranceEng() {
                                             <div className="form-check form-check-inline">
                                                 <label
                                                     className="form-check-label"
-                                                    for="inlineRadio1"
+                                                    htmlFor="inlineRadio1"
                                                 >
                                                     Nursing care
                                                 </label>
@@ -688,7 +688,7 @@ export default function InsuranceEng() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         No
                                                     </label>
@@ -703,7 +703,7 @@ export default function InsuranceEng() {
                                                     />
                                                     <label
                                                         className="form-check-label"
-                                                        for="inlineRadio1"
+                                                        htmlFor="inlineRadio1"
                                                     >
                                                         Yes
                                                     </label>
@@ -719,7 +719,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td style={{ padding: "0" }}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                                 style={{
                                                     paddingRight: "10px",
@@ -730,7 +730,7 @@ export default function InsuranceEng() {
                                             </label>
                                             <tr>
                                                 <td>
-                                                    {/* <label for="label" className="form-label">To</label> */}
+                                                    {/* <label htmlFor="label" className="form-label">To</label> */}
                                                     <input
                                                         type="text"
                                                         className="form-control"
@@ -738,7 +738,7 @@ export default function InsuranceEng() {
                                                     />
                                                 </td>
                                                 <td>
-                                                    {/* <label for="label" className="form-label">From</label> */}
+                                                    {/* <label htmlFor="label" className="form-label">From</label> */}
                                                     <input
                                                         type="text"
                                                         className="form-control"
@@ -749,7 +749,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Company name.
@@ -761,7 +761,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Policy no.
@@ -773,7 +773,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Member ship no.
@@ -823,7 +823,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First Name
@@ -835,7 +835,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Last Name
@@ -847,7 +847,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Passport No.
@@ -871,7 +871,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={2}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 ID number
@@ -883,7 +883,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First Name
@@ -895,7 +895,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Last Name
@@ -909,7 +909,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Zip code
@@ -921,7 +921,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Town
@@ -933,7 +933,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 House no
@@ -945,7 +945,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Street
@@ -959,7 +959,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Exp date
@@ -971,7 +971,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Card no.
@@ -985,7 +985,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Email
@@ -997,7 +997,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Cellphone No.
@@ -1034,7 +1034,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td colSpan={3}>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Signature of the credit card
@@ -1058,7 +1058,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Date
@@ -1091,7 +1091,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Stamp & signature of the
@@ -1114,7 +1114,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Name of the employer
@@ -1126,7 +1126,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Date
@@ -1167,7 +1167,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 First name
@@ -1179,7 +1179,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Last name
@@ -1191,7 +1191,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Passport no.
@@ -1573,7 +1573,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Signature of the Insurance
@@ -1596,7 +1596,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Insurance Candidate name
@@ -1608,7 +1608,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Date
@@ -1648,7 +1648,7 @@ export default function InsuranceEng() {
                                             </p>
                                             <p>
                                                 <label
-                                                    for="label"
+                                                    htmlFor="label"
                                                     className="form-label"
                                                 >
                                                     Signature of the Insured
@@ -1874,7 +1874,7 @@ export default function InsuranceEng() {
                                     <tr>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Signature{" "}
@@ -1896,7 +1896,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Passport no.
@@ -1908,7 +1908,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Insurance Candidate name
@@ -1920,7 +1920,7 @@ export default function InsuranceEng() {
                                         </td>
                                         <td>
                                             <label
-                                                for="label"
+                                                htmlFor="label"
                                                 className="form-label"
                                             >
                                                 Date

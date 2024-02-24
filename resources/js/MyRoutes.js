@@ -335,12 +335,12 @@ export default function MyRoutes() {
                             <Route exact path="leads" element={<Leads />} />
                             <Route
                                 exact
-                                path="add-lead"
+                                path="leads/create"
                                 element={<AddLead />}
                             />
                             <Route
                                 exact
-                                path="edit-lead/:id"
+                                path="leads/:id/edit"
                                 element={<EditLead />}
                             />
                             <Route
@@ -351,7 +351,7 @@ export default function MyRoutes() {
                             <Route exact path="clients" element={<Clients />} />
                             <Route
                                 exact
-                                path="add-client"
+                                path="clients/create"
                                 element={<AddClient />}
                             />
                             <Route
@@ -361,7 +361,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="edit-client/:id"
+                                path="clients/:id/edit"
                                 element={<EditClient />}
                             />
                             <Route
@@ -426,12 +426,12 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="add-service"
+                                path="services/create"
                                 element={<AddService />}
                             />
                             <Route
                                 exact
-                                path="edit-service/:id"
+                                path="services/:id/edit"
                                 element={<EditService />}
                             />
                             <Route

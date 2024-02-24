@@ -330,7 +330,7 @@ export default function Lead() {
                                     placeholder="Search"
                                 />
                                 <Link
-                                    to="/admin/add-lead"
+                                    to="/admin/leads/create"
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
@@ -475,7 +475,7 @@ export default function Lead() {
                                                                 </button>
                                                                 <div className="dropdown-menu">
                                                                     <Link
-                                                                        to={`/admin/edit-lead/${item.id}`}
+                                                                        to={`/admin/leads/${item.id}/edit`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         Edit

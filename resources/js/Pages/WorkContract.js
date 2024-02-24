@@ -1227,7 +1227,7 @@ export default function WorkContract() {
                         <div
                             className="modal fade"
                             id="exampleModal"
-                            tabindex="-1"
+                            tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel"
                             aria-hidden="true"
@@ -1460,7 +1460,7 @@ export default function WorkContract() {
                         <div
                             className="modal fade"
                             id="exampleModal2"
-                            tabindex="-1"
+                            tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel2"
                             aria-hidden="true"

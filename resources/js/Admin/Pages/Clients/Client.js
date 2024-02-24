@@ -281,7 +281,7 @@ export default function Clients() {
                                     placeholder="Search"
                                 />
                                 <Link
-                                    to="/admin/add-client"
+                                    to="/admin/clients/create"
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
@@ -495,7 +495,7 @@ export default function Clients() {
                                                                     )}
 
                                                                     <Link
-                                                                        to={`/admin/edit-client/${item.id}`}
+                                                                        to={`/admin/clients/${item.id}/edit`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         Edit

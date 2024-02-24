@@ -1185,7 +1185,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Single"
+                                                                    htmlFor="Single"
                                                                 >
                                                                     {t(
                                                                         "form101.status_single"
@@ -1209,7 +1209,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Married"
+                                                                    htmlFor="Married"
                                                                 >
                                                                     {t(
                                                                         "form101.status_married"
@@ -1233,7 +1233,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Divorcee"
+                                                                    htmlFor="Divorcee"
                                                                 >
                                                                     {t(
                                                                         "form101.status_divorcee"
@@ -1257,7 +1257,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="widower"
+                                                                    htmlFor="widower"
                                                                 >
                                                                     {t(
                                                                         "form101.status_widower"
@@ -1281,7 +1281,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Separated"
+                                                                    htmlFor="Separated"
                                                                 >
                                                                     {t(
                                                                         "form101.status_separated"
@@ -1332,7 +1332,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Yes"
+                                                                    htmlFor="Yes"
                                                                 >
                                                                     {t(
                                                                         "form101.label_yes"
@@ -1356,7 +1356,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="No"
+                                                                    htmlFor="No"
                                                                 >
                                                                     {t(
                                                                         "form101.label_no"
@@ -1407,7 +1407,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Yes"
+                                                                    htmlFor="Yes"
                                                                 >
                                                                     {t(
                                                                         "form101.label_yes"
@@ -1431,7 +1431,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="No"
+                                                                    htmlFor="No"
                                                                 >
                                                                     {t(
                                                                         "form101.label_no"
@@ -1481,7 +1481,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="Yes"
+                                                                    htmlFor="Yes"
                                                                 >
                                                                     {t(
                                                                         "form101.label_yes"
@@ -1505,7 +1505,7 @@ export default function Form101() {
                                                                 />
                                                                 <label
                                                                     className="form-check-label"
-                                                                    for="No"
+                                                                    htmlFor="No"
                                                                 >
                                                                     {t(
                                                                         "form101.label_no"
@@ -2576,7 +2576,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Male"
+                                                            htmlFor="Male"
                                                         >
                                                             {t(
                                                                 "form101.label_male"
@@ -2596,7 +2596,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Female"
+                                                            htmlFor="Female"
                                                         >
                                                             {t(
                                                                 "form101.label_female"
@@ -2636,7 +2636,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Single"
+                                                            htmlFor="Single"
                                                         >
                                                             {t(
                                                                 "form101.status_single"
@@ -2656,7 +2656,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Married"
+                                                            htmlFor="Married"
                                                         >
                                                             {t(
                                                                 "form101.status_married"
@@ -2676,7 +2676,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Divorcee"
+                                                            htmlFor="Divorcee"
                                                         >
                                                             {t(
                                                                 "form101.status_divorcee"
@@ -2696,7 +2696,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="widower"
+                                                            htmlFor="widower"
                                                         >
                                                             {t(
                                                                 "form101.status_widower"
@@ -2716,7 +2716,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Separated"
+                                                            htmlFor="Separated"
                                                         >
                                                             {t(
                                                                 "form101.status_separated"
@@ -2756,7 +2756,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="Yes"
+                                                            htmlFor="Yes"
                                                         >
                                                             {t(
                                                                 "form101.label_yes"
@@ -2776,7 +2776,7 @@ export default function Form101() {
                                                         />
                                                         <label
                                                             className="form-check-label"
-                                                            for="No"
+                                                            htmlFor="No"
                                                         >
                                                             {t(
                                                                 "form101.label_no"
@@ -4888,7 +4888,7 @@ export default function Form101() {
             <div
                 className="modal fade"
                 id="exampleModal"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"

@@ -6,10 +6,10 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function EditService() {
-    const [service, setService] = useState([]);
-    const [serviceHeb, setServiceHeb] = useState([]);
-    const [template, setTemplate] = useState([]);
-    const [status, setStatus] = useState(0);
+    const [service, setService] = useState("");
+    const [serviceHeb, setServiceHeb] = useState("");
+    const [template, setTemplate] = useState("");
+    const [status, setStatus] = useState("0");
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
     const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function EditService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service *
+                                                Service - En*
                                             </label>
                                             <input
                                                 type="text"
@@ -82,20 +82,18 @@ export default function EditService() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Service"
+                                                placeholder="Enter service name (english)"
                                             />
-                                            {errors.service ? (
+                                            {errors.service && (
                                                 <small className="text-danger mb-1">
                                                     {errors.service}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
 
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service- Heb*
+                                                Service - Heb*
                                             </label>
                                             <input
                                                 type="text"
@@ -107,14 +105,12 @@ export default function EditService() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter service hebrew name"
+                                                placeholder="Enter service name (hebrew)"
                                             />
-                                            {errors.service ? (
+                                            {errors.service && (
                                                 <small className="text-danger mb-1">
                                                     {errors.heb_name}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>
@@ -131,75 +127,36 @@ export default function EditService() {
                                                     setTemplate(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
-                                                <option
-                                                    value="regular"
-                                                    selected={
-                                                        template == "regular"
-                                                    }
-                                                >
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
+                                                <option value="regular">
                                                     Regular Services( 2*, 3*,
                                                     4*, 5* )
                                                 </option>
-                                                <option
-                                                    value="office_cleaning"
-                                                    selected={
-                                                        template ==
-                                                        "office_cleaning"
-                                                    }
-                                                >
+                                                <option value="office_cleaning">
                                                     Office Cleaning
                                                 </option>
-                                                <option
-                                                    value="after_renovation"
-                                                    selected={
-                                                        template ==
-                                                        "after_renovation"
-                                                    }
-                                                >
+                                                <option value="after_renovation">
                                                     After Renovation
                                                 </option>
-                                                <option
-                                                    value="thorough_cleaning"
-                                                    selected={
-                                                        template ==
-                                                        "thorough_cleaning"
-                                                    }
-                                                >
+                                                <option value="thorough_cleaning">
                                                     Thorough Cleaning
                                                 </option>
-                                                <option
-                                                    value="window_cleaning"
-                                                    selected={
-                                                        template ==
-                                                        "window_cleaning"
-                                                    }
-                                                >
+                                                <option value="window_cleaning">
                                                     Window Cleaning
                                                 </option>
-                                                <option
-                                                    value="polish"
-                                                    selected={
-                                                        template == "polish"
-                                                    }
-                                                >
+                                                <option value="polish">
                                                     Polish
                                                 </option>
-                                                <option
-                                                    value="others"
-                                                    selected={
-                                                        template == "others"
-                                                    }
-                                                >
+                                                <option value="others">
                                                     Others
                                                 </option>
                                             </select>
-                                            {errors.template ? (
+                                            {errors.template && (
                                                 <small className="text-danger mb-1">
                                                     {errors.template}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>
@@ -216,26 +173,20 @@ export default function EditService() {
                                                     setStatus(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
-                                                <option
-                                                    value="1"
-                                                    selected={status == "1"}
-                                                >
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
+                                                <option value="1">
                                                     Active
                                                 </option>
-                                                <option
-                                                    value="0"
-                                                    selected={status == "0"}
-                                                >
+                                                <option value="0">
                                                     Inactive
                                                 </option>
                                             </select>
-                                            {errors.status ? (
+                                            {errors.status && (
                                                 <small className="text-danger mb-1">
                                                     {errors.status}
                                                 </small>
-                                            ) : (
-                                                ""
                                             )}
                                         </div>
                                     </div>

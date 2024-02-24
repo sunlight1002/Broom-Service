@@ -78,111 +78,103 @@ class DashboardController extends Controller
   {
     $count = Notification::count();
     $seenCount = Notification::where('seen', 0)->count();
-    if ($count > 0) :
 
-      if ($request->head)
+    if ($count > 0) {
+      if ($request->head) {
         $noticeAll = Notification::with('client')->orderBy('id', 'desc')->take(5)->get();
-      if ($request->all)
+      }
+
+      if ($request->all) {
         $noticeAll = Notification::with('client')->orderBy('id', 'desc')->paginate(15);
+      }
 
       if (isset($noticeAll)) {
         foreach ($noticeAll as $k => $notice) {
-
           if ($notice->type == 'sent-meeting') {
-
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->get()->first();
-            if (isset($sch))
+
+            if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
-          }
-          if ($notice->type == 'accept-meeting') {
-
+            }
+          } else if ($notice->type == 'accept-meeting') {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->get()->first();
-            if (isset($sch))
+
+            if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->client->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> has been confirmed now on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
-          }
-          if ($notice->type == 'reject-meeting') {
-
+            }
+          } else if ($notice->type == 'reject-meeting') {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->get()->first();
-            if (isset($sch))
+
+            if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> which on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time) . " has cancelled now.";
-          }
-
-          if ($notice->type == 'accept-offer') {
-
+            }
+          } else if ($notice->type == 'accept-offer') {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->get()->first();
-            if (isset($ofr))
+
+            if (isset($ofr)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has accepted the <a href='/admin/view-offer/" . $notice->offer_id . "'> price offer </a>";
-          }
-
-          if ($notice->type == 'reject-offer') {
-
+            }
+          } else if ($notice->type == 'reject-offer') {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->get()->first();
-            if (isset($ofr))
+
+            if (isset($ofr)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has rejected <a href='/admin/view-offer/" . $notice->offer_id . "'>the price offer </a>";
-          }
-
-          if ($notice->type == 'contract-accept') {
-
+            }
+          } else if ($notice->type == 'contract-accept') {
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->get()->first();
-            if (isset($contract)) :
+
+            if (isset($contract)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
                 "</a> has approved the <a href='/admin/view-contract/" . $contract->id . "'> contract </a>";
               if ($contract->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
               }
-            endif;
-          }
-
-          if ($notice->type == 'contract-reject') {
-
+            }
+          } else if ($notice->type == 'contract-reject') {
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->get()->first();
-            if (isset($contract)) :
+
+            if (isset($contract)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
                 "</a> has rejected the <a href='/admin/view-contract/" . $contract->id . "'> contract </a>";
               if ($contract->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
               }
-            endif;
-          }
-          if ($notice->type == 'client-cancel-job') {
-
+            }
+          } else if ($notice->type == 'client-cancel-job') {
             $job = Job::with('offer', 'client')->where('id', $notice->job_id)->get()->first();
-            if (isset($job)) :
+
+            if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $job->client->id . "'>" . $job->client->firstname . " " . $job->client->lastname .
                 "</a> has cancelled the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
               if ($job->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $job->offer->id . "'> offer </a> ";
               }
-            endif;
-          }
-
-          if ($notice->type == 'worker-reschedule') {
-
+            }
+          } else if ($notice->type == 'worker-reschedule') {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->get()->first();
-            if (isset($job)) :
+
+            if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> request for reschedule the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
-            endif;
+            }
           }
         }
       }
+
       return response()->json([
         'notice' => $noticeAll,
         'count' => $seenCount
       ]);
-
-    else :
-
+    } else {
       return response()->json([
         'notice' => []
       ]);
-
-    endif;
+    }
   }
 
   public function viewPass(Request $request)
@@ -208,22 +200,25 @@ class DashboardController extends Controller
   {
 
     $tasks = Job::with('client', 'worker', 'offer', 'hours')->where('status', 'completed');
-    if (empty($request->duration) || $request->duration == 'all')
+    if (empty($request->duration) || $request->duration == 'all') {
       $tasks = $tasks->get();
+    }
 
-    if ($request->duration == 'day')
+    if ($request->duration == 'day') {
       $tasks = $tasks->whereDate('created_at', Carbon::today())->get();
+    }
 
-    if ($request->duration == 'month')
+    if ($request->duration == 'month') {
       $tasks = $tasks->whereMonth('created_at', Carbon::now()->month)->get();
+    }
 
-    if ($request->duration == 'week')
+    if ($request->duration == 'week') {
       $tasks = $tasks->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
+    }
 
     $inc = 0;
     if (isset($tasks)) {
       foreach ($tasks as $t1 => $task) {
-
         if (isset($task->hours)) {
           $tsec = 0;
           foreach ($task->hours as $t => $hour) {
@@ -233,7 +228,6 @@ class DashboardController extends Controller
         }
 
         if (isset($task->offer)) {
-
           $inc += $task->offer->subtotal;
         }
       }
@@ -247,7 +241,6 @@ class DashboardController extends Controller
 
   public function pendingData($for)
   {
-
     if ($for == 'meetings') {
       $meetings = Schedule::where('booking_status', 'pending')->with('client', 'team')->paginate(5);
       return response()->json([
@@ -283,25 +276,22 @@ class DashboardController extends Controller
 
     if (!empty($csv)) {
       foreach ($csv as $cid => $csr) {
-
         $total = 0;
         $servAr = [];
         $oid = [];
         $coid = [];
 
         $client  = Client::where('id', $cid)->get()->first();
-        foreach ($csr as $k => $sep) :
-
+        foreach ($csr as $k => $sep) {
           $cs = $csr[$k][0];
           $serv = Services::where('id', $k)->get()->toarray();
           $serv = (!empty($serv)) ? $serv[0] : null;
 
-          if ($serv != null) :
-
+          if ($serv != null) {
             $period = (substr((string)$cs[3], 0, 1) == 1) ? substr((string)$cs[3], 1)  : $cs[3];
             $freq = ServiceSchedule::where('period', $period)->get()->first();
 
-            if (!is_null($freq)) :
+            if (!is_null($freq)) {
               $freq = $freq->toArray();
               $total += (int)$cs[5];
               $service = [
@@ -320,11 +310,9 @@ class DashboardController extends Controller
                 "period" => $cs[3]
               ];
               $servAr[] = $service;
-
-            endif;
-          endif;
-
-        endforeach;
+            }
+          }
+        }
 
         $tax = (17 / 100) * $total;
         $ofr = [
@@ -350,8 +338,8 @@ class DashboardController extends Controller
         $contract = Contract::create($cont);
         $coid[] = $contract->id;
 
-        foreach ($csr as $i => $ncs1) :
-          foreach ($ncs1 as $ncs) :
+        foreach ($csr as $i => $ncs1) {
+          foreach ($ncs1 as $ncs) {
 
             $count = 1;
             if (str_contains($ncs[3], 'w')) {
@@ -369,26 +357,23 @@ class DashboardController extends Controller
               }
               $job_date = $date->addDays($j)->toDateString();
 
-              $d =
-                $jobA = [
-
-                  'client_id' => $cid,
-                  'offer_id' => $oid[0],
-                  'contract_id' => $coid[0],
-                  'worker_id' => $ncs[1],
-                  'start_date' => $job_date,
-                  'schedule_id' => $ncs[2],
-                  'schedule' => $ncs[3],
-                  'shifts' => str_replace('/', ',', $ncs[7]),
-                  'status' => 'scheduled'
-
-                ];
+              $jobA = [
+                'client_id' => $cid,
+                'offer_id' => $oid[0],
+                'contract_id' => $coid[0],
+                'worker_id' => $ncs[1],
+                'start_date' => $job_date,
+                'schedule_id' => $ncs[2],
+                'schedule' => $ncs[3],
+                'shifts' => str_replace('/', ',', $ncs[7]),
+                'status' => 'scheduled'
+              ];
 
               $job = Job::create($jobA);
 
               $period = (substr((string)$ncs[3], 0, 1) == 1) ? substr((string)$ncs[3], 1)  : $ncs[3];
               $freq = ServiceSchedule::where('period', $period)->get()->first();
-              if (!is_null($freq)) :
+              if (!is_null($freq)) {
                 $freq = $freq->toArray();
                 $s = Services::where('id', $ncs[2])->get()->first();
 
@@ -406,11 +391,10 @@ class DashboardController extends Controller
                 $jh->service_id = $ncs[2];
 
                 $jh->save();
-              endif;
+              }
             }
-
-          endforeach;
-        endforeach;
+          }
+        }
       }
       echo "Record Created";
     }
@@ -421,12 +405,9 @@ class DashboardController extends Controller
     $clients = Client::with('meetings', 'offers', 'contract', 'jobs')->get();
     $q = $request->q;
 
-    //Meetings
+    // Meetings
     if (!is_null($q) && $q == 'meetings') {
-
       foreach ($clients as $c) {
-
-
         $meet  = Schedule::where('client_id', $c->id)->get()->last();
         if (isset($meet)) {
 
@@ -447,15 +428,12 @@ class DashboardController extends Controller
       echo "Updated client metings lead status";
     }
 
-    //Offers 
+    // Offers
     if (!is_null($q) && $q == 'offers') {
-
       foreach ($clients as $c) {
-
-
         $_ofr  = Offer::where('client_id', $c->id)->get()->last();
-        if (isset($_ofr)) {
 
+        if (isset($_ofr)) {
           $ostat =  $_ofr->status;
 
           LeadStatus::updateOrCreate(
@@ -473,19 +451,15 @@ class DashboardController extends Controller
       echo "Updated client offers lead status";
     }
 
-    //Offers 
+    // Offers 
     if (!is_null($q) && $q == 'contracts') {
-
       foreach ($clients as $c) {
-
-
         $_cn  = Contract::where('client_id', $c->id)->get()->last();
-        if (isset($_cn)) {
 
+        if (isset($_cn)) {
           $cstat =  $_cn->status;
 
           if ($cstat != 'not-signed') {
-
             LeadStatus::updateOrCreate(
               [
                 'client_id' => $c->id

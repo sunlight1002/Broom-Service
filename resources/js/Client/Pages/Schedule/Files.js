@@ -263,7 +263,7 @@ export default function Clientfiles() {
                             <div
                                 className="modal fade"
                                 id="exampleModal"
-                                tabindex="-1"
+                                tabIndex="-1"
                                 role="dialog"
                                 aria-labelledby="exampleModalLabel"
                                 aria-hidden="true"
@@ -393,7 +393,7 @@ export default function Clientfiles() {
             <div
                 className="modal fade"
                 id="exampleModalFile"
-                tabindex="-1"
+                tabIndex="-1"
                 role="dialog"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
