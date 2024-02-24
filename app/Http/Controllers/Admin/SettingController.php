@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\GeneralSetting;
 use App\Models\Countries;
-use App\Models\Settings;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,9 +19,10 @@ class SettingController extends Controller
     {
         $setting = GeneralSetting::first();
         $setting->logo  = $setting->logo ? asset('storage/uploads/' . $setting->logo) : asset('images/Frontlogo.png');
+
         return response()->json([
-            'setting'         => $setting,
-        ], 200);
+            'setting' => $setting,
+        ]);
     }
 
     public function saveGeneralSettings(Request $request)
@@ -39,59 +41,60 @@ class SettingController extends Controller
 
         $setting = GeneralSetting::first();
 
-        $input                  = $request->all();
+        $input = $request->all();
 
         if ($request->hasfile('logo')) {
-            $image              = $request->file('logo');
-            $name               = $image->getClientOriginalName();
+            $image = $request->file('logo');
+            $name = $image->getClientOriginalName();
             $image->storeAs('uploads/', $name, 'public');
 
-            $input['logo']      = $name;
+            $input['logo'] = $name;
         }
 
         GeneralSetting::where('id', $setting->id)->update($input);
 
         return response()->json([
-            'message'       => 'General Setting updated successfully',
+            'message' => 'General Setting updated successfully',
         ], 200);
     }
 
     public function getAccountDetails()
     {
-        $account          = Auth::user();
-        $account->avatar  = $account->avatar ? asset('storage/uploads/admin/' . $account->avatar) : asset('images/man.png');
+        $account = Auth::user();
+        $account->avatar = $account->avatar ? asset('storage/uploads/admin/' . $account->avatar) : asset('images/man.png');
+
         return response()->json([
-            'account'         => $account,
-        ], 200);
+            'account' => $account,
+        ]);
     }
 
     public function saveAccountDetails(Request $request)
     {
-        $admin     = Auth::user();
+        $admin = Auth::user();
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'address'   => ['required', 'string'],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
-
+            'address' => ['required', 'string'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $input                  = $request->all();
+        $input = $request->all();
         if ($request->hasfile('avatar')) {
-            $image              = $request->file('avatar');
-            $name               = $image->getClientOriginalName();
+            $image = $request->file('avatar');
+            $name = $image->getClientOriginalName();
             $image->storeAs('uploads/admin/', $name, 'public');
 
-            $input['avatar']      = $name;
+            $input['avatar'] = $name;
         }
-        $admin                  = Admin::where('id', $admin->id)->update($input);
+
+        $admin = Admin::where('id', $admin->id)->update($input);
 
         return response()->json([
-            'message'       => 'Account details updated successfully',
-        ], 200);
+            'message' => 'Account details updated successfully',
+        ]);
     }
 
     public function changePassword(Request $request)
@@ -100,7 +103,7 @@ class SettingController extends Controller
 
         $validator = Validator::make($request->all(), [
             'current_password' => ['required', 'min:6'],
-            'password'   => ['required', 'min:6', 'confirmed']
+            'password' => ['required', 'min:6', 'confirmed']
         ]);
 
         if ($validator->fails()) {
@@ -108,23 +111,24 @@ class SettingController extends Controller
         }
 
         $admin = Admin::find($id);
-
         if (Hash::check($request->get('current_password'), $admin->password)) {
-
             $admin->password = Hash::make($request->password);
             $admin->save();
 
             return response()->json([
-                'message'       => 'Password changed successfully',
-            ], 200);
+                'message' => 'Password changed successfully',
+            ]);
         } else {
-
-            return response()->json(['errors' => ['current_password' => 'Current password is incorrect.']]);
+            return response()->json([
+                'errors' => [
+                    'current_password' => 'Current password is incorrect.'
+                ]
+            ]);
         }
 
         return response()->json([
-            'message'       => 'Password changed successfully',
-        ], 200);
+            'message' => 'Password changed successfully',
+        ]);
     }
 
     public function getCountries()
@@ -132,23 +136,17 @@ class SettingController extends Controller
         $countries = Countries::get();
 
         return response()->json([
-            'countries'       => $countries
-        ], 200);
+            'countries' => $countries
+        ]);
     }
 
-    public function getSettings()
+    public function allSettings()
     {
-        $settings = [];
-
-        $_s = Settings::all();
-
-        if (isset($_s)) {
-
-            foreach ($_s as $s) {
-
-                $settings[$s->key] = $s->value;
-            }
-        }
+        $settings = Setting::query()
+            ->select('key', 'value')
+            ->get()
+            ->pluck('value', 'key')
+            ->toArray();
 
         return response()->json($settings);
     }
@@ -156,9 +154,7 @@ class SettingController extends Controller
     public function updateSettings(Request $request)
     {
         if ($request->for == 'zcredit') {
-
-            $validator = validator::make($request->all(), [
-
+            $validator = Validator::make($request->all(), [
                 'zcredit_key' => 'required',
                 'zcredit_terminal_number' => 'required',
                 'zcredit_terminal_pass' => 'required'
@@ -168,23 +164,24 @@ class SettingController extends Controller
                 return response()->json(['errors' => $validator->messages()]);
             }
 
-            $s1 = Settings::where('key', 'zcredit_key')->update(['value' => $request->zcredit_key]);
-            if ($s1 == 0)
-                Settings::create(['key' => 'zcredit_key', 'value' => $request->zcredit_key]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ZCREDIT_KEY],
+                ['value' => $request->zcredit_key]
+            );
 
-            $s2 = Settings::where('key', 'zcredit_terminal_number')->update(['value' => $request->zcredit_terminal_number]);
-            if ($s2 == 0)
-                Settings::create(['key' => 'zcredit_terminal_number', 'value' => $request->zcredit_terminal_number]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER],
+                ['value' => $request->zcredit_terminal_number]
+            );
 
-            $s3 = Settings::where('key', 'zcredit_terminal_pass')->update(['value' => $request->zcredit_terminal_pass]);
-            if ($s3 == 0)
-                Settings::create(['key' => 'zcredit_terminal_pass', 'value' => $request->zcredit_terminal_pass]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ZCREDIT_TERMINAL_PASS],
+                ['value' => $request->zcredit_terminal_pass]
+            );
         }
 
         if ($request->for == 'icount') {
-
-            $validator = validator::make($request->all(), [
-
+            $validator = Validator::make($request->all(), [
                 'icount_company_id' => 'required',
                 'icount_username' => 'required',
                 'icount_password' => 'required'
@@ -194,21 +191,24 @@ class SettingController extends Controller
                 return response()->json(['errors' => $validator->messages()]);
             }
 
-            $s1 = Settings::where('key', 'icount_company_id')->update(['value' => $request->icount_company_id]);
-            if ($s1 == 0)
-                Settings::create(['key' => 'icount_company_id', 'value' => $request->icount_company_id]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ICOUNT_COMPANY_ID],
+                ['value' => $request->icount_company_id]
+            );
 
-            $s2 = Settings::where('key', 'icount_username')->update(['value' => $request->icount_username]);
-            if ($s2 == 0)
-                Settings::create(['key' => 'icount_username', 'value' => $request->icount_username]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ICOUNT_USERNAME],
+                ['value' => $request->icount_username]
+            );
 
-            $s3 = Settings::where('key', 'icount_password')->update(['value' => $request->icount_password]);
-            if ($s3 == 0)
-                Settings::create(['key' => 'icount_password', 'value' => $request->icount_password]);
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::ICOUNT_PASSWORD],
+                ['value' => $request->icount_password]
+            );
         }
 
         return response()->json([
-            'success' => 'settings has been updated'
+            'success' => 'Settings has been updated'
         ]);
     }
 }

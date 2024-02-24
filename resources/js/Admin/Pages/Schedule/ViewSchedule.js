@@ -9,6 +9,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
+import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
 
 export default function ViewSchedule() {
@@ -34,6 +35,7 @@ export default function ViewSchedule() {
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(window.location.search);
     const sid = queryParams.get("sid");
+    const urlParamAction = queryParams.get("action");
     const time = [
         "08:00 AM",
         "08:30 AM",
@@ -101,12 +103,53 @@ export default function ViewSchedule() {
                 btn.removeAttribute("disabled");
                 btn.innerHTML = "Send meeting";
             } else {
-                alert.success(res.data.message);
-                setTimeout(() => {
-                    navigate("/admin/schedule");
-                }, 1000);
+                if (res.data.action == "redirect") {
+                    window.location = res.data.url;
+                } else {
+                    alert.success(res.data.message);
+                    createAndSendMeeting(res.data.data.id);
+                }
             }
         });
+    };
+
+    const createAndSendMeeting = (_scheduleID) => {
+        let btn = document.querySelector(".sendBtn");
+        btn.setAttribute("disabled", true);
+        btn.innerHTML = "Sending..";
+
+        axios
+            .post(
+                `/api/admin/schedule/${_scheduleID}/create-event`,
+                {},
+                {
+                    headers,
+                }
+            )
+            .then((res) => {
+                btn.removeAttribute("disabled");
+                btn.innerHTML = "Send meeting";
+
+                if (res.data.errors) {
+                    for (let e in res.data.errors) {
+                        alert.error(res.data.errors[e]);
+                    }
+                } else {
+                    alert.success(res.data.message);
+                    setTimeout(() => {
+                        navigate("/admin/schedule");
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+                if (error.response.data.error.message) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: error.response.data.error.message,
+                        icon: "error",
+                    });
+                }
+            });
     };
 
     const getClient = () => {
@@ -173,6 +216,10 @@ export default function ViewSchedule() {
         if (sid != "" && sid != null) {
             setTimeout(() => {
                 getSchedule();
+
+                if (urlParamAction === "create-calendar-event") {
+                    createAndSendMeeting(sid);
+                }
             }, 500);
             setTimeout(() => {
                 const tm = document.querySelector("#team").value;
@@ -297,7 +344,6 @@ export default function ViewSchedule() {
                                 </label>
                                 <select
                                     className="form-control"
-                                    name="booking_status"
                                     id="status"
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
@@ -462,7 +508,9 @@ export default function ViewSchedule() {
                                         }}
                                         className="form-control"
                                     >
-                                        <option>Choose start time</option>
+                                        <option value="">
+                                            Choose start time
+                                        </option>
                                         {time &&
                                             time.map((t, i) => {
                                                 return (
@@ -493,7 +541,9 @@ export default function ViewSchedule() {
                                         }}
                                         className="form-control"
                                     >
-                                        <option>Choose start time</option>
+                                        <option value="">
+                                            Choose end time
+                                        </option>
                                         {time &&
                                             time.map((t, i) => {
                                                 return (

@@ -138,9 +138,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Meeting Schedules
     Route::resource('schedule', ScheduleController::class)->except(['create', 'edit']);
-    Route::post('client-schedules', [ScheduleController::class, 'ClientSchedules']);
+    Route::post('schedule/{id}/create-event', [ScheduleController::class, 'createScheduleCalendarEvent']);
+    Route::post('client-schedules', [ScheduleController::class, 'clientSchedules']);
     Route::post('schedule-events', [ScheduleController::class, 'getEvents']);
-    Route::post('latest-client-schedule', [ScheduleController::class, 'getLatestClientSchedule']);
+    Route::post('latest-client-schedule', [ScheduleController::class, 'latestClientSchedule']);
 
     // client files
     Route::post('add-file', [ClientController::class, 'addfile'])->name('add-file');
@@ -236,9 +237,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('messenger-participants', [ChatController::class, 'participants']);
     Route::get('messenger-message/{id}', [ChatController::class, 'messengerMessage']);
     Route::post('messenger-reply', [ChatController::class, 'messengerReply']);
-    //settings
 
-    Route::get('get-settings', [SettingController::class, 'getSettings']);
-    Route::post('update-settings', [SettingController::class, 'updateSettings']);
+    // settings
+    Route::get('settings', [SettingController::class, 'allSettings']);
+    Route::post('settings', [SettingController::class, 'updateSettings']);
     Route::post('update-shift', [ClientController::class, 'updateShift']);
 });

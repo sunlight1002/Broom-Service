@@ -155,7 +155,7 @@ export default function ScheduleMeet() {
                                             }}
                                             className="form-control"
                                         >
-                                            <option>
+                                            <option value="">
                                                 {t("front_meet.op_start")}
                                             </option>
                                             {time &&
@@ -187,7 +187,7 @@ export default function ScheduleMeet() {
                                             }}
                                             className="form-control"
                                         >
-                                            <option>
+                                            <option value="">
                                                 {t("front_meet.op_end")}
                                             </option>
                                             {time &&
@@ -247,7 +247,7 @@ export default function ScheduleMeet() {
                                             }}
                                             className="form-control"
                                         >
-                                            <option>
+                                            <option value="">
                                                 {t("front_meet.op_start")}
                                             </option>
                                             {time &&
@@ -279,7 +279,7 @@ export default function ScheduleMeet() {
                                             }}
                                             className="form-control"
                                         >
-                                            <option>
+                                            <option value="">
                                                 {t("front_meet.op_end")}
                                             </option>
                                             {time &&

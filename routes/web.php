@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
+use App\Http\Controllers\GoogleController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,6 +19,8 @@ use App\Http\Controllers\Api\LeadWebhookController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/google/callback', [GoogleController::class, 'callback']);
 
 Route::get('/import', [DashboardController::class, 'import']);
 Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);

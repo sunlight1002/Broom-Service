@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\SettingKeyEnum;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Admin;
@@ -13,14 +15,11 @@ use App\Models\JobHours;
 use App\Models\JobService;
 use App\Models\Order;
 use App\Models\Invoices;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use App\Helpers\Helper;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
@@ -75,10 +74,10 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job                = Job::with('client', 'worker', 'service', 'offer', 'jobservice')->find($id);
+        $job = Job::with('client', 'worker', 'service', 'offer', 'jobservice')->find($id);
 
         return response()->json([
-            'job'        => $job,
+            'job' => $job,
         ], 200);
     }
 
@@ -95,6 +94,7 @@ class JobController extends Controller
         //$this->invoice($id);
         $job->status = 'completed';
         $job->save();
+
         $admin = Admin::find(1)->first();
         App::setLocale('en');
         $data = array(
@@ -110,7 +110,7 @@ class JobController extends Controller
         });
 
         return response()->json([
-            'message'        => 'job completed',
+            'message' => 'Job completed',
         ], 200);
     }
 
@@ -150,6 +150,7 @@ class JobController extends Controller
             $job->status = 'progress';
             $job->save();
         }
+
         $time = new JobHours();
         $time->job_id = $request->job_id;
         $time->worker_id = $request->worker_id;
@@ -216,7 +217,6 @@ class JobController extends Controller
 
         if (!empty($jobs)) {
             foreach ($jobs as $job) {
-
                 $t     = $_shifts[str_replace(' ', '', $job->shifts)];
                 $et    = explode('-', $t);
 
@@ -224,12 +224,11 @@ class JobController extends Controller
                 $_end   = Carbon::today()->format('Y-m-d ' . $et[1]);
                 $_now   = Carbon::now()->format('Y-m-d H:i:s');
 
-                $start  =  Carbon::createFromFormat('Y-m-d H:i:s', $_start);
-                $end    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
-                $now    =  Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
+                $start  = Carbon::createFromFormat('Y-m-d H:i:s', $_start);
+                $end    = Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
+                $now    = Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
 
                 if (($start->lt($now)) && ($end->gt($now))) {
-                    // dd(1);
                     $this->order($job->id);
                 }
             }
@@ -243,43 +242,39 @@ class JobController extends Controller
         $items = [];
         if (isset($services)) {
             foreach ($services as $service) {
-
                 $itm = [
-                    "description" => $service->name . " - " . \Carbon\Carbon::today()->format('d, M Y'),
+                    "description" => $service->name . " - " . Carbon::today()->format('d, M Y'),
                     "unitprice"   => $service->total,
                     "quantity"    => 1,
                 ];
                 array_push($items, $itm);
             }
+
             JobService::where('id', $service->id)->update(['order_status' => 1]);
         }
 
-        $invoice  = 1;
+        $invoice = 1;
         if (str_contains($job->schedule, 'w')) {
             $invoice = 0;
         }
-        $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+        $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
-        $params = array(
 
-            "cid"  => Helper::get_setting('icount_company_id'),
-            "user" => Helper::get_setting('icount_username'),
-            "pass" => Helper::get_setting('icount_password'),
+        $params = array(
+            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype" => "order",
             "client_name" => $name,
             "client_address" => $job->client->geo_address,
             "email" => $job->client->email,
             "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
             "currency_code" => "ILS",
-
             "items" => $items,
-
-
             "send_email" => 0,
             "email_to_client" => 0,
             "email_to" => $job->client->email,
         );
-
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, 1);
@@ -399,12 +394,12 @@ class JobController extends Controller
 
     public function closeDoc($docnum, $type)
     {
-
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
+
         $params = array(
-            "cid"  => Helper::get_setting('icount_company_id'),
-            "user" => Helper::get_setting('icount_username'),
-            "pass" => Helper::get_setting('icount_password'),
+            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype" => $type,
             "docnum"  => $docnum,
             "based_on" => $docnum
@@ -436,10 +431,9 @@ class JobController extends Controller
         $p_method = $job->client->payment_method;
         $contract = $job->contract;
         $card = ClientCard::where('client_id', $job->client_id)->get()->first();
-        $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
+        $doctype = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
 
         if (str_contains($job->schedule, 'w') == false) {
-
             $subtotal = (int)$services[0]->unitprice;
             $tax = (17 / 100) * $subtotal;
             $total = $tax + $subtotal;
@@ -447,14 +441,14 @@ class JobController extends Controller
             $order = Order::where('job_id', $id)->get()->first();
             $o_res = json_decode($order->response);
 
-            $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
-            $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+            $due = Carbon::now()->endOfMonth()->toDateString();
+            $name =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
             $url = "https://api.icount.co.il/api/v3.php/doc/create";
-            $params = array(
 
-                "cid"            => Helper::get_setting('icount_company_id'),
-                "user"           => Helper::get_setting('icount_username'),
-                "pass"           => Helper::get_setting('icount_password'),
+            $params = array(
+                "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+                "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+                "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,
@@ -516,11 +510,12 @@ class JobController extends Controller
             /*Close Order */
             $this->closeDoc($job->order[0]->order_id, 'order');
 
-            job::where('id', $id)->update([
+            Job::where('id', $id)->update([
                 'invoice_no'    => $json["docnum"],
                 'invoice_url'   => $json["doc_url"],
                 'isOrdered'     => 2
             ]);
+
             $invoice = [
                 'invoice_id' => $json['docnum'],
                 'job_id'     => $id,
@@ -700,8 +695,7 @@ class JobController extends Controller
             }
         }
 
-        if ($makeInvoice == true) :
-
+        if ($makeInvoice == true) {
             $total = 0;
 
             $card = ClientCard::where('client_id', $client->id)->get()->first();
@@ -715,14 +709,14 @@ class JobController extends Controller
 
             $o_res = json_decode($orders[0]->response);
 
-            $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
-            $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+            $due = Carbon::now()->endOfMonth()->toDateString();
+            $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
             $url = "https://api.icount.co.il/api/v3.php/doc/create";
-            $params = array(
 
-                "cid"            => Helper::get_setting('icount_company_id'),
-                "user"           => Helper::get_setting('icount_username'),
-                "pass"           => Helper::get_setting('icount_password'),
+            $params = array(
+                "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+                "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+                "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
                 "doctype"        => $doctype,
                 "client_id"      => $o_res->client_id,
@@ -740,8 +734,8 @@ class JobController extends Controller
                 "email_to_client" => 1,
                 "email_to"        => $job->client->email,
             );
-            if ($doctype == "invrec") {
 
+            if ($doctype == "invrec") {
                 $ex = explode('-', $card->valid);
                 $cc = ['cc' => [
                     "sum" => $total,
@@ -777,13 +771,13 @@ class JobController extends Controller
                 $pre = json_encode($pres);
             }
 
-            foreach ($jids as $j) :
-                job::where('id', $j)->update([
+            foreach ($jids as $j) {
+                Job::where('id', $j)->update([
                     'invoice_no'    => $json["docnum"],
                     'invoice_url'   => $json["doc_url"],
                     'isOrdered'     => 2
                 ]);
-            endforeach;
+            }
 
             $invoice = [
                 'invoice_id' => $json['docnum'],
@@ -803,20 +797,18 @@ class JobController extends Controller
 
             $inv = Invoices::create($invoice);
             if ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') {
-                //close invoice
+                // close invoice
                 $this->closeDoc($json['docnum'], 'invrec');
                 Invoices::where('id', $inv->id)->update(['invoice_icount_status' => 'Closed']);
             }
 
             /*Close Order */
-
             if (!empty($orders)) {
                 foreach ($orders as $o) {
                     $this->closeDoc($o->order_id, 'order');
                     Order::where('id', $o->id)->update(['status' => 'Closed', 'invoice_status' => 2]);
                 }
             }
-
-        endif;
+        }
     }
 }

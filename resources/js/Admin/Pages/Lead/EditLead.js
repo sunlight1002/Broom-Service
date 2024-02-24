@@ -823,7 +823,6 @@ export default function EditWorker() {
                             <div className="form-group text-center">
                                 <input
                                     type="submit"
-                                    value="SAVE"
                                     onClick={handleUpdate}
                                     className="btn btn-pink saveBtn"
                                 />

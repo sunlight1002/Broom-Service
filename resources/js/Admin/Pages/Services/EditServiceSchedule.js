@@ -4,10 +4,9 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { SelectPicker } from 'rsuite';
+import { SelectPicker } from "rsuite";
 
 export default function EditServiceSchedule() {
-
     const [name, setName] = useState([]);
     const [nameHeb, setNameHeb] = useState([]);
     const [cycle, setCycle] = useState([]);
@@ -15,20 +14,19 @@ export default function EditServiceSchedule() {
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
     const pe = [
-        { value: 'na', label: 'Not Required' },
-        { value: 'D', label: 'Day' },
-        { value: 'w', label: 'Week' },
-        { value: '2w', label: '2 Weeks' },
-        { value: '3w', label: '3 Weeks' },
-        { value: '4w', label: '4 Weeks' },
-        { value: '5w', label: '5 Weeks' },
-        { value: 'm', label: 'Month' },
-        { value: '2m', label: '2 Months' },
-        { value: '3m', label: '3 Months' },
-        { value: '6m', label: '6 Months' },
-        { value: 'y', label: 'Year' },
-
-    ]
+        { value: "na", label: "Not Required" },
+        { value: "D", label: "Day" },
+        { value: "w", label: "Week" },
+        { value: "2w", label: "2 Weeks" },
+        { value: "3w", label: "3 Weeks" },
+        { value: "4w", label: "4 Weeks" },
+        { value: "5w", label: "5 Weeks" },
+        { value: "m", label: "Month" },
+        { value: "2m", label: "2 Months" },
+        { value: "3m", label: "3 Months" },
+        { value: "6m", label: "6 Months" },
+        { value: "y", label: "Year" },
+    ];
     const alert = useAlert();
     const navigate = useNavigate();
     const params = useParams();
@@ -43,7 +41,7 @@ export default function EditServiceSchedule() {
         e.preventDefault();
         const data = {
             name: name,
-            name_heb:nameHeb,
+            name_heb: nameHeb,
             cycle: cycle,
             period: period,
             status: status,
@@ -64,7 +62,6 @@ export default function EditServiceSchedule() {
     };
 
     const getSchedule = () => {
-
         axios
             .get(`/api/admin/service-schedule/${params.id}/edit`, { headers })
             .then((res) => {
@@ -74,13 +71,11 @@ export default function EditServiceSchedule() {
                 setPeriod(res.data.schedule.period);
                 setStatus(res.data.schedule.status);
             });
-
-    }
+    };
 
     useEffect(() => {
         getSchedule();
     }, []);
-
 
     return (
         <div id="container">
@@ -168,13 +163,17 @@ export default function EditServiceSchedule() {
 
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">Period</label>
+                                        <label className="control-label">
+                                            Period
+                                        </label>
 
                                         <SelectPicker
                                             data={pe}
                                             defaultValue={period}
                                             value={period}
-                                            onChange={(value, event) => setPeriod(value)}
+                                            onChange={(value, event) =>
+                                                setPeriod(value)
+                                            }
                                             size="lg"
                                             required
                                         />
@@ -191,15 +190,29 @@ export default function EditServiceSchedule() {
 
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">Status</label>
+                                        <label className="control-label">
+                                            Status
+                                        </label>
                                         <select
                                             className="form-control"
                                             value={status}
-                                            onChange={(e) => setStatus(e.target.value)}
+                                            onChange={(e) =>
+                                                setStatus(e.target.value)
+                                            }
                                         >
                                             <option>Please select</option>
-                                            <option value="1" selected={status == 1}>Active</option>
-                                            <option value="0" selected={status == 0}>Inactive</option>
+                                            <option
+                                                value="1"
+                                                selected={status == 1}
+                                            >
+                                                Active
+                                            </option>
+                                            <option
+                                                value="0"
+                                                selected={status == 0}
+                                            >
+                                                Inactive
+                                            </option>
                                         </select>
                                         {errors.status ? (
                                             <small className="text-danger mb-1">
@@ -214,18 +227,15 @@ export default function EditServiceSchedule() {
                                 <div className="form-group text-center col-sm-12">
                                     <input
                                         type="submit"
-                                        value="SAVE"
                                         onClick={handleUpdate}
                                         className="btn btn-pink saveBtn"
                                     />
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
     );
 }

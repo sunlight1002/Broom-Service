@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -238,10 +239,9 @@ class InvoiceController extends Controller
         }
 
         $params = array(
-
-            "cid"            => Helper::get_setting('icount_company_id'),
-            "user"           => Helper::get_setting('icount_username'),
-            "pass"           => Helper::get_setting('icount_password'),
+            "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
             "doctype"        => $doctype,
             "client_id"      => $client->id,
@@ -357,17 +357,15 @@ class InvoiceController extends Controller
 
     public function getInvoiceIcount($docnum)
     {
-
         $url = "https://api.icount.co.il/api/v3.php/doc/info";
-        $params = array(
 
-            "cid"            => Helper::get_setting('icount_company_id'),
-            "user"           => Helper::get_setting('icount_username'),
-            "pass"           => Helper::get_setting('icount_password'),
+        $params = array(
+            "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype"        => 'invoice',
             "docnum"         => $docnum,
             "get_items"      => 1
-
         );
 
         $ch = curl_init($url);
@@ -406,11 +404,11 @@ class InvoiceController extends Controller
                 $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname . " " . $client->lastname;
                 $url = "https://api.icount.co.il/api/v3.php/doc/create";
                 $ln = ($client->lng == 'heb') ? 'he' : 'en';
-                $params = array(
 
-                    "cid"            => Helper::get_setting('icount_company_id'),
-                    "user"           => Helper::get_setting('icount_username'),
-                    "pass"           => Helper::get_setting('icount_password'),
+                $params = array(
+                    "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+                    "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+                    "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
                     "doctype"        => 'receipt',
                     "client_name"    => $name,
@@ -600,12 +598,12 @@ class InvoiceController extends Controller
         ];
         $se = json_encode($services);
 
-        $username = Helper::get_setting('zcredit_terminal_number');
-        $password = Helper::get_setting('zcredit_terminal_pass');
+        $username = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER);
+        $password = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS);
 
         $ln = ($client->lng == 'heb') ? 'He' : 'En';
         $data = '{
-            "Key": "' . Helper::get_setting('zcredit_key') . '",
+            "Key": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_KEY) . '",
             "j"  : "5",
             "Local": "' . $ln . '",
             "UniqueId": "",
@@ -734,8 +732,8 @@ class InvoiceController extends Controller
 
     public function releaseCapure($amount, $tid, $token)
     {
-        $username = Helper::get_setting('zcredit_terminal_number');
-        $password = Helper::get_setting('zcredit_terminal_pass');
+        $username = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER);
+        $password = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS);
 
         $data = '{
         "TerminalNumber": "' . $username . '",
@@ -784,11 +782,11 @@ class InvoiceController extends Controller
     public function closeDoc($docnum, $type)
     {
         $url = "https://api.icount.co.il/api/v3.php/doc/close";
-        $params = array(
 
-            "cid"  => Helper::get_setting('icount_company_id'),
-            "user" => Helper::get_setting('icount_username'),
-            "pass" => Helper::get_setting('icount_password'),
+        $params = array(
+            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype" => $type,
             "docnum"  => $docnum,
             "based_on" => $docnum
@@ -818,8 +816,8 @@ class InvoiceController extends Controller
         $curl = curl_init();
 
         $data = '{
-            "TerminalNumber": "' . Helper::get_setting('zcredit_terminal_number') . '",
-            "Password": "' . Helper::get_setting('zcredit_terminal_pass') . '",
+            "TerminalNumber": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER) . '",
+            "Password": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS) . '",
             "TransactionIdToCancelOrRefund": "' . $tid . '",
             "TransactionSum": "' . $amount . '"
             }';
@@ -847,11 +845,11 @@ class InvoiceController extends Controller
     public function cancelDoc(Request $request)
     {
         $url = "https://api.icount.co.il/api/v3.php/doc/cancel";
-        $params = array(
 
-            "cid"  => Helper::get_setting('icount_company_id'),
-            "user" => Helper::get_setting('icount_username'),
-            "pass" => Helper::get_setting('icount_password'),
+        $params = array(
+            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype" => $request->data['doctype'],
             "docnum"  => $request->data['docnum'],
             "reason"  => $request->data['reason'],
@@ -925,8 +923,8 @@ class InvoiceController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . Helper::get_setting('zcredit_terminal_number') . '",
-        "Password": "' . Helper::get_setting('zcredit_terminal_pass') . '",
+        "TerminalNumber": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER) . '",
+        "Password": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS) . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -1030,10 +1028,9 @@ class InvoiceController extends Controller
         }
 
         $params = array(
-
-            "cid"            => Helper::get_setting('icount_company_id'),
-            "user"           => Helper::get_setting('icount_username'),
-            "pass"           => Helper::get_setting('icount_password'),
+            "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
             "doctype"        => $doctype,
             "client_id"      => $o_res->client_id,
@@ -1206,11 +1203,11 @@ class InvoiceController extends Controller
         $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
-        $params = array(
 
-            "cid"  => Helper::get_setting('icount_company_id'),
-            "user" => Helper::get_setting('icount_username'),
-            "pass" => Helper::get_setting('icount_password'),
+        $params = array(
+            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
             "doctype" => "order",
             "client_name" => $name,
             "client_address" => $job->client->geo_address,
@@ -1279,11 +1276,11 @@ class InvoiceController extends Controller
                     $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
                     $url = "https://api.icount.co.il/api/v3.php/doc/create";
                     $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
-                    $params = array(
 
-                        "cid"  => Helper::get_setting('icount_company_id'),
-                        "user" => Helper::get_setting('icount_username'),
-                        "pass" => Helper::get_setting('icount_password'),
+                    $params = array(
+                        "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+                        "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+                        "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
                         "doctype" => "order",
                         "client_name" => $name,
                         "client_address" => $job->client->geo_address,

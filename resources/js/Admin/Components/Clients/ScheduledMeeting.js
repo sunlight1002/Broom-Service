@@ -52,6 +52,15 @@ export default function ScheduledMeeting() {
                         setTimeout(() => {
                             getSchedules();
                         }, 1000);
+                    })
+                    .catch((error) => {
+                        if (error.response.data.error.message) {
+                            Swal.fire({
+                                title: "Error!",
+                                text: error.response.data.error.message,
+                                icon: "error",
+                            });
+                        }
                     });
             }
         });

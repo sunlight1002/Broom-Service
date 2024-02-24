@@ -89,6 +89,15 @@ export default function Schedule() {
                         setTimeout(() => {
                             getSchedules();
                         }, 1000);
+                    })
+                    .catch((error) => {
+                        if (error.response.data.error.message) {
+                            Swal.fire({
+                                title: "Error!",
+                                text: error.response.data.error.message,
+                                icon: "error",
+                            });
+                        }
                     });
             }
         });
@@ -143,7 +152,7 @@ export default function Schedule() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Schedule meetings</h1>
+                            <h1 className="page-title">Scheduled meetings</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">

@@ -350,7 +350,6 @@ export default function EditTeam() {
                                     type="submit"
                                     onClick={handleUpdate}
                                     className="btn btn-pink saveBtn"
-                                    value="SAVE"
                                 />
                             </div>
                         </div>

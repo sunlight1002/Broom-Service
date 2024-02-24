@@ -293,7 +293,6 @@ export default function AddTeam() {
                                     type="submit"
                                     onClick={handleSubmit}
                                     className="btn btn-pink saveBtn"
-                                    value="SAVE"
                                 />
                             </div>
                         </div>

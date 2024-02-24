@@ -1736,7 +1736,6 @@ export default function AddLeadClient() {
                                 <div className="form-group text-center">
                                     <input
                                         type="submit"
-                                        value="SAVE"
                                         onClick={handleSubmit}
                                         className="btn btn-pink saveBtn"
                                     />

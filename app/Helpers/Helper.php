@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 use App\Mail\MailInvoiceToClient;
 use App\Models\Job;
-use App\Models\Settings;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
 
 class Helper
@@ -105,7 +105,7 @@ class Helper
 
     public static function get_setting($key)
     {
-        $value =  Settings::where('key', $key)->first();
+        $value =  Setting::where('key', $key)->first();
 
         $return = (!is_null($value)) ? $value->value : '';
 
