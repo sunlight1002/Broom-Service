@@ -378,12 +378,6 @@ export default function AddWorker() {
                                                                 value={
                                                                     item.name
                                                                 }
-                                                                selected={
-                                                                    country ==
-                                                                    item.name
-                                                                        ? true
-                                                                        : false
-                                                                }
                                                                 key={index}
                                                             >
                                                                 {item.name}
@@ -401,7 +395,6 @@ export default function AddWorker() {
                                                 </label>
                                                 <input
                                                     type="date"
-                                                    selected={renewal_date}
                                                     onChange={(e) =>
                                                         setRenewalDate(
                                                             e.target.value
@@ -489,6 +482,7 @@ export default function AddWorker() {
                                         value={address}
                                         className="form-control"
                                         placeholder="Enter your address"
+                                        readOnly
                                     />
                                     {errors.address ? (
                                         <small className="text-danger mb-1">

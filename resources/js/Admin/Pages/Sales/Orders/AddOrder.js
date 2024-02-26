@@ -240,7 +240,7 @@ export default function AddOrder() {
                                             }}
                                         >
                                             <option value={0}>
-                                                -- Select Job --
+                                                --- Select Job ---
                                             </option>
                                             {cjobs &&
                                                 cjobs.map((j, i) => {

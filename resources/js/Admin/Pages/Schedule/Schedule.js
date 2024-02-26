@@ -172,7 +172,7 @@ export default function Schedule() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
                                 <option value="start_date">Scheduled</option>
                                 <option value="booking_status">Status</option>

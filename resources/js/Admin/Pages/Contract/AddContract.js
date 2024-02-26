@@ -160,9 +160,11 @@ export default function AddContract() {
                                                                             )
                                                                         }
                                                                     >
-                                                                        <option>
+                                                                        <option value="">
+                                                                            ---
                                                                             Please
                                                                             select
+                                                                            ---
                                                                         </option>
                                                                         <option value="1">
                                                                             Planting

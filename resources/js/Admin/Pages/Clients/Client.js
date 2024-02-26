@@ -215,7 +215,7 @@ export default function Clients() {
                         <div className="col-sm-6">
                             <div className="search-data">
                                 <div
-                                    classname="App"
+                                    className="App"
                                     style={{ display: "none" }}
                                 >
                                     <CSVLink {...csvReport} id="csv">
@@ -294,7 +294,7 @@ export default function Clients() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
                                 <option value="firstname">Client Name</option>
                                 <option value="address">Address</option>

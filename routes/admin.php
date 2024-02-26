@@ -123,7 +123,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
 
     // TeamMembers
-    Route::resource('team', TeamMemberController::class)->except(['create', 'show']);
+    Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
 
     // Notes
     Route::post('get-notes', [ClientController::class, 'getNotes']);

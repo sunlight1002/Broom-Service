@@ -89,7 +89,7 @@ export default function ClientFilter({ getFilteredclients }) {
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     >
-                        <option>Please Select</option>
+                        <option value="">--- Please Select ---</option>
                         <option value="1">Active</option>
                         <option value="0">Inactive</option>
                     </select>

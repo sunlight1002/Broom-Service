@@ -182,7 +182,9 @@ export default function Payments() {
                                     className="form-control filter"
                                     name="pay_method"
                                 >
-                                    <option>Please Select</option>
+                                    <option value="">
+                                        --- Please Select ---
+                                    </option>
                                     <option value="Credit Card">
                                         Credit Card
                                     </option>

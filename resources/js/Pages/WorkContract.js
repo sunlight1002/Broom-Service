@@ -761,41 +761,24 @@ export default function WorkContract() {
                                         <td>
                                             <select
                                                 className="form-control"
+                                                value={contract.card_type}
                                                 onChange={(e) =>
                                                     setCtype(e.target.value)
                                                 }
                                             >
-                                                <option>
+                                                <option value="">
                                                     {" "}
                                                     {t(
                                                         "work-contract.please_select"
                                                     )}
                                                 </option>
-                                                <option
-                                                    value="Visa"
-                                                    selected={
-                                                        contract.card_type ==
-                                                        "Visa"
-                                                    }
-                                                >
+                                                <option value="Visa">
                                                     Visa
                                                 </option>
-                                                <option
-                                                    value="Master Card"
-                                                    selected={
-                                                        contract.card_type ==
-                                                        "Master Card"
-                                                    }
-                                                >
+                                                <option value="Master Card">
                                                     Master Card
                                                 </option>
-                                                <option
-                                                    value="American Express"
-                                                    selected={
-                                                        contract.card_type ==
-                                                        "American Express"
-                                                    }
-                                                >
+                                                <option value="American Express">
                                                     American Express
                                                 </option>
                                             </select>
@@ -1269,7 +1252,7 @@ export default function WorkContract() {
                                                             )
                                                         }
                                                     >
-                                                        <option>
+                                                        <option value="">
                                                             {" "}
                                                             {t(
                                                                 "work-contract.please_select"

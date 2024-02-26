@@ -191,7 +191,7 @@ export default function Contract() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="status">Status</option>
                             </select>
                         </div>

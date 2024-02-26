@@ -206,7 +206,9 @@ export default function Comment() {
                                             }
                                             className="form-control"
                                         >
-                                            <option value="">Job Status</option>
+                                            <option value="">
+                                                --- Job Status ---
+                                            </option>
                                             <option value="unscheduled">
                                                 Unavailable
                                             </option>

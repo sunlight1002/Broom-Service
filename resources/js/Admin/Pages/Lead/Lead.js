@@ -343,7 +343,7 @@ export default function Lead() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
                                 <option value="name">Name</option>
                                 <option value="email">Email</option>

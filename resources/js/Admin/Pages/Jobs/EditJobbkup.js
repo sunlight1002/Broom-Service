@@ -301,7 +301,9 @@ export default function EditJob() {
                                             setStatus(e.target.value)
                                         }
                                     >
-                                        <option>Please Select</option>
+                                        <option value="">
+                                            --- Please Select ---
+                                        </option>
                                         <option value="not-started">
                                             Not Started
                                         </option>

@@ -19,7 +19,7 @@ export default function ManageTeam() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/team?page=" + currentPage, { headers })
+            .get("/api/admin/teams?page=" + currentPage, { headers })
             .then((response) => {
                 if (response.data.team.data.length > 0) {
                     setItem(response.data.team.data);
@@ -31,7 +31,7 @@ export default function ManageTeam() {
     };
 
     const getMembers = () => {
-        axios.get("/api/admin/team", { headers }).then((response) => {
+        axios.get("/api/admin/teams", { headers }).then((response) => {
             if (response.data.team.data.length > 0) {
                 setItem(response.data.team.data);
                 setPageCount(response.data.team.last_page);
@@ -56,7 +56,7 @@ export default function ManageTeam() {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`/api/admin/team/${id}`, { headers })
+                    .delete(`/api/admin/teams/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
                             "Deleted!",
@@ -73,7 +73,7 @@ export default function ManageTeam() {
 
     const filterTeam = (e) => {
         axios
-            .get(`/api/admin/team?q=${e.target.value}`, { headers })
+            .get(`/api/admin/teams?q=${e.target.value}`, { headers })
             .then((response) => {
                 if (response.data.team.data.length > 0) {
                     setItem(response.data.team.data);
@@ -142,7 +142,7 @@ export default function ManageTeam() {
                                     placeholder="Search"
                                 />
                                 <Link
-                                    to="/admin/add-team"
+                                    to="/admin/teams/create"
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
@@ -232,7 +232,7 @@ export default function ManageTeam() {
                                                         </button>
                                                         <div className="dropdown-menu">
                                                             <Link
-                                                                to={`/admin/edit-team/${item.id}`}
+                                                                to={`/admin/teams/${item.id}/edit`}
                                                                 className="dropdown-item"
                                                             >
                                                                 Edit

@@ -150,6 +150,7 @@ export default function ScheduleMeet() {
                                         <select
                                             name="start_time"
                                             id="start_time"
+                                            value={startTime}
                                             onChange={(e) => {
                                                 setStartTime(e.target.value);
                                             }}
@@ -163,9 +164,6 @@ export default function ScheduleMeet() {
                                                     return (
                                                         <option
                                                             value={t}
-                                                            selected={
-                                                                t == startTime
-                                                            }
                                                             key={i}
                                                         >
                                                             {t}
@@ -181,7 +179,7 @@ export default function ScheduleMeet() {
                                         <select
                                             name="end_time"
                                             id="end_time"
-                                            selected={endTime}
+                                            value={endTime}
                                             onChange={(e) => {
                                                 setEndTime(e.target.value);
                                             }}
@@ -195,9 +193,6 @@ export default function ScheduleMeet() {
                                                     return (
                                                         <option
                                                             value={t}
-                                                            selected={
-                                                                t == endTime
-                                                            }
                                                             key={i}
                                                         >
                                                             {t}
@@ -242,6 +237,7 @@ export default function ScheduleMeet() {
                                         <select
                                             name="start_time"
                                             id="start_time"
+                                            value={startTime}
                                             onChange={(e) => {
                                                 setStartTime(e.target.value);
                                             }}
@@ -255,9 +251,6 @@ export default function ScheduleMeet() {
                                                     return (
                                                         <option
                                                             value={t}
-                                                            selected={
-                                                                t == startTime
-                                                            }
                                                             key={i}
                                                         >
                                                             {t}
@@ -273,7 +266,7 @@ export default function ScheduleMeet() {
                                         <select
                                             name="end_time"
                                             id="end_time"
-                                            selected={endTime}
+                                            value={endTime}
                                             onChange={(e) => {
                                                 setEndTime(e.target.value);
                                             }}
@@ -287,9 +280,6 @@ export default function ScheduleMeet() {
                                                     return (
                                                         <option
                                                             value={t}
-                                                            selected={
-                                                                t == endTime
-                                                            }
                                                             key={i}
                                                         >
                                                             {t}

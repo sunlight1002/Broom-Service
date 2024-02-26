@@ -761,7 +761,7 @@ export default function Jobs({ contracts, client }) {
                                         handleShift(e);
                                     }}
                                         className="form-control mb-3">
-                                        <option value="">Please Select contract</option>
+                                        <option value="">--- Please Select contract ---</option>
                                         {contracts &&
                                             contracts.map((item, index) => {
 
@@ -783,7 +783,7 @@ export default function Jobs({ contracts, client }) {
                                     >
                                         <option value="">
                                             {" "}
-                                            Please select Job
+                                            --- Please select Job ---
                                         </option>
                                         {jobs &&
                                             jobs.map((j, i) => {
@@ -830,7 +830,7 @@ export default function Jobs({ contracts, client }) {
                                     >
                                         <option value="">
                                             {" "}
-                                            Please select new shift time
+                                            --- Please select new shift time ---
                                         </option>
                                         {slot?.map((s, i) => {
                                             return (
@@ -849,7 +849,7 @@ export default function Jobs({ contracts, client }) {
                                             </label>
                                             <select name="service" value={cshift.service} onChange={(e) => { handleShift(e); getWorker(e) }
                                             } className="form-control mb-3">
-                                                <option value="">Please Select service</option>
+                                                <option value="">--- Please Select service ---</option>
                                                 {service &&
                                                     service.map((item, index) => {
 
@@ -877,8 +877,8 @@ export default function Jobs({ contracts, client }) {
                                             >
                                                 <option value="">
                                                     {" "}
-                                                    Please select available
-                                                    workers
+                                                    --- Please select available
+                                                    workers ---
                                                 </option>
                                                 {workers &&
                                                     workers.map(
@@ -917,7 +917,7 @@ export default function Jobs({ contracts, client }) {
                                     >
                                         <option value="">
                                             {" "}
-                                            Please select repetnacy
+                                            --- Please select repetnacy ---
                                         </option>
                                         <option value="one_time">
                                             {" "}
@@ -945,7 +945,7 @@ export default function Jobs({ contracts, client }) {
                                                 value={cshift.job}
                                                 onChange={e => handleShift(e)}
                                             >
-                                                <option> Please select Job</option>
+                                                <option value=""> --- Please select Job --- </option>
                                                 {jobs && jobs.map((j) => {
                                                     return <option value={j.id}> #{j.id} | {Moment(j.start_date).format('DD MMM,Y')}  </option>
                                                 })}
@@ -971,7 +971,7 @@ export default function Jobs({ contracts, client }) {
                                                         handleShift(e)
                                                     }
                                                 >
-                                                    <option selected value="">
+                                                    <option value="">
                                                         {" "}
                                                         -- Please select
                                                         frequency --

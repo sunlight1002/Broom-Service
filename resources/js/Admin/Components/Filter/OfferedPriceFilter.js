@@ -79,7 +79,7 @@ export default function OfferedPriceFilter( {getFilteredOffers} ) {
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     >
-                        <option>Please Select</option>
+                        <option value="">--- Please Select ---</option>
                         <option value="sent">Sent</option>
                         <option value="accepted">Accepted</option>
                         <option value="declined">Declined</option>

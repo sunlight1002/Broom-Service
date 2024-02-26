@@ -195,7 +195,7 @@ export default function AddInvoce() {
                                         </label>
                                         <select className="form-control doc">
                                             <option value={0}>
-                                                -- select document --
+                                                --- Select document ---
                                             </option>
                                             <option value="invoice">
                                                 Invoice
@@ -236,7 +236,7 @@ export default function AddInvoce() {
                                             }}
                                         >
                                             <option value={0}>
-                                                -- Select Job --
+                                                --- Select Job ---
                                             </option>
                                             {cjobs &&
                                                 cjobs.map((j, i) => {
@@ -299,7 +299,9 @@ export default function AddInvoce() {
                                                 {jservices &&
                                                     jservices.map((js, i) => {
                                                         return (
-                                                            <React.Fragment key={i}>
+                                                            <React.Fragment
+                                                                key={i}
+                                                            >
                                                                 <tr>
                                                                     <td colspan="2">
                                                                         {

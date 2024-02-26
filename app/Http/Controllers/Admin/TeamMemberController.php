@@ -42,8 +42,8 @@ class TeamMemberController extends Controller
         $result = $result->orderBy('id', 'desc')->where('name', '!=', 'superadmin')->paginate(20);
 
         return response()->json([
-            'team'       => $result,
-        ], 200);
+            'team' => $result,
+        ]);
     }
 
     /**
@@ -61,13 +61,15 @@ class TeamMemberController extends Controller
             'password' => ['required', 'min:6', 'required_with:confirmation', 'same:confirmation'],
             'status' => ['required'],
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+
         $input = $request->input();
         $input['password'] = Hash::make($input['password']);
-
         Admin::create($input);
+
         return response()->json([
             'message' => 'Team member added successfully'
         ]);
@@ -81,9 +83,17 @@ class TeamMemberController extends Controller
      */
     public function edit($id)
     {
-        $member = Admin::where('id', $id)->get();
+        $admin = Admin::find($id);
+        if (!$admin) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Team member not found!'
+                ]
+            ], 404);
+        }
+
         return response()->json([
-            'member' => $member
+            'data' => $admin
         ]);
     }
 
@@ -98,22 +108,33 @@ class TeamMemberController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $id],
             'phone' => ['required'],
             'password' => $request->password ? ['min:6', 'required_with:confirmation', 'same:confirmation'] : [],
             'status' => ['required'],
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $request = $request->except(['confirmation']);
-        if ($request['password'] != null)
-            $request['password'] = Hash::make($request['password']);
-        else
-            unset($request['password']);
+        $admin = Admin::find($id);
+        if (!$admin) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Team member not found!'
+                ]
+            ], 404);
+        }
 
-        Admin::where('id', $id)->update($request);
+        $request = $request->except(['confirmation']);
+        if ($request['password'] != null) {
+            $request['password'] = Hash::make($request['password']);
+        } else {
+            unset($request['password']);
+        }
+
+        $admin->update($request);
         return response()->json([
             'message' => 'Team member updated successfully'
         ]);
@@ -127,7 +148,17 @@ class TeamMemberController extends Controller
      */
     public function destroy($id)
     {
-        Admin::find($id)->delete();
+        $admin = Admin::find($id);
+
+        if (!$admin) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Team member not found!'
+                ]
+            ], 404);
+        }
+
+        $admin->delete();
         return response()->json([
             'message' => 'Team member deleted successfully'
         ]);

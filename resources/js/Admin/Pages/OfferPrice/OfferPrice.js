@@ -176,7 +176,7 @@ export default function OfferPrice() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="subtotal">Total</option>
                                 <option value="status">Status</option>
                             </select>

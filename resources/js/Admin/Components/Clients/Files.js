@@ -272,7 +272,7 @@ export default function files() {
                                             className="form-control"
                                         >
                                             <option value={0}>
-                                                select meeting
+                                                --- Select meeting ---
                                             </option>
                                             {schedules &&
                                                 schedules.map((m, i) => {

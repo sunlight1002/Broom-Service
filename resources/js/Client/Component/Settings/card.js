@@ -289,7 +289,7 @@ export default function card() {
                                                 setCtype(e.target.value)
                                             }
                                         >
-                                            <option>
+                                            <option value="">
                                                 {" "}
                                                 {t(
                                                     "work-contract.please_select"

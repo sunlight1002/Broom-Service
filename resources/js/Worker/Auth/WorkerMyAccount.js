@@ -309,21 +309,11 @@ export default function WorkerMyAccount() {
                                         value={lng}
                                         onChange={(e) => setLng(e.target.value)}
                                     >
-                                        <option value={0}>
-                                            Please select language
+                                        <option value="">
+                                            --- Select language ---
                                         </option>
-                                        <option
-                                            value="heb"
-                                            selected={lng == "heb"}
-                                        >
-                                            Hebrew
-                                        </option>
-                                        <option
-                                            value="en"
-                                            selected={lng == "en"}
-                                        >
-                                            English
-                                        </option>
+                                        <option value="heb">Hebrew</option>
+                                        <option value="en">English</option>
                                     </select>
                                 </div>
                             </div>
@@ -344,11 +334,6 @@ export default function WorkerMyAccount() {
                                             countries.map((item, index) => (
                                                 <option
                                                     value={item.name}
-                                                    selected={
-                                                        country == item.name
-                                                            ? true
-                                                            : false
-                                                    }
                                                     key={index}
                                                 >
                                                     {item.name}
@@ -365,7 +350,6 @@ export default function WorkerMyAccount() {
                                         </label>
                                         <input
                                             type="date"
-                                            selected={renewal_date}
                                             value={renewal_date}
                                             onChange={(e) =>
                                                 setRenewalDate(e.target.value)
@@ -443,7 +427,7 @@ export default function WorkerMyAccount() {
                                 value={itemStatus}
                                 onChange={(e) => setItemStatus(e.target.value)}
                             >
-                                <option>Please select</option>
+                                <option value="">--- Please select ---</option>
                                 <option value="1">Enable</option>
                                 <option value="0">Disable</option>
                             </select>

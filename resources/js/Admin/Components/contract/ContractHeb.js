@@ -520,7 +520,7 @@ export default function WorkContractRHS() {
                                                             <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
                                                             <Td>
                                                                 <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                                                    <option>Please Select</option>
+                                                                    <option value=""> --- Please Select --- </option>
                                                                     <option value='Visa'>Visa</option>
                                                                     <option value='Master Card'>Master Card</option>
                                                                     <option value='American Express'>American Express</option>

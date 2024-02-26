@@ -367,30 +367,10 @@ export default function EditWorker() {
                                                 setLng(e.target.value)
                                             }
                                         >
-                                            <option
-                                                value="heb"
-                                                selected={lng == "heb"}
-                                            >
-                                                Hebrew
-                                            </option>
-                                            <option
-                                                value="en"
-                                                selected={lng == "en"}
-                                            >
-                                                English
-                                            </option>
-                                            <option
-                                                value="ru"
-                                                selected={lng == "ru"}
-                                            >
-                                                Russian
-                                            </option>
-                                            <option
-                                                value="spa"
-                                                selected={lng == "spa"}
-                                            >
-                                                Spanish
-                                            </option>
+                                            <option value="heb">Hebrew</option>
+                                            <option value="en">English</option>
+                                            <option value="ru">Russian</option>
+                                            <option value="spa">Spanish</option>
                                         </select>
                                     </div>
                                 </div>
@@ -411,11 +391,6 @@ export default function EditWorker() {
                                                 countries.map((item, index) => (
                                                     <option
                                                         value={item.name}
-                                                        selected={
-                                                            country == item.name
-                                                                ? true
-                                                                : false
-                                                        }
                                                         key={index}
                                                     >
                                                         {item.name}
@@ -432,7 +407,6 @@ export default function EditWorker() {
                                             </label>
                                             <input
                                                 type="date"
-                                                selected={renewal_date}
                                                 value={renewal_date}
                                                 onChange={(e) =>
                                                     setRenewalDate(
@@ -511,6 +485,7 @@ export default function EditWorker() {
                                     value={address}
                                     className="form-control"
                                     placeholder="Full Address"
+                                    readOnly
                                 />
                                 {errors.address ? (
                                     <small className="text-danger mb-1">

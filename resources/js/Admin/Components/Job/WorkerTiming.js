@@ -203,7 +203,7 @@ export default function WorkerTiming({ job }) {
                     </div>
                     <div className="col-sm-6">
                         <div className="inline-buttons">
-                            <div classname="App" style={{ display: "none" }}>
+                            <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
                                     Export to CSV
                                 </CSVLink>

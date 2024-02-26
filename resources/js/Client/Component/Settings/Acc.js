@@ -305,7 +305,7 @@ export default function Acc() {
                             value={lng}
                             onChange={(e) => e.target.value}
                         >
-                            <option value="">-- Select language --</option>
+                            <option value="">--- Select language ---</option>
                             <option value="heb">Hebrew</option>
                             <option value="en">English</option>
                         </select>

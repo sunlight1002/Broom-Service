@@ -200,19 +200,9 @@ export default function EditServiceSchedule() {
                                                 setStatus(e.target.value)
                                             }
                                         >
-                                            <option>Please select</option>
-                                            <option
-                                                value="1"
-                                                selected={status == 1}
-                                            >
-                                                Active
-                                            </option>
-                                            <option
-                                                value="0"
-                                                selected={status == 0}
-                                            >
-                                                Inactive
-                                            </option>
+                                            <option value="">--- Please select ---</option>
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
                                         </select>
                                         {errors.status ? (
                                             <small className="text-danger mb-1">

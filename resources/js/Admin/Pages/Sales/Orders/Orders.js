@@ -278,7 +278,9 @@ export default function Orders() {
                                     className="form-control filter"
                                     name="status"
                                 >
-                                    <option>Please Select</option>
+                                    <option value="">
+                                        --- Please Select ---
+                                    </option>
                                     <option value="Open">Open</option>
                                     <option value="Closed">Closed</option>
                                 </select>

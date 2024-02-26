@@ -943,7 +943,7 @@ export default function CreateClientByJob() {
                                         className="form-control"
                                     >
                                         <option value="">
-                                            Please Select Service
+                                            --- Please Select Service ---
                                         </option>
                                         {services &&
                                             services.map((item, index) => {

@@ -89,7 +89,7 @@ export default function WorkerFilter({ getWorkerFilter }) {
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     >
-                        <option>Please Select</option>
+                        <option value="">--- Please Select ---</option>
                         <option value="0">Enable</option>
                         <option value="1">Disable</option>
                     </select>

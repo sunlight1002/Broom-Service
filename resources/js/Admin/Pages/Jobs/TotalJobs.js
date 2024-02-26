@@ -566,7 +566,7 @@ export default function TotalJobs() {
                                     Export Time Reports
                                 </button>
                             </div>
-                            <div classname="App" style={{ display: "none" }}>
+                            <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
                                     Export to CSV
                                 </CSVLink>
@@ -643,7 +643,7 @@ export default function TotalJobs() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="start_date">Job Date</option>
                                 <option value="status">Status</option>
                             </select>
@@ -1326,7 +1326,8 @@ export default function TotalJobs() {
                                                 >
                                                     <option value="">
                                                         {" "}
-                                                        Please select Job
+                                                        --- Please select Job
+                                                        ---
                                                     </option>
                                                     {totalJobs &&
                                                         totalJobs.map(
@@ -1407,8 +1408,8 @@ export default function TotalJobs() {
                                                 >
                                                     <option value="">
                                                         {" "}
-                                                        Please select new shift
-                                                        time
+                                                        --- Please select new
+                                                        shift time ---
                                                     </option>
                                                     {slot?.map((s, i) => {
                                                         return (
@@ -1443,10 +1444,10 @@ export default function TotalJobs() {
                                                             >
                                                                 <option value="">
                                                                     {" "}
-                                                                    Please
+                                                                    --- Please
                                                                     select
                                                                     available
-                                                                    workers
+                                                                    workers ---
                                                                 </option>
                                                                 {sworkers &&
                                                                     sworkers.map(
@@ -1494,9 +1495,10 @@ export default function TotalJobs() {
                                                             >
                                                                 <option value="">
                                                                     {" "}
-                                                                    Please
+                                                                    --- Please
                                                                     select
                                                                     repetnacy
+                                                                    ---
                                                                 </option>
                                                                 <option value="one_time">
                                                                     {" "}

@@ -168,7 +168,7 @@ export default function AllWorkers() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option selected>-- Sort By--</option>
+                                <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
                                 <option value="firstname">Worker Name</option>
                                 <option value="address">Address</option>

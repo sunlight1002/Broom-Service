@@ -411,12 +411,12 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="add-team"
+                                path="teams/create"
                                 element={<AddTeam />}
                             />
                             <Route
                                 exact
-                                path="edit-team/:id"
+                                path="teams/:id/edit"
                                 element={<EditTeam />}
                             />
                             <Route

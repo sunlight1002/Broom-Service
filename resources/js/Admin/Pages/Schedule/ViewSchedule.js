@@ -158,7 +158,7 @@ export default function ViewSchedule() {
         });
     };
     const getTeam = () => {
-        axios.get(`/api/admin/team`, { headers }).then((res) => {
+        axios.get(`/api/admin/teams`, { headers }).then((res) => {
             let team = res.data.team.data
                 ? res.data.team.data.filter((e) => {
                       return e.name != "superadmin";
@@ -345,35 +345,16 @@ export default function ViewSchedule() {
                                 <select
                                     className="form-control"
                                     id="status"
+                                    value={bstatus}
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
                                         handleUpdate(e);
                                     }}
                                 >
-                                    <option
-                                        value="pending"
-                                        selected={bstatus == "pending"}
-                                    >
-                                        Pending
-                                    </option>
-                                    <option
-                                        value="confirmed"
-                                        selected={bstatus == "confirmed"}
-                                    >
-                                        Confirmed
-                                    </option>
-                                    <option
-                                        value="declined"
-                                        selected={bstatus == "declined"}
-                                    >
-                                        Declined
-                                    </option>
-                                    <option
-                                        value="completed"
-                                        selected={bstatus == "completed"}
-                                    >
-                                        Completed
-                                    </option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="declined">Declined</option>
+                                    <option value="completed">Completed</option>
                                 </select>
                             </div>
                         </div>
@@ -386,21 +367,20 @@ export default function ViewSchedule() {
                                     className="form-control"
                                     name="team_id"
                                     id="team"
+                                    value={team}
                                     onChange={(e) => {
                                         setTeam(e.target.value);
                                         handleUpdate(e);
                                         changeTeam(e.target.value);
                                     }}
                                 >
-                                    <option value="0">Please Select</option>
+                                    <option value="0">
+                                        --- Please Select ---
+                                    </option>
                                     {totalTeam &&
                                         totalTeam.map((t, i) => {
                                             return (
-                                                <option
-                                                    value={t.id}
-                                                    selected={team == t.id}
-                                                    key={i}
-                                                >
+                                                <option value={t.id} key={i}>
                                                     {" "}
                                                     {t.name}{" "}
                                                 </option>
@@ -501,6 +481,7 @@ export default function ViewSchedule() {
                                     <select
                                         name="start_time"
                                         id="start_time"
+                                        value={startTime}
                                         onChange={(e) => {
                                             setStartTime(e.target.value);
                                             handleUpdate(e);
@@ -509,18 +490,12 @@ export default function ViewSchedule() {
                                         className="form-control"
                                     >
                                         <option value="">
-                                            Choose start time
+                                            --- Choose start time ---
                                         </option>
                                         {time &&
                                             time.map((t, i) => {
                                                 return (
-                                                    <option
-                                                        value={t}
-                                                        selected={
-                                                            t == startTime
-                                                        }
-                                                        key={i}
-                                                    >
+                                                    <option value={t} key={i}>
                                                         {t}
                                                     </option>
                                                 );
@@ -534,7 +509,7 @@ export default function ViewSchedule() {
                                     <select
                                         name="end_time"
                                         id="end_time"
-                                        selected={endTime}
+                                        value={endTime}
                                         onChange={(e) => {
                                             setEndTime(e.target.value);
                                             handleUpdate(e);
@@ -542,16 +517,12 @@ export default function ViewSchedule() {
                                         className="form-control"
                                     >
                                         <option value="">
-                                            Choose end time
+                                            --- Choose end time ---
                                         </option>
                                         {time &&
                                             time.map((t, i) => {
                                                 return (
-                                                    <option
-                                                        value={t}
-                                                        selected={t == endTime}
-                                                        key={i}
-                                                    >
+                                                    <option value={t} key={i}>
                                                         {t}
                                                     </option>
                                                 );
@@ -568,23 +539,15 @@ export default function ViewSchedule() {
                                     <select
                                         name="meet_via"
                                         id="meet_via"
-                                        selected={meetVia}
+                                        value={meetVia}
                                         onChange={(e) => {
                                             setMeetVia(e.target.value);
                                             handleUpdate(e);
                                         }}
                                         className="form-control"
                                     >
-                                        <option
-                                            value="on-site"
-                                            selected={meetVia == "on-site"}
-                                        >
-                                            On site
-                                        </option>
-                                        <option
-                                            value="off-site"
-                                            selected={meetVia == "off-site"}
-                                        >
+                                        <option value="on-site">On site</option>
+                                        <option value="off-site">
                                             Off site
                                         </option>
                                     </select>

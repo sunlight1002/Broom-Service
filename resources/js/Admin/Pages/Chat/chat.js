@@ -454,7 +454,7 @@ export default function chat() {
                                             id="template"
                                         >
                                             <option value="">
-                                                -- select template --
+                                                --- Select template ---
                                             </option>
                                             <option value="leads">
                                                 {" "}

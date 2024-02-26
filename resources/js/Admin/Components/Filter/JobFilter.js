@@ -55,7 +55,7 @@ export default function JobFilter({
                             name="client"
                             onChange={(e) => setClient(e.target.value)}
                         >
-                            <option value="">Please Select</option>
+                            <option value="">--- Please Select ---</option>
                             {AllClients &&
                                 AllClients.map((c, i) => {
                                     return (
@@ -78,7 +78,7 @@ export default function JobFilter({
                             name="worker"
                             onChange={(e) => setWorker(e.target.value)}
                         >
-                            <option value="">Please Select</option>
+                            <option value="">--- Please Select ---</option>
                             {AllWorkers &&
                                 AllWorkers.map((w, i) => {
                                     return (
@@ -101,7 +101,7 @@ export default function JobFilter({
                             name="service"
                             onChange={(e) => setService(e.target.value)}
                         >
-                            <option value="">Please Select</option>
+                            <option value="">--- Please Select ---</option>
                             {AllServices &&
                                 AllServices.map((s, i) => {
                                     return (
@@ -123,7 +123,7 @@ export default function JobFilter({
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
                         >
-                            <option value="">Please Select</option>
+                            <option value="">--- Please Select ---</option>
                             <option value="not-started">Not Started</option>
                             <option value="progress">Progress</option>
                             <option value="completed">Completed</option>

@@ -421,7 +421,9 @@ export default function Invoices() {
                                     className="form-control filter"
                                     name="pay_method"
                                 >
-                                    <option>Please Select</option>
+                                    <option value="">
+                                        --- Please Select ---
+                                    </option>
                                     <option value="Credit Card">
                                         Credit Card
                                     </option>
@@ -440,7 +442,9 @@ export default function Invoices() {
                                     className="form-control filter"
                                     name="status"
                                 >
-                                    <option>Please Select</option>
+                                    <option value="">
+                                        --- Please Select ---
+                                    </option>
                                     <option value="Paid">Paid</option>
                                     <option value="Unpaid">Unpaid</option>
                                     <option value="Partially paid">
@@ -460,7 +464,9 @@ export default function Invoices() {
                                     className="form-control filter"
                                     name="type"
                                 >
-                                    <option>Please Select</option>
+                                    <option value="">
+                                        --- Please Select ---
+                                    </option>
                                     <option value="invoice">Invoice</option>
                                     <option value="invrec">
                                         Invoice Receipt

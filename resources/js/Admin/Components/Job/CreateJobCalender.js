@@ -970,7 +970,7 @@ export default function CreateJobCalender() {
                                         className="form-control"
                                     >
                                         <option value="">
-                                            Please Select Service
+                                            --- Please Select Service ---
                                         </option>
                                         {services &&
                                             services.map((item, index) => {

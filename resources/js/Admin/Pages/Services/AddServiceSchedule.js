@@ -179,7 +179,9 @@ export default function AddServiceSchedule() {
                                                 setStatus(e.target.value)
                                             }
                                         >
-                                            <option>Please select</option>
+                                            <option value="">
+                                                --- Please select ---
+                                            </option>
                                             <option value="1">Active</option>
                                             <option value="0">Inactive</option>
                                         </select>

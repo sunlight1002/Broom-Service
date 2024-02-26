@@ -439,7 +439,7 @@ export default function WorkContract() {
                                         <input type="text" value={contract.card_type} className="form-control" readOnly />
                                         :
                                         <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                            <option>Please Select</option>
+                                            <option value="">--- Please Select ---</option>
                                             <option value='Visa'>Visa</option>
                                             <option value='Master Card'>Master Card</option>
                                             <option value='American Express'>American Express</option>

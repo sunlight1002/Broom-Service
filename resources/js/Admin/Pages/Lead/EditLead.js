@@ -665,30 +665,14 @@ export default function EditWorker() {
                                             setPaymentMethod(e.target.value);
                                         }}
                                     >
-                                        <option
-                                            value="cc"
-                                            selected={paymentMethod == "cc"}
-                                        >
-                                            Credit Card
-                                        </option>
-                                        <option
-                                            value="mt"
-                                            selected={paymentMethod == "mt"}
-                                        >
+                                        <option value="cc">Credit Card</option>
+                                        <option value="mt">
                                             Money Transfer
                                         </option>
-                                        <option
-                                            value="cheque"
-                                            selected={paymentMethod == "cheque"}
-                                        >
+                                        <option value="cheque">
                                             By Cheque
                                         </option>
-                                        <option
-                                            value="cash"
-                                            selected={paymentMethod == "cash"}
-                                        >
-                                            By Cash
-                                        </option>
+                                        <option value="cash">By Cash</option>
                                     </select>
                                 </div>
 
@@ -704,18 +688,8 @@ export default function EditWorker() {
                                             setLng(e.target.value);
                                         }}
                                     >
-                                        <option
-                                            value="heb"
-                                            selected={lng == "heb"}
-                                        >
-                                            Hebrew
-                                        </option>
-                                        <option
-                                            value="en"
-                                            selected={lng == "en"}
-                                        >
-                                            English
-                                        </option>
+                                        <option value="heb">Hebrew</option>
+                                        <option value="en">English</option>
                                     </select>
                                 </div>
                                 <div className="form-group lcs">

@@ -32,7 +32,9 @@ export default function EditContract() {
                                                     setClient(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
                                                 <option value="1">
                                                     Clemmie Wolf
                                                 </option>
@@ -58,7 +60,9 @@ export default function EditContract() {
                                                     setService(e.target.value)
                                                 }
                                             >
-                                                <option>Please select</option>
+                                                <option value="">
+                                                    --- Please select ---
+                                                </option>
                                                 <option value="1">
                                                     Planting
                                                 </option>
@@ -161,9 +165,11 @@ export default function EditContract() {
                                                                             )
                                                                         }
                                                                     >
-                                                                        <option>
+                                                                        <option value="">
+                                                                            ---
                                                                             Please
                                                                             select
+                                                                            ---
                                                                         </option>
                                                                         <option value="1">
                                                                             Planting

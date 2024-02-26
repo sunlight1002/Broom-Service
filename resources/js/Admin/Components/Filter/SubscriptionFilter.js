@@ -89,7 +89,7 @@ export default function SubscriptionFilter({ getFilteredSubscriptions }) {
                             value={plan}
                             onChange={(e) => setPlan(e.target.value)}
                         >
-                            <option value="">Please Select</option>
+                            <option value="">--- Please Select ---</option>
                             {plans &&
                                 plans.map((item, index) => (
                                     <option value={item.id} key={index}>
