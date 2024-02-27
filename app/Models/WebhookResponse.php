@@ -20,11 +20,9 @@ class WebhookResponse extends Model
         'data'
     ];
 
-
     public static function getWhatsappMessage($message_no, $lang_type, $client)
     {
         if (!is_null($client)) {
-
             $id   = base64_encode($client->id);
             $link = url('/schedule-meet/' . $id);
         } else {
@@ -44,7 +42,6 @@ class WebhookResponse extends Model
                 "message_4_2" => "Thank you very much for your response, a representative from accounting will contact you shortly.",
                 "message_4_3" => "Thank you very much for your response, a human representative will contact you shortly.",
                 "message_4_4" => "Please remain available, a human representative will contact you shortly.",
-
             ],
 
             'heb' => [
@@ -66,7 +63,6 @@ class WebhookResponse extends Model
                 "message_4_2" => "תודה רבה על תגובתך, נציג מהנהלת חשבונות יצור איתך קשר בהקדם",
                 "message_4_3" => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
                 "message_4_4" => "אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
-
             ],
         ];
 

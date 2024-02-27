@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\Webhook\TwilioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,14 +23,15 @@ use App\Http\Controllers\GoogleController;
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
+Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhook'])->name('webhook_fb');
+Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
+
 Route::get('/import', [DashboardController::class, 'import']);
 Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
 Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
 Route::get('/generate-payment/{id}', [InvoiceController::class, 'generatePayment']);
 Route::get('/record-invoice/{sesid}/{cid}/{holder}', [InvoiceController::class, 'recordInvoice']);
 Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks'])->name('thanks');
-Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhook'])->name('webhook_fb');
-Route::any('/twillio-webhook', [LeadWebhookController::class, 'twillioWebhook']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
 
