@@ -23,7 +23,7 @@ export default function Login() {
                 );
                 localStorage.setItem("worker-id", result.data.id);
 
-                    window.location = "/worker/dashboard";
+                window.location = "/worker/dashboard";
             }
         });
     };
@@ -32,11 +32,15 @@ export default function Login() {
     };
 
     return (
-       
-           <div id="loginPage">
+        <div id="loginPage">
             <div className="container adminLogin">
-                <div className="formSide"> 
-                    <svg width="250" height="94" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">       
+                <div className="formSide">
+                    <svg
+                        width="250"
+                        height="94"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
                         <image xlinkHref={logo} width="250" height="94"></image>
                     </svg>
                     <h1 className="page-title">Worker Login</h1>
@@ -54,9 +58,7 @@ export default function Login() {
                                 <input
                                     type="email"
                                     className="form-control"
-                                    onChange={(e) =>
-                                        setWorker(e.target.value)
-                                    }
+                                    onChange={(e) => setWorker(e.target.value)}
                                     placeholder="Username"
                                     name="username"
                                     aria-label="Username"
@@ -104,8 +106,7 @@ export default function Login() {
                             <ul className="list-inline">
                                 <li>
                                     <label>
-                                        <input type="checkbox" />{" "}
-                                        Remember me{" "}
+                                        <input type="checkbox" /> Remember me{" "}
                                     </label>
                                 </li>
                             </ul>

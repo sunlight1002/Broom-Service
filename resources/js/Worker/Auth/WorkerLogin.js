@@ -24,24 +24,42 @@ export default function Login() {
                 );
                 localStorage.setItem("worker-id", result.data.id);
 
-                    window.location = "/worker/dashboard";
+                window.location = "/worker/dashboard";
             }
         });
     };
-  
+
     return (
         <div>
             <div id="loginPage">
                 <div className="container adminLogin">
                     <div className="formSide">
                         <div className="hidden-xs ifRTL">
-                            <svg width="333" height="135" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">       
-                                <image xlinkHref={logo} width="333" height="135"></image>
+                            <svg
+                                width="333"
+                                height="135"
+                                xmlns="http://www.w3.org/2000/svg"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                            >
+                                <image
+                                    xlinkHref={logo}
+                                    width="333"
+                                    height="135"
+                                ></image>
                             </svg>
                         </div>
                         <div className="hidden-xl ifRTL">
-                            <svg width="250" height="94" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">       
-                                <image xlinkHref={logo} width="250" height="94"></image>
+                            <svg
+                                width="250"
+                                height="94"
+                                xmlns="http://www.w3.org/2000/svg"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                            >
+                                <image
+                                    xlinkHref={logo}
+                                    width="250"
+                                    height="94"
+                                ></image>
                             </svg>
                         </div>
                         <h1 className="page-title">Worker Login</h1>
@@ -109,8 +127,9 @@ export default function Login() {
                                     type="submit"
                                     className="btn btn-danger btn-block"
                                     onClick={HandleLogin}
+                                >
+                                    {" "}
                                     Login
-                                > Login
                                 </button>
                             </div>
                         </form>

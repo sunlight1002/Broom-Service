@@ -124,7 +124,7 @@ export default function Comment() {
                                         <p
                                             className="noteby p-1"
                                             style={{
-                                                "font-size": "16px",
+                                                fontSize: "16px",
                                             }}
                                         >
                                             {c.name} -
