@@ -14,6 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'record-invoice/',
         'webhook_fb',
-        'webhook/twilio'
+        'twilio/voice/webhook'
     ];
 }
