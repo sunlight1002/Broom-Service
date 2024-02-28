@@ -235,12 +235,12 @@ export default function ProfileDetails({
                                                 <p>{lang}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-4">
+                                        {/* <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Enterance code</label>
                                                 <p>{enterance}</p>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Login details</label>
@@ -271,7 +271,7 @@ export default function ProfileDetails({
                                                 <p>{joined}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-4">
+                                        {/* <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Google address</label>
                                                 <p>
@@ -283,21 +283,21 @@ export default function ProfileDetails({
                                                     </a>
                                                 </p>
                                             </div>
-                                        </div>
-                                        <div className="col-sm-4">
+                                        </div> */}
+                                        {/* <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Floor</label>
                                                 <p>{floor}</p>
                                             </div>
-                                        </div>
-                                        <div className="col-sm-4">
+                                        </div> */}
+                                        {/* <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>
                                                     Apt number or Apt name
                                                 </label>
                                                 <p>{Apt}</p>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>status</label>

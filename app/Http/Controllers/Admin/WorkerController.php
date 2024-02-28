@@ -138,7 +138,9 @@ class WorkerController extends Controller
             'phone'     => ['required'],
             'worker_id' => ['required'],
             'status'    => ['required'],
-            'password'  => ['required']
+            'password'  => ['required'],
+            'email'     => ['nullable', 'unique:users'],
+            'gender'    => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -249,6 +251,7 @@ class WorkerController extends Controller
             'phone'     => ['required'],
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
+            'email'     => ['nullable',  'unique:users,email,' . $id],
         ]);
 
         if ($validator->fails()) {
