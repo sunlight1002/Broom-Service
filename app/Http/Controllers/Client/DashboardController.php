@@ -377,6 +377,7 @@ class DashboardController extends Controller
         $jobs = Job::query()
             ->with(['offer', 'client', 'worker', 'jobservice'])
             ->where('client_id', $request->cid)
+            ->orderBy('start_date')
             ->get();
 
         return response()->json([

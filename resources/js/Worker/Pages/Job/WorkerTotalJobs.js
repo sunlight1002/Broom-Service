@@ -261,7 +261,7 @@ export default function WorkerTotalJobs() {
                                                                 {Moment(
                                                                     item.start_date
                                                                 ).format(
-                                                                    "DD MMM,Y"
+                                                                    "DD MMM, Y"
                                                                 )}
                                                             </Td>
                                                             <Td>

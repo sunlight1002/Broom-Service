@@ -565,7 +565,7 @@ export default function Jobs({ contracts, client }) {
                                             <td> {total} ILS + VAT</td>
                                             <td>
                                                 {Moment(j.start_date).format(
-                                                    "DD MMM,Y"
+                                                    "DD MMM, Y"
                                                 )}
                                             </td>
                                             <td>
@@ -766,7 +766,7 @@ export default function Jobs({ contracts, client }) {
                                             contracts.map((item, index) => {
 
                                                 return (
-                                                    <option value={item.id}> # {item.id} |  {Moment(item.created_at).format('DD MMM,Y')}  </option>
+                                                    <option value={item.id}> # {item.id} |  {Moment(item.created_at).format('DD MMM, Y')}  </option>
                                                 )
 
                                             }
@@ -800,7 +800,7 @@ export default function Jobs({ contracts, client }) {
                                                         #{j.id} |{" "}
                                                         {Moment(
                                                             j.start_date
-                                                        ).format("DD MMM,Y")}
+                                                        ).format("DD MMM, Y")}
                                                     </option>
                                                 );
                                             })}
@@ -947,7 +947,7 @@ export default function Jobs({ contracts, client }) {
                                             >
                                                 <option value=""> --- Please select Job --- </option>
                                                 {jobs && jobs.map((j) => {
-                                                    return <option value={j.id}> #{j.id} | {Moment(j.start_date).format('DD MMM,Y')}  </option>
+                                                    return <option value={j.id}> #{j.id} | {Moment(j.start_date).format('DD MMM, Y')}  </option>
                                                 })}
 
                                             </select>

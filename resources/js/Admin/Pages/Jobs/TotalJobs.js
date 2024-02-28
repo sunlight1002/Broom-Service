@@ -1341,7 +1341,7 @@ export default function TotalJobs() {
                                                                         {Moment(
                                                                             j.start_date
                                                                         ).format(
-                                                                            "DD MMM,Y"
+                                                                            "DD MMM, Y"
                                                                         )}
                                                                     </option>
                                                                 );
