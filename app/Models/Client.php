@@ -95,6 +95,11 @@ class Client extends Authenticatable
         return $this->hasOne(LeadStatus::class, 'client_id', 'id');
     }
 
+    public function property_addresses()
+    {
+        return $this->hasMany(ClientPropertyAddress::class)->orderBy('id', 'desc');;
+    }
+
     public function ScopeReply($query)
     {
         return WhatsappLastReply::where('message', '=', '0')

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use App\Models\ClientPropertyAddress;
 
 class ClientController extends Controller
 {
@@ -154,6 +155,14 @@ class ClientController extends Controller
         $input['password']      = Hash::make($input['passcode']);
 
         $client                 = Client::create($input);
+
+        $property_address_data = $request->propertyAddress;
+        if(count($property_address_data) > 0){
+            foreach ($property_address_data as $key => $address) {
+                $address['client_id'] = $client->id;
+                ClientPropertyAddress::create($address);
+            }
+        }
 
         if (!empty($request->jobdata)) {
 
@@ -340,7 +349,7 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        $client                = Client::find($id);
+        $client                = Client::with('property_addresses')->find($id);
         return response()->json([
             'client'        => $client,
         ], 200);

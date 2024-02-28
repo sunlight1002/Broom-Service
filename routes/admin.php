@@ -80,6 +80,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Lead Api
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
+    Route::post('leads/save-property-address',[LeadController::class, 'savePropertyAddress']);
+    Route::delete('leads/remove-property-address/{id}',[LeadController::class, 'removePropertyAddress']);
     Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
 
     // workers Api

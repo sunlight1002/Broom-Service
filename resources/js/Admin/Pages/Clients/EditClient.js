@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAlert } from "react-alert";
 import { useParams } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
@@ -11,8 +11,10 @@ import {
     Autocomplete,
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
+import PropertyAddress from "../../Components/Leads/PropertyAddress";
 
 export default function EditClient() {
+    let addressSearchRef = useRef();
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -20,11 +22,6 @@ export default function EditClient() {
     const [phone, setPhone] = useState("");
 
     const [city, setCity] = useState("");
-    const [streetNumber, setStreetNumber] = useState("");
-    const [floor, setFloor] = useState("");
-    const [Apt, setApt] = useState("");
-    const [enterance, setEnterance] = useState("");
-    const [zip, setZip] = useState("");
     const [dob, setDob] = useState("");
     const [passcode, setPassCode] = useState("");
     const [lng, setLng] = useState("");
@@ -44,6 +41,7 @@ export default function EditClient() {
     const [address, setAddress] = useState("");
     const [place, setPlace] = useState();
     const [cjob, setCjob] = useState();
+    const [addresses, setAddresses] = useState([]);
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
     const containerStyle = {
         width: "100%",
@@ -174,18 +172,9 @@ export default function EditClient() {
             firstname: firstname,
             lastname: lastname,
             invoicename: invoiceName,
-            city: city,
-            street_n_no: streetNumber,
-            floor: floor,
-            apt_no: Apt,
-            entrence_code: enterance,
-            zipcode: zip,
             lng: lng ? lng : "heb",
             dob: dob,
             passcode: passcode,
-            geo_address: address,
-            latitude: latitude,
-            longitude: longitude,
             color: !color ? "#fff" : color,
             email: email,
             phone: phoneClc,
@@ -222,20 +211,14 @@ export default function EditClient() {
                 setEmail(response.data.client.email);
                 setPhone(response.data.client.phone);
                 setPassCode(response.data.client.passcode);
-                setCity(response.data.client.city);
-                setFloor(response.data.client.floor);
-                setApt(response.data.client.apt_no);
                 setDob(response.data.client.dob);
-                setEnterance(response.data.client.entrence_code);
                 setLng(response.data.client.lng);
                 handleServiceLng(response.data.client.lng);
                 setColor(response.data.client.color);
                 setInvoiceName(response.data.client.invoicename);
-                setStreetNumber(response.data.client.street_n_no);
-                setZip(response.data.client.zipcode);
                 setStatus(response.data.client.status);
-                setAddress(response.data.client.geo_address);
                 setPaymentMethod(response.data.client.payment_method);
+                setAddresses(response.data.client.property_addresses);
                 response.data.client.extra != null
                     ? setExtra(JSON.parse(response.data.client.extra))
                     : setExtra([{ email: "", name: "", phone: "" }]);
@@ -503,7 +486,13 @@ export default function EditClient() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-
+    useEffect(() => {
+        if (address === "" && place) {
+            addressSearchRef.current.value = "";
+            setLatitude(32.109333);
+            setLongitude(34.855499);
+        }
+    }, [address]);
     return (
         <div id="container">
             <Sidebar />
@@ -812,6 +801,7 @@ export default function EditClient() {
                                             onPlaceChanged={handlePlaceChanged}
                                         >
                                             <input
+                                                ref={addressSearchRef}
                                                 type="text"
                                                 placeholder="Search Your Address"
                                                 className="form-control mt-1"
@@ -819,110 +809,16 @@ export default function EditClient() {
                                         </Autocomplete>
                                     </LoadScript>
                                 </div>
-                                <h4 className="mt-2 mb-3">
-                                    Client Full Address
-                                </h4>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Full Address
-                                        <small className="text-pink mb-1">
-                                            &nbsp; (auto complete from google
-                                            address)
-                                        </small>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={address}
-                                        className="form-control"
-                                        placeholder="Full Address"
-                                        readOnly
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Floor
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={floor}
-                                        onChange={(e) =>
-                                            setFloor(e.target.value)
-                                        }
-                                        className="form-control"
-                                        placeholder="Enter floor"
-                                    />
-                                    {errors.floor ? (
-                                        <small className="text-danger mb-1">
-                                            {errors.floor}
-                                        </small>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Apt number and Apt name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={Apt}
-                                        onChange={(e) => setApt(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Enter Apt number"
-                                    />
-                                    {errors.Apt ? (
-                                        <small className="text-danger mb-1">
-                                            {errors.Apt}
-                                        </small>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Enterance code
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={enterance}
-                                        onChange={(e) =>
-                                            setEnterance(e.target.value)
-                                        }
-                                        className="form-control"
-                                        placeholder="Enter enterance"
-                                    />
-                                    {errors.enterance ? (
-                                        <small className="text-danger mb-1">
-                                            {errors.enterance}
-                                        </small>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Zip Code
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={zip}
-                                        onChange={(e) => setZip(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Enter zip code"
-                                    />
-                                    {errors.zip ? (
-                                        <small className="text-danger mb-1">
-                                            {errors.zip}
-                                        </small>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
+                                <PropertyAddress
+                                    heading={"Property Address"}
+                                    setAddress={setAddress}
+                                    address={address}
+                                    errors={errors}
+                                    place={place}
+                                    addresses={addresses}
+                                    setAddresses={setAddresses}
+                                    setErrors={setErrors}
+                                />
 
                                 <div className="form-group">
                                     <label className="control-label">

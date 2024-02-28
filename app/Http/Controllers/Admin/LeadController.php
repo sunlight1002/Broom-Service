@@ -10,6 +10,7 @@ use App\Models\Client;
 use App\Models\LeadComment;
 use App\Models\LeadStatus;
 use App\Models\Offer;
+use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
@@ -115,7 +116,7 @@ class LeadController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->data;
 
         $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
@@ -129,6 +130,14 @@ class LeadController extends Controller
         $input  = $data;
         $input['password']  = isset($input['phone']) && !empty($input['phone'])? Hash::make($input['phone']): Hash::make('password');
         $client = Client::create($input);
+
+        $property_address_data = $request->propertyAddress;
+        if(count($property_address_data) > 0){
+            foreach ($property_address_data as $key => $address) {
+                $address['client_id'] = $client->id;
+                ClientPropertyAddress::create($address);
+            }
+        }
 
         LeadStatus::UpdateOrCreate(
             [
@@ -169,7 +178,7 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-        $lead                = Client::with('offers', 'meetings', 'lead_status')->find($id);
+        $lead                = Client::with('offers', 'meetings', 'lead_status', 'property_addresses')->find($id);
 
         if (!empty($lead)) {
 
@@ -409,6 +418,44 @@ class LeadController extends Controller
             foreach ($leadForms->data as $lf) {
                 dd($this->leadData($lf->id));
             }
+        }
+    }
+
+    public function savePropertyAddress(Request $request) {
+        try {
+            $property_address = $request->data;
+            if(count($property_address) > 0){
+                $savedAddress = ClientPropertyAddress::UpdateOrCreate(
+                    [
+                        'id' => $property_address['id']
+                    ],
+                    $property_address
+                );
+                return response()->json([
+                    'data' => $savedAddress,
+                    'message'   => 'Lead property address saved successfully',
+                ], 200);
+            }else{
+                return response()->json([
+                    'message'   => 'Data is empty!',
+                ], 500);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message'   => 'Something went wrong!',
+            ], 500);
+        }
+    }
+    public function removePropertyAddress($id){
+        try {
+            ClientPropertyAddress::find($id)->delete();
+            return response()->json([
+                'message'     => "Lead property address has been deleted"
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message'   => 'Something went wrong!',
+            ], 500);
         }
     }
 }
