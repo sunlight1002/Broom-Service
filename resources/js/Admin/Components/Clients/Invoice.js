@@ -227,7 +227,7 @@ export default function Invoice() {
     };
 
     const displayCallback = (cb) => {
-        $(".ace-tm").css({ "background-color": "black", color: "#5cc527" });
+        $(".ace-tm").css({ backgroundColor: "black", color: "#5cc527" });
         setCbvalue(cb);
     };
 

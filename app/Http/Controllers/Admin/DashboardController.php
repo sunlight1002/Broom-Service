@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContractStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -256,7 +257,12 @@ class DashboardController extends Controller
     }
 
     if ($for == 'contracts') {
-      $contracts = Contract::where('status', 'un-verified')->orWhere('status', 'not-signed')->with('client', 'offer')->paginate(5);
+      $contracts = Contract::query()
+        ->with(['client', 'offer'])
+        ->where('status', ContractStatusEnum::UN_VERIFIED)
+        ->orWhere('status', ContractStatusEnum::NOT_SIGNED)
+        ->paginate(5);
+
       return response()->json([
         'data' => $contracts,
       ]);
@@ -459,16 +465,20 @@ class DashboardController extends Controller
         if (isset($_cn)) {
           $cstat =  $_cn->status;
 
-          if ($cstat != 'not-signed') {
+          if ($cstat != ContractStatusEnum::NOT_SIGNED) {
             LeadStatus::updateOrCreate(
               [
                 'client_id' => $c->id
               ],
               [
                 'client_id' => $c->id,
-                'lead_status' => ($cstat == 'verified') ? 'Contract Verified' : ($cstat == 'un-verified' ? 'Contract Unverified' :  'Contract Rejected')
+                'lead_status' => ($cstat == ContractStatusEnum::VERIFIED) ?
+                  'Contract Verified' : (
+                    $cstat == ContractStatusEnum::UN_VERIFIED ?
+                    'Contract Unverified' :
+                    'Contract Rejected'
+                  )
               ]
-
             );
           }
         }

@@ -64,7 +64,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Jobs Api
     Route::resource('jobs', JobController::class)->except('create');
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
-    Route::post('upldate-job/{id}', [JobController::class, 'updateJob']);
+    Route::post('update-job/{id}', [JobController::class, 'updateJob']);
     Route::post('create-job/{id}', [JobController::class, 'createJob']);
     Route::post('get-client-jobs', [JobController::class, 'getJobByClient'])->name('get-client-jobs');
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
@@ -147,7 +147,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // client files
     Route::post('add-file', [ClientController::class, 'addfile'])->name('add-file');
-    Route::post('get-files', [ClientController::class, 'getfiles'])->name('get-files');
+    Route::get('clients/{id}/files', [ClientController::class, 'files']);
     Route::post('delete-file', [ClientController::class, 'deletefile'])->name('delete-file');
 
     // Report

@@ -108,15 +108,15 @@ export default function Comment() {
                     return (
                         <div
                             className="card card-widget widget-user-2"
-                            style={{ "box-shadow": "none" }}
+                            style={{ boxShadow: "none" }}
                             key={i}
                         >
                             <div className="card-comments cardforResponsive"></div>
                             <div
                                 className="card-comment p-3"
                                 style={{
-                                    "background-color": "rgba(0,0,0,.05)",
-                                    "border-radius": "5px",
+                                    backgroundColor: "rgba(0,0,0,.05)",
+                                    borderRadius: "5px",
                                 }}
                             >
                                 <div className="row">
@@ -130,7 +130,7 @@ export default function Comment() {
                                             {c.name} -
                                             <span
                                                 className="noteDate"
-                                                style={{ "font-weight": "600" }}
+                                                style={{ fontWeight: "600" }}
                                             >
                                                 {" " +
                                                     Moment(c.created_at).format(

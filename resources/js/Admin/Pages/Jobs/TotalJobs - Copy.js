@@ -133,7 +133,7 @@ export default function TotalJobs() {
             comment: comment,
         };
         axios
-            .post(`/api/admin/upldate-job/${job_id}`, data, { headers })
+            .post(`/api/admin/update-job/${job_id}`, data, { headers })
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);

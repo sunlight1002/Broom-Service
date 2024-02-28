@@ -14,7 +14,6 @@ use App\Models\ClientCard;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -29,9 +28,14 @@ class DashboardController extends Controller
         $id              = $request->id;
         $total_jobs      = Job::where('client_id', $id)->count();
         $total_offers    = Offer::where('client_id', $id)->count();
-        $total_schedules  = Schedule::where('client_id', $id)->count();
-        $total_contracts  = Contract::where('client_id', $id)->count();
-        $latest_jobs     = Job::where('client_id', $id)->with('client', 'service', 'worker', 'jobservice')->orderBy('id', 'desc')->take(10)->get();
+        $total_schedules = Schedule::where('client_id', $id)->count();
+        $total_contracts = Contract::where('client_id', $id)->count();
+        $latest_jobs     = Job::query()
+            ->where('client_id', $id)
+            ->with(['client', 'service', 'worker', 'jobservice'])
+            ->orderBy('id', 'desc')
+            ->take(10)
+            ->get();
 
         return response()->json([
             'total_jobs'         => $total_jobs,
@@ -39,7 +43,7 @@ class DashboardController extends Controller
             'total_schedules'    => $total_schedules,
             'total_contracts'    => $total_contracts,
             'latest_jobs'        => $latest_jobs
-        ], 200);
+        ]);
     }
 
     //Schedules
@@ -101,7 +105,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'offers' => $result
-        ], 200);
+        ]);
     }
 
     public function viewOffer(Request $request)
@@ -130,8 +134,7 @@ class DashboardController extends Controller
         $q = $request->q;
         $id = $request->id;
         $result = Contract::with('client', 'offer');
-        if (!is_null($q)) :
-
+        if (!is_null($q)) {
             $result = $result->orWhereHas('client', function ($qr) use ($q, $id) {
                 $qr->where(function ($qr) use ($q, $id) {
                     $qr->where('firstname', 'like', '%' . $q . '%');
@@ -149,21 +152,22 @@ class DashboardController extends Controller
                 $qry->where('status', 'like', '%' . $q . '%')
                     ->where('client_id', $id);
             });
+        }
 
-        endif;
         $result = $result->orderBy('id', 'desc')->where('client_id', $id)->paginate(20);
 
         return response()->json([
             'contracts' => $result
-        ], 200);
+        ]);
     }
 
     public function getContract(Request $request)
     {
         $contract = Contract::where('id', $request->id)->with('client')->get();
+
         return response()->json([
             'contract' => $contract
-        ], 200);
+        ]);
     }
 
     public function addfile(Request $request)
@@ -186,7 +190,6 @@ class DashboardController extends Controller
             $video->move($path, $vname);
             $file_nm = $vname;
         } else {
-
             if ($request->hasfile('file')) {
 
                 $image = $request->file('file');
@@ -208,12 +211,11 @@ class DashboardController extends Controller
             'role'      => 'client',
             'type'      => $request->type,
             'file'      => $file_nm
-
         ]);
 
         return response()->json([
             'message' => 'File uploaded',
-        ], 200);
+        ]);
     }
 
     public function getfiles(Request $request)
@@ -223,43 +225,46 @@ class DashboardController extends Controller
             'role' => 'client',
             'meeting' => $request->meet_id
         ])->get();
+
         if (isset($files)) {
             foreach ($files as $k => $file) {
-
-                $files[$k]->path =  asset('storage/uploads/ClientFiles') . "/" . $file->file;
+                $files[$k]->path = asset('storage/uploads/ClientFiles') . "/" . $file->file;
             }
         }
+
         return response()->json([
             'files' => $files
-        ], 200);
+        ]);
     }
 
     public function deletefile(Request $request)
     {
-        Files::where('id', $request->id)->delete();
+        $file = Files::find($request->id);
+        $file->delete();
+
         return response()->json([
             'message' => 'File deleted',
-        ], 200);
+        ]);
     }
 
     public function getAccountDetails()
     {
-        $account          = Auth::user();
-        $account->avatar  = $account->avatar ? asset('storage/uploads/client/' . $account->avatar) : asset('images/man.png');
+        $account = Auth::user();
+        $account->avatar = $account->avatar ? asset('storage/uploads/client/' . $account->avatar) : asset('images/man.png');
+
         return response()->json([
-            'account'         => $account,
-        ], 200);
+            'account' => $account,
+        ]);
     }
 
     public function saveAccountDetails(Request $request)
     {
-        $client     = Auth::user();
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
-            'phone'   => ['required', 'string'],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $client->id],
+            'phone' => ['required', 'string'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . Auth::user()->id],
             'city' => ['required', 'string', 'max:255'],
             'street_n_no' => ['required', 'string', 'max:255'],
             'dob' => ['required'],
@@ -274,67 +279,69 @@ class DashboardController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $input                  = $request->all();
+        $input = $request->all();
         if ($request->hasfile('avatar')) {
-            $image              = $request->file('avatar');
-            $name               = $image->getClientOriginalName();
+            $image = $request->file('avatar');
+            $name = $image->getClientOriginalName();
             $image->storeAs('uploads/client/', $name, 'public');
 
-            $input['avatar']      = $name;
+            $input['avatar'] = $name;
         }
-        $client                  = Client::where('id', $client->id)->update($input);
 
+        Client::where('id', Auth::user()->id)->update($input);
         return response()->json([
-            'message'       => 'Account details updated successfully',
-        ], 200);
+            'message' => 'Account details updated successfully',
+        ]);
     }
 
     public function changePassword(Request $request)
     {
-        $id = Auth::user()->id;
-
         $validator = Validator::make($request->all(), [
             'current_password' => ['required', 'min:6'],
-            'password'   => ['required', 'min:6', 'confirmed']
+            'password' => ['required', 'min:6', 'confirmed']
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $client = Client::find($id);
-
+        $client = Client::find(Auth::user()->id);
         if (Hash::check($request->get('current_password'), $client->password)) {
-
             $client->password = Hash::make($request->password);
             $client->save();
 
             return response()->json([
-                'message'       => 'Password changed successfully',
-            ], 200);
+                'message' => 'Password changed successfully',
+            ]);
         } else {
-
-            return response()->json(['errors' => ['current_password' => 'Current password is incorrect.']]);
+            return response()->json([
+                'errors' => [
+                    'current_password' => 'Current password is incorrect.'
+                ]
+            ]);
         }
 
         return response()->json([
-            'message'       => 'Password changed successfully',
-        ], 200);
+            'message' => 'Password changed successfully',
+        ]);
     }
 
     public function getCard()
     {
-        $id = Auth::user()->id;
-        $res = ClientCard::where('client_id', $id)->get();
+        $res = ClientCard::where('client_id', Auth::user()->id)->get();
+
         return response()->json([
-            'res'       => $res,
-        ], 200);
+            'res' => $res,
+        ]);
     }
 
     public function updateCard(Request $request)
     {
-        if (isset($request->cdata['cid'])) :
-            $cc = ClientCard::where('id', $request->cdata['cid'])->get('cc_charge')->first();
+        if (isset($request->cdata['cid'])) {
+            $cc = ClientCard::query()
+                ->select('cc_charge')
+                ->find($request->cdata['cid']);
+
             $nc = (int)$cc->cc_charge +  (int)$request->cdata['cc_charge'];
             $args = [
                 'card_type'   => $request->cdata['card_type'],
@@ -345,9 +352,8 @@ class DashboardController extends Controller
                 'card_token'  => $request->cdata['card_token'],
             ];
 
-            ClientCard::where('id', $request->cdata['cid'])->update($args);
-
-        else :
+            $cc->update($args);
+        } else {
             $args = [
                 'card_type'   => $request->cdata['card_type'],
                 'client_id'   => Auth::user()->id,
@@ -359,34 +365,44 @@ class DashboardController extends Controller
             ];
 
             ClientCard::create($args);
-        endif;
+        }
 
         return response()->json([
             'message' => "Card validated successfully"
-        ], 200);
+        ]);
     }
 
     public function listJobs(Request $request)
     {
-        $jobs = Job::where('client_id', $request->cid)->with('offer', 'client', 'worker', 'jobservice')->get();;
+        $jobs = Job::query()
+            ->with(['offer', 'client', 'worker', 'jobservice'])
+            ->where('client_id', $request->cid)
+            ->get();
+
         return response()->json([
-            'jobs'       => $jobs,
-        ], 200);
+            'jobs' => $jobs,
+        ]);
     }
 
     public function viewJob(Request $request)
     {
-        $job = Job::where('id', $request->id)->with('client', 'worker', 'service', 'offer', 'jobservice')->get();
+        $job = Job::query()
+            ->with(['client', 'worker', 'service', 'offer', 'jobservice'])
+            ->where('id', $request->id)
+            ->get();
+
         return response()->json([
             'job'        => $job,
-        ], 200);
+        ]);
     }
 
     public function updateJobStatus(Request $request, $id)
     {
-        $job = Job::with('client', 'worker', 'jobservice')->find(base64_decode($id));
+        $job = Job::with(['client', 'worker', 'jobservice'])
+            ->find(base64_decode($id));
+
         $job->status = $request->status;
-        $job->rate  = $request->total;
+        $job->rate = $request->total;
         $job->save();
 
         Notification::create([
@@ -412,7 +428,7 @@ class DashboardController extends Controller
         });
 
         return response()->json([
-            'job'        => $job,
-        ], 200);
+            'job' => $job,
+        ]);
     }
 }

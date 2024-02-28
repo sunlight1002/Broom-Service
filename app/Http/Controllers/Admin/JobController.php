@@ -11,12 +11,10 @@ use App\Models\Services;
 use App\Models\ServiceSchedule;
 use App\Models\JobHours;
 use App\Models\JobService;
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
@@ -29,12 +27,11 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $q =  $request->q;
+        $q = $request->q;
         $w = $request->filter_week;
-        $jobs = Job::with('worker', 'client', 'offer', 'jobservice', 'order', 'invoice');
+        $jobs = Job::with(['worker', 'client', 'offer', 'jobservice', 'order', 'invoice']);
 
         if ($q != '') {
-
             $jobs = $jobs->orWhereHas('worker', function ($qr) use ($q) {
                 $qr->where(function ($qr) use ($q) {
                     $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
@@ -60,19 +57,17 @@ class JobController extends Controller
             $startDate = Carbon::now()->toDateString();
             $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5)->toDateString();
         }
+
         if ($w == 'next') {
             $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6)->toDateString();
             $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(12)->toDateString();
-        }
-        if ($w == 'nextnext') {
+        } else if ($w == 'nextnext') {
             $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(13)->toDateString();
             $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(19)->toDateString();
-        }
-        if ($w == 'today') {
+        } else if ($w == 'today') {
             $startDate = Carbon::today()->toDateString();
             $endDate = Carbon::today()->toDateString();
         }
-
 
         if ($w == 'all') {
             $jobs = $jobs->orderBy('created_at', 'ASC')->paginate(20);
@@ -87,26 +82,30 @@ class JobController extends Controller
             $jobs = $jobs->orderBy('created_at', 'ASC')->paginate($pcount);
         }
 
-        if (isset($jobs)) :
-        endif;
-
         return response()->json([
-            'jobs'       => $jobs,
-        ], 200);
+            'jobs' => $jobs,
+        ]);
     }
 
     public function shiftChangeWorker($sid, $date)
     {
-        $ava_workers = User::with('availabilities', 'jobs')->where('skill',  'like', '%' . $sid . '%');
+        $ava_workers = User::query()
+            ->with(['availabilities', 'jobs'])
+            ->where('skill',  'like', '%' . $sid . '%');
 
-        $ava_workers = $ava_workers->whereHas('availabilities', function ($query) use ($date) {
-            $query->where('date', '=', $date);
-        });
-        $ava_workers = $ava_workers->where('status', 1)->get()->toArray();
+        $ava_workers = $ava_workers
+            ->whereHas('availabilities', function ($query) use ($date) {
+                $query->where('date', '=', $date);
+            });
+
+        $ava_workers = $ava_workers
+            ->where('status', 1)
+            ->get()
+            ->toArray();
 
         return response()->json([
-            'workers'       => $ava_workers,
-        ], 200);
+            'workers' => $ava_workers,
+        ]);
     }
 
     public function AvlWorker($id)
@@ -114,32 +113,44 @@ class JobController extends Controller
         $job = Job::where('id', $id)->get()->first();
         $serv = $job->jobservice;
         $ava_worker = array();
+
         foreach ($serv as $sk => $js) {
-            $ava_workers = User::with('availabilities', 'jobs')->where('skill',  'like', '%' . $js->service_id . '%');
-            $ava_workers = $ava_workers->whereHas('availabilities', function ($query) use ($job) {
-                $query->where('date', '=', $job->start_date);
-            });
-            $ava_workers = $ava_workers->where('status', 1)->get()->toArray();
+            $ava_workers = User::query()
+                ->with(['availabilities', 'jobs'])
+                ->where('skill',  'like', '%' . $js->service_id . '%');
+
+            $ava_workers = $ava_workers
+                ->whereHas('availabilities', function ($query) use ($job) {
+                    $query->where('date', '=', $job->start_date);
+                });
+
+            $ava_workers = $ava_workers
+                ->where('status', 1)
+                ->get()
+                ->toArray();
 
             foreach ($ava_workers as $w) {
-                $check_worker_job =  Job::where('worker_id', $w['id'])->where('start_date', $job->start_date)->get()->toArray();
+                $check_worker_job = Job::where('worker_id', $w['id'])
+                    ->where('start_date', $job->start_date)->get()->toArray();
                 if (!$check_worker_job) {
                     $ava_worker[] = $w;
                 }
             }
         }
+
         //$job->avl_worker=$ava_worker;
         return response()->json([
-            'aworker'       => $ava_worker,
-        ], 200);
+            'aworker' => $ava_worker,
+        ]);
     }
 
     public function getAllJob()
     {
         $jobs = Job::get();
+
         return response()->json([
-            'jobs'       => $jobs,
-        ], 200);
+            'jobs' => $jobs,
+        ]);
     }
 
     /**
@@ -155,13 +166,15 @@ class JobController extends Controller
             'worker_id' => ['required'],
             'start_date' => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
         Job::create($request->input());
         return response()->json([
             'message' => 'Job has been created successfully'
-        ], 200);
+        ]);
     }
 
     /**
@@ -172,11 +185,11 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job                = Job::with('client', 'worker', 'service', 'offer', 'jobservice', 'order')->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order'])->find($id);
 
         return response()->json([
-            'job'        => $job,
-        ], 200);
+            'job' => $job,
+        ]);
     }
 
     /**
@@ -187,7 +200,8 @@ class JobController extends Controller
      */
     public function edit($id)
     {
-        $job = Job::with('client', 'worker', 'service', 'offer', 'jobservice')->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice'])->find($id);
+
         return response()->json([
             'job' => $job
         ]);
@@ -205,9 +219,11 @@ class JobController extends Controller
         $validator = Validator::make($request->all(), [
             'workers' => ['required'],
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
         $worker = $request->workers[0];
         $job = Job::find($id);
         $job->worker_id     = $worker['worker_id'];
@@ -232,47 +248,77 @@ class JobController extends Controller
      */
     public function destroy($id)
     {
-        Job::find($id)->delete();
+        $job = Job::find($id);
+        $job->delete();
+
         return response()->json([
-            'message'     => "Job has been deleted"
-        ], 200);
+            'message' => "Job has been deleted"
+        ]);
     }
 
     public function getJobByClient(Request $request)
     {
-        if (($request->f) == 'all')
-            $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->where('client_id', $request->cid)->orderBy('start_date', 'desc');
-        if (isset($request->status))
-            $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->where('status', $request->status)->where('client_id', $request->cid)->orderBy('start_date', 'desc');
+        if (($request->f) == 'all') {
+            $jobs = Job::query()
+                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                ->where('client_id', $request->cid)
+                ->orderBy('start_date', 'desc');
+        }
+
+        if (isset($request->status)) {
+            $jobs = Job::query()
+                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                ->where('status', $request->status)
+                ->where('client_id', $request->cid)
+                ->orderBy('start_date', 'desc');
+        }
 
         if (isset($request->q)) {
             $q = $request->q;
-            if ($q == 'ordered')
-                $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->has('order')->where('client_id', $request->cid)->orderBy('start_date', 'desc');
-            if ($q == 'unordered')
-                $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->whereDoesntHave('order')->where('client_id', $request->cid)->orderBy('start_date', 'desc');
-            if ($q == 'invoiced')
-                $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->has('invoice')->where('client_id', $request->cid)->orderBy('start_date', 'desc');
-            if ($q == 'uninvoiced')
-                $jobs = Job::with('offer', 'worker', 'jobservice', 'order', 'invoice')->whereDoesntHave('invoice')->where('client_id', $request->cid)->orderBy('start_date', 'desc');
+            if ($q == 'ordered') {
+
+                $jobs = Job::query()
+                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                    ->has('order')
+                    ->where('client_id', $request->cid)
+                    ->orderBy('start_date', 'desc');
+            } else if ($q == 'unordered') {
+                $jobs = Job::query()
+                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                    ->whereDoesntHave('order')
+                    ->where('client_id', $request->cid)
+                    ->orderBy('start_date', 'desc');
+            } else if ($q == 'invoiced') {
+                $jobs = Job::query()
+                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                    ->has('invoice')
+                    ->where('client_id', $request->cid)
+                    ->orderBy('start_date', 'desc');
+            } else if ($q == 'uninvoiced') {
+                $jobs = Job::query()
+                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+                    ->whereDoesntHave('invoice')
+                    ->where('client_id', $request->cid)
+                    ->orderBy('start_date', 'desc');
+            }
         }
 
-        $sch        =  Job::where('status', 'scheduled')->where('client_id', $request->cid)->count();
-        $un_sch     =  Job::where('status', 'unscheduled')->where('client_id', $request->cid)->count();
-        $cancel     =  Job::where('status', 'canceled')->where('client_id', $request->cid)->count();
-        $progress   =  Job::where('status', 'progress')->where('client_id', $request->cid)->count();
-        $completed  =  Job::where('status', 'completed')->where('client_id', $request->cid)->count();
-        $ordered    =  Job::with('order')->has('order')->where('client_id', $request->cid)->count();
-        $unordered  =  Job::with('order')->whereDoesntHave('order')->where('client_id', $request->cid)->count();
-        $invoiced   =  Job::with('invoice')->has('invoice')->where('client_id', $request->cid)->count();
-        $unordered  =  Job::with('invoice')->whereDoesntHave('invoice')->where('client_id', $request->cid)->count();
+        $sch        = Job::where('status', 'scheduled')->where('client_id', $request->cid)->count();
+        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $request->cid)->count();
+        $cancel     = Job::where('status', 'canceled')->where('client_id', $request->cid)->count();
+        $progress   = Job::where('status', 'progress')->where('client_id', $request->cid)->count();
+        $completed  = Job::where('status', 'completed')->where('client_id', $request->cid)->count();
+
+        $ordered    = Job::has('order')->where('client_id', $request->cid)->count();
+        $unordered  = Job::whereDoesntHave('order')->where('client_id', $request->cid)->count();
+        $invoiced   = Job::has('invoice')->where('client_id', $request->cid)->count();
+        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $request->cid)->count();
 
         $jobs = $jobs->paginate(20);
 
         $all = Job::where('client_id', $request->cid)->count();
 
         return response()->json([
-
             'all'         => $all,
             'jobs'        => $jobs,
             'scheduled'   => $sch,
@@ -283,21 +329,22 @@ class JobController extends Controller
             'ordered'     => $ordered,
             'unordered'   => $unordered,
             'invoiced'    => $invoiced,
-            'uninvoiced'   => $unordered
-
+            'uninvoiced'  => $unordered
         ]);
     }
 
     public function getJobWorker(Request $request)
     {
-        $filter              = [];
-        $filter['status']    = $request->status;
-        $jobs = Job::with('client', 'worker', 'service', 'jobservice')->where('worker_id', $request->wid);
+        $filter = [];
+        $filter['status'] = $request->status;
+        $jobs = Job::query()
+            ->with(['client', 'worker', 'service', 'jobservice'])
+            ->where('worker_id', $request->wid);
 
         if (isset($filter['status']) && $filter['status']) {
-            $jobs            = $jobs->where('status', 'completed');
+            $jobs = $jobs->where('status', 'completed');
         } else {
-            $jobs            = $jobs->where('status', '!=', 'completed');
+            $jobs = $jobs->where('status', '!=', 'completed');
         }
 
         $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
@@ -322,13 +369,15 @@ class JobController extends Controller
         if ($request->comment != '') {
             $job->comment = $request->comment;
         }
+
         $job->save();
         if ($request->worker != '') {
             $this->sendWorkerEmail($id);
         }
+
         return response()->json([
             'message' => 'Job has been updated successfully'
-        ], 200);
+        ]);
     }
 
     public function createJob(Request $request, $id)
@@ -358,14 +407,17 @@ class JobController extends Controller
             $s_period = $service['period'];
             $s_total  = $service['totalamount'];
             $s_id     = $service['service'];
-            if (isset($request->client_page) && $request->client_page)
+            if (isset($request->client_page) && $request->client_page) {
                 $contract_id = $service['c_id'];
+            }
         }
+
         if (isset($request->client_page) && $request->client_page) {
             $job = Contract::with('offer')->find($contract_id);
         } else {
             $job = Contract::with('offer')->find($id);
         }
+
         $client_mail = array();
         $client_email = '';
         foreach ($request->workers as $worker) {
@@ -384,9 +436,15 @@ class JobController extends Controller
                 }
                 $job_date = $date->addDays($j)->toDateString();
                 $status = 'scheduled';
-                if (Job::where('start_date', $job_date)->where('worker_id', $worker['worker_id'])->exists()) {
+
+                if (
+                    Job::where('start_date', $job_date)
+                    ->where('worker_id', $worker['worker_id'])
+                    ->exists()
+                ) {
                     $status = 'unscheduled';
                 }
+
                 $new = new Job;
                 $new->worker_id     = $worker['worker_id'];
                 if (isset($request->client_page) && $request->client_page) {
@@ -417,7 +475,11 @@ class JobController extends Controller
                 $service->save();
 
                 if ($i == 0) {
-                    $job = Job::with('client', 'worker', 'jobservice')->where('id', $new->id)->first();
+                    $job = Job::query()
+                        ->with(['client', 'worker', 'jobservice'])
+                        ->where('id', $new->id)
+                        ->first();
+
                     $_timeShift = $worker['shifts'];
                     if ($_timeShift != '') {
                         $_timeShift1 = explode('-', $_timeShift)[1];
@@ -445,9 +507,9 @@ class JobController extends Controller
 
                     $data['job']['shifts'] = $this->getShifts($worker['shifts'], $job['client']['lng']);
                     $client_mail[] = $data;
-                    $client_email  =  $job['client']['email'];
-                    $client_name  =  $job['client']['firstname'] . ' ' . $job['client']['lastname'];
-                    $client_lng    = $job['client']['lng'];
+                    $client_email = $job['client']['email'];
+                    $client_name = $job['client']['firstname'] . ' ' . $job['client']['lastname'];
+                    $client_lng = $job['client']['lng'];
                 }
             }
         }
@@ -462,20 +524,19 @@ class JobController extends Controller
         );
 
         if (!is_null($client_email) && $client_email != 'Null') {
-
-            //  Mail::send('/Mails/NewJobClient',$client_data,function($messages) use ($client_data){
-            //         $messages->to($client_data['email']);
-            //         $id = $client_data['jobs'][0]['job']['id'];
-            //         ($client_data['lng'] == 'en') ?
-            //         $sub = __('mail.client_new_job.subject')."  ".__('mail.client_new_job.company')." #".$id:
-            //         $sub = $id."# ".__('mail.client_new_job.subject')."  ".__('mail.client_new_job.company');
-            //         $messages->subject($sub);
-            //     });
+            // Mail::send('/Mails/NewJobClient', $client_data, function ($messages) use ($client_data) {
+            //     $messages->to($client_data['email']);
+            //     $id = $client_data['jobs'][0]['job']['id'];
+            //     ($client_data['lng'] == 'en') ?
+            //         $sub = __('mail.client_new_job.subject') . "  " . __('mail.client_new_job.company') . " #" . $id :
+            //         $sub = $id . "# " . __('mail.client_new_job.subject') . "  " . __('mail.client_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         return response()->json([
             'message' => 'Job has been created successfully'
-        ], 200);
+        ]);
     }
 
     public function getShifts($shift, $lng = 'en')
@@ -496,6 +557,7 @@ class JobController extends Controller
             } else {
                 $check = $s_s;
             }
+
             foreach ($shifts as $shift) {
                 if (str_contains($shift, strtolower($check))) {
                     if ($new_shift == '') {
@@ -508,6 +570,7 @@ class JobController extends Controller
                 }
             }
         }
+
         if ($lng == 'heb') {
             $new_shift = str_replace("Full Day", "יום שלם", $new_shift);
             $new_shift = str_replace("Morning", "בוקר", $new_shift);
@@ -528,10 +591,11 @@ class JobController extends Controller
                 $total = $total + (int)$t->time_diff;
             }
         }
+
         return response()->json([
-            'time'     => $time,
-            'total'    => $total
-        ], 200);
+            'time' => $time,
+            'total' => $total
+        ]);
     }
 
     public function addJobTime(Request $request)
@@ -540,9 +604,11 @@ class JobController extends Controller
             'start_time' => ['required'],
             'end_time'  => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
         $time = new JobHours();
         $time->job_id = $request->job_id;
         $time->worker_id = $request->worker_id;
@@ -550,9 +616,10 @@ class JobController extends Controller
         $time->end_time = $request->end_time;
         $time->time_diff = $request->timeDiff;
         $time->save();
+
         return response()->json([
-            'time'     => $time,
-        ], 200);
+            'time' => $time,
+        ]);
     }
 
     public function updateJobTime(Request $request)
@@ -561,23 +628,29 @@ class JobController extends Controller
             'start_time' => ['required'],
             'end_time'  => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
         $time = JobHours::find($request->id);
         $time->start_time = $request->start_time;
         $time->end_time = $request->end_time;
         $time->time_diff = $request->timeDiff;
         $time->save();
+
         return response()->json([
-            'time'     => $time,
-        ], 200);
+            'time' => $time,
+        ]);
     }
 
     public function cancelJob(Request $request)
     {
-        $job = Job::with('worker', 'client', 'jobservice')->find($request->id);
-        Job::where('id', $request->id)->update(['status' => 'cancel']);
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice'])
+            ->find($request->id);
+
+        $job->update(['status' => 'cancel']);
 
         $admin = Admin::find(1)->first();
         App::setLocale('en');
@@ -608,25 +681,33 @@ class JobController extends Controller
 
     public function deleteJobTime($id)
     {
-        JobHours::find($id)->delete();
+        $jobHour = JobHours::find($id);
+        $jobHour->delete();
+
         return response()->json([
-            'message'     => 'Job Time Deleted Successfully',
-        ], 200);
+            'message' => 'Job Time deleted successfully',
+        ]);
     }
 
     public function exportReport(Request $request)
     {
-
         if ($request->type == 'single') {
-            $jobs = JobHours::where('job_id', $request->id)->with('worker')->get();
+            $jobs = JobHours::query()
+                ->with('worker')
+                ->where('job_id', $request->id)
+                ->get();
+
             $fileName = 'job_report_' . $request->id . '.csv';
         } else {
-            $jobs = JobHours::whereDate('created_at', '>=', $request->from)
-                ->whereDate('created_at', '<=', $request->to)->get();
+            $jobs = JobHours::query()
+                ->whereDate('created_at', '>=', $request->from)
+                ->whereDate('created_at', '<=', $request->to)
+                ->get();
+
             $fileName = 'AllJob_report.csv';
         }
 
-        if (empty($jobs)) {
+        if ($jobs->isEmpty()) {
             return response()->json([
                 'status_code' => 404,
                 'msg' => 'No work log is found!'
@@ -636,7 +717,6 @@ class JobController extends Controller
         $report = [];
         $total = 0;
         foreach ($jobs as $job) {
-
             $row['worker_name']      = $job->worker->firstname . " " . $job->worker->lastname;
             $row['worker_id']        = $job->worker->worker_id;
             $row['start_time']       = $job->start_time;
@@ -648,7 +728,6 @@ class JobController extends Controller
             array_push($report, $row);
         }
 
-
         return response()->json([
             'status_code' => 200,
             'filename' => $fileName,
@@ -658,20 +737,29 @@ class JobController extends Controller
 
     public function sendWorkerEmail($job_id)
     {
-        $job = Job::with('client', 'worker', 'jobservice')->where('id', $job_id)->first();
+        $job = Job::query()
+            ->with(['client', 'worker', 'jobservice'])
+            ->where('id', $job_id)
+            ->first();
 
         $data = array(
             'email' => $job['worker']['email'],
             'job'  => $job->toArray(),
         );
-        if (isset($job['worker']['email']) && $job['worker']['email'] != null && $job['worker']['email'] != 'Null') :
+
+        if (
+            isset($job['worker']['email']) &&
+            $job['worker']['email'] != null &&
+            $job['worker']['email'] != 'Null'
+        ) {
             App::setLocale($job->worker->lng);
             Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
                 $messages->subject($sub);
             });
-        endif;
+        }
+
         return true;
     }
 }

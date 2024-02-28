@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContractStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
 use App\Models\ClientCard;
-use App\Models\Job;
 use App\Models\LeadStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
@@ -25,16 +24,16 @@ class ContractController extends Controller
         $result = Contract::query()->with('client', 'offer');
 
         $status = '';
-        if (strtolower($q) === 'un-verified') {
+        if (strtolower($q) === ContractStatusEnum::UN_VERIFIED) {
             $status = 'un-verified';
         }
-        if (strtolower($q) === 'verified') {
+        if (strtolower($q) === ContractStatusEnum::VERIFIED) {
             $status = 'verified';
         }
-        if (strtolower($q) === 'not-signed') {
+        if (strtolower($q) === ContractStatusEnum::NOT_SIGNED) {
             $status = 'not-signed';
         }
-        if (strtolower($q) === 'declined') {
+        if (strtolower($q) === ContractStatusEnum::DECLINED) {
             $status = '';
         }
 
@@ -58,13 +57,19 @@ class ContractController extends Controller
 
         return response()->json([
             'contracts' => $result
-        ], 200);
+        ]);
     }
 
     public function clientContracts(Request $request)
     {
-        $contracts = Contract::where('client_id', $request->id)->with('offer')->orderBy('id', 'desc')->paginate(20);
-        $latest   = Contract::where('client_id', $request->id)->get()->last();
+        $contracts = Contract::query()
+            ->with('offer')
+            ->where('client_id', $request->id)
+            ->orderBy('id', 'desc')
+            ->paginate(20);
+
+        $latest = Contract::where('client_id', $request->id)->get()->last();
+
         return response()->json([
             'contracts' => $contracts,
             'latest'    => $latest
@@ -79,10 +84,13 @@ class ContractController extends Controller
      */
     public function show($id)
     {
-        $contracts = Contract::with('offer', 'client')->find($id);
+        $contracts = Contract::query()
+            ->with(['offer', 'client'])
+            ->find($id);
+
         return response()->json([
-            'contract'     => $contracts
-        ], 200);
+            'contract' => $contracts
+        ]);
     }
 
     /**
@@ -93,28 +101,31 @@ class ContractController extends Controller
      */
     public function destroy($id)
     {
-        Contract::find($id)->delete();
+        $contract = Contract::find($id);
+
+        $contract->delete();
+
         return response()->json([
-            'message'     => "Client has been deleted"
-        ], 200);
+            'message' => "Contract has been deleted"
+        ]);
     }
 
     public function getContract(Request $request)
     {
+        $contract = Contract::query()->with('client', 'offer')->where('id', $request->id)->get();
+        $card = ClientCard::where('client_id', $contract[0]->client->id)->first();
 
-        $contract = Contract::where('id', $request->id)->with('client', 'offer')->get();
-        $card = ClientCard::where('client_id', $contract[0]->client->id)->get()->first();
         $contract[0]['card'] = $card;
 
         return response()->json([
             'contract' => $contract,
-        ], 200);
+        ]);
     }
 
     public function verifyContract(Request $request)
     {
         Contract::where('id', $request->id)->update([
-            'status' => 'verified'
+            'status' => ContractStatusEnum::VERIFIED
         ]);
 
         $contract = Contract::where('id', $request->id)->with('client')->get()->first();
@@ -137,13 +148,18 @@ class ContractController extends Controller
 
     public function getContractByClient($id)
     {
+        $contracts = Contract::query()
+            ->with('offer')
+            ->where('client_id', $id)
+            ->where('status', ContractStatusEnum::VERIFIED)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $contracts = Contract::with('offer')->where('client_id', $id)->where('status', 'verified')->orderBy('created_at', 'desc')->get();
-        $client  = Client::find($id);
+        $client = Client::find($id);
         return response()->json([
-            'contract'     => $contracts,
-            'client'       => $client
-        ], 200);
+            'contract' => $contracts,
+            'client' => $client
+        ]);
     }
 
     public function cancelJob(Request $request)

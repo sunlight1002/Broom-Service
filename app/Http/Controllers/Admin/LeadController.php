@@ -39,73 +39,58 @@ class LeadController extends Controller
             $result->where(function ($query) use ($q) {
                 $ex = explode(' ', $q);
                 $q2 = isset($ex[1]) ? $ex[1] : $q;
-                $query->where('email',       'like', '%' . $q . '%')
-                    ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
-                    ->orWhere('lastname',       'like', '%' . $q2 . '%')
-                    ->orWhere('phone',       'like', '%' . $q . '%');
+
+                $query->where('email', 'like', '%' . $q . '%')
+                    ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
+                    ->orWhere('lastname', 'like', '%' . $q2 . '%')
+                    ->orWhere('phone', 'like', '%' . $q . '%');
             });
         }
 
-
         if (!is_null($q) &&  ($q == 1 || $q == 0)) {
-
             $result->where('status', $q);
         } else if (is_null($q)) {
-
             $result->where('status', 0)->orWhere('status', 1);
         }
 
         if ($q == 'pending') {
-
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
                     $q->where('lead_status', 'Pending');
                 });
             })->orWhereDoesntHave('lead_status');
-        }
-
-        if ($q == 'set') {
-
+        } else if ($q == 'set') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
                     $q->where('lead_status', 'Meeting Set');
                 });
             });
-        }
-
-        if ($q == 'offersend') {
-
+        } else if ($q == 'offersend') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
                     $q->where('lead_status', 'Offer Sent');
                 });
             });
-        }
-
-        if ($q == 'offerdecline') {
-
+        } else if ($q == 'offerdecline') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
                     $q->where('lead_status', 'Offer Rejected');
                 });
             });
-        }
-
-        $result = $result->where('status', '!=', 2);
-
-        if ($q == 'uninterested') {
-
+        } else if ($q == 'uninterested') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
                     $q->where('lead_status', 'Uninterested');
                 });
             });
         }
+
+        $result = $result->where('status', '!=', 2);
         $result = $result->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
-            'leads'       => $result,
-        ], 200);
+            'leads' => $result,
+        ]);
     }
 
     /**
@@ -127,12 +112,15 @@ class LeadController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $input  = $data;
-        $input['password']  = isset($input['phone']) && !empty($input['phone'])? Hash::make($input['phone']): Hash::make('password');
+        $input = $data;
+        $input['password'] = isset($input['phone']) && !empty($input['phone']) ?
+            Hash::make($input['phone']) :
+            Hash::make('password');
+
         $client = Client::create($input);
 
         $property_address_data = $request->propertyAddress;
-        if(count($property_address_data) > 0){
+        if (count($property_address_data) > 0) {
             foreach ($property_address_data as $key => $address) {
                 $address['client_id'] = $client->id;
                 ClientPropertyAddress::create($address);
@@ -150,8 +138,8 @@ class LeadController extends Controller
         );
 
         return response()->json([
-            'message'       => 'Lead created successfully',
-        ], 200);
+            'message' => 'Lead created successfully',
+        ]);
     }
 
     /**
@@ -165,9 +153,10 @@ class LeadController extends Controller
         $lead                = Client::find($id);
         $lead->lead_status   = $request->lead_status;
         $lead->save();
+
         return response()->json([
-            'message'        => 'status updated',
-        ], 200);
+            'message' => 'status updated',
+        ]);
     }
 
     /**
@@ -178,40 +167,40 @@ class LeadController extends Controller
      */
     public function edit($id)
     {
-        $lead                = Client::with('offers', 'meetings', 'lead_status', 'property_addresses')->find($id);
+        $lead = Client::query()
+            ->with(['offers', 'meetings', 'lead_status', 'property_addresses'])
+            ->find($id);
 
         if (!empty($lead)) {
-
             $offer = Offer::where('client_id', $id)->get()->last();
             $lead->latest_offer = $offer;
 
             $meeting = Schedule::where('client_id', $id)->get()->last();
             $lead->latest_meeting = $meeting;
 
-            $reply  = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
+            $reply = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
                 WhatsappLastReply::where('phone', 'like', '%' . $lead->phone . '%')
+                ->first() : null;
 
-                ->get()->first() : null;
-
-            $_first_contact  = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
-                WebhookResponse::where('number', 'like', '%' . $lead->phone . '%')->where('flex', 'C')
-
-                ->get()->first() : null;
+            $_first_contact = ($lead->phone != NULL && $lead->phone != '' && $lead->phone != 0) ?
+                WebhookResponse::where('number', 'like', '%' . $lead->phone . '%')
+                ->where('flex', 'C')
+                ->first() : null;
 
             if (!empty($reply)) {
-
-                if ($reply->message < 2)
+                if ($reply->message < 2) {
                     $reply->msg = WebhookResponse::getWhatsappMessage('message_' . $reply->message, 'heb', $lead);
-                else
+                } else {
                     $reply->msg = $reply->message;
+                }
             }
 
             $lead->reply = $reply;
             $lead->first_contact = $_first_contact;
         }
         return response()->json([
-            'lead'        => $lead,
-        ], 200);
+            'lead' => $lead,
+        ]);
     }
 
     /**
@@ -231,20 +220,20 @@ class LeadController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $client = Client::where('id', $id)->first();
 
-        $input  = $request->data;
+        $client = Client::find($id);
+
+        $input = $request->data;
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
             $input['password'] = Hash::make($input['passcode']);
         } else {
             $input['password'] = $client->password;
         }
 
-        Client::where('id', $id)->update($input);
-        
+        $client->update($input);
         return response()->json([
-            'message'       => 'Lead updated successfully',
-        ], 200);
+            'message' => 'Lead updated successfully',
+        ]);
     }
 
     /**
@@ -255,47 +244,54 @@ class LeadController extends Controller
      */
     public function destroy($id)
     {
-        Client::find($id)->delete();
+        $client = Client::find($id);
+        $client->delete();
+
         return response()->json([
-            'message'     => "Lead has been deleted"
-        ], 200);
+            'message' => "Lead has been deleted"
+        ]);
     }
 
     public function updateStatus(Request $request, $id)
     {
-
         return response()->json([
-            'message'        => 'status updated',
-        ], 200);
+            'message' => 'status updated',
+        ]);
     }
 
     public function addComment(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'comment'     => 'required',
+            'comment'  => 'required',
             'lead_id'  => 'required',
             'team_id'  => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+
         LeadComment::create([
             'comment'   => $request->comment,
             'lead_id' => $request->lead_id,
             'team_id' => $request->team_id
         ]);
+
         return response()->json(['message' => 'comment added']);
     }
 
     public function getComments(Request $request)
     {
         $comments = LeadComment::where('lead_id', $request->id)->with('team')->get();
+
         return response()->json(['comments' => $comments]);
     }
 
     public function deleteComment(Request $request)
     {
-        LeadComment::where(['id' => $request->id])->delete();
+        $leadComment = LeadComment::find($request->id);
+        $leadComment->delete();
+
         return response()->json(['message' => 'comment deleted']);
     }
 
@@ -310,6 +306,7 @@ class LeadController extends Controller
                 'lead_status' => 'Uninterested'
             ]
         );
+
         return response()->json(['message' => 'Marked Uninterested']);
     }
 
@@ -336,7 +333,6 @@ class LeadController extends Controller
 
     public function pageAccessToken()
     {
-
         $url = $this->fburl . config('services.facebook.app_scope_id') . '/accounts?access_token=' .  config('services.facebook.access_token');
 
         $ch = curl_init();
@@ -350,13 +346,13 @@ class LeadController extends Controller
         if (isset($result->error)) {
             return $result->error->message;
         }
-        if (count($result->data) > 0) :
-            foreach ($result->data as $r) :
-                if ($r->id == config('services.facebook.account_id')) :
+        if (count($result->data) > 0) {
+            foreach ($result->data as $r) {
+                if ($r->id == config('services.facebook.account_id')) {
                     return $r->access_token;
-                endif;
-            endforeach;
-        endif;
+                }
+            }
+        }
     }
 
     public function leadGenForms()
@@ -421,10 +417,11 @@ class LeadController extends Controller
         }
     }
 
-    public function savePropertyAddress(Request $request) {
+    public function savePropertyAddress(Request $request)
+    {
         try {
             $property_address = $request->data;
-            if(count($property_address) > 0){
+            if (count($property_address) > 0) {
                 $savedAddress = ClientPropertyAddress::UpdateOrCreate(
                     [
                         'id' => $property_address['id']
@@ -435,7 +432,7 @@ class LeadController extends Controller
                     'data' => $savedAddress,
                     'message'   => 'Lead property address saved successfully',
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'message'   => 'Data is empty!',
                 ], 500);
@@ -446,7 +443,8 @@ class LeadController extends Controller
             ], 500);
         }
     }
-    public function removePropertyAddress($id){
+    public function removePropertyAddress($id)
+    {
         try {
             ClientPropertyAddress::find($id)->delete();
             return response()->json([

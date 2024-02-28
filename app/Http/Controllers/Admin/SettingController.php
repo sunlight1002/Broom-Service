@@ -11,6 +11,7 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
@@ -18,7 +19,9 @@ class SettingController extends Controller
     public function getGeneralSettings()
     {
         $setting = GeneralSetting::first();
-        $setting->logo  = $setting->logo ? asset('storage/uploads/' . $setting->logo) : asset('images/Frontlogo.png');
+        $setting->logo = $setting->logo ?
+            Storage::disk('public')->url('uploads/' . $setting->logo) :
+            asset('images/Frontlogo.png');
 
         return response()->json([
             'setting' => $setting,
@@ -44,24 +47,36 @@ class SettingController extends Controller
         $input = $request->all();
 
         if ($request->hasfile('logo')) {
+            if ($setting->logo) {
+                if (Storage::drive('public')->exists('uploads/' . $setting->logo)) {
+                    Storage::drive('public')->delete('uploads/' . $setting->logo);
+                }
+            }
+
             $image = $request->file('logo');
             $name = $image->getClientOriginalName();
-            $image->storeAs('uploads/', $name, 'public');
+            if (!Storage::disk('public')->exists('uploads')) {
+                Storage::disk('public')->makeDirectory('uploads');
+            }
 
-            $input['logo'] = $name;
+            if (Storage::disk('public')->putFileAs("uploads", $image, $name)) {
+                $input['logo'] = $name;
+            }
         }
 
-        GeneralSetting::where('id', $setting->id)->update($input);
+        $setting->update($input);
 
         return response()->json([
             'message' => 'General Setting updated successfully',
-        ], 200);
+        ]);
     }
 
     public function getAccountDetails()
     {
         $account = Auth::user();
-        $account->avatar = $account->avatar ? asset('storage/uploads/admin/' . $account->avatar) : asset('images/man.png');
+        $account->avatar = $account->avatar ?
+            Storage::disk('public')->url('uploads/admin/' . $account->avatar) :
+            asset('images/man.png');
 
         return response()->json([
             'account' => $account,
@@ -70,11 +85,10 @@ class SettingController extends Controller
 
     public function saveAccountDetails(Request $request)
     {
-        $admin = Auth::user();
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . Auth::user()->id],
         ]);
 
         if ($validator->fails()) {
@@ -82,15 +96,27 @@ class SettingController extends Controller
         }
 
         $input = $request->all();
+
+        $admin = Admin::find(Auth::user()->id);
         if ($request->hasfile('avatar')) {
+            if ($admin->avatar) {
+                if (Storage::drive('public')->exists('uploads/admin/' . $admin->avatar)) {
+                    Storage::drive('public')->delete('uploads/admin/' . $admin->avatar);
+                }
+            }
+
             $image = $request->file('avatar');
             $name = $image->getClientOriginalName();
-            $image->storeAs('uploads/admin/', $name, 'public');
+            if (!Storage::disk('public')->exists('uploads/admin')) {
+                Storage::disk('public')->makeDirectory('uploads/admin');
+            }
 
-            $input['avatar'] = $name;
+            if (Storage::disk('public')->putFileAs("uploads/admin", $image, $name)) {
+                $input['avatar'] = $name;
+            }
         }
 
-        $admin = Admin::where('id', $admin->id)->update($input);
+        $admin->update($input);
 
         return response()->json([
             'message' => 'Account details updated successfully',
@@ -99,8 +125,6 @@ class SettingController extends Controller
 
     public function changePassword(Request $request)
     {
-        $id = Auth::user()->id;
-
         $validator = Validator::make($request->all(), [
             'current_password' => ['required', 'min:6'],
             'password' => ['required', 'min:6', 'confirmed']
@@ -110,7 +134,7 @@ class SettingController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $admin = Admin::find($id);
+        $admin = Admin::find(Auth::user()->id);
         if (Hash::check($request->get('current_password'), $admin->password)) {
             $admin->password = Hash::make($request->password);
             $admin->save();

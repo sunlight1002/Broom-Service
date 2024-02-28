@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Contract extends Model
 {
-    use HasFactory;
     protected $fillable = [
         'offer_id',
         'client_id',
@@ -24,6 +22,7 @@ class Contract extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+
     public function offer()
     {
         return $this->belongsTo(Offer::class, 'offer_id');

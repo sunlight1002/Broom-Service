@@ -929,7 +929,7 @@ export default function Jobs({ contracts, client }) {
                                         </option>
                                         <option value="untill_date">
                                             {" "}
-                                            Untill Date{" "}
+                                            Until Date{" "}
                                         </option>
                                     </select>
 
