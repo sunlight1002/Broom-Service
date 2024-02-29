@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContractStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\ClientCard;
@@ -12,16 +13,16 @@ use App\Models\ServiceSchedule;
 use App\Models\Services;
 use App\Models\Contract;
 use App\Models\Job;
-use App\Models\JobHours;
 use App\Models\JobService;
 use App\Models\Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Models\ClientPropertyAddress;
 
 class ClientController extends Controller
 {
@@ -35,7 +36,6 @@ class ClientController extends Controller
         $q = $request->q;
 
         $result = Client::where('status', 2);
-
 
         if (!is_null($q)) {
             // $result->where('email',      'like', '%' . $q . '%');
@@ -54,34 +54,37 @@ class ClientController extends Controller
             $result->where(function ($query) use ($q) {
                 $ex = explode(' ', $q);
                 $q2 = isset($ex[1]) ? $ex[1] : $q;
-                $query->where('email',       'like', '%' . $q . '%')
-                    ->orWhere('firstname',       'like', '%' . $ex[0] . '%')
-                    ->orWhere('lastname',       'like', '%' . $q2 . '%')
-                    ->orWhere('phone',       'like', '%' . $q . '%')
-                    ->orWhere('geo_address',   'like', '%' . $q . '%');
+                $query->where('email', 'like', '%' . $q . '%')
+                    ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
+                    ->orWhere('lastname', 'like', '%' . $q2 . '%')
+                    ->orWhere('phone', 'like', '%' . $q . '%')
+                    ->orWhere('geo_address', 'like', '%' . $q . '%');
             });
         }
 
         if (isset($request->action)) {
-
             $result = '';
-
             $ac = $request->action;
 
-            if ($ac == 'booked')
-
+            if ($ac == 'booked') {
                 $result = Client::with('jobs')->has('jobs');
+            }
 
-            if ($ac == 'notbooked')
-
+            if ($ac == 'notbooked') {
                 $result = Client::with('jobs')->whereDoesntHave('jobs');
+            }
         }
 
         $result = $result->where('status', '2')->orderBy('id', 'desc')->paginate(20);
 
         if (isset($result)) {
             foreach ($result as $k => $res) {
-                $contract = Contract::where('client_id', $res->id)->where('status', 'verified')->get()->last();
+                $contract = Contract::query()
+                    ->where('client_id', $res->id)
+                    ->where('status', ContractStatusEnum::VERIFIED)
+                    ->get()
+                    ->last();
+
                 if ($contract != null) {
                     $result[$k]->latest_contract = $contract->id;
                 } else {
@@ -91,8 +94,8 @@ class ClientController extends Controller
         }
 
         return response()->json([
-            'clients'       => $result,
-        ], 200);
+            'clients' => $result,
+        ]);
     }
 
     public function AllClients()
@@ -108,8 +111,8 @@ class ClientController extends Controller
         }
 
         return response()->json([
-            'clients'       => $clients,
-        ], 200);
+            'clients' => $clients,
+        ]);
     }
 
     public function latestClients()
@@ -125,8 +128,8 @@ class ClientController extends Controller
         }
 
         return response()->json([
-            'clients'       => $clients,
-        ], 200);
+            'clients' => $clients,
+        ]);
     }
 
     /**
@@ -149,14 +152,19 @@ class ClientController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $input                  = $request->data;
+        $input = $request->data;
+        $input['password'] = Hash::make($input['passcode']);
+        $client = Client::create($input);
 
-        $input['password']      = Hash::make($input['passcode']);
-
-        $client                 = Client::create($input);
+        $property_address_data = $request->propertyAddress;
+        if(count($property_address_data) > 0){
+            foreach ($property_address_data as $key => $address) {
+                $address['client_id'] = $client->id;
+                ClientPropertyAddress::create($address);
+            }
+        }
 
         if (!empty($request->jobdata)) {
-
             $offer = Offer::create([
                 'client_id' => $client->id,
                 'services' => $request->jobdata['services'],
@@ -173,15 +181,13 @@ class ClientController extends Controller
             ]);
 
             /* Create job */
-
             $allServices = json_decode($request->jobdata['services'], true);
 
             $jds = [];
 
             foreach ($allServices as $service) {
-
-                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
-                $ser = Services::where('id', '=', $service['service'])->first();
+                $service_schedules = ServiceSchedule::find($service['frequency']);
+                $ser = Services::find($service['service']);
 
                 $repeat_value = $service_schedules->period;
                 if ($service['service'] == 10) {
@@ -198,7 +204,6 @@ class ClientController extends Controller
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
 
-
                 $client_mail = array();
                 $client_email = '';
 
@@ -211,9 +216,9 @@ class ClientController extends Controller
                 $shift =  $service['shift'];
 
                 for ($i = 0; $i < $count; $i++) {
-
-                    if (isset($service['days'])) :
-                        foreach ($service['days'] as $sd) : (!empty($service['days'])) ?
+                    if (isset($service['days'])) {
+                        foreach ($service['days'] as $sd) {
+                            (!empty($service['days'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -232,9 +237,7 @@ class ClientController extends Controller
                             }
 
                             $jds[] = [
-
                                 'job' => [
-
                                     'worker'      => $worker,
                                     'client_id'   => $client->id,
                                     'offer_id'    => $offer->id,
@@ -247,7 +250,6 @@ class ClientController extends Controller
                                 ],
 
                                 'service' => [
-
                                     'service_id' => $s_id,
                                     'name'       => $s_name,
                                     'heb_name'   => $s_heb_name,
@@ -256,12 +258,10 @@ class ClientController extends Controller
                                     'cycle'      => $s_cycle,
                                     'period'     => $s_period,
                                     'total'      => $s_total,
-
                                 ]
-
                             ];
-                        endforeach;
-                    endif;
+                        }
+                    }
                 }
             }
 
@@ -305,8 +305,8 @@ class ClientController extends Controller
         /*End create job */
 
         return response()->json([
-            'message'       => 'Client created successfully',
-        ], 200);
+            'message' => 'Client created successfully',
+        ]);
     }
 
     /**
@@ -317,19 +317,25 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $client               = Client::find($id);
-        if (isset($client)) {
+        $client = Client::find($id);
 
-            $contract = Contract::where('client_id', $client->id)->where('status', 'verified')->get()->last();
+        if (isset($client)) {
+            $contract = Contract::query()
+                ->where('client_id', $client->id)
+                ->where('status', 'verified')
+                ->get()
+                ->last();
+
             if ($contract != null) {
                 $client->latest_contract = $contract->id;
             } else {
                 $client->latest_contract = 0;
             }
         }
+
         return response()->json([
-            'client'        => $client,
-        ], 200);
+            'client' => $client,
+        ]);
     }
 
     /**
@@ -340,10 +346,11 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        $client                = Client::find($id);
+        $client = Client::with('property_addresses')->find($id);
+
         return response()->json([
-            'client'        => $client,
-        ], 200);
+            'client' => $client,
+        ]);
     }
 
     /**
@@ -366,16 +373,17 @@ class ClientController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $client = Client::where('id', $id)->get()->first();
 
-        $input                  = $request->data;
+        $client = Client::find($id);
+
+        $input = $request->data;
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
-            $input['password']      = Hash::make($input['passcode']);
+            $input['password'] = Hash::make($input['passcode']);
         } else {
             $input['password'] = $client->password;
         }
 
-        Client::where('id', $id)->update($input);
+        $client->update($input);
 
         if (!empty($request->jobdata)) {
             $offer = Offer::create([
@@ -394,15 +402,13 @@ class ClientController extends Controller
             ]);
 
             /* Create job */
-
             $allServices = json_decode($request->jobdata['services'], true);
 
             $jds = [];
 
             foreach ($allServices as $service) {
-
-                $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
-                $ser = Services::where('id', '=', $service['service'])->first();
+                $service_schedules = ServiceSchedule::find($service['frequency']);
+                $ser = Services::find($service['service']);
 
                 $repeat_value = $service_schedules->period;
                 if ($service['service'] == 10) {
@@ -419,7 +425,6 @@ class ClientController extends Controller
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
 
-
                 $client_mail = array();
                 $client_email = '';
 
@@ -433,8 +438,9 @@ class ClientController extends Controller
 
                 for ($i = 0; $i < $count; $i++) {
 
-                    if (isset($service['days'])) :
-                        foreach ($service['days'] as $sd) : (!empty($service['days'])) ?
+                    if (isset($service['days'])) {
+                        foreach ($service['days'] as $sd) {
+                            (!empty($service['days'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -453,9 +459,7 @@ class ClientController extends Controller
                             }
 
                             $jds[] = [
-
                                 'job' => [
-
                                     'worker'      => $worker,
                                     'client_id'   => $client->id,
                                     'offer_id'    => $offer->id,
@@ -468,7 +472,6 @@ class ClientController extends Controller
                                 ],
 
                                 'service' => [
-
                                     'service_id' => $s_id,
                                     'name'       => $s_name,
                                     'heb_name'   => $s_heb_name,
@@ -477,18 +480,15 @@ class ClientController extends Controller
                                     'cycle'      => $s_cycle,
                                     'period'     => $s_period,
                                     'total'      => $s_total,
-
                                 ]
-
                             ];
-                        endforeach;
-                    endif;
+                        }
+                    }
                 }
             }
 
             if (!empty($jds)) {
                 foreach ($jds as $jd) {
-
                     $jdata = $jd['job'];
                     $sdata = $jd['service'];
 
@@ -526,8 +526,8 @@ class ClientController extends Controller
         /*End create job */
 
         return response()->json([
-            'message'       => 'Client updated successfully',
-        ], 200);
+            'message'  => 'Client updated successfully',
+        ]);
     }
 
     /**
@@ -539,15 +539,16 @@ class ClientController extends Controller
     public function destroy($id)
     {
         Client::find($id)->delete();
+
         return response()->json([
-            'message'     => "Client has been deleted"
-        ], 200);
+            'message' => "Client has been deleted"
+        ]);
     }
 
     public function addfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'role'   => 'required',
+            'role' => 'required',
             'user_id' => 'required'
         ]);
 
@@ -560,22 +561,28 @@ class ClientController extends Controller
 
             $video = $request->file('file');
             $vname = $request->user_id . "_" . date('s') . "_" . $video->getClientOriginalName();
-            $path = storage_path() . '/app/public/uploads/ClientFiles';
-            $video->move($path, $vname);
-            $file_nm = $vname;
-        } else {
+            if (!Storage::disk('public')->exists('uploads/ClientFiles')) {
+                Storage::disk('public')->makeDirectory('uploads/ClientFiles');
+            }
 
+            if (Storage::disk('public')->putFileAs("uploads/ClientFiles", $video, $vname)) {
+                $file_nm = $vname;
+            }
+        } else {
             if ($request->hasfile('file')) {
 
                 $image = $request->file('file');
                 $name = $image->getClientOriginalName();
                 $img = Image::make($image)->resize(350, 227);
-                $destinationPath = storage_path() . '/app/public/uploads/ClientFiles/';
                 $fname = 'file_' . $request->user_id . '_' . date('s') . '_' . $name;
-                $path = storage_path() . '/app/public/uploads/ClientFiles/' . $fname;
-                File::exists($destinationPath) or File::makeDirectory($destinationPath, 0777, true, true);
+                $path = Storage::disk('public')->path('uploads/ClientFiles/' . $fname);
+
+                if (!Storage::disk('public')->exists('uploads/ClientFiles')) {
+                    Storage::disk('public')->makeDirectory('uploads/ClientFiles');
+                }
+
                 $img->save($path, 90);
-                $file_nm  = $fname;
+                $file_nm = $fname;
             }
         }
 
@@ -590,28 +597,30 @@ class ClientController extends Controller
 
         return response()->json([
             'message' => 'File uploaded',
-        ], 200);
+        ]);
     }
-    public function getfiles(Request $request)
-    {
-        $files = Files::where('user_id', $request->id)->get();
-        if (isset($files)) {
-            foreach ($files as $k => $file) {
 
-                $files[$k]->path =  asset('storage/uploads/ClientFiles') . "/" . $file->file;
-            }
+    public function files($id)
+    {
+        $files = Files::where('user_id', $id)->get();
+
+        foreach ($files as $k => $file) {
+            $files[$k]->path = Storage::disk('public')->url('uploads/ClientFiles/' . $file->file);
         }
+
         return response()->json([
             'files' => $files
-        ], 200);
+        ]);
     }
 
     public function deletefile(Request $request)
     {
-        Files::where('id', $request->id)->delete();
+        $file = Files::find($request->id);
+        $file->delete();
+
         return response()->json([
             'message' => 'File deleted',
-        ], 200);
+        ]);
     }
 
     public function addNote(Request $request)
@@ -621,21 +630,28 @@ class ClientController extends Controller
             'team_id'  => 'required',
             'user_id'  => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+
         Note::create([
             'note'   => $request->note,
             'user_id' => $request->user_id,
             'team_id' => $request->team_id,
             'important' => $request->important
         ]);
+
         return response()->json(['message' => 'Note added']);
     }
 
     public function getNotes(Request $request)
     {
-        $notes = Note::where(['user_id' => $request->id, 'role' => 'client'])->with('team')->get();
+        $notes = Note::query()
+            ->with('team')
+            ->where(['user_id' => $request->id, 'role' => 'client'])
+            ->get();
+
         return response()->json(['notes' => $notes]);
     }
 
@@ -647,12 +663,10 @@ class ClientController extends Controller
 
     public function cardToken($id)
     {
-
         $card = ClientCard::where('client_id', $id)->get()->first();
         $cvv  = Contract::where('client_id', $id)->where('cvv', '!=', 'null')->get('cvv')->last();
 
         return response()->json([
-
             'status_code'  => (!empty($card)) ? 200 : 0,
             'card'         => (!empty($card)) ? $card->card_number : 0,
             'expiry'       => (!empty($card)) ? $card->valid : 0,
@@ -660,48 +674,41 @@ class ClientController extends Controller
             'ctype'        => (!empty($card)) ? $card->card_type : 0,
             'holder'       => (!empty($card)) ? $card->card_holder : 0,
             'cvv'          => (!empty($cvv)) ? $cvv : 0,
-
         ]);
     }
 
     public function export(Request $request)
     {
-
-
-
-        if (isset($request->f) &&  $request->f != "null")
-
+        if (isset($request->f) &&  $request->f != "null") {
             $clients = Client::where('status', $request->f)->get();
-
-        if (!is_null($request->action)) {
-
-            $ac = $request->action;
-
-            if ($ac == 'booked')
-
-                $clients = Client::with('jobs')->has('jobs')->get();
-
-            if ($ac == 'notbooked')
-
-                $clients = Client::with('jobs')->whereDoesntHave('jobs')->get();
         }
 
-        if ($request->f == 'null')
+        if (!is_null($request->action)) {
+            $ac = $request->action;
 
+            if ($ac == 'booked') {
+                $clients = Client::with('jobs')->has('jobs')->get();
+            }
+
+            if ($ac == 'notbooked') {
+                $clients = Client::with('jobs')->whereDoesntHave('jobs')->get();
+            }
+        }
+
+        if ($request->f == 'null') {
             $clients = Client::get();
+        }
 
         foreach ($clients as $i => $c) {
-
             if ($c->status == 0) {
                 $clients[$i]['status'] = 'Lead';
-            }
-            if ($c->status == 1) {
+            } else if ($c->status == 1) {
                 $clients[$i]['status'] = 'Potential Customer';
-            }
-            if ($c->status == 2) {
+            } else if ($c->status == 2) {
                 $clients[$i]['status'] = 'Customer';
             }
         }
+
         return response()->json([
             'clients' => $clients
         ]);
@@ -712,9 +719,7 @@ class ClientController extends Controller
         $req = (object)$request->cshift;
 
         if ($req->repetency == 'one_time') {
-
             if ($req->worker != '') {
-
                 Job::where('id', $req->job)->update([
                     'worker_id' => $req->worker,
                     'start_date' => $req->shift_date,
@@ -722,42 +727,37 @@ class ClientController extends Controller
                     'status' => 'scheduled'
                 ]);
             } else {
-
                 Job::where('id', $req->job)->update([
                     'start_date' => $req->shift_date,
                     'shifts' => $req->shift_time
                 ]);
             }
         } else {
-
             if ($req->repetency == 'forever') {
-
-                $jobs =  Job::where([
-
-                    'client_id' => $req->client,
-                    'contract_id' => $req->contract,
-                    //'schedule_id' => $req->service,
-
-                ])->whereIn('status', ['scheduled', 'unscheduled'])->get();
+                $jobs =  Job::query()
+                    ->where([
+                        'client_id' => $req->client,
+                        'contract_id' => $req->contract,
+                        //'schedule_id' => $req->service,
+                    ])
+                    ->whereIn('status', ['scheduled', 'unscheduled'])
+                    ->get();
             }
 
             if ($req->repetency == 'untill_date') {
-
-                $jobs =  Job::where([
-
-                    'client_id' => $req->client,
-                    'contract_id' => $req->contract,
-                    //'schedule_id' => $req->service,
-
-                ])->whereIn('status', ['scheduled', 'unscheduled'])
-                    ->whereBetween('start_date', [$req->from, $req->to])->get();
+                $jobs =  Job::query()
+                    ->where([
+                        'client_id' => $req->client,
+                        'contract_id' => $req->contract,
+                        //'schedule_id' => $req->service,
+                    ])
+                    ->whereIn('status', ['scheduled', 'unscheduled'])
+                    ->whereBetween('start_date', [$req->from, $req->to])
+                    ->get();
             }
 
             if (isset($jobs)) {
-
-
                 Shift::create([
-
                     'contract_id' =>  $req->contract,
                     'repetency'   =>  $req->repetency,
                     'old_freq'    =>  $jobs[0]->schedule,
@@ -766,61 +766,50 @@ class ClientController extends Controller
                     'shift_time'  =>  $req->shift_time,
                     'from'        =>  $req->from,
                     'to'          =>  $req->to
-
                 ]);
 
                 $firstDate = true;
-
                 foreach ($jobs as $k => $job) {
                     // if (Carbon::now()->format('Y-m-d') <= $job->start_date) {
 
                     if ($req->period == 'w') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addDays(7);
-                    }
-                    if ($req->period == '2w') {
+                    } else if ($req->period == '2w') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addDays(14);
-                    }
-                    if ($req->period == '3w') {
+                    } else if ($req->period == '3w') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addDays(21);
-                    }
-                    if ($req->period == 'm') {
+                    } else if ($req->period == 'm') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addMonths(1);
-                    }
-                    if ($req->period == '2m') {
+                    } else if ($req->period == '2m') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addMonths(2);
-                    }
-                    if ($req->period == '3m') {
+                    } else if ($req->period == '3m') {
                         $date = Carbon::parse($job->start_date);
                         $newDate = $date->addMonths(3);
                     }
 
-
                     //if ($job->start_date >= $req->shift_date && $firstDate == true) {
                     if ($k == 0) {
                         Job::where('id', $job->id)->update([
-
                             'start_date'    => ($req->shift_date != '') ? $req->shift_date : $job->start_date,
                             'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
                             'schedule'      => $req->period,
                             'schedule_id'   => $req->frequency,
-                            'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
+                            'worker_id'     => ($req->worker != '') ? $req->worker : $job->worker
                         ]);
 
                         // $firstDate = false;
                     } else {
                         Job::where('id', $job->id)->update([
-
                             'start_date'    => $newDate,
                             'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
                             'schedule'      => $req->period,
                             'schedule_id'   => $req->frequency,
-                            'worker_id'        => ($req->worker != '') ? $req->worker : $job->worker
-
+                            'worker_id'     => ($req->worker != '') ? $req->worker : $job->worker
                         ]);
                     }
                     // }

@@ -320,7 +320,7 @@ export default function Invoices() {
     };
 
     const displayCallback = (cb) => {
-        $(".ace-tm").css({ "background-color": "black", color: "#5cc527" });
+        $(".ace-tm").css({ backgroundColor: "black", color: "#5cc527" });
 
         let c = cb ? JSON.parse(cb) : cb;
         setCbvalue(cb);

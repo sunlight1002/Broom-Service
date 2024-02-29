@@ -263,6 +263,15 @@ export default function AddWorker() {
                                                 Female
                                             </label>
                                         </div>
+                                        <div>
+                                            {errors.gender ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.gender}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">

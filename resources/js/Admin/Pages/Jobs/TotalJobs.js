@@ -8,21 +8,17 @@ import { useLocation } from "react-router-dom";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
-import { intlDateTimeFormatSupported } from "javascript-time-ago";
+
 export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [AllClients, setAllClients] = useState([]);
-    const [AllServices, setAllServices] = useState([]);
-    const [AllWorkers, setAllWorkers] = useState([]);
     const [filter, setFilter] = useState("");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const alert = useAlert();
     const location = useLocation();
     const navigate = useNavigate();
-    const query = location.search.split("=")[1];
 
     const [lw, setLw] = useState("Change shift");
     const [AllFreq, setAllFreq] = useState([]);
@@ -62,28 +58,8 @@ export default function TotalJobs() {
             }
         });
     };
-    const getClients = () => {
-        axios.get("/api/admin/all-clients", { headers }).then((res) => {
-            setAllClients(res.data.clients);
-        });
-    };
-
-    const getServices = () => {
-        axios.get("/api/admin/all-services", { headers }).then((res) => {
-            setAllServices(res.data.services);
-        });
-    };
-
-    const getWorkers = () => {
-        axios.get("/api/admin/all-workers", { headers }).then((res) => {
-            setAllWorkers(res.data.workers);
-        });
-    };
 
     useEffect(() => {
-        getClients();
-        getServices();
-        getWorkers();
         getJobs();
     }, []);
 
@@ -106,17 +82,6 @@ export default function TotalJobs() {
                     setTotalJobs([]);
                 }
             });
-    };
-
-    const getTotalJobs = (response) => {
-        if (response.data.jobs.data.length > 0) {
-            setTotalJobs(response.data.jobs.data);
-            setPageCount(response.data.jobs.last_page);
-        } else {
-            setTotalJobs([]);
-            setPageCount(response.data.jobs.last_page);
-            setLoading("No Job found");
-        }
     };
 
     const handleDelete = (id) => {
@@ -145,11 +110,6 @@ export default function TotalJobs() {
             }
         });
     };
-    const handleDate = (e, index) => {
-        let newTotalJobs = [...totalJobs];
-        newTotalJobs[index][e.target.name] = e.target.value;
-        setTotalJobs(newTotalJobs);
-    };
 
     const [workers, setWorkers] = useState([]);
     const [Aworker, setAworker] = useState([]);
@@ -163,6 +123,7 @@ export default function TotalJobs() {
             }
         });
     };
+
     const upWorker = (e, index) => {
         let newWorkers = [...workers];
         newWorkers[e.target.name] = e.target.value;
@@ -184,7 +145,7 @@ export default function TotalJobs() {
             shifts: shifts != null ? shifts : "",
         };
         axios
-            .post(`/api/admin/upldate-job/${job_id}`, data, { headers })
+            .post(`/api/admin/update-job/${job_id}`, data, { headers })
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
@@ -196,6 +157,7 @@ export default function TotalJobs() {
                 }
             });
     };
+
     const getSelectedWorkers = (job_id) => {
         if (workers[job_id] !== "undefined") {
             return workers[job_id];
@@ -203,6 +165,7 @@ export default function TotalJobs() {
             return "";
         }
     };
+
     const handleNavigate = (e, id) => {
         e.preventDefault();
         navigate(`/admin/view-job/${id}`);
@@ -311,6 +274,7 @@ export default function TotalJobs() {
             setOrder("ASC");
         }
     };
+
     const filterJobs = (e) => {
         filterJobs1();
     };
@@ -319,14 +283,19 @@ export default function TotalJobs() {
         $("#filter-week").val(w);
         filterJobs1();
     };
+
     const filterJobs1 = () => {
         let filter_value = $("#search-field").val();
         let filter_week = $("#filter-week").val();
+
         axios
-            .get(
-                `/api/admin/jobs?filter_week=${filter_week}&q=${filter_value}`,
-                { headers }
-            )
+            .get(`/api/admin/jobs`, {
+                headers,
+                params: {
+                    filter_week,
+                    q: filter_value,
+                },
+            })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
@@ -825,10 +794,10 @@ export default function TotalJobs() {
                                                                         )
                                                                     }
                                                                 >
-                                                                    <option
-                                                                        selected
-                                                                    >
-                                                                        select
+                                                                    <option value="">
+                                                                        ---
+                                                                        Select
+                                                                        ---
                                                                     </option>
                                                                     {Aworker.length >
                                                                     0 ? (
@@ -859,7 +828,7 @@ export default function TotalJobs() {
                                                                             }
                                                                         )
                                                                     ) : (
-                                                                        <option>
+                                                                        <option value="">
                                                                             No
                                                                             worker
                                                                             Match
@@ -1372,7 +1341,7 @@ export default function TotalJobs() {
                                                                         {Moment(
                                                                             j.start_date
                                                                         ).format(
-                                                                            "DD MMM,Y"
+                                                                            "DD MMM, Y"
                                                                         )}
                                                                     </option>
                                                                 );
@@ -1512,7 +1481,7 @@ export default function TotalJobs() {
                                                                 </option>
                                                                 <option value="untill_date">
                                                                     {" "}
-                                                                    Untill Date{" "}
+                                                                    Until Date{" "}
                                                                 </option>
                                                             </select>
                                                         </>
@@ -1539,10 +1508,7 @@ export default function TotalJobs() {
                                                                     )
                                                                 }
                                                             >
-                                                                <option
-                                                                    selected
-                                                                    value=""
-                                                                >
+                                                                <option value="">
                                                                     {" "}
                                                                     -- Please
                                                                     select

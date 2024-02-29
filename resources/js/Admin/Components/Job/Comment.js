@@ -148,7 +148,7 @@ export default function Comment() {
                             return (
                                 <div
                                     className="card card-widget widget-user-2"
-                                    style={{ "box-shadow": "none" }}
+                                    style={{ boxShadow: "none" }}
                                     key={i}
                                 >
                                     <div className="card-comments cardforResponsive"></div>
@@ -165,8 +165,7 @@ export default function Comment() {
                                                     <span
                                                         className="noteDate"
                                                         style={{
-                                                            "font-weight":
-                                                                "600",
+                                                            fontWeight: "600",
                                                         }}
                                                     >
                                                         {"" +
@@ -215,7 +214,7 @@ export default function Comment() {
                             return (
                                 <div
                                     className="card card-widget widget-user-2"
-                                    style={{ "box-shadow": "none" }}
+                                    style={{ boxShadow: "none" }}
                                     key={i}
                                 >
                                     <div className="card-comments cardforResponsive"></div>
@@ -232,8 +231,7 @@ export default function Comment() {
                                                     <span
                                                         className="noteDate"
                                                         style={{
-                                                            "font-weight":
-                                                                "600",
+                                                            fontWeight: "600",
                                                         }}
                                                     >
                                                         {" " +

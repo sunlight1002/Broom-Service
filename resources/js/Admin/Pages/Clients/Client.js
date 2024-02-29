@@ -297,7 +297,7 @@ export default function Clients() {
                                 <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
                                 <option value="firstname">Client Name</option>
-                                <option value="address">Address</option>
+                                {/* <option value="address">Address</option> */}
                                 <option value="email">Email</option>
                                 <option value="phone">Phone</option>
                                 {/* <option value="status">Status</option> */}
@@ -345,7 +345,7 @@ export default function Clients() {
                                                     &darr;{" "}
                                                 </span>
                                             </Th>
-                                            <Th
+                                            {/* <Th
                                                 onClick={(e) => {
                                                     sortTable(e, "address");
                                                 }}
@@ -355,7 +355,7 @@ export default function Clients() {
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>
-                                            </Th>
+                                            </Th> */}
                                             <Th
                                                 onClick={(e) => {
                                                     sortTable(e, "phone");
@@ -374,16 +374,16 @@ export default function Clients() {
                                     <Tbody>
                                         {clients &&
                                             clients.map((item, index) => {
-                                                let address = item.geo_address
-                                                    ? item.geo_address
-                                                    : "NA";
-                                                let cords =
-                                                    item.latitude &&
-                                                    item.longitude
-                                                        ? item.latitude +
-                                                          "," +
-                                                          item.longitude
-                                                        : "";
+                                                // let address = item.geo_address
+                                                //     ? item.geo_address
+                                                //     : "NA";
+                                                // let cords =
+                                                //     item.latitude &&
+                                                //     item.longitude
+                                                //         ? item.latitude +
+                                                //           "," +
+                                                //           item.longitude
+                                                //         : "";
                                                 let status = "";
                                                 // if (item.status == 0)
                                                 //     status = "Lead";
@@ -433,14 +433,14 @@ export default function Clients() {
                                                         >
                                                             {item.email}
                                                         </Td>
-                                                        <Td>
+                                                        {/* <Td>
                                                             <a
                                                                 href={`https://maps.google.com?q=${cords}`}
                                                                 target="_blank"
                                                             >
                                                                 {address}
                                                             </a>
-                                                        </Td>
+                                                        </Td> */}
                                                         {/*<Td><a  href={`tel:${item.phone.toString().split(",").join(' | ')}`}>{(item.phone) ? item.phone.toString().split(",").join(' | ') : ''}</a></Td>*/}
 
                                                         <Td>

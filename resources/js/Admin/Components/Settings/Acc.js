@@ -132,6 +132,7 @@ export default function Acc() {
                         <input
                             type="file"
                             onChange={handleChange}
+                            accept="image/*"
                             style={{
                                 display: "block",
                                 height: "unset",

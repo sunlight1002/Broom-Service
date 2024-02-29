@@ -52,7 +52,7 @@ class OfferController extends Controller
 
         return response()->json([
             'offers' => $result
-        ], 200);
+        ]);
     }
 
     /**
@@ -63,7 +63,7 @@ class OfferController extends Controller
      */
     public function store(Request $request)
     {
-        $validator  = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'client_id'    => ['required'],
             'status'       => ['required'],
             'services'     => ['required']
@@ -73,8 +73,8 @@ class OfferController extends Controller
         }
 
         $input = $request->except(['action']);
-        $ofr = Offer::create($input);
-        $offer = Offer::where('id', $ofr->id)->with('client', 'service')->get()->first();
+        $offer = Offer::create($input);
+        $offer->load(['client', 'service']);
 
         LeadStatus::updateOrCreate(
             [
@@ -86,8 +86,10 @@ class OfferController extends Controller
             ]
         );
 
-        if ($request->action == 'Save and Send')
+        if ($request->action == 'Save and Send') {
             $this->sendOfferMail($offer);
+        }
+
         return response()->json([
             'message' => 'Offer created successfully'
         ]);
@@ -95,22 +97,24 @@ class OfferController extends Controller
 
     public function sendOfferMail($offer)
     {
-        if (isset($offer)) :
+        if (isset($offer)) {
             $offer = $offer->toArray();
             $services = ($offer['services'] != '') ? json_decode($offer['services']) : [];
             if (isset($services)) {
                 $s_names  = '';
                 foreach ($services as $k => $service) {
 
-                    if ($k != count($services) - 1 && $service->service != 10)
+                    if ($k != count($services) - 1 && $service->service != 10) {
                         $s_names .= $service->name . ", ";
-                    else if ($service->service == 10) {
-                        if ($k != count($services) - 1)
+                    } else if ($service->service == 10) {
+                        if ($k != count($services) - 1) {
                             $s_names .= $service->other_title . ", ";
-                        else
+                        } else {
                             $s_names .= $service->other_title;
-                    } else
+                        }
+                    } else {
                         $s_names .= $service->name;
+                    }
                 }
             }
 
@@ -122,10 +126,10 @@ class OfferController extends Controller
                 ($offer['client']['lng'] == 'en') ?
                     $sub = __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company') . " #" . ($offer['id'])
                     : $sub = $offer['id'] . "# " . __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company');
+
                 $messages->subject($sub);
             });
-
-        endif;
+        }
     }
 
     /**
@@ -136,19 +140,30 @@ class OfferController extends Controller
      */
     public function show($id)
     {
-        $offer = Offer::where('id', $id)->with('client')->get()->first();
-        if (isset($offer)) {
-            $perhour = false;
-            $services = json_decode($offer->services);
-            if (isset($services)) {
-                foreach ($services as $service) {
-                    if ($service->type == 'hourly') {
-                        $perhour = true;
-                    }
+        $offer = Offer::query()
+            ->with('client')
+            ->find($id);
+
+        if (!$offer) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Offer not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
+
+        $perhour = false;
+        $services = json_decode($offer->services);
+        if (isset($services)) {
+            foreach ($services as $service) {
+                if ($service->type == 'hourly') {
+                    $perhour = true;
                 }
             }
-            ($perhour == true) ? $offer->perhour = 1 : $offer->perhour = 0;
         }
+        ($perhour == true) ? $offer->perhour = 1 : $offer->perhour = 0;
+
         if ($offer['client']['lastname'] == null) {
             $offer['client']['lastname'] = "";
         }
@@ -167,6 +182,7 @@ class OfferController extends Controller
     public function edit($id)
     {
         $offer = Offer::where('id', $id)->get();
+
         return response()->json([
             'offer' => $offer
         ]);
@@ -182,20 +198,24 @@ class OfferController extends Controller
     public function update(Request $request, $id)
     {
         $validator  = Validator::make($request->all(), [
-
             'client_id'    => ['required'],
             'status'       => ['required'],
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        // $input = $request->input(); 
+        $offer = Offer::find($id);
         $input = $request->except(['action']);
-        Offer::where('id', $id)->update($input);
-        $offer =  Offer::where('id', $id)->with('client', 'service')->get()->first();
-        if ($request->action == 'Save and Send')
+
+        $offer->update($input);
+        $offer->load(['client', 'service']);
+
+        if ($request->action == 'Save and Send') {
             $this->sendOfferMail($offer);
+        }
+
         return response()->json([
             'message' => 'Offer updated successfully'
         ]);
@@ -209,15 +229,22 @@ class OfferController extends Controller
      */
     public function destroy($id)
     {
-        Offer::where('id', $id)->delete();
+        $offer = Offer::find($id);
+        $offer->delete();
+
         return response()->json([
             'message' => 'Offer has been deleted successfully'
-        ], 200);
+        ]);
     }
 
     public function ClientOffers(Request $request)
     {
-        $offers = Offer::with('client')->where('client_id', $request->id)->orderBy('created_at', 'desc')->get();
+        $offers = Offer::query()
+            ->with('client')
+            ->where('client_id', $request->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return response()->json([
             'offers' => $offers
         ]);
@@ -226,6 +253,7 @@ class OfferController extends Controller
     public function getLatestClientOffer(Request $request)
     {
         $latestOffer = Offer::where('client_id', $request->id)->get()->last();
+
         return response()->json([
             'latestOffer' => $latestOffer
         ]);

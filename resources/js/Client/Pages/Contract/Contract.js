@@ -60,8 +60,13 @@ export default function Contract() {
     const getContract = () => {
         axios
             .post(`/api/client/contracts`, { id: id }, { headers })
-            .then((res) => {
-                setContracts(res.data.contracts.data);
+            .then((response) => {
+                if (response.data.contracts.data.length > 0) {
+                    setContracts(response.data.contracts.data);
+                    setPageCount(response.data.contracts.last_page);
+                } else {
+                    setLoading("No offer found");
+                }
             });
     };
     useEffect(() => {

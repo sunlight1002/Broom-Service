@@ -28,7 +28,7 @@ class Admin extends Authenticatable
         'confirm_password',
         'color',
         'status',
-        'avtar',
+        'avatar',
         'role'
     ];
 

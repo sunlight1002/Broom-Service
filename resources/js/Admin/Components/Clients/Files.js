@@ -106,15 +106,14 @@ export default function files() {
 
     const getFiles = () => {
         axios
-            .post(
-                `/api/admin/get-files`,
-                { id: parseInt(param.id) },
-                { headers }
-            )
+            .get(`/api/admin/clients/${parseInt(param.id)}/files`, {
+                headers,
+            })
             .then((res) => {
                 setAllFiles(res.data.files);
             });
     };
+
     const getMeetings = () => {
         axios
             .post(`/api/admin/client-schedules`, { id: param.id }, { headers })
@@ -149,22 +148,22 @@ export default function files() {
                     return (
                         <div
                             className="card card-widget widget-user-2"
-                            style={{ "box-shadow": "none" }}
+                            style={{ boxShadow: "none" }}
                             key={i}
                         >
                             <div className="card-comments cardforResponsive"></div>
                             <div
                                 className="card-comment p-3"
                                 style={{
-                                    "background-color": "rgba(0,0,0,.05)",
-                                    "border-radius": "5px",
+                                    backgroundColor: "rgba(0,0,0,.05)",
+                                    borderRadius: "5px",
                                 }}
                             >
                                 <div className="row">
                                     <div className="col-sm-7 col-6">
                                         <span
                                             className="noteDate"
-                                            style={{ "font-weight": "600" }}
+                                            style={{ fontWeight: "600" }}
                                         >
                                             {Moment(f.created_at).format(
                                                 "DD-MM-Y h:sa"
