@@ -23,14 +23,10 @@ class ScheduleController extends Controller
 {
     use GoogleAPI;
 
-    protected $googleClientId;
-    protected $googleClientSecret;
     protected $googleCalendarID;
 
     public function __construct()
     {
-        $this->googleClientId = config('services.google.client_id');
-        $this->googleClientSecret = config('services.google.client_secret');
         $this->googleCalendarID = config('services.google.calendar_id');
     }
 
@@ -350,6 +346,8 @@ class ScheduleController extends Controller
         $http_code = $response->status();
 
         if ($http_code != 200) {
+            $this->notifyError($http_code);
+
             throw new Exception('Error : Failed to create event');
         }
 
@@ -366,6 +364,8 @@ class ScheduleController extends Controller
         $http_code = $response->status();
 
         if ($http_code != 200) {
+            $this->notifyError($http_code);
+
             throw new Exception('Error : Failed to get timezone');
         }
 

@@ -157,7 +157,7 @@ class ClientController extends Controller
         $client = Client::create($input);
 
         $property_address_data = $request->propertyAddress;
-        if(count($property_address_data) > 0){
+        if (count($property_address_data) > 0) {
             foreach ($property_address_data as $key => $address) {
                 $address['client_id'] = $client->id;
                 ClientPropertyAddress::create($address);
@@ -203,9 +203,6 @@ class ClientController extends Controller
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
-
-                $client_mail = array();
-                $client_email = '';
 
                 // // foreach($request->workers as $worker){
                 $count = 1;
@@ -419,14 +416,11 @@ class ClientController extends Controller
                     $s_heb_name = $ser->heb_name;
                 }
                 $s_hour = $service['jobHours'];
-                $s_freq   = $service['freq_name'];
-                $s_cycle  = $service['cycle'];
+                $s_freq = $service['freq_name'];
+                $s_cycle = $service['cycle'];
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
-
-                $client_mail = array();
-                $client_email = '';
 
                 // // foreach($request->workers as $worker){
                 $count = 1;
@@ -434,7 +428,7 @@ class ClientController extends Controller
                     $count = 3;
                 }
                 $worker = $service['worker'];
-                $shift =  $service['shift'];
+                $shift = $service['shift'];
 
                 for ($i = 0; $i < $count; $i++) {
 

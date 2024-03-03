@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
 use App\Models\Setting;
+use Exception;
+use Illuminate\Support\Facades\Mail;
 
 trait GoogleAPI
 {
@@ -45,22 +47,40 @@ trait GoogleAPI
         if ($accessToken) {
             $client->setAccessToken($accessToken);
 
-            // If the access token is expired, it will automatically refresh using the refresh token
-            if ($client->isAccessTokenExpired()) {
-                $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
-                $accessToken = $response['access_token'];
-                Setting::updateOrCreate(
-                    ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                    ['value' => $accessToken]
-                );
+            try {
+                // If the access token is expired, it will automatically refresh using the refresh token
+                if ($client->isAccessTokenExpired()) {
+                    $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
 
-                $refreshToken = $response['refresh_token'];
-                if ($refreshToken) {
+                    if (isset($response['error'])) {
+                        Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
+                            $message->to(config('services.app.notify_failed_process_to'))
+                                ->subject(config('app.name') . ' : Google API Error (Access Token)');
+                        });
+
+                        throw new Exception('Error : Failed to fetch google access token');
+                    }
+
+                    $accessToken = $response['access_token'];
                     Setting::updateOrCreate(
-                        ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
-                        ['value' => $refreshToken]
+                        ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                        ['value' => $accessToken]
                     );
+
+                    $refreshToken = $response['refresh_token'];
+                    if ($refreshToken) {
+                        Setting::updateOrCreate(
+                            ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                            ['value' => $refreshToken]
+                        );
+                    }
                 }
+            } catch (\Throwable $th) {
+                Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error code - " . $th->getCode() . ".", function ($message) use ($th) {
+                    $message->to(config('services.app.notify_failed_process_to'))
+                        ->subject(config('app.name') . ' : Google API Error (' . $th->getCode() . ')');
+                });
+                // throw $th;
             }
         }
 
@@ -79,5 +99,30 @@ trait GoogleAPI
         );
         // $client->setIncludeGrantedScopes(true);
         return $client;
+    }
+
+    private function notifyError($http_code)
+    {
+        try {
+            // notify about Google API failure
+            if ($http_code == 401) {
+                Mail::raw("Dear user,\n\rThis email is to inform you about a potential issue with your website's integration with a Google API. Our systems have detected an error code 401 (Unauthorized), which indicates that the API is unable to authenticate your website's access.", function ($message) use ($http_code) {
+                    $message->to(config('services.app.notify_failed_process_to'))
+                        ->subject(config('app.name') . ' : Google API Error (' . $http_code . ' - Unauthorized)');
+                });
+            } else if ($http_code == 403) {
+                Mail::raw("Dear user,\n\rThis email is to inform you about a potential issue with your website's interaction with a Google API. We've detected an error code 403 (Rate Limit Exceeded), which indicates your website has exceeded the Google Calendar API's maximum request rate per calendar or per authenticated user.", function ($message) use ($http_code) {
+                    $message->to(config('services.app.notify_failed_process_to'))
+                        ->subject(config('app.name') . ' : Google API Error (' . $http_code . ' - Rate Limit Exceeded)');
+                });
+            } else if ($http_code == 404) {
+                Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's interaction with a Google API. It states that specified resource not found.", function ($message) use ($http_code) {
+                    $message->to(config('services.app.notify_failed_process_to'))
+                        ->subject(config('app.name') . ' : Google API Error (' . $http_code . ' - Not Found)');
+                });
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 }

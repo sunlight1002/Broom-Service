@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 
 class Client extends Authenticatable
@@ -43,7 +44,6 @@ class Client extends Authenticatable
         'password',
         'extra',
         'avatar',
-
     ];
 
     /**
@@ -103,7 +103,7 @@ class Client extends Authenticatable
     public function ScopeReply($query)
     {
         return WhatsappLastReply::where('message', '=', '0')
-            ->join('clients', 'whatsapp_last_replies.phone', 'like', \DB::raw("CONCAT('%', clients.phone, '%')"))
+            ->join('clients', 'whatsapp_last_replies.phone', 'like', DB::raw("CONCAT('%', clients.phone, '%')"))
             ->orWhere('message', '=', '2_no')
             ->orWhere('message', '=', '2')
             ->where('clients.phone', '!=', '')

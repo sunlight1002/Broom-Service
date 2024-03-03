@@ -237,7 +237,7 @@ class JobController extends Controller
 
     public function order($id)
     {
-        $job = Job::where('id', $id)->with('jobservice', 'client')->get()->first();
+        $job = Job::query()->with('jobservice', 'client')->find($id);
         $services = json_decode($job->jobservice);
         $items = [];
         if (isset($services)) {
@@ -299,6 +299,7 @@ class JobController extends Controller
             'status' => 'Open',
             'invoice_status' => ($invoice == 1) ? 1 : 0,
         ]);
+
         Job::where('id', $id)->update(['isOrdered' => 1]);
     }
 
@@ -516,7 +517,7 @@ class JobController extends Controller
                 'isOrdered'     => 2
             ]);
 
-            $invoice = [
+            $invoice = Invoices::create([
                 'invoice_id' => $json['docnum'],
                 'job_id'     => $id,
                 'amount'     => $total,
@@ -530,13 +531,12 @@ class JobController extends Controller
                 'txn_id'     => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pres->ReferenceNumber : '',
                 'callback'   => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
                 'status'     => ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ((isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
-            ];
+            ]);
 
-            $inv = Invoices::create($invoice);
             if ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') {
                 //close invoice
                 $this->closeDoc($json['docnum'], 'invrec');
-                Invoices::where('id', $inv->id)->update(['invoice_icount_status' => 'Closed']);
+                $invoice->update(['invoice_icount_status' => 'Closed']);
             }
 
             Order::where('id', $job->order[0]->id)->update(['status' => 'Closed']);
@@ -638,10 +638,14 @@ class JobController extends Controller
 
     public function scheduledInvoice($cnid)
     {
-        $contract = Contract::where('id', $cnid)->with('client')->get()->first();
+        $contract = Contract::query()->with('client')->find($cnid);
         $client   = $contract->client;
 
-        $orders = Order::where('contract_id', $cnid)->Where('invoice_status', 0)->get();
+        $orders = Order::query()
+            ->with('job')
+            ->where('contract_id', $cnid)
+            ->where('invoice_status', 0)
+            ->get();
 
         $st = 0;
         $based_on = [];
@@ -649,49 +653,46 @@ class JobController extends Controller
         $jids = [];
         $makeInvoice = false;
 
-        if (!empty($orders)) {
-            foreach ($orders as $o) {
+        foreach ($orders as $o) {
+            $bo = ['docnum' => $o->order_id, 'doctype' => 'order'];
+            $based_on[] = $bo;
 
-                $bo = ['docnum' => $o->order_id, 'doctype' => 'order'];
-                $based_on[] = $bo;
+            $s = json_decode($o->items);
+            $st += (int)$s[0]->unitprice;
+            $services[] = $s[0];
 
-                $s = json_decode($o->items);
-                $st += (int)$s[0]->unitprice;
-                $services[] = $s[0];
+            $job = $o->job;
 
-                $job = Job::where('id', $o->job_id)->get()->first();
+            if ($job->schedule == 'w') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(7);
+            }
+            if ($job->schedule == '2w') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(14);
+            }
+            if ($job->schedule == '3w') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addDays(21);
+            }
+            if ($job->schedule == 'm') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(1);
+            }
+            if ($job->schedule == '2m') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(2);
+            }
+            if ($job->schedule == '3m') {
+                $date = Carbon::parse($job->start_date);
+                $newDate = $date->addMonths(3);
+            }
 
-                if ($job->schedule == 'w') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addDays(7);
-                }
-                if ($job->schedule == '2w') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addDays(14);
-                }
-                if ($job->schedule == '3w') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addDays(21);
-                }
-                if ($job->schedule == 'm') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addMonths(1);
-                }
-                if ($job->schedule == '2m') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addMonths(2);
-                }
-                if ($job->schedule == '3m') {
-                    $date = Carbon::parse($job->start_date);
-                    $newDate = $date->addMonths(3);
-                }
+            $today = Carbon::today()->format('Y-m-d');
 
-                $today = Carbon::today()->format('Y-m-d');
-
-                if ($today !== $newDate->format('Y-m-d')) {
-                    $jids[] = $job->id;
-                    $makeInvoice = true;
-                }
+            if ($today !== $newDate->format('Y-m-d')) {
+                $jids[] = $job->id;
+                $makeInvoice = true;
             }
         }
 
@@ -779,7 +780,7 @@ class JobController extends Controller
                 ]);
             }
 
-            $invoice = [
+            $invoice = Invoices::create([
                 'invoice_id' => $json['docnum'],
                 'job_id'     => end($jids),
                 'amount'     => $total,
@@ -793,21 +794,18 @@ class JobController extends Controller
                 'txn_id'     => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pres->ReferenceNumber : '',
                 'callback'   => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pre : '',
                 'status'     => ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ((isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
-            ];
+            ]);
 
-            $inv = Invoices::create($invoice);
             if ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') {
                 // close invoice
                 $this->closeDoc($json['docnum'], 'invrec');
-                Invoices::where('id', $inv->id)->update(['invoice_icount_status' => 'Closed']);
+                $invoice->update(['invoice_icount_status' => 'Closed']);
             }
 
             /*Close Order */
-            if (!empty($orders)) {
-                foreach ($orders as $o) {
-                    $this->closeDoc($o->order_id, 'order');
-                    Order::where('id', $o->id)->update(['status' => 'Closed', 'invoice_status' => 2]);
-                }
+            foreach ($orders as $o) {
+                $this->closeDoc($o->order_id, 'order');
+                Order::where('id', $o->id)->update(['status' => 'Closed', 'invoice_status' => 2]);
             }
         }
     }
