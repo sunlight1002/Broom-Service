@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
@@ -11,7 +11,19 @@ import {
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
 
+const animalArray = [
+    {
+        name: "Dog",
+        key: "is_afraid_by_dog",
+    },
+    {
+        name: "Cat",
+        key: "is_afraid_by_cat",
+    },
+];
+
 export default function EditWorker() {
+    const elementsRef = useRef(animalArray.map(() => createRef()));
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [phone, setPhone] = useState("");
@@ -102,7 +114,9 @@ export default function EditWorker() {
             latitude: latitude,
             longitude: longitude,
         };
-
+        elementsRef.current.map(
+            (ref) => (data[ref.current.name] = ref.current.checked)
+        );
         axios
             .put(`/api/admin/workers/${params.id}`, data, { headers })
             .then((response) => {
@@ -121,27 +135,51 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/workers/${params.id}/edit`, { headers })
             .then((response) => {
-                setFirstName(response.data.worker.firstname);
-                setLastName(response.data.worker.lastname);
-                setEmail(response.data.worker.email);
-                setPhone(response.data.worker.phone);
-                setRenewalDate(response.data.worker.renewal_visa);
-                setGender(response.data.worker.gender);
-                setPaymentHour(response.data.worker.payment_per_hour);
-                setWorkerId(response.data.worker.worker_id);
-                setPassword(response.data.worker.passcode);
-                setSkill(response.data.worker.skill);
-                setAddress(response.data.worker.address);
-                setItemStatus(response.data.worker.status);
-                setLng(response.data.worker.lng);
-                setCountry(response.data.worker.country);
-                setLatitude(response.data.worker.latitude);
-                setLongitude(response.data.worker.longitude);
+                const {
+                    firstname,
+                    lastname,
+                    email,
+                    phone,
+                    renewal_visa,
+                    gender,
+                    payment_per_hour,
+                    worker_id,
+                    passcode,
+                    skill,
+                    address,
+                    status,
+                    lng,
+                    country,
+                    latitude,
+                    longitude,
+                    is_afraid_by_cat,
+                    is_afraid_by_dog,
+                } = response.data.worker;
+                setFirstName(firstname);
+                setLastName(lastname);
+                setEmail(email);
+                setPhone(phone);
+                setRenewalDate(renewal_visa);
+                setGender(gender);
+                setPaymentHour(payment_per_hour);
+                setWorkerId(worker_id);
+                setPassword(passcode);
+                setSkill(skill);
+                setAddress(address);
+                setItemStatus(status);
+                setLng(lng);
+                setCountry(country);
+                setLatitude(latitude);
+                setLongitude(longitude);
+                elementsRef.current.map(
+                    (ref) =>
+                        (ref.current.checked =
+                            ref.current.name === animalArray[0].key
+                                ? is_afraid_by_dog
+                                : is_afraid_by_cat)
+                );
                 setTimeout(() => {
-                    let skl =
-                        response.data.worker.skill.length > 0
-                            ? JSON.parse(response.data.worker.skill)
-                            : [];
+                    let skl = skill.length > 0 ? JSON.parse(skill) : [];
                     let el = document.querySelectorAll(".ski");
 
                     el.forEach((e, i) => {
@@ -511,6 +549,36 @@ export default function EditWorker() {
                                                     className="form-check-input ski"
                                                     name="skills"
                                                     value={item.id}
+                                                />
+                                                {item.name}
+                                            </label>
+                                        </div>
+                                    ))}
+                            </div>
+                            <div className="col-sm-12 mt-4">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Are you afraid of any follwing pet
+                                        animals ?
+                                    </label>
+                                </div>
+                                {animalArray &&
+                                    animalArray.map((item, index) => (
+                                        <div
+                                            className="form-check"
+                                            key={item.key}
+                                        >
+                                            <label className="form-check-label">
+                                                <input
+                                                    ref={
+                                                        elementsRef.current[
+                                                            index
+                                                        ]
+                                                    }
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    name={item.key}
+                                                    value={item.key}
                                                 />
                                                 {item.name}
                                             </label>

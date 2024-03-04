@@ -1,22 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
-import {
-    GoogleMap,
-    LoadScript,
-    InfoWindow,
-    Marker,
-    Autocomplete,
-} from "@react-google-maps/api";
-import Geocode from "react-geocode";
 import axios from "axios";
 import { MultiSelect } from "react-multi-select-component";
 import Select from "react-select";
 import { create } from "lodash";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
+
 export default function AddLeadClient() {
-    let addressSearchRef = useRef();
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -28,7 +20,6 @@ export default function AddLeadClient() {
     const [color, setColor] = useState("");
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState([]);
-    const [city, setCity] = useState("");
     const alert = useAlert();
     const [cjob, setCjob] = useState();
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
@@ -36,31 +27,7 @@ export default function AddLeadClient() {
     const navigate = useNavigate();
     const params = useParams();
 
-    const [libraries] = useState(["places", "geometry"]);
-    const [latitude, setLatitude] = useState(32.109333);
-    const [longitude, setLongitude] = useState(34.855499);
-    const [address, setAddress] = useState("");
-    const [place, setPlace] = useState();
     const [addresses, setAddresses] = useState([]);
-
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
-    const containerStyle = {
-        width: "100%",
-        height: "300px",
-    };
-    const center = {
-        lat: latitude,
-        lng: longitude,
-    };
-
-    const handlePlaceChanged = () => {
-        if (place) {
-            setCity(place.getPlace().vicinity);
-            setAddress(place.getPlace().formatted_address);
-            setLatitude(place.getPlace().geometry.location.lat());
-            setLongitude(place.getPlace().geometry.location.lng());
-        }
-    };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -508,13 +475,7 @@ export default function AddLeadClient() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-    useEffect(() => {
-        if (address === "" && place) {
-            addressSearchRef.current.value = "";
-            setLatitude(32.109333);
-            setLongitude(34.855499);
-        }
-    }, [address]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -776,78 +737,13 @@ export default function AddLeadClient() {
                                             );
                                         })}
                                 </div>
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Enter a location
-                                    </label>
-                                    <LoadScript
-                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
-                                        libraries={libraries}
-                                    >
-                                        <GoogleMap
-                                            mapContainerStyle={containerStyle}
-                                            center={center}
-                                            zoom={15}
-                                        >
-                                            <Marker
-                                                draggable={true}
-                                                onDragEnd={(e) =>
-                                                    onMarkerDragEnd(e)
-                                                }
-                                                position={{
-                                                    lat: latitude,
-                                                    lng: longitude,
-                                                }}
-                                            />
-                                            {address ? (
-                                                <InfoWindow
-                                                    onClose={(e) =>
-                                                        onInfoWindowClose(e)
-                                                    }
-                                                    position={{
-                                                        lat: latitude + 0.0018,
-                                                        lng: longitude,
-                                                    }}
-                                                >
-                                                    <div>
-                                                        <span
-                                                            style={{
-                                                                padding: 0,
-                                                                margin: 0,
-                                                            }}
-                                                        >
-                                                            {address}
-                                                        </span>
-                                                    </div>
-                                                </InfoWindow>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            <Marker />
-                                        </GoogleMap>
-                                        <Autocomplete
-                                            onLoad={(e) => setPlace(e)}
-                                            onPlaceChanged={handlePlaceChanged}
-                                        >
-                                            <input
-                                                ref={addressSearchRef}
-                                                type="text"
-                                                placeholder="Search Your Address"
-                                                className="form-control mt-1"
-                                            />
-                                        </Autocomplete>
-                                    </LoadScript>
-                                </div>
 
                                 <PropertyAddress
                                     heading={"Property Address"}
-                                    setAddress={setAddress}
-                                    address={address}
                                     errors={errors}
-                                    place={place}
+                                    setErrors={setErrors}
                                     addresses={addresses}
                                     setAddresses={setAddresses}
-                                    setErrors={setErrors}
                                 />
 
                                 <div className="form-group">

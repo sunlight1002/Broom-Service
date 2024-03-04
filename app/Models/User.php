@@ -30,7 +30,9 @@ class User extends Authenticatable
         'lng',
         'skill',
         'status',
-        'password'
+        'password',
+        'is_afraid_by_cat',
+        'is_afraid_by_dog'
     ];
 
     /**

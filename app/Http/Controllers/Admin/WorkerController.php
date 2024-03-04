@@ -135,7 +135,7 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:users'],
             'worker_id' => ['required'],
             'status'    => ['required'],
             'password'  => ['required'],
@@ -165,6 +165,8 @@ class WorkerController extends Controller
         $worker->skill         = $request->skill;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
+        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();
 
         $i = 1;
@@ -248,7 +250,7 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:users,phone,' . $id],
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
@@ -276,6 +278,8 @@ class WorkerController extends Controller
         $worker->skill         = $request->skill;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
+        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();
 
         return response()->json([

@@ -3,6 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
+import Map from "../Map/map";
 
 const addressMenu = [
     {
@@ -17,12 +18,9 @@ const addressMenu = [
 
 const PropertyAddress = memo(function PropertyAddress({
     heading,
-    address,
-    setAddress,
     errors,
     addresses,
     setAddresses,
-    place,
     setErrors,
 }) {
     const params = useParams();
@@ -33,6 +31,12 @@ const PropertyAddress = memo(function PropertyAddress({
     };
     const alert = useAlert();
     const [isModalOpen, setModalStatus] = useState(false);
+    const [address, setAddress] = useState("");
+    const [place, setPlace] = useState();
+    const [latitude, setLatitude] = useState(32.109333);
+    const [longitude, setLongitude] = useState(34.855499);
+    const [libraries] = useState(["places", "geometry"]);
+
     let isAdd = useRef(true);
     let fullAddress = useRef();
     let floor = useRef();
@@ -44,7 +48,8 @@ const PropertyAddress = memo(function PropertyAddress({
     let long = useRef();
     let city = useRef();
     let prefer_type = useRef();
-    let is_animal_avail = useRef();
+    let is_dog_avail = useRef();
+    let is_cat_avail = useRef();
     let client_id = useRef();
 
     useEffect(() => {
@@ -58,8 +63,21 @@ const PropertyAddress = memo(function PropertyAddress({
                 setErrors(newErrors);
             }
         }, 500);
-    }, [isModalOpen, isAdd.current]);
+    }, [isModalOpen, isAdd.current, address]);
 
+    const onLoad = (autocomplete) => {
+        setPlace(autocomplete);
+    };
+    const onPlaceChanged = () => {
+        if (place) {
+            setAddress(place.getPlace().formatted_address);
+            fullAddress.current.value = place.getPlace().formatted_address;
+            setLatitude(place.getPlace().geometry.location.lat());
+            lat.current.value = place.getPlace().geometry.location.lat();
+            setLongitude(place.getPlace().geometry.location.lng());
+            long.current.value = place.getPlace().geometry.location.lng();
+        }
+    };
     useEffect(() => {
         if (place?.getPlace() && isModalOpen && isAdd.current) {
             lat.current.value = place.getPlace().geometry.location.lat();
@@ -79,6 +97,7 @@ const PropertyAddress = memo(function PropertyAddress({
             zip.current.value = "";
         }
     }, [place?.getPlace(), isModalOpen]);
+
     const handleAddress = (e) => {
         e.preventDefault();
         let addressVal = [...addresses];
@@ -98,7 +117,8 @@ const PropertyAddress = memo(function PropertyAddress({
                 latitude: lat.current.value,
                 city: city.current.value,
                 prefer_type: prefer_type.current.value,
-                is_animal_avail: is_animal_avail.current.checked,
+                is_dog_avail: is_dog_avail.current.checked,
+                is_cat_avail: is_cat_avail.current.checked,
                 client_id: client_id.current.value,
                 id: 0,
             };
@@ -120,8 +140,14 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.zipcode;
                 addressVal[addressId.current.value]["prefer_type"] =
                     updatedData.prefer_type;
-                addressVal[addressId.current.value]["is_animal_avail"] =
-                    updatedData.is_animal_avail;
+                addressVal[addressId.current.value]["is_dog_avail"] =
+                    updatedData.is_dog_avail;
+                addressVal[addressId.current.value]["is_cat_avail"] =
+                    updatedData.is_cat_avail;
+                addressVal[addressId.current.value]["longitude"] =
+                    updatedData.longitude;
+                addressVal[addressId.current.value]["latitude"] =
+                    updatedData.latitude;
             }
             if (params.id) {
                 axios
@@ -149,26 +175,34 @@ const PropertyAddress = memo(function PropertyAddress({
                 setAddresses(addressVal);
             }
         }
-        setModalStatus(false);
         resetForm();
+        setModalStatus(false);
     };
+
     const resetForm = () => {
-        fullAddress.current.value = "";
-        floor.current.value = "";
-        Apt.current.value = "";
-        enterance.current.value = "";
-        zip.current.value = "";
-        prefer_type.current.value = "default";
-        is_animal_avail.current.checked = false;
-        client_id.current.value = 0;
+        fullAddress.current && (fullAddress.current.value = "");
+        floor.current && (floor.current.value = "");
+        Apt.current && (Apt.current.value = "");
+        enterance.current && (enterance.current.value = "");
+        zip.current && (zip.current.value = "");
+        prefer_type.current && (prefer_type.current.value = "default");
+        is_cat_avail.current && (is_cat_avail.current.checked = false);
+        is_dog_avail.current && (is_dog_avail.current.checked = false);
+        client_id.current && (client_id.current.value = 0);
+        lat.current && (lat.current.value = 32.109333);
+        long.current && (long.current.value = 34.855499);
         setAddress("");
+        setLatitude(32.109333);
+        setLongitude(34.855499);
     };
+
     const handleMenu = (e, data) => {
         const menuType = e.target.getAttribute("menutype");
         if (menuType === "edit") {
             setModalStatus(true);
             isAdd.current = false;
             setTimeout(() => {
+                console.log("data",data)
                 fullAddress.current.value = data.geo_address;
                 floor.current.value = data.floor;
                 Apt.current.value = data.apt_no;
@@ -177,10 +211,16 @@ const PropertyAddress = memo(function PropertyAddress({
                 prefer_type.current.value = data.prefer_type
                     ? data.prefer_type
                     : "default";
-                is_animal_avail.current.checked = data.is_animal_avail;
+                is_cat_avail.current.checked = data.is_cat_avail?true:false;
+                is_dog_avail.current.checked = data.is_dog_avail?true:false;
                 addressId.current.value =
                     data.indexId !== undefined ? data.indexId : data.id;
                 client_id.current.value = data.client_id ? data.client_id : 0;
+                lat.current.value = data.latitude;
+                long.current.value = data.longitude;
+                setLatitude(Number(data.latitude));
+                setLongitude(Number(data.longitude));
+                setAddress(data.geo_address);
             }, 500);
         } else {
             Swal.fire({
@@ -230,8 +270,9 @@ const PropertyAddress = memo(function PropertyAddress({
                     <button
                         type="button"
                         onClick={() => {
-                            isAdd.current = true;
                             setModalStatus(true);
+                            isAdd.current = true;
+                            resetForm();
                         }}
                         className="btn btn-success"
                     >
@@ -243,9 +284,14 @@ const PropertyAddress = memo(function PropertyAddress({
             {isModalOpen && (
                 <div>
                     <Modal
+                        size="lg"
                         className="modal-container"
                         show={isModalOpen}
-                        onHide={() => setModalStatus(false)}
+                        onHide={() => {
+                            isAdd.current = true;
+                            resetForm();
+                            setModalStatus(false);
+                        }}
                     >
                         <Modal.Header closeButton>
                             <Modal.Title>
@@ -256,6 +302,21 @@ const PropertyAddress = memo(function PropertyAddress({
                         </Modal.Header>
 
                         <Modal.Body>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <Map
+                                        onLoad={onLoad}
+                                        onPlaceChanged={onPlaceChanged}
+                                        latitude={latitude}
+                                        longitude={longitude}
+                                        address={address}
+                                        setLatitude={setLatitude}
+                                        setLongitude={setLongitude}
+                                        libraries={libraries}
+                                        place={place}
+                                    />
+                                </div>
+                            </div>
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
@@ -271,7 +332,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             type="text"
                                             className="form-control"
                                             placeholder="Full address"
-                                            readOnly
+                                            // readOnly
                                         />
                                         {errors.address ? (
                                             <small className="text-danger mb-1">
@@ -400,18 +461,38 @@ const PropertyAddress = memo(function PropertyAddress({
                                     <div className="form-group">
                                         <div className="form-check form-switch">
                                             <input
-                                                ref={is_animal_avail}
+                                                ref={is_dog_avail}
                                                 className="form-check-input"
                                                 type="checkbox"
-                                                id="isAnimalAvailable"
-                                                name="is_animal_avail"
+                                                id="isDogAvail"
+                                                name="is_dog_avail"
                                             />
                                             <label
                                                 className="form-check-label"
-                                                htmlFor="isAnimalAvailable"
+                                                htmlFor="isDogAvail"
                                             >
-                                                Is there Dog/Cat in the property
-                                                ?
+                                                Is there Dog in the property ?
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <div className="form-check form-switch">
+                                            <input
+                                                ref={is_cat_avail}
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id="isCatAvail"
+                                                name="is_cat_avail"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="isCatAvail"
+                                            >
+                                                Is there Cat in the property ?
                                             </label>
                                         </div>
                                     </div>
@@ -437,7 +518,11 @@ const PropertyAddress = memo(function PropertyAddress({
                             <Button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => setModalStatus(false)}
+                                onClick={() => {
+                                    isAdd.current = true;
+                                    resetForm();
+                                    setModalStatus(false);
+                                }}
                             >
                                 Close
                             </Button>
