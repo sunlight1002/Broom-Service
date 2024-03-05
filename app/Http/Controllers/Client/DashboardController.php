@@ -11,6 +11,7 @@ use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
 use App\Models\ClientCard;
+use App\Models\ClientPropertyAddress;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class DashboardController extends Controller
@@ -249,11 +251,22 @@ class DashboardController extends Controller
 
     public function getAccountDetails()
     {
-        $account = Auth::user();
-        $account->avatar = $account->avatar ? asset('storage/uploads/client/' . $account->avatar) : asset('images/man.png');
+        $client = Auth::user();
+
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Account not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
+
+        $client->primary_address = ClientPropertyAddress::where('client_id', $client->id)->first();
+        $client->avatar = $client->avatar ? Storage::disk('public')->url('uploads/client/' . $client->avatar) : asset('images/man.png');
 
         return response()->json([
-            'account' => $account,
+            'account' => $client,
         ]);
     }
 

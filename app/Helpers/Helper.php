@@ -11,7 +11,7 @@ class Helper
 {
     public static function sendInvoicePayToClient($id, $docurl, $docnum, $inv_id)
     {
-        $job = Job::where('id', $id)->with('client')->get()->first();
+        $job = Job::query()->with('client')->find($id);
         $job = $job->toArray();
 
         $data = array(

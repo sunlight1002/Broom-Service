@@ -210,12 +210,12 @@ class InvoiceController extends Controller
 
         $req = $request->data;
 
-        $client = Client::where('id', $req['customer'])->get()->first();
+        $client = Client::where('id', $req['customer'])->first();
 
         $services = json_decode($req['services']);
         $total = 0;
 
-        $card = ClientCard::where('client_id', $client->id)->get()->first();
+        $card = ClientCard::where('client_id', $client->id)->first();
 
         $doctype  = $req['doctype'];
 

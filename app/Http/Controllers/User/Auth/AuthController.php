@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Invoices;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -191,7 +190,7 @@ class AuthController extends Controller
 
     public function get101($id)
     {
-        $form = User::where('id', $id)->get()->first();
+        $form = User::where('id', $id)->first();
 
         return response()->json([
             'success_code' => 200,
@@ -202,7 +201,7 @@ class AuthController extends Controller
 
     public function pdf101($id)
     {
-        $user = User::where('id', base64_decode($id))->get()->first()->toarray();
+        $user = User::where('id', base64_decode($id))->first()->toarray();
         $form = json_decode($user['form_101'], true);
         $form['data']['signed_on'] = $user['created_at'];
         $f = $form['data'];

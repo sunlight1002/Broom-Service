@@ -26,10 +26,11 @@ class ChatController extends Controller
 
                 $data[$k]['unread'] = count($_unreads);
 
-                if (strlen($no) > 10)
-                    $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
-                else
-                    $cl  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
+                if (strlen($no) > 10) {
+                    $cl = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
+                } else {
+                    $cl = Client::where('phone', 'like', '%' . $no . '%')->first();
+                }
 
                 if (!is_null($cl)) {
                     $clients[] = [
@@ -123,8 +124,8 @@ class ChatController extends Controller
     public function chatRestart(Request $request)
     {
         Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
-        $client = Client::where('phone', 'like', '%' . $request->number . '%')->get()->first();
-        $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->get()->first();
+        $client = Client::where('phone', 'like', '%' . $request->number . '%')->first();
+        $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
         WebhookResponse::create([
             'status'        => 1,
@@ -164,10 +165,11 @@ class ChatController extends Controller
 
                 $data[$k]['unread'] = count($_unreads);
 
-                if (strlen($no) > 10)
-                    $cl  = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->get()->first();
-                else
-                    $cl  = Client::where('phone', 'like', '%' . $no . '%')->get()->first();
+                if (strlen($no) > 10) {
+                    $cl = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
+                } else {
+                    $cl = Client::where('phone', 'like', '%' . $no . '%')->first();
+                }
 
                 if (!is_null($cl)) {
                     $clients[] = [

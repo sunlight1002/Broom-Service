@@ -304,7 +304,7 @@ class ClientEmailController extends Controller
     $goffer = Offer::where('id', $offer->offer_id)->with('client')->get();
     $cid = $goffer[0]->client_id;
 
-    $exist_card = ClientCard::where('client_id', $cid)->where('card_token', '!=', null)->get()->first();
+    $exist_card = ClientCard::where('client_id', $cid)->where('card_token', '!=', null)->first();
 
     if (isset($exist_card->card_token)) {
       $offer->add_card = 0;

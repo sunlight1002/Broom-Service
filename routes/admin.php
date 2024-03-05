@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('update-job/{id}', [JobController::class, 'updateJob']);
     Route::post('create-job/{id}', [JobController::class, 'createJob']);
-    Route::post('get-client-jobs', [JobController::class, 'getJobByClient'])->name('get-client-jobs');
+    Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
     Route::post('cancel-job', [JobController::class, 'cancelJob']);
     Route::get('job-worker/{id}', [JobController::class, 'AvlWorker']);

@@ -265,67 +265,45 @@ class JobController extends Controller
         ]);
     }
 
-    public function getJobByClient(Request $request)
+    public function getJobByClient(Request $request, $id)
     {
-        if (($request->f) == 'all') {
-            $jobs = Job::query()
-                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                ->where('client_id', $request->cid)
-                ->orderBy('start_date', 'desc');
-        }
+        $jobQuery = Job::query()
+            ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+            ->where('client_id', $id);
 
         if (isset($request->status)) {
-            $jobs = Job::query()
-                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                ->where('status', $request->status)
-                ->where('client_id', $request->cid)
-                ->orderBy('start_date', 'desc');
+            $jobQuery->where('status', $request->status);
         }
 
         if (isset($request->q)) {
             $q = $request->q;
             if ($q == 'ordered') {
-
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->has('order')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->has('order');
             } else if ($q == 'unordered') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->whereDoesntHave('order')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->whereDoesntHave('order');
             } else if ($q == 'invoiced') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->has('invoice')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->has('invoice');
             } else if ($q == 'uninvoiced') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->whereDoesntHave('invoice')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->whereDoesntHave('invoice');
             }
         }
 
-        $sch        = Job::where('status', 'scheduled')->where('client_id', $request->cid)->count();
-        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $request->cid)->count();
-        $cancel     = Job::where('status', 'canceled')->where('client_id', $request->cid)->count();
-        $progress   = Job::where('status', 'progress')->where('client_id', $request->cid)->count();
-        $completed  = Job::where('status', 'completed')->where('client_id', $request->cid)->count();
+        $sch        = Job::where('status', 'scheduled')->where('client_id', $id)->count();
+        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $id)->count();
+        $cancel     = Job::where('status', 'canceled')->where('client_id', $id)->count();
+        $progress   = Job::where('status', 'progress')->where('client_id', $id)->count();
+        $completed  = Job::where('status', 'completed')->where('client_id', $id)->count();
 
-        $ordered    = Job::has('order')->where('client_id', $request->cid)->count();
-        $unordered  = Job::whereDoesntHave('order')->where('client_id', $request->cid)->count();
-        $invoiced   = Job::has('invoice')->where('client_id', $request->cid)->count();
-        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $request->cid)->count();
+        $ordered    = Job::has('order')->where('client_id', $id)->count();
+        $unordered  = Job::whereDoesntHave('order')->where('client_id', $id)->count();
+        $invoiced   = Job::has('invoice')->where('client_id', $id)->count();
+        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $id)->count();
 
-        $jobs = $jobs->paginate(20);
+        $jobs = $jobQuery
+            ->orderBy('start_date', 'desc')
+            ->paginate(20);
 
-        $all = Job::where('client_id', $request->cid)->count();
+        $all = Job::where('client_id', $id)->count();
 
         return response()->json([
             'all'         => $all,

@@ -112,7 +112,9 @@ export default function card() {
                 HolderID: "",
                 ExtraData: "",
                 CustomerName: "",
-                CustomerAddress: client.geo_address,
+                CustomerAddress: client.primary_address
+                    ? client.primary_address.geo_address
+                    : null,
                 CustomerEmail: client.email,
                 PhoneNumber: "",
                 ItemDescription: "",

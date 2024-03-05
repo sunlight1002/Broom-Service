@@ -699,7 +699,7 @@ class JobController extends Controller
         if ($makeInvoice == true) {
             $total = 0;
 
-            $card = ClientCard::where('client_id', $client->id)->get()->first();
+            $card = ClientCard::where('client_id', $client->id)->first();
             $p_method = $client->payment_method;
 
             $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
