@@ -20,8 +20,8 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator      = Validator::make($request->all(), [
-            'worker_id'     => ['required'],
+        $validator = Validator::make($request->all(), [
+            'worker_id' => ['required'],
             'password'  => ['required', 'string', 'min:6'],
         ]);
 
@@ -37,7 +37,7 @@ class AuthController extends Controller
             $user        = User::find(auth()->user()->id);
             $user->token = $user->createToken('User', ['user'])->accessToken;
 
-            return response()->json($user, 200);
+            return response()->json($user);
         } else if (Auth::attempt([
             'email'     => $request->worker_id,
             'password'  => $request->password
@@ -46,7 +46,7 @@ class AuthController extends Controller
             $user        = User::find(auth()->user()->id);
             $user->token = $user->createToken('User', ['user'])->accessToken;
 
-            return response()->json($user, 200);
+            return response()->json($user);
         } else {
             return response()->json(['errors' => ['worker' => 'These credentials do not match our records.']]);
         }
@@ -61,7 +61,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'role'   => ['required', 'string'],
+            'role'      => ['required', 'string'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password'  => ['required', 'string', 'min:6'],
         ]);
@@ -76,7 +76,7 @@ class AuthController extends Controller
         $user                   = User::create($input);
         $user->token            = $user->createToken('User', ['user'])->accessToken;
 
-        return response()->json($user, 200);
+        return response()->json($user);
     }
     /** 
      * User Detail api 
@@ -86,14 +86,14 @@ class AuthController extends Controller
     public function details()
     {
         $user = Auth::user();
-        return response()->json(['success' => $user], 200);
+        return response()->json(['success' => $user]);
     }
 
     public function logout()
     {
         $user = Auth::user()->token();
         $user->revoke();
-        return response()->json(['success' => 'Logged Out Successfully!'], 200);
+        return response()->json(['success' => 'Logged Out Successfully!']);
     }
 
     public function updateWorker(Request $request, $id)
@@ -128,14 +128,15 @@ class AuthController extends Controller
         $worker->save();
 
         return response()->json([
-            'message'       => 'Account updated successfully',
-        ], 200);
+            'message' => 'Account updated successfully',
+        ]);
     }
 
     public function showPdf($id)
     {
         $worker = User::find($id);
         $pdf = Storage::get('/public/uploads/worker/form101/' . $worker->id . '/' . $worker->form_101);
+
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename=form101.pdf');
@@ -151,15 +152,17 @@ class AuthController extends Controller
         $pdf->move($path, $filename);
         $worker->form_101 = $filename;
         $worker->save();
+
         return response()->json(['success' => true]);
     }
 
     public function getWorkerDetail(Request $request)
     {
         $user = User::where('worker_id', $request->worker_id)->first();
+
         return response()->json([
             'worker' => $user
-        ], 200);
+        ]);
     }
 
     public function WorkContract(Request $request)
@@ -168,12 +171,12 @@ class AuthController extends Controller
             User::where('worker_id', $request->worker_id)->update($request->input());
             return response()->json([
                 'message' => "Thanks, for accepting contract"
-            ], 200);
+            ]);
         } catch (\Exception $e) {
 
             return response()->json([
                 'error' => $e->getMessage()
-            ], 200);
+            ]);
         }
     }
 

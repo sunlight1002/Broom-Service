@@ -71,7 +71,7 @@ class ClientController extends Controller
             }
 
             if ($ac == 'notbooked') {
-                $result = Client::with('jobs')->whereDoesntHave('jobs');
+                $result = Client::whereDoesntHave('jobs');
             }
         }
 
@@ -316,18 +316,25 @@ class ClientController extends Controller
     {
         $client = Client::find($id);
 
-        if (isset($client)) {
-            $contract = Contract::query()
-                ->where('client_id', $client->id)
-                ->where('status', 'verified')
-                ->get()
-                ->last();
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
-            if ($contract != null) {
-                $client->latest_contract = $contract->id;
-            } else {
-                $client->latest_contract = 0;
-            }
+        $contract = Contract::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'verified')
+            ->latest()
+            ->first();
+
+        if ($contract != null) {
+            $client->latest_contract = $contract->id;
+        } else {
+            $client->latest_contract = 0;
         }
 
         return response()->json([
@@ -344,6 +351,15 @@ class ClientController extends Controller
     public function edit($id)
     {
         $client = Client::with('property_addresses')->find($id);
+
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
         return response()->json([
             'client' => $client,
@@ -372,6 +388,15 @@ class ClientController extends Controller
         }
 
         $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
         $input = $request->data;
         if ((isset($input['passcode']) && $input['passcode'] != null)) {

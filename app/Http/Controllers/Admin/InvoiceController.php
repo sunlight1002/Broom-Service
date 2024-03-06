@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
-use Illuminate\Http\Request;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\Order;
@@ -16,12 +15,13 @@ use App\Models\Refunds;
 use App\Models\Services;
 use App\Helpers\Helper;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-
         $invoices = Invoices::with('client', 'receipt');
 
         if (isset($request->from_date) && isset($request->to_date)) {
@@ -47,17 +47,13 @@ class InvoiceController extends Controller
 
         if (isset($request->type)) {
 
-            if ($request == 'receipt')
-
+            if ($request == 'receipt') {
                 $invoices = $invoices->where('receipt_id', '!=', 'null');
-
-            else if ($request == 'refund')
-
+            } else if ($request == 'refund') {
                 $invoices = $invoices->where('callback', '!=', 'null')->where('status', '=', 'Cancelled');
-
-            else
-
+            } else {
                 $invoices = $invoices->where('type', $request->type);
+            }
         }
 
         if (isset($request->client)) {
@@ -66,8 +62,9 @@ class InvoiceController extends Controller
             $invoices = $invoices->WhereHas('client', function ($qr) use ($q, $ex) {
                 $qr->where(function ($qr) use ($q, $ex) {
                     $qr->where('firstname', 'like', '%' . $ex[0] . '%');
-                    if (isset($ex[1]))
+                    if (isset($ex[1])) {
                         $qr->where('lastname', 'like', '%' . $ex[1] . '%');
+                    }
                 });
             });
         }
@@ -82,14 +79,12 @@ class InvoiceController extends Controller
         $unpaid     = 0;
         $partial    = 0;
 
-
         $get_ta  = Invoices::get();
         $get_pa  = Invoices::where('status', 'Paid')->get();
         $get_ua  = Invoices::where('status', 'Unpaid')->get();
         $get_ppa = Invoices::where('status', 'Partially Paid')->get();
 
         if (!empty($get_ta)) {
-
             foreach ($get_ta as $inv) {
                 $all++;
                 $ta += (floatval($inv->amount));
@@ -97,7 +92,6 @@ class InvoiceController extends Controller
         }
 
         if (!empty($get_pa)) {
-
             foreach ($get_pa as $gpa) {
                 $paid++;
                 $pa += floatval($gpa->amount);
@@ -105,7 +99,6 @@ class InvoiceController extends Controller
         }
 
         if (!empty($get_ua)) {
-
             foreach ($get_ua as $gua) {
                 $unpaid++;
                 $ua += floatval($gua->amount);
@@ -113,7 +106,6 @@ class InvoiceController extends Controller
         }
 
         if (!empty($get_ppa)) {
-
             foreach ($get_ppa as $gppa) {
                 $partial++;
                 $ppa += floatval($gppa->amount);
@@ -121,8 +113,8 @@ class InvoiceController extends Controller
         }
 
         $invoices = $invoices->orderBy('id', 'desc')->paginate(20);
-        return response()->json([
 
+        return response()->json([
             'invoices' => $invoices,
             'ta'       => round($ta, 2),
             'pa'       => round($pa, 2),
@@ -132,19 +124,20 @@ class InvoiceController extends Controller
             'unpaid'   => $unpaid,
             'partial'  => $partial,
             'all'      => $all,
-
         ]);
     }
 
     public function getClientInvoices(Request $request, $id)
     {
-
-        if ($request->f == 'all')
-            $invoices   = Invoices::where('customer', $id)->with('client')->orderBy('id', 'desc')->paginate(20);
-        if (isset($request->status))
-            $invoices   = Invoices::with('client')->where('status', $request->status)->where('customer', $id)->orderBy('id', 'desc')->paginate(20);
-        if (isset($request->icount_status))
-            $invoices   = Invoices::with('client')->where('invoice_icount_status', $request->icount_status)->where('customer', $id)->orderBy('id', 'desc')->paginate(20);
+        if ($request->f == 'all') {
+            $invoices = Invoices::where('customer', $id)->with('client')->orderBy('id', 'desc')->paginate(20);
+        }
+        if (isset($request->status)) {
+            $invoices = Invoices::with('client')->where('status', $request->status)->where('customer', $id)->orderBy('id', 'desc')->paginate(20);
+        }
+        if (isset($request->icount_status)) {
+            $invoices = Invoices::with('client')->where('invoice_icount_status', $request->icount_status)->where('customer', $id)->orderBy('id', 'desc')->paginate(20);
+        }
 
         $open       = Invoices::where('customer', $id)->where('invoice_icount_status', 'Open')->count();
         $closed     = Invoices::where('customer', $id)->where('invoice_icount_status', 'Closed')->count();
@@ -187,9 +180,7 @@ class InvoiceController extends Controller
             }
         }
 
-
         return response()->json([
-
             'invoices' => $invoices,
             'paid'     => $paid,
             'unpaid'   => $unpaid,
@@ -201,13 +192,11 @@ class InvoiceController extends Controller
             'pa'       => round($pa, 2),
             'ua'       => round($ua, 2),
             'ppa'      => round($ppa, 2),
-
         ]);
     }
 
     public function AddInvoice(Request $request)
     {
-
         $req = $request->data;
 
         $client = Client::where('id', $req['customer'])->first();
@@ -223,8 +212,8 @@ class InvoiceController extends Controller
         $tax = (17 / 100) * $subtotal;
         $total = $tax + $subtotal;
 
-        $due      = ($req['due_date'] == null) ? \Carbon\Carbon::now()->endOfMonth()->toDateString() : $req['due_date'];
-        $name     = ($client->invoicename != null) ? $client->invoicename : $client->firstname . " " . $client->lastname;
+        $due = ($req['due_date'] == null) ? Carbon::now()->endOfMonth()->toDateString() : $req['due_date'];
+        $name = ($client->invoicename != null) ? $client->invoicename : $client->firstname . " " . $client->lastname;
         $ln = ($client->lng == 'heb') ? 'he' : 'en';
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
 
@@ -257,10 +246,9 @@ class InvoiceController extends Controller
             "send_email"      => 1,
             "email_to_client" => 1,
             "email_to"        => $client->email,
-
         );
-        if ($doctype == "invrec") {
 
+        if ($doctype == "invrec") {
             if ($card == null) {
                 return response()->json([
                     'rescode' => 401,
@@ -291,20 +279,18 @@ class InvoiceController extends Controller
         $response = curl_exec($ch);
         $info = curl_getinfo($ch);
 
-
         //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
         $json = json_decode($response, true);
 
-        // dd($json);
         //if(!$json["status"]) die($json["reason"]);
 
-
-        job::where('id', $req['job'])->update([
+        Job::where('id', $req['job'])->update([
             'invoice_no'    => $json["docnum"],
             'invoice_url'   => $json["doc_url"],
             'isOrdered'     => 2,
             'status'        => 'completed'
         ]);
+
         $invoice = [
             'invoice_id' => $json['docnum'],
             'job_id'     => $req['job'],
@@ -320,7 +306,6 @@ class InvoiceController extends Controller
             'callback'   => ((isset($pres))) ? $pre : '',
             'status'     => ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ((isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
         ];
-
 
         $inv = Invoices::create($invoice);
         if ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') {
@@ -346,12 +331,11 @@ class InvoiceController extends Controller
 
     public function getInvoice($id)
     {
-        $invoice = Invoices::where('id', $id)->with('client')->get()->first();
-        return response()->json([
+        $invoice = Invoices::query()->with('client')->find($id);
 
+        return response()->json([
             'rescode' => 201,
             'invoice' => $invoice
-
         ]);
     }
 
@@ -379,7 +363,6 @@ class InvoiceController extends Controller
 
     public function updateInvoice(Request $request, $id)
     {
-
         $inv = Invoices::where('id', $id)->with('client')->get()->first();
         $client = $inv->client;
         $mode = $request->data['pay_method'];
@@ -387,10 +370,9 @@ class InvoiceController extends Controller
         $total = 0;
         $cb =  '';
 
-        if ($inv->amount <= $pdata['paid_amount'] && $inv->type == 'invoice') :
+        if ($inv->amount <= $pdata['paid_amount'] && $inv->type == 'invoice') {
 
             $services = $this->getInvoiceIcount($inv->invoice_id);
-
 
             $sum = 0;
             $items = ($services->doc_info->items);
@@ -398,7 +380,6 @@ class InvoiceController extends Controller
                 foreach ($items as $itm) {
                     $sum += (int)$itm->unitprice;
                 }
-
 
                 $card = ClientCard::where('client_id', $client->id)->get()->first();
                 $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname . " " . $client->lastname;
@@ -423,7 +404,6 @@ class InvoiceController extends Controller
                     "send_email"      => 1,
                     "email_to_client" => 1,
                     "email_to"        => $client->email,
-
                 );
 
                 $txnID = $request->data['txn_id'];
@@ -503,8 +483,7 @@ class InvoiceController extends Controller
                     Invoices::where('id', $inv->id)->update(['invoice_icount_status' => 'Closed', 'receipt_id' => $rcp->id]);
                 }
             }
-
-        endif;
+        }
 
         $idata = [
             'pay_method'  => $request->data['pay_method'],
@@ -514,27 +493,25 @@ class InvoiceController extends Controller
             'status'      => $request->data['status']
         ];
 
-
         Invoices::where('id', $id)->update($idata);
         return response()->json([
             'msg' => 'Invoice Updated successfully'
         ]);
     }
+
     public function invoiceJobs(Request $request)
     {
-
         $jobs = Job::where('client_id', $request->cid)
             ->where('status', '!=', 'completed')
             ->where('isOrdered', 0)
             ->orWhere('isOrdered', 'c')
             ->get();
 
-        if (!empty($jobs)) {
-            foreach ($jobs as $j => $job) {
-                $sv = Services::where('id', $job->schedule_id)->get('name')->first();
-                $jobs[$j]['service_name'] = $sv->name;
-            }
+        foreach ($jobs as $j => $job) {
+            $sv = Services::query()->select('name')->find($job->schedule_id);
+            $jobs[$j]['service_name'] = $sv->name;
         }
+
         return response()->json([
             'jobs' => $jobs
         ]);
@@ -542,20 +519,16 @@ class InvoiceController extends Controller
 
     public function invoiceJobOrder(Request $request)
     {
-
         $jobs = Job::where('client_id', $request->cid)
             ->where('status', '!=', 'completed')
             ->where('isOrdered', 1)
             ->get();
 
-        // dd($jobs);
-
-        if (!empty($jobs)) {
-            foreach ($jobs as $j => $job) {
-                $sv = Services::where('id', $job->schedule_id)->get('name')->first();
-                $jobs[$j]['service_name'] = $sv->name;
-            }
+        foreach ($jobs as $j => $job) {
+            $sv = Services::query()->select('name')->find($job->schedule_id);
+            $jobs[$j]['service_name'] = $sv->name;
         }
+
         return response()->json([
             'jobs' => $jobs
         ]);
@@ -580,12 +553,9 @@ class InvoiceController extends Controller
 
     public function generatePayment($cid)
     {
-
         $client = Client::where('id', $cid)->get()->first();
 
-
         $services[] = [
-
             "Amount"       => "1.00",
             "Currency"     => "ILS",
             "Name"         => (($client->lng == 'heb') ? "הוספת כרטיס - " : "Add a Card - ") . $client->firstname . " " . $client->lastname,
@@ -594,8 +564,8 @@ class InvoiceController extends Controller
             "Image"        =>  "https://i.ibb.co/m8fr72P/sample.png",
             "IsTaxFree"    =>  "false",
             "AdjustAmount" => "false"
-
         ];
+
         $se = json_encode($services);
 
         $username = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER);
@@ -770,13 +740,16 @@ class InvoiceController extends Controller
 
     public function displayThanks($id)
     {
-        $client = Client::where('id', $id)->get()->first()->toArray();
+        $client = Client::find($id)->toArray();
+
         return view('thanks', compact('client'));
     }
 
     public function deleteInvoice($id)
     {
-        Invoices::where('id', $id)->delete();
+        $invoice = Invoices::find($id);
+
+        $invoice->delete();
     }
 
     public function closeDoc($docnum, $type)
@@ -886,8 +859,8 @@ class InvoiceController extends Controller
 
                 Invoices::where('invoice_id', $docnum)->update(['invoice_icount_status' => 'Cancelled']);
             }
-            if ($type == 'order') {
 
+            if ($type == 'order') {
                 $jid = Order::where('order_id', $docnum)->get('job_id')->first();
                 Job::where('id', $jid->job_id)->update(['isOrdered' => 'c']);
                 Order::where('order_id', $docnum)->update(['status' => 'Cancelled']);
@@ -898,7 +871,9 @@ class InvoiceController extends Controller
 
     public function commitInvoicePayment($services, $id, $token, $stotal)
     {
-        $job = Job::where('id', $id)->with('jobservice', 'client', 'contract', 'order')->get()->first();
+        $job = Job::query()
+            ->with(['jobservice', 'client', 'contract', 'order'])
+            ->find($id);
         $pitems = [];
 
         $subtotal = (int) $stotal;
@@ -992,34 +967,34 @@ class InvoiceController extends Controller
 
     public function manualInvoice($oid)
     {
-        $_order = Order::where('id', $oid)->get()->first();
-        $id = $_order->job_id;
-        $job = Job::where('id', $id)->with('jobservice', 'client', 'contract', 'order')->get()->first();
+        $_order = Order::find($oid);
+        $job = Job::query()
+            ->with(['jobservice', 'client', 'contract', 'order'])
+            ->find($_order->job_id);
 
         $services = json_decode($job->order[0]->items);
 
         $total = 0;
 
-        $card = ClientCard::where('client_id', $job->client_id)->get()->first();
+        $card = ClientCard::where('client_id', $job->client_id)->first();
         $p_method = $job->client->payment_method;
-        $contract = $job->contract;
         $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
 
         $subtotal = (int)$services[0]->unitprice;
         $tax = (17 / 100) * $subtotal;
         $total = $tax + $subtotal;
 
-        $order = Order::where('job_id', $id)->get()->first();
+        $order = Order::where('job_id', $_order->job_id)->first();
         $o_res = json_decode($order->response);
 
-        $due      = \Carbon\Carbon::now()->endOfMonth()->toDateString();
-        $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+        $due      = Carbon::now()->endOfMonth()->toDateString();
+        $name     = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
 
         /* Auto payment */
         if ($doctype == 'invrec') {
-            $pres = $this->commitInvoicePayment($services, $id, $card->card_token, $total);
+            $pres = $this->commitInvoicePayment($services, $_order->job_id, $card->card_token, $total);
             $pre = json_encode($pres);
 
             if ($pres->HasError == true) {
@@ -1047,8 +1022,8 @@ class InvoiceController extends Controller
             "send_email"      => 1,
             "email_to_client" => 1,
             "email_to"        => $job->client->email,
-
         );
+
         if ($doctype == "invrec") {
 
             if ($card == null) {
@@ -1090,15 +1065,16 @@ class InvoiceController extends Controller
         /*Close Order */
         $this->closeDoc($job->order[0]->order_id, 'order');
 
-        job::where('id', $id)->update([
+        Job::where('id', $_order->job_id)->update([
             'invoice_no'    => $json["docnum"],
             'invoice_url'   => $json["doc_url"],
             'isOrdered'     => 2,
             'status'        => 'completed'
         ]);
-        $invoice = [
+
+        $invoice = Invoices::create([
             'invoice_id' => $json['docnum'],
-            'job_id'     => $id,
+            'job_id'     => $_order->job_id,
             'amount'     => $total,
             'paid_amount' => $total,
             'pay_method' => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? 'Credit Card' : 'NA',
@@ -1110,13 +1086,12 @@ class InvoiceController extends Controller
             'txn_id'     => ((isset($pres)) && $pres->HasError == false && $doctype == 'invrec') ? $pres->ReferenceNumber : '',
             'callback'   => ((isset($pres))) ? $pre : '',
             'status'     => ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') ? 'Paid' : ((isset($pres)) ? $pres->ReturnMessage : 'Unpaid'),
-        ];
+        ]);
 
-        $inv = Invoices::create($invoice);
         if ((isset($pres))  && $pres->HasError == false && $doctype == 'invrec') {
             //close invoice
             $this->closeDoc($json['docnum'], 'invrec');
-            Invoices::where('id', $inv->id)->update(['invoice_icount_status' => 'Closed']);
+            $invoice->update(['invoice_icount_status' => 'Closed']);
         }
         Order::where('id', $job->order[0]->id)->update(['status' => 'Closed']);
         JobService::where('id', $job->jobservice[0]->id)->update(['order_status' => 2]);
@@ -1126,8 +1101,8 @@ class InvoiceController extends Controller
     public function multipleInvoices(Request $request)
     {
         $oids = $request->ar;
-        if (!empty($oids)) {
 
+        if (!empty($oids)) {
             foreach ($oids as $oid) {
 
                 $o = Order::where('id', $oid)->get()->first();
@@ -1178,7 +1153,7 @@ class InvoiceController extends Controller
     public function AddOrder(Request $request)
     {
         $id = $request->data['job'];
-        $job = Job::where('id', $id)->with('jobservice', 'client')->get()->first();
+        $job = Job::query()->with(['jobservice', 'client'])->find($id);
 
         $services = json_decode($request->data['services']);
 
@@ -1187,7 +1162,7 @@ class InvoiceController extends Controller
         //     foreach($services as $service){
 
         //       $itm = [
-        //         "description" => $service->name." - ".\Carbon\Carbon::today()->format('d, M Y'),
+        //         "description" => $service->name." - ".Carbon::today()->format('d, M Y'),
         //         "unitprice"   => $service->total,
         //         "quantity"    => 1,
         //       ];
@@ -1200,7 +1175,7 @@ class InvoiceController extends Controller
         if (str_contains($job->schedule, 'w')) {
             $invoice = 0;
         }
-        $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+        $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
 
@@ -1235,7 +1210,7 @@ class InvoiceController extends Controller
         Order::create([
             'order_id' => $json['docnum'],
             'doc_url' => $json['doc_url'],
-            'job_id' => $id,
+            'job_id' => $job->id,
             'contract_id' => $job->contract_id,
             'client_id' => $job->client->id,
             'response' => $response,
@@ -1243,25 +1218,29 @@ class InvoiceController extends Controller
             'status' => 'Open',
             'invoice_status' => ($invoice == 1) ? 1 : 0,
         ]);
-        Job::where('id', $id)->update(['isOrdered' => 1]);
+
+        $job->update(['isOrdered' => 1]);
     }
 
     public function multipleOrders(Request $request)
     {
         $jids = $request->ar;
-        if (!empty($jids)) {
 
+        if (!empty($jids)) {
             foreach ($jids as $jid) {
 
-                $job = Job::where('id', $jid)->with('jobservice', 'client', 'order')->whereDoesntHave('order')->get()->first();
-                if ($job != null) {
+                $job = Job::query()
+                    ->with(['jobservice', 'client', 'order'])
+                    ->whereDoesntHave('order')
+                    ->find($jid);
 
+                if ($job) {
                     $items = [];
                     if (isset($job->jobservice)) {
                         foreach ($job->jobservice as $service) {
 
                             $itm = [
-                                "description" => ($job->client->lng == 'en') ?  $service->name : $service->heb_name . " - " . \Carbon\Carbon::today()->format('d, M Y'),
+                                "description" => ($job->client->lng == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
                                 "unitprice"   => $service->total,
                                 "quantity"    => 1,
                             ];
@@ -1273,7 +1252,7 @@ class InvoiceController extends Controller
                     if (str_contains($job->schedule, 'w')) {
                         $invoice = 0;
                     }
-                    $name     =  ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+                    $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
                     $url = "https://api.icount.co.il/api/v3.php/doc/create";
                     $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
 
@@ -1308,7 +1287,7 @@ class InvoiceController extends Controller
                     Order::create([
                         'order_id' => $json['docnum'],
                         'doc_url' => $json['doc_url'],
-                        'job_id' => $jid,
+                        'job_id' => $job->id,
                         'contract_id' => $job->contract_id,
                         'client_id' => $job->client->id,
                         'response' => $response,
@@ -1316,7 +1295,8 @@ class InvoiceController extends Controller
                         'status' => 'Open',
                         'invoice_status' => ($invoice == 1) ? 1 : 0,
                     ]);
-                    Job::where('id', $jid)->update(['isOrdered' => 1]);
+
+                    $job->update(['isOrdered' => 1]);
                 }
             }
         }
@@ -1324,14 +1304,41 @@ class InvoiceController extends Controller
 
     public function getClientOrders(Request $request, $id)
     {
-        if ($request->f == 'all')
-            $orders   = Order::where('client_id', $id)->with('job', 'client')->orderBy('id', 'desc')->paginate(20);
-        if (isset($request->status))
-            $orders   = Order::with('job', 'client')->where('status', $request->status)->where('client_id', $id)->orderBy('id', 'desc')->paginate(20);
-        if (isset($request->invoice_status) && $request->invoice_status != 'm')
-            $orders   = Order::with('job', 'client')->where('invoice_status', $request->invoice_status)->where('client_id', $id)->orderBy('id', 'desc')->paginate(20);
-        if (isset($request->invoice_status) && $request->invoice_status == 'm')
-            $orders   = Order::with('job', 'client')->where('invoice_status', 1)->orwhere('invoice_status', 2)->where('client_id', $id)->orderBy('id', 'desc')->paginate(20);
+        if ($request->f == 'all') {
+            $orders = Order::query()
+                ->with(['job', 'client'])
+                ->where('client_id', $id)
+                ->orderBy('id', 'desc')
+                ->paginate(20);
+        }
+
+        if (isset($request->status)) {
+            $orders = Order::query()
+                ->with(['job', 'client'])
+                ->where('status', $request->status)
+                ->where('client_id', $id)
+                ->orderBy('id', 'desc')
+                ->paginate(20);
+        }
+
+        if (isset($request->invoice_status) && $request->invoice_status != 'm') {
+            $orders = Order::query()
+                ->with(['job', 'client'])
+                ->where('invoice_status', $request->invoice_status)
+                ->where('client_id', $id)
+                ->orderBy('id', 'desc')
+                ->paginate(20);
+        }
+
+        if (isset($request->invoice_status) && $request->invoice_status == 'm') {
+            $orders = Order::query()
+                ->with(['job', 'client'])
+                ->where('invoice_status', 1)
+                ->orwhere('invoice_status', 2)
+                ->where('client_id', $id)
+                ->orderBy('id', 'desc')
+                ->paginate(20);
+        }
 
         $open     = Order::where('client_id', $id)->where('status', 'Open')->count();
         $closed   = Order::where('client_id', $id)->where('status', 'Closed')->count();
@@ -1351,7 +1358,9 @@ class InvoiceController extends Controller
 
     public function deleteOrders($id)
     {
-        Order::where('id', $id)->delete();
+        $order = Order::find($id);
+
+        $order->delete();
     }
 
     public function getPayments(Request $request)
@@ -1396,7 +1405,14 @@ class InvoiceController extends Controller
 
     public function getClientPayments($id)
     {
-        $payments = Invoices::where('customer', $id)->where('status', 'Paid')->orWhere('status', 'Partial Paid')->with('job', 'client')->orderBy('id', 'desc')->paginate(20);
+        $payments = Invoices::query()
+            ->with('job', 'client')
+            ->where('customer', $id)
+            ->where('status', 'Paid')
+            ->orWhere('status', 'Partial Paid')
+            ->orderBy('id', 'desc')
+            ->paginate(20);
+
         return response()->json([
             'pay' => $payments
         ]);
@@ -1420,19 +1436,19 @@ class InvoiceController extends Controller
         ]);
     }
 
-
     public function getCodesOrders(Request $request)
     {
         $codes = $request->codes;
 
         if (!empty($codes)) {
             $jservices = [];
-            foreach ($codes as $code) {
 
-                $od = Order::where('id', $code)->get()->first();
+            foreach ($codes as $code) {
+                $od = Order::find($code);
                 $service = json_decode($od->items);
                 $jservices[] = $service[0];
             }
+
             return response()->json([
                 'services' => $jservices
             ]);

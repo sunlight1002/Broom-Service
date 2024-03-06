@@ -21,7 +21,7 @@ class ContractController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
-        $result = Contract::query()->with('client', 'offer');
+        $result = Contract::query()->with(['client', 'offer']);
 
         $status = '';
         if (strtolower($q) === ContractStatusEnum::UN_VERIFIED) {
@@ -112,7 +112,10 @@ class ContractController extends Controller
 
     public function getContract(Request $request)
     {
-        $contract = Contract::query()->with('client', 'offer')->where('id', $request->id)->get();
+        $contract = Contract::query()
+            ->with(['client', 'offer'])
+            ->where('id', $request->id)
+            ->get();
         $card = ClientCard::where('client_id', $contract[0]->client->id)->first();
 
         $contract[0]['card'] = $card;
@@ -124,11 +127,13 @@ class ContractController extends Controller
 
     public function verifyContract(Request $request)
     {
-        Contract::where('id', $request->id)->update([
+        $contract = Contract::query()
+            ->with('client')
+            ->find($request->id);
+
+        $contract->update([
             'status' => ContractStatusEnum::VERIFIED
         ]);
-
-        $contract = Contract::where('id', $request->id)->with('client')->get()->first();
 
         LeadStatus::updateOrCreate(
             [
@@ -138,7 +143,6 @@ class ContractController extends Controller
                 'client_id' => $contract->client->id,
                 'lead_status' =>  'Contract Verified'
             ]
-
         );
 
         return response()->json([

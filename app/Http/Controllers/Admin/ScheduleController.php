@@ -10,14 +10,14 @@ use App\Models\Offer;
 use App\Models\Notification;
 use App\Models\Setting;
 use App\Traits\GoogleAPI;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class ScheduleController extends Controller
 {
@@ -414,7 +414,7 @@ class ScheduleController extends Controller
             foreach ($schedules as $schedule) {
                 $eventArr = [];
 
-                $date           = Carbon::parse($schedule['start_date'])->format('Y-m-d');
+                $date = Carbon::parse($schedule['start_date'])->format('Y-m-d');
                 $startAt = $date . ' ' . $schedule['start_time'];
                 $endAt = $date . ' ' . $schedule['end_time'];
 

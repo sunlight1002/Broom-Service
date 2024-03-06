@@ -32,7 +32,7 @@ class LeadController extends Controller
         $q = $request->q;
         $c = $request->condition;
 
-        $result = Client::with('meetings', 'offers')->with('lead_status');
+        $result = Client::with(['meetings', 'offers', 'lead_status']);
 
         if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 

@@ -14,41 +14,42 @@ class ServiceSchedulesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $schedule = ServiceSchedule::query();
-        $schedule   = $schedule->orderBy('id', 'desc')->paginate(20);
+        $schedules = ServiceSchedule::query()
+            ->orderBy('id', 'desc')
+            ->paginate(20);
 
         return response()->json([
-            'schedules'       => $schedule,
-        ], 200);
+            'schedules' => $schedules,
+        ]);
     }
 
     public function allSchedules()
     {
         $schedule = ServiceSchedule::where('status', 1)->get();
+
         return response()->json([
-            'schedules'       => $schedule,
-        ], 200);
+            'schedules' => $schedule,
+        ]);
     }
 
     public function allSchedulesByLng(Request $request)
     {
         $schedules = ServiceSchedule::where('status', 1)->get();
-        $result = [];
-        if (isset($schedules)) {
-            foreach ($schedules as $schedule) {
 
-                $res['name'] = ($request->lng == 'en') ? $schedule->name : $schedule->name_heb;
-                $res['id']   = $schedule->id;
-                $res['cycle'] = $schedule->cycle;
-                $res['period'] = $schedule->period;
-                array_push($result, $res);
-            }
+        $result = [];
+        foreach ($schedules as $schedule) {
+            $res['name'] = ($request->lng == 'en') ? $schedule->name : $schedule->name_heb;
+            $res['id']   = $schedule->id;
+            $res['cycle'] = $schedule->cycle;
+            $res['period'] = $schedule->period;
+            array_push($result, $res);
         }
+
         return response()->json([
-            'schedules'       => $result,
-        ], 200);
+            'schedules' => $result,
+        ]);
     }
 
     /**
@@ -63,14 +64,16 @@ class ServiceSchedulesController extends Controller
             'name' => 'required',
             'status' => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
         ServiceSchedule::create($request->input());
+
         return response()->json([
-            'message' => 'Schedule has been create successfully'
-        ], 200);
+            'message' => 'Schedule has been created successfully'
+        ]);
     }
 
     /**
@@ -82,9 +85,19 @@ class ServiceSchedulesController extends Controller
     public function edit($id)
     {
         $schedule = ServiceSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Schedule not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
+
         return response()->json([
             'schedule' => $schedule
-        ], 200);
+        ]);
     }
 
     /**
@@ -100,14 +113,27 @@ class ServiceSchedulesController extends Controller
             'name' => 'required',
             'status' => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        ServiceSchedule::where('id', $id)->update($request->input());
+        $schedule = ServiceSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Schedule not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
+
+        $schedule->update($request->input());
+
         return response()->json([
             'message' => 'Schedule has been updated successfully'
-        ], 200);
+        ]);
     }
 
     /**
@@ -118,9 +144,21 @@ class ServiceSchedulesController extends Controller
      */
     public function destroy($id)
     {
-        ServiceSchedule::find($id)->delete();
+        $schedule = ServiceSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Schedule not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
+
+        $schedule->delete();
+
         return response()->json([
-            'message'     => "Schedule has been deleted"
-        ], 200);
+            'message' => "Schedule has been deleted successfully"
+        ]);
     }
 }

@@ -16,10 +16,15 @@ class JobCommentController extends Controller
      */
     public function index(request $request)
     {
-        $comments = JobComments::where('job_id', $request->id)->where('role', 'client')->orderBy('id', 'desc')->get();
+        $comments = JobComments::query()
+            ->where('job_id', $request->id)
+            ->where('role', 'client')
+            ->orderBy('id', 'desc')
+            ->get();
+
         return response()->json([
             'comments' => $comments
-        ], 200);
+        ]);
     }
 
     /**
@@ -35,9 +40,11 @@ class JobCommentController extends Controller
             'job_id' => ['required'],
             'comment' => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
         $comment = new JobComments();
         $comment->name = $request->name;
         $comment->job_id = $request->job_id;
@@ -46,8 +53,8 @@ class JobCommentController extends Controller
         $comment->save();
 
         return response()->json([
-            'message' => 'Comments has been created successfully'
-        ], 200);
+            'message' => 'Comment has been created successfully'
+        ]);
     }
 
     /**
@@ -59,8 +66,9 @@ class JobCommentController extends Controller
     public function destroy($id)
     {
         JobComments::find($id)->delete();
+
         return response()->json([
-            'message' => 'Comments has been deleted successfully'
-        ], 200);
+            'message' => 'Comment has been deleted successfully'
+        ]);
     }
 }

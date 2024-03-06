@@ -18,10 +18,11 @@ class JobCommentController extends Controller
     {
         $client_comments = JobComments::where('job_id', $request->id)->where('role', 'client')->orderBy('id', 'desc')->get();
         $worker_comments = JobComments::where('job_id', $request->id)->where('role', 'worker')->orderBy('id', 'desc')->get();
+
         return response()->json([
             'client_comments' => $client_comments,
             'worker_comments' => $worker_comments
-        ], 200);
+        ]);
     }
 
     /**
@@ -38,19 +39,21 @@ class JobCommentController extends Controller
             'role' => ['required'],
             'comment' => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-        $comment = new JobComments();
-        $comment->name = $request->name;
-        $comment->role = $request->role;
-        $comment->job_id = $request->job_id;
-        $comment->comment = $request->comment;
-        $comment->save();
+
+        JobComments::create([
+            'name' => $request->name,
+            'role' => $request->role,
+            'job_id' => $request->job_id,
+            'comment' => $request->comment,
+        ]);
 
         return response()->json([
             'message' => 'Comments has been created successfully'
-        ], 200);
+        ]);
     }
 
     /**
@@ -61,9 +64,11 @@ class JobCommentController extends Controller
      */
     public function destroy($id)
     {
-        JobComments::find($id)->delete();
+        $comment = JobComments::find($id);
+        $comment->delete();
+
         return response()->json([
             'message' => 'Comments has been deleted successfully'
-        ], 200);
+        ]);
     }
 }

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Offer;
-use App\Models\Client;
-use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\LeadStatus;

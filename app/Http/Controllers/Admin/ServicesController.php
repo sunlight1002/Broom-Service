@@ -17,19 +17,20 @@ class ServicesController extends Controller
     public function index(Request $request)
     {
         $services = Services::query();
-        $services   = $services->orderBy('id', 'desc')->paginate(20);
+        $services = $services->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
-            'services'       => $services,
-        ], 200);
+            'services' => $services,
+        ]);
     }
 
     public function AllServices()
     {
         $services = Services::where('status', 1)->get();
+
         return response()->json([
-            'services'       => $services,
-        ], 200);
+            'services' => $services,
+        ]);
     }
 
     public function AllServicesByLng(Request $request)
@@ -38,16 +39,16 @@ class ServicesController extends Controller
         $result = [];
         if (isset($services)) {
             foreach ($services as $service) {
-
                 $res['name'] = ($request->lng == 'en') ? $service->name : $service->heb_name;
                 $res['id']  = $service->id;
                 $res['template'] = $service->template;
                 array_push($result, $res);
             }
         }
+
         return response()->json([
-            'services'       => $result,
-        ], 200);
+            'services' => $result,
+        ]);
     }
 
     /**
@@ -61,8 +62,8 @@ class ServicesController extends Controller
         $services = $services->where('status', 1)->orderBy('id', 'desc')->get();
 
         return response()->json([
-            'services'       => $services,
-        ], 200);
+            'services' => $services,
+        ]);
     }
 
     /**
@@ -83,8 +84,8 @@ class ServicesController extends Controller
 
         Services::create($request->input());
         return response()->json([
-            'message' => 'service has been create successfully'
-        ], 200);
+            'message' => 'Service has been created successfully'
+        ]);
     }
 
     /**
@@ -98,7 +99,7 @@ class ServicesController extends Controller
         $service = Services::find($id);
         return response()->json([
             'service' => $service
-        ], 200);
+        ]);
     }
 
     /**
@@ -118,10 +119,12 @@ class ServicesController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        Services::where('id', $id)->update($request->input());
+        $service = Services::find($id);
+        $service->update($request->input());
+
         return response()->json([
-            'message' => 'service has been updated successfully'
-        ], 200);
+            'message' => 'Service has been updated successfully'
+        ]);
     }
 
     /**
@@ -132,9 +135,11 @@ class ServicesController extends Controller
      */
     public function destroy($id)
     {
-        Services::find($id)->delete();
+        $service = Services::find($id);
+        $service->delete();
+
         return response()->json([
-            'message'     => "Applicant has been deleted"
-        ], 200);
+            'message' => "Service has been deleted"
+        ]);
     }
 }

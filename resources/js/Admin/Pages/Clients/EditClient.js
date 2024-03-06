@@ -1057,7 +1057,6 @@ export default function EditClient() {
                                                                                         }}
                                                                                     >
                                                                                         <option
-                                                                                            selected
                                                                                             value={
                                                                                                 0
                                                                                             }
@@ -1151,16 +1150,10 @@ export default function EditClient() {
                                                                                             );
                                                                                         }}
                                                                                     >
-                                                                                        <option
-                                                                                            selected
-                                                                                            value="fixed"
-                                                                                        >
+                                                                                        <option value="fixed">
                                                                                             Fixed
                                                                                         </option>
-                                                                                        <option
-                                                                                            selected
-                                                                                            value="hourly"
-                                                                                        >
+                                                                                        <option value="hourly">
                                                                                             Hourly
                                                                                         </option>
                                                                                     </select>
@@ -1268,7 +1261,6 @@ export default function EditClient() {
                                                                                         }
                                                                                     >
                                                                                         <option
-                                                                                            selected
                                                                                             value={
                                                                                                 0
                                                                                             }
@@ -1369,7 +1361,6 @@ export default function EditClient() {
                                                                                         }}
                                                                                     >
                                                                                         <option
-                                                                                            selected
                                                                                             value={
                                                                                                 0
                                                                                             }

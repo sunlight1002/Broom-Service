@@ -62,8 +62,8 @@ class JobController extends Controller
         }
 
         return response()->json([
-            'jobs'       => $jobs,
-        ], 200);
+            'jobs' => $jobs,
+        ]);
     }
 
     /**
@@ -78,7 +78,7 @@ class JobController extends Controller
 
         return response()->json([
             'job' => $job,
-        ], 200);
+        ]);
     }
 
     /**
@@ -111,7 +111,7 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job completed',
-        ], 200);
+        ]);
     }
 
     public function getWorkerAvailability($id)
@@ -125,8 +125,8 @@ class JobController extends Controller
         }
 
         return response()->json([
-            'availability'     => $new_array,
-        ], 200);
+            'availability' => $new_array,
+        ]);
     }
     public function updateAvailability(Request $request, $id)
     {
@@ -139,9 +139,10 @@ class JobController extends Controller
             $avl->status = '1';
             $avl->save();
         }
+
         return response()->json([
-            'message'     => 'Updated Successfully',
-        ], 200);
+            'message' => 'Updated Successfully',
+        ]);
     }
     public function JobStartTime(Request $request)
     {
@@ -156,9 +157,10 @@ class JobController extends Controller
         $time->worker_id = $request->worker_id;
         $time->start_time = $request->start_time;
         $time->save();
+
         return response()->json([
-            'message'     => 'Updated Successfully',
-        ], 200);
+            'message' => 'Updated Successfully',
+        ]);
     }
     public function JobEndTime(Request $request)
     {
@@ -166,9 +168,10 @@ class JobController extends Controller
         $time->end_time = $request->end_time;
         $time->time_diff = $request->time_diff;
         $time->save();
+
         return response()->json([
-            'message'     => 'Updated Successfully',
-        ], 200);
+            'message' => 'Updated Successfully',
+        ]);
     }
 
     public function getJobTime(Request $request)
@@ -185,10 +188,11 @@ class JobController extends Controller
                 }
             }
         }
+
         return response()->json([
             'time'     => $time,
             'total'    => $total
-        ], 200);
+        ]);
     }
 
     public function jobOrderGenerate()
@@ -305,7 +309,7 @@ class JobController extends Controller
 
     public function commitPayment($services, $id, $token)
     {
-        $job = Job::where('id', $id)->with('jobservice', 'client', 'contract', 'order')->get()->first();
+        $job = Job::query()->with(['jobservice', 'client', 'contract', 'order'])->find($id);
         $pitems = [];
         $subtotal = (int)$services[0]->unitprice;
         $tax = (17 / 100) * $subtotal;
@@ -425,13 +429,13 @@ class JobController extends Controller
 
     public function invoice($id, $oid)
     {
-        $job = Job::where(['id' => $id])->with('jobservice', 'client', 'contract', 'order')->get()->first();
+        $job = Job::query()->with(['jobservice', 'client', 'contract', 'order'])->find($id);
         $services = json_decode($job->order[0]->items);
         $total = 0;
 
         $p_method = $job->client->payment_method;
         $contract = $job->contract;
-        $card = ClientCard::where('client_id', $job->client_id)->get()->first();
+        $card = ClientCard::where('client_id', $job->client_id)->first();
         $doctype = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
 
         if (str_contains($job->schedule, 'w') == false) {
@@ -439,7 +443,7 @@ class JobController extends Controller
             $tax = (17 / 100) * $subtotal;
             $total = $tax + $subtotal;
 
-            $order = Order::where('job_id', $id)->get()->first();
+            $order = Order::where('job_id', $id)->first();
             $o_res = json_decode($order->response);
 
             $due = Carbon::now()->endOfMonth()->toDateString();
