@@ -436,17 +436,17 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="service-schedule"
+                                path="service-schedules"
                                 element={<ServiceSchedule />}
                             />
                             <Route
                                 exact
-                                path="add-service-schedule"
+                                path="service-schedules/create"
                                 element={<AddServiceSchedule />}
                             />
                             <Route
                                 exact
-                                path="edit-service-schedule/:id"
+                                path="service-schedules/:id/edit"
                                 element={<EditServiceSchedule />}
                             />
                             <Route

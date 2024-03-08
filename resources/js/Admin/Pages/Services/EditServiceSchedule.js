@@ -55,7 +55,7 @@ export default function EditServiceSchedule() {
                 } else {
                     alert.success("schedule has been updated successfully");
                     setTimeout(() => {
-                        navigate("/admin/service-schedule");
+                        navigate("/admin/service-schedules");
                     }, 1000);
                 }
             });

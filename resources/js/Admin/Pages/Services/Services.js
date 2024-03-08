@@ -123,7 +123,7 @@ export default function Services() {
                                 Add Service
                             </Link>
                             <Link
-                                to="/admin/service-schedule"
+                                to="/admin/service-schedules"
                                 className="ml-2 btn btn-warning addButton"
                             >
                                 Schedules

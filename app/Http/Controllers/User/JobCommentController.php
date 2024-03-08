@@ -69,7 +69,6 @@ class JobCommentController extends Controller
                 'comment'    => $request->comment,
                 'worker_name' => $request->name,
                 'job'        => $job->toArray(),
-
             );
 
             Notification::create([

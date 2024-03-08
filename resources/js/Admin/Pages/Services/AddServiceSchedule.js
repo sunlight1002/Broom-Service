@@ -52,7 +52,7 @@ export default function AddServiceSchedule() {
                 } else {
                     alert.success("Schedule has been created successfully");
                     setTimeout(() => {
-                        navigate("/admin/service-schedule");
+                        navigate("/admin/service-schedules");
                     }, 1000);
                 }
             });

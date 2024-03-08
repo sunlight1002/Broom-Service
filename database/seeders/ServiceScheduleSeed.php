@@ -64,13 +64,13 @@ class ServiceScheduleSeed extends Seeder
             'period'       => 'w',
             'status'       => 1
         ]);
-        ServiceSchedule::create([
-            'name'         => '6 times a week',
-            'name_heb'     => '6 פעמים בשבוע',
-            'cycle'        => 6,
-            'period'       => 'w',
-            'status'       => 1
-        ]);
+        // ServiceSchedule::create([
+        //     'name'         => '6 times a week',
+        //     'name_heb'     => '6 פעמים בשבוע',
+        //     'cycle'        => 6,
+        //     'period'       => 'w',
+        //     'status'       => 1
+        // ]);
 
         ServiceSchedule::create([
             'name'         => 'Once in every two weeks',

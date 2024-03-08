@@ -19,7 +19,6 @@ export default function ServiceSchedule() {
         axios
             .get("/api/admin/service-schedule", { headers })
             .then((response) => {
-                console.log(response);
                 if (response.data.schedules.data.length > 0) {
                     setSchedules(response.data.schedules.data);
                     setPageCount(response.data.schedules.last_page);
@@ -84,7 +83,7 @@ export default function ServiceSchedule() {
                         </div>
                         <div className="col-sm-6">
                             <Link
-                                to="/admin/add-service-schedule"
+                                to="/admin/service-schedules/create"
                                 className="ml-2 btn btn-success addButton"
                             >
                                 Add Schedule
@@ -134,7 +133,7 @@ export default function ServiceSchedule() {
                                                                 </button>
                                                                 <div className="dropdown-menu">
                                                                     <Link
-                                                                        to={`/admin/edit-service-schedule/${item.id}`}
+                                                                        to={`/admin/service-schedules/${item.id}/edit`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         Edit
