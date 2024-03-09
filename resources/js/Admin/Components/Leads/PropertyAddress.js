@@ -202,7 +202,6 @@ const PropertyAddress = memo(function PropertyAddress({
             setModalStatus(true);
             isAdd.current = false;
             setTimeout(() => {
-                console.log("data",data)
                 fullAddress.current.value = data.geo_address;
                 floor.current.value = data.floor;
                 Apt.current.value = data.apt_no;
@@ -211,8 +210,8 @@ const PropertyAddress = memo(function PropertyAddress({
                 prefer_type.current.value = data.prefer_type
                     ? data.prefer_type
                     : "default";
-                is_cat_avail.current.checked = data.is_cat_avail?true:false;
-                is_dog_avail.current.checked = data.is_dog_avail?true:false;
+                is_cat_avail.current.checked = data.is_cat_avail ? true : false;
+                is_dog_avail.current.checked = data.is_dog_avail ? true : false;
                 addressId.current.value =
                     data.indexId !== undefined ? data.indexId : data.id;
                 client_id.current.value = data.client_id ? data.client_id : 0;

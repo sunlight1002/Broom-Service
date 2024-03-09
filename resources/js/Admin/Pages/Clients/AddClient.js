@@ -7,6 +7,7 @@ import { MultiSelect } from "react-multi-select-component";
 import Select from "react-select";
 import { create } from "lodash";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
+import JobMenu from "../../Components/Job/JobMenu";
 
 export default function AddClient() {
     const [firstname, setFirstName] = useState("");
@@ -183,103 +184,118 @@ export default function AddClient() {
 
     /*  Job Add */
     const [type, setType] = useState();
-    const [formValues, setFormValues] = useState([
-        {
-            service: "",
-            name: "",
-            type: "",
-            freq_name: "",
-            frequency: "",
-            fixed_price: "",
-            jobHours: "",
-            rateperhour: "",
-            other_title: "",
-            totalamount: "",
-            template: "",
-            cycle: "",
-            period: "",
-        },
-    ]);
+    const [index, setIndex] = useState(0);
+    const [formValues, setFormValues] = useState([]);
+    const [tmpFormValues, setTmpFormValues] = useState({
+        service: "",
+        name: "",
+        type: "fixed",
+        freq_name: "",
+        frequency: "",
+        fixed_price: "",
+        jobHours: "",
+        rateperhour: "",
+        other_title: "",
+        totalamount: "",
+        template: "",
+        cycle: "",
+        period: "",
+        address: "",
+    });
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllFreq, setAllFreq] = useState([]);
     const [worker, setWorkers] = useState([]);
-    let handleChange = (i, e) => {
-        let newFormValues = [...formValues];
+    const handleChange = (i, e) => {
+        let newFormValues = { ...tmpFormValues };
+        // var h =
+        //     e.target.parentNode.parentNode.childNodes[1].childNodes[0].value;
+        // console.log("h", h);
+        // var rh =
+        //     e.target.parentNode.parentNode.childNodes[2].childNodes[0].value;
+        // console.log("rh", rh);
+        // if (rh != "" && h != "")
+        //     e.target.parentNode.parentNode.childNodes[3].childNodes[0].setAttribute(
+        //         "value",
+        //         h * rh
+        //     );
+        // console.log(
+        //     "e.target.parentNode.parentNodes",
+        //     e.target.parentNode.parentNode.childNodes[3].childNodes[0].value
+        // );
 
-        var h =
-            e.target.parentNode.parentNode.childNodes[1].childNodes[0].value;
-        var rh =
-            e.target.parentNode.parentNode.childNodes[2].childNodes[0].value;
-        if (rh != "" && h != "")
-            e.target.parentNode.parentNode.childNodes[3].childNodes[0].setAttribute(
-                "value",
-                h * rh
-            );
-
-        newFormValues[i][e.target.name] = e.target.value;
+        newFormValues[e.target.name] = e.target.value;
         if (e.target.name == "service") {
-            newFormValues[i]["name"] =
+            newFormValues["name"] =
                 e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["template"] =
+            newFormValues["template"] =
                 e.target.options[e.target.selectedIndex].getAttribute(
                     "template"
                 );
         }
         if (e.target.name == "frequency") {
-            newFormValues[i]["freq_name"] =
+            newFormValues["freq_name"] =
                 e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["cycle"] =
+            newFormValues["cycle"] =
                 e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newFormValues[i]["period"] =
+            newFormValues["period"] =
                 e.target.options[e.target.selectedIndex].getAttribute("period");
         }
         if (e.target.name == "worker") {
-            newFormValues[i]["woker_name"] =
+            newFormValues["woker_name"] =
                 e.target.options[e.target.selectedIndex].getAttribute("name");
         }
         if (e.target.name == "days") {
             var result = [];
-            var options = e.target.options;
+            var options = e.target.option;
             var opt;
 
             for (var k = 0, iLen = options.length; k < iLen; k++) {
                 opt = options[k];
 
-                if (opt.selected) {
-                    result.push(opt.value);
-                }
+                // if (opt.selected) {
+                result.push(opt.value);
+                // }
             }
             if (
-                result.length > newFormValues[i]["cycle"] &&
-                newFormValues[i]["cycle"] != 0
+                result.length > newFormValues["cycle"] &&
+                newFormValues["cycle"] != 0
             ) {
                 window.alert(
                     "You can select at most " +
-                        newFormValues[i]["cycle"] +
+                        newFormValues["cycle"] +
                         " day(s) for this frequency"
                 );
             } else {
-                newFormValues[i]["days"] = result;
+                newFormValues["days"] = result;
             }
         }
         if (e.target.name == "shift") {
             var result = "";
             var sAr = [];
-            var options = e.target.options;
+            var options = e.target.option;
             var opt;
 
             for (var k = 0, iLen = options.length; k < iLen; k++) {
                 opt = options[k];
-                if (opt.selected) {
-                    sAr.push(opt.value);
-                    result += opt.value + ", ";
-                }
+                // if (opt.selected) {
+                sAr.push(opt.value);
+                result += opt.value + ", ";
+                // }
             }
-            newFormValues[i]["shift_ar"] = sAr;
-            newFormValues[i]["shift"] = result.replace(/,\s*$/, "");
+            newFormValues["shift_ar"] = sAr;
+            newFormValues["shift"] = result.replace(/,\s*$/, "");
         }
-
+        setTmpFormValues(newFormValues);
+        // setFormValues(newFormValues);
+    };
+    const handleSave = (indexKey) => {
+        let newFormValues = [...formValues];
+        if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
+            newFormValues[indexKey] = tmpFormValues;
+        } else {
+            newFormValues = [...formValues, tmpFormValues];
+        }
         setFormValues(newFormValues);
     };
     let addFormFields = () => {
@@ -299,6 +315,7 @@ export default function AddClient() {
                 template: "",
                 cycle: "",
                 period: "",
+                address: "",
             },
         ]);
     };
@@ -419,7 +436,7 @@ export default function AddClient() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-    
+
     return (
         <div id="container">
             <Sidebar />
@@ -934,6 +951,24 @@ export default function AddClient() {
                                     className="ClientJobSection"
                                     style={{ display: "none" }}
                                 >
+                                    {cjob === "1" && (
+                                        <JobMenu
+                                            addresses={addresses}
+                                            worker={worker}
+                                            AllServices={AllServices}
+                                            AllFreq={AllFreq}
+                                            handleInputChange={handleChange}
+                                            formValues={formValues}
+                                            handleTmpFormValues={
+                                                setTmpFormValues
+                                            }
+                                            tmpFormValue={tmpFormValues}
+                                            handleSaveJobForm={handleSave}
+                                            handleRemoveFormFields={
+                                                removeFormFields
+                                            }
+                                        />
+                                    )}
                                     <div className="row">
                                         <div className="col-sm-12">
                                             <div className="">

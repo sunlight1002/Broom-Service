@@ -27,7 +27,8 @@ class Job extends Model
         'rate',
         'invoice_no',
         'invoice_url',
-        'status'
+        'status',
+        'address_id'
     ];
 
     public function worker()
@@ -74,7 +75,10 @@ class Job extends Model
     {
         return $this->hasMany(Invoices::class, 'job_id');
     }
-
+    public function propertyAddress()
+    {
+        return $this->belongsTo(ClientPropertyAddress::class, 'address_id');
+    }
     public static function boot()
     {
         parent::boot();
