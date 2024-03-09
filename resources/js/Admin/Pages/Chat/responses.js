@@ -273,7 +273,7 @@ export default function responses() {
                                         value="Save"
                                         className="btn btn-success saveBtn"
                                         onClick={handleSubmit}
-                                        style={{ "margin-inline": "6px" }}
+                                        style={{ marginInline: "6px" }}
                                     />
                                 </div>
                             </div>

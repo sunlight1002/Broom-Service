@@ -703,7 +703,7 @@ export default function EditOffer() {
                                         value="Save"
                                         className="btn btn-success saveBtn"
                                         onClick={handleUpdate}
-                                        style={{ "margin-inline": "6px" }}
+                                        style={{ marginInline: "6px" }}
                                     />
                                     <input
                                         type="submit"

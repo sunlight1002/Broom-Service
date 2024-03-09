@@ -15,7 +15,7 @@ export default function EditServiceSchedule() {
     const [errors, setErrors] = useState([]);
     const pe = [
         { value: "na", label: "Not Required" },
-        { value: "D", label: "Day" },
+        { value: "d", label: "Day" },
         { value: "w", label: "Week" },
         { value: "2w", label: "2 Weeks" },
         { value: "3w", label: "3 Weeks" },
