@@ -580,7 +580,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                                     ) => {
                                                                         return (
                                                                             <button
-                                                                                type="buttton"
+                                                                                type="button"
                                                                                 menutype={
                                                                                     menu.key
                                                                                 }

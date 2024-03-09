@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
 
@@ -23,10 +23,18 @@ const frequencyDays = [
     { value: "monday", label: "Monday" },
     { value: "tuesday", label: "Tuesday" },
     { value: "wednesday", label: "Wednesday" },
-    { value: "thursday", label: "Thrusday" },
+    { value: "thursday", label: "Thursday" },
     { value: "friday", label: "Friday" },
     { value: "saturday", label: "Saturday" },
 ];
+
+const monthDateArr = () => {
+    let array = [];
+    for (let i = 1; i <= 29; i++) {
+        array.push(i);
+    }
+    return array;
+};
 
 const JobModal = (props) => {
     const {
@@ -69,6 +77,61 @@ const JobModal = (props) => {
             setFilteredWorkers(tmpWorker);
         }
     }, [tmpFormValue, worker, addresses]);
+
+    const showWeekDayOption = useMemo(() => {
+        return ["2w", "3w", "4w", "5w", "m", "2m", "3m", "6m", "y"].includes(
+            tmpFormValue.period
+        );
+    }, [tmpFormValue]);
+
+    const showMonthOption = useMemo(() => {
+        return ["2m", "3m", "6m", "y"].includes(tmpFormValue.period);
+    }, [tmpFormValue.period]);
+
+    const showMonthDateOption = useMemo(() => {
+        return ["m", "2m", "3m", "6m", "y"].includes(tmpFormValue.period);
+    }, [tmpFormValue.period]);
+
+    const monthOptions = useMemo(() => {
+        let _monthArr = [];
+        if (["2m", "3m", "6m"].includes(tmpFormValue.period)) {
+            _monthArr = [
+                { value: 1, label: "first" },
+                { value: 2, label: "second" },
+                { value: 3, label: "third" },
+                { value: 4, label: "fourth" },
+                { value: 5, label: "fifth" },
+                { value: 6, label: "sixth" },
+                { value: 7, label: "seventh" },
+                { value: 8, label: "eighth" },
+                { value: 9, label: "ninth" },
+                { value: 10, label: "tenth" },
+                { value: 11, label: "eleventh" },
+                { value: 12, label: "twelfth" },
+            ];
+
+            const _monthCount = parseInt(tmpFormValue.period.charAt(0));
+            _monthArr = _monthArr.slice(0, _monthCount);
+        } else if (tmpFormValue.period == "y") {
+            _monthArr = [
+                { value: 1, label: "January" },
+                { value: 2, label: "February" },
+                { value: 3, label: "March" },
+                { value: 4, label: "April" },
+                { value: 5, label: "May" },
+                { value: 6, label: "June" },
+                { value: 7, label: "July" },
+                { value: 8, label: "August" },
+                { value: 9, label: "September" },
+                { value: 10, label: "October" },
+                { value: 11, label: "November" },
+                { value: 12, label: "December" },
+            ];
+        }
+
+        return _monthArr;
+    }, [tmpFormValue.period]);
+
     return (
         <Modal
             size="lg"
@@ -98,8 +161,8 @@ const JobModal = (props) => {
                                 }}
                             >
                                 <option value="">--Please select--</option>
-                                {addresses.map((address) => (
-                                    <option value={address.id}>
+                                {addresses.map((address, i) => (
+                                    <option value={address.id} key={i}>
                                         {address.geo_address}
                                     </option>
                                 ))}
@@ -296,9 +359,183 @@ const JobModal = (props) => {
                                     })}
                             </select>
                         </div>
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                            style={{
+                                display: tmpFormValue.period ? "block" : "none",
+                            }}
+                        >
+                            <label className="control-label">Start from</label>
+                            <input
+                                type="date"
+                                name="start_date"
+                                className="form-control"
+                                value={tmpFormValue.start_date}
+                                onChange={(e) => {
+                                    handleInputChange(index, e);
+                                }}
+                            />
+                        </div>
+
+                        <div
+                            className="form-group"
+                            style={{
+                                display: showMonthDateOption ? "block" : "none",
+                            }}
+                        >
+                            <div className="d-inline">
+                                <input
+                                    type="radio"
+                                    name="monthday_selection_type"
+                                    value="date"
+                                    onChange={(e) => {
+                                        handleInputChange(index, e);
+                                    }}
+                                    checked={
+                                        tmpFormValue.monthday_selection_type ==
+                                        "date"
+                                    }
+                                />
+
+                                <span> Day </span>
+
+                                <select
+                                    name="month_date"
+                                    className="choosen-select"
+                                    onChange={(e) => {
+                                        handleInputChange(index, e);
+                                    }}
+                                >
+                                    {monthDateArr().map((i) => {
+                                        return (
+                                            <option value={i} key={i}>
+                                                {i}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+
+                                <div
+                                    className={
+                                        showMonthOption ? "d-inline" : "d-none"
+                                    }
+                                >
+                                    <span> of </span>
+
+                                    <select
+                                        name="month_occurrence"
+                                        className="choosen-select"
+                                        value={tmpFormValue.month_occurrence}
+                                        onChange={(e) => {
+                                            handleInputChange(index, e);
+                                        }}
+                                    >
+                                        {monthOptions.map((m, i) => {
+                                            return (
+                                                <option value={m.value} key={i}>
+                                                    {m.label}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+
+                                    <span> month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="form-group"
+                            style={{
+                                display: showWeekDayOption ? "block" : "none",
+                            }}
+                        >
+                            <div className="d-inline">
+                                <input
+                                    type="radio"
+                                    name="monthday_selection_type"
+                                    value="weekday"
+                                    onChange={(e) => {
+                                        handleInputChange(index, e);
+                                    }}
+                                    checked={
+                                        tmpFormValue.monthday_selection_type ==
+                                        "weekday"
+                                    }
+                                />
+
+                                <span> The </span>
+
+                                <select
+                                    name="weekday_occurrence"
+                                    className="choosen-select"
+                                    onChange={(e) => {
+                                        handleInputChange(index, e);
+                                    }}
+                                >
+                                    <option value="1">first</option>
+                                    <option value="2">second</option>
+                                    <option value="3">third</option>
+                                    <option value="last">last</option>
+                                </select>
+
+                                <select
+                                    name="weekday"
+                                    className="ml-2 choosen-select"
+                                    onChange={(e) => {
+                                        handleInputChange(index, e);
+                                    }}
+                                >
+                                    {frequencyDays.map((wd, i) => {
+                                        return (
+                                            <option value={wd.value} key={i}>
+                                                {wd.label}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+
+                                <div
+                                    className={
+                                        showMonthOption ? "d-inline" : "d-none"
+                                    }
+                                >
+                                    <span> of </span>
+
+                                    <select
+                                        name="month_occurrence"
+                                        className="choosen-select"
+                                        value={tmpFormValue.month_occurrence}
+                                        onChange={(e) => {
+                                            handleInputChange(index, e);
+                                        }}
+                                    >
+                                        {monthOptions.map((m, i) => {
+                                            return (
+                                                <option value={m.value} key={i}>
+                                                    {m.label}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+
+                                    <span> month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="form-group"
+                            style={{
+                                display:
+                                    tmpFormValue.period == "w" &&
+                                    tmpFormValue.cycle > 1
+                                        ? "block"
+                                        : "none",
+                            }}
+                        >
                             <Select
-                                name="days"
+                                name="weekdays"
                                 isMulti
                                 options={frequencyDays}
                                 className="basic-multi-single "
@@ -313,6 +550,12 @@ const JobModal = (props) => {
                                         },
                                     };
                                     handleInputChange(0, e);
+                                }}
+                                style={{
+                                    display:
+                                        tmpFormValue.period == "w"
+                                            ? "block"
+                                            : "none",
                                 }}
                             />
                         </div>

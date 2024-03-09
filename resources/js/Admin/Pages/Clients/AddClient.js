@@ -17,12 +17,12 @@ export default function AddClient() {
     const [phone, setPhone] = useState("");
     const [dob, setDob] = useState("");
     const [passcode, setPassCode] = useState("");
-    const [lng, setLng] = useState("");
+    const [lng, setLng] = useState("heb");
     const [color, setColor] = useState("");
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
-    const [cjob, setCjob] = useState();
+    const [cjob, setCjob] = useState("0");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [paymentMethod, setPaymentMethod] = useState("cc");
     const navigate = useNavigate();
@@ -97,8 +97,8 @@ export default function AddClient() {
                     return false;
                 }
                 if (
-                    formValues[t].days.length > 0 &&
-                    formValues[t].days.length > formValues[t].cycle &&
+                    formValues[t].weekdays.length > 0 &&
+                    formValues[t].weekdays.length > formValues[t].cycle &&
                     formValues[t].cycle != "0"
                 ) {
                     alert.error("One of the frequency days are invalid");
@@ -201,6 +201,14 @@ export default function AddClient() {
         cycle: "",
         period: "",
         address: "",
+        start_date: "",
+        weekdays: [],
+        weekday_occurrence: "",
+        weekday: "",
+        month_occurrence: "",
+        month: null,
+        month_date: null,
+        monthday_selection_type: "weekday",
     });
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
@@ -208,21 +216,6 @@ export default function AddClient() {
     const [worker, setWorkers] = useState([]);
     const handleChange = (i, e) => {
         let newFormValues = { ...tmpFormValues };
-        // var h =
-        //     e.target.parentNode.parentNode.childNodes[1].childNodes[0].value;
-        // console.log("h", h);
-        // var rh =
-        //     e.target.parentNode.parentNode.childNodes[2].childNodes[0].value;
-        // console.log("rh", rh);
-        // if (rh != "" && h != "")
-        //     e.target.parentNode.parentNode.childNodes[3].childNodes[0].setAttribute(
-        //         "value",
-        //         h * rh
-        //     );
-        // console.log(
-        //     "e.target.parentNode.parentNodes",
-        //     e.target.parentNode.parentNode.childNodes[3].childNodes[0].value
-        // );
 
         newFormValues[e.target.name] = e.target.value;
         if (e.target.name == "service") {
@@ -245,20 +238,11 @@ export default function AddClient() {
             newFormValues["woker_name"] =
                 e.target.options[e.target.selectedIndex].getAttribute("name");
         }
-        if (e.target.name == "days") {
-            var result = [];
-            var options = e.target.option;
-            var opt;
+        if (e.target.name == "weekdays") {
+            const _weekdays = e.target.option.map((i) => i.value);
 
-            for (var k = 0, iLen = options.length; k < iLen; k++) {
-                opt = options[k];
-
-                // if (opt.selected) {
-                result.push(opt.value);
-                // }
-            }
             if (
-                result.length > newFormValues["cycle"] &&
+                _weekdays.length > newFormValues["cycle"] &&
                 newFormValues["cycle"] != 0
             ) {
                 window.alert(
@@ -267,7 +251,7 @@ export default function AddClient() {
                         " day(s) for this frequency"
                 );
             } else {
-                newFormValues["days"] = result;
+                newFormValues["weekdays"] = _weekdays;
             }
         }
         if (e.target.name == "shift") {
@@ -316,6 +300,14 @@ export default function AddClient() {
                 cycle: "",
                 period: "",
                 address: "",
+                start_date: "",
+                weekdays: [],
+                weekday_occurrence: "",
+                weekday: "",
+                month_occurrence: "",
+                month: null,
+                month_date: null,
+                monthday_selection_type: "weekday",
             },
         ]);
     };
@@ -1322,7 +1314,7 @@ export default function AddClient() {
                                                                                     </select>
 
                                                                                     <select
-                                                                                        name="days"
+                                                                                        name="weekdays"
                                                                                         className="form-control choosen-select"
                                                                                         multiple
                                                                                         data-placeholder="Choose Days"

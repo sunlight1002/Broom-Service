@@ -29,38 +29,49 @@ const JobMenu = (props) => {
     let isAdd = useRef(true);
     let indexRef = useRef();
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleAddJob = () => {
+        if (!addresses.length) {
+            alert("Please add property address");
+            return;
+        }
+
+        handleTmpFormValues({
+            service: "",
+            name: "",
+            type: "fixed",
+            freq_name: "",
+            frequency: "",
+            fixed_price: "",
+            jobHours: "",
+            rateperhour: "",
+            other_title: "",
+            totalamount: "",
+            template: "",
+            cycle: "",
+            period: "",
+            address: "",
+            start_date: "",
+            weekdays: [],
+            weekday_occurrence: "",
+            weekday: "",
+            month_occurrence: "",
+            month: null,
+            month_date: null,
+            monthday_selection_type: "weekday",
+        });
+        isAdd.current = true;
+        setIsOpen(true);
+    };
+
     return (
         <div>
             <div className="text-right">
                 <button
                     type="button"
-                    onClick={() => {
-                        if (!addresses.length) {
-                            alert("Please add property address");
-                            return;
-                        }
-                        handleTmpFormValues({
-                            service: "",
-                            name: "",
-                            type: "fixed",
-                            freq_name: "",
-                            frequency: "",
-                            fixed_price: "",
-                            jobHours: "",
-                            rateperhour: "",
-                            other_title: "",
-                            totalamount: "",
-                            template: "",
-                            cycle: "",
-                            period: "",
-                            address: "",
-                        });
-                        isAdd.current = true;
-                        setIsOpen(true);
-                    }}
+                    onClick={handleAddJob}
                     className="btn btn-success"
                 >
-                    {" "}
                     + Add Job
                 </button>
             </div>
@@ -105,7 +116,7 @@ const JobMenu = (props) => {
                                                               item.rateperhour
                                                             : item.fixed_price}
                                                     </Td>
-                                                    <Td>{item.days}</Td>
+                                                    <Td>{item.weekdays}</Td>
                                                     <Td>
                                                         <div className="action-dropdown dropdown">
                                                             <button
@@ -123,7 +134,7 @@ const JobMenu = (props) => {
                                                                     ) => {
                                                                         return (
                                                                             <button
-                                                                                type="buttton"
+                                                                                type="button"
                                                                                 className="dropdown-item"
                                                                                 key={
                                                                                     menu.key
