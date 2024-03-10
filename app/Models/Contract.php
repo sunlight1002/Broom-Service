@@ -27,4 +27,9 @@ class Contract extends Model
     {
         return $this->belongsTo(Offer::class, 'offer_id');
     }
+
+    public function job()
+    {
+        return $this->belongsTo(Job::class, 'id', 'contract_id');
+    }
 }

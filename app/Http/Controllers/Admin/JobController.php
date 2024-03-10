@@ -191,7 +191,7 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order'])->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order', 'propertyAddress'])->find($id);
 
         return response()->json([
             'job' => $job,
@@ -206,7 +206,7 @@ class JobController extends Controller
      */
     public function edit($id)
     {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice'])->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress'])->find($id);
 
         return response()->json([
             'job' => $job

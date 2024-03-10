@@ -27,7 +27,7 @@ export default function () {
             .then((res) => {
                 const r = res.data.contract;
                 setClient(r.client.firstname + " " + r.client.lastname);
-                setAddress(r.client.geo_address);
+                setAddress(r.job?.property_address?.geo_address);
                 setServices(JSON.parse(r.offer.services));
             });
     };

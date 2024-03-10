@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, memo, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
+import { getWorkerBasedOnProperty } from "../../Utils/job.utils";
+import { useAlert } from "react-alert";
+import { useParams } from "react-router-dom";
 
 const slot = [
     { value: "full day- 8am-16pm", label: "full day- 8am-16pm" },
@@ -36,65 +39,180 @@ const monthDateArr = () => {
     return array;
 };
 
-const JobModal = (props) => {
-    const {
-        setIsOpen,
-        isOpen,
-        addresses,
-        worker,
-        AllServices,
-        AllFreq,
-        handleInputChange,
-        tmpFormValue,
-        handleSaveJobForm,
-        isAdd,
-        index,
-    } = props;
+const JobModal = memo(function JobModal({
+    setIsOpen,
+    isOpen,
+    addresses,
+    worker,
+    AllServices,
+    AllFreq,
+    tmpFormValues,
+    handleTmpValue,
+    handleSaveJobForm,
+    isAdd,
+    index,
+}) {
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [toggleOtherService, setToggleOtherService] = useState(false);
+    const alert = useAlert();
 
-    useEffect(() => {
-        if (tmpFormValue.address) {
-            const getAddress = addresses[tmpFormValue.address];
-            const tmpWorker = worker.filter((w) => {
-                return (
-                    (getAddress.prefer_type !== "default" &&
-                    getAddress.prefer_type !== "both"
-                        ? w.gender === getAddress.prefer_type
-                        : true) &&
-                    (Boolean(getAddress.is_cat_avail)
-                        ? Boolean(w.is_afraid_by_cat)
-                            ? false
-                            : !Boolean(w.is_afraid_by_cat)
-                        : true) &&
-                    (Boolean(getAddress.is_dog_avail)
-                        ? Boolean(w.is_afraid_by_dog)
-                            ? false
-                            : !Boolean(w.is_afraid_by_dog)
-                        : true)
+    const handleInputChange = (e) => {
+        let newFormValues = { ...tmpFormValues };
+
+        newFormValues[e.target.name] = e.target.value;
+        if (e.target.name == "service") {
+            newFormValues["name"] =
+                e.target.options[e.target.selectedIndex].getAttribute("name");
+            newFormValues["template"] =
+                e.target.options[e.target.selectedIndex].getAttribute(
+                    "template"
                 );
-            });
+        }
+        if (e.target.name == "frequency") {
+            newFormValues["freq_name"] =
+                e.target.options[e.target.selectedIndex].getAttribute("name");
+            newFormValues["cycle"] =
+                e.target.options[e.target.selectedIndex].getAttribute("cycle");
+            newFormValues["period"] =
+                e.target.options[e.target.selectedIndex].getAttribute("period");
+        }
+        if (e.target.name == "worker") {
+            newFormValues["woker_name"] =
+                e.target.options[e.target.selectedIndex].getAttribute("name");
+        }
+        if (e.target.name == "weekdays") {
+            const _weekdays = e.target.option.map((i) => i.value);
+
+            if (
+                _weekdays.length > newFormValues["cycle"] &&
+                newFormValues["cycle"] != 0
+            ) {
+                window.alert(
+                    "You can select at most " +
+                        newFormValues["cycle"] +
+                        " day(s) for this frequency"
+                );
+            } else {
+                newFormValues["weekdays"] = _weekdays;
+                newFormValues["week_days"] = e.target.option;
+            }
+        }
+        if (e.target.name == "shift") {
+            var result = "";
+            var sAr = [];
+            var options = e.target.option;
+            var opt;
+
+            for (var k = 0, iLen = options.length; k < iLen; k++) {
+                opt = options[k];
+                // if (opt.selected) {
+                sAr.push(opt.value);
+                result += opt.value + ", ";
+                // }
+            }
+            newFormValues["shift_ar"] = sAr;
+            newFormValues["shift"] = result.replace(/,\s*$/, "");
+
+            newFormValues["shift_default"] = e.target.option;
+        }
+        handleTmpValue(newFormValues);
+    };
+
+    const checkValidation = () => {
+        if (tmpFormValues.address == "") {
+            alert.error("The address is not selected");
+            return false;
+        }
+        if (
+            !tmpFormValues.worker ||
+            tmpFormValues.worker == "" ||
+            tmpFormValues.worker == 0
+        ) {
+            alert.error("The worker is not selected");
+            return false;
+        }
+        if (!tmpFormValues.shift || tmpFormValues.shift == "") {
+            alert.error("The shift is not selected");
+            return false;
+        }
+        if (tmpFormValues.service == "" || tmpFormValues.service == 0) {
+            alert.error("The service is not selected");
+            return false;
+        }
+
+        let ot = document.querySelector("#other_title");
+
+        if (tmpFormValues.service == "10" && ot != undefined) {
+            if (tmpFormValues.other_title == "") {
+                alert.error("Other title cannot be blank");
+                return false;
+            }
+            tmpFormValues.other_title =
+                document.querySelector("#other_title").value;
+        } else {
+            tmpFormValues.other_title = "";
+        }
+
+        if (tmpFormValues.jobHours == "") {
+            alert.error("The job hours value is missing");
+            return false;
+        }
+        !tmpFormValues.type ? (tmpFormValues.type = "fixed") : "";
+        if (tmpFormValues.type == "hourly") {
+            if (tmpFormValues.rateperhour == "") {
+                alert.error("The rate per hour value is missing");
+                return false;
+            }
+        } else {
+            if (tmpFormValues.fixed_price == "") {
+                alert.error("The job price is missing");
+                return false;
+            }
+        }
+
+        if (tmpFormValues.frequency == "" || tmpFormValues.frequency == 0) {
+            alert.error("The frequency is not selected");
+            return false;
+        }
+        if (
+            tmpFormValues.weekdays.length > 0 &&
+            tmpFormValues.weekdays.length > tmpFormValues.cycle &&
+            tmpFormValues.cycle != "0"
+        ) {
+            alert.error("The frequency days are invalid");
+            return false;
+        }
+
+        return true;
+    };
+    let param = useParams();
+    useEffect(() => {
+        if (tmpFormValues.address) {
+            const getAddress = param.id
+                ? addresses.filter((a) => a.id == tmpFormValues.address)[0]
+                : addresses[tmpFormValues.address];
+            const tmpWorker = getWorkerBasedOnProperty(worker, getAddress);
             setFilteredWorkers(tmpWorker);
         }
-    }, [tmpFormValue, worker, addresses]);
+    }, [tmpFormValues, worker, addresses]);
 
     const showWeekDayOption = useMemo(() => {
         return ["2w", "3w", "4w", "5w", "m", "2m", "3m", "6m", "y"].includes(
-            tmpFormValue.period
+            tmpFormValues.period
         );
-    }, [tmpFormValue]);
+    }, [tmpFormValues]);
 
     const showMonthOption = useMemo(() => {
-        return ["2m", "3m", "6m", "y"].includes(tmpFormValue.period);
-    }, [tmpFormValue.period]);
+        return ["2m", "3m", "6m", "y"].includes(tmpFormValues.period);
+    }, [tmpFormValues.period]);
 
     const showMonthDateOption = useMemo(() => {
-        return ["m", "2m", "3m", "6m", "y"].includes(tmpFormValue.period);
-    }, [tmpFormValue.period]);
+        return ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period);
+    }, [tmpFormValues.period]);
 
     const monthOptions = useMemo(() => {
         let _monthArr = [];
-        if (["2m", "3m", "6m"].includes(tmpFormValue.period)) {
+        if (["2m", "3m", "6m"].includes(tmpFormValues.period)) {
             _monthArr = [
                 { value: 1, label: "first" },
                 { value: 2, label: "second" },
@@ -110,9 +228,9 @@ const JobModal = (props) => {
                 { value: 12, label: "twelfth" },
             ];
 
-            const _monthCount = parseInt(tmpFormValue.period.charAt(0));
+            const _monthCount = parseInt(tmpFormValues.period.charAt(0));
             _monthArr = _monthArr.slice(0, _monthCount);
-        } else if (tmpFormValue.period == "y") {
+        } else if (tmpFormValues.period == "y") {
             _monthArr = [
                 { value: 1, label: "January" },
                 { value: 2, label: "February" },
@@ -130,7 +248,7 @@ const JobModal = (props) => {
         }
 
         return _monthArr;
-    }, [tmpFormValue.period]);
+    }, [tmpFormValues.period]);
 
     return (
         <Modal
@@ -142,7 +260,7 @@ const JobModal = (props) => {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Add Job</Modal.Title>
+                <Modal.Title>{isAdd ? "Add Job" : "Edit Job"}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -155,9 +273,9 @@ const JobModal = (props) => {
                             <select
                                 className="form-control"
                                 name="address"
-                                value={tmpFormValue.address || ""}
+                                value={tmpFormValues.address || ""}
                                 onChange={(e) => {
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                 }}
                             >
                                 <option value="">--Please select--</option>
@@ -177,9 +295,9 @@ const JobModal = (props) => {
                             <select
                                 name="worker"
                                 className="form-control  mb-2"
-                                value={tmpFormValue.worker || 0}
+                                value={tmpFormValues.worker || 0}
                                 onChange={(e) => {
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                 }}
                             >
                                 <option value={0}>--Please select--</option>
@@ -203,6 +321,7 @@ const JobModal = (props) => {
                         </div>
                         <div className="form-group">
                             <Select
+                                defaultValue={tmpFormValues.shift_default}
                                 name="shift"
                                 isMulti
                                 options={slot}
@@ -217,7 +336,7 @@ const JobModal = (props) => {
                                             option: newValue,
                                         },
                                     };
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                 }}
                             />
                         </div>
@@ -230,9 +349,9 @@ const JobModal = (props) => {
                             <select
                                 name="service"
                                 className="form-control"
-                                value={tmpFormValue.service || 0}
+                                value={tmpFormValues.service || 0}
                                 onChange={(e) => {
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                     if (e.target.value === "10") {
                                         setToggleOtherService(true);
                                     } else {
@@ -262,11 +381,11 @@ const JobModal = (props) => {
                                 <textarea
                                     type="text"
                                     name="other_title"
-                                    id={`other_title` + "0"}
+                                    id={`other_title`}
                                     placeholder="Service Title"
                                     className="form-control"
-                                    value={tmpFormValue.other_title || ""}
-                                    onChange={(e) => handleInputChange(0, e)}
+                                    value={tmpFormValues.other_title || ""}
+                                    onChange={(e) => handleInputChange(e)}
                                 />
                             </div>
                         )}
@@ -279,9 +398,9 @@ const JobModal = (props) => {
                             <select
                                 name="type"
                                 className="form-control"
-                                value={tmpFormValue.type || "fixed"}
+                                value={tmpFormValues.type || "fixed"}
                                 onChange={(e) => {
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                 }}
                             >
                                 <option value="fixed">Fixed</option>
@@ -295,8 +414,8 @@ const JobModal = (props) => {
                             <input
                                 type="number"
                                 name="jobHours"
-                                value={tmpFormValue.jobHours || ""}
-                                onChange={(e) => handleInputChange(0, e)}
+                                value={tmpFormValues.jobHours || ""}
+                                onChange={(e) => handleInputChange(e)}
                                 className="form-control jobhr"
                                 required
                                 placeholder="Enter job Hrs"
@@ -306,23 +425,23 @@ const JobModal = (props) => {
                     <div className="col-sm-4">
                         <div className="form-group">
                             <label className="control-label">Price</label>
-                            {tmpFormValue.type !== "hourly" && (
+                            {tmpFormValues.type !== "hourly" && (
                                 <input
                                     type="number"
                                     name="fixed_price"
-                                    value={tmpFormValue.fixed_price || ""}
-                                    onChange={(e) => handleInputChange(0, e)}
+                                    value={tmpFormValues.fixed_price || ""}
+                                    onChange={(e) => handleInputChange(e)}
                                     className="form-control jobprice"
                                     required
                                     placeholder="Enter job price"
                                 />
                             )}
-                            {tmpFormValue.type === "hourly" && (
+                            {tmpFormValues.type === "hourly" && (
                                 <input
                                     type="text"
                                     name="rateperhour"
-                                    value={tmpFormValue.rateperhour || ""}
-                                    onChange={(e) => handleInputChange(0, e)}
+                                    value={tmpFormValues.rateperhour || ""}
+                                    onChange={(e) => handleInputChange(e)}
                                     className="form-control jobrate"
                                     required
                                     placeholder="Enter rate P/Hr"
@@ -338,8 +457,8 @@ const JobModal = (props) => {
                             <select
                                 name="frequency"
                                 className="form-control mb-2"
-                                value={tmpFormValue.frequency || 0}
-                                onChange={(e) => handleInputChange(0, e)}
+                                value={tmpFormValues.frequency || 0}
+                                onChange={(e) => handleInputChange(e)}
                             >
                                 <option value={0}> -- Please select --</option>
                                 {AllFreq &&
@@ -362,7 +481,9 @@ const JobModal = (props) => {
                         <div
                             className="form-group"
                             style={{
-                                display: tmpFormValue.period ? "block" : "none",
+                                display: tmpFormValues.period
+                                    ? "block"
+                                    : "none",
                             }}
                         >
                             <label className="control-label">Start from</label>
@@ -370,9 +491,9 @@ const JobModal = (props) => {
                                 type="date"
                                 name="start_date"
                                 className="form-control"
-                                value={tmpFormValue.start_date}
+                                value={tmpFormValues.start_date}
                                 onChange={(e) => {
-                                    handleInputChange(index, e);
+                                    handleInputChange(e);
                                 }}
                             />
                         </div>
@@ -389,10 +510,10 @@ const JobModal = (props) => {
                                     name="monthday_selection_type"
                                     value="date"
                                     onChange={(e) => {
-                                        handleInputChange(index, e);
+                                        handleInputChange(e);
                                     }}
                                     checked={
-                                        tmpFormValue.monthday_selection_type ==
+                                        tmpFormValues.monthday_selection_type ==
                                         "date"
                                     }
                                 />
@@ -403,7 +524,7 @@ const JobModal = (props) => {
                                     name="month_date"
                                     className="choosen-select"
                                     onChange={(e) => {
-                                        handleInputChange(index, e);
+                                        handleInputChange(e);
                                     }}
                                 >
                                     {monthDateArr().map((i) => {
@@ -425,9 +546,9 @@ const JobModal = (props) => {
                                     <select
                                         name="month_occurrence"
                                         className="choosen-select"
-                                        value={tmpFormValue.month_occurrence}
+                                        value={tmpFormValues.month_occurrence}
                                         onChange={(e) => {
-                                            handleInputChange(index, e);
+                                            handleInputChange(e);
                                         }}
                                     >
                                         {monthOptions.map((m, i) => {
@@ -456,10 +577,10 @@ const JobModal = (props) => {
                                     name="monthday_selection_type"
                                     value="weekday"
                                     onChange={(e) => {
-                                        handleInputChange(index, e);
+                                        handleInputChange(e);
                                     }}
                                     checked={
-                                        tmpFormValue.monthday_selection_type ==
+                                        tmpFormValues.monthday_selection_type ==
                                         "weekday"
                                     }
                                 />
@@ -470,7 +591,7 @@ const JobModal = (props) => {
                                     name="weekday_occurrence"
                                     className="choosen-select"
                                     onChange={(e) => {
-                                        handleInputChange(index, e);
+                                        handleInputChange(e);
                                     }}
                                 >
                                     <option value="1">first</option>
@@ -483,7 +604,7 @@ const JobModal = (props) => {
                                     name="weekday"
                                     className="ml-2 choosen-select"
                                     onChange={(e) => {
-                                        handleInputChange(index, e);
+                                        handleInputChange(e);
                                     }}
                                 >
                                     {frequencyDays.map((wd, i) => {
@@ -505,9 +626,9 @@ const JobModal = (props) => {
                                     <select
                                         name="month_occurrence"
                                         className="choosen-select"
-                                        value={tmpFormValue.month_occurrence}
+                                        value={tmpFormValues.month_occurrence}
                                         onChange={(e) => {
-                                            handleInputChange(index, e);
+                                            handleInputChange(e);
                                         }}
                                     >
                                         {monthOptions.map((m, i) => {
@@ -528,13 +649,14 @@ const JobModal = (props) => {
                             className="form-group"
                             style={{
                                 display:
-                                    tmpFormValue.period == "w" &&
-                                    tmpFormValue.cycle > 1
+                                    tmpFormValues.period == "w" &&
+                                    tmpFormValues.cycle > 1
                                         ? "block"
                                         : "none",
                             }}
                         >
                             <Select
+                                defaultValue={tmpFormValues.week_days}
                                 name="weekdays"
                                 isMulti
                                 options={frequencyDays}
@@ -549,11 +671,11 @@ const JobModal = (props) => {
                                             option: newValue,
                                         },
                                     };
-                                    handleInputChange(0, e);
+                                    handleInputChange(e);
                                 }}
                                 style={{
                                     display:
-                                        tmpFormValue.period == "w"
+                                        tmpFormValues.period == "w"
                                             ? "block"
                                             : "none",
                                 }}
@@ -576,8 +698,13 @@ const JobModal = (props) => {
                 <Button
                     type="button"
                     onClick={(e) => {
-                        handleSaveJobForm(isAdd ? "" : index);
-                        setIsOpen(false);
+                        if (checkValidation()) {
+                            handleSaveJobForm(
+                                isAdd ? "" : index,
+                                tmpFormValues
+                            );
+                            setIsOpen(false);
+                        }
                     }}
                     className="btn btn-primary"
                 >
@@ -586,6 +713,6 @@ const JobModal = (props) => {
             </Modal.Footer>
         </Modal>
     );
-};
+});
 
 export default JobModal;

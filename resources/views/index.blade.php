@@ -21,6 +21,10 @@
         .pac-container {
             z-index: 999999 !important;
         }
+        #__react-alert__ {
+            z-index: 1051 !important;
+            position: absolute;
+        }
         </style>
 </head>
 <body>

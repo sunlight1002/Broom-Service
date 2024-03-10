@@ -156,14 +156,15 @@ class ClientController extends Controller
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
 
+        $addressIds = [];
         $property_address_data = $request->propertyAddress;
         if (count($property_address_data) > 0) {
             foreach ($property_address_data as $key => $address) {
                 $address['client_id'] = $client->id;
-                ClientPropertyAddress::create($address);
+                $createdClient = ClientPropertyAddress::create($address);
+                $addressIds[$key] = $createdClient->id;
             }
         }
-
         if (!empty($request->jobdata)) {
             $offer = Offer::create([
                 'client_id' => $client->id,
@@ -203,6 +204,7 @@ class ClientController extends Controller
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
+                $address_id = $addressIds[$service['address']];
 
                 // // foreach($request->workers as $worker){
                 $count = 1;
@@ -213,9 +215,9 @@ class ClientController extends Controller
                 $shift =  $service['shift'];
 
                 for ($i = 0; $i < $count; $i++) {
-                    if (isset($service['days'])) {
-                        foreach ($service['days'] as $sd) {
-                            (!empty($service['days'])) ?
+                    if (isset($service['weekdays'])) {
+                        foreach ($service['weekdays'] as $sd) {
+                            (!empty($service['weekdays'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -244,6 +246,7 @@ class ClientController extends Controller
                                     'shifts'      => $shift,
                                     'schedule'    => $repeat_value,
                                     'status'      => $status,
+                                    'address_id'  => $address_id,
                                 ],
 
                                 'service' => [
@@ -261,7 +264,6 @@ class ClientController extends Controller
                     }
                 }
             }
-
             if (!empty($jds)) {
                 foreach ($jds as $jd) {
 
@@ -270,6 +272,7 @@ class ClientController extends Controller
 
                     $new = new Job;
                     $new->worker_id     = $jdata['worker'];
+                    $new->address_id     = $jdata['address_id'];
 
                     $new->client_id     = $jdata['client_id'];
                     $new->offer_id      = $jdata['offer_id'];
@@ -446,6 +449,7 @@ class ClientController extends Controller
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
+                $address_id = $service['address'];
 
                 // // foreach($request->workers as $worker){
                 $count = 1;
@@ -457,9 +461,9 @@ class ClientController extends Controller
 
                 for ($i = 0; $i < $count; $i++) {
 
-                    if (isset($service['days'])) {
-                        foreach ($service['days'] as $sd) {
-                            (!empty($service['days'])) ?
+                    if (isset($service['weekdays'])) {
+                        foreach ($service['weekdays'] as $sd) {
+                            (!empty($service['weekdays'])) ?
                                 $date = Carbon::today()->next($sd)
                                 : $date = Carbon::today();
 
@@ -488,6 +492,7 @@ class ClientController extends Controller
                                     'shifts'      => $shift,
                                     'schedule'    => $repeat_value,
                                     'status'      => $status,
+                                    'address_id'  => $address_id,
                                 ],
 
                                 'service' => [
@@ -513,6 +518,7 @@ class ClientController extends Controller
 
                     $new = new Job;
                     $new->worker_id     = $jdata['worker'];
+                    $new->address_id     = $jdata['address_id'];
 
                     $new->client_id     = $jdata['client_id'];
                     $new->offer_id      = $jdata['offer_id'];

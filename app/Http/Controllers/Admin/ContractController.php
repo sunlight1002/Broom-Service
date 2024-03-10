@@ -85,7 +85,7 @@ class ContractController extends Controller
     public function show($id)
     {
         $contracts = Contract::query()
-            ->with(['offer', 'client'])
+            ->with(['offer', 'client', 'job.propertyAddress'])
             ->find($id);
 
         return response()->json([
