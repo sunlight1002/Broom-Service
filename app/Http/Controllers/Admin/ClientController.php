@@ -171,9 +171,14 @@ class ClientController extends Controller
         }
 
         if (!empty($request->jobdata)) {
+            $allServices = json_decode($request->jobdata['services'], true);
+            for ($i=0; $i < count($allServices) ; $i++) { 
+                $allServices[$i]['address'] =  $addressIds[$allServices[$i]['address']];
+            }
+
             $offer = Offer::create([
                 'client_id' => $client->id,
-                'services' => $request->jobdata['services'],
+                'services' => json_encode($allServices, true),
                 'subtotal' => $request->jobdata['subtotal'],
                 'total' => $request->jobdata['total'],
                 'status' => 'accepted'
@@ -187,7 +192,6 @@ class ClientController extends Controller
             ]);
 
             /* Create job */
-            $allServices = json_decode($request->jobdata['services'], true);
 
             $jds = [];
             foreach ($allServices as $service) {
@@ -208,7 +212,7 @@ class ClientController extends Controller
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
-                $address_id = $addressIds[$service['address']];
+                $address_id = $service['address'];
 
                 $worker = $service['worker'];
                 $shift =  $service['shift'];
