@@ -30,11 +30,10 @@ const initialValue = {
     address: "",
     start_date: "",
     weekdays: [],
-    weekday_occurrence: "",
-    weekday: "",
-    month_occurrence: "",
-    month: null,
-    month_date: null,
+    weekday_occurrence: "1",
+    weekday: "sunday",
+    month_occurrence: 1,
+    month_date: 1,
     monthday_selection_type: "weekday",
 };
 const JobMenu = memo(function JobMenu({

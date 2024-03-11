@@ -27,8 +27,6 @@ const frequencyDays = [
     { value: "tuesday", label: "Tuesday" },
     { value: "wednesday", label: "Wednesday" },
     { value: "thursday", label: "Thursday" },
-    { value: "friday", label: "Friday" },
-    { value: "saturday", label: "Saturday" },
 ];
 
 const monthDateArr = () => {
@@ -173,14 +171,61 @@ const JobModal = memo(function JobModal({
         if (tmpFormValues.frequency == "" || tmpFormValues.frequency == 0) {
             alert.error("The frequency is not selected");
             return false;
-        }
-        if (
-            tmpFormValues.weekdays.length > 0 &&
-            tmpFormValues.weekdays.length > tmpFormValues.cycle &&
-            tmpFormValues.cycle != "0"
-        ) {
-            alert.error("The frequency days are invalid");
-            return false;
+        } else {
+            if (tmpFormValues.start_date == "") {
+                alert.error("The Start date is not selected");
+                return false;
+            }
+
+            if (tmpFormValues.cycle == "1") {
+                if (
+                    ["w", "2w", "3w", "4w", "5w"].includes(
+                        tmpFormValues.period
+                    ) &&
+                    tmpFormValues.weekday == ""
+                ) {
+                    alert.error("The weekday is not selected");
+                    return false;
+                } else if (
+                    tmpFormValues.monthday_selection_type == "weekday" &&
+                    ["m", "2m", "3m", "6m", "y"].includes(
+                        tmpFormValues.period
+                    ) &&
+                    tmpFormValues.weekday == ""
+                ) {
+                    alert.error("The weekday is not selected");
+                    return false;
+                }
+
+                if (
+                    tmpFormValues.monthday_selection_type == "date" &&
+                    ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
+                ) {
+                    if (tmpFormValues.month_date == "") {
+                        alert.error("The month date is not selected");
+                        return false;
+                    } else if (
+                        new Date(tmpFormValues.start_date).getDate() >
+                        tmpFormValues.month_date
+                    ) {
+                        alert.error(
+                            "The start date should be less than or equal to selected month date"
+                        );
+                        return false;
+                    }
+                }
+            }
+
+            if (
+                tmpFormValues.period == "w" &&
+                tmpFormValues.cycle != "0" &&
+                tmpFormValues.cycle != "1" &&
+                tmpFormValues.weekdays.length > 0 &&
+                tmpFormValues.weekdays.length > tmpFormValues.cycle
+            ) {
+                alert.error("The frequency week-days are invalid");
+                return false;
+            }
         }
 
         return true;
@@ -197,6 +242,10 @@ const JobModal = memo(function JobModal({
     }, [tmpFormValues, worker, addresses]);
 
     const showWeekDayOption = useMemo(() => {
+        return tmpFormValues.period == "w" && tmpFormValues.cycle == 1;
+    }, [tmpFormValues.period, tmpFormValues.cycle]);
+
+    const showWeekDayRadioOption = useMemo(() => {
         return ["2w", "3w", "4w", "5w", "m", "2m", "3m", "6m", "y"].includes(
             tmpFormValues.period
         );
@@ -206,8 +255,30 @@ const JobModal = memo(function JobModal({
         return ["2m", "3m", "6m", "y"].includes(tmpFormValues.period);
     }, [tmpFormValues.period]);
 
-    const showMonthDateOption = useMemo(() => {
+    const showMonthDateRadioOption = useMemo(() => {
         return ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period);
+    }, [tmpFormValues.period]);
+
+    const weekDayOccurrenceOptions = useMemo(() => {
+        let _occurrenceArr = [
+            { value: 1, label: "first" },
+            { value: 2, label: "second" },
+            { value: 3, label: "third" },
+            { value: 4, label: "fourth" },
+        ];
+
+        if (["2w", "3w", "4w", "5w"].includes(tmpFormValues.period)) {
+            const _weekCount = parseInt(tmpFormValues.period.charAt(0));
+            _occurrenceArr = _occurrenceArr.slice(0, _weekCount - 1);
+        } else if (
+            ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
+        ) {
+            _occurrenceArr = _occurrenceArr.slice(0, 3);
+        }
+
+        _occurrenceArr.push({ value: "last", label: "last" });
+
+        return _occurrenceArr;
     }, [tmpFormValues.period]);
 
     const monthOptions = useMemo(() => {
@@ -398,7 +469,7 @@ const JobModal = memo(function JobModal({
                             <select
                                 name="type"
                                 className="form-control"
-                                value={tmpFormValues.type || "fixed"}
+                                value={tmpFormValues.type}
                                 onChange={(e) => {
                                     handleInputChange(e);
                                 }}
@@ -501,7 +572,37 @@ const JobModal = memo(function JobModal({
                         <div
                             className="form-group"
                             style={{
-                                display: showMonthDateOption ? "block" : "none",
+                                display: showWeekDayOption ? "block" : "none",
+                            }}
+                        >
+                            <div className="d-inline">
+                                <span> On </span>
+
+                                <select
+                                    name="weekday"
+                                    className="ml-2 choosen-select"
+                                    value={tmpFormValues.weekday}
+                                    onChange={(e) => {
+                                        handleInputChange(e);
+                                    }}
+                                >
+                                    {frequencyDays.map((wd, i) => {
+                                        return (
+                                            <option value={wd.value} key={i}>
+                                                {wd.label}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                            className="form-group"
+                            style={{
+                                display: showMonthDateRadioOption
+                                    ? "block"
+                                    : "none",
                             }}
                         >
                             <div className="d-inline">
@@ -523,6 +624,7 @@ const JobModal = memo(function JobModal({
                                 <select
                                     name="month_date"
                                     className="choosen-select"
+                                    value={tmpFormValues.month_date}
                                     onChange={(e) => {
                                         handleInputChange(e);
                                     }}
@@ -568,7 +670,9 @@ const JobModal = memo(function JobModal({
                         <div
                             className="form-group"
                             style={{
-                                display: showWeekDayOption ? "block" : "none",
+                                display: showWeekDayRadioOption
+                                    ? "block"
+                                    : "none",
                             }}
                         >
                             <div className="d-inline">
@@ -590,19 +694,24 @@ const JobModal = memo(function JobModal({
                                 <select
                                     name="weekday_occurrence"
                                     className="choosen-select"
+                                    value={tmpFormValues.weekday_occurrence}
                                     onChange={(e) => {
                                         handleInputChange(e);
                                     }}
                                 >
-                                    <option value="1">first</option>
-                                    <option value="2">second</option>
-                                    <option value="3">third</option>
-                                    <option value="last">last</option>
+                                    {weekDayOccurrenceOptions.map((w, i) => {
+                                        return (
+                                            <option value={w.value} key={i}>
+                                                {w.label}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
 
                                 <select
                                     name="weekday"
                                     className="ml-2 choosen-select"
+                                    value={tmpFormValues.weekday}
                                     onChange={(e) => {
                                         handleInputChange(e);
                                     }}

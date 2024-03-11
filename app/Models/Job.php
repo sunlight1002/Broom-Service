@@ -28,7 +28,19 @@ class Job extends Model
         'invoice_no',
         'invoice_url',
         'status',
-        'address_id'
+        'address_id',
+        'next_start_date',
+        'is_next_job_created'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'next_start_date' => 'datetime',
+        'is_next_job_created' => 'boolean',
     ];
 
     public function worker()

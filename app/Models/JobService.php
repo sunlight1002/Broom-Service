@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobService extends Model
 {
-    use HasFactory;
     protected $fillable = [
         'job_id',
         'name',
@@ -19,6 +17,16 @@ class JobService extends Model
         'heb_name',
         'service_id',
         'pay_status',
-        'order_status'
+        'order_status',
+        'config'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'config' => 'array',
     ];
 }
