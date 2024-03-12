@@ -159,14 +159,14 @@ export default function WorkContractRHS() {
                                                 client.lastname}
                                         </span>
                                     </li>
-                                    <li className="list-inline-item">
+                                    {/* <li className="list-inline-item">
                                         {t("work-contract.city")}{" "}
                                         <span>
                                             {client.city ? client.city : "NA"}
                                         </span>
-                                    </li>
+                                    </li> */}
                                 </ul>
-                                <ul className="list-inline customRTL">
+                                {/* <ul className="list-inline customRTL">
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.street_and_number")}{" "}
                                         <span>
@@ -174,10 +174,10 @@ export default function WorkContractRHS() {
                                                 ? client.geo_address
                                                 : "NA"}
                                         </span>
-                                    </li>
-                                    {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>
+                                    </li> */}
+                                {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>
                                     </li>*/}
-                                </ul>
+                                {/* </ul> */}
                                 <ul className="list-inline customRTL">
                                     {/*<li className="list-inline-item ml-2">{t('work-contract.apt_number')} <span>{client.apt_no ? client.apt_no : 'NA'}</span>
                                     </li>
@@ -319,6 +319,21 @@ export default function WorkContractRHS() {
                                                 )}
                                             </Td>
                                             <Td>
+                                                {services &&
+                                                    services.map((s, i) => {
+                                                        return (
+                                                            <p key={i}>
+                                                                {s.address
+                                                                    ? s.address
+                                                                          .geo_address
+                                                                        ? s
+                                                                              .address
+                                                                              .geo_address
+                                                                        : ""
+                                                                    : ""}
+                                                            </p>
+                                                        );
+                                                    })}
                                                 {contract &&
                                                     contract.map((c, i) => {
                                                         let address = c.client

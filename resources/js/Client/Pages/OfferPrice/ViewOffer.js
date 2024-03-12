@@ -104,12 +104,12 @@ export default function ClientViewOffer() {
                                                             " " +
                                                             cl.lastname}
                                                     </p>
-                                                    <p>{cl.street_n_no}</p>
+                                                    {/* <p>{cl.street_n_no}</p>
                                                     <p>
                                                         {cl.city +
                                                             ", " +
                                                             cl.zipcode}
-                                                    </p>
+                                                    </p> */}
                                                     <p>
                                                         {t(
                                                             "client.offer.view.phone"
@@ -174,6 +174,15 @@ export default function ClientViewOffer() {
                                                         <Table className="table table-sm responsiveTable">
                                                             <Thead>
                                                                 <Tr>
+                                                                    <Th
+                                                                        style={{
+                                                                            width: "30%",
+                                                                        }}
+                                                                    >
+                                                                        {t(
+                                                                            "client.offer.view.address"
+                                                                        )}
+                                                                    </Th>
                                                                     <Th
                                                                         style={{
                                                                             width: "20%",
@@ -265,6 +274,13 @@ export default function ClientViewOffer() {
                                                                                         i
                                                                                     }
                                                                                 >
+                                                                                    <Td>
+                                                                                        {s.address
+                                                                                            ? s
+                                                                                                  .address
+                                                                                                  .geo_address
+                                                                                            : "NA"}
+                                                                                    </Td>
                                                                                     <Td>
                                                                                         {
                                                                                             s.name

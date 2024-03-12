@@ -156,7 +156,7 @@ class OfferController extends Controller
         $services = json_decode($offer->services);
         if (isset($services)) {
             foreach ($services as $service) {
-                if($service->address){
+                if(!empty($service->address)){
                     $service->address = ClientPropertyAddress::find($service->address)->toArray();
                 }
                 if ($service->type == 'hourly') {

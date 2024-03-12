@@ -422,7 +422,8 @@
                 "hour_s": "hour(s)",
                 "total": "Total",
                 "phone": "Phone",
-                "email": "Email"
+                "email": "Email",
+                "address": "Address"
             }
         },
         "contract": {

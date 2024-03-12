@@ -189,20 +189,20 @@ export default function WorkContract() {
                                                         cl.lastname}
                                                 </span>
                                             </li>
-                                            <li className="list-inline-item">
+                                            {/* <li className="list-inline-item">
                                                 {t("work-contract.city")}{" "}
                                                 <span>{cl.city}</span>
-                                            </li>
+                                            </li> */}
                                         </ul>
-                                        <ul className="list-inline">
+                                        {/* <ul className="list-inline">
                                             <li className="list-inline-item ml-2">
                                                 {t(
                                                     "work-contract.street_and_number"
                                                 )}{" "}
                                                 <span>{cl.geo_address}</span>
-                                            </li>
-                                            {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
-                                        </ul>
+                                            </li> */}
+                                        {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
+                                        {/* </ul> */}
                                         <ul className="list-inline">
                                             {/* <li className='list-inline-item ml-2'>{t('work-contract.apt_number')} <span>{cl.apt_no}</span></li>
                                         <li className='list-inline-item'>{t('work-contract.enterance_code')} <span>{cl.entrence_code}</span></li>*/}
@@ -306,6 +306,7 @@ export default function WorkContract() {
                                     <td style={{ width: "60%" }}>
                                         {t("work-contract.the_service_txt")}
                                     </td>
+                                    {console.log("services", services)}
                                     <td>
                                         {services &&
                                             services.map((s, i) => {
@@ -324,14 +325,19 @@ export default function WorkContract() {
                                         {t("work-contract.location_txt")}
                                     </td>
                                     <td>
-                                        {offer &&
-                                            offer.map((ofr, i) => {
-                                                let address = ofr.client
-                                                    .geo_address
-                                                    ? ofr.client.geo_address +
-                                                      ", "
-                                                    : "";
-                                                return address;
+                                        {services &&
+                                            services.map((s, i) => {
+                                                return (
+                                                    <p>
+                                                        {s.address
+                                                            ? s.address
+                                                                  .geo_address
+                                                                ? s.address
+                                                                      .geo_address
+                                                                : ""
+                                                            : ""}
+                                                    </p>
+                                                );
                                             })}
                                         <br />{" "}
                                         <span
