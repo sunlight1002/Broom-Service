@@ -35,6 +35,7 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                             <Table className="table table-bordered">
                                 <Thead>
                                     <Tr>
+                                        <Th>Name</Th>
                                         <Th>Address</Th>
                                         <Th>Zipcode</Th>
                                         <Th>Latitude</Th>
@@ -46,6 +47,11 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                                         address.map((item, index) => {
                                             return (
                                                 <Tr key={index}>
+                                                    <Td>
+                                                        {item.address_name
+                                                            ? item.address_name
+                                                            : "NA"}{" "}
+                                                    </Td>
                                                     <Td>
                                                         {item.geo_address
                                                             ? item.geo_address
