@@ -20,12 +20,11 @@ export default function EditClient() {
     const [errors, setErrors] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
-    let allPhones = [];
     const alert = useAlert();
     const params = useParams();
     const navigate = useNavigate();
 
-    const [cjob, setCjob] = useState();
+    const [cjob, setCjob] = useState('0');
     const [addresses, setAddresses] = useState([]);
 
     const headers = {

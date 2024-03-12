@@ -222,7 +222,7 @@ trait JobSchedule
 
         [$job_date, $next_job_date] = $this->getDateAndNextDate(
             $periodSequenceLength,
-            $startDate,
+            $job_date,
             $monthdaySelectionType,
             $monthDate,
             $weekdayOccurrence,
@@ -251,7 +251,7 @@ trait JobSchedule
 
         [$job_date, $next_job_date] = $this->getDateAndNextDate(
             $periodSequenceLength,
-            $startDate,
+            $job_date,
             $monthdaySelectionType,
             $monthDate,
             $weekdayOccurrence,
