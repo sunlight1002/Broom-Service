@@ -306,7 +306,6 @@ export default function WorkContract() {
                                     <td style={{ width: "60%" }}>
                                         {t("work-contract.the_service_txt")}
                                     </td>
-                                    {console.log("services", services)}
                                     <td>
                                         {services &&
                                             services.map((s, i) => {
