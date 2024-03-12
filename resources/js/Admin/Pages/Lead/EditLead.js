@@ -1,25 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
-import {
-    GoogleMap,
-    LoadScript,
-    InfoWindow,
-    Marker,
-    Autocomplete,
-} from "@react-google-maps/api";
-import Geocode from "react-geocode";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 
 export default function EditWorker() {
-    let addressSearchRef = useRef();
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [invoiceName, setInvoiceName] = useState("");
     const [phone, setPhone] = useState("");
-    const [city, setCity] = useState("");
     const [dob, setDob] = useState("");
     const [passcode, setPassCode] = useState("");
     const [lng, setLng] = useState("");
@@ -32,30 +22,7 @@ export default function EditWorker() {
     const params = useParams();
     const navigate = useNavigate();
 
-    const [libraries] = useState(["places", "geometry"]);
-    const [latitude, setLatitude] = useState(-33.865143);
-    const [longitude, setLongitude] = useState(151.2099);
-    const [address, setAddress] = useState("");
-    const [place, setPlace] = useState();
     const [addresses, setAddresses] = useState([]);
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
-    const containerStyle = {
-        width: "100%",
-        height: "300px",
-    };
-    const center = {
-        lat: latitude,
-        lng: longitude,
-    };
-
-    const handlePlaceChanged = () => {
-        if (place) {
-            setCity(place.getPlace().vicinity);
-            setAddress(place.getPlace().formatted_address);
-            setLatitude(place.getPlace().geometry.location.lat());
-            setLongitude(place.getPlace().geometry.location.lng());
-        }
-    };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -151,7 +118,7 @@ export default function EditWorker() {
                     status,
                     payment_method,
                     extra,
-                    property_addresses
+                    property_addresses,
                 } = response.data.lead;
                 setFirstName(firstname);
                 setLastName(lastname);
@@ -184,13 +151,7 @@ export default function EditWorker() {
     useEffect(() => {
         getLead();
     }, []);
-    useEffect(() => {
-        if (address === "" && place) {
-            addressSearchRef.current.value = "";
-            setLatitude(32.109333);
-            setLongitude(34.855499);
-        }
-    }, [address]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -452,77 +413,12 @@ export default function EditWorker() {
                                             );
                                         })}
                                 </div>
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Enter a location
-                                    </label>
-                                    <LoadScript
-                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
-                                        libraries={libraries}
-                                    >
-                                        <GoogleMap
-                                            mapContainerStyle={containerStyle}
-                                            center={center}
-                                            zoom={15}
-                                        >
-                                            <Marker
-                                                draggable={true}
-                                                onDragEnd={(e) =>
-                                                    onMarkerDragEnd(e)
-                                                }
-                                                position={{
-                                                    lat: latitude,
-                                                    lng: longitude,
-                                                }}
-                                            />
-                                            {address ? (
-                                                <InfoWindow
-                                                    onClose={(e) =>
-                                                        onInfoWindowClose(e)
-                                                    }
-                                                    position={{
-                                                        lat: latitude + 0.0018,
-                                                        lng: longitude,
-                                                    }}
-                                                >
-                                                    <div>
-                                                        <span
-                                                            style={{
-                                                                padding: 0,
-                                                                margin: 0,
-                                                            }}
-                                                        >
-                                                            {address}
-                                                        </span>
-                                                    </div>
-                                                </InfoWindow>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            <Marker />
-                                        </GoogleMap>
-                                        <Autocomplete
-                                            onLoad={(e) => setPlace(e)}
-                                            onPlaceChanged={handlePlaceChanged}
-                                        >
-                                            <input
-                                                ref={addressSearchRef}
-                                                type="text"
-                                                placeholder="Search your address"
-                                                className="form-control mt-1"
-                                            />
-                                        </Autocomplete>
-                                    </LoadScript>
-                                </div>
                                 <PropertyAddress
                                     heading={"Property Address"}
-                                    setAddress={setAddress}
-                                    address={address}
                                     errors={errors}
-                                    place={place}
+                                    setErrors={setErrors}
                                     addresses={addresses}
                                     setAddresses={setAddresses}
-                                    setErrors={setErrors}
                                 />
 
                                 <div className="form-group">

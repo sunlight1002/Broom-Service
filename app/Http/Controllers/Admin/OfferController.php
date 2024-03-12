@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Offer;
-use App\Models\Client;
-use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\LeadStatus;
@@ -12,6 +10,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ClientPropertyAddress;
 
 class OfferController extends Controller
 {
@@ -157,11 +156,15 @@ class OfferController extends Controller
         $services = json_decode($offer->services);
         if (isset($services)) {
             foreach ($services as $service) {
+                if($service->address){
+                    $service->address = ClientPropertyAddress::find($service->address)->toArray();
+                }
                 if ($service->type == 'hourly') {
                     $perhour = true;
                 }
-            }
+            }            
         }
+        $offer->services = json_encode($services, true);
         ($perhour == true) ? $offer->perhour = 1 : $offer->perhour = 0;
 
         if ($offer['client']['lastname'] == null) {

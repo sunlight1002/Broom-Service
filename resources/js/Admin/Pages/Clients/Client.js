@@ -189,7 +189,6 @@ export default function Clients() {
                             delete r[k]["jobs"];
                         }
                     }
-                    console.log(r);
                     setAllData(r);
                     document.querySelector("#csv").click();
                 } else {
@@ -482,7 +481,7 @@ export default function Clients() {
                                                                 </button>
                                                                 <div className="dropdown-menu">
                                                                     {item.latest_contract !=
-                                                                    0 ? (
+                                                                        0 && (
                                                                         <Link
                                                                             to={`/admin/create-job/${item.latest_contract}`}
                                                                             className="dropdown-item"
@@ -490,8 +489,6 @@ export default function Clients() {
                                                                             Create
                                                                             Job
                                                                         </Link>
-                                                                    ) : (
-                                                                        ""
                                                                     )}
 
                                                                     <Link

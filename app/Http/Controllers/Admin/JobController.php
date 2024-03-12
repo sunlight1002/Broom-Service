@@ -37,20 +37,20 @@ class JobController extends Controller
                     $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
                     $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
                 });
-            });
-            $jobs = $jobs->orWhereHas('client', function ($qr) use ($q) {
-                $qr->where(function ($qr) use ($q) {
-                    $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                    $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                });
-            });
-            $jobs = $jobs->orWhereHas('jobservice', function ($qr) use ($q) {
-                $qr->where(function ($qr) use ($q) {
-                    $qr->where(DB::raw('name'), 'like', '%' . $q . '%');
-                    $qr->orWhere(DB::raw('heb_name'), 'like', '%' . $q . '%');
-                });
-            });
-            $jobs = $jobs->orWhere('status', 'like', '%' . $q . '%');
+            })
+                ->orWhereHas('client', function ($qr) use ($q) {
+                    $qr->where(function ($qr) use ($q) {
+                        $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
+                        $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
+                    });
+                })
+                ->orWhereHas('jobservice', function ($qr) use ($q) {
+                    $qr->where(function ($qr) use ($q) {
+                        $qr->where(DB::raw('name'), 'like', '%' . $q . '%');
+                        $qr->orWhere(DB::raw('heb_name'), 'like', '%' . $q . '%');
+                    });
+                })
+                ->orWhere('status', 'like', '%' . $q . '%');
         }
         // if($w != ''){
         if ((is_null($w) || $w == 'current') && $w != 'all') {
@@ -75,17 +75,16 @@ class JobController extends Controller
                 ->orderBy('client_id')
                 ->paginate(20);
         } else if ($request->p == 1) {
-            $jobs = $jobs->whereDate('start_date', '>=', $startDate);
-            $jobs = $jobs->whereDate('start_date', '<=', $endDate);
-            $jobs = $jobs
+            $jobs = $jobs->whereDate('start_date', '>=', $startDate)
+                ->whereDate('start_date', '<=', $endDate)
                 ->orderBy('start_date')
                 ->orderBy('client_id')
                 ->paginate(5);
         } else {
-            $jobs = $jobs->whereDate('start_date', '>=', $startDate);
-            $jobs = $jobs->whereDate('start_date', '<=', $endDate);
             $pcount = Job::count();
-            $jobs = $jobs
+
+            $jobs = $jobs->whereDate('start_date', '>=', $startDate)
+                ->whereDate('start_date', '<=', $endDate)
                 ->orderBy('start_date')
                 ->orderBy('client_id')
                 ->paginate($pcount);
@@ -119,35 +118,34 @@ class JobController extends Controller
 
     public function AvlWorker($id)
     {
-        $job = Job::where('id', $id)->get()->first();
+        $job = Job::find($id);
         $serv = $job->jobservice;
         $ava_worker = array();
 
         foreach ($serv as $sk => $js) {
             $ava_workers = User::query()
                 ->with(['availabilities', 'jobs'])
-                ->where('skill',  'like', '%' . $js->service_id . '%');
-
-            $ava_workers = $ava_workers
+                ->where('skill',  'like', '%' . $js->service_id . '%')
                 ->whereHas('availabilities', function ($query) use ($job) {
                     $query->where('date', '=', $job->start_date);
-                });
-
-            $ava_workers = $ava_workers
+                })
                 ->where('status', 1)
                 ->get()
                 ->toArray();
 
             foreach ($ava_workers as $w) {
-                $check_worker_job = Job::where('worker_id', $w['id'])
-                    ->where('start_date', $job->start_date)->get()->toArray();
+                $check_worker_job = Job::query()
+                    ->where('worker_id', $w['id'])
+                    ->where('start_date', $job->start_date)
+                    ->get()
+                    ->toArray();
+
                 if (!$check_worker_job) {
                     $ava_worker[] = $w;
                 }
             }
         }
 
-        //$job->avl_worker=$ava_worker;
         return response()->json([
             'aworker' => $ava_worker,
         ]);
@@ -155,10 +153,8 @@ class JobController extends Controller
 
     public function getAllJob()
     {
-        $jobs = Job::get();
-
         return response()->json([
-            'jobs' => $jobs,
+            'jobs' => Job::get(),
         ]);
     }
 
@@ -181,6 +177,7 @@ class JobController extends Controller
         }
 
         Job::create($request->input());
+
         return response()->json([
             'message' => 'Job has been created successfully'
         ]);
@@ -194,7 +191,7 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order'])->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order', 'propertyAddress'])->find($id);
 
         return response()->json([
             'job' => $job,
@@ -209,7 +206,7 @@ class JobController extends Controller
      */
     public function edit($id)
     {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice'])->find($id);
+        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress'])->find($id);
 
         return response()->json([
             'job' => $job
@@ -235,12 +232,14 @@ class JobController extends Controller
 
         $worker = $request->workers[0];
         $job = Job::find($id);
-        $job->worker_id     = $worker['worker_id'];
-        $job->start_date    = $worker['date'];
-        $job->start_time    = $worker['start'];
-        $job->end_time      = $worker['end'];
-        $job->status        = 'scheduled';
-        $job->save();
+
+        $job->upcate([
+            'worker_id'  => $worker['worker_id'],
+            'start_date' => $worker['date'],
+            'start_time' => $worker['start'],
+            'end_time'   => $worker['end'],
+            'status'     => 'scheduled',
+        ]);
 
         $this->sendWorkerEmail($id);
 
@@ -265,67 +264,45 @@ class JobController extends Controller
         ]);
     }
 
-    public function getJobByClient(Request $request)
+    public function getJobByClient(Request $request, $id)
     {
-        if (($request->f) == 'all') {
-            $jobs = Job::query()
-                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                ->where('client_id', $request->cid)
-                ->orderBy('start_date', 'desc');
-        }
+        $jobQuery = Job::query()
+            ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
+            ->where('client_id', $id);
 
         if (isset($request->status)) {
-            $jobs = Job::query()
-                ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                ->where('status', $request->status)
-                ->where('client_id', $request->cid)
-                ->orderBy('start_date', 'desc');
+            $jobQuery->where('status', $request->status);
         }
 
         if (isset($request->q)) {
             $q = $request->q;
             if ($q == 'ordered') {
-
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->has('order')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->has('order');
             } else if ($q == 'unordered') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->whereDoesntHave('order')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->whereDoesntHave('order');
             } else if ($q == 'invoiced') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->has('invoice')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->has('invoice');
             } else if ($q == 'uninvoiced') {
-                $jobs = Job::query()
-                    ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-                    ->whereDoesntHave('invoice')
-                    ->where('client_id', $request->cid)
-                    ->orderBy('start_date', 'desc');
+                $jobQuery->whereDoesntHave('invoice');
             }
         }
 
-        $sch        = Job::where('status', 'scheduled')->where('client_id', $request->cid)->count();
-        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $request->cid)->count();
-        $cancel     = Job::where('status', 'canceled')->where('client_id', $request->cid)->count();
-        $progress   = Job::where('status', 'progress')->where('client_id', $request->cid)->count();
-        $completed  = Job::where('status', 'completed')->where('client_id', $request->cid)->count();
+        $sch        = Job::where('status', 'scheduled')->where('client_id', $id)->count();
+        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $id)->count();
+        $cancel     = Job::where('status', 'canceled')->where('client_id', $id)->count();
+        $progress   = Job::where('status', 'progress')->where('client_id', $id)->count();
+        $completed  = Job::where('status', 'completed')->where('client_id', $id)->count();
 
-        $ordered    = Job::has('order')->where('client_id', $request->cid)->count();
-        $unordered  = Job::whereDoesntHave('order')->where('client_id', $request->cid)->count();
-        $invoiced   = Job::has('invoice')->where('client_id', $request->cid)->count();
-        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $request->cid)->count();
+        $ordered    = Job::has('order')->where('client_id', $id)->count();
+        $unordered  = Job::whereDoesntHave('order')->where('client_id', $id)->count();
+        $invoiced   = Job::has('invoice')->where('client_id', $id)->count();
+        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $id)->count();
 
-        $jobs = $jobs->paginate(20);
+        $jobs = $jobQuery
+            ->orderBy('start_date', 'desc')
+            ->paginate(20);
 
-        $all = Job::where('client_id', $request->cid)->count();
+        $all = Job::where('client_id', $id)->count();
 
         return response()->json([
             'all'         => $all,
@@ -399,8 +376,8 @@ class JobController extends Controller
         $s_id = 0;
         $contract_id = 0;
         foreach ($request->services as $service) {
-            $service_schedules = ServiceSchedule::where('id', '=', $service['frequency'])->first();
-            $ser = Services::where('id', '=', $service['service'])->first();
+            $service_schedules = ServiceSchedule::find($service['frequency']);
+            $ser = Services::find($service['service']);
 
             $repeat_value = $service_schedules->period;
             if ($service['service'] == 10) {
@@ -724,7 +701,6 @@ class JobController extends Controller
         }
 
         $report = [];
-        $total = 0;
         foreach ($jobs as $job) {
             $row['worker_name']      = $job->worker->firstname . " " . $job->worker->lastname;
             $row['worker_id']        = $job->worker->worker_id;

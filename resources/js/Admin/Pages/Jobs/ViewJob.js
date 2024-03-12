@@ -15,6 +15,7 @@ export default function ViewJob() {
     const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
     const [services, setServices] = useState([]);
+    const [address, setAddress] = useState({});
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -28,6 +29,7 @@ export default function ViewJob() {
             setClient(r.client);
             setWorker(r.worker);
             setServices(r.jobservice);
+            setAddress(r.property_address);
         });
     };
 
@@ -77,7 +79,10 @@ export default function ViewJob() {
                     <div className="worker-profile">
                         <div className="row">
                             <div className="col-sm-6">
-                                <ClientDetails client={client} />
+                                <ClientDetails
+                                    client={client}
+                                    address={address}
+                                />
                             </div>
                             <div className="col-sm-6">
                                 <div

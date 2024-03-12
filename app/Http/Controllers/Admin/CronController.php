@@ -5,15 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
-use App\Models\Client;
-use App\Models\Offer;
-use App\Models\Schedule;
-use App\Models\Contract;
 use App\Models\JobService;
 use App\Models\WorkerAvailability;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
@@ -23,10 +16,14 @@ class CronController extends Controller
     {
         $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->subDays(1);
         $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5);
-        $jobs = Job::query()->with('offer', 'contract', 'jobservice')->whereBetween('start_date', [$startDate, $endDate]);
-        $jobs = $jobs->whereHas('contract', function ($query) {
-            $query->where('job_status', '=', 1);
-        })->get();
+
+        $jobs = Job::query()
+            ->with(['offer', 'contract', 'jobservice'])
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->whereHas('contract', function ($query) {
+                $query->where('job_status', '=', 1);
+            })
+            ->get();
 
         foreach ($jobs as $job) {
             if ($job->schedule == 'w') {
@@ -53,8 +50,8 @@ class CronController extends Controller
                 $date = Carbon::parse($job->start_date);
                 $newDate = $date->addMonths(3);
             }
-            if (isset($newDate)) {
 
+            if (isset($newDate)) {
                 $new = new Job();
                 $new->client_id     = $job->client_id;
                 $new->worker_id     = $job->worker_id;
@@ -69,26 +66,26 @@ class CronController extends Controller
                 if ($this->checkWorker($job)) {
                     $new->status = 'scheduled';
                 } else {
-                    $new->status        = 'unscheduled';
+                    $new->status = 'unscheduled';
                 }
 
                 $new->save();
 
                 $jserv = ($job->jobservice->toArray());
                 $jobSer = [];
-                foreach ($jserv as $k => $v) :
+                foreach ($jserv as $k => $v) {
                     unset($v['id']);
                     unset($v['created_at']);
                     unset($v['updated_at']);
                     $v['job_id'] = $new->id;
                     $jobSer[$k] = $v;
-                endforeach;
+                }
 
-                if (!empty($jobSer)) :
-                    foreach ($jobSer as $jser) :
+                if (!empty($jobSer)) {
+                    foreach ($jobSer as $jser) {
                         JobService::create($jser);
-                    endforeach;
-                endif;
+                    }
+                }
             }
         }
         // $this->sendUnscheduledMail();
@@ -110,11 +107,14 @@ class CronController extends Controller
             '20pm-22pm' => array('20:00', '20:30', '21:00', '21:30', '22:00'),
             '22pm-24am' => array('22:00', '22:30', '23:00', '23:30', '00:00'),
             '20pm-24am' => array('20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'),
-
         ];
+
         $availabiltities = false;
-        $w_a = WorkerAvailability::where('user_id', $job->worker_id)
-            ->where('date', $job->start_date)->first();
+        $w_a = WorkerAvailability::query()
+            ->where('user_id', $job->worker_id)
+            ->where('date', $job->start_date)
+            ->first();
+
         if ($w_a) {
             $data = $allslot[$w_a->working[0]];
             if (in_array($job->start_time, $data) && in_array($job->end_time, $data)) {
@@ -128,10 +128,15 @@ class CronController extends Controller
     {
         $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6);
         $endDate = $startDate->addDays(6);
-        $jobs = Job::query()->with('offer', 'contract')->where('status', 'unscheduled')->whereBetween('start_date', [$startDate, $endDate]);
-        $jobs = $jobs->whereHas('contract', function ($query) {
-            $query->where('job_status', '=', 1);
-        })->get();
+        $jobs = Job::query()
+            ->with(['offer', 'contract'])
+            ->where('status', 'unscheduled')
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->whereHas('contract', function ($query) {
+                $query->where('job_status', '=', 1);
+            })
+            ->get();
+
         $new_job = array('1');
         foreach ($jobs as $job) {
         }

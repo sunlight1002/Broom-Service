@@ -17,17 +17,22 @@ class DashboardController extends Controller
     {
         $id              = $request->id;
         $total_jobs      = Job::where('worker_id', $id)->count();
-        $latest_jobs     = Job::where('worker_id', $id)->with('client', 'offer', 'worker', 'jobservice')->orderBy('id', 'desc')->take(10)->get();
+        $latest_jobs     = Job::query()
+            ->with(['client', 'offer', 'worker', 'jobservice'])
+            ->where('worker_id', $id)
+            ->orderBy('id', 'desc')
+            ->take(10)
+            ->get();
 
         return response()->json([
-            'total_jobs'         => $total_jobs,
-            'latest_jobs'        => $latest_jobs
-        ], 200);
+            'total_jobs'  => $total_jobs,
+            'latest_jobs' => $latest_jobs
+        ]);
     }
 
     public function getTime()
     {
-        $time  = ManageTime::where('id', 1)->get();
+        $time = ManageTime::where('id', 1)->get();
         return response()->json([
             'time' => $time
         ]);
@@ -39,14 +44,17 @@ class DashboardController extends Controller
             'date'     => 'required',
             'worker_id'  => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-        $date          = new WorkerNotAvailableDate;
+
+        $date = new WorkerNotAvailableDate;
         $date->user_id = $request->worker_id;
         $date->date    = $request->date;
         $date->status  = $request->status;
         $date->save();
+
         return response()->json(['message' => 'Date added']);
     }
 

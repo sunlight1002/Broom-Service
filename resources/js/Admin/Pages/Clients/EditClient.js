@@ -1,27 +1,17 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import { useParams } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
-import {
-    GoogleMap,
-    LoadScript,
-    InfoWindow,
-    Marker,
-    Autocomplete,
-} from "@react-google-maps/api";
-import Geocode from "react-geocode";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
+import JobMenu from "../../Components/Job/JobMenu";
 
 export default function EditClient() {
-    let addressSearchRef = useRef();
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [invoiceName, setInvoiceName] = useState("");
     const [phone, setPhone] = useState("");
-
-    const [city, setCity] = useState("");
     const [dob, setDob] = useState("");
     const [passcode, setPassCode] = useState("");
     const [lng, setLng] = useState("");
@@ -30,36 +20,12 @@ export default function EditClient() {
     const [errors, setErrors] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
-    let allPhones = [];
     const alert = useAlert();
     const params = useParams();
     const navigate = useNavigate();
 
-    const [libraries] = useState(["places", "geometry"]);
-    const [latitude, setLatitude] = useState(-33.865143);
-    const [longitude, setLongitude] = useState(151.2099);
-    const [address, setAddress] = useState("");
-    const [place, setPlace] = useState();
-    const [cjob, setCjob] = useState();
+    const [cjob, setCjob] = useState('0');
     const [addresses, setAddresses] = useState([]);
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
-    const containerStyle = {
-        width: "100%",
-        height: "300px",
-    };
-    const center = {
-        lat: latitude,
-        lng: longitude,
-    };
-
-    const handlePlaceChanged = () => {
-        if (place) {
-            setCity(place.getPlace().vicinity);
-            setAddress(place.getPlace().formatted_address);
-            setLatitude(place.getPlace().geometry.location.lat());
-            setLongitude(place.getPlace().geometry.location.lng());
-        }
-    };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -76,77 +42,17 @@ export default function EditClient() {
         let taxper = 17;
         if (cjob == 1) {
             for (let t in formValues) {
-                if (formValues[t].service == "" || formValues[t].service == 0) {
-                    alert.error("One of the service is not selected");
-                    return false;
-                }
-
-                let ot = document.querySelector("#other_title" + t);
-
-                if (formValues[t].service == "10" && ot != undefined) {
-                    if (formValues[t].other_title == "") {
-                        alert.error("Other title cannot be blank");
-                        return false;
-                    }
-                    formValues[t].other_title = document.querySelector(
-                        "#other_title" + t
-                    ).value;
-                }
-
-                if (formValues[t].jobHours == "") {
-                    alert.error("One of the job hours value is missing");
-                    return false;
-                }
                 !formValues[t].type ? (formValues[t].type = "fixed") : "";
                 if (formValues[t].type == "hourly") {
-                    if (formValues[t].rateperhour == "") {
-                        alert.error(
-                            "One of the rate per hour value is missing"
-                        );
-                        return false;
-                    }
                     formValues[t].totalamount = parseInt(
                         formValues[t].jobHours * formValues[t].rateperhour
                     );
                     to += parseInt(formValues[t].totalamount);
                 } else {
-                    if (formValues[t].fixed_price == "") {
-                        alert.error("One of the job price is missing");
-                        return false;
-                    }
                     formValues[t].totalamount = parseInt(
                         formValues[t].fixed_price
                     );
                     to += parseInt(formValues[t].fixed_price);
-                }
-
-                if (
-                    formValues[t].frequency == "" ||
-                    formValues[t].frequency == 0
-                ) {
-                    alert.error("One of the frequency is not selected");
-                    return false;
-                }
-                if (
-                    formValues[t].days.length > 0 &&
-                    formValues[t].days.length > formValues[t].cycle &&
-                    formValues[t].cycle != "0"
-                ) {
-                    alert.error("One of the frequency days are invalid");
-                    return false;
-                }
-
-                if (
-                    !formValues[t].worker ||
-                    formValues[t].worker == "" ||
-                    formValues[t].worker == 0
-                ) {
-                    alert.error("One of the worker is not selected");
-                    return false;
-                }
-                if (!formValues[t].shift || formValues[t].shift == "") {
-                    alert.error("One of the shift is not selected");
-                    return false;
                 }
             }
         }
@@ -246,125 +152,20 @@ export default function EditClient() {
     };
 
     /*  Job Add */
-    const [type, setType] = useState();
-    const [formValues, setFormValues] = useState([
-        {
-            service: "",
-            name: "",
-            type: "",
-            freq_name: "",
-            frequency: "",
-            fixed_price: "",
-            jobHours: "",
-            rateperhour: "",
-            other_title: "",
-            totalamount: "",
-            template: "",
-            cycle: "",
-            period: "",
-        },
-    ]);
+    const [formValues, setFormValues] = useState([]);
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllFreq, setAllFreq] = useState([]);
     const [worker, setWorkers] = useState([]);
-    let handleChange = (i, e) => {
+
+    const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
-
-        var h =
-            e.target.parentNode.parentNode.childNodes[1].childNodes[0].value;
-        var rh =
-            e.target.parentNode.parentNode.childNodes[2].childNodes[0].value;
-        if (rh != "" && h != "")
-            e.target.parentNode.parentNode.childNodes[3].childNodes[0].setAttribute(
-                "value",
-                h * rh
-            );
-
-        newFormValues[i][e.target.name] = e.target.value;
-        if (e.target.name == "service") {
-            newFormValues[i]["name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["template"] =
-                e.target.options[e.target.selectedIndex].getAttribute(
-                    "template"
-                );
+        if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
+            newFormValues[indexKey] = tmpJobData;
+        } else {
+            newFormValues = [...formValues, tmpJobData];
         }
-        if (e.target.name == "frequency") {
-            newFormValues[i]["freq_name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["cycle"] =
-                e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newFormValues[i]["period"] =
-                e.target.options[e.target.selectedIndex].getAttribute("period");
-        }
-        if (e.target.name == "worker") {
-            newFormValues[i]["woker_name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-        }
-        if (e.target.name == "days") {
-            var result = [];
-            var options = e.target.options;
-            var opt;
-
-            for (var k = 0, iLen = options.length; k < iLen; k++) {
-                opt = options[k];
-
-                if (opt.selected) {
-                    result.push(opt.value);
-                }
-            }
-            if (
-                result.length > newFormValues[i]["cycle"] &&
-                newFormValues[i]["cycle"] != 0
-            ) {
-                window.alert(
-                    "You can select at most " +
-                        newFormValues[i]["cycle"] +
-                        " day(s) for this frequency"
-                );
-            } else {
-                newFormValues[i]["days"] = result;
-            }
-        }
-        if (e.target.name == "shift") {
-            var result = "";
-            var sAr = [];
-            var options = e.target.options;
-            var opt;
-
-            for (var k = 0, iLen = options.length; k < iLen; k++) {
-                opt = options[k];
-                if (opt.selected) {
-                    sAr.push(opt.value);
-                    result += opt.value + ", ";
-                }
-            }
-            newFormValues[i]["shift_ar"] = sAr;
-            newFormValues[i]["shift"] = result.replace(/,\s*$/, "");
-        }
-
         setFormValues(newFormValues);
-    };
-    let addFormFields = () => {
-        setFormValues([
-            ...formValues,
-            {
-                service: "",
-                name: "",
-                type: "",
-                freq_name: "",
-                frequency: "",
-                fixed_price: "",
-                jobHours: "",
-                rateperhour: "",
-                other_title: "",
-                totalamount: "",
-                template: "",
-                cycle: "",
-                period: "",
-            },
-        ]);
     };
 
     let removeFormFields = (i) => {
@@ -414,54 +215,6 @@ export default function EditClient() {
         getWorkers();
     }, []);
 
-    const cData = AllClients.map((c, i) => {
-        return { value: c.id, label: c.firstname + " " + c.lastname };
-    });
-
-    const handleType = (e) => {
-        let fixed_field = e.target.parentNode.nextSibling.nextElementSibling;
-        let per_hour_field =
-            e.target.parentNode.nextSibling.nextElementSibling
-                .nextElementSibling;
-
-        console.log(fixed_field);
-        console.log(per_hour_field);
-
-        if (e.target.value == "hourly") {
-            fixed_field.style.display = "none";
-            per_hour_field.style.display = "block";
-        } else {
-            fixed_field.style.display = "block";
-            per_hour_field.style.display = "none";
-        }
-    };
-    const slot = [
-        { value: "full day- 8am-16pm", text: "full day- 8am-16pm" },
-        { value: "morning1 - 8am-10am", text: "morning1 - 8am-10am" },
-        { value: "morning 2 - 10am-12pm", text: "morning 2 - 10am-12pm" },
-        { value: "morning- 08am-12pm", text: "morning- 08am-12pm" },
-        { value: "noon1 -12pm-14pm", text: "noon1 -12pm-14pm" },
-        { value: "noon2 14pm-16pm", text: "noon2 14pm-16pm" },
-        { value: "noon 12pm-16pm", text: "noon 12pm-16pm" },
-        { value: "af1 16pm-18pm", text: "af1 16pm-18pm" },
-        { value: "af2 18pm-20pm", text: "af2 18pm-20pm" },
-        { value: "afternoon 16pm-20pm", text: "afternoon 16pm-20pm" },
-        { value: "ev1 20pm-22pm", text: "ev1 20pm-22pm" },
-        { value: "ev2 22pm-24pm", text: "ev2 22pm-24pm" },
-        { value: "evening 20pm-24am", text: "evening 20pm-24am" },
-    ];
-
-    const handleOther = (e) => {
-        let el = e.target.parentNode.lastChild;
-        if (e.target.value == 10) {
-            el.style.display = "block";
-            el.style.marginBlock = "8px";
-            el.style.width = "150%";
-        } else {
-            el.style.display = "none";
-        }
-    };
-
     const handleAlternate = (i, e) => {
         let extraValues = [...extra];
         extraValues[i][e.target.name] = e.target.value;
@@ -486,13 +239,7 @@ export default function EditClient() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-    useEffect(() => {
-        if (address === "" && place) {
-            addressSearchRef.current.value = "";
-            setLatitude(32.109333);
-            setLongitude(34.855499);
-        }
-    }, [address]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -747,77 +494,12 @@ export default function EditClient() {
                                             );
                                         })}
                                 </div>
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Enter a location
-                                    </label>
-                                    <LoadScript
-                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
-                                        libraries={libraries}
-                                    >
-                                        <GoogleMap
-                                            mapContainerStyle={containerStyle}
-                                            center={center}
-                                            zoom={15}
-                                        >
-                                            <Marker
-                                                draggable={true}
-                                                onDragEnd={(e) =>
-                                                    onMarkerDragEnd(e)
-                                                }
-                                                position={{
-                                                    lat: latitude,
-                                                    lng: longitude,
-                                                }}
-                                            />
-                                            {address ? (
-                                                <InfoWindow
-                                                    onClose={(e) =>
-                                                        onInfoWindowClose(e)
-                                                    }
-                                                    position={{
-                                                        lat: latitude + 0.0018,
-                                                        lng: longitude,
-                                                    }}
-                                                >
-                                                    <div>
-                                                        <span
-                                                            style={{
-                                                                padding: 0,
-                                                                margin: 0,
-                                                            }}
-                                                        >
-                                                            {address}
-                                                        </span>
-                                                    </div>
-                                                </InfoWindow>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            <Marker />
-                                        </GoogleMap>
-                                        <Autocomplete
-                                            onLoad={(e) => setPlace(e)}
-                                            onPlaceChanged={handlePlaceChanged}
-                                        >
-                                            <input
-                                                ref={addressSearchRef}
-                                                type="text"
-                                                placeholder="Search Your Address"
-                                                className="form-control mt-1"
-                                            />
-                                        </Autocomplete>
-                                    </LoadScript>
-                                </div>
                                 <PropertyAddress
                                     heading={"Property Address"}
-                                    setAddress={setAddress}
-                                    address={address}
                                     errors={errors}
-                                    place={place}
+                                    setErrors={setErrors}
                                     addresses={addresses}
                                     setAddresses={setAddresses}
-                                    setErrors={setErrors}
                                 />
 
                                 <div className="form-group">
@@ -1066,541 +748,19 @@ export default function EditClient() {
                                     className="ClientJobSection"
                                     style={{ display: "none" }}
                                 >
-                                    <div className="row">
-                                        <div className="col-sm-12">
-                                            <div className="">
-                                                <div className="card-body">
-                                                    <div className="table-responsive">
-                                                        <table className="table table-sm">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                        }}
-                                                                    >
-                                                                        Service
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                        }}
-                                                                    >
-                                                                        Type
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                        }}
-                                                                    >
-                                                                        Job
-                                                                        Hours
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                        }}
-                                                                    >
-                                                                        Price
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                            display:
-                                                                                "none",
-                                                                        }}
-                                                                    >
-                                                                        Rate Per
-                                                                        Hour
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "15%",
-                                                                        }}
-                                                                    >
-                                                                        Frequency
-                                                                    </th>
-                                                                    <th
-                                                                        style={{
-                                                                            width: "30%",
-                                                                        }}
-                                                                    >
-                                                                        Worker
-                                                                    </th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {formValues.map(
-                                                                    (
-                                                                        element,
-                                                                        index
-                                                                    ) => {
-                                                                        return (
-                                                                            <tr
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                            >
-                                                                                <td>
-                                                                                    <select
-                                                                                        name="service"
-                                                                                        className="form-control"
-                                                                                        value={
-                                                                                            element.service ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) => {
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            );
-                                                                                            handleOther(
-                                                                                                e
-                                                                                            );
-                                                                                        }}
-                                                                                    >
-                                                                                        <option
-                                                                                            selected
-                                                                                            value={
-                                                                                                0
-                                                                                            }
-                                                                                        >
-                                                                                            {" "}
-                                                                                            --
-                                                                                            Please
-                                                                                            select
-                                                                                            --
-                                                                                        </option>
-                                                                                        {AllServices &&
-                                                                                            AllServices.map(
-                                                                                                (
-                                                                                                    s,
-                                                                                                    i
-                                                                                                ) => {
-                                                                                                    return (
-                                                                                                        <option
-                                                                                                            name={
-                                                                                                                s.name
-                                                                                                            }
-                                                                                                            template={
-                                                                                                                s.template
-                                                                                                            }
-                                                                                                            value={
-                                                                                                                s.id
-                                                                                                            }
-                                                                                                            key={
-                                                                                                                i
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {" "}
-                                                                                                            {
-                                                                                                                s.name
-                                                                                                            }{" "}
-                                                                                                        </option>
-                                                                                                    );
-                                                                                                }
-                                                                                            )}
-                                                                                    </select>
-
-                                                                                    <textarea
-                                                                                        type="text"
-                                                                                        name="other_title"
-                                                                                        id={
-                                                                                            `other_title` +
-                                                                                            index
-                                                                                        }
-                                                                                        placeholder="Service Title"
-                                                                                        style={
-                                                                                            element.other_title ==
-                                                                                            ""
-                                                                                                ? {
-                                                                                                      display:
-                                                                                                          "none",
-                                                                                                  }
-                                                                                                : {}
-                                                                                        }
-                                                                                        className="form-control"
-                                                                                        value={
-                                                                                            element.other_title ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            )
-                                                                                        }
-                                                                                    />
-                                                                                </td>
-                                                                                <td>
-                                                                                    <select
-                                                                                        name="type"
-                                                                                        className="form-control"
-                                                                                        value={
-                                                                                            element.type ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) => {
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            );
-                                                                                            handleType(
-                                                                                                e
-                                                                                            );
-                                                                                        }}
-                                                                                    >
-                                                                                        <option
-                                                                                            selected
-                                                                                            value="fixed"
-                                                                                        >
-                                                                                            Fixed
-                                                                                        </option>
-                                                                                        <option
-                                                                                            selected
-                                                                                            value="hourly"
-                                                                                        >
-                                                                                            Hourly
-                                                                                        </option>
-                                                                                    </select>
-                                                                                </td>
-
-                                                                                <td>
-                                                                                    <input
-                                                                                        type="number"
-                                                                                        name="jobHours"
-                                                                                        value={
-                                                                                            element.jobHours ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            )
-                                                                                        }
-                                                                                        className="form-control jobhr"
-                                                                                        required
-                                                                                        placeholder="Enter job Hrs"
-                                                                                    />
-                                                                                </td>
-                                                                                <td
-                                                                                    style={
-                                                                                        type ==
-                                                                                        "hourly"
-                                                                                            ? {
-                                                                                                  display:
-                                                                                                      "none",
-                                                                                              }
-                                                                                            : {}
-                                                                                    }
-                                                                                >
-                                                                                    <input
-                                                                                        type="number"
-                                                                                        name="fixed_price"
-                                                                                        value={
-                                                                                            element.fixed_price ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            )
-                                                                                        }
-                                                                                        className="form-control jobprice"
-                                                                                        required
-                                                                                        placeholder="Enter job price"
-                                                                                    />
-                                                                                </td>
-                                                                                <td
-                                                                                    style={
-                                                                                        type !=
-                                                                                        "hourly"
-                                                                                            ? {
-                                                                                                  display:
-                                                                                                      "none",
-                                                                                              }
-                                                                                            : {}
-                                                                                    }
-                                                                                >
-                                                                                    <input
-                                                                                        type="text"
-                                                                                        name="rateperhour"
-                                                                                        value={
-                                                                                            element.rateperhour ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            )
-                                                                                        }
-                                                                                        className="form-control jobrate"
-                                                                                        required
-                                                                                        placeholder="Enter rate P/Hr"
-                                                                                    />
-                                                                                </td>
-
-                                                                                <td>
-                                                                                    <select
-                                                                                        name="frequency"
-                                                                                        className="form-control mb-2"
-                                                                                        value={
-                                                                                            element.frequency ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            )
-                                                                                        }
-                                                                                    >
-                                                                                        <option
-                                                                                            selected
-                                                                                            value={
-                                                                                                0
-                                                                                            }
-                                                                                        >
-                                                                                            {" "}
-                                                                                            --
-                                                                                            Please
-                                                                                            select
-                                                                                            --
-                                                                                        </option>
-                                                                                        {AllFreq &&
-                                                                                            AllFreq.map(
-                                                                                                (
-                                                                                                    s,
-                                                                                                    i
-                                                                                                ) => {
-                                                                                                    return (
-                                                                                                        <option
-                                                                                                            cycle={
-                                                                                                                s.cycle
-                                                                                                            }
-                                                                                                            period={
-                                                                                                                s.period
-                                                                                                            }
-                                                                                                            name={
-                                                                                                                s.name
-                                                                                                            }
-                                                                                                            value={
-                                                                                                                s.id
-                                                                                                            }
-                                                                                                            key={
-                                                                                                                i
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {" "}
-                                                                                                            {
-                                                                                                                s.name
-                                                                                                            }{" "}
-                                                                                                        </option>
-                                                                                                    );
-                                                                                                }
-                                                                                            )}
-                                                                                    </select>
-
-                                                                                    <select
-                                                                                        name="days"
-                                                                                        className="form-control choosen-select"
-                                                                                        multiple
-                                                                                        data-placeholder="Choose Days"
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) => {
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            );
-                                                                                        }}
-                                                                                    >
-                                                                                        <option value="sunday">
-                                                                                            Sunday
-                                                                                        </option>
-                                                                                        <option value="monday">
-                                                                                            Monday
-                                                                                        </option>
-                                                                                        <option value="tuesday">
-                                                                                            Tuesday
-                                                                                        </option>
-                                                                                        <option value="wednesday">
-                                                                                            Wednesday
-                                                                                        </option>
-                                                                                        <option value="thursday">
-                                                                                            Thrusday
-                                                                                        </option>
-                                                                                        <option value="friday">
-                                                                                            Friday
-                                                                                        </option>
-                                                                                        <option value="saturday">
-                                                                                            Saturday
-                                                                                        </option>
-                                                                                    </select>
-                                                                                </td>
-
-                                                                                <td>
-                                                                                    <select
-                                                                                        name="worker"
-                                                                                        className="form-control  mb-2"
-                                                                                        value={
-                                                                                            element.worker ||
-                                                                                            ""
-                                                                                        }
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) => {
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            );
-                                                                                        }}
-                                                                                    >
-                                                                                        <option
-                                                                                            selected
-                                                                                            value={
-                                                                                                0
-                                                                                            }
-                                                                                        >
-                                                                                            --Please
-                                                                                            select--
-                                                                                        </option>
-                                                                                        {worker &&
-                                                                                            worker.map(
-                                                                                                (
-                                                                                                    w,
-                                                                                                    i
-                                                                                                ) => {
-                                                                                                    return (
-                                                                                                        <option
-                                                                                                            name={
-                                                                                                                w.firstname +
-                                                                                                                " " +
-                                                                                                                w.lastname
-                                                                                                            }
-                                                                                                            value={
-                                                                                                                w.id
-                                                                                                            }
-                                                                                                            key={
-                                                                                                                i
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {w.firstname +
-                                                                                                                " " +
-                                                                                                                w.lastname}
-                                                                                                        </option>
-                                                                                                    );
-                                                                                                }
-                                                                                            )}
-                                                                                    </select>
-
-                                                                                    <select
-                                                                                        name="shift"
-                                                                                        className="form-control choosen-select"
-                                                                                        multiple
-                                                                                        data-placeholder="Choose shift"
-                                                                                        onChange={(
-                                                                                            e
-                                                                                        ) => {
-                                                                                            handleChange(
-                                                                                                index,
-                                                                                                e
-                                                                                            );
-                                                                                        }}
-                                                                                    >
-                                                                                        {slot &&
-                                                                                            slot.map(
-                                                                                                (
-                                                                                                    s,
-                                                                                                    i
-                                                                                                ) => {
-                                                                                                    return (
-                                                                                                        <option
-                                                                                                            value={
-                                                                                                                s.value
-                                                                                                            }
-                                                                                                            key={
-                                                                                                                i
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {
-                                                                                                                s.text
-                                                                                                            }
-                                                                                                        </option>
-                                                                                                    );
-                                                                                                }
-                                                                                            )}
-                                                                                    </select>
-
-                                                                                    {/* 
-                                                                                </select>
-                                                                                    <MultiSelect
-                                                                                    options={slot}
-                                                                                    value={(selected.index != undefined && selected.index == index)? selected.val : []}
-                                                                                    onChange={(e)=>{ setSelected({index,val:[e[0]]}); console.log(selected.index)  }}
-                                                                                    labelledBy="Select shift"
-                                                                            />*/}
-                                                                                </td>
-
-                                                                                <td className="text-right">
-                                                                                    <button
-                                                                                        className="ml-2 btn bg-red"
-                                                                                        onClick={() =>
-                                                                                            removeFormFields(
-                                                                                                index
-                                                                                            )
-                                                                                        }
-                                                                                    >
-                                                                                        <i className="fa fa-minus"></i>
-                                                                                    </button>
-                                                                                </td>
-                                                                            </tr>
-                                                                        );
-                                                                    }
-                                                                )}
-                                                            </tbody>
-
-                                                            <tfoot>
-                                                                <tr>
-                                                                    <td
-                                                                        className="text-right"
-                                                                        colSpan="10"
-                                                                    >
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn bg-green"
-                                                                            onClick={() =>
-                                                                                addFormFields()
-                                                                            }
-                                                                        >
-                                                                            <i className="fa fa-plus"></i>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {cjob === "1" && (
+                                        <JobMenu
+                                            addresses={addresses}
+                                            worker={worker}
+                                            AllServices={AllServices}
+                                            AllFreq={AllFreq}
+                                            formValues={formValues}
+                                            handleSaveJobForm={handleSave}
+                                            handleRemoveFormFields={
+                                                removeFormFields
+                                            }
+                                        />
+                                    )}
                                 </div>
 
                                 <div className="form-group text-center">

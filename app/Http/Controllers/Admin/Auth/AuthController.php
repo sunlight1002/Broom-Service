@@ -35,7 +35,7 @@ class AuthController extends Controller
             $admin        = Admin::find(auth()->guard('admin')->user()->id);
             $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
 
-            return response()->json($admin, 200);
+            return response()->json($admin);
         } else {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
         }
@@ -64,7 +64,7 @@ class AuthController extends Controller
         $admin                  = Admin::create($input);
         $admin->token           = $admin->createToken('Admin', ['admin'])->accessToken;
 
-        return response()->json($admin, 200);
+        return response()->json($admin);
     }
 
     /** 
@@ -75,13 +75,13 @@ class AuthController extends Controller
     public function details()
     {
         $admin = Auth::user();
-        return response()->json(['success' => $admin], 200);
+        return response()->json(['success' => $admin]);
     }
 
     public function logout()
     {
         $user = Auth::user()->token();
         $user->revoke();
-        return response()->json(['success' => 'Logged Out Successfully!'], 200);
+        return response()->json(['success' => 'Logged Out Successfully!']);
     }
 }

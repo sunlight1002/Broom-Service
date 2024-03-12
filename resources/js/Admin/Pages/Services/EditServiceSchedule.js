@@ -15,7 +15,7 @@ export default function EditServiceSchedule() {
     const [errors, setErrors] = useState([]);
     const pe = [
         { value: "na", label: "Not Required" },
-        { value: "D", label: "Day" },
+        { value: "d", label: "Day" },
         { value: "w", label: "Week" },
         { value: "2w", label: "2 Weeks" },
         { value: "3w", label: "3 Weeks" },
@@ -55,7 +55,7 @@ export default function EditServiceSchedule() {
                 } else {
                     alert.success("schedule has been updated successfully");
                     setTimeout(() => {
-                        navigate("/admin/service-schedule");
+                        navigate("/admin/service-schedules");
                     }, 1000);
                 }
             });

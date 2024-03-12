@@ -49,8 +49,8 @@ class WorkerController extends Controller
         $result = $result->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
-            'workers'       => $result,
-        ], 200);
+            'workers' => $result,
+        ]);
     }
 
     public function AllWorkers(Request $request)
@@ -93,13 +93,13 @@ class WorkerController extends Controller
                 }
             }
             return response()->json([
-                'workers'       => $newworker,
-            ], 200);
+                'workers' => $newworker,
+            ]);
         }
 
         return response()->json([
-            'workers'       => $workers,
-        ], 200);
+            'workers' => $workers,
+        ]);
     }
 
     public function workerJobs($jobs)
@@ -135,7 +135,7 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:users'],
             'worker_id' => ['required'],
             'status'    => ['required'],
             'password'  => ['required'],
@@ -165,6 +165,8 @@ class WorkerController extends Controller
         $worker->skill         = $request->skill;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
+        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();
 
         $i = 1;
@@ -211,8 +213,8 @@ class WorkerController extends Controller
         endif;
 
         return response()->json([
-            'message'       => 'Worker updated successfully',
-        ], 200);
+            'message' => 'Worker updated successfully',
+        ]);
     }
 
     /**
@@ -225,8 +227,8 @@ class WorkerController extends Controller
     {
         $worker                = User::find($id);
         return response()->json([
-            'worker'        => $worker,
-        ], 200);
+            'worker' => $worker,
+        ]);
     }
 
     /**
@@ -244,11 +246,10 @@ class WorkerController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:users,phone,' . $id],
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
@@ -276,11 +277,13 @@ class WorkerController extends Controller
         $worker->skill         = $request->skill;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
+        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();
 
         return response()->json([
-            'message'       => 'Worker updated successfully',
-        ], 200);
+            'message' => 'Worker updated successfully',
+        ]);
     }
 
     /**
@@ -293,8 +296,8 @@ class WorkerController extends Controller
     {
         User::find($id)->delete();
         return response()->json([
-            'message'     => "Worker has been deleted"
-        ], 200);
+            'message' => "Worker has been deleted"
+        ]);
     }
 
     public function updateAvailability(Request $request, $id)
@@ -308,9 +311,10 @@ class WorkerController extends Controller
             $avl->status = '1';
             $avl->save();
         }
+
         return response()->json([
-            'message'     => 'Updated Successfully',
-        ], 200);
+            'message' => 'Updated Successfully',
+        ]);
     }
 
     public function getWorkerAvailability($id)
@@ -324,8 +328,8 @@ class WorkerController extends Controller
         }
 
         return response()->json([
-            'availability'     => $new_array,
-        ], 200);
+            'availability' => $new_array,
+        ]);
     }
 
     public function getALLWorkerAvailability()
@@ -344,8 +348,8 @@ class WorkerController extends Controller
             '20pm-22pm' => array('20:00', '22:00'),
             '22pm-24am' => array('22:00', '00:00'),
             '20pm-24am' => array('20:00', '00:00'),
-
         ];
+
         $sunday = Carbon::now()->startOfWeek()->subDays(1);
         $worker_availabilities = WorkerAvailability::with('worker')->where('date', '>=', $sunday)->orderBy('id', 'asc')->get();
         $new_array = array();
@@ -360,16 +364,14 @@ class WorkerController extends Controller
                         'start_time' => $slot,
                         'end_time' => $this->covertTime($slot),
                         'name' => $w_a->worker['firstname'] . ' ' . $w_a->worker['lastname']
-
-
                     );
                 }
             }
         }
 
         return response()->json([
-            'availability'     => $new_array,
-        ], 200);
+            'availability' => $new_array,
+        ]);
     }
 
     public function covertTime($slot)
@@ -407,8 +409,6 @@ class WorkerController extends Controller
             foreach ($jobs as $job) {
                 $unset = false;
                 foreach ($allslot[$slot] as $key => $item) {
-
-
                     if ($job->start_time == $item) {
                         $unset = true;
                     }
@@ -445,14 +445,17 @@ class WorkerController extends Controller
             'date'     => 'required',
             'worker_id'  => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+
         $date          = new WorkerNotAvailableDate;
         $date->user_id = $request->worker_id;
         $date->date    = $request->date;
         $date->status  = $request->status;
         $date->save();
+
         return response()->json(['message' => 'Date added']);
     }
 

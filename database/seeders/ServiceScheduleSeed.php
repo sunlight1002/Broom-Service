@@ -14,19 +14,11 @@ class ServiceScheduleSeed extends Seeder
      */
     public function run()
     {
-
         ServiceSchedule::create([
             'name'         => 'One Time',
             'name_heb'     => 'חד פעמי',
             'cycle'        => 1,
             'period'       => 'na',
-            'status'       => 1
-        ]);
-        ServiceSchedule::create([
-            'name'         => 'On demand',
-            'name_heb'     => 'לפי דרישה',
-            'cycle'        => 0,
-            'period'       => 'bdm',
             'status'       => 1
         ]);
         ServiceSchedule::create([
@@ -64,14 +56,6 @@ class ServiceScheduleSeed extends Seeder
             'period'       => 'w',
             'status'       => 1
         ]);
-        ServiceSchedule::create([
-            'name'         => '6 times a week',
-            'name_heb'     => '6 פעמים בשבוע',
-            'cycle'        => 6,
-            'period'       => 'w',
-            'status'       => 1
-        ]);
-
         ServiceSchedule::create([
             'name'         => 'Once in every two weeks',
             'name_heb'     => 'פעם בשבועיים',

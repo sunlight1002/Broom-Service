@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
@@ -11,7 +11,19 @@ import {
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
 
+const animalArray = [
+    {
+        name: "Dog",
+        key: "is_afraid_by_dog",
+    },
+    {
+        name: "Cat",
+        key: "is_afraid_by_cat",
+    },
+];
+
 export default function AddWorker() {
+    const elementsRef = useRef(animalArray.map(() => createRef()));
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [phone, setPhone] = useState("");
@@ -94,6 +106,9 @@ export default function AddWorker() {
             latitude: latitude,
             longitude: longitude,
         };
+        elementsRef.current.map(
+            (ref) => data[ref.current.name] =  ref.current.checked
+        );
         let sbtn = document.querySelector(".saveBtn");
         sbtn.setAttribute("disabled", true);
         sbtn.innerText = "Saving..";
@@ -520,6 +535,36 @@ export default function AddWorker() {
                                                         name="skills"
                                                         value={item.id}
                                                         onChange={handleSkills}
+                                                    />
+                                                    {item.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                </div>
+                                <div className="col-sm-12 mt-4">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Are you afraid of any follwing pet
+                                            animals ?
+                                        </label>
+                                    </div>
+                                    {animalArray &&
+                                        animalArray.map((item, index) => (
+                                            <div
+                                                className="form-check"
+                                                key={item.key}
+                                            >
+                                                <label className="form-check-label">
+                                                    <input
+                                                        ref={
+                                                            elementsRef.current[
+                                                                index
+                                                            ]
+                                                        }
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        name={item.key}
+                                                        value={item.key}
                                                     />
                                                     {item.name}
                                                 </label>

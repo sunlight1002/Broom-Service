@@ -103,7 +103,7 @@ export default function OfferedPrice() {
                         <thead>
                             <tr>
                                 <th>Client</th>
-                                <th>Address</th>
+                                {/* <th>Address</th> */}
                                 <th>Phone</th>
                                 <th
                                     onClick={(e) => sortTable(e, "status")}
@@ -118,15 +118,15 @@ export default function OfferedPrice() {
                         <tbody>
                             {offers &&
                                 offers.map((ofr, i) => {
-                                    var city = ofr.client.city
-                                        ? ofr.client.city + ", "
-                                        : "";
-                                    var sn = ofr.client.street_n_no
-                                        ? ofr.client.street_n_no + ", "
-                                        : "";
-                                    var zc = ofr.client.zipcode
-                                        ? ofr.client.zipcode
-                                        : "";
+                                    // var city = ofr.client.city
+                                    //     ? ofr.client.city + ", "
+                                    //     : "";
+                                    // var sn = ofr.client.street_n_no
+                                    //     ? ofr.client.street_n_no + ", "
+                                    //     : "";
+                                    // var zc = ofr.client.zipcode
+                                    //     ? ofr.client.zipcode
+                                    //     : "";
 
                                     let color = "";
                                     if (ofr.status == "sent") {
@@ -146,7 +146,7 @@ export default function OfferedPrice() {
                                                       ofr.client.lastname
                                                     : "NA"}
                                             </td>
-                                            <td>{city + sn + zc}</td>
+                                            {/* <td>{city + sn + zc}</td> */}
                                             <td>{ofr.client.phone}</td>
                                             <td style={{ color }}>
                                                 {ofr.status}

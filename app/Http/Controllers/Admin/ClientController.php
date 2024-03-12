@@ -23,9 +23,13 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Models\ClientPropertyAddress;
+use App\Traits\JobSchedule;
+use Illuminate\Support\Arr;
 
 class ClientController extends Controller
 {
+    use JobSchedule;
+
     /**
      * Display a listing of the resource.
      *
@@ -71,7 +75,7 @@ class ClientController extends Controller
             }
 
             if ($ac == 'notbooked') {
-                $result = Client::with('jobs')->whereDoesntHave('jobs');
+                $result = Client::whereDoesntHave('jobs');
             }
         }
 
@@ -142,7 +146,7 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:clients'],
             'status'    => ['required'],
             'passcode'  => ['required', 'string', 'min:6',],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
@@ -156,18 +160,25 @@ class ClientController extends Controller
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
 
+        $addressIds = [];
         $property_address_data = $request->propertyAddress;
-        if(count($property_address_data) > 0){
+        if (count($property_address_data) > 0) {
             foreach ($property_address_data as $key => $address) {
                 $address['client_id'] = $client->id;
-                ClientPropertyAddress::create($address);
+                $createdClient = ClientPropertyAddress::create($address);
+                $addressIds[$key] = $createdClient->id;
             }
         }
 
         if (!empty($request->jobdata)) {
+            $allServices = json_decode($request->jobdata['services'], true);
+            for ($i=0; $i < count($allServices) ; $i++) { 
+                $allServices[$i]['address'] =  $addressIds[$allServices[$i]['address']];
+            }
+
             $offer = Offer::create([
                 'client_id' => $client->id,
-                'services' => $request->jobdata['services'],
+                'services' => json_encode($allServices, true),
                 'subtotal' => $request->jobdata['subtotal'],
                 'total' => $request->jobdata['total'],
                 'status' => 'accepted'
@@ -181,10 +192,8 @@ class ClientController extends Controller
             ]);
 
             /* Create job */
-            $allServices = json_decode($request->jobdata['services'], true);
 
             $jds = [];
-
             foreach ($allServices as $service) {
                 $service_schedules = ServiceSchedule::find($service['frequency']);
                 $ser = Services::find($service['service']);
@@ -198,108 +207,94 @@ class ClientController extends Controller
                     $s_heb_name = $ser->heb_name;
                 }
                 $s_hour = $service['jobHours'];
-                $s_freq   = $service['freq_name'];
-                $s_cycle  = $service['cycle'];
+                $s_freq = $service['freq_name'];
+                $s_cycle = $service['cycle'];
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
+                $address_id = $service['address'];
 
-                $client_mail = array();
-                $client_email = '';
-
-                // // foreach($request->workers as $worker){
-                $count = 1;
-                if ($repeat_value == 'w') {
-                    $count = 3;
-                }
                 $worker = $service['worker'];
                 $shift =  $service['shift'];
 
-                for ($i = 0; $i < $count; $i++) {
-                    if (isset($service['days'])) {
-                        foreach ($service['days'] as $sd) {
-                            (!empty($service['days'])) ?
-                                $date = Carbon::today()->next($sd)
-                                : $date = Carbon::today();
+                $jobsArr = $this->scheduleJob(Arr::only($service, [
+                    'period',
+                    'cycle',
+                    'start_date',
+                    'weekday_occurrence',
+                    'weekday',
+                    'weekdays',
+                    'month_occurrence',
+                    'monthday_selection_type',
+                    'month_date',
+                ]));
 
-                            $j = 0;
-                            if ($i == 1) {
-                                $j = 7;
-                            }
-                            if ($i == 2) {
-                                $j = 14;
-                            }
-                            $job_date = $date->addDays($j)->toDateString();
-
-                            $status = 'scheduled';
-                            if (Job::where('start_date', $job_date)->where('worker_id', $worker)->exists()) {
-                                $status = 'unscheduled';
-                            }
-
-                            $jds[] = [
-                                'job' => [
-                                    'worker'      => $worker,
-                                    'client_id'   => $client->id,
-                                    'offer_id'    => $offer->id,
-                                    'contract_id' => $contract->id,
-                                    'schedule_id' => $s_id,
-                                    'start_date'  => $job_date,
-                                    'shifts'      => $shift,
-                                    'schedule'    => $repeat_value,
-                                    'status'      => $status,
-                                ],
-
-                                'service' => [
-                                    'service_id' => $s_id,
-                                    'name'       => $s_name,
-                                    'heb_name'   => $s_heb_name,
-                                    'job_hour'   => $s_hour,
-                                    'freq_name'  => $s_freq,
-                                    'cycle'      => $s_cycle,
-                                    'period'     => $s_period,
-                                    'total'      => $s_total,
-                                ]
-                            ];
-                        }
+                foreach ($jobsArr as $key => $job) {
+                    $status = 'scheduled';
+                    if (Job::where('start_date', $job['job_date'])->where('worker_id', $worker)->exists()) {
+                        $status = 'unscheduled';
                     }
+
+                    $jds[] = [
+                        'job' => [
+                            'worker'      => $worker,
+                            'client_id'   => $client->id,
+                            'offer_id'    => $offer->id,
+                            'contract_id' => $contract->id,
+                            'schedule_id' => $s_id,
+                            'start_date'  => $job['job_date'],
+                            'next_start_date'  => $job['next_job_date'],
+                            'shifts'      => $shift,
+                            'schedule'    => $repeat_value,
+                            'status'      => $status,
+                            'address_id'  => $address_id,
+                        ],
+
+                        'service' => [
+                            'service_id' => $s_id,
+                            'name'       => $s_name,
+                            'heb_name'   => $s_heb_name,
+                            'job_hour'   => $s_hour,
+                            'freq_name'  => $s_freq,
+                            'cycle'      => $s_cycle,
+                            'period'     => $s_period,
+                            'total'      => $s_total,
+                            'config'      => $job['configuration'],
+                        ]
+                    ];
                 }
             }
 
-            if (!empty($jds)) {
-                foreach ($jds as $jd) {
+            foreach ($jds as $jd) {
+                $jdata = $jd['job'];
+                $sdata = $jd['service'];
 
-                    $jdata = $jd['job'];
-                    $sdata = $jd['service'];
+                $job = Job::create([
+                    'worker_id'   => $jdata['worker'],
+                    'address_id'  => $jdata['address_id'],
+                    'client_id'   => $jdata['client_id'],
+                    'offer_id'    => $jdata['offer_id'],
+                    'contract_id' => $jdata['contract_id'],
+                    'schedule_id' => $jdata['schedule_id'],
+                    'start_date'  => $jdata['start_date'],
+                    'next_start_date'  => $jdata['next_start_date'],
+                    'shifts'      => $jdata['shifts'],
+                    'schedule'    => $jdata['schedule'],
+                    'status'      => $jdata['status'],
+                ]);
 
-                    $new = new Job;
-                    $new->worker_id     = $jdata['worker'];
-
-                    $new->client_id     = $jdata['client_id'];
-                    $new->offer_id      = $jdata['offer_id'];
-                    $new->contract_id   = $jdata['contract_id'];
-
-                    $new->schedule_id       = $jdata['schedule_id'];
-
-                    $new->start_date    = $jdata['start_date'];
-                    $new->shifts        = $jdata['shifts'];
-                    $new->schedule      = $jdata['schedule'];
-                    $new->status        = $jdata['status'];
-
-                    $new->save();
-
-                    $service             = new JobService;
-                    $service->job_id     = $new->id;
-                    $service->service_id = $sdata['service_id'];
-                    $service->name       = $sdata['name'];
-                    $service->heb_name   = $sdata['heb_name'];
-                    $service->job_hour   = $sdata['job_hour'];
-                    $service->freq_name  = $sdata['freq_name'];
-                    $service->cycle      = $sdata['cycle'];
-                    $service->period     = $sdata['period'];
-                    $service->total      = $sdata['total'];
-
-                    $service->save();
-                }
+                JobService::create([
+                    'job_id'     => $job->id,
+                    'service_id' => $sdata['service_id'],
+                    'name'       => $sdata['name'],
+                    'heb_name'   => $sdata['heb_name'],
+                    'job_hour'   => $sdata['job_hour'],
+                    'freq_name'  => $sdata['freq_name'],
+                    'cycle'      => $sdata['cycle'],
+                    'period'     => $sdata['period'],
+                    'total'      => $sdata['total'],
+                    'config'     => $sdata['config'],
+                ]);
             }
         }
         /*End create job */
@@ -319,18 +314,25 @@ class ClientController extends Controller
     {
         $client = Client::find($id);
 
-        if (isset($client)) {
-            $contract = Contract::query()
-                ->where('client_id', $client->id)
-                ->where('status', 'verified')
-                ->get()
-                ->last();
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
-            if ($contract != null) {
-                $client->latest_contract = $contract->id;
-            } else {
-                $client->latest_contract = 0;
-            }
+        $contract = Contract::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'verified')
+            ->latest()
+            ->first();
+
+        if ($contract != null) {
+            $client->latest_contract = $contract->id;
+        } else {
+            $client->latest_contract = 0;
         }
 
         return response()->json([
@@ -347,6 +349,15 @@ class ClientController extends Controller
     public function edit($id)
     {
         $client = Client::with('property_addresses')->find($id);
+
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
         return response()->json([
             'client' => $client,
@@ -365,7 +376,7 @@ class ClientController extends Controller
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             // 'passcode'  => ['required', 'string', 'min:6'],
-            'phone'     => ['required'],
+            'phone'     => ['required', 'unique:clients,phone,' . $id],
             'status'    => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
@@ -375,6 +386,15 @@ class ClientController extends Controller
         }
 
         $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'error' => [
+                    'message' => 'Client not found!',
+                    'code' => 404
+                ]
+            ], 404);
+        }
 
         $input = $request->data;
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
@@ -405,7 +425,6 @@ class ClientController extends Controller
             $allServices = json_decode($request->jobdata['services'], true);
 
             $jds = [];
-
             foreach ($allServices as $service) {
                 $service_schedules = ServiceSchedule::find($service['frequency']);
                 $ser = Services::find($service['service']);
@@ -419,108 +438,94 @@ class ClientController extends Controller
                     $s_heb_name = $ser->heb_name;
                 }
                 $s_hour = $service['jobHours'];
-                $s_freq   = $service['freq_name'];
-                $s_cycle  = $service['cycle'];
+                $s_freq = $service['freq_name'];
+                $s_cycle = $service['cycle'];
                 $s_period = $service['period'];
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
+                $address_id = $service['address'];
 
-                $client_mail = array();
-                $client_email = '';
-
-                // // foreach($request->workers as $worker){
-                $count = 1;
-                if ($repeat_value == 'w') {
-                    $count = 3;
-                }
                 $worker = $service['worker'];
-                $shift =  $service['shift'];
+                $shift = $service['shift'];
 
-                for ($i = 0; $i < $count; $i++) {
+                $jobsArr = $this->scheduleJob(Arr::only($service, [
+                    'period',
+                    'cycle',
+                    'start_date',
+                    'weekday_occurrence',
+                    'weekday',
+                    'weekdays',
+                    'month_occurrence',
+                    'monthday_selection_type',
+                    'month_date',
+                ]));
 
-                    if (isset($service['days'])) {
-                        foreach ($service['days'] as $sd) {
-                            (!empty($service['days'])) ?
-                                $date = Carbon::today()->next($sd)
-                                : $date = Carbon::today();
-
-                            $j = 0;
-                            if ($i == 1) {
-                                $j = 7;
-                            }
-                            if ($i == 2) {
-                                $j = 14;
-                            }
-                            $job_date = $date->addDays($j)->toDateString();
-
-                            $status = 'scheduled';
-                            if (Job::where('start_date', $job_date)->where('worker_id', $worker)->exists()) {
-                                $status = 'unscheduled';
-                            }
-
-                            $jds[] = [
-                                'job' => [
-                                    'worker'      => $worker,
-                                    'client_id'   => $client->id,
-                                    'offer_id'    => $offer->id,
-                                    'contract_id' => $contract->id,
-                                    'schedule_id' => $s_id,
-                                    'start_date'  => $job_date,
-                                    'shifts'      => $shift,
-                                    'schedule'    => $repeat_value,
-                                    'status'      => $status,
-                                ],
-
-                                'service' => [
-                                    'service_id' => $s_id,
-                                    'name'       => $s_name,
-                                    'heb_name'   => $s_heb_name,
-                                    'job_hour'   => $s_hour,
-                                    'freq_name'  => $s_freq,
-                                    'cycle'      => $s_cycle,
-                                    'period'     => $s_period,
-                                    'total'      => $s_total,
-                                ]
-                            ];
-                        }
+                foreach ($jobsArr as $key => $job) {
+                    $status = 'scheduled';
+                    if (Job::where('start_date', $job['job_date'])->where('worker_id', $worker)->exists()) {
+                        $status = 'unscheduled';
                     }
+
+                    $jds[] = [
+                        'job' => [
+                            'worker'      => $worker,
+                            'client_id'   => $client->id,
+                            'offer_id'    => $offer->id,
+                            'contract_id' => $contract->id,
+                            'schedule_id' => $s_id,
+                            'start_date'  => $job['job_date'],
+                            'next_start_date'  => $job['next_job_date'],
+                            'shifts'      => $shift,
+                            'schedule'    => $repeat_value,
+                            'status'      => $status,
+                            'address_id'  => $address_id,
+                        ],
+
+                        'service' => [
+                            'service_id' => $s_id,
+                            'name'       => $s_name,
+                            'heb_name'   => $s_heb_name,
+                            'job_hour'   => $s_hour,
+                            'freq_name'  => $s_freq,
+                            'cycle'      => $s_cycle,
+                            'period'     => $s_period,
+                            'total'      => $s_total,
+                            'config'      => $job['configuration'],
+                        ]
+                    ];
                 }
             }
 
-            if (!empty($jds)) {
-                foreach ($jds as $jd) {
-                    $jdata = $jd['job'];
-                    $sdata = $jd['service'];
+            foreach ($jds as $jd) {
+                $jdata = $jd['job'];
+                $sdata = $jd['service'];
 
-                    $new = new Job;
-                    $new->worker_id     = $jdata['worker'];
+                $job = Job::create([
+                    'worker_id'   => $jdata['worker'],
+                    'address_id'  => $jdata['address_id'],
+                    'client_id'   => $jdata['client_id'],
+                    'offer_id'    => $jdata['offer_id'],
+                    'contract_id' => $jdata['contract_id'],
+                    'schedule_id' => $jdata['schedule_id'],
+                    'start_date'  => $jdata['start_date'],
+                    'next_start_date'  => $jdata['next_start_date'],
+                    'shifts'      => $jdata['shifts'],
+                    'schedule'    => $jdata['schedule'],
+                    'status'      => $jdata['status'],
+                ]);
 
-                    $new->client_id     = $jdata['client_id'];
-                    $new->offer_id      = $jdata['offer_id'];
-                    $new->contract_id   = $jdata['contract_id'];
-
-                    $new->schedule_id       = $jdata['schedule_id'];
-
-                    $new->start_date    = $jdata['start_date'];
-                    $new->shifts        = $jdata['shifts'];
-                    $new->schedule      = $jdata['schedule'];
-                    $new->status        = $jdata['status'];
-
-                    $new->save();
-
-                    $service             = new JobService;
-                    $service->job_id     = $new->id;
-                    $service->service_id = $sdata['service_id'];
-                    $service->name       = $sdata['name'];
-                    $service->heb_name   = $sdata['heb_name'];
-                    $service->job_hour   = $sdata['job_hour'];
-                    $service->freq_name  = $sdata['freq_name'];
-                    $service->cycle      = $sdata['cycle'];
-                    $service->period     = $sdata['period'];
-                    $service->total      = $sdata['total'];
-
-                    $service->save();
-                }
+                JobService::create([
+                    'job_id'     => $job->id,
+                    'service_id' => $sdata['service_id'],
+                    'name'       => $sdata['name'],
+                    'heb_name'   => $sdata['heb_name'],
+                    'job_hour'   => $sdata['job_hour'],
+                    'freq_name'  => $sdata['freq_name'],
+                    'cycle'      => $sdata['cycle'],
+                    'period'     => $sdata['period'],
+                    'total'      => $sdata['total'],
+                    'config'     => $sdata['config'],
+                ]);
             }
         }
         /*End create job */

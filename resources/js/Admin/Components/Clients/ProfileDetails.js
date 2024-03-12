@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Notes from "./Notes";
 import Files from "./Files";
+import PropertyAddressTable from "../common/PropertyAddressTable";
 
 export default function ProfileDetails({
     client,
@@ -185,6 +186,18 @@ export default function ProfileDetails({
                                         Files
                                     </a>
                                 </li>
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="property-address-tab"
+                                        className="nav-link"
+                                        data-toggle="tab"
+                                        href="#tab-property-address"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        Property addresses
+                                    </a>
+                                </li>
                             </ul>
                             <div className="tab-content">
                                 <div
@@ -336,6 +349,14 @@ export default function ProfileDetails({
                                     aria-labelledby="rejected-tab"
                                 >
                                     <Files />
+                                </div>
+                                <div
+                                    id="tab-property-address"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="rejected-tab"
+                                >
+                                    <PropertyAddressTable clientId={param.id} />
                                 </div>
                             </div>
                         </div>

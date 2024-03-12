@@ -46,8 +46,8 @@ export default function Jobs({ contracts, client }) {
     const getJobs = (filter) => {
         axios
             .post(
-                `/api/admin/get-client-jobs?` + filter,
-                { cid: params.id },
+                `/api/admin/clients/${params.id}/jobs?` + filter,
+                {},
                 { headers }
             )
             .then((res) => {
@@ -96,11 +96,11 @@ export default function Jobs({ contracts, client }) {
         let currentPage = data.selected + 1;
         axios
             .post(
-                `/api/admin/get-client-jobs?` +
+                `/api/admin/clients/${params.id}/jobs?` +
                     filtered +
                     "&page=" +
                     currentPage,
-                { cid: params.id },
+                {},
                 { headers }
             )
             .then((response) => {

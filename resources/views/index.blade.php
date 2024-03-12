@@ -17,6 +17,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"> 
+    <style>
+        .pac-container {
+            z-index: 999999 !important;
+        }
+        #__react-alert__ {
+            z-index: 1051 !important;
+            position: absolute;
+        }
+        </style>
 </head>
 <body>
 

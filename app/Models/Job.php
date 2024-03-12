@@ -27,7 +27,20 @@ class Job extends Model
         'rate',
         'invoice_no',
         'invoice_url',
-        'status'
+        'status',
+        'address_id',
+        'next_start_date',
+        'is_next_job_created'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'next_start_date' => 'datetime',
+        'is_next_job_created' => 'boolean',
     ];
 
     public function worker()
@@ -74,7 +87,10 @@ class Job extends Model
     {
         return $this->hasMany(Invoices::class, 'job_id');
     }
-
+    public function propertyAddress()
+    {
+        return $this->belongsTo(ClientPropertyAddress::class, 'address_id');
+    }
     public static function boot()
     {
         parent::boot();

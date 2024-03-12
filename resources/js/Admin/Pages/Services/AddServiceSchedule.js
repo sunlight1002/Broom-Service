@@ -13,7 +13,7 @@ export default function AddServiceSchedule() {
     const [errors, setErrors] = useState([]);
     const pe = [
         { value: "na", label: "Not Required" },
-        { value: "D", label: "Day" },
+        { value: "d", label: "Day" },
         { value: "w", label: "Week" },
         { value: "2w", label: "2 Weeks" },
         { value: "3w", label: "3 Weeks" },
@@ -52,7 +52,7 @@ export default function AddServiceSchedule() {
                 } else {
                     alert.success("Schedule has been created successfully");
                     setTimeout(() => {
-                        navigate("/admin/service-schedule");
+                        navigate("/admin/service-schedules");
                     }, 1000);
                 }
             });

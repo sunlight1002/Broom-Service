@@ -42,7 +42,6 @@ export default function ViewOffer() {
                                     let services = ofr.services
                                         ? JSON.parse(ofr.services)
                                         : "";
-
                                     return (
                                         <div className="ViewOffer" key={i}>
                                             <svg
@@ -85,12 +84,12 @@ export default function ViewOffer() {
                                                             " " +
                                                             cl.lastname}
                                                     </p>
-                                                    <p>{cl.street_n_no}</p>
+                                                    {/* <p>{cl.street_n_no}</p>
                                                     <p>
                                                         {cl.city +
                                                             ", " +
                                                             cl.zipcode}
-                                                    </p>
+                                                    </p> */}
                                                     <p>
                                                         Phone:{" "}
                                                         <span>{cl.phone}</span>
@@ -133,6 +132,13 @@ export default function ViewOffer() {
                                                         <table className="table table-sm">
                                                             <thead>
                                                                 <tr>
+                                                                    <th
+                                                                        style={{
+                                                                            width: "30%",
+                                                                        }}
+                                                                    >
+                                                                        Address
+                                                                    </th>
                                                                     <th
                                                                         style={{
                                                                             width: "20%",
@@ -209,6 +215,13 @@ export default function ViewOffer() {
                                                                                         i
                                                                                     }
                                                                                 >
+                                                                                    <td>
+                                                                                        {s.address
+                                                                                            ? s
+                                                                                                  .address
+                                                                                                  .geo_address
+                                                                                            : "NA"}
+                                                                                    </td>
                                                                                     {s.service ==
                                                                                     10 ? (
                                                                                         <td>

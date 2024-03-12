@@ -32,7 +32,7 @@ class LeadController extends Controller
         $q = $request->q;
         $c = $request->condition;
 
-        $result = Client::with('meetings', 'offers')->with('lead_status');
+        $result = Client::with(['meetings', 'offers', 'lead_status']);
 
         if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
 
@@ -106,6 +106,7 @@ class LeadController extends Controller
         $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
             'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
+            'phone'     => ['nullable', 'unique:clients'],
         ]);
 
         if ($validator->fails()) {
@@ -215,6 +216,7 @@ class LeadController extends Controller
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
+            'phone'     => ['nullable', 'unique:clients,phone,' . $id],
         ]);
 
         if ($validator->fails()) {
