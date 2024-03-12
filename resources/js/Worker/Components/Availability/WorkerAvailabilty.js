@@ -148,8 +148,8 @@ export default function WorkerAvailabilty() {
     };
     const getTime = () => {
         axios.get(`/api/get-time`, { headers }).then((res) => {
-            if (res.data.time.length > 0) {
-                let ar = JSON.parse(res.data.time[0].days);
+            if (res.data.data) {
+                let ar = JSON.parse(res.data.data.days);
                 let ai = [];
                 ar && ar.map((a, i) => ai.push(parseInt(a)));
                 var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {

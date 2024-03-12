@@ -5,7 +5,6 @@ import axios from "axios";
 import { useAlert } from "react-alert";
 
 export default function ManageTime() {
-    const [time, setTime] = useState([]);
     const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -46,7 +45,25 @@ export default function ManageTime() {
     };
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
-            res.data.time.length > 0 ? setTime(res.data.time) : setTime([]);
+            if (res.data.data) {
+                let aday = res.data.data.days
+                    ? JSON.parse(res.data.data.days)
+                    : [];
+
+                const ds = document.querySelectorAll('input[type="checkbox"]');
+                const st = document.querySelector("#timing_starts");
+                const et = document.querySelector("#timing_ends");
+
+                aday.includes("0") ? ds[0].setAttribute("checked", true) : "";
+                aday.includes("1") ? ds[1].setAttribute("checked", true) : "";
+                aday.includes("2") ? ds[2].setAttribute("checked", true) : "";
+                aday.includes("3") ? ds[3].setAttribute("checked", true) : "";
+                aday.includes("4") ? ds[4].setAttribute("checked", true) : "";
+                aday.includes("5") ? ds[5].setAttribute("checked", true) : "";
+                aday.includes("6") ? ds[6].setAttribute("checked", true) : "";
+                st.value = res.data.data.start_time;
+                et.value = res.data.data.end_time;
+            }
         });
     };
 
@@ -54,22 +71,6 @@ export default function ManageTime() {
         getTime();
     }, []);
 
-    const ds = document.querySelectorAll('input[type="checkbox"]');
-    const st = document.querySelector("#timing_starts");
-    const et = document.querySelector("#timing_ends");
-    time &&
-        time.map((t, i) => {
-            let aday = t.days ? JSON.parse(t.days) : [];
-            aday.includes("0") ? ds[0].setAttribute("checked", true) : "";
-            aday.includes("1") ? ds[1].setAttribute("checked", true) : "";
-            aday.includes("2") ? ds[2].setAttribute("checked", true) : "";
-            aday.includes("3") ? ds[3].setAttribute("checked", true) : "";
-            aday.includes("4") ? ds[4].setAttribute("checked", true) : "";
-            aday.includes("5") ? ds[5].setAttribute("checked", true) : "";
-            aday.includes("6") ? ds[6].setAttribute("checked", true) : "";
-            st.value = t.start_time;
-            et.value = t.end_time;
-        });
     return (
         <div id="container">
             <Sidebar />

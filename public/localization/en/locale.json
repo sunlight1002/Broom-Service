@@ -379,7 +379,7 @@
             "id": "ID",
             "attender": "Meeting Attender",
             "scheduled": "Scheduled",
-            "status": "Booking Status",
+            "status": "Status",
             "files": "Files",
             "cfiles": {
                 "title": "Meeting Files",

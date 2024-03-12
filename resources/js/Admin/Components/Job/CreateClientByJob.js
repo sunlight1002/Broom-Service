@@ -18,6 +18,7 @@ export default function CreateClientByJob() {
     const [selected_service, setSelectedService] = useState("");
     const [data, setData] = useState([]);
     const [c_time, setCTime] = useState(0);
+    const [nextweek, setNextweek] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -51,6 +52,11 @@ export default function CreateClientByJob() {
     useEffect(() => {
         getJob();
     }, []);
+
+    useEffect(() => {
+        nextweekArr();
+    }, [interval]);
+
     const getJobs = () => {
         axios.get("/api/admin/get-all-jobs", { headers }).then((res) => {
             setAllJobs(res.data.jobs);
@@ -65,10 +71,10 @@ export default function CreateClientByJob() {
     };
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
-            if (res.data.time.length > 0) {
-                setStartSlot(res.data.time[0].start_time);
-                setEndSlot(res.data.time[0].end_time);
-                let ar = JSON.parse(res.data.time[0].days);
+            if (res.data.data) {
+                setStartSlot(res.data.data.start_time);
+                setEndSlot(res.data.data.end_time);
+                let ar = JSON.parse(res.data.data.days);
                 let ai = [];
                 ar && ar.map((a, i) => ai.push(parseInt(a)));
                 var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
@@ -133,7 +139,6 @@ export default function CreateClientByJob() {
 
     let curr = new Date();
     let week = [];
-    let nextweek = [];
     let nextnextweek = [];
     for (let i = 0; i < 7; i++) {
         let first = curr.getDate() - curr.getDay() + i;
@@ -147,16 +152,22 @@ export default function CreateClientByJob() {
         }
     }
 
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 7 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextweek.push(firstday);
+    const nextweekArr = () => {
+        let _nextweek = [];
+
+        for (let i = 0; i < 7; i++) {
+            if (!interval.includes(i)) {
+                var today = new Date();
+                var first = today.getDate() - today.getDay() + 7 + i;
+                var firstday = new Date(today.setDate(first))
+                    .toISOString()
+                    .slice(0, 10);
+                _nextweek.push(firstday);
+            }
         }
-    }
+        setNextweek(_nextweek);
+    };
+
     for (let i = 0; i < 7; i++) {
         if (!interval.includes(i)) {
             var today = new Date();
@@ -219,10 +230,6 @@ export default function CreateClientByJob() {
             { value: 2, label: "night -20pm-24pm" },
         ],
     };
-    const colourOptions1 = [
-        { value: 0, label: "full day - 8am-16pm" },
-        { value: 1, label: "morning - 8-12pm" },
-    ];
     const changeShift = (w_id, date, e) => {
         let w_n = $("#worker-" + w_id).html();
         let filtered = data.filter((d) => {
@@ -559,108 +566,125 @@ export default function CreateClientByJob() {
                     aria-labelledby="current-job"
                 >
                     <Table className="table table-bordered crt-jb">
-                        <Tr>
-                            <Td align="center">Worker</Td>
-                            {nextweek.map((element, index) => (
-                                <Td align="center" key={index}>
-                                    {moment(element).toString().slice(0, 15)}
-                                </Td>
-                            ))}
-                        </Tr>
-                        {AllWorkers.map((w, _aIndex) => {
-                            let aval = w.aval ? w.aval : [];
-                            let wjobs = w.wjobs ? w.wjobs : [];
-                            return (
-                                <Tr key={_aIndex}>
-                                    <Td align="center">
-                                        <span id={`worker-${w.id}`}>
-                                            {w.firstname} {w.lastname}
-                                        </span>
+                        <Tbody>
+                            <Tr>
+                                <Td align="center">Worker</Td>
+                                {nextweek.map((element, index) => (
+                                    <Td align="center" key={index}>
+                                        {moment(element)
+                                            .toString()
+                                            .slice(0, 15)}
                                     </Td>
-                                    {nextweek.map((element, _nIndex) => {
-                                        let shifts = wjobs[element]
-                                            ? wjobs[element].split(",")
-                                            : [];
-                                        let sav =
-                                            shifts.length > 0
-                                                ? filterOptions(
-                                                      colourOptions[
-                                                          aval[element]
-                                                      ],
-                                                      shifts
-                                                  )
+                                ))}
+                            </Tr>
+                            {AllWorkers.map((w, _aIndex) => {
+                                let aval = w.aval ? w.aval : [];
+                                let wjobs = w.wjobs ? w.wjobs : [];
+                                return (
+                                    <Tr key={_aIndex}>
+                                        <Td align="center">
+                                            <span id={`worker-${w.id}`}>
+                                                {w.firstname} {w.lastname}
+                                            </span>
+                                        </Td>
+                                        {nextweek.map((element, _nIndex) => {
+                                            let shifts = wjobs[element]
+                                                ? wjobs[element].split(",")
                                                 : [];
-                                        let list =
-                                            shifts.length > 0 ? true : false;
+                                            let sav =
+                                                shifts.length > 0
+                                                    ? filterOptions(
+                                                          colourOptions[
+                                                              aval[element]
+                                                          ],
+                                                          shifts
+                                                      )
+                                                    : [];
+                                            let list =
+                                                shifts.length > 0
+                                                    ? true
+                                                    : false;
 
-                                        return (
-                                            <Td align="center" key={_nIndex}>
-                                                {list ? (
-                                                    <span className="text-primary">
-                                                        {"Partial Day"}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-success">
-                                                        {person[aval[element]]}
-                                                    </span>
-                                                )}
+                                            return (
+                                                <Td
+                                                    align="center"
+                                                    key={_nIndex}
+                                                >
+                                                    {list ? (
+                                                        <span className="text-primary">
+                                                            {"Partial Day"}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-success">
+                                                            {
+                                                                person[
+                                                                    aval[
+                                                                        element
+                                                                    ]
+                                                                ]
+                                                            }
+                                                        </span>
+                                                    )}
 
-                                                {shifts.map((s, i) => {
-                                                    return (
-                                                        <div
-                                                            className="text-danger"
-                                                            key={i}
-                                                        >
-                                                            {s}
-                                                        </div>
-                                                    );
-                                                })}
-
-                                                {list &&
-                                                    sav.map((s, i) => {
+                                                    {shifts.map((s, i) => {
                                                         return (
                                                             <div
-                                                                className="text-success"
+                                                                className="text-danger"
                                                                 key={i}
                                                             >
-                                                                {s.label}
+                                                                {s}
                                                             </div>
                                                         );
                                                     })}
 
-                                                {aval[element] &&
-                                                aval[element] != "" ? (
-                                                    <Select
-                                                        isMulti
-                                                        name="colors"
-                                                        options={filterOptions(
-                                                            colourOptions[
-                                                                aval[element]
-                                                            ],
-                                                            shifts
-                                                        )}
-                                                        className="basic-multi-single"
-                                                        isClearable={true}
-                                                        classNamePrefix="select"
-                                                        onChange={(e) =>
-                                                            changeShift(
-                                                                w.id,
-                                                                element,
-                                                                e
-                                                            )
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <div className="text-danger">
-                                                        Not Available
-                                                    </div>
-                                                )}
-                                            </Td>
-                                        );
-                                    })}
-                                </Tr>
-                            );
-                        })}
+                                                    {list &&
+                                                        sav.map((s, i) => {
+                                                            return (
+                                                                <div
+                                                                    className="text-success"
+                                                                    key={i}
+                                                                >
+                                                                    {s.label}
+                                                                </div>
+                                                            );
+                                                        })}
+
+                                                    {aval[element] &&
+                                                    aval[element] != "" ? (
+                                                        <Select
+                                                            isMulti
+                                                            name="colors"
+                                                            options={filterOptions(
+                                                                colourOptions[
+                                                                    aval[
+                                                                        element
+                                                                    ]
+                                                                ],
+                                                                shifts
+                                                            )}
+                                                            className="basic-multi-single"
+                                                            isClearable={true}
+                                                            classNamePrefix="select"
+                                                            onChange={(e) =>
+                                                                changeShift(
+                                                                    w.id,
+                                                                    element,
+                                                                    e
+                                                                )
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <div className="text-danger">
+                                                            Not Available
+                                                        </div>
+                                                    )}
+                                                </Td>
+                                            );
+                                        })}
+                                    </Tr>
+                                );
+                            })}
+                        </Tbody>
                     </Table>
                 </div>
                 <div
@@ -670,108 +694,131 @@ export default function CreateClientByJob() {
                     aria-labelledby="current-job"
                 >
                     <Table className="table table-bordered crt-jb">
-                        <Tr>
-                            <Td align="center">Worker</Td>
-                            {nextnextweek.map((element, index) => (
-                                <Td align="center" key={index}>
-                                    {moment(element).toString().slice(0, 15)}
-                                </Td>
-                            ))}
-                        </Tr>
-                        {AllWorkers.map((w, _aIndex) => {
-                            let aval = w.aval ? w.aval : [];
-                            let wjobs = w.wjobs ? w.wjobs : [];
-                            return (
-                                <Tr key={_aIndex}>
-                                    <Td align="center">
-                                        <span id={`worker-${w.id}`}>
-                                            {w.firstname} {w.lastname}
-                                        </span>
+                        <Tbody>
+                            <Tr>
+                                <Td align="center">Worker</Td>
+                                {nextnextweek.map((element, index) => (
+                                    <Td align="center" key={index}>
+                                        {moment(element)
+                                            .toString()
+                                            .slice(0, 15)}
                                     </Td>
-                                    {nextnextweek.map((element, _nIndex) => {
-                                        let shifts = wjobs[element]
-                                            ? wjobs[element].split(",")
-                                            : [];
-                                        let sav =
-                                            shifts.length > 0
-                                                ? filterOptions(
-                                                      colourOptions[
-                                                          aval[element]
-                                                      ],
-                                                      shifts
-                                                  )
-                                                : [];
-                                        let list =
-                                            shifts.length > 0 ? true : false;
+                                ))}
+                            </Tr>
+                            {AllWorkers.map((w, _aIndex) => {
+                                let aval = w.aval ? w.aval : [];
+                                let wjobs = w.wjobs ? w.wjobs : [];
+                                return (
+                                    <Tr key={_aIndex}>
+                                        <Td align="center">
+                                            <span id={`worker-${w.id}`}>
+                                                {w.firstname} {w.lastname}
+                                            </span>
+                                        </Td>
+                                        {nextnextweek.map(
+                                            (element, _nIndex) => {
+                                                let shifts = wjobs[element]
+                                                    ? wjobs[element].split(",")
+                                                    : [];
+                                                let sav =
+                                                    shifts.length > 0
+                                                        ? filterOptions(
+                                                              colourOptions[
+                                                                  aval[element]
+                                                              ],
+                                                              shifts
+                                                          )
+                                                        : [];
+                                                let list =
+                                                    shifts.length > 0
+                                                        ? true
+                                                        : false;
 
-                                        return (
-                                            <Td align="center" key={_nIndex}>
-                                                {list ? (
-                                                    <span className="text-primary">
-                                                        {"Partial Day"}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-success">
-                                                        {person[aval[element]]}
-                                                    </span>
-                                                )}
-
-                                                {shifts.map((s, i) => {
-                                                    return (
-                                                        <div
-                                                            className="text-danger"
-                                                            key={i}
-                                                        >
-                                                            {s}
-                                                        </div>
-                                                    );
-                                                })}
-
-                                                {list &&
-                                                    sav.map((s, i) => {
-                                                        return (
-                                                            <div
-                                                                className="text-success"
-                                                                key={i}
-                                                            >
-                                                                {s.label}
-                                                            </div>
-                                                        );
-                                                    })}
-
-                                                {aval[element] &&
-                                                aval[element] != "" ? (
-                                                    <Select
-                                                        isMulti
-                                                        name="colors"
-                                                        options={filterOptions(
-                                                            colourOptions[
-                                                                aval[element]
-                                                            ],
-                                                            shifts
+                                                return (
+                                                    <Td
+                                                        align="center"
+                                                        key={_nIndex}
+                                                    >
+                                                        {list ? (
+                                                            <span className="text-primary">
+                                                                {"Partial Day"}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-success">
+                                                                {
+                                                                    person[
+                                                                        aval[
+                                                                            element
+                                                                        ]
+                                                                    ]
+                                                                }
+                                                            </span>
                                                         )}
-                                                        className="basic-multi-single"
-                                                        isClearable={true}
-                                                        classNamePrefix="select"
-                                                        onChange={(e) =>
-                                                            changeShift(
-                                                                w.id,
-                                                                element,
-                                                                e
-                                                            )
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <div className="text-danger">
-                                                        Not Available
-                                                    </div>
-                                                )}
-                                            </Td>
-                                        );
-                                    })}
-                                </Tr>
-                            );
-                        })}
+
+                                                        {shifts.map((s, i) => {
+                                                            return (
+                                                                <div
+                                                                    className="text-danger"
+                                                                    key={i}
+                                                                >
+                                                                    {s}
+                                                                </div>
+                                                            );
+                                                        })}
+
+                                                        {list &&
+                                                            sav.map((s, i) => {
+                                                                return (
+                                                                    <div
+                                                                        className="text-success"
+                                                                        key={i}
+                                                                    >
+                                                                        {
+                                                                            s.label
+                                                                        }
+                                                                    </div>
+                                                                );
+                                                            })}
+
+                                                        {aval[element] &&
+                                                        aval[element] != "" ? (
+                                                            <Select
+                                                                isMulti
+                                                                name="colors"
+                                                                options={filterOptions(
+                                                                    colourOptions[
+                                                                        aval[
+                                                                            element
+                                                                        ]
+                                                                    ],
+                                                                    shifts
+                                                                )}
+                                                                className="basic-multi-single"
+                                                                isClearable={
+                                                                    true
+                                                                }
+                                                                classNamePrefix="select"
+                                                                onChange={(e) =>
+                                                                    changeShift(
+                                                                        w.id,
+                                                                        element,
+                                                                        e
+                                                                    )
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            <div className="text-danger">
+                                                                Not Available
+                                                            </div>
+                                                        )}
+                                                    </Td>
+                                                );
+                                            }
+                                        )}
+                                    </Tr>
+                                );
+                            })}
+                        </Tbody>
                     </Table>
                 </div>
             </div>
@@ -822,44 +869,54 @@ export default function CreateClientByJob() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <td>{clientname}</td>
-                                            <td>
-                                                {" "}
-                                                {services &&
-                                                    services.map(
-                                                        (item, index) => {
-                                                            return (
+                                            <tr>
+                                                <td>{clientname}</td>
+                                                <td>
+                                                    {" "}
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => {
+                                                                return (
+                                                                    <p
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        {item.service ==
+                                                                        "10"
+                                                                            ? item.other_title
+                                                                            : item.name}
+                                                                    </p>
+                                                                );
+                                                            }
+                                                        )}
+                                                </td>
+                                                <td>
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => (
                                                                 <p key={index}>
-                                                                    {item.service ==
-                                                                    "10"
-                                                                        ? item.other_title
-                                                                        : item.name}
+                                                                    {
+                                                                        item.freq_name
+                                                                    }
                                                                 </p>
-                                                            );
-                                                        }
-                                                    )}
-                                            </td>
-                                            <td>
-                                                {services &&
-                                                    services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item.freq_name}
-                                                            </p>
-                                                        )
-                                                    )}
-                                            </td>
-                                            <td>
-                                                {services &&
-                                                    services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item.jobHours}{" "}
-                                                                hours
-                                                            </p>
-                                                        )
-                                                    )}
-                                            </td>
+                                                            )
+                                                        )}
+                                                </td>
+                                                <td>
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => (
+                                                                <p key={index}>
+                                                                    {
+                                                                        item.jobHours
+                                                                    }{" "}
+                                                                    hours
+                                                                </p>
+                                                            )
+                                                        )}
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -948,7 +1005,10 @@ export default function CreateClientByJob() {
                                         {services &&
                                             services.map((item, index) => {
                                                 return (
-                                                    <option value={index}>
+                                                    <option
+                                                        value={index}
+                                                        key={index}
+                                                    >
                                                         {item.service != "10"
                                                             ? item.name
                                                             : item.other_title}{" "}

@@ -234,7 +234,7 @@ export default function Schedule() {
                                                         );
                                                     }}
                                                 >
-                                                    Booking Status{" "}
+                                                    Status{" "}
                                                     <span className="arr">
                                                         {" "}
                                                         &darr;{" "}

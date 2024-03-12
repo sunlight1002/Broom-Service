@@ -57,20 +57,20 @@ class ClientEmailController extends Controller
 
   public function AcceptOffer(Request $request)
   {
-    Offer::where('id', $request->id)
-      ->update([
-        'status' => 'accepted'
-      ]);
-
-    $ofr = Offer::query()
+    $offer = Offer::query()
       ->with('client')
-      ->find($request->id)
-      ->toArray();
+      ->find($request->id);
+
+    $offer->update([
+      'status' => 'accepted'
+    ]);
+
+    $ofr = $offer->toArray();
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
       'type' => 'accept-offer',
-      'offer_id' => $request->id,
+      'offer_id' => $offer->id,
       'status' => 'accepted'
     ]);
 
@@ -87,7 +87,7 @@ class ClientEmailController extends Controller
     $hash = md5($ofr['client']['email'] . $ofr['id']);
 
     $contract = Contract::create([
-      'offer_id'   => $request->id,
+      'offer_id'   => $offer->id,
       'client_id'  => $ofr['client']['id'],
       'unique_hash' => $hash,
       'status'     => ContractStatusEnum::NOT_SIGNED

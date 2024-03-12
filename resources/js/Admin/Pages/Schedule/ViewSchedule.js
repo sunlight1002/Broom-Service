@@ -195,10 +195,10 @@ export default function ViewSchedule() {
 
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
-            if (res.data.time.length > 0) {
-                setStartSlot(res.data.time[0].start_time);
-                setEndSlot(res.data.time[0].end_time);
-                let ar = JSON.parse(res.data.time[0].days);
+            if (res.data.data) {
+                setStartSlot(res.data.data.start_time);
+                setEndSlot(res.data.data.end_time);
+                let ar = JSON.parse(res.data.data.days);
                 let ai = [];
                 ar && ar.map((a, i) => ai.push(parseInt(a)));
                 var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
