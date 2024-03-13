@@ -126,16 +126,8 @@ export default function AddLeadClient() {
             .then((res) => {});
     };
 
-    const addPhone = (e) => {
-        e.preventDefault();
-        var cont = document.querySelectorAll(".phone")[0].firstChild.innerHTML;
-        var htm = "<div className='form-group'>" + cont + "</div>";
-        document.querySelector(".phone").innerHTML += htm;
-    };
-
     /*  Job Add */
     const [formValues, setFormValues] = useState([]);
-    const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllFreq, setAllFreq] = useState([]);
     const handleSave = (indexKey, tmpJobData) => {
@@ -154,11 +146,6 @@ export default function AddLeadClient() {
         setFormValues(newFormValues);
     };
 
-    const getClients = () => {
-        axios.get("/api/admin/all-clients", { headers }).then((res) => {
-            setAllClients(res.data.clients);
-        });
-    };
     const getServices = (lng) => {
         axios
             .post("/api/admin/all-services", { lng }, { headers })
@@ -225,7 +212,6 @@ export default function AddLeadClient() {
 
     useEffect(() => {
         // getLead();
-        getClients();
         handleServiceLng("heb");
         getClient();
     }, []);

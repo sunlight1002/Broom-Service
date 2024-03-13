@@ -5,86 +5,28 @@ import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
+import OfferServiceMenu from "../../Pages/OfferPrice/OfferServiceMenu";
 
 export default function AddOffer() {
     const alert = useAlert();
     const navigate = useNavigate();
-    const [type, setType] = useState();
     const queryParams = new URLSearchParams(window.location.search);
     const cid = parseInt(queryParams.get("c"));
-    const [client, setClient] = useState(cid != null ? cid : "");
-    const [formValues, setFormValues] = useState([
-        {
-            service: "",
-            name: "",
-            type: "",
-            freq_name: "",
-            frequency: "",
-            fixed_price: "",
-            jobHours: "",
-            rateperhour: "",
-            other_title: "",
-            totalamount: "",
-            template: "",
-            cycle: "",
-            period: "",
-        },
-    ]);
-    const [AllClients, setAllClients] = useState([]);
-    const [AllServices, setAllServices] = useState([]);
-    const [AllFreq, setAllFreq] = useState([]);
+    const [clientID, setClientID] = useState(cid != null ? cid : "");
+    const [formValues, setFormValues] = useState([]);
+    const [services, setServices] = useState([]);
+    const [frequencies, setFrequencies] = useState([]);
+    const [addresses, setAddresses] = useState([]);
+    const [clientOptions, setClientOptions] = useState([]);
 
-    let handleChange = (i, e) => {
+    const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
-
-        var h =
-            e.target.parentNode.parentNode.childNodes[1].childNodes[0].value;
-        var rh =
-            e.target.parentNode.parentNode.childNodes[2].childNodes[0].value;
-        if (rh != "" && h != "")
-            e.target.parentNode.parentNode.childNodes[3].childNodes[0].setAttribute(
-                "value",
-                h * rh
-            );
-
-        newFormValues[i][e.target.name] = e.target.value;
-        if (e.target.name == "service") {
-            newFormValues[i]["name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["template"] =
-                e.target.options[e.target.selectedIndex].getAttribute(
-                    "template"
-                );
-        }
-        if (e.target.name == "frequency") {
-            newFormValues[i]["freq_name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-            newFormValues[i]["cycle"] =
-                e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newFormValues[i]["period"] =
-                e.target.options[e.target.selectedIndex].getAttribute("period");
+        if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
+            newFormValues[indexKey] = tmpJobData;
+        } else {
+            newFormValues = [...formValues, tmpJobData];
         }
         setFormValues(newFormValues);
-    };
-    let addFormFields = () => {
-        setFormValues([
-            ...formValues,
-            {
-                service: "",
-                name: "",
-                type: "",
-                freq_name: "",
-                frequency: "",
-                fixed_price: "",
-                jobHours: "",
-                rateperhour: "",
-                other_title: "",
-                totalamount: "",
-                template: "",
-                cycle: "",
-                period: "",
-            },
-        ]);
     };
 
     let removeFormFields = (i) => {
@@ -99,28 +41,48 @@ export default function AddOffer() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const getSelectedClient = () => {
+        axios
+            .get(`/api/admin/clients/${clientID}/edit`, { headers })
+            .then((response) => {
+                if (response.data.client) {
+                    setAddresses(response.data.client.property_addresses);
+                } else {
+                    setAddresses([]);
+                }
+            });
+    };
+
     const getClients = () => {
         axios.get("/api/admin/all-clients", { headers }).then((res) => {
-            setAllClients(res.data.clients);
+            setClientOptions(
+                res.data.clients.map((c, i) => {
+                    return {
+                        value: c.id,
+                        label: c.firstname + " " + c.lastname,
+                    };
+                })
+            );
         });
     };
+
     const getServices = (lng) => {
         axios
             .post("/api/admin/all-services", { lng }, { headers })
             .then((res) => {
-                setAllServices(res.data.services);
+                setServices(res.data.services);
             });
     };
     const getFrequency = (lng) => {
         axios
             .post("/api/admin/all-service-schedule", { lng }, { headers })
             .then((res) => {
-                setAllFreq(res.data.schedules);
+                setFrequencies(res.data.schedules);
             });
     };
 
-    const handleServiceLng = (client) => {
-        axios.get(`/api/admin/clients/${client}`, { headers }).then((res) => {
+    const handleServiceLng = (_client) => {
+        axios.get(`/api/admin/clients/${_client}`, { headers }).then((res) => {
             const lng = res.data.client.lng;
             getServices(lng);
             getFrequency(lng);
@@ -133,53 +95,6 @@ export default function AddOffer() {
             handleServiceLng(cid);
         }
     }, []);
-
-    const cData = AllClients.map((c, i) => {
-        return { value: c.id, label: c.firstname + " " + c.lastname };
-    });
-
-    const handleJob = (e) => {
-        e.preventDefault();
-        setFormValues([
-            {
-                service: "",
-                name: "",
-                type: "",
-                freq_name: "",
-                frequency: "",
-                fixed_price: "",
-                jobHours: "",
-                rateperhour: "",
-                other_title: "",
-                totalamount: "",
-            },
-        ]);
-        let v = e.target.value;
-        let th = document.querySelectorAll(".table th");
-        if (v == "hourly") {
-            th[3].style.display = "none";
-            th[4].style.display = "table-cell";
-        } else {
-            th[3].style.display = "table-cell";
-            th[4].style.display = "none";
-        }
-    };
-    const handleType = (e) => {
-        let fixed_field =
-            e.target.parentNode.nextSibling.nextElementSibling
-                .nextElementSibling;
-        let per_hour_field =
-            e.target.parentNode.nextSibling.nextElementSibling
-                .nextElementSibling.nextElementSibling;
-
-        if (e.target.value == "hourly") {
-            fixed_field.style.display = "none";
-            per_hour_field.style.display = "block";
-        } else {
-            fixed_field.style.display = "block";
-            per_hour_field.style.display = "none";
-        }
-    };
 
     let handleSubmit = (event) => {
         event.preventDefault();
@@ -235,7 +150,7 @@ export default function AddOffer() {
 
         let tax = (taxper / 100) * to;
         const data = {
-            client_id: client,
+            client_id: clientID,
             status: "sent",
             subtotal: to,
             total: to + tax,
@@ -262,16 +177,12 @@ export default function AddOffer() {
             }
         });
     };
-    const handleOther = (e) => {
-        let el = e.target.parentNode.lastChild;
-        if (e.target.value == 10) {
-            el.style.display = "block";
-            el.style.marginBlock = "8px";
-            el.style.width = "150%";
-        } else {
-            el.style.display = "none";
+
+    useEffect(() => {
+        if (clientID) {
+            getSelectedClient();
         }
-    };
+    }, [clientID]);
 
     return (
         <div id="container">
@@ -289,10 +200,10 @@ export default function AddOffer() {
                                                 Client Name
                                             </label>
                                             <SelectPicker
-                                                data={cData}
-                                                value={client}
+                                                data={clientOptions}
+                                                value={clientID}
                                                 onChange={(value, event) => {
-                                                    setClient(value);
+                                                    setClientID(value);
                                                     handleServiceLng(value);
                                                 }}
                                                 size="lg"
@@ -307,385 +218,16 @@ export default function AddOffer() {
                                                 </h3>
                                             </div>
                                             <div className="card-body">
-                                                <div className="table-responsive">
-                                                    <table className="table table-sm">
-                                                        <thead>
-                                                            <tr>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                    }}
-                                                                >
-                                                                    Service
-                                                                </th>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                    }}
-                                                                >
-                                                                    Type
-                                                                </th>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                    }}
-                                                                >
-                                                                    Frequency
-                                                                </th>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                    }}
-                                                                >
-                                                                    Job Hours
-                                                                </th>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                    }}
-                                                                >
-                                                                    Price
-                                                                </th>
-                                                                <th
-                                                                    style={{
-                                                                        width: "20%",
-                                                                        display:
-                                                                            "none",
-                                                                    }}
-                                                                >
-                                                                    Rate Per
-                                                                    Hour
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {formValues.map(
-                                                                (
-                                                                    element,
-                                                                    index
-                                                                ) => (
-                                                                    <tr
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        <td>
-                                                                            <select
-                                                                                name="service"
-                                                                                className="form-control"
-                                                                                value={
-                                                                                    element.service ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) => {
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    );
-                                                                                    handleOther(
-                                                                                        e
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                <option
-                                                                                    selected
-                                                                                    value={
-                                                                                        0
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    --
-                                                                                    Please
-                                                                                    select
-                                                                                    --
-                                                                                </option>
-                                                                                {AllServices &&
-                                                                                    AllServices.map(
-                                                                                        (
-                                                                                            s,
-                                                                                            i
-                                                                                        ) => {
-                                                                                            return (
-                                                                                                <option
-                                                                                                    name={
-                                                                                                        s.name
-                                                                                                    }
-                                                                                                    template={
-                                                                                                        s.template
-                                                                                                    }
-                                                                                                    value={
-                                                                                                        s.id
-                                                                                                    }
-                                                                                                    key={
-                                                                                                        i
-                                                                                                    }
-                                                                                                >
-                                                                                                    {" "}
-                                                                                                    {
-                                                                                                        s.name
-                                                                                                    }{" "}
-                                                                                                </option>
-                                                                                            );
-                                                                                        }
-                                                                                    )}
-                                                                            </select>
-
-                                                                            <textarea
-                                                                                type="text"
-                                                                                name="other_title"
-                                                                                id={
-                                                                                    `other_title` +
-                                                                                    index
-                                                                                }
-                                                                                placeholder="Service Title"
-                                                                                style={
-                                                                                    element.other_title ==
-                                                                                    ""
-                                                                                        ? {
-                                                                                              display:
-                                                                                                  "none",
-                                                                                          }
-                                                                                        : {}
-                                                                                }
-                                                                                className="form-control"
-                                                                                value={
-                                                                                    element.other_title ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    )
-                                                                                }
-                                                                            />
-                                                                        </td>
-                                                                        <td>
-                                                                            <select
-                                                                                name="type"
-                                                                                className="form-control"
-                                                                                value={
-                                                                                    element.type ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) => {
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    );
-                                                                                    handleType(
-                                                                                        e
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                <option
-                                                                                    selected
-                                                                                    value="fixed"
-                                                                                >
-                                                                                    Fixed
-                                                                                </option>
-                                                                                <option
-                                                                                    selected
-                                                                                    value="hourly"
-                                                                                >
-                                                                                    Hourly
-                                                                                </option>
-                                                                            </select>
-                                                                        </td>
-
-                                                                        <td>
-                                                                            <select
-                                                                                name="frequency"
-                                                                                className="form-control"
-                                                                                value={
-                                                                                    element.frequency ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <option
-                                                                                    selected
-                                                                                    value={
-                                                                                        0
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    --
-                                                                                    Please
-                                                                                    select
-                                                                                    --
-                                                                                </option>
-                                                                                {AllFreq &&
-                                                                                    AllFreq.map(
-                                                                                        (
-                                                                                            s,
-                                                                                            i
-                                                                                        ) => {
-                                                                                            return (
-                                                                                                <option
-                                                                                                    cycle={
-                                                                                                        s.cycle
-                                                                                                    }
-                                                                                                    period={
-                                                                                                        s.period
-                                                                                                    }
-                                                                                                    name={
-                                                                                                        s.name
-                                                                                                    }
-                                                                                                    value={
-                                                                                                        s.id
-                                                                                                    }
-                                                                                                    key={
-                                                                                                        i
-                                                                                                    }
-                                                                                                >
-                                                                                                    {" "}
-                                                                                                    {
-                                                                                                        s.name
-                                                                                                    }{" "}
-                                                                                                </option>
-                                                                                            );
-                                                                                        }
-                                                                                    )}
-                                                                            </select>
-                                                                        </td>
-
-                                                                        <td>
-                                                                            <input
-                                                                                type="number"
-                                                                                name="jobHours"
-                                                                                value={
-                                                                                    element.jobHours ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    )
-                                                                                }
-                                                                                className="form-control jobhr"
-                                                                                required
-                                                                                placeholder="Enter job Hrs"
-                                                                            />
-                                                                        </td>
-                                                                        <td
-                                                                            style={
-                                                                                type ==
-                                                                                "hourly"
-                                                                                    ? {
-                                                                                          display:
-                                                                                              "none",
-                                                                                      }
-                                                                                    : {}
-                                                                            }
-                                                                        >
-                                                                            <input
-                                                                                type="number"
-                                                                                name="fixed_price"
-                                                                                value={
-                                                                                    element.fixed_price ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    )
-                                                                                }
-                                                                                className="form-control jobprice"
-                                                                                required
-                                                                                placeholder="Enter job price"
-                                                                            />
-                                                                        </td>
-                                                                        <td
-                                                                            style={
-                                                                                type !=
-                                                                                "hourly"
-                                                                                    ? {
-                                                                                          display:
-                                                                                              "none",
-                                                                                      }
-                                                                                    : {}
-                                                                            }
-                                                                        >
-                                                                            <input
-                                                                                type="text"
-                                                                                name="rateperhour"
-                                                                                value={
-                                                                                    element.rateperhour ||
-                                                                                    ""
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    handleChange(
-                                                                                        index,
-                                                                                        e
-                                                                                    )
-                                                                                }
-                                                                                className="form-control jobrate"
-                                                                                required
-                                                                                placeholder="Enter rate P/Hr"
-                                                                            />
-                                                                        </td>
-                                                                        {/*<td>
-                                  <input type="text" name="totalamount" readonly disabled className="form-control" required  placeholder="Total"/>
-                                  </td>*/}
-                                                                        <td className="text-right">
-                                                                            <button
-                                                                                className="ml-2 btn bg-red"
-                                                                                onClick={() =>
-                                                                                    removeFormFields(
-                                                                                        index
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <i className="fa fa-minus"></i>
-                                                                            </button>
-                                                                        </td>
-                                                                    </tr>
-                                                                )
-                                                            )}
-                                                        </tbody>
-
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td
-                                                                    className="text-right"
-                                                                    colSpan="6"
-                                                                >
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn bg-green"
-                                                                        onClick={() =>
-                                                                            addFormFields()
-                                                                        }
-                                                                    >
-                                                                        <i className="fa fa-plus"></i>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
+                                                <OfferServiceMenu
+                                                    addresses={addresses}
+                                                    services={services}
+                                                    frequencies={frequencies}
+                                                    formValues={formValues}
+                                                    handleSaveForm={handleSave}
+                                                    handleRemoveFormFields={
+                                                        removeFormFields
+                                                    }
+                                                />
                                             </div>
                                         </div>
                                     </div>

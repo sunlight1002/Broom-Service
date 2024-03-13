@@ -37,13 +37,11 @@ class ServicesController extends Controller
     {
         $services = Services::where('status', 1)->get();
         $result = [];
-        if (isset($services)) {
-            foreach ($services as $service) {
-                $res['name'] = ($request->lng == 'en') ? $service->name : $service->heb_name;
-                $res['id']  = $service->id;
-                $res['template'] = $service->template;
-                array_push($result, $res);
-            }
+        foreach ($services as $service) {
+            $res['name'] = ($request->lng == 'en') ? $service->name : $service->heb_name;
+            $res['id']  = $service->id;
+            $res['template'] = $service->template;
+            array_push($result, $res);
         }
 
         return response()->json([

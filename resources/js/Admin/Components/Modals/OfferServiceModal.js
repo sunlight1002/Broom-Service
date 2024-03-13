@@ -37,19 +37,18 @@ const monthDateArr = () => {
     return array;
 };
 
-const JobModal = memo(function JobModal({
+const OfferServiceModal = memo(function OfferServiceModal({
     setIsOpen,
     isOpen,
     addresses,
-    AllServices,
-    AllFreq,
+    services,
+    frequencies,
     tmpFormValues,
     handleTmpValue,
-    handleSaveJobForm,
+    handleSaveForm,
     isAdd,
     index,
 }) {
-    const [workers, setWorkers] = useState([]);
     const [toggleOtherService, setToggleOtherService] = useState(false);
     const alert = useAlert();
 
@@ -79,10 +78,6 @@ const JobModal = memo(function JobModal({
             newFormValues["period"] =
                 e.target.options[e.target.selectedIndex].getAttribute("period");
         }
-        if (e.target.name == "worker") {
-            newFormValues["woker_name"] =
-                e.target.options[e.target.selectedIndex].getAttribute("name");
-        }
         if (e.target.name == "weekdays") {
             const _weekdays = e.target.option.map((i) => i.value);
 
@@ -99,24 +94,6 @@ const JobModal = memo(function JobModal({
             } else {
                 newFormValues["weekdays"] = _weekdays;
             }
-        }
-        if (e.target.name == "shift") {
-            var result = "";
-            var sAr = [];
-            var options = e.target.option;
-            var opt;
-
-            for (var k = 0, iLen = options.length; k < iLen; k++) {
-                opt = options[k];
-                // if (opt.selected) {
-                sAr.push(opt.value);
-                result += opt.value + ", ";
-                // }
-            }
-            newFormValues["shift_ar"] = sAr;
-            newFormValues["shift"] = result.replace(/,\s*$/, "");
-
-            newFormValues["shift_default"] = e.target.option;
         }
         handleTmpValue(newFormValues);
     };
@@ -220,114 +197,15 @@ const JobModal = memo(function JobModal({
             }
         }
 
-        if (!tmpFormValues.worker || tmpFormValues.worker == "") {
-            alert.error("The worker is not selected");
-            return false;
-        }
-        if (!tmpFormValues.shift || tmpFormValues.shift == "") {
-            alert.error("The shift is not selected");
-            return false;
-        }
-
         return true;
     };
 
     const handleOnSubmit = () => {
         if (checkValidation()) {
-            handleSaveJobForm(isAdd ? "" : index, tmpFormValues);
+            handleSaveForm(isAdd ? "" : index, tmpFormValues);
             setIsOpen(false);
         }
     };
-
-    const _canLookForWorker = useMemo(() => {
-        if (tmpFormValues.address == "") {
-            return false;
-        }
-
-        if (tmpFormValues.frequency == "" || tmpFormValues.frequency == 0) {
-            return false;
-        } else {
-            if (tmpFormValues.start_date == "") {
-                return false;
-            }
-
-            if (tmpFormValues.cycle == "1") {
-                if (
-                    ["w", "2w", "3w", "4w", "5w"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    return false;
-                } else if (
-                    tmpFormValues.monthday_selection_type == "weekday" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    return false;
-                }
-
-                if (
-                    tmpFormValues.monthday_selection_type == "date" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
-                ) {
-                    if (tmpFormValues.month_date == "") {
-                        return false;
-                    } else if (
-                        new Date(tmpFormValues.start_date).getDate() >
-                        tmpFormValues.month_date
-                    ) {
-                        return false;
-                    }
-                }
-            }
-
-            if (
-                tmpFormValues.period == "w" &&
-                tmpFormValues.cycle != "0" &&
-                tmpFormValues.cycle != "1" &&
-                tmpFormValues.weekdays.length != tmpFormValues.cycle
-            ) {
-                return false;
-            }
-        }
-
-        return true;
-    }, [tmpFormValues]);
-
-    const getPresentWorkerForJob = () => {
-        const _address = addresses.find((a) => a.id == tmpFormValues.address);
-
-        axios
-            .post(
-                `/api/admin/present-workers-for-job`,
-                {
-                    property: {
-                        lat: _address.latitude,
-                        lng: _address.longitude,
-                        has_cat: _address.is_cat_avail,
-                        has_dog: _address.is_dog_avail,
-                        prefer_type: _address.prefer_type,
-                    },
-                    job: tmpFormValues,
-                },
-                { headers }
-            )
-            .then((response) => {
-                setWorkers(response.data.data);
-                if (response.data.data.length == 0) {
-                    alert.error("No worker found in selected job duration");
-                }
-            });
-    };
-
-    useEffect(() => {
-        if (_canLookForWorker) {
-            getPresentWorkerForJob();
-        }
-    }, [tmpFormValues, _canLookForWorker]);
 
     const showWeekDayOption = useMemo(() => {
         return tmpFormValues.period == "w" && tmpFormValues.cycle == 1;
@@ -409,6 +287,16 @@ const JobModal = memo(function JobModal({
         return _monthArr;
     }, [tmpFormValues.period]);
 
+    const defaultWeekDays = () => {
+        if (tmpFormValues.weekdays) {
+            return frequencyDays.filter((i) => {
+                return tmpFormValues.weekdays.includes(i.value);
+            });
+        } else {
+            return [];
+        }
+    };
+
     return (
         <Modal
             size="lg"
@@ -419,7 +307,9 @@ const JobModal = memo(function JobModal({
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>{isAdd ? "Add Job" : "Edit Job"}</Modal.Title>
+                <Modal.Title>
+                    {isAdd ? "Add Service" : "Edit Service"}
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -465,20 +355,19 @@ const JobModal = memo(function JobModal({
                                 }}
                             >
                                 <option value={0}> -- Please select --</option>
-                                {AllServices &&
-                                    AllServices.map((s, i) => {
-                                        return (
-                                            <option
-                                                name={s.name}
-                                                template={s.template}
-                                                value={s.id}
-                                                key={i}
-                                            >
-                                                {" "}
-                                                {s.name}{" "}
-                                            </option>
-                                        );
-                                    })}
+                                {services.map((s, i) => {
+                                    return (
+                                        <option
+                                            name={s.name}
+                                            template={s.template}
+                                            value={s.id}
+                                            key={i}
+                                        >
+                                            {" "}
+                                            {s.name}{" "}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </div>
                         {toggleOtherService && (
@@ -566,21 +455,20 @@ const JobModal = memo(function JobModal({
                                 onChange={(e) => handleInputChange(e)}
                             >
                                 <option value={0}> -- Please select --</option>
-                                {AllFreq &&
-                                    AllFreq.map((s, i) => {
-                                        return (
-                                            <option
-                                                cycle={s.cycle}
-                                                period={s.period}
-                                                name={s.name}
-                                                value={s.id}
-                                                key={i}
-                                            >
-                                                {" "}
-                                                {s.name}{" "}
-                                            </option>
-                                        );
-                                    })}
+                                {frequencies.map((s, i) => {
+                                    return (
+                                        <option
+                                            cycle={s.cycle}
+                                            period={s.period}
+                                            name={s.name}
+                                            value={s.id}
+                                            key={i}
+                                        >
+                                            {" "}
+                                            {s.name}{" "}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </div>
                         <div
@@ -799,7 +687,7 @@ const JobModal = memo(function JobModal({
                             }}
                         >
                             <Select
-                                defaultValue={tmpFormValues.weekdays}
+                                defaultValue={defaultWeekDays}
                                 name="weekdays"
                                 isMulti
                                 options={frequencyDays}
@@ -821,57 +709,6 @@ const JobModal = memo(function JobModal({
                                         tmpFormValues.period == "w"
                                             ? "block"
                                             : "none",
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="form-group">
-                            <label className="control-label">Worker</label>
-                            <select
-                                name="worker"
-                                className="form-control  mb-2"
-                                value={tmpFormValues.worker || 0}
-                                onChange={(e) => {
-                                    handleInputChange(e);
-                                }}
-                            >
-                                <option value="">--Please select--</option>
-                                {workers.map((w, i) => {
-                                    return (
-                                        <option
-                                            name={
-                                                w.firstname + " " + w.lastname
-                                            }
-                                            value={w.id}
-                                            key={i}
-                                        >
-                                            {w.firstname + " " + w.lastname}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <Select
-                                defaultValue={tmpFormValues.shift_default}
-                                name="shift"
-                                isMulti
-                                options={slot}
-                                className="basic-multi-single "
-                                isClearable={true}
-                                placeholder="--Please select--"
-                                classNamePrefix="select"
-                                onChange={(newValue, actionMeta) => {
-                                    const e = {
-                                        target: {
-                                            name: actionMeta.name,
-                                            option: newValue,
-                                        },
-                                    };
-                                    handleInputChange(e);
                                 }}
                             />
                         </div>
@@ -901,4 +738,4 @@ const JobModal = memo(function JobModal({
     );
 });
 
-export default JobModal;
+export default OfferServiceModal;
