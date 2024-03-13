@@ -193,7 +193,7 @@ export default function OfferPrice() {
                                             <Tr>
                                                 <Th scope="col">Client</Th>
                                                 <Th scope="col">Email</Th>
-                                                <Th scope="col">Address</Th>
+                                                {/* <Th scope="col">Address</Th> */}
                                                 <Th scope="col">Phone</Th>
                                                 <Th
                                                     style={{
@@ -231,19 +231,19 @@ export default function OfferPrice() {
                                         <Tbody>
                                             {offers.map((ofr, i) => {
                                                 if (ofr.client) {
-                                                    var address = ofr.client
-                                                        .geo_address
-                                                        ? ofr.client.geo_address
-                                                        : "NA";
-                                                    var cords =
-                                                        ofr.client.latitude &&
-                                                        ofr.client.longitude
-                                                            ? ofr.client
-                                                                  .latitude +
-                                                              "," +
-                                                              ofr.client
-                                                                  .longitude
-                                                            : "NA";
+                                                    // var address = ofr.client
+                                                    //     .geo_address
+                                                    //     ? ofr.client.geo_address
+                                                    //     : "NA";
+                                                    // var cords =
+                                                    //     ofr.client.latitude &&
+                                                    //     ofr.client.longitude
+                                                    //         ? ofr.client
+                                                    //               .latitude +
+                                                    //           "," +
+                                                    //           ofr.client
+                                                    //               .longitude
+                                                    //         : "NA";
                                                     let color = "";
                                                     if (ofr.status == "sent") {
                                                         color = "purple";
@@ -298,13 +298,13 @@ export default function OfferPrice() {
                                                                         .email
                                                                 }
                                                             </Td>
-                                                            <Td>
+                                                            {/* <Td>
                                                                 <Link
                                                                     to={`https://maps.google.com?q=${cords}`}
                                                                 >
                                                                     {address}
                                                                 </Link>
-                                                            </Td>
+                                                            </Td> */}
 
                                                             <Td>
                                                                 {phone &&

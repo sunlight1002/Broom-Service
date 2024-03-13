@@ -61,6 +61,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
     return (
         <div>
+            {console.log("formValues", formValues)}
             <div className="text-right" style={{ marginBottom: "5px" }}>
                 <button
                     type="button"
@@ -90,14 +91,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                     return (
                                         <Tr key={adIndex}>
                                             <Td>
-                                                {param.id
+                                                {addresses.length > 0 &&
+                                                item.address
                                                     ? addresses.filter(
                                                           (a) =>
                                                               a.id ==
                                                               item.address
                                                       )[0]?.geo_address
-                                                    : addresses[item.address]
-                                                          ?.geo_address}
+                                                    : "NA"}
                                             </Td>
                                             <Td>{item.name}</Td>
                                             <Td>{item.type}</Td>

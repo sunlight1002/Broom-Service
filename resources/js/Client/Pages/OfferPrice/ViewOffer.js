@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import logo from "../../../Assets/image/sample.svg";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useTranslation } from "react-i18next";
@@ -275,11 +275,27 @@ export default function ClientViewOffer() {
                                                                                     }
                                                                                 >
                                                                                     <Td>
-                                                                                        {s.address
-                                                                                            ? s
-                                                                                                  .address
-                                                                                                  .geo_address
-                                                                                            : "NA"}
+                                                                                        {s.address ? (
+                                                                                            <Link
+                                                                                                to={`https://maps.google.com?q=${
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .latitude +
+                                                                                                    "," +
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .longitude
+                                                                                                }`}
+                                                                                            >
+                                                                                                {
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .geo_address
+                                                                                                }
+                                                                                            </Link>
+                                                                                        ) : (
+                                                                                            "NA"
+                                                                                        )}
                                                                                     </Td>
                                                                                     <Td>
                                                                                         {

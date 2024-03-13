@@ -117,7 +117,33 @@ export default function PriceOffer() {
                 return a;
             }
         });
-
+    const frequancyDescription = (sObj) => {
+        let descriptionStr = "";
+        if (sObj.period == "w" && sObj.cycle == 1) {
+            descriptionStr += `On ${sObj.weekday}`;
+        }
+        if (["m", "2m", "3m", "6m", "y"].includes(sObj.period)) {
+            if (sObj.monthday_selection_type == "date") {
+                descriptionStr += `Day ${sObj.month_date}`;
+            }
+        }
+        if (
+            ["2w", "3w", "4w", "5w", "m", "2m", "3m", "6m", "y"].includes(
+                sObj.period
+            )
+        ) {
+            if (sObj.monthday_selection_type == "weekday") {
+                descriptionStr += `The ${sObj.weekday_occurrence} ${sObj.weekday}`;
+            }
+        }
+        if (["2m", "3m", "6m", "y"].includes(sObj.period)) {
+            descriptionStr += ` of ${sObj.month_occurrence} month`;
+        }
+        if (sObj.period == "w" && sObj.cycle > 1) {
+            descriptionStr += `Week ${sObj.weekdays}`;
+        }
+        return descriptionStr;
+    };
     return (
         <>
             <div className="container parent" style={{ display: "none" }}>
@@ -211,10 +237,10 @@ export default function PriceOffer() {
                                 </span>{" "}
                             </p>
 
-                            <p>
+                            {/* <p>
                                 {t("price_offer.address_text")}:{" "}
                                 <span>{client.geo_address}</span>
-                            </p>
+                            </p> */}
                         </div>
                         <div className="abt">
                             <h2>{t("price_offer.about_title")}</h2>
@@ -814,16 +840,23 @@ export default function PriceOffer() {
                                             <tr>
                                                 <th>
                                                     {t(
+                                                        "price_offer.address_text"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
                                                         "price_offer.service_txt"
                                                     )}
                                                 </th>
-
+                                                <th>{t("price_offer.type")}</th>
                                                 <th>
                                                     {t(
                                                         "price_offer.freq_s_txt"
                                                     )}
                                                 </th>
-
+                                                <th>
+                                                    {t("price_offer.job_h_txt")}
+                                                </th>
                                                 <th>
                                                     {t(
                                                         "price_offer.amount_txt"
@@ -832,18 +865,48 @@ export default function PriceOffer() {
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            {" "}
                                             {services &&
                                                 services.map((s, i) => {
                                                     return (
                                                         <tr key={i}>
                                                             <td>
+                                                                {s.address &&
+                                                                s.address
+                                                                    .geo_address
+                                                                    ? s.address
+                                                                          .geo_address
+                                                                    : "NA"}
+                                                            </td>
+                                                            <td>
                                                                 {s.service == 10
                                                                     ? s.other_title
                                                                     : s.name}
                                                             </td>
-
+                                                            <td>{s.type}</td>
                                                             <td>
-                                                                {s.freq_name}
+                                                                {s.freq_name}{" "}
+                                                                <p>
+                                                                    {
+                                                                        "Start from date : "
+                                                                    }
+                                                                    {Moment(
+                                                                        s.start_date
+                                                                    ).format(
+                                                                        "DD-MM-Y"
+                                                                    )}
+                                                                </p>
+                                                                <p>
+                                                                    {frequancyDescription(
+                                                                        s
+                                                                    )}
+                                                                </p>
+                                                            </td>
+                                                            <td>
+                                                                {s.jobHours}{" "}
+                                                                {t(
+                                                                    "price_offer.hours"
+                                                                )}
                                                             </td>
                                                             {s.type ==
                                                             "fixed" ? (

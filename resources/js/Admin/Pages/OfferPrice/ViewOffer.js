@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import logo from "../../../Assets/image/sample.svg";
 import Dropdown from "react-bootstrap/Dropdown";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
 
 export default function ViewOffer() {
@@ -216,11 +216,27 @@ export default function ViewOffer() {
                                                                                     }
                                                                                 >
                                                                                     <td>
-                                                                                        {s.address
-                                                                                            ? s
-                                                                                                  .address
-                                                                                                  .geo_address
-                                                                                            : "NA"}
+                                                                                        {s.address ? (
+                                                                                            <Link
+                                                                                                to={`https://maps.google.com?q=${
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .latitude +
+                                                                                                    "," +
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .longitude
+                                                                                                }`}
+                                                                                            >
+                                                                                                {
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .geo_address
+                                                                                                }
+                                                                                            </Link>
+                                                                                        ) : (
+                                                                                            "NA"
+                                                                                        )}
                                                                                     </td>
                                                                                     {s.service ==
                                                                                     10 ? (

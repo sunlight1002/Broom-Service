@@ -51,6 +51,16 @@ class ClientEmailController extends Controller
     $offer = Offer::where('id', $id)->with('client')->get();
     $services = ($offer[0]->services != '') ? json_decode($offer[0]->services) : [];
 
+    //map serice property address
+    if (isset($services)) {
+        foreach ($services as $service) {
+            if(!empty($service->address)){
+                $service->address = ClientPropertyAddress::find($service->address)->toArray();
+            }
+        }
+    }
+    $offer[0]->services = json_encode($services, true);
+
     return response()->json([
       'offer' => $offer
     ]);
