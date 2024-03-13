@@ -48,6 +48,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_afraid_by_cat' => 'boolean',
+        'is_afraid_by_dog' => 'boolean',
     ];
 
     public function setSkillAttribute($value)
@@ -68,5 +70,10 @@ class User extends Authenticatable
     public function availabilities()
     {
         return $this->hasMany(WorkerAvailability::class);
+    }
+
+    public function notAvailabileDates()
+    {
+        return $this->hasMany(WorkerNotAvailableDate::class);
     }
 }

@@ -12,12 +12,16 @@ use App\Models\WorkerAvailability;
 use App\Models\Job;
 use App\Models\Contract;
 use App\Models\WorkerNotAvailableDate;
+use App\Traits\JobSchedule;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
 class WorkerController extends Controller
 {
+    use JobSchedule;
+
     /**
      * Display a listing of the resource.
      *
@@ -469,5 +473,49 @@ class WorkerController extends Controller
     {
         WorkerNotAvailableDate::find($request->id)->delete();
         return response()->json(['message' => 'date deleted']);
+    }
+
+    public function presentWorkersForJob(Request $request)
+    {
+        $data = $request->all();
+        $property = $data['property'];
+
+        $jobsArr = $this->scheduleJob(Arr::only($data['job'], [
+            'period',
+            'cycle',
+            'start_date',
+            'weekday_occurrence',
+            'weekday',
+            'weekdays',
+            'month_occurrence',
+            'monthday_selection_type',
+            'month_date',
+        ]));
+
+        $dates = data_get($jobsArr, '*.job_date');
+
+        $workers = User::query()
+            ->when($property['has_dog'], function ($q) {
+                return $q->where('is_afraid_by_dog', false);
+            })
+            ->when($property['has_cat'], function ($q) {
+                return $q->where('is_afraid_by_cat', false);
+            })
+            ->when(in_array($property['prefer_type'], ['male', 'female']), function ($q) use ($property) {
+                return $q->where('gender', $property['prefer_type']);
+            })
+            ->whereDoesntHave('notAvailabileDates', function ($q) use ($dates) {
+                $q->whereIn('date', $dates);
+            })
+            ->where('status', 1)
+            ->select(['id', 'firstname', 'lastname'])
+            ->selectRaw('( 6371 * acos( cos( radians(' . $property['lat'] . ') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(' . $property['lng'] . ') ) + sin( radians(' . $property['lat'] . ') ) * sin( radians( latitude ) ) ) ) AS distance')
+            ->orderBy('distance')
+            ->get();
+
+        return response()->json([
+            'data' => $workers,
+            'message' => 'Workers fetched successfully'
+        ]);
     }
 }

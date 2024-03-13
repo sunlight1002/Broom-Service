@@ -115,20 +115,6 @@ export default function WorkerAvailabilty() {
             nextnextweek.push(firstday);
         }
     }
-    // const slot = [
-    //   ['8am-16pm','full day- 8am-16pm'],
-    //   ['8am-10am','morning1 - 8am-10am'],
-    //   ['10am-12pm','morning 2 - 10am-12pm'],
-    //   ['12pm-14pm','noon1 -12pm-14pm'],
-    //   ['14pm-16pm','noon2 14pm-16pm'],
-    //   ['12pm-16pm','noon 12pm-16pm'],
-    //   ['16pm-18pm','af1 16pm-18pm'],
-    //   ['18pm-20pm','af2 18pm-20pm'],
-    //   ['16pm-20pm','afternoon 16pm-20pm'],
-    //   ['20pm-22pm','ev1 20pm-22pm'],
-    //   ['22pm-24am','ev2 22pm-24pm'],
-    //   ['20pm-24am','evening 20pm-24am']
-    //  ]
     const slot = [
         ["8am-16pm", "Full Day"],
         ["8am-12pm", "Morning"],

@@ -38,7 +38,6 @@ const initialValue = {
 };
 const JobMenu = memo(function JobMenu({
     addresses,
-    worker,
     AllServices,
     AllFreq,
     formValues,
@@ -181,7 +180,6 @@ const JobMenu = memo(function JobMenu({
                     setIsOpen={setIsOpen}
                     isOpen={isOpen}
                     addresses={addresses}
-                    worker={worker}
                     AllServices={AllServices}
                     AllFreq={AllFreq}
                     tmpFormValues={tmpFormValues}

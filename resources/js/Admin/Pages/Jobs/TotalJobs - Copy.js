@@ -163,11 +163,11 @@ export default function TotalJobs() {
             .getAttribute("value");
     };
     const colourOptions = [
-        { value: 0, label: "full day - 8am-16pm" },
-        { value: 1, label: "morning - 8-12pm" },
-        { value: 2, label: "morning1 - 8-10am" },
-        { value: 3, label: "noon - 12pm-16pm" },
-        { value: 4, label: "noon - 12pm-16pm" },
+        { value: 0, label: "fullday-8am-16pm" },
+        { value: 1, label: "morning-8am-12pm" },
+        { value: 2, label: "morning1-8am-10am" },
+        { value: 3, label: "noon-12pm-16pm" },
+        { value: 4, label: "noon-12pm-16pm" },
     ];
 
     const changeShift = (job_id, e) => {

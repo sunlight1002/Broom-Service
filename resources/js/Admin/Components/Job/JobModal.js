@@ -1,24 +1,22 @@
 import { useEffect, memo, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
-import { getWorkerBasedOnProperty } from "../../Utils/job.utils";
 import { useAlert } from "react-alert";
-import { useParams } from "react-router-dom";
 
 const slot = [
-    { value: "full day- 8am-16pm", label: "full day- 8am-16pm" },
-    { value: "morning1 - 8am-10am", label: "morning1 - 8am-10am" },
-    { value: "morning 2 - 10am-12pm", label: "morning 2 - 10am-12pm" },
-    { value: "morning- 08am-12pm", label: "morning- 08am-12pm" },
-    { value: "noon1 -12pm-14pm", label: "noon1 -12pm-14pm" },
-    { value: "noon2 14pm-16pm", label: "noon2 14pm-16pm" },
-    { value: "noon 12pm-16pm", label: "noon 12pm-16pm" },
-    { value: "af1 16pm-18pm", label: "af1 16pm-18pm" },
-    { value: "af2 18pm-20pm", label: "af2 18pm-20pm" },
-    { value: "afternoon 16pm-20pm", label: "afternoon 16pm-20pm" },
-    { value: "ev1 20pm-22pm", label: "ev1 20pm-22pm" },
-    { value: "ev2 22pm-24pm", label: "ev2 22pm-24pm" },
-    { value: "evening 20pm-24am", label: "evening 20pm-24am" },
+    { value: "fullday-8am-16pm", label: "fullday-8am-16pm" },
+    { value: "morning1-8am-10am", label: "morning1-8am-10am" },
+    { value: "morning2-10am-12pm", label: "morning2-10am-12pm" },
+    { value: "morning-08am-12pm", label: "morning-08am-12pm" },
+    { value: "noon1-12pm-14pm", label: "noon1-12pm-14pm" },
+    { value: "noon2-14pm-16pm", label: "noon2-14pm-16pm" },
+    { value: "noon-12pm-16pm", label: "noon-12pm-16pm" },
+    { value: "af1-16pm-18pm", label: "af1-16pm-18pm" },
+    { value: "af2-18pm-20pm", label: "af2-18pm-20pm" },
+    { value: "afternoon-16pm-20pm", label: "afternoon-16pm-20pm" },
+    { value: "ev1-20pm-22pm", label: "ev1-20pm-22pm" },
+    { value: "ev2-22pm-24pm", label: "ev2-22pm-24pm" },
+    { value: "evening-20pm-24am", label: "evening-20pm-24am" },
 ];
 
 const frequencyDays = [
@@ -27,6 +25,8 @@ const frequencyDays = [
     { value: "tuesday", label: "Tuesday" },
     { value: "wednesday", label: "Wednesday" },
     { value: "thursday", label: "Thursday" },
+    { value: "friday", label: "Friday" },
+    { value: "saturday", label: "Saturday" },
 ];
 
 const monthDateArr = () => {
@@ -41,7 +41,6 @@ const JobModal = memo(function JobModal({
     setIsOpen,
     isOpen,
     addresses,
-    worker,
     AllServices,
     AllFreq,
     tmpFormValues,
@@ -50,9 +49,16 @@ const JobModal = memo(function JobModal({
     isAdd,
     index,
 }) {
-    const [filteredWorkers, setFilteredWorkers] = useState([]);
+    const [workers, setWorkers] = useState([]);
     const [toggleOtherService, setToggleOtherService] = useState(false);
+    const [workerTabEnabledOnce, setWorkerTabEnabledOnce] = useState(false);
     const alert = useAlert();
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
 
     const handleInputChange = (e) => {
         let newFormValues = { ...tmpFormValues };
@@ -85,6 +91,7 @@ const JobModal = memo(function JobModal({
                 _weekdays.length > newFormValues["cycle"] &&
                 newFormValues["cycle"] != 0
             ) {
+                newFormValues["weekdays"] = [];
                 window.alert(
                     "You can select at most " +
                         newFormValues["cycle"] +
@@ -92,7 +99,6 @@ const JobModal = memo(function JobModal({
                 );
             } else {
                 newFormValues["weekdays"] = _weekdays;
-                newFormValues["week_days"] = e.target.option;
             }
         }
         if (e.target.name == "shift") {
@@ -119,18 +125,6 @@ const JobModal = memo(function JobModal({
     const checkValidation = () => {
         if (tmpFormValues.address == "") {
             alert.error("The address is not selected");
-            return false;
-        }
-        if (
-            !tmpFormValues.worker ||
-            tmpFormValues.worker == "" ||
-            tmpFormValues.worker == 0
-        ) {
-            alert.error("The worker is not selected");
-            return false;
-        }
-        if (!tmpFormValues.shift || tmpFormValues.shift == "") {
-            alert.error("The shift is not selected");
             return false;
         }
         if (tmpFormValues.service == "" || tmpFormValues.service == 0) {
@@ -228,18 +222,149 @@ const JobModal = memo(function JobModal({
             }
         }
 
+        if (!tmpFormValues.worker || tmpFormValues.worker == "") {
+            alert.error("The worker is not selected");
+            return false;
+        }
+        if (!tmpFormValues.shift || tmpFormValues.shift == "") {
+            alert.error("The shift is not selected");
+            return false;
+        }
+
         return true;
     };
-    let param = useParams();
-    useEffect(() => {
-        if (tmpFormValues.address) {
-            const getAddress = param.id
-                ? addresses.filter((a) => a.id == tmpFormValues.address)[0]
-                : addresses[tmpFormValues.address];
-            const tmpWorker = getWorkerBasedOnProperty(worker, getAddress);
-            setFilteredWorkers(tmpWorker);
+
+    const handleOnSubmit = () => {
+        if (checkValidation()) {
+            handleSaveJobForm(isAdd ? "" : index, tmpFormValues);
+            setIsOpen(false);
         }
-    }, [tmpFormValues, worker, addresses]);
+    };
+
+    const enableWorkerTab = useMemo(() => {
+        if (tmpFormValues.address == "") {
+            return false;
+        }
+        if (tmpFormValues.service == "" || tmpFormValues.service == 0) {
+            return false;
+        }
+
+        let ot = document.querySelector("#other_title");
+
+        if (tmpFormValues.service == "10" && ot != undefined) {
+            if (tmpFormValues.other_title == "") {
+                return false;
+            }
+            tmpFormValues.other_title =
+                document.querySelector("#other_title").value;
+        } else {
+            tmpFormValues.other_title = "";
+        }
+
+        if (tmpFormValues.jobHours == "") {
+            return false;
+        }
+        !tmpFormValues.type ? (tmpFormValues.type = "fixed") : "";
+        if (tmpFormValues.type == "hourly") {
+            if (tmpFormValues.rateperhour == "") {
+                return false;
+            }
+        } else {
+            if (tmpFormValues.fixed_price == "") {
+                return false;
+            }
+        }
+
+        if (tmpFormValues.frequency == "" || tmpFormValues.frequency == 0) {
+            return false;
+        } else {
+            if (tmpFormValues.start_date == "") {
+                return false;
+            }
+
+            if (tmpFormValues.cycle == "1") {
+                if (
+                    ["w", "2w", "3w", "4w", "5w"].includes(
+                        tmpFormValues.period
+                    ) &&
+                    tmpFormValues.weekday == ""
+                ) {
+                    return false;
+                } else if (
+                    tmpFormValues.monthday_selection_type == "weekday" &&
+                    ["m", "2m", "3m", "6m", "y"].includes(
+                        tmpFormValues.period
+                    ) &&
+                    tmpFormValues.weekday == ""
+                ) {
+                    return false;
+                }
+
+                if (
+                    tmpFormValues.monthday_selection_type == "date" &&
+                    ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
+                ) {
+                    if (tmpFormValues.month_date == "") {
+                        return false;
+                    } else if (
+                        new Date(tmpFormValues.start_date).getDate() >
+                        tmpFormValues.month_date
+                    ) {
+                        return false;
+                    }
+                }
+            }
+
+            if (
+                tmpFormValues.period == "w" &&
+                tmpFormValues.cycle != "0" &&
+                tmpFormValues.cycle != "1" &&
+                tmpFormValues.weekdays.length > 0 &&
+                tmpFormValues.weekdays.length > tmpFormValues.cycle
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }, [tmpFormValues]);
+
+    const getPresentWorkerForJob = () => {
+        const _address = addresses.find((a) => a.id == tmpFormValues.address);
+
+        axios
+            .post(
+                `/api/admin/present-workers-for-job`,
+                {
+                    property: {
+                        lat: _address.latitude,
+                        lng: _address.longitude,
+                        has_cat: _address.is_cat_avail,
+                        has_dog: _address.is_dog_avail,
+                        prefer_type: _address.prefer_type,
+                    },
+                    job: tmpFormValues,
+                },
+                { headers }
+            )
+            .then((response) => {
+                setWorkers(response.data.data);
+                if (response.data.data.length == 0) {
+                    alert.error("No worker found in selected job duration");
+                }
+            });
+    };
+
+    useEffect(() => {
+        if (enableWorkerTab) {
+            if (!workerTabEnabledOnce) {
+                setWorkerTabEnabledOnce(true);
+                alert.info("Select worker from worker & shift tab");
+            }
+
+            getPresentWorkerForJob();
+        }
+    }, [tmpFormValues, enableWorkerTab]);
 
     const showWeekDayOption = useMemo(() => {
         return tmpFormValues.period == "w" && tmpFormValues.cycle == 1;
@@ -356,60 +481,6 @@ const JobModal = memo(function JobModal({
                                     </option>
                                 ))}
                             </select>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="form-group">
-                            <label className="control-label">Worker</label>
-                            <select
-                                name="worker"
-                                className="form-control  mb-2"
-                                value={tmpFormValues.worker || 0}
-                                onChange={(e) => {
-                                    handleInputChange(e);
-                                }}
-                            >
-                                <option value={0}>--Please select--</option>
-                                {filteredWorkers &&
-                                    filteredWorkers.map((w, i) => {
-                                        return (
-                                            <option
-                                                name={
-                                                    w.firstname +
-                                                    " " +
-                                                    w.lastname
-                                                }
-                                                value={w.id}
-                                                key={i}
-                                            >
-                                                {w.firstname + " " + w.lastname}
-                                            </option>
-                                        );
-                                    })}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <Select
-                                defaultValue={tmpFormValues.shift_default}
-                                name="shift"
-                                isMulti
-                                options={slot}
-                                className="basic-multi-single "
-                                isClearable={true}
-                                placeholder="--Please select--"
-                                classNamePrefix="select"
-                                onChange={(newValue, actionMeta) => {
-                                    const e = {
-                                        target: {
-                                            name: actionMeta.name,
-                                            option: newValue,
-                                        },
-                                    };
-                                    handleInputChange(e);
-                                }}
-                            />
                         </div>
                     </div>
                 </div>
@@ -765,7 +836,7 @@ const JobModal = memo(function JobModal({
                             }}
                         >
                             <Select
-                                defaultValue={tmpFormValues.week_days}
+                                defaultValue={tmpFormValues.weekdays}
                                 name="weekdays"
                                 isMulti
                                 options={frequencyDays}
@@ -792,6 +863,57 @@ const JobModal = memo(function JobModal({
                         </div>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="form-group">
+                            <label className="control-label">Worker</label>
+                            <select
+                                name="worker"
+                                className="form-control  mb-2"
+                                value={tmpFormValues.worker || 0}
+                                onChange={(e) => {
+                                    handleInputChange(e);
+                                }}
+                            >
+                                <option value="">--Please select--</option>
+                                {workers.map((w, i) => {
+                                    return (
+                                        <option
+                                            name={
+                                                w.firstname + " " + w.lastname
+                                            }
+                                            value={w.id}
+                                            key={i}
+                                        >
+                                            {w.firstname + " " + w.lastname}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <Select
+                                defaultValue={tmpFormValues.shift_default}
+                                name="shift"
+                                isMulti
+                                options={slot}
+                                className="basic-multi-single "
+                                isClearable={true}
+                                placeholder="--Please select--"
+                                classNamePrefix="select"
+                                onChange={(newValue, actionMeta) => {
+                                    const e = {
+                                        target: {
+                                            name: actionMeta.name,
+                                            option: newValue,
+                                        },
+                                    };
+                                    handleInputChange(e);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
             </Modal.Body>
 
             <Modal.Footer>
@@ -806,15 +928,7 @@ const JobModal = memo(function JobModal({
                 </Button>
                 <Button
                     type="button"
-                    onClick={(e) => {
-                        if (checkValidation()) {
-                            handleSaveJobForm(
-                                isAdd ? "" : index,
-                                tmpFormValues
-                            );
-                            setIsOpen(false);
-                        }
-                    }}
+                    onClick={handleOnSubmit}
                     className="btn btn-primary"
                 >
                     Save

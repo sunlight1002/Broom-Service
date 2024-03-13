@@ -156,7 +156,6 @@ export default function EditClient() {
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllFreq, setAllFreq] = useState([]);
-    const [worker, setWorkers] = useState([]);
 
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
@@ -199,20 +198,9 @@ export default function EditClient() {
         getFrequency(lng);
     };
 
-    const getWorkers = () => {
-        axios.get(`/api/admin/all-workers`, { headers }).then((res) => {
-            if (res.data.workers.length > 0) {
-                setWorkers(res.data.workers);
-            } else {
-                setWorkers([]);
-            }
-        });
-    };
-
     useEffect(() => {
         getClients();
         handleServiceLng("heb");
-        getWorkers();
     }, []);
 
     const handleAlternate = (i, e) => {
@@ -751,7 +739,6 @@ export default function EditClient() {
                                     {cjob === "1" && (
                                         <JobMenu
                                             addresses={addresses}
-                                            worker={worker}
                                             AllServices={AllServices}
                                             AllFreq={AllFreq}
                                             formValues={formValues}

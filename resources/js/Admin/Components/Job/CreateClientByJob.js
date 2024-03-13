@@ -178,56 +178,41 @@ export default function CreateClientByJob() {
             nextnextweek.push(firstday);
         }
     }
-    const slot = [
-        ["8am-16pm", "full day- 8am-16pm"],
-        ["8am-10am", "morning1 - 8am-10am"],
-        ["10am-12pm", "morning 2 - 10am-12pm"],
-        ["8am-12pm", "morning- 08am-12pm"],
-        ["12pm-14pm", "noon1 -12pm-14pm"],
-        ["14pm-16pm", "noon2 14pm-16pm"],
-        ["12pm-16pm", "noon 12pm-16pm"],
-        ["16pm-18pm", "af1 16pm-18pm"],
-        ["18pm-20pm", "af2 18pm-20pm"],
-        ["16pm-20pm", "afternoon 16pm-20pm"],
-        ["20pm-22pm", "ev1 20pm-22pm"],
-        ["22pm-24am", "ev2 22pm-24pm"],
-        ["20pm-24am", "evening 20pm-24am"],
-    ];
     const colourOptions = {
         "8am-16pm": [
-            { value: 0, label: "full day -8am-16pm" },
-            { value: 1, label: "morning1 -8am-10am" },
-            { value: 2, label: "morning 2 -10am-12pm" },
-            { value: 3, label: "morning -8am-12pm" },
-            { value: 4, label: "noon1   -12pm-14pm" },
-            { value: 5, label: "noon2 -14pm-16pm" },
-            { value: 6, label: "noon -12pm-16pm" },
-            { value: 7, label: "evening1 -16pm-18pm" },
-            { value: 8, label: "evening2 -18pm-20pm" },
-            { value: 9, label: "evening -16pm-20pm" },
-            { value: 10, label: "night1 -20pm-22pm" },
-            { value: 11, label: "night2 -22pm-24pm" },
-            { value: 12, label: "night -20pm-24pm" },
+            { value: 0, label: "fullday-8am-16pm" },
+            { value: 1, label: "morning1-8am-10am" },
+            { value: 2, label: "morning2-10am-12pm" },
+            { value: 3, label: "morning-8am-12pm" },
+            { value: 4, label: "noon1-12pm-14pm" },
+            { value: 5, label: "noon2-14pm-16pm" },
+            { value: 6, label: "noon-12pm-16pm" },
+            { value: 7, label: "evening1-16pm-18pm" },
+            { value: 8, label: "evening2-18pm-20pm" },
+            { value: 9, label: "evening-16pm-20pm" },
+            { value: 10, label: "night1-20pm-22pm" },
+            { value: 11, label: "night2-22pm-24pm" },
+            { value: 12, label: "night-20pm-24pm" },
         ],
         "8am-12pm": [
-            { value: 0, label: "morning1 -8am-10am" },
-            { value: 1, label: "morning2 -10am-12pm" },
-            { value: 2, label: "morning  -8am-12pm" },
+            { value: 0, label: "morning1-8am-10am" },
+            { value: 1, label: "morning2-10am-12pm" },
+            { value: 2, label: "morning-8am-12pm" },
         ],
         "12pm-16pm": [
-            { value: 0, label: "af1 -12pm-14pm" },
-            { value: 1, label: "af2 -14pm-16pm" },
-            { value: 2, label: "afternoon -12pm-16pm" },
+            { value: 0, label: "af1-12pm-14pm" },
+            { value: 1, label: "af2-14pm-16pm" },
+            { value: 2, label: "afternoon-12pm-16pm" },
         ],
         "16pm-20pm": [
-            { value: 0, label: "ev1 -16pm-18pm" },
-            { value: 1, label: "ev2 -18pm-20pm" },
-            { value: 2, label: "Evening -16pm-20pm" },
+            { value: 0, label: "ev1-16pm-18pm" },
+            { value: 1, label: "ev2-18pm-20pm" },
+            { value: 2, label: "evening-16pm-20pm" },
         ],
         "20pm-24am": [
-            { value: 0, label: "night1 -20pm-22pm" },
-            { value: 1, label: "night2 -22pm-24pm" },
-            { value: 2, label: "night -20pm-24pm" },
+            { value: 0, label: "night1-20pm-22pm" },
+            { value: 1, label: "night2-22pm-24pm" },
+            { value: 2, label: "night-20pm-24pm" },
         ],
     };
     const changeShift = (w_id, date, e) => {
@@ -242,7 +227,7 @@ export default function CreateClientByJob() {
         let shifts = "";
         let value = false;
         e.map((v) => {
-            if (v.label == "full day -8am-16pm") {
+            if (v.label == "fullday-8am-16pm") {
                 value = true;
             }
             if (shifts == "") {
@@ -347,27 +332,27 @@ export default function CreateClientByJob() {
 
         let remOptions = [];
 
-        if (shifts.includes("morning 2 - 10am-12pm")) {
+        if (shifts.includes("morning2-10am-12pm")) {
             remOptions.push("morning1-8am-10am");
             remOptions.push("morning1-08am-10am");
             remOptions.push("morning2-10am-12pm");
         }
 
-        if (shifts.includes("morning1 - 8am-10am")) {
+        if (shifts.includes("morning1-8am-10am")) {
             remOptions.push("morning-8am-12pm");
         }
 
-        if (shifts.includes("noon2 -14pm-16pm")) {
+        if (shifts.includes("noon2-14pm-16pm")) {
             remOptions.push("noon1-12pm-14pm");
             remOptions.push("noon2-14pm-16pm");
         }
 
-        if (shifts.includes("evening2 -18pm-20pm")) {
+        if (shifts.includes("evening2-18pm-20pm")) {
             remOptions.push("evening1-16pm-18pmm");
             remOptions.push("evening2-18pm-20pm");
         }
 
-        if (shifts.includes("night2 -22pm-24pm")) {
+        if (shifts.includes("night2-22pm-24pm")) {
             remOptions.push("night1-20pm-22pm");
             remOptions.push("night2-22pm-24pm");
         }

@@ -138,7 +138,6 @@ export default function AddLeadClient() {
     const [AllClients, setAllClients] = useState([]);
     const [AllServices, setAllServices] = useState([]);
     const [AllFreq, setAllFreq] = useState([]);
-    const [worker, setWorkers] = useState([]);
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
         if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
@@ -180,15 +179,6 @@ export default function AddLeadClient() {
         getFrequency(lng);
     };
 
-    const getWorkers = () => {
-        axios.get(`/api/admin/all-workers`, { headers }).then((res) => {
-            if (res.data.workers.length > 0) {
-                setWorkers(res.data.workers);
-            } else {
-                setWorkers([]);
-            }
-        });
-    };
     const getLead = () => {
         axios
             .get(`/api/admin/leads/${params.id}/edit`, { headers })
@@ -237,7 +227,6 @@ export default function AddLeadClient() {
         // getLead();
         getClients();
         handleServiceLng("heb");
-        getWorkers();
         getClient();
     }, []);
 
@@ -785,7 +774,6 @@ export default function AddLeadClient() {
                                     {cjob === "1" && (
                                         <JobMenu
                                             addresses={addresses}
-                                            worker={worker}
                                             AllServices={AllServices}
                                             AllFreq={AllFreq}
                                             formValues={formValues}
