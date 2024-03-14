@@ -13,9 +13,6 @@ export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [AllClients, setAllClients] = useState([]);
-    const [AllServices, setAllServices] = useState([]);
-    const [AllWorkers, setAllWorkers] = useState([]);
     const alert = useAlert();
     const cid = localStorage.getItem("client-id");
     const { t, i18n } = useTranslation();

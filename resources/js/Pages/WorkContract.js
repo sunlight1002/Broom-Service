@@ -593,143 +593,155 @@ export default function WorkContract() {
                         </h6>
                         <div className="service-table table-responsive">
                             <table className="table table-bordered">
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.the_service_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
-                                                return (
-                                                    <p>
-                                                        {s.service != "10"
-                                                            ? s.name
-                                                            : s.other_title}
-                                                    </p>
-                                                );
-                                            })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.location_txt")}
-                                    </td>
-                                    <td>
-                                        {offer &&
-                                            offer.map((ofr, i) => {
-                                                let address = ofr.client
-                                                    .geo_address
-                                                    ? ofr.client.geo_address +
-                                                      ", "
-                                                    : "";
-                                                return address;
-                                            })}
-                                        <br />{" "}
-                                        <span
-                                            style={{ fontWeight: "600" }}
-                                            className="d-block mt-2"
-                                        >
-                                            {t(
-                                                "work-contract.other_address_txt"
-                                            )}
-                                        </span>{" "}
-                                        <br />
-                                        {contract &&
-                                        contract.additional_address != null ? (
-                                            <input
-                                                type="text"
-                                                value={
-                                                    contract.additional_address
-                                                }
-                                                readOnly
-                                                className="form-control"
-                                            />
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                name="additional_address"
-                                                onChange={(e) =>
-                                                    setAaddress(e.target.value)
-                                                }
-                                                placeholder={t(
-                                                    "work-contract.placeholder_address"
-                                                )}
-                                                className="form-control"
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t(
-                                            "work-contract.service_delivery_txt"
-                                        )}
-                                    </td>
-                                    <td>{t("work-contract.as_agreed_txt")} </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.frequency_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {" "}
-                                                        {s.freq_name}
-                                                    </p>
-                                                );
-                                            })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.consideration_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.totalamount +
-                                                            t(
-                                                                "work-contract.ils"
-                                                            ) +
-                                                            " + " +
-                                                            t(
-                                                                "work-contract.vat"
-                                                            ) +
-                                                            " " +
-                                                            t(
-                                                                "work-contract.for"
-                                                            ) +
-                                                            " " +
-                                                            (s.service != "10"
+                                <tbody>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.the_service_txt")}
+                                        </td>
+                                        <td>
+                                            {services &&
+                                                services.map((s, i) => {
+                                                    return (
+                                                        <p key={i}>
+                                                            {s.service != "10"
                                                                 ? s.name
-                                                                : s.other_title) +
-                                                            ", " +
-                                                            s.freq_name}
-                                                    </p>
-                                                );
-                                            })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
-                                    <td colSpan="2">
-                                        {t("work-contract.payment_method")}
-                                    </td>
-                                    {/* <td>&nbsp;</td> */}
-                                </tr>
-                                <tr>
-                                    <td colSpan="2">
-                                        {t("work-contract.hereby_permit_txt")}
-                                    </td>
-                                    {/* <td>&nbsp;</td> */}
-                                </tr>
+                                                                : s.other_title}
+                                                        </p>
+                                                    );
+                                                })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.location_txt")}
+                                        </td>
+                                        <td>
+                                            {offer &&
+                                                offer.map((ofr, i) => {
+                                                    let address = ofr.client
+                                                        .geo_address
+                                                        ? ofr.client
+                                                              .geo_address +
+                                                          ", "
+                                                        : "";
+                                                    return address;
+                                                })}
+                                            <br />{" "}
+                                            <span
+                                                style={{ fontWeight: "600" }}
+                                                className="d-block mt-2"
+                                            >
+                                                {t(
+                                                    "work-contract.other_address_txt"
+                                                )}
+                                            </span>{" "}
+                                            <br />
+                                            {contract &&
+                                            contract.additional_address !=
+                                                null ? (
+                                                <input
+                                                    type="text"
+                                                    value={
+                                                        contract.additional_address
+                                                    }
+                                                    readOnly
+                                                    className="form-control"
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    name="additional_address"
+                                                    onChange={(e) =>
+                                                        setAaddress(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder={t(
+                                                        "work-contract.placeholder_address"
+                                                    )}
+                                                    className="form-control"
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.service_delivery_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {t("work-contract.as_agreed_txt")}{" "}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.frequency_txt")}
+                                        </td>
+                                        <td>
+                                            {services &&
+                                                services.map((s, i) => {
+                                                    return (
+                                                        <p key={i}>
+                                                            {" "}
+                                                            {s.freq_name}
+                                                        </p>
+                                                    );
+                                                })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.consideration_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {services &&
+                                                services.map((s, i) => {
+                                                    return (
+                                                        <p key={i}>
+                                                            {s.totalamount +
+                                                                t(
+                                                                    "work-contract.ils"
+                                                                ) +
+                                                                " + " +
+                                                                t(
+                                                                    "work-contract.vat"
+                                                                ) +
+                                                                " " +
+                                                                t(
+                                                                    "work-contract.for"
+                                                                ) +
+                                                                " " +
+                                                                (s.service !=
+                                                                "10"
+                                                                    ? s.name
+                                                                    : s.other_title) +
+                                                                ", " +
+                                                                s.freq_name}
+                                                        </p>
+                                                    );
+                                                })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
+                                        <td colSpan="2">
+                                            {t("work-contract.payment_method")}
+                                        </td>
+                                        {/* <td>&nbsp;</td> */}
+                                    </tr>
+                                    <tr>
+                                        <td colSpan="2">
+                                            {t(
+                                                "work-contract.hereby_permit_txt"
+                                            )}
+                                        </td>
+                                        {/* <td>&nbsp;</td> */}
+                                    </tr>
 
-                                {/*<tr>
+                                    {/*<tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_number')}</td>
                                     <td>
                                     { contract && contract.name_on_card != null ?
@@ -751,237 +763,265 @@ export default function WorkContract() {
                                     </td>
                                 </tr>*/}
 
-                                {oc != false && (
-                                    <tr>
-                                        <td>
-                                            <label className="control-label">
-                                                {t("work-contract.card_type")}
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className="form-control"
-                                                value={contract.card_type}
-                                                onChange={(e) =>
-                                                    setCtype(e.target.value)
-                                                }
-                                            >
-                                                <option value="">
-                                                    {" "}
+                                    {oc != false && (
+                                        <tr>
+                                            <td>
+                                                <label className="control-label">
                                                     {t(
-                                                        "work-contract.please_select"
+                                                        "work-contract.card_type"
                                                     )}
-                                                </option>
-                                                <option value="Visa">
-                                                    Visa
-                                                </option>
-                                                <option value="Master Card">
-                                                    Master Card
-                                                </option>
-                                                <option value="American Express">
-                                                    American Express
-                                                </option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                )}
-
-                                {(oc == true || csdata == null) && (
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.card_name")}
-                                        </td>
-                                        <td>
-                                            {contract &&
-                                            contract.name_on_card != null ? (
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        contract.name_on_card
-                                                    }
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <select
                                                     className="form-control"
-                                                    readOnly
-                                                />
-                                            ) : (
-                                                <input
-                                                    type="text"
-                                                    name="name_on_card"
+                                                    value={contract.card_type}
                                                     onChange={(e) =>
-                                                        setCname(e.target.value)
+                                                        setCtype(e.target.value)
                                                     }
-                                                    className="form-control"
-                                                    placeholder={t(
-                                                        "work-contract.card_name"
-                                                    )}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                )}
+                                                >
+                                                    <option value="">
+                                                        {" "}
+                                                        {t(
+                                                            "work-contract.please_select"
+                                                        )}
+                                                    </option>
+                                                    <option value="Visa">
+                                                        Visa
+                                                    </option>
+                                                    <option value="Master Card">
+                                                        Master Card
+                                                    </option>
+                                                    <option value="American Express">
+                                                        American Express
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    )}
 
-                                {oc == false && csdata && (
-                                    <>
+                                    {(oc == true || csdata == null) && (
                                         <tr>
                                             <td style={{ width: "60%" }}>
-                                                {t(
-                                                    "work-contract.card.four_digits"
+                                                {t("work-contract.card_name")}
+                                            </td>
+                                            <td>
+                                                {contract &&
+                                                contract.name_on_card !=
+                                                    null ? (
+                                                    <input
+                                                        type="text"
+                                                        value={
+                                                            contract.name_on_card
+                                                        }
+                                                        className="form-control"
+                                                        readOnly
+                                                    />
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        name="name_on_card"
+                                                        onChange={(e) =>
+                                                            setCname(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        className="form-control"
+                                                        placeholder={t(
+                                                            "work-contract.card_name"
+                                                        )}
+                                                    />
                                                 )}
                                             </td>
-                                            <td>
-                                                <span className="form-control">
-                                                    {csdata.card_number}
-                                                </span>
-                                            </td>
                                         </tr>
+                                    )}
 
+                                    {oc == false && csdata && (
+                                        <>
+                                            <tr>
+                                                <td style={{ width: "60%" }}>
+                                                    {t(
+                                                        "work-contract.card.four_digits"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <span className="form-control">
+                                                        {csdata.card_number}
+                                                    </span>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td style={{ width: "60%" }}>
+                                                    {t(
+                                                        "work-contract.card.valid"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <span className="form-control">
+                                                        {formatValid}
+                                                    </span>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td style={{ width: "60%" }}>
+                                                    {t(
+                                                        "work-contract.card.type"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <span className="form-control">
+                                                        {csdata.card_type}
+                                                    </span>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td style={{ width: "60%" }}>
+                                                    {t(
+                                                        "work-contract.card.holder"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <span className="form-control">
+                                                        {csdata.card_holder}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </>
+                                    )}
+
+                                    {oc != false && (
                                         <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t("work-contract.card.valid")}
+                                            <td>
+                                                {" "}
+                                                <label className="control-label">
+                                                    {t(
+                                                        "work-contract.card_cvv"
+                                                    )}
+                                                </label>
                                             </td>
                                             <td>
-                                                <span className="form-control">
-                                                    {formatValid}
-                                                </span>
+                                                {contract &&
+                                                contract.name_on_card !=
+                                                    null ? (
+                                                    <input
+                                                        type="text"
+                                                        value={contract.cvv}
+                                                        className="form-control"
+                                                        readOnly
+                                                    />
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        name="cvv"
+                                                        onChange={(e) =>
+                                                            setCvv(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        onKeyUp={(e) => {
+                                                            if (
+                                                                e.target.value
+                                                                    .length >= 3
+                                                            )
+                                                                e.target.value =
+                                                                    e.target.value.slice(
+                                                                        0,
+                                                                        3
+                                                                    );
+                                                        }}
+                                                        className="form-control"
+                                                        placeholder={t(
+                                                            "work-contract.card_cvv"
+                                                        )}
+                                                    />
+                                                )}
                                             </td>
                                         </tr>
+                                    )}
 
-                                        <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t("work-contract.card.type")}
-                                            </td>
-                                            <td>
-                                                <span className="form-control">
-                                                    {csdata.card_type}
-                                                </span>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t("work-contract.card.holder")}
-                                            </td>
-                                            <td>
-                                                <span className="form-control">
-                                                    {csdata.card_holder}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </>
-                                )}
-
-                                {oc != false && (
                                     <tr>
-                                        <td>
-                                            {" "}
-                                            <label className="control-label">
-                                                {t("work-contract.card_cvv")}
-                                            </label>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.signature")}
                                         </td>
                                         <td>
                                             {contract &&
-                                            contract.name_on_card != null ? (
-                                                <input
-                                                    type="text"
-                                                    value={contract.cvv}
-                                                    className="form-control"
-                                                    readOnly
-                                                />
+                                            contract.card_sign != null ? (
+                                                <img src={contract.card_sign} />
                                             ) : (
-                                                <input
-                                                    type="text"
-                                                    name="cvv"
-                                                    onChange={(e) =>
-                                                        setCvv(e.target.value)
-                                                    }
-                                                    onKeyUp={(e) => {
-                                                        if (
-                                                            e.target.value
-                                                                .length >= 3
-                                                        )
-                                                            e.target.value =
-                                                                e.target.value.slice(
-                                                                    0,
-                                                                    3
-                                                                );
-                                                    }}
-                                                    className="form-control"
-                                                    placeholder={t(
-                                                        "work-contract.card_cvv"
-                                                    )}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                )}
-
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.signature")}
-                                    </td>
-                                    <td>
-                                        {contract &&
-                                        contract.card_sign != null ? (
-                                            <img src={contract.card_sign} />
-                                        ) : (
-                                            <>
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        className: "sigCanvas",
-                                                        width: 300,
-                                                        height: 115,
-                                                    }}
-                                                    ref={sigRef2}
-                                                    onEnd={handleSignatureEnd2}
-                                                />
-                                                <button
-                                                    className="btn btn-warning"
-                                                    onClick={clearSignature2}
-                                                >
-                                                    {t(
-                                                        "work-contract.btn_warning_txt"
-                                                    )}
-                                                </button>
-                                            </>
-                                        )}
-                                    </td>
-                                </tr>
-
-                                {oc == false && contract.add_card == 1 && (
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.add_card_txt")}
-                                        </td>
-                                        <td>
-                                            {status == "not-signed" &&
-                                                submit == false && (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            className:
+                                                                "sigCanvas",
+                                                            width: 300,
+                                                            height: 115,
+                                                        }}
+                                                        ref={sigRef2}
+                                                        onEnd={
+                                                            handleSignatureEnd2
+                                                        }
+                                                    />
                                                     <button
-                                                        className="btn btn-success ac"
-                                                        onClick={(e) =>
-                                                            handleCard(e)
+                                                        className="btn btn-warning"
+                                                        onClick={
+                                                            clearSignature2
                                                         }
                                                     >
                                                         {t(
-                                                            "work-contract.add_card_btn"
+                                                            "work-contract.btn_warning_txt"
                                                         )}
                                                     </button>
-                                                )}
-                                            {status != "not-signed" && (
-                                                <span className="text text-success font-weight-bold">
-                                                    {" "}
-                                                    Verified{" "}
-                                                </span>
+                                                </>
                                             )}
                                         </td>
                                     </tr>
-                                )}
 
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.miscellaneous_txt")}
-                                    </td>
-                                    <td>{t("work-contract.employees_txt")}</td>
-                                </tr>
+                                    {oc == false && contract.add_card == 1 && (
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                {t(
+                                                    "work-contract.add_card_txt"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {status == "not-signed" &&
+                                                    submit == false && (
+                                                        <button
+                                                            className="btn btn-success ac"
+                                                            onClick={(e) =>
+                                                                handleCard(e)
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "work-contract.add_card_btn"
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                {status != "not-signed" && (
+                                                    <span className="text text-success font-weight-bold">
+                                                        {" "}
+                                                        Verified{" "}
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.miscellaneous_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {t("work-contract.employees_txt")}
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                         <h6 className="text-underline">

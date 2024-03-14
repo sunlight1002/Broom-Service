@@ -12,6 +12,7 @@ use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Models\Notification;
+use App\Models\ClientPropertyAddress;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -50,6 +51,16 @@ class ClientEmailController extends Controller
     $offer = Offer::where('id', $id)->with('client')->get();
     $services = ($offer[0]->services != '') ? json_decode($offer[0]->services) : [];
 
+    //map serice property address
+    if (isset($services)) {
+        foreach ($services as $service) {
+            if(!empty($service->address)){
+                $service->address = ClientPropertyAddress::find($service->address)->toArray();
+            }
+        }
+    }
+    $offer[0]->services = json_encode($services, true);
+
     return response()->json([
       'offer' => $offer
     ]);
@@ -57,20 +68,20 @@ class ClientEmailController extends Controller
 
   public function AcceptOffer(Request $request)
   {
-    Offer::where('id', $request->id)
-      ->update([
-        'status' => 'accepted'
-      ]);
-
-    $ofr = Offer::query()
+    $offer = Offer::query()
       ->with('client')
-      ->find($request->id)
-      ->toArray();
+      ->find($request->id);
+
+    $offer->update([
+      'status' => 'accepted'
+    ]);
+
+    $ofr = $offer->toArray();
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
       'type' => 'accept-offer',
-      'offer_id' => $request->id,
+      'offer_id' => $offer->id,
       'status' => 'accepted'
     ]);
 
@@ -87,7 +98,7 @@ class ClientEmailController extends Controller
     $hash = md5($ofr['client']['email'] . $ofr['id']);
 
     $contract = Contract::create([
-      'offer_id'   => $request->id,
+      'offer_id'   => $offer->id,
       'client_id'  => $ofr['client']['id'],
       'unique_hash' => $hash,
       'status'     => ContractStatusEnum::NOT_SIGNED
@@ -305,6 +316,19 @@ class ClientEmailController extends Controller
     $cid = $goffer[0]->client_id;
 
     $exist_card = ClientCard::where('client_id', $cid)->where('card_token', '!=', null)->first();
+
+    for ($i=0; $i < count($goffer) ; $i++) { 
+      $services = json_decode($goffer[$i]['services']);
+      if (isset($services)) {
+          foreach ($services as $service) {
+              if(!empty($service->address)){
+                  $service->address = ClientPropertyAddress::find($service->address)->toArray();
+              }
+          }            
+      }
+      $goffer[$i]['services'] = json_encode($services, true);
+    }
+
 
     if (isset($exist_card->card_token)) {
       $offer->add_card = 0;

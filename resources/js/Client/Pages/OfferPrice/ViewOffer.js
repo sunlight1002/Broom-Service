@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import logo from "../../../Assets/image/sample.svg";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useTranslation } from "react-i18next";
@@ -104,12 +104,12 @@ export default function ClientViewOffer() {
                                                             " " +
                                                             cl.lastname}
                                                     </p>
-                                                    <p>{cl.street_n_no}</p>
+                                                    {/* <p>{cl.street_n_no}</p>
                                                     <p>
                                                         {cl.city +
                                                             ", " +
                                                             cl.zipcode}
-                                                    </p>
+                                                    </p> */}
                                                     <p>
                                                         {t(
                                                             "client.offer.view.phone"
@@ -174,6 +174,15 @@ export default function ClientViewOffer() {
                                                         <Table className="table table-sm responsiveTable">
                                                             <Thead>
                                                                 <Tr>
+                                                                    <Th
+                                                                        style={{
+                                                                            width: "30%",
+                                                                        }}
+                                                                    >
+                                                                        {t(
+                                                                            "client.offer.view.address"
+                                                                        )}
+                                                                    </Th>
                                                                     <Th
                                                                         style={{
                                                                             width: "20%",
@@ -265,6 +274,29 @@ export default function ClientViewOffer() {
                                                                                         i
                                                                                     }
                                                                                 >
+                                                                                    <Td>
+                                                                                        {s.address ? (
+                                                                                            <Link
+                                                                                                to={`https://maps.google.com?q=${
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .latitude +
+                                                                                                    "," +
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .longitude
+                                                                                                }`}
+                                                                                            >
+                                                                                                {
+                                                                                                    s
+                                                                                                        .address
+                                                                                                        .geo_address
+                                                                                                }
+                                                                                            </Link>
+                                                                                        ) : (
+                                                                                            "NA"
+                                                                                        )}
+                                                                                    </Td>
                                                                                     <Td>
                                                                                         {
                                                                                             s.name

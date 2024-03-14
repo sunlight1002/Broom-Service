@@ -1,6 +1,6 @@
 import { useRef, useState, memo } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import JobModal from "./JobModal";
+import OfferServiceModal from "../../Components/Modals/OfferServiceModal";
 import { useParams } from "react-router-dom";
 
 const jobActions = [
@@ -36,12 +36,12 @@ const initialValue = {
     month_date: 1,
     monthday_selection_type: "weekday",
 };
-const JobMenu = memo(function JobMenu({
+const OfferServiceMenu = memo(function OfferServiceMenu({
     addresses,
-    AllServices,
-    AllFreq,
+    services,
+    frequencies,
     formValues,
-    handleSaveJobForm,
+    handleSaveForm,
     handleRemoveFormFields,
 }) {
     let isAdd = useRef(true);
@@ -49,7 +49,7 @@ const JobMenu = memo(function JobMenu({
     const [isOpen, setIsOpen] = useState(false);
     const [tmpFormValues, setTmpFormValues] = useState(initialValue);
     let param = useParams();
-    const handleAddJob = () => {
+    const handleAddService = () => {
         if (!addresses.length) {
             alert("Please add property address");
             return;
@@ -61,13 +61,14 @@ const JobMenu = memo(function JobMenu({
 
     return (
         <div>
+            {console.log("formValues", formValues)}
             <div className="text-right" style={{ marginBottom: "5px" }}>
                 <button
                     type="button"
-                    onClick={handleAddJob}
+                    onClick={handleAddService}
                     className="btn btn-success"
                 >
-                    + Add Job
+                    + Add Service
                 </button>
             </div>
             <div className="table-responsive">
@@ -76,8 +77,6 @@ const JobMenu = memo(function JobMenu({
                         <Thead>
                             <Tr>
                                 <Th>Address</Th>
-                                <Th>Worker Name</Th>
-                                <Th>Worker Availability</Th>
                                 <Th>Service</Th>
                                 <Th>Type</Th>
                                 <Th>Job Hours</Th>
@@ -92,17 +91,15 @@ const JobMenu = memo(function JobMenu({
                                     return (
                                         <Tr key={adIndex}>
                                             <Td>
-                                                {param.id
+                                                {addresses.length > 0 &&
+                                                item.address
                                                     ? addresses.filter(
                                                           (a) =>
                                                               a.id ==
                                                               item.address
                                                       )[0]?.geo_address
-                                                    : addresses[item.address]
-                                                          ?.geo_address}
+                                                    : "NA"}
                                             </Td>
-                                            <Td>{item.woker_name}</Td>
-                                            <Td>{item.shift}</Td>
                                             <Td>{item.name}</Td>
                                             <Td>{item.type}</Td>
                                             <Td>{item.jobHours}</Td>
@@ -172,19 +169,19 @@ const JobMenu = memo(function JobMenu({
                         </Tbody>
                     </Table>
                 ) : (
-                    <p className="text-center mt-5">{"Jobs not found!"}</p>
+                    <p className="text-center mt-5">{"Services not found!"}</p>
                 )}
             </div>
             {isOpen && (
-                <JobModal
+                <OfferServiceModal
                     setIsOpen={setIsOpen}
                     isOpen={isOpen}
                     addresses={addresses}
-                    AllServices={AllServices}
-                    AllFreq={AllFreq}
+                    services={services}
+                    frequencies={frequencies}
                     tmpFormValues={tmpFormValues}
                     handleTmpValue={setTmpFormValues}
-                    handleSaveJobForm={handleSaveJobForm}
+                    handleSaveForm={handleSaveForm}
                     isAdd={isAdd.current}
                     index={indexRef.current}
                 />
@@ -192,4 +189,4 @@ const JobMenu = memo(function JobMenu({
         </div>
     );
 });
-export default JobMenu;
+export default OfferServiceMenu;

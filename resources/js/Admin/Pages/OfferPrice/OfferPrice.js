@@ -8,7 +8,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 
 export default function OfferPrice() {
-    const [offers, setOffers] = useState();
+    const [offers, setOffers] = useState([]);
     const [totalOffers, setTotalOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [filter, setFilter] = useState("");
@@ -193,7 +193,7 @@ export default function OfferPrice() {
                                             <Tr>
                                                 <Th scope="col">Client</Th>
                                                 <Th scope="col">Email</Th>
-                                                <Th scope="col">Address</Th>
+                                                {/* <Th scope="col">Address</Th> */}
                                                 <Th scope="col">Phone</Th>
                                                 <Th
                                                     style={{
@@ -229,197 +229,181 @@ export default function OfferPrice() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {offers &&
-                                                offers.map((ofr, i) => {
-                                                    if (ofr.client) {
-                                                        var address = ofr.client
-                                                            .geo_address
-                                                            ? ofr.client
-                                                                  .geo_address
-                                                            : "NA";
-                                                        var cords =
-                                                            ofr.client
-                                                                .latitude &&
-                                                            ofr.client.longitude
-                                                                ? ofr.client
-                                                                      .latitude +
-                                                                  "," +
-                                                                  ofr.client
-                                                                      .longitude
-                                                                : "NA";
-                                                        let color = "";
-                                                        if (
-                                                            ofr.status == "sent"
-                                                        ) {
-                                                            color = "purple";
-                                                        } else if (
-                                                            ofr.status ==
-                                                            "accepted"
-                                                        ) {
-                                                            color = "green";
-                                                        } else {
-                                                            color = "red";
-                                                        }
-
-                                                        let phone =
-                                                            ofr.client.phone !=
-                                                            undefined
-                                                                ? ofr.client.phone.split(
-                                                                      ","
-                                                                  )
-                                                                : [];
-
-                                                        return (
-                                                            <Tr
-                                                                style={{
-                                                                    cursor: "pointer",
-                                                                }}
-                                                            >
-                                                                <Td>
-                                                                    <Link
-                                                                        to={`/admin/view-client/${ofr.client.id}`}
-                                                                    >
-                                                                        {ofr.client
-                                                                            ? ofr
-                                                                                  .client
-                                                                                  .firstname +
-                                                                              " " +
-                                                                              ofr
-                                                                                  .client
-                                                                                  .lastname
-                                                                            : "NA"}
-                                                                    </Link>
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            ofr.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        ofr
-                                                                            .client
-                                                                            .email
-                                                                    }
-                                                                </Td>
-                                                                <Td>
-                                                                    <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
-                                                                    >
-                                                                        {
-                                                                            address
-                                                                        }
-                                                                    </Link>
-                                                                </Td>
-
-                                                                <Td>
-                                                                    {phone &&
-                                                                        phone.map(
-                                                                            (
-                                                                                p,
-                                                                                i
-                                                                            ) => {
-                                                                                return phone.length >
-                                                                                    1 ? (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                        |{" "}
-                                                                                    </a>
-                                                                                ) : (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                    </a>
-                                                                                );
-                                                                            }
-                                                                        )}
-                                                                </Td>
-                                                                <Td
-                                                                    style={{
-                                                                        color,
-                                                                    }}
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            ofr.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {ofr.status}
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            ofr.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        ofr.subtotal
-                                                                    }{" "}
-                                                                    ILS + VAT
-                                                                </Td>
-                                                                <Td>
-                                                                    <div className="action-dropdown dropdown">
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn btn-default dropdown-toggle"
-                                                                            data-toggle="dropdown"
-                                                                        >
-                                                                            <i className="fa fa-ellipsis-vertical"></i>
-                                                                        </button>
-                                                                        <div className="dropdown-menu">
-                                                                            <Link
-                                                                                to={`/admin/edit-offer/${ofr.id}`}
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                Edit
-                                                                            </Link>
-                                                                            <Link
-                                                                                to={`/admin/view-offer/${ofr.id}`}
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                View
-                                                                            </Link>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() =>
-                                                                                    handleDelete(
-                                                                                        ofr.id
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                Delete
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </Td>
-                                                            </Tr>
-                                                        );
+                                            {offers.map((ofr, i) => {
+                                                if (ofr.client) {
+                                                    // var address = ofr.client
+                                                    //     .geo_address
+                                                    //     ? ofr.client.geo_address
+                                                    //     : "NA";
+                                                    // var cords =
+                                                    //     ofr.client.latitude &&
+                                                    //     ofr.client.longitude
+                                                    //         ? ofr.client
+                                                    //               .latitude +
+                                                    //           "," +
+                                                    //           ofr.client
+                                                    //               .longitude
+                                                    //         : "NA";
+                                                    let color = "";
+                                                    if (ofr.status == "sent") {
+                                                        color = "purple";
+                                                    } else if (
+                                                        ofr.status == "accepted"
+                                                    ) {
+                                                        color = "green";
+                                                    } else {
+                                                        color = "red";
                                                     }
-                                                })}
+
+                                                    let phone =
+                                                        ofr.client.phone !=
+                                                        undefined
+                                                            ? ofr.client.phone.split(
+                                                                  ","
+                                                              )
+                                                            : [];
+
+                                                    return (
+                                                        <Tr
+                                                            key={i}
+                                                            style={{
+                                                                cursor: "pointer",
+                                                            }}
+                                                        >
+                                                            <Td>
+                                                                <Link
+                                                                    to={`/admin/view-client/${ofr.client.id}`}
+                                                                >
+                                                                    {ofr.client
+                                                                        ? ofr
+                                                                              .client
+                                                                              .firstname +
+                                                                          " " +
+                                                                          ofr
+                                                                              .client
+                                                                              .lastname
+                                                                        : "NA"}
+                                                                </Link>
+                                                            </Td>
+                                                            <Td
+                                                                onClick={(e) =>
+                                                                    handleNavigate(
+                                                                        e,
+                                                                        ofr.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                {
+                                                                    ofr.client
+                                                                        .email
+                                                                }
+                                                            </Td>
+                                                            {/* <Td>
+                                                                <Link
+                                                                    to={`https://maps.google.com?q=${cords}`}
+                                                                >
+                                                                    {address}
+                                                                </Link>
+                                                            </Td> */}
+
+                                                            <Td>
+                                                                {phone &&
+                                                                    phone.map(
+                                                                        (
+                                                                            p,
+                                                                            i
+                                                                        ) => {
+                                                                            return phone.length >
+                                                                                1 ? (
+                                                                                <a
+                                                                                    href={`tel:${p}`}
+                                                                                    key={
+                                                                                        i
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        p
+                                                                                    }{" "}
+                                                                                    |{" "}
+                                                                                </a>
+                                                                            ) : (
+                                                                                <a
+                                                                                    href={`tel:${p}`}
+                                                                                    key={
+                                                                                        i
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        p
+                                                                                    }{" "}
+                                                                                </a>
+                                                                            );
+                                                                        }
+                                                                    )}
+                                                            </Td>
+                                                            <Td
+                                                                style={{
+                                                                    color,
+                                                                }}
+                                                                onClick={(e) =>
+                                                                    handleNavigate(
+                                                                        e,
+                                                                        ofr.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                {ofr.status}
+                                                            </Td>
+                                                            <Td
+                                                                onClick={(e) =>
+                                                                    handleNavigate(
+                                                                        e,
+                                                                        ofr.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                {ofr.subtotal}{" "}
+                                                                ILS + VAT
+                                                            </Td>
+                                                            <Td>
+                                                                <div className="action-dropdown dropdown">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-default dropdown-toggle"
+                                                                        data-toggle="dropdown"
+                                                                    >
+                                                                        <i className="fa fa-ellipsis-vertical"></i>
+                                                                    </button>
+                                                                    <div className="dropdown-menu">
+                                                                        <Link
+                                                                            to={`/admin/edit-offer/${ofr.id}`}
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            Edit
+                                                                        </Link>
+                                                                        <Link
+                                                                            to={`/admin/view-offer/${ofr.id}`}
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            View
+                                                                        </Link>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>
+                                                                                handleDelete(
+                                                                                    ofr.id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </Td>
+                                                        </Tr>
+                                                    );
+                                                }
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (

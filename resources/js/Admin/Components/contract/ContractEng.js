@@ -153,14 +153,14 @@ export default function WorkContract() {
                                             client.lastname}
                                     </span>
                                 </li>
-                                <li className="list-inline-item">
+                                {/* <li className="list-inline-item">
                                     City:{" "}
                                     <span>
                                         {client.city ? client.city : "NA"}
                                     </span>
-                                </li>
+                                </li> */}
                             </ul>
-                            <ul className="list-inline">
+                            {/* <ul className="list-inline">
                                 <li className="list-inline-item">
                                     Street and Number:{" "}
                                     <span>
@@ -168,9 +168,9 @@ export default function WorkContract() {
                                             ? client.geo_address
                                             : "NA"}
                                     </span>
-                                </li>
-                                {/* <li className='list-inline-item'>Floor: <span>{client.floor ? client.floor : 'NA'}</span></li>*/}
-                            </ul>
+                                </li> */}
+                            {/* <li className='list-inline-item'>Floor: <span>{client.floor ? client.floor : 'NA'}</span></li>*/}
+                            {/* </ul> */}
                             <ul className="list-inline">
                                 {/*<li className='list-inline-item'>Apt Number: <span>{client.apt_no ? client.apt_no : 'NA'}</span></li>
                                 <li className='list-inline-item'>Enterance Code: <span>{client.entrence_code ? client.entrence_code : 'NA'}</span></li>*/}
@@ -339,6 +339,20 @@ export default function WorkContract() {
                                             performed
                                         </td>
                                         <td>
+                                            {services &&
+                                                services.map((s, i) => {
+                                                    return (
+                                                        <p key={i}>
+                                                            {s.address
+                                                                ? s.address
+                                                                      .geo_address
+                                                                    ? s.address
+                                                                          .geo_address
+                                                                    : ""
+                                                                : ""}
+                                                        </p>
+                                                    );
+                                                })}
                                             {contract &&
                                                 contract.map((c, i) => {
                                                     let address = c.client

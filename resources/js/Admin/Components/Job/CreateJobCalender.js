@@ -53,10 +53,10 @@ export default function CreateJobCalender() {
     };
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
-            if (res.data.time.length > 0) {
-                setStartSlot(res.data.time[0].start_time);
-                setEndSlot(res.data.time[0].end_time);
-                let ar = JSON.parse(res.data.time[0].days);
+            if (res.data.data) {
+                setStartSlot(res.data.data.start_time);
+                setEndSlot(res.data.data.end_time);
+                let ar = JSON.parse(res.data.data.days);
                 let ai = [];
                 ar && ar.map((a, i) => ai.push(parseInt(a)));
                 var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
@@ -165,62 +165,43 @@ export default function CreateJobCalender() {
             nextnextweek.push(firstday);
         }
     }
-    const slot = [
-        ["8am-16pm", "full day- 8am-16pm"],
-        ["8am-10am", "morning1 - 8am-10am"],
-        ["10am-12pm", "morning 2 - 10am-12pm"],
-        ["8am-12pm", "morning- 08am-12pm"],
-        ["12pm-14pm", "noon1 -12pm-14pm"],
-        ["14pm-16pm", "noon2 14pm-16pm"],
-        ["12pm-16pm", "noon 12pm-16pm"],
-        ["16pm-18pm", "af1 16pm-18pm"],
-        ["18pm-20pm", "af2 18pm-20pm"],
-        ["16pm-20pm", "afternoon 16pm-20pm"],
-        ["20pm-22pm", "ev1 20pm-22pm"],
-        ["22pm-24am", "ev2 22pm-24pm"],
-        ["20pm-24am", "evening 20pm-24am"],
-    ];
     const colourOptions = {
         "8am-16pm": [
-            { value: 0, label: "full day -8am-16pm" },
-            { value: 1, label: "morning1 -8am-10am" },
-            { value: 2, label: "morning 2 -10am-12pm" },
-            { value: 3, label: "morning -8am-12pm" },
-            { value: 4, label: "noon1   -12pm-14pm" },
-            { value: 5, label: "noon2 -14pm-16pm" },
-            { value: 6, label: "noon -12pm-16pm" },
-            { value: 7, label: "evening1 -16pm-18pm" },
-            { value: 8, label: "evening2 -18pm-20pm" },
-            { value: 9, label: "evening -16pm-20pm" },
-            { value: 10, label: "night1 -20pm-22pm" },
-            { value: 11, label: "night2 -22pm-24pm" },
-            { value: 12, label: "night -20pm-24pm" },
+            { value: 0, label: "fullday-8am-16pm" },
+            { value: 1, label: "morning1-8am-10am" },
+            { value: 2, label: "morning2-10am-12pm" },
+            { value: 3, label: "morning-8am-12pm" },
+            { value: 4, label: "noon1-12pm-14pm" },
+            { value: 5, label: "noon2-14pm-16pm" },
+            { value: 6, label: "noon-12pm-16pm" },
+            { value: 7, label: "evening1-16pm-18pm" },
+            { value: 8, label: "evening2-18pm-20pm" },
+            { value: 9, label: "evening-16pm-20pm" },
+            { value: 10, label: "night1-20pm-22pm" },
+            { value: 11, label: "night2-22pm-24pm" },
+            { value: 12, label: "night-20pm-24pm" },
         ],
         "8am-12pm": [
-            { value: 0, label: "morning1 -8am-10am" },
-            { value: 1, label: "morning2 -10am-12pm" },
-            { value: 2, label: "morning  -8am-12pm" },
+            { value: 0, label: "morning1-8am-10am" },
+            { value: 1, label: "morning2-10am-12pm" },
+            { value: 2, label: "morning-8am-12pm" },
         ],
         "12pm-16pm": [
-            { value: 0, label: "af1 -12pm-14pm" },
-            { value: 1, label: "af2 -14pm-16pm" },
-            { value: 2, label: "afternoon -12pm-16pm" },
+            { value: 0, label: "af1-12pm-14pm" },
+            { value: 1, label: "af2-14pm-16pm" },
+            { value: 2, label: "afternoon-12pm-16pm" },
         ],
         "16pm-20pm": [
-            { value: 0, label: "ev1 -16pm-18pm" },
-            { value: 1, label: "ev2 -18pm-20pm" },
-            { value: 2, label: "Evening -16pm-20pm" },
+            { value: 0, label: "ev1-16pm-18pm" },
+            { value: 1, label: "ev2-18pm-20pm" },
+            { value: 2, label: "evening-16pm-20pm" },
         ],
         "20pm-24am": [
-            { value: 0, label: "night1 -20pm-22pm" },
-            { value: 1, label: "night2 -22pm-24pm" },
-            { value: 2, label: "night -20pm-24pm" },
+            { value: 0, label: "night1-20pm-22pm" },
+            { value: 1, label: "night2-22pm-24pm" },
+            { value: 2, label: "night-20pm-24pm" },
         ],
     };
-    const colourOptions1 = [
-        { value: 0, label: "full day - 8am-16pm" },
-        { value: 1, label: "morning - 8-12pm" },
-    ];
     const changeShift = (w_id, date, e) => {
         let w_n = $("#worker-" + w_id).html();
         let filtered = data.filter((d) => {
@@ -233,7 +214,7 @@ export default function CreateJobCalender() {
         let shifts = "";
         let value = false;
         e.map((v) => {
-            if (v.label == "full day -8am-16pm") {
+            if (v.label == "fullday-8am-16pm") {
                 value = true;
             }
             if (shifts == "") {

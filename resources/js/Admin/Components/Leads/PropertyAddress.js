@@ -51,6 +51,7 @@ const PropertyAddress = memo(function PropertyAddress({
     let is_dog_avail = useRef();
     let is_cat_avail = useRef();
     let client_id = useRef();
+    let addressName = useRef();
 
     useEffect(() => {
         setTimeout(() => {
@@ -109,6 +110,9 @@ const PropertyAddress = memo(function PropertyAddress({
         } else {
             const updatedData = {
                 geo_address: fullAddress.current.value,
+                address_name: addressName.current.value
+                    ? addressName.current.value
+                    : "",
                 floor: floor.current.value,
                 apt_no: Apt.current.value,
                 entrence_code: enterance.current.value,
@@ -148,6 +152,8 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.longitude;
                 addressVal[addressId.current.value]["latitude"] =
                     updatedData.latitude;
+                addressVal[addressId.current.value]["address_name"] =
+                    updatedData.address_name ? updatedData.address_name : "";
             }
             if (params.id) {
                 axios
@@ -181,6 +187,7 @@ const PropertyAddress = memo(function PropertyAddress({
 
     const resetForm = () => {
         fullAddress.current && (fullAddress.current.value = "");
+        addressName.current && (addressName.current.value = "");
         floor.current && (floor.current.value = "");
         Apt.current && (Apt.current.value = "");
         enterance.current && (enterance.current.value = "");
@@ -203,6 +210,9 @@ const PropertyAddress = memo(function PropertyAddress({
             isAdd.current = false;
             setTimeout(() => {
                 fullAddress.current.value = data.geo_address;
+                addressName.current.value = data.address_name
+                    ? data.address_name
+                    : "";
                 floor.current.value = data.floor;
                 Apt.current.value = data.apt_no;
                 enterance.current.value = data.entrence_code;
@@ -336,6 +346,29 @@ const PropertyAddress = memo(function PropertyAddress({
                                         {errors.address ? (
                                             <small className="text-danger mb-1">
                                                 {errors.address}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Name
+                                        </label>
+                                        <input
+                                            name="address_name"
+                                            ref={addressName}
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Address name"
+                                        />
+                                        {errors.address_name ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.address_name}
                                             </small>
                                         ) : (
                                             ""
@@ -543,6 +576,7 @@ const PropertyAddress = memo(function PropertyAddress({
                             <Table className="table table-bordered">
                                 <Thead>
                                     <Tr>
+                                        <Th>Name</Th>
                                         <Th>Address</Th>
                                         <Th>Zipcode</Th>
                                         <Th>Action</Th>
@@ -553,6 +587,11 @@ const PropertyAddress = memo(function PropertyAddress({
                                         addresses.map((item, index) => {
                                             return (
                                                 <Tr key={index}>
+                                                    <Td>
+                                                        {item.address_name
+                                                            ? item.address_name
+                                                            : "NA"}{" "}
+                                                    </Td>
                                                     <Td>
                                                         {item.geo_address
                                                             ? item.geo_address

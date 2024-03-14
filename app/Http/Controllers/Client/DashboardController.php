@@ -118,11 +118,15 @@ class DashboardController extends Controller
             $services = json_decode($offer->services);
             if (isset($services)) {
                 foreach ($services as $service) {
+                    if(!empty($service->address)){
+                        $service->address = ClientPropertyAddress::find($service->address)->toArray();
+                    }
                     if ($service->type == 'hourly') {
                         $perhour = true;
                     }
                 }
             }
+            $offer->services = json_encode($services, true);
             ($perhour == true) ? $offer->perhour = 1 : $offer->perhour = 0;
         }
         return response()->json([

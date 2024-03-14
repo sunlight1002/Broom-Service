@@ -32,9 +32,8 @@ class DashboardController extends Controller
 
     public function getTime()
     {
-        $time = ManageTime::where('id', 1)->get();
         return response()->json([
-            'time' => $time
+            'data' => ManageTime::where('id', 1)->first()
         ]);
     }
 

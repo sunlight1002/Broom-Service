@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
 use App\Models\ClientCard;
+use App\Models\ClientPropertyAddress;
 use App\Models\LeadStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -119,6 +120,17 @@ class ContractController extends Controller
         $card = ClientCard::where('client_id', $contract[0]->client->id)->first();
 
         $contract[0]['card'] = $card;
+        if(isset($contract[0]) && isset($contract[0]['offer']) && $contract[0]['offer']['services']){
+            $services = json_decode($contract[0]['offer']['services']);
+            if (isset($services)) {
+                foreach ($services as $service) {
+                    if(!empty($service->address)){
+                        $service->address = ClientPropertyAddress::find($service->address)->toArray();
+                    }
+                }            
+            }
+            $contract[0]['offer']['services'] = json_encode($services, true);
+        }
 
         return response()->json([
             'contract' => $contract,

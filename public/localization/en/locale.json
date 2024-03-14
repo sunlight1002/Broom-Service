@@ -379,7 +379,7 @@
             "id": "ID",
             "attender": "Meeting Attender",
             "scheduled": "Scheduled",
-            "status": "Booking Status",
+            "status": "Status",
             "files": "Files",
             "cfiles": {
                 "title": "Meeting Files",
@@ -422,7 +422,8 @@
                 "hour_s": "hour(s)",
                 "total": "Total",
                 "phone": "Phone",
-                "email": "Email"
+                "email": "Email",
+                "address": "Address"
             }
         },
         "contract": {

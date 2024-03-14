@@ -23,6 +23,7 @@ class ClientPropertyAddress extends Model
         'client_id',
         'prefer_type',
         'is_dog_avail',
-        'is_cat_avail'
+        'is_cat_avail',
+        'address_name'
     ];
 }

@@ -253,7 +253,7 @@ export default function () {
                                                 sortTable(e, "booking_status");
                                             }}
                                         >
-                                            Booking Status{" "}
+                                            Status{" "}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
