@@ -12,6 +12,7 @@ class Services extends Model
         'name',
         'heb_name',
         'template',
-        'status'
+        'status',
+        'color_code'
     ];
 }

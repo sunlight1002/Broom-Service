@@ -873,6 +873,22 @@ export default function TotalJobs() {
                                                                         item.id
                                                                     )
                                                                 }
+                                                                style={{
+                                                                    background: `${
+                                                                        item
+                                                                            .jobservice
+                                                                            .length >
+                                                                            0 &&
+                                                                        item
+                                                                            .jobservice[0]
+                                                                            .service
+                                                                            ? item
+                                                                                  .jobservice[0]
+                                                                                  .service
+                                                                                  ?.color_code
+                                                                            : "#FFFFFF"
+                                                                    }`,
+                                                                }}
                                                             >
                                                                 {item.jobservice &&
                                                                     item.jobservice.map(
