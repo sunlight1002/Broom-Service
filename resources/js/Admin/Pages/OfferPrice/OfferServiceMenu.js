@@ -51,7 +51,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
     let param = useParams();
     const handleAddService = () => {
         if (!addresses.length) {
-            alert("Please add property address");
+            alert("Please add property address for the client");
             return;
         }
         setTmpFormValues(initialValue);
@@ -61,7 +61,6 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
     return (
         <div>
-            {console.log("formValues", formValues)}
             <div className="text-right" style={{ marginBottom: "5px" }}>
                 <button
                     type="button"

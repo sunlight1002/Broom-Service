@@ -9,6 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import swal from "sweetalert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
+import { frequencyDescription } from "../../../Utils/job.utils";
 
 export default function WorkContract() {
     const [contract, setContract] = useState([]);
@@ -313,15 +314,15 @@ export default function WorkContract() {
                             </h6>
                             <div className="service-table table-responsive">
                                 <table className="table table-bordered">
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            The service and/or work requested by
-                                            the Tenant
-                                        </td>
+                                    <tbody>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                The service and/or work
+                                                requested by the Tenant
+                                            </td>
 
-                                        <td>
-                                            {services &&
-                                                services.map((s, i) => {
+                                            <td>
+                                                {services.map((s, i) => {
                                                     return (
                                                         <p key={i}>
                                                             {s.service != "10"
@@ -330,17 +331,16 @@ export default function WorkContract() {
                                                         </p>
                                                     );
                                                 })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            The location in which the service
-                                            will be provided and/or work will be
-                                            performed
-                                        </td>
-                                        <td>
-                                            {services &&
-                                                services.map((s, i) => {
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                The location in which the
+                                                service will be provided and/or
+                                                work will be performed
+                                            </td>
+                                            <td>
+                                                {services.map((s, i) => {
                                                     return (
                                                         <p key={i}>
                                                             {s.address
@@ -353,126 +353,137 @@ export default function WorkContract() {
                                                         </p>
                                                     );
                                                 })}
-                                            {contract &&
-                                                contract.map((c, i) => {
-                                                    let address = c.client
-                                                        .geo_address
-                                                        ? c.client.geo_address +
-                                                          ", "
-                                                        : "";
+                                                {contract &&
+                                                    contract.map((c, i) => {
+                                                        let address = c.client
+                                                            .geo_address
+                                                            ? c.client
+                                                                  .geo_address +
+                                                              ", "
+                                                            : "";
 
-                                                    if (c.additional_address) {
                                                         if (
-                                                            c.status ==
-                                                            "not-signed"
+                                                            c.additional_address
                                                         ) {
-                                                            return (
-                                                                <React.Fragment
-                                                                    key={i}
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            address
-                                                                        }
-                                                                    </span>
-                                                                    <span
-                                                                        style={{
-                                                                            fontWeight:
-                                                                                "600",
-                                                                        }}
-                                                                        className="d-block mt-2"
+                                                            if (
+                                                                c.status ==
+                                                                "not-signed"
+                                                            ) {
+                                                                return (
+                                                                    <React.Fragment
+                                                                        key={i}
                                                                     >
-                                                                        Other
-                                                                        address
-                                                                        if any?
-                                                                    </span>{" "}
-                                                                    <br />
-                                                                    <input
-                                                                        type="text"
-                                                                        name="additional_address"
-                                                                        onChange={(
-                                                                            e
-                                                                        ) =>
-                                                                            setAaddress(
+                                                                        <span>
+                                                                            {
+                                                                                address
+                                                                            }
+                                                                        </span>
+                                                                        <span
+                                                                            style={{
+                                                                                fontWeight:
+                                                                                    "600",
+                                                                            }}
+                                                                            className="d-block mt-2"
+                                                                        >
+                                                                            Other
+                                                                            address
+                                                                            if
+                                                                            any?
+                                                                        </span>{" "}
+                                                                        <br />
+                                                                        <input
+                                                                            type="text"
+                                                                            name="additional_address"
+                                                                            onChange={(
                                                                                 e
-                                                                                    .target
-                                                                                    .value
-                                                                            )
-                                                                        }
-                                                                        placeholder="Any other address?"
-                                                                        className="form-control"
-                                                                    />
-                                                                </React.Fragment>
-                                                            );
-                                                        } else {
-                                                            return (
-                                                                <React.Fragment
-                                                                    key={i}
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            address
-                                                                        }
-                                                                    </span>
-                                                                    <span
-                                                                        style={{
-                                                                            fontWeight:
-                                                                                "600",
-                                                                        }}
-                                                                        className="d-block mt-2"
+                                                                            ) =>
+                                                                                setAaddress(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
+                                                                            placeholder="Any other address?"
+                                                                            className="form-control"
+                                                                        />
+                                                                    </React.Fragment>
+                                                                );
+                                                            } else {
+                                                                return (
+                                                                    <React.Fragment
+                                                                        key={i}
                                                                     >
-                                                                        Other
-                                                                        address
-                                                                        if any?
-                                                                    </span>{" "}
-                                                                    <br />
-                                                                    <span className="form-control">
-                                                                        {
-                                                                            c.additional_address
-                                                                        }
-                                                                    </span>
-                                                                </React.Fragment>
-                                                            );
+                                                                        <span>
+                                                                            {
+                                                                                address
+                                                                            }
+                                                                        </span>
+                                                                        <span
+                                                                            style={{
+                                                                                fontWeight:
+                                                                                    "600",
+                                                                            }}
+                                                                            className="d-block mt-2"
+                                                                        >
+                                                                            Other
+                                                                            address
+                                                                            if
+                                                                            any?
+                                                                        </span>{" "}
+                                                                        <br />
+                                                                        <span className="form-control">
+                                                                            {
+                                                                                c.additional_address
+                                                                            }
+                                                                        </span>
+                                                                    </React.Fragment>
+                                                                );
+                                                            }
                                                         }
-                                                    }
-                                                })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            Date on which the service delivery
-                                            and/or work will begin, and the date
-                                            on which the service delivery and/or
-                                            work will end
-                                        </td>
-                                        <td>As agreed between the parties</td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            Frequency of the service and/or work
-                                        </td>
-                                        <td>
-                                            {services &&
-                                                services.map((s, i) => {
+                                                    })}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                Date on which the service
+                                                delivery and/or work will begin,
+                                                and the date on which the
+                                                service delivery and/or work
+                                                will end
+                                            </td>
+                                            <td>
+                                                As agreed between the parties
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                Frequency of the service and/or
+                                                work
+                                            </td>
+                                            <td>
+                                                {services.map((s, i) => {
                                                     return (
                                                         <p key={i}>
-                                                            {s.freq_name}
+                                                            {s.freq_name};{" "}
+                                                            {frequencyDescription(
+                                                                s
+                                                            )}
                                                         </p>
                                                     );
                                                 })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            Consideration the Tenant will pay
-                                            the Company, including the payment
-                                            method and/or payment date
-                                            <br />
-                                            Prices does not include vat**
-                                        </td>
-                                        <td>
-                                            {services &&
-                                                services.map((s, i) => {
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                Consideration the Tenant will
+                                                pay the Company, including the
+                                                payment method and/or payment
+                                                date
+                                                <br />
+                                                Prices does not include vat**
+                                            </td>
+                                            <td>
+                                                {services.map((s, i) => {
                                                     return (
                                                         <p key={i}>
                                                             {s.totalamount +
@@ -497,33 +508,35 @@ export default function WorkContract() {
                                                         </p>
                                                     );
                                                 })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            Payment method:
-                                        </td>
-                                        <td>&nbsp;</td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            I the undersigned hereby permit
-                                            Broom Service L.M. Ltd to charge my
-                                            credit card account (the details of
-                                            which are listed below) for the
-                                            services I will receive from the
-                                            Company, in the amounts and on the
-                                            dates specified in this agreement
-                                            between Broom Service L.M. Ltd and
-                                            me.
-                                        </td>
-                                        <td>&nbsp;</td>
-                                    </tr>
-                                    {contract &&
-                                        contract.map((c, i) => {
-                                            return c.status == "not-signed" ? (
-                                                <React.Fragment key={i}>
-                                                    {/*<tr>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                Payment method:
+                                            </td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                I the undersigned hereby permit
+                                                Broom Service L.M. Ltd to charge
+                                                my credit card account (the
+                                                details of which are listed
+                                                below) for the services I will
+                                                receive from the Company, in the
+                                                amounts and on the dates
+                                                specified in this agreement
+                                                between Broom Service L.M. Ltd
+                                                and me.
+                                            </td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        {contract &&
+                                            contract.map((c, i) => {
+                                                return c.status ==
+                                                    "not-signed" ? (
+                                                    <React.Fragment key={i}>
+                                                        {/*<tr>
                                                         <td style={{ width: "60%" }}>Card Type:</td>
                                                         <td>
                                                             <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
@@ -534,30 +547,33 @@ export default function WorkContract() {
                                                             </select>
                                                         </td>
                                                      </tr>*/}
-                                                    <tr>
-                                                        <td
-                                                            style={{
-                                                                width: "60%",
-                                                            }}
-                                                        >
-                                                            Name on the Card
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                type="text"
-                                                                name="name_on_card"
-                                                                onChange={(e) =>
-                                                                    setCname(
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder="Name on the Card"
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                    {/*<tr>
+                                                        <tr>
+                                                            <td
+                                                                style={{
+                                                                    width: "60%",
+                                                                }}
+                                                            >
+                                                                Name on the Card
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="text"
+                                                                    name="name_on_card"
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setCname(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                    className="form-control"
+                                                                    placeholder="Name on the Card"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                        {/*<tr>
                                                         <td style={{ width: "60%" }}>Valid Through:</td>
                                                         <td>
                                                             <div className='d-flex'>
@@ -570,119 +586,124 @@ export default function WorkContract() {
                                                         <td style={{ width: "60%" }}>CVV</td>
                                                         <td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder='CVV' /></td>
                                                     </tr>*/}
-                                                    <tr>
-                                                        <td>
-                                                            Signature on the
-                                                            Card
-                                                        </td>
-                                                        <td>
-                                                            {" "}
-                                                            <SignatureCanvas
-                                                                penColor="black"
-                                                                canvasProps={{
-                                                                    className:
-                                                                        "sigCanvas",
-                                                                }}
-                                                                ref={sigRef}
-                                                                onEnd={
-                                                                    handleSignatureEnd
-                                                                }
-                                                            />
-                                                            &nbsp;
-                                                        </td>
-                                                    </tr>
-                                                </React.Fragment>
-                                            ) : (
-                                                <React.Fragment key={i}>
-                                                    {c.card_type != null && (
+                                                        <tr>
+                                                            <td>
+                                                                Signature on the
+                                                                Card
+                                                            </td>
+                                                            <td>
+                                                                {" "}
+                                                                <SignatureCanvas
+                                                                    penColor="black"
+                                                                    canvasProps={{
+                                                                        className:
+                                                                            "sigCanvas",
+                                                                    }}
+                                                                    ref={sigRef}
+                                                                    onEnd={
+                                                                        handleSignatureEnd
+                                                                    }
+                                                                />
+                                                                &nbsp;
+                                                            </td>
+                                                        </tr>
+                                                    </React.Fragment>
+                                                ) : (
+                                                    <React.Fragment key={i}>
+                                                        {c.card_type !=
+                                                            null && (
+                                                            <tr>
+                                                                <td
+                                                                    style={{
+                                                                        width: "60%",
+                                                                    }}
+                                                                >
+                                                                    Card Type
+                                                                </td>
+                                                                <td>
+                                                                    <span className="form-control">
+                                                                        {c.card_type
+                                                                            ? c.card_type
+                                                                            : "NA"}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        )}
                                                         <tr>
                                                             <td
                                                                 style={{
                                                                     width: "60%",
                                                                 }}
                                                             >
-                                                                Card Type
+                                                                Name on the Card
                                                             </td>
                                                             <td>
                                                                 <span className="form-control">
-                                                                    {c.card_type
-                                                                        ? c.card_type
+                                                                    {c.name_on_card
+                                                                        ? c.name_on_card
                                                                         : "NA"}
                                                                 </span>
                                                             </td>
                                                         </tr>
-                                                    )}
-                                                    <tr>
-                                                        <td
-                                                            style={{
-                                                                width: "60%",
-                                                            }}
-                                                        >
-                                                            Name on the Card
-                                                        </td>
-                                                        <td>
-                                                            <span className="form-control">
-                                                                {c.name_on_card
-                                                                    ? c.name_on_card
-                                                                    : "NA"}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    {c.cvv != null && (
+                                                        {c.cvv != null && (
+                                                            <tr>
+                                                                <td
+                                                                    style={{
+                                                                        width: "60%",
+                                                                    }}
+                                                                >
+                                                                    CVV
+                                                                </td>
+                                                                <td>
+                                                                    <span className="form-control">
+                                                                        {c.cvv
+                                                                            ? c.cvv
+                                                                            : "NA"}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        )}
                                                         <tr>
                                                             <td
                                                                 style={{
                                                                     width: "60%",
                                                                 }}
                                                             >
-                                                                CVV
+                                                                Signature on the
+                                                                Card
                                                             </td>
                                                             <td>
-                                                                <span className="form-control">
-                                                                    {c.cvv
-                                                                        ? c.cvv
-                                                                        : "NA"}
-                                                                </span>
+                                                                <img
+                                                                    src={
+                                                                        c.card_sign
+                                                                            ? c.card_sign
+                                                                            : "/images/NA.jpg"
+                                                                    }
+                                                                    className="img-fluid"
+                                                                    alt="Company"
+                                                                />
                                                             </td>
                                                         </tr>
-                                                    )}
-                                                    <tr>
-                                                        <td
-                                                            style={{
-                                                                width: "60%",
-                                                            }}
-                                                        >
-                                                            Signature on the
-                                                            Card
-                                                        </td>
-                                                        <img
-                                                            src={
-                                                                c.card_sign
-                                                                    ? c.card_sign
-                                                                    : "/images/NA.jpg"
-                                                            }
-                                                            className="img-fluid"
-                                                            alt="Company"
-                                                        />
-                                                    </tr>
-                                                </React.Fragment>
-                                            );
-                                        })}
+                                                    </React.Fragment>
+                                                );
+                                            })}
 
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            Miscellaneous
-                                        </td>
-                                        <td>
-                                            All the employees of the Company are
-                                            employed in compliance with the law
-                                            and the Company provides them with
-                                            all the benefits to which they are
-                                            entitled; the Client has no
-                                            employee-employer relationship with
-                                            the employees of the Company.
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                Miscellaneous
+                                            </td>
+                                            <td>
+                                                All the employees of the Company
+                                                are employed in compliance with
+                                                the law and the Company provides
+                                                them with all the benefits to
+                                                which they are entitled; the
+                                                Client has no employee-employer
+                                                relationship with the employees
+                                                of the Company.
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                             <h6 className="text-underline">

@@ -10,9 +10,10 @@ import swal from "sweetalert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
+import { frequencyDescription } from "../../../Utils/job.utils";
 
 export default function WorkContract() {
-    const [offer, setoffer] = useState([]);
+    const [offer, setOffer] = useState();
     const [contract, setContract] = useState([]);
     const [client, setClient] = useState([]);
     const [services, setServices] = useState([]);
@@ -61,8 +62,8 @@ export default function WorkContract() {
 
         const data = {
             unique_hash: param.hash,
-            offer_id: offer[0].id,
-            client_id: offer[0].client.id,
+            offer_id: offer.id,
+            client_id: offer.client.id,
             additional_address: Aaddress,
             card_type: ctype,
             name_on_card: cname,
@@ -97,13 +98,11 @@ export default function WorkContract() {
     };
 
     const getOffer = () => {
-        axios
-            .post(`/api/client/get-offer-token`, { token: param.hash })
-            .then((res) => {
-                setoffer(res.data.offer);
-                setClient(res.data.offer[0].client);
-                setServices(JSON.parse(res.data.offer[0].services));
-            });
+        axios.post(`/api/client/contracts/${param.hash}`).then((res) => {
+            setOffer(res.data.offer);
+            setClient(res.data.offer.client);
+            setServices(JSON.parse(res.data.offer.services));
+        });
     };
 
     const getContract = () => {
@@ -174,52 +173,47 @@ export default function WorkContract() {
                         <p style={{ textAlign: "center" }}>
                             {t("work-contract.and")}
                         </p>
-                        {offer &&
-                            offer.map((ofr, i) => {
-                                let cl = ofr.client;
-
-                                return (
-                                    <React.Fragment key={i}>
-                                        <ul className="list-inline">
-                                            <li className="list-inline-item ml-2">
-                                                {t("work-contract.full_name")}{" "}
-                                                <span>
-                                                    {cl.firstname +
-                                                        " " +
-                                                        cl.lastname}
-                                                </span>
-                                            </li>
-                                            {/* <li className="list-inline-item">
+                        {offer && offer.client && (
+                            <React.Fragment>
+                                <ul className="list-inline">
+                                    <li className="list-inline-item ml-2">
+                                        {t("work-contract.full_name")}{" "}
+                                        <span>
+                                            {offer.client.firstname +
+                                                " " +
+                                                offer.client.lastname}
+                                        </span>
+                                    </li>
+                                    {/* <li className="list-inline-item">
                                                 {t("work-contract.city")}{" "}
-                                                <span>{cl.city}</span>
+                                                <span>{offer.client.city}</span>
                                             </li> */}
-                                        </ul>
-                                        {/* <ul className="list-inline">
+                                </ul>
+                                {/* <ul className="list-inline">
                                             <li className="list-inline-item ml-2">
                                                 {t(
                                                     "work-contract.street_and_number"
                                                 )}{" "}
-                                                <span>{cl.geo_address}</span>
+                                                <span>{offer.client.geo_address}</span>
                                             </li> */}
-                                        {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
-                                        {/* </ul> */}
-                                        <ul className="list-inline">
-                                            {/* <li className='list-inline-item ml-2'>{t('work-contract.apt_number')} <span>{cl.apt_no}</span></li>
-                                        <li className='list-inline-item'>{t('work-contract.enterance_code')} <span>{cl.entrence_code}</span></li>*/}
-                                        </ul>
-                                        <ul className="list-inline">
-                                            <li className="list-inline-item ml-2">
-                                                {t("work-contract.telephone")}{" "}
-                                                <span>{cl.phone}</span>
-                                            </li>
-                                            <li className="list-inline-item">
-                                                {t("work-contract.email")}{" "}
-                                                <span>{cl.email}</span>
-                                            </li>
-                                        </ul>
-                                    </React.Fragment>
-                                );
-                            })}
+                                {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{offer.client.floor}</span></li>*/}
+                                {/* </ul> */}
+                                <ul className="list-inline">
+                                    {/* <li className='list-inline-item ml-2'>{t('work-contract.apt_number')} <span>{offer.client.apt_no}</span></li>
+                                        <li className='list-inline-item'>{t('work-contract.enterance_code')} <span>{offer.client.entrence_code}</span></li>*/}
+                                </ul>
+                                <ul className="list-inline">
+                                    <li className="list-inline-item ml-2">
+                                        {t("work-contract.telephone")}{" "}
+                                        <span>{offer.client.phone}</span>
+                                    </li>
+                                    <li className="list-inline-item">
+                                        {t("work-contract.email")}{" "}
+                                        <span>{offer.client.email}</span>
+                                    </li>
+                                </ul>
+                            </React.Fragment>
+                        )}
                         <h2 className="mb-4">
                             {t("work-contract.second_party_title")}
                         </h2>
@@ -302,32 +296,31 @@ export default function WorkContract() {
                         </h6>
                         <div className="service-table table-responsive">
                             <table className="table table-bordered">
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.the_service_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
+                                <tbody>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.the_service_txt")}
+                                        </td>
+                                        <td>
+                                            {services.map((s, i) => {
                                                 return (
-                                                    <p>
+                                                    <p key={i}>
                                                         {s.service != "10"
                                                             ? s.name
                                                             : s.other_title}
                                                     </p>
                                                 );
                                             })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.location_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.location_txt")}
+                                        </td>
+                                        <td>
+                                            {services.map((s, i) => {
                                                 return (
-                                                    <p>
+                                                    <p key={i}>
                                                         {s.address
                                                             ? s.address
                                                                   .geo_address
@@ -338,69 +331,82 @@ export default function WorkContract() {
                                                     </p>
                                                 );
                                             })}
-                                        <br />{" "}
-                                        <span
-                                            style={{ fontWeight: "600" }}
-                                            className="d-block mt-2"
-                                        >
-                                            {t(
-                                                "work-contract.other_address_txt"
-                                            )}
-                                        </span>{" "}
-                                        <br />
-                                        {contract &&
-                                        contract.additional_address != null ? (
-                                            <input
-                                                type="text"
-                                                value={
-                                                    contract.additional_address
-                                                }
-                                                readOnly
-                                                className="form-control"
-                                            />
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                name="additional_address"
-                                                onChange={(e) =>
-                                                    setAaddress(e.target.value)
-                                                }
-                                                placeholder={t(
-                                                    "work-contract.placeholder_address"
+                                            <br />{" "}
+                                            <span
+                                                style={{ fontWeight: "600" }}
+                                                className="d-block mt-2"
+                                            >
+                                                {t(
+                                                    "work-contract.other_address_txt"
                                                 )}
-                                                className="form-control"
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t(
-                                            "work-contract.service_delivery_txt"
-                                        )}
-                                    </td>
-                                    <td>{t("work-contract.as_agreed_txt")} </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.frequency_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
-                                                return <p> {s.freq_name}</p>;
-                                            })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.consideration_txt")}
-                                    </td>
-                                    <td>
-                                        {services &&
-                                            services.map((s, i) => {
+                                            </span>{" "}
+                                            <br />
+                                            {contract &&
+                                            contract.additional_address !=
+                                                null ? (
+                                                <input
+                                                    type="text"
+                                                    value={
+                                                        contract.additional_address
+                                                    }
+                                                    readOnly
+                                                    className="form-control"
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    name="additional_address"
+                                                    onChange={(e) =>
+                                                        setAaddress(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder={t(
+                                                        "work-contract.placeholder_address"
+                                                    )}
+                                                    className="form-control"
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.service_delivery_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {t("work-contract.as_agreed_txt")}{" "}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.frequency_txt")}
+                                        </td>
+                                        <td>
+                                            {services.map((s, i) => {
                                                 return (
-                                                    <p>
+                                                    <p key={i}>
+                                                        {" "}
+                                                        {s.freq_name};{" "}
+                                                        {frequencyDescription(
+                                                            s
+                                                        )}
+                                                    </p>
+                                                );
+                                            })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.consideration_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <p key={i}>
                                                         {s.totalamount +
                                                             t(
                                                                 "work-contract.ils"
@@ -422,22 +428,24 @@ export default function WorkContract() {
                                                     </p>
                                                 );
                                             })}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
-                                    <td colSpan="2">
-                                        {t("work-contract.payment_method")}
-                                    </td>
-                                    {/* <td>&nbsp;</td> */}
-                                </tr>
-                                <tr>
-                                    <td colSpan="2">
-                                        {t("work-contract.hereby_permit_txt")}
-                                    </td>
-                                    {/* <td>&nbsp;</td> */}
-                                </tr>
-                                {/* <tr>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
+                                        <td colSpan="2">
+                                            {t("work-contract.payment_method")}
+                                        </td>
+                                        {/* <td>&nbsp;</td> */}
+                                    </tr>
+                                    <tr>
+                                        <td colSpan="2">
+                                            {t(
+                                                "work-contract.hereby_permit_txt"
+                                            )}
+                                        </td>
+                                        {/* <td>&nbsp;</td> */}
+                                    </tr>
+                                    {/* <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_type')}</td>
                                     <td>
                                     { contract && contract.card_type != null ?
@@ -452,36 +460,38 @@ export default function WorkContract() {
                                     }
                                     </td>
                                 </tr>*/}
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.card_name")}
-                                    </td>
-                                    <td>
-                                        {contract &&
-                                        contract.name_on_card != null ? (
-                                            <input
-                                                type="text"
-                                                value={contract.name_on_card}
-                                                className="form-control"
-                                                readOnly
-                                            />
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                name="name_on_card"
-                                                onChange={(e) =>
-                                                    setCname(e.target.value)
-                                                }
-                                                className="form-control"
-                                                placeholder={t(
-                                                    "work-contract.card_name"
-                                                )}
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.card_name")}
+                                        </td>
+                                        <td>
+                                            {contract &&
+                                            contract.name_on_card != null ? (
+                                                <input
+                                                    type="text"
+                                                    value={
+                                                        contract.name_on_card
+                                                    }
+                                                    className="form-control"
+                                                    readOnly
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    name="name_on_card"
+                                                    onChange={(e) =>
+                                                        setCname(e.target.value)
+                                                    }
+                                                    className="form-control"
+                                                    placeholder={t(
+                                                        "work-contract.card_name"
+                                                    )}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
 
-                                {/*<tr>
+                                    {/*<tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
                                     <td>
                                     { contract && contract.cvv != null ?
@@ -492,44 +502,54 @@ export default function WorkContract() {
                                     </td>
                                 </tr>*/}
 
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.signature")}
-                                    </td>
-                                    <td>
-                                        {contract &&
-                                        contract.card_sign != null ? (
-                                            <img src={contract.card_sign} />
-                                        ) : (
-                                            <>
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        className: "sigCanvas",
-                                                        width: 300,
-                                                        height: 115,
-                                                    }}
-                                                    ref={sigRef2}
-                                                    onEnd={handleSignatureEnd2}
-                                                />
-                                                <button
-                                                    className="btn btn-warning"
-                                                    onClick={clearSignature2}
-                                                >
-                                                    {t(
-                                                        "work-contract.btn_warning_txt"
-                                                    )}
-                                                </button>
-                                            </>
-                                        )}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{ width: "60%" }}>
-                                        {t("work-contract.miscellaneous_txt")}
-                                    </td>
-                                    <td>{t("work-contract.employees_txt")}</td>
-                                </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.signature")}
+                                        </td>
+                                        <td>
+                                            {contract &&
+                                            contract.card_sign != null ? (
+                                                <img src={contract.card_sign} />
+                                            ) : (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            className:
+                                                                "sigCanvas",
+                                                            width: 300,
+                                                            height: 115,
+                                                        }}
+                                                        ref={sigRef2}
+                                                        onEnd={
+                                                            handleSignatureEnd2
+                                                        }
+                                                    />
+                                                    <button
+                                                        className="btn btn-warning"
+                                                        onClick={
+                                                            clearSignature2
+                                                        }
+                                                    >
+                                                        {t(
+                                                            "work-contract.btn_warning_txt"
+                                                        )}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t(
+                                                "work-contract.miscellaneous_txt"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {t("work-contract.employees_txt")}
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                         <h6 className="text-underline">
