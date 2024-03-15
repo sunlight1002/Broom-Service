@@ -22,9 +22,9 @@ export default function AddOffer() {
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
         if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
-            newFormValues[indexKey] = tmpJobData;
+            newFormValues[indexKey] = tmpJobData[0];
         } else {
-            newFormValues = [...formValues, tmpJobData];
+            newFormValues = [...formValues, ...tmpJobData];
         }
         setFormValues(newFormValues);
     };

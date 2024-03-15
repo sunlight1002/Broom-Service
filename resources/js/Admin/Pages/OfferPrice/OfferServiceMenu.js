@@ -61,7 +61,6 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
     return (
         <div>
-            {console.log("formValues", formValues)}
             <div className="text-right" style={{ marginBottom: "5px" }}>
                 <button
                     type="button"
@@ -183,7 +182,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     handleTmpValue={setTmpFormValues}
                     handleSaveForm={handleSaveForm}
                     isAdd={isAdd.current}
-                    index={indexRef.current}
+                    editIndex={indexRef.current}
                 />
             )}
         </div>
