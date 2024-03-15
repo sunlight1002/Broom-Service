@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobHours extends Model
 {
-    use HasFactory;
+    protected $table = 'job_hours';
+
+    protected $fillable = ['job_id', 'worker_id', 'start_time', 'end_time', 'time_diff'];
 
     public function worker()
     {

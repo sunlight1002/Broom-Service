@@ -651,9 +651,9 @@ export default function WorkContract() {
                                                     <p key={i}>
                                                         {" "}
                                                         {s.freq_name};{" "}
-                                                        {frequencyDescription(
+                                                        {/* {frequencyDescription(
                                                             s
-                                                        )}
+                                                        )} */}
                                                     </p>
                                                 );
                                             })}

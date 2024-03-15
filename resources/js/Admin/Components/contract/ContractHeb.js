@@ -476,9 +476,9 @@ export default function WorkContractRHS() {
                                                                 {
                                                                     s.freq_name
                                                                 };{" "}
-                                                                {frequencyDescription(
+                                                                {/* {frequencyDescription(
                                                                     s
-                                                                )}
+                                                                )} */}
                                                             </p>
                                                         );
                                                     })}

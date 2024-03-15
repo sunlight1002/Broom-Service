@@ -306,8 +306,11 @@ class WorkerController extends Controller
 
     public function updateAvailability(Request $request, $id)
     {
+        $data = $request->all();
+
         WorkerAvailability::where('user_id', $id)->delete();
-        foreach ($request->data as $key => $availabilty) {
+
+        foreach ($data as $key => $availabilty) {
             $avl = new WorkerAvailability;
             $avl->user_id = $id;
             $avl->date = trim($key);
@@ -332,7 +335,7 @@ class WorkerController extends Controller
         }
 
         return response()->json([
-            'availability' => $new_array,
+            'data' => $new_array,
         ]);
     }
 

@@ -1,3 +1,4 @@
+import * as moment from "moment";
 import {
     monthNames,
     monthOccurrenceArr,
@@ -45,4 +46,56 @@ export const frequencyDescription = (_service) => {
     }
 
     return descriptionStr;
+};
+
+export const filterShiftOptions = (options, selectedShifts) => {
+    const shifts = selectedShifts;
+
+    // Convert the selectedShifts to an array of shift start and end times
+    const shiftTimes = shifts.map((shift) => {
+        const [_, start, end] = shift.match(/(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/);
+        return { start, end };
+    });
+
+    const isFullDay = shiftTimes.some((shift) => {
+        return shift.start === "8am" && shift.end === "16pm";
+    });
+
+    if (isFullDay) {
+        return [];
+    }
+
+    // Filter out the options that are not overlapped with any selected shifts
+    const nonOverlappingOptions = options.filter((option) => {
+        const [_, start, end] = option.label.match(
+            /(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/
+        );
+
+        let isOverlapping = !shiftTimes.some((shift) => {
+            return start === shift.start || end === shift.end;
+        });
+
+        if (!isOverlapping) {
+            return isOverlapping;
+        }
+
+        const _startTime = moment(start, "ha");
+        const _endTime = moment(end, "ha");
+
+        return !shiftTimes.some((shift) => {
+            const _shiftStartTime = moment(shift.start, "ha");
+            const _shiftEndTime = moment(shift.end, "ha");
+
+            return (
+                _shiftStartTime.isSame(_startTime) ||
+                _shiftEndTime.isSame(_endTime) ||
+                _shiftStartTime.isBetween(_startTime, _endTime) ||
+                _shiftEndTime.isBetween(_startTime, _endTime) ||
+                _startTime.isBetween(_shiftStartTime, _shiftEndTime) ||
+                _endTime.isBetween(_shiftStartTime, _shiftEndTime)
+            );
+        });
+    });
+
+    return nonOverlappingOptions;
 };

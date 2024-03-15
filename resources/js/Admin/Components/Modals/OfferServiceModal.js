@@ -126,59 +126,59 @@ const OfferServiceModal = memo(function OfferServiceModal({
             alert.error("The frequency is not selected");
             return false;
         } else {
-            if (tmpFormValues.start_date == "") {
-                alert.error("The Start date is not selected");
-                return false;
-            }
+            // if (tmpFormValues.start_date == "") {
+            //     alert.error("The Start date is not selected");
+            //     return false;
+            // }
 
-            if (tmpFormValues.cycle == "1") {
-                if (
-                    ["w", "2w", "3w", "4w", "5w"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    alert.error("The weekday is not selected");
-                    return false;
-                } else if (
-                    tmpFormValues.monthday_selection_type == "weekday" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    alert.error("The weekday is not selected");
-                    return false;
-                }
+            // if (tmpFormValues.cycle == "1") {
+            //     if (
+            //         ["w", "2w", "3w", "4w", "5w"].includes(
+            //             tmpFormValues.period
+            //         ) &&
+            //         tmpFormValues.weekday == ""
+            //     ) {
+            //         alert.error("The weekday is not selected");
+            //         return false;
+            //     } else if (
+            //         tmpFormValues.monthday_selection_type == "weekday" &&
+            //         ["m", "2m", "3m", "6m", "y"].includes(
+            //             tmpFormValues.period
+            //         ) &&
+            //         tmpFormValues.weekday == ""
+            //     ) {
+            //         alert.error("The weekday is not selected");
+            //         return false;
+            //     }
 
-                if (
-                    tmpFormValues.monthday_selection_type == "date" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
-                ) {
-                    if (tmpFormValues.month_date == "") {
-                        alert.error("The month date is not selected");
-                        return false;
-                    } else if (
-                        new Date(tmpFormValues.start_date).getDate() >
-                        tmpFormValues.month_date
-                    ) {
-                        alert.error(
-                            "The start date should be less than or equal to selected month date"
-                        );
-                        return false;
-                    }
-                }
-            }
+            //     if (
+            //         tmpFormValues.monthday_selection_type == "date" &&
+            //         ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
+            //     ) {
+            //         if (tmpFormValues.month_date == "") {
+            //             alert.error("The month date is not selected");
+            //             return false;
+            //         } else if (
+            //             new Date(tmpFormValues.start_date).getDate() >
+            //             tmpFormValues.month_date
+            //         ) {
+            //             alert.error(
+            //                 "The start date should be less than or equal to selected month date"
+            //             );
+            //             return false;
+            //         }
+            //     }
+            // }
 
-            if (
-                tmpFormValues.period == "w" &&
-                tmpFormValues.cycle != "0" &&
-                tmpFormValues.cycle != "1" &&
-                tmpFormValues.weekdays.length != tmpFormValues.cycle
-            ) {
-                alert.error("The frequency week-days are invalid");
-                return false;
-            }
+            // if (
+            //     tmpFormValues.period == "w" &&
+            //     tmpFormValues.cycle != "0" &&
+            //     tmpFormValues.cycle != "1" &&
+            //     tmpFormValues.weekdays.length != tmpFormValues.cycle
+            // ) {
+            //     alert.error("The frequency week-days are invalid");
+            //     return false;
+            // }
         }
 
         return true;
@@ -455,7 +455,7 @@ const OfferServiceModal = memo(function OfferServiceModal({
                                 })}
                             </select>
                         </div>
-                        <div
+                        {/* <div
                             className="form-group"
                             style={{
                                 display: tmpFormValues.period
@@ -695,7 +695,7 @@ const OfferServiceModal = memo(function OfferServiceModal({
                                             : "none",
                                 }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </Modal.Body>

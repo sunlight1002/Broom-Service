@@ -215,15 +215,26 @@ export default function Jobs({ contracts, client }) {
 
     const slot = [
         ["fullday-8am-16pm"],
-        ["morning1-8am-10am"],
-        ["morning2-10am-12pm"],
-        ["morning-08am-12pm"],
-        ["noon1-12pm-14pm"],
-        ["noon2-14pm-16pm"],
-        ["noon-12pm-16pm"],
-        ["ev1-20pm-22pm"],
-        ["ev2-22pm-24pm"],
-        ["evening-20pm-24am"],
+        ["morning1-8am-9am"],
+        ["morning2-9am-10am"],
+        ["morning3-10am-11am"],
+        ["morning4-11am-12pm"],
+        ["morning-8am-12pm"],
+        ["afternoon1-12pm-13pm"],
+        ["afternoon2-13pm-14pm"],
+        ["afternoon3-14pm-15pm"],
+        ["afternoon4-15pm-16pm"],
+        ["afternoon-12pm-16pm"],
+        ["evening1-16pm-17pm"],
+        ["evening2-17pm-18pm"],
+        ["evening3-18pm-19pm"],
+        ["evening4-19pm-20pm"],
+        ["evening-16pm-20pm"],
+        ["night1-20pm-21pm"],
+        ["night2-21pm-22pm"],
+        ["night3-22pm-23pm"],
+        ["night4-23pm-24am"],
+        ["night-20pm-24am"],
     ];
 
     const getFrequency = (lng) => {
@@ -297,7 +308,7 @@ export default function Jobs({ contracts, client }) {
                 headers,
             })
             .then((res) => {
-                setWorkers(res.data.workers);
+                setWorkers(res.data.data);
             });
     };
 

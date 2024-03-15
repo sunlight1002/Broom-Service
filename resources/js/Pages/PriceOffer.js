@@ -861,7 +861,7 @@ export default function PriceOffer() {
                                                         <td>{s.type}</td>
                                                         <td>
                                                             {s.freq_name}{" "}
-                                                            <p>
+                                                            {/* <p>
                                                                 {
                                                                     "Start from date : "
                                                                 }
@@ -875,7 +875,7 @@ export default function PriceOffer() {
                                                                 {frequencyDescription(
                                                                     s
                                                                 )}
-                                                            </p>
+                                                            </p> */}
                                                         </td>
                                                         <td>
                                                             {s.jobHours}{" "}
