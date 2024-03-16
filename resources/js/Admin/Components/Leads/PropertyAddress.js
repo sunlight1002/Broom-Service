@@ -107,6 +107,11 @@ const PropertyAddress = memo(function PropertyAddress({
             newErrors.address = "Please Select address";
             setErrors(newErrors);
             return false;
+        } else if (addressName.current.value === "") {
+            let newErrors = { ...errors };
+            newErrors.address_name = "Please add address";
+            setErrors(newErrors);
+            return false;
         } else {
             const updatedData = {
                 geo_address: fullAddress.current.value,

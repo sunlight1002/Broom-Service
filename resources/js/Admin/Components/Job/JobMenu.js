@@ -97,9 +97,9 @@ const JobMenu = memo(function JobMenu({
                                                           (a) =>
                                                               a.id ==
                                                               item.address
-                                                      )[0]?.geo_address
+                                                      )[0]?.address_name
                                                     : addresses[item.address]
-                                                          ?.geo_address}
+                                                          ?.address_name}
                                             </Td>
                                             <Td>{item.woker_name}</Td>
                                             <Td>{item.shift}</Td>

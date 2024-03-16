@@ -26,7 +26,7 @@ export default function () {
             .then((res) => {
                 const r = res.data.contract;
                 setClient(r.client.firstname + " " + r.client.lastname);
-                setAddress(r.job?.property_address?.geo_address);
+                setAddress(r.job?.property_address?.address_name);
                 setServices(JSON.parse(r.offer.services));
             });
     };
@@ -103,7 +103,10 @@ export default function () {
                                                     className={`services-${item.service}`}
                                                     key={index}
                                                 >
-                                                    {item.address.geo_address}
+                                                    {
+                                                        item?.address
+                                                            ?.address_name
+                                                    }
                                                 </p>
                                             ))}
                                         </div>

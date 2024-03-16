@@ -27,7 +27,7 @@ export default function AddJob() {
             .then((res) => {
                 const r = res.data.job;
                 setClient(r.client.firstname + " " + r.client.lastname);
-                setAddress(r?.property_address?.geo_address);
+                setAddress(r?.property_address?.address_name);
                 setService(r.jobservice);
             });
     };

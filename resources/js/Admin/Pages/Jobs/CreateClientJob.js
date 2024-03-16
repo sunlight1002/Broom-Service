@@ -117,7 +117,10 @@ export default function CreateClientJob() {
                                                     className={`services-${index}`}
                                                     key={index}
                                                 >
-                                                    {item.address.geo_address}
+                                                    {
+                                                        item?.address
+                                                            ?.address_name
+                                                    }
                                                 </p>
                                             ))}
                                         </div>

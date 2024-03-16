@@ -198,7 +198,7 @@ const OfferServiceForm = memo(function OfferServiceModal({
                             <option value="">--Please select--</option>
                             {addresses.map((address, i) => (
                                 <option value={address.id} key={i}>
-                                    {address.geo_address}
+                                    {address.address_name}
                                 </option>
                             ))}
                         </select>

@@ -590,7 +590,7 @@ export default function WorkContract() {
                                             {services.map((s, i) => {
                                                 return (
                                                     <p key={i}>
-                                                        {s.address.geo_address}
+                                                        {s.address.address_name}
                                                     </p>
                                                 );
                                             })}

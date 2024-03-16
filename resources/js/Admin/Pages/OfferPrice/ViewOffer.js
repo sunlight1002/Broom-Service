@@ -231,7 +231,7 @@ export default function ViewOffer() {
                                                                                                 {
                                                                                                     s
                                                                                                         .address
-                                                                                                        .geo_address
+                                                                                                        .address_name
                                                                                                 }
                                                                                             </Link>
                                                                                         ) : (

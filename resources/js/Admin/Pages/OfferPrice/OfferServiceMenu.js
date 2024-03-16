@@ -96,7 +96,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                                           (a) =>
                                                               a.id ==
                                                               item.address
-                                                      )[0]?.geo_address
+                                                      )[0]?.address_name
                                                     : "NA"}
                                             </Td>
                                             <Td>{item.name}</Td>

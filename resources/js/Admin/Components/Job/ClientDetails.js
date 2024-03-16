@@ -65,7 +65,7 @@ export default function ClientDetails({ client, address }) {
                                         target="_blank"
                                         to={`https://maps.google.com?q=${cords}`}
                                     >
-                                        {address.geo_address}
+                                        {address.address_name}
                                     </Link>
                                 </p>
                             </div>

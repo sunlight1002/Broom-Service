@@ -345,9 +345,9 @@ export default function WorkContract() {
                                                         <p key={i}>
                                                             {s.address
                                                                 ? s.address
-                                                                      .geo_address
+                                                                      .address_name
                                                                     ? s.address
-                                                                          .geo_address
+                                                                          .address_name
                                                                     : ""
                                                                 : ""}
                                                         </p>

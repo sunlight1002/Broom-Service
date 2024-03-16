@@ -242,9 +242,9 @@ export default function Contract() {
                                                 contracts.map((c, i) => {
                                                     if (c.client) {
                                                         let address = c.client
-                                                            .geo_address
+                                                            .address_name
                                                             ? c.client
-                                                                  .geo_address
+                                                                  .address_name
                                                             : "NA";
                                                         let cords =
                                                             c.client.latitude &&

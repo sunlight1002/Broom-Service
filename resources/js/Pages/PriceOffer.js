@@ -848,9 +848,9 @@ export default function PriceOffer() {
                                                         <td>
                                                             {s.address &&
                                                             s.address
-                                                                .geo_address
+                                                                .address_name
                                                                 ? s.address
-                                                                      .geo_address
+                                                                      .address_name
                                                                 : "NA"}
                                                         </td>
                                                         <td>

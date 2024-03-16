@@ -290,7 +290,7 @@ export default function ClientViewOffer() {
                                                                                                 {
                                                                                                     s
                                                                                                         .address
-                                                                                                        .geo_address
+                                                                                                        .address_name
                                                                                                 }
                                                                                             </Link>
                                                                                         ) : (
