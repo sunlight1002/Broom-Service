@@ -11,7 +11,7 @@ export default function AddJob() {
     const alert = useAlert();
     const navigate = useNavigate();
     const params = useParams();
-    const [services, setServices] = useState([]);
+    const [service, setService] = useState(null);
     const [client, setClient] = useState("");
     const [address, setAddress] = useState("");
 
@@ -28,7 +28,7 @@ export default function AddJob() {
                 const r = res.data.job;
                 setClient(r.client.firstname + " " + r.client.lastname);
                 setAddress(r?.property_address?.geo_address);
-                setServices(r.jobservice);
+                setService(r.jobservice);
             });
     };
     useEffect(() => {
@@ -57,9 +57,7 @@ export default function AddJob() {
                                             <label>Services</label>
 
                                             <p>
-                                                {services
-                                                    ? services.name
-                                                    : "NA"}
+                                                {service ? service.name : "NA"}
                                             </p>
                                         </div>
                                     </div>
@@ -68,8 +66,8 @@ export default function AddJob() {
                                             <label>Complete Time</label>
 
                                             <p>
-                                                {services
-                                                    ? services.job_hour +
+                                                {service
+                                                    ? service.job_hour +
                                                       " hours"
                                                     : "NA"}
                                             </p>

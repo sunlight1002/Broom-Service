@@ -406,11 +406,10 @@ class DashboardController extends Controller
     {
         $job = Job::query()
             ->with(['client', 'worker', 'service', 'offer', 'jobservice'])
-            ->where('id', $request->id)
-            ->get();
+            ->find($request->id);
 
         return response()->json([
-            'job'        => $job,
+            'job' => $job,
         ]);
     }
 

@@ -534,7 +534,6 @@ export default function Jobs({ contracts, client }) {
                             {jobs &&
                                 jobs.map((j, i) => {
                                     // let services = (j.offer.services) ? JSON.parse(j.offer.services) : [];
-                                    let total = 0;
                                     let pstatus = null;
 
                                     return (
@@ -555,16 +554,9 @@ export default function Jobs({ contracts, client }) {
                                             <td>#{j.id}</td>
                                             <td>
                                                 {j.jobservice &&
-                                                    j.jobservice.map(
-                                                        (js, i) => {
-                                                            total += parseInt(
-                                                                js.total
-                                                            );
-                                                            return js.name
-                                                                ? js.name + " "
-                                                                : "NA";
-                                                        }
-                                                    )}
+                                                j.jobservice.name
+                                                    ? j.jobservice.name + " "
+                                                    : "NA"}
                                             </td>
                                             <td>
                                                 {j.worker
@@ -573,7 +565,12 @@ export default function Jobs({ contracts, client }) {
                                                       j.worker.lastname
                                                     : "NA"}
                                             </td>
-                                            <td> {total} ILS + VAT</td>
+                                            <td>
+                                                {" "}
+                                                {j.jobservice &&
+                                                    j.jobservice.total +
+                                                        " ILS + VAT"}
+                                            </td>
                                             <td>
                                                 {Moment(j.start_date).format(
                                                     "DD MMM, Y"

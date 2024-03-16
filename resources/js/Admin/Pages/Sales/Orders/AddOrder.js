@@ -28,7 +28,7 @@ export default function AddOrder() {
 
     const [clients, setClients] = useState();
     const [cjobs, setCjobs] = useState();
-    const [jservices, setjServices] = useState([]);
+    const [jservice, setjService] = useState(null);
 
     const [corders, setCOrders] = useState();
     const [codes, setCodes] = useState();
@@ -86,32 +86,26 @@ export default function AddOrder() {
         axios
             .post(`/api/admin/order-jobs`, { id: sel }, { headers })
             .then((res) => {
-                let resp = res.data.services[0].jobservice;
-                let lng = res.data.services[0].client.lng;
+                let _service = res.data.data.jobservice;
+                let lng = res.data.data.client.lng;
 
-                if (resp.length > 0) {
-                    setjServices(resp);
+                if (_service) {
+                    setjService(_service);
                     setTimeout(() => {
                         let st = 0;
-                        for (let r in resp) {
-                            let d = Moment(
-                                res.data.services[r].start_date
-                            ).format("DD MMM, Y");
+                        let d = Moment(res.data.data.start_date).format(
+                            "DD MMM, Y"
+                        );
 
-                            lng == "heb"
-                                ? $(".details" + r).val(
-                                      resp[r].heb_name + " - " + d
-                                  )
-                                : $(".details" + r).val(
-                                      resp[r].name + " - " + d
-                                  );
+                        lng == "heb"
+                            ? $(".details").val(_service.heb_name + " - " + d)
+                            : $(".details").val(_service.name + " - " + d);
 
-                            $(".quantity" + r).val(1);
-                            $(".price" + r).val(resp[r].total);
-                            $(".rtotal" + r).val(resp[r].total);
+                        $(".quantity").val(1);
+                        $(".price").val(_service.total);
+                        $(".rtotal").val(_service.total);
 
-                            st += parseFloat(resp[r].total);
-                        }
+                        st += parseFloat(_service.total);
                         setAmount(st);
                     }, 200);
                 }
@@ -138,7 +132,7 @@ export default function AddOrder() {
             alert.error("Please select customer");
             return;
         }
-        if (jservices == null) {
+        if (jservice == null) {
             alert.error("Please select job");
             return;
         }
@@ -266,105 +260,84 @@ export default function AddOrder() {
                                     </div>
                                 </div>
 
-                                {jservices &&
-                                    jservices.map((js, i) => {
-                                        return (
-                                            <React.Fragment key={i}>
-                                                <div
-                                                    className="row col-sm-12"
-                                                    style={{ margin: "3px" }}
-                                                >
-                                                    <div className="">
-                                                        <span className="hpoint">
-                                                            &#9755;
-                                                        </span>
-                                                    </div>
+                                {jservice && (
+                                    <div
+                                        className="row col-sm-12"
+                                        style={{ margin: "3px" }}
+                                    >
+                                        <div className="">
+                                            <span className="hpoint">
+                                                &#9755;
+                                            </span>
+                                        </div>
 
-                                                    <div className="col-sm-3">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Details
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                name="details"
-                                                                className={
-                                                                    `form-control details` +
-                                                                    i
-                                                                }
-                                                                placeholder="Service"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
+                                        <div className="col-sm-3">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Details
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="details"
+                                                    className={`form-control details`}
+                                                    placeholder="Service"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
 
-                                                    <div className="col-sm-2">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Unit Price
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="unitprice"
-                                                                onChange={(e) =>
-                                                                    changePrice(
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className={
-                                                                    `form-control price` +
-                                                                    i
-                                                                }
-                                                                placeholder="Unit Price"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
+                                        <div className="col-sm-2">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Unit Price
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    name="unitprice"
+                                                    onChange={(e) =>
+                                                        changePrice(e)
+                                                    }
+                                                    className={`form-control price`}
+                                                    placeholder="Unit Price"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
 
-                                                    <div className="col-sm-3">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                quantity
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="quantity"
-                                                                className={
-                                                                    `form-control quantity` +
-                                                                    i
-                                                                }
-                                                                placeholder="quantity"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
+                                        <div className="col-sm-3">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    quantity
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    name="quantity"
+                                                    className={`form-control quantity`}
+                                                    placeholder="quantity"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
 
-                                                    <div className="col-sm-3">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                Total
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="rtotal"
-                                                                onChange={(e) =>
-                                                                    changePrice(
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className={
-                                                                    `form-control rtotal` +
-                                                                    i
-                                                                }
-                                                                placeholder="Total"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </React.Fragment>
-                                        );
-                                    })}
+                                        <div className="col-sm-3">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Total
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    name="rtotal"
+                                                    onChange={(e) =>
+                                                        changePrice(e)
+                                                    }
+                                                    className={`form-control rtotal`}
+                                                    placeholder="Total"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {amount != 0 && (
                                     <div className="col-sm-12">

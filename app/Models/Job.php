@@ -81,7 +81,7 @@ class Job extends Model
 
     public function jobservice()
     {
-        return $this->hasMany(JobService::class, 'job_id');
+        return $this->hasOne(JobService::class, 'job_id');
     }
 
     public function hours()

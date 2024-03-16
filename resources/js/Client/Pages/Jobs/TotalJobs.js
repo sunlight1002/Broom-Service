@@ -171,7 +171,6 @@ export default function TotalJobs() {
                                                               .geo_address
                                                         : 0;
                                                     let Ad = [];
-                                                    let total = 0;
                                                     if (address) {
                                                         let ar =
                                                             address.split("\n");
@@ -275,23 +274,14 @@ export default function TotalJobs() {
                                                             </Td>
                                                             <Td>
                                                                 {item.jobservice &&
-                                                                    item.jobservice.map(
-                                                                        (
-                                                                            js,
-                                                                            i
-                                                                        ) => {
-                                                                            total +=
-                                                                                parseInt(
-                                                                                    js.total
-                                                                                );
-                                                                            return c_lng ==
-                                                                                "en"
-                                                                                ? js.name +
-                                                                                      " "
-                                                                                : js.heb_name +
-                                                                                      " ";
-                                                                        }
-                                                                    )}
+                                                                    (c_lng ==
+                                                                    "en"
+                                                                        ? item
+                                                                              .jobservice
+                                                                              .name
+                                                                        : item
+                                                                              .jobservice
+                                                                              .heb_name)}
                                                             </Td>
                                                             <Td>
                                                                 {getShift(
@@ -325,15 +315,18 @@ export default function TotalJobs() {
                                                                     : ""}
                                                             </Td>
                                                             <Td>
-                                                                {total +
-                                                                    " " +
-                                                                    t(
-                                                                        "global.currency"
-                                                                    ) +
-                                                                    " + " +
-                                                                    t(
-                                                                        "global.vat"
-                                                                    )}
+                                                                {item.jobservice &&
+                                                                    item
+                                                                        .jobservice
+                                                                        .total +
+                                                                        " " +
+                                                                        t(
+                                                                            "global.currency"
+                                                                        ) +
+                                                                        " + " +
+                                                                        t(
+                                                                            "global.vat"
+                                                                        )}
                                                             </Td>
                                                             <Td>
                                                                 <Link

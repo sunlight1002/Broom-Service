@@ -14,7 +14,6 @@ export default function ViewJob() {
     const [job, setJob] = useState([]);
     const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
-    const [services, setServices] = useState([]);
     const [address, setAddress] = useState({});
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -28,7 +27,6 @@ export default function ViewJob() {
             setJob(r);
             setClient(r.client);
             setWorker(r.worker);
-            setServices(r.jobservice);
             setAddress(r.property_address ? r.property_address : {});
         });
     };
@@ -114,7 +112,7 @@ export default function ViewJob() {
                                 <WorkerDetails worker={worker} job={job} />
                             </div>
                             <div className="col-sm-12">
-                                <Services services={services} job={job} />
+                                <Services job={job} />
                                 <WorkerTiming job={job} />
                                 <Comment />
                             </div>

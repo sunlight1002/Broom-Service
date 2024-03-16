@@ -33,7 +33,17 @@ class JobController extends Controller
     {
         $q = $request->q;
         $w = $request->filter_week;
-        $jobs = Job::with(['worker', 'client', 'offer', 'jobservice', 'order', 'invoice', 'jobservice.service']);
+        $jobs = Job::query()
+            ->with([
+                'worker',
+                'client',
+                'offer',
+                'jobservice',
+                'order',
+                'invoice',
+                'jobservice.service'
+            ]);
+
         if ($q != '') {
             $jobs = $jobs->orWhereHas('worker', function ($qr) use ($q) {
                 $qr->where(function ($qr) use ($q) {
@@ -55,6 +65,7 @@ class JobController extends Controller
                 })
                 ->orWhere('status', 'like', '%' . $q . '%');
         }
+
         // if($w != ''){
         if ((is_null($w) || $w == 'current') && $w != 'all') {
             $startDate = Carbon::now()->toDateString();
@@ -117,30 +128,28 @@ class JobController extends Controller
     public function AvlWorker($id)
     {
         $job = Job::find($id);
-        $serv = $job->jobservice;
+        $js = $job->jobservice;
         $ava_worker = array();
 
-        foreach ($serv as $sk => $js) {
-            $ava_workers = User::query()
-                ->with(['availabilities', 'jobs'])
-                ->where('skill',  'like', '%' . $js->service_id . '%')
-                ->whereHas('availabilities', function ($query) use ($job) {
-                    $query->where('date', '=', $job->start_date);
-                })
-                ->where('status', 1)
+        $ava_workers = User::query()
+            ->with(['availabilities', 'jobs'])
+            ->where('skill',  'like', '%' . $js->service_id . '%')
+            ->whereHas('availabilities', function ($query) use ($job) {
+                $query->where('date', '=', $job->start_date);
+            })
+            ->where('status', 1)
+            ->get()
+            ->toArray();
+
+        foreach ($ava_workers as $w) {
+            $check_worker_job = Job::query()
+                ->where('worker_id', $w['id'])
+                ->where('start_date', $job->start_date)
                 ->get()
                 ->toArray();
 
-            foreach ($ava_workers as $w) {
-                $check_worker_job = Job::query()
-                    ->where('worker_id', $w['id'])
-                    ->where('start_date', $job->start_date)
-                    ->get()
-                    ->toArray();
-
-                if (!$check_worker_job) {
-                    $ava_worker[] = $w;
-                }
+            if (!$check_worker_job) {
+                $ava_worker[] = $w;
             }
         }
 

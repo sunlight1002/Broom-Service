@@ -4,7 +4,6 @@ import axios from "axios";
 import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { useLocation } from "react-router-dom";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
@@ -17,7 +16,6 @@ export default function TotalJobs() {
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const alert = useAlert();
-    const location = useLocation();
     const navigate = useNavigate();
 
     const [lw, setLw] = useState("Change shift");
@@ -313,9 +311,9 @@ export default function TotalJobs() {
         { bg: "#FFE87C", tc: "#444", shift: "morning1-8am-10am" },
         { bg: "#FFAE42", tc: "#fff", shift: "morning2-10am-12pm" },
         { bg: "yellow", tc: "#444", shift: "morning-8am-12pm" },
-        { bg: "#79BAEC", tc: "#fff", shift: "noon1-12pm-14pm" },
-        { bg: "#1569C7", tc: "#fff", shift: "noon2-14pm-16pm" },
-        { bg: "#ADDFFF", tc: "#fff", shift: "noon-12pm-16pm" },
+        { bg: "#79BAEC", tc: "#fff", shift: "afternoon1-12pm-14pm" },
+        { bg: "#1569C7", tc: "#fff", shift: "afternoon2-14pm-16pm" },
+        { bg: "#ADDFFF", tc: "#fff", shift: "afternoon-12pm-16pm" },
         { bg: "#DBF9DB", tc: "#444", shift: "evening1-16pm-18pm" },
         { bg: "#3EA055", tc: "#fff", shift: "evening2-18pm-20pm" },
         { bg: "#B5EAAA", tc: "#fff", shift: "evening-16pm-20pm" },
@@ -324,7 +322,7 @@ export default function TotalJobs() {
         { bg: "#D2B9D3", tc: "#fff", shift: "night-20pm-24pm" },
 
         { bg: "yellow", tc: "#444", shift: "morning" },
-        { bg: "#79BAEC", tc: "#fff", shift: "noon" },
+        { bg: "#79BAEC", tc: "#fff", shift: "afternoon" },
         { bg: "#DBF9DB", tc: "#444", shift: "evening" },
         { bg: "#B09FCA", tc: "#fff", shift: "night" },
     ];
@@ -650,14 +648,15 @@ export default function TotalJobs() {
                                                         cursor: "pointer",
                                                     }}
                                                 >
-                                                    Job Date{" "}
+                                                    Date{" "}
                                                     <span className="arr">
                                                         {" "}
                                                         &darr;{" "}
                                                     </span>
                                                 </th>
-                                                <th scope="col">Worker</th>
                                                 <th scope="col">Client</th>
+                                                <th scope="col">Worker</th>
+                                                <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
                                                 <th
                                                     className="hidden-xs"
@@ -684,475 +683,457 @@ export default function TotalJobs() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {totalJobs &&
-                                                totalJobs.map((item, index) => {
-                                                    let ix = allShifts.find(
-                                                        function (el, i) {
+                                            {totalJobs.map((item, index) => {
+                                                let ix = allShifts.find(
+                                                    function (el, i) {
+                                                        if (
+                                                            item.shifts != null
+                                                        ) {
                                                             if (
-                                                                item.shifts !=
-                                                                null
+                                                                el.shift.replace(
+                                                                    / /g,
+                                                                    ""
+                                                                ) ==
+                                                                item.shifts.replace(
+                                                                    / /g,
+                                                                    ""
+                                                                )
                                                             ) {
-                                                                if (
-                                                                    el.shift.replace(
-                                                                        / /g,
-                                                                        ""
-                                                                    ) ==
-                                                                    item.shifts.replace(
-                                                                        / /g,
-                                                                        ""
-                                                                    )
-                                                                ) {
-                                                                    return allShifts.indexOf(
-                                                                        el.shift
-                                                                    );
-                                                                }
+                                                                return allShifts.indexOf(
+                                                                    el.shift
+                                                                );
                                                             }
                                                         }
-                                                    );
+                                                    }
+                                                );
 
-                                                    let pstatus = null;
+                                                let pstatus = null;
 
-                                                    return (
-                                                        <tr
-                                                            key={index}
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
+                                                return (
+                                                    <tr
+                                                        key={index}
+                                                        style={{
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
                                                         >
-                                                            <td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        item.id
-                                                                    )
-                                                                }
-                                                                style={
-                                                                    ix !=
-                                                                    undefined
-                                                                        ? {
-                                                                              background:
-                                                                                  ix.bg,
-                                                                              color: ix.tc,
-                                                                          }
-                                                                        : {
-                                                                              background:
-                                                                                  "#d3d3d3",
-                                                                              color: "#444",
-                                                                          }
-                                                                }
-                                                            >
-                                                                <span className="d-block mb-1">
-                                                                    {Moment(
-                                                                        item.start_date
-                                                                    ).format(
-                                                                        "DD-MM-YYYY"
-                                                                    )}
-                                                                </span>
-                                                                <span className="mBlue">
-                                                                    {
-                                                                        item.shifts
-                                                                    }
-                                                                </span>
-                                                            </td>
-                                                            <td>
-                                                                <Link
-                                                                    to={
-                                                                        item.worker
-                                                                            ? `/admin/view-worker/${item.worker.id}`
-                                                                            : "#"
-                                                                    }
-                                                                >
-                                                                    <h6>
-                                                                        {item.worker
-                                                                            ? item
-                                                                                  .worker
-                                                                                  .firstname +
-                                                                              " " +
+                                                            <span className="d-block mb-1">
+                                                                {Moment(
+                                                                    item.start_date
+                                                                ).format(
+                                                                    "DD-MM-YYYY"
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td
+                                                            style={
+                                                                item.client
+                                                                    ? {
+                                                                          background:
                                                                               item
-                                                                                  .worker
-                                                                                  .lastname
-                                                                            : "NA"}
-                                                                    </h6>
-                                                                </Link>
-                                                                <select
-                                                                    name={
-                                                                        item.id
-                                                                    }
-                                                                    className="form-control mb-3 mt-1"
-                                                                    value={
-                                                                        workers[
-                                                                            `${item.id}`
-                                                                        ]
-                                                                            ? workers[
-                                                                                  `${item.id}`
-                                                                              ]
-                                                                            : ""
-                                                                    }
-                                                                    onFocus={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleChange(
-                                                                            e,
-                                                                            index
-                                                                        )
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        upWorker(
-                                                                            e,
-                                                                            index
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <option value="">
-                                                                        ---
-                                                                        Select
-                                                                        ---
-                                                                    </option>
-                                                                    {Aworker.length >
-                                                                    0 ? (
-                                                                        Aworker &&
-                                                                        Aworker.map(
-                                                                            (
-                                                                                w,
-                                                                                i
-                                                                            ) => {
-                                                                                return (
-                                                                                    <option
-                                                                                        value={
-                                                                                            w.id
-                                                                                        }
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {" "}
-                                                                                        {
-                                                                                            w.firstname
-                                                                                        }{" "}
-                                                                                        {
-                                                                                            w.lastname
-                                                                                        }
-                                                                                    </option>
-                                                                                );
-                                                                            }
-                                                                        )
-                                                                    ) : (
-                                                                        <option value="">
-                                                                            No
-                                                                            worker
-                                                                            Match
-                                                                        </option>
-                                                                    )}
-                                                                </select>
-                                                            </td>
-                                                            <td
-                                                                style={
+                                                                                  .client
+                                                                                  .color,
+                                                                      }
+                                                                    : {}
+                                                            }
+                                                        >
+                                                            <Link
+                                                                to={
                                                                     item.client
-                                                                        ? {
-                                                                              background:
-                                                                                  item
-                                                                                      .client
-                                                                                      .color,
-                                                                          }
-                                                                        : {}
+                                                                        ? `/admin/view-client/${item.client.id}`
+                                                                        : "#"
                                                                 }
                                                             >
-                                                                <Link
-                                                                    to={
-                                                                        item.client
-                                                                            ? `/admin/view-client/${item.client.id}`
-                                                                            : "#"
-                                                                    }
-                                                                >
-                                                                    {item.client
+                                                                {item.client
+                                                                    ? item
+                                                                          .client
+                                                                          .firstname +
+                                                                      " " +
+                                                                      item
+                                                                          .client
+                                                                          .lastname
+                                                                    : "NA"}
+                                                            </Link>
+                                                        </td>
+                                                        <td>
+                                                            <Link
+                                                                to={
+                                                                    item.worker
+                                                                        ? `/admin/view-worker/${item.worker.id}`
+                                                                        : "#"
+                                                                }
+                                                            >
+                                                                <h6>
+                                                                    {item.worker
                                                                         ? item
-                                                                              .client
+                                                                              .worker
                                                                               .firstname +
                                                                           " " +
                                                                           item
-                                                                              .client
+                                                                              .worker
                                                                               .lastname
                                                                         : "NA"}
-                                                                </Link>
-                                                            </td>
-                                                            <td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
+                                                                </h6>
+                                                            </Link>
+                                                            <select
+                                                                name={item.id}
+                                                                className="form-control mb-3 mt-1"
+                                                                value={
+                                                                    workers[
+                                                                        `${item.id}`
+                                                                    ]
+                                                                        ? workers[
+                                                                              `${item.id}`
+                                                                          ]
+                                                                        : ""
+                                                                }
+                                                                onFocus={(e) =>
+                                                                    handleChange(
                                                                         e,
-                                                                        item.id
+                                                                        index
                                                                     )
                                                                 }
-                                                                style={{
-                                                                    background: `${
-                                                                        item
-                                                                            .jobservice
-                                                                            .length >
-                                                                            0 &&
-                                                                        item
-                                                                            .jobservice[0]
-                                                                            .service
-                                                                            ? item
-                                                                                  .jobservice[0]
-                                                                                  .service
-                                                                                  ?.color_code
-                                                                            : "#FFFFFF"
-                                                                    }`,
-                                                                }}
-                                                            >
-                                                                {item.jobservice &&
-                                                                    item.jobservice.map(
-                                                                        (
-                                                                            js,
-                                                                            i
-                                                                        ) => {
-                                                                            return item.client &&
-                                                                                item
-                                                                                    .client
-                                                                                    .lng ==
-                                                                                    "en"
-                                                                                ? js.name +
-                                                                                      " "
-                                                                                : js.heb_name +
-                                                                                      " ";
-                                                                        }
-                                                                    )}
-                                                            </td>
-                                                            <td
-                                                                style={
-                                                                    item.status.includes(
-                                                                        "cancel"
+                                                                onChange={(e) =>
+                                                                    upWorker(
+                                                                        e,
+                                                                        index
                                                                     )
-                                                                        ? {
-                                                                              color: "red",
-                                                                              textTransform:
-                                                                                  "capitalize",
-                                                                          }
-                                                                        : {
-                                                                              textTransform:
-                                                                                  "capitalize",
-                                                                          }
                                                                 }
-                                                                className="hidden-xs"
                                                             >
-                                                                {item.status}
-
-                                                                {item.order &&
-                                                                    item.order.map(
+                                                                <option value="">
+                                                                    --- Select
+                                                                    ---
+                                                                </option>
+                                                                {Aworker.length >
+                                                                0 ? (
+                                                                    Aworker &&
+                                                                    Aworker.map(
                                                                         (
-                                                                            o,
+                                                                            w,
                                                                             i
                                                                         ) => {
                                                                             return (
-                                                                                <React.Fragment
+                                                                                <option
+                                                                                    value={
+                                                                                        w.id
+                                                                                    }
                                                                                     key={
                                                                                         i
                                                                                     }
                                                                                 >
                                                                                     {" "}
-                                                                                    <br />
-                                                                                    <Link
-                                                                                        target="_blank"
-                                                                                        to={
-                                                                                            o.doc_url
-                                                                                        }
-                                                                                        className="jorder"
-                                                                                    >
-                                                                                        {" "}
-                                                                                        order
-                                                                                        -
-                                                                                        {
-                                                                                            o.order_id
-                                                                                        }{" "}
-                                                                                    </Link>
-                                                                                    <br />
-                                                                                </React.Fragment>
-                                                                            );
-                                                                        }
-                                                                    )}
-
-                                                                {item.invoice &&
-                                                                    item.invoice.map(
-                                                                        (
-                                                                            inv,
-                                                                            i
-                                                                        ) => {
-                                                                            if (
-                                                                                i ==
-                                                                                0
-                                                                            ) {
-                                                                                pstatus =
-                                                                                    inv.status;
-                                                                            }
-
-                                                                            return (
-                                                                                <React.Fragment
-                                                                                    key={
-                                                                                        i
+                                                                                    {
+                                                                                        w.firstname
+                                                                                    }{" "}
+                                                                                    {
+                                                                                        w.lastname
                                                                                     }
-                                                                                >
-                                                                                    {" "}
-                                                                                    <br />
-                                                                                    <Link
-                                                                                        target="_blank"
-                                                                                        to={
-                                                                                            inv.doc_url
-                                                                                        }
-                                                                                        className="jinv"
-                                                                                    >
-                                                                                        {" "}
-                                                                                        Invoice
-                                                                                        -
-                                                                                        {
-                                                                                            inv.invoice_id
-                                                                                        }{" "}
-                                                                                    </Link>
-                                                                                    <br />
-                                                                                </React.Fragment>
+                                                                                </option>
                                                                             );
                                                                         }
-                                                                    )}
-
-                                                                {pstatus !=
-                                                                    null && (
-                                                                    <>
-                                                                        {" "}
-                                                                        <br />
-                                                                        <span className="jorder">
-                                                                            {
-                                                                                pstatus
-                                                                            }
-                                                                        </span>
-                                                                        <br />
-                                                                    </>
+                                                                    )
+                                                                ) : (
+                                                                    <option value="">
+                                                                        No
+                                                                        worker
+                                                                        Match
+                                                                    </option>
                                                                 )}
+                                                            </select>
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                            style={
+                                                                ix != undefined
+                                                                    ? {
+                                                                          background:
+                                                                              ix.bg,
+                                                                          color: ix.tc,
+                                                                      }
+                                                                    : {
+                                                                          background:
+                                                                              "#d3d3d3",
+                                                                          color: "#444",
+                                                                      }
+                                                            }
+                                                        >
+                                                            <span className="mBlue">
+                                                                {item.shifts}
+                                                            </span>
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                            style={{
+                                                                background: `${
+                                                                    item.jobservice &&
+                                                                    item
+                                                                        .jobservice
+                                                                        .service
+                                                                        ? item
+                                                                              .jobservice
+                                                                              .service
+                                                                              ?.color_code
+                                                                        : "#FFFFFF"
+                                                                }`,
+                                                            }}
+                                                        >
+                                                            {item.jobservice &&
+                                                                (item.client &&
+                                                                item.client
+                                                                    .lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </td>
+                                                        <td
+                                                            style={
+                                                                item.status.includes(
+                                                                    "cancel"
+                                                                )
+                                                                    ? {
+                                                                          color: "red",
+                                                                          textTransform:
+                                                                              "capitalize",
+                                                                      }
+                                                                    : {
+                                                                          textTransform:
+                                                                              "capitalize",
+                                                                      }
+                                                            }
+                                                            className="hidden-xs"
+                                                        >
+                                                            {item.status}
 
-                                                                <p>
-                                                                    {item.status ==
-                                                                        "cancel" &&
-                                                                    item.rate !=
-                                                                        null
-                                                                        ? `(With Cancellatiom fees ${item.rate} ILS)`
-                                                                        : ""}
-                                                                </p>
-                                                            </td>
-
-                                                            <td className="text-center">
-                                                                <div className="action-dropdown dropdown pb-2">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-default dropdown-toggle"
-                                                                        data-toggle="dropdown"
-                                                                    >
-                                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                                    </button>
-
-                                                                    {item.client && (
-                                                                        <div className="dropdown-menu">
-                                                                            {item.client &&
-                                                                                item
-                                                                                    .invoice
-                                                                                    .length ==
-                                                                                    0 && (
-                                                                                    <Link
-                                                                                        to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
-                                                                                        className="dropdown-item"
-                                                                                    >
-                                                                                        Create
-                                                                                        Order
-                                                                                    </Link>
-                                                                                )}
-                                                                            {item.client &&
-                                                                                item
-                                                                                    .order
-                                                                                    .length >
-                                                                                    0 && (
-                                                                                    <Link
-                                                                                        to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
-                                                                                        className="dropdown-item"
-                                                                                    >
-                                                                                        Create
-                                                                                        Invoice
-                                                                                    </Link>
-                                                                                )}
-                                                                            <Link
-                                                                                to={`/admin/view-job/${item.id}`}
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                View
-                                                                            </Link>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => {
-                                                                                    setCshift(
-                                                                                        {
-                                                                                            contract:
-                                                                                                item.contract_id,
-                                                                                            client: item.client_id,
-                                                                                            repetency:
-                                                                                                "",
-                                                                                            job: item.id,
-                                                                                            from: "",
-                                                                                            to: "",
-                                                                                            worker: "",
-                                                                                            service:
-                                                                                                item.schedule_id,
-                                                                                            shift_date:
-                                                                                                "",
-                                                                                            frequency:
-                                                                                                "",
-                                                                                            cycle: "",
-                                                                                            period: "",
-                                                                                            shift_time:
-                                                                                                "",
-                                                                                        }
-                                                                                    );
-                                                                                    $(
-                                                                                        "#edit-shift"
-                                                                                    ).modal(
-                                                                                        "show"
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                Change
-                                                                                Shift
-                                                                            </button>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() =>
-                                                                                    handleDelete(
-                                                                                        item.id
-                                                                                    )
+                                                            {item.order &&
+                                                                item.order.map(
+                                                                    (o, i) => {
+                                                                        return (
+                                                                            <React.Fragment
+                                                                                key={
+                                                                                    i
                                                                                 }
                                                                             >
-                                                                                Delete
-                                                                            </button>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
+                                                                                {" "}
+                                                                                <br />
+                                                                                <Link
+                                                                                    target="_blank"
+                                                                                    to={
+                                                                                        o.doc_url
+                                                                                    }
+                                                                                    className="jorder"
+                                                                                >
+                                                                                    {" "}
+                                                                                    order
+                                                                                    -
+                                                                                    {
+                                                                                        o.order_id
+                                                                                    }{" "}
+                                                                                </Link>
+                                                                                <br />
+                                                                            </React.Fragment>
+                                                                        );
+                                                                    }
+                                                                )}
+
+                                                            {item.invoice &&
+                                                                item.invoice.map(
+                                                                    (
+                                                                        inv,
+                                                                        i
+                                                                    ) => {
+                                                                        if (
+                                                                            i ==
+                                                                            0
+                                                                        ) {
+                                                                            pstatus =
+                                                                                inv.status;
+                                                                        }
+
+                                                                        return (
+                                                                            <React.Fragment
+                                                                                key={
+                                                                                    i
+                                                                                }
+                                                                            >
+                                                                                {" "}
+                                                                                <br />
+                                                                                <Link
+                                                                                    target="_blank"
+                                                                                    to={
+                                                                                        inv.doc_url
+                                                                                    }
+                                                                                    className="jinv"
+                                                                                >
+                                                                                    {" "}
+                                                                                    Invoice
+                                                                                    -
+                                                                                    {
+                                                                                        inv.invoice_id
+                                                                                    }{" "}
+                                                                                </Link>
+                                                                                <br />
+                                                                            </React.Fragment>
+                                                                        );
+                                                                    }
+                                                                )}
+
+                                                            {pstatus !=
+                                                                null && (
+                                                                <>
+                                                                    {" "}
+                                                                    <br />
+                                                                    <span className="jorder">
+                                                                        {
+                                                                            pstatus
+                                                                        }
+                                                                    </span>
+                                                                    <br />
+                                                                </>
+                                                            )}
+
+                                                            <p>
+                                                                {item.status ==
+                                                                    "cancel" &&
+                                                                item.rate !=
+                                                                    null
+                                                                    ? `(With Cancellatiom fees ${item.rate} ILS)`
+                                                                    : ""}
+                                                            </p>
+                                                        </td>
+
+                                                        <td className="text-center">
+                                                            <div className="action-dropdown dropdown pb-2">
                                                                 <button
                                                                     type="button"
-                                                                    style={{
-                                                                        display:
-                                                                            "none",
-                                                                    }}
-                                                                    className="btn btn-success"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleform(
-                                                                            item.id,
-                                                                            e
-                                                                        )
-                                                                    }
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
                                                                 >
-                                                                    Update
+                                                                    <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
+
+                                                                {item.client && (
+                                                                    <div className="dropdown-menu">
+                                                                        {item.client &&
+                                                                            item
+                                                                                .invoice
+                                                                                .length ==
+                                                                                0 && (
+                                                                                <Link
+                                                                                    to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Create
+                                                                                    Order
+                                                                                </Link>
+                                                                            )}
+                                                                        {item.client &&
+                                                                            item
+                                                                                .order
+                                                                                .length >
+                                                                                0 && (
+                                                                                <Link
+                                                                                    to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Create
+                                                                                    Invoice
+                                                                                </Link>
+                                                                            )}
+                                                                        <Link
+                                                                            to={`/admin/view-job/${item.id}`}
+                                                                            className="dropdown-item"
+                                                                        >
+                                                                            View
+                                                                        </Link>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                setCshift(
+                                                                                    {
+                                                                                        contract:
+                                                                                            item.contract_id,
+                                                                                        client: item.client_id,
+                                                                                        repetency:
+                                                                                            "",
+                                                                                        job: item.id,
+                                                                                        from: "",
+                                                                                        to: "",
+                                                                                        worker: "",
+                                                                                        service:
+                                                                                            item.schedule_id,
+                                                                                        shift_date:
+                                                                                            "",
+                                                                                        frequency:
+                                                                                            "",
+                                                                                        cycle: "",
+                                                                                        period: "",
+                                                                                        shift_time:
+                                                                                            "",
+                                                                                    }
+                                                                                );
+                                                                                $(
+                                                                                    "#edit-shift"
+                                                                                ).modal(
+                                                                                    "show"
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            Change
+                                                                            Shift
+                                                                        </button>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>
+                                                                                handleDelete(
+                                                                                    item.id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                style={{
+                                                                    display:
+                                                                        "none",
+                                                                }}
+                                                                className="btn btn-success"
+                                                                onClick={(e) =>
+                                                                    handleform(
+                                                                        item.id,
+                                                                        e
+                                                                    )
+                                                                }
+                                                            >
+                                                                Update
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 ) : (
@@ -1160,7 +1141,7 @@ export default function TotalJobs() {
                                         {loading}
                                     </p>
                                 )}
-                                {totalJobs.length > 0 ? (
+                                {totalJobs.length > 0 && (
                                     <ReactPaginate
                                         previousLabel={"Previous"}
                                         nextLabel={"Next"}
@@ -1182,8 +1163,6 @@ export default function TotalJobs() {
                                         breakLinkClassName={"page-link"}
                                         activeClassName={"active"}
                                     />
-                                ) : (
-                                    <></>
                                 )}
                             </div>
                         </div>
@@ -1325,55 +1304,44 @@ export default function TotalJobs() {
                                                         --- Please select Job
                                                         ---
                                                     </option>
-                                                    {totalJobs &&
-                                                        totalJobs.map(
-                                                            (j, i) => {
-                                                                return (
-                                                                    <option
-                                                                        contract={
-                                                                            j.contract_id
-                                                                        }
-                                                                        client={
-                                                                            j.client_id
-                                                                        }
-                                                                        value={
-                                                                            j.id
-                                                                        }
-                                                                        lng={
-                                                                            j.client
-                                                                                ? j
-                                                                                      .client
-                                                                                      .lng
-                                                                                : "heb"
-                                                                        }
-                                                                        schedule_id={
-                                                                            j.schedule_id
-                                                                        }
-                                                                        key={i}
-                                                                    >
-                                                                        {j.client
-                                                                            ? j
-                                                                                  .client
-                                                                                  .firstname +
-                                                                              " " +
-                                                                              j
-                                                                                  .client
-                                                                                  .lastname
-                                                                            : "NA"}{" "}
-                                                                        |{" "}
-                                                                        {
-                                                                            j.shifts
-                                                                        }{" "}
-                                                                        |{" "}
-                                                                        {Moment(
-                                                                            j.start_date
-                                                                        ).format(
-                                                                            "DD MMM, Y"
-                                                                        )}
-                                                                    </option>
-                                                                );
-                                                            }
-                                                        )}
+                                                    {totalJobs.map((j, i) => {
+                                                        return (
+                                                            <option
+                                                                contract={
+                                                                    j.contract_id
+                                                                }
+                                                                client={
+                                                                    j.client_id
+                                                                }
+                                                                value={j.id}
+                                                                lng={
+                                                                    j.client
+                                                                        ? j
+                                                                              .client
+                                                                              .lng
+                                                                        : "heb"
+                                                                }
+                                                                schedule_id={
+                                                                    j.schedule_id
+                                                                }
+                                                                key={i}
+                                                            >
+                                                                {j.client
+                                                                    ? j.client
+                                                                          .firstname +
+                                                                      " " +
+                                                                      j.client
+                                                                          .lastname
+                                                                    : "NA"}{" "}
+                                                                | {j.shifts} |{" "}
+                                                                {Moment(
+                                                                    j.start_date
+                                                                ).format(
+                                                                    "DD MMM, Y"
+                                                                )}
+                                                            </option>
+                                                        );
+                                                    })}
                                                 </select>
 
                                                 <label className="control-label">
