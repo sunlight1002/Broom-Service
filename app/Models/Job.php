@@ -31,7 +31,11 @@ class Job extends Model
         'address_id',
         'next_start_date',
         'is_next_job_created',
-        'keep_prev_worker'
+        'keep_prev_worker',
+        'cancellation_fee_percentage',
+        'cancellation_fee_amount',
+        'cancelled_by_role',
+        'cancelled_at',
     ];
 
     /**
@@ -42,6 +46,9 @@ class Job extends Model
     protected $casts = [
         'next_start_date' => 'datetime',
         'is_next_job_created' => 'boolean',
+        'cancellation_fee_percentage' => 'double',
+        'cancellation_fee_amount' => 'double',
+        'cancelled_at' => 'datetime',
     ];
 
     public static function boot()

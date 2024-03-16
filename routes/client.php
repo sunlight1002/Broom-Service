@@ -32,7 +32,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     //job APis
     Route::post('jobs', [DashboardController::class, 'listJobs'])->name('jobs');
     Route::post('view-job', [DashboardController::class, 'viewJob'])->name('view-job');
-    Route::post('update-job-status/{id}', [DashboardController::class, 'updateJobStatus'])->name('update-job');
+    Route::put('jobs/{id}/cancel', [DashboardController::class, 'cancelJob']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);

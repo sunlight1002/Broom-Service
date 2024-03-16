@@ -635,13 +635,22 @@ class JobController extends Controller
         ]);
     }
 
-    public function cancelJob(Request $request)
+    public function cancelJob(Request $request, $id)
     {
         $job = Job::query()
-            ->with(['worker', 'client', 'jobservice'])
-            ->find($request->id);
+            ->with(['worker', 'offer', 'client', 'jobservice'])
+            ->find($id);
 
-        $job->update(['status' => 'cancel']);
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+
+        $job->update([
+            'status' => 'cancel',
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_by_role' => 'admin',
+            'cancelled_at' => now()
+        ]);
 
         $admin = Admin::find(1)->first();
         App::setLocale('en');

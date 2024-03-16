@@ -308,7 +308,7 @@ export default function TotalJobs() {
                                                                     ? `(${t(
                                                                           "client.jobs.view.with_cancel"
                                                                       )} ${
-                                                                          item.rate
+                                                                          item.cancellation_fee_amount
                                                                       } + ${t(
                                                                           "global.currency"
                                                                       )})`

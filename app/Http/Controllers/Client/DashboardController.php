@@ -14,6 +14,7 @@ use App\Models\ClientCard;
 use App\Models\ClientPropertyAddress;
 use App\Models\Notification;
 use App\Traits\PriceOffered;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -413,14 +414,21 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function updateJobStatus(Request $request, $id)
+    public function cancelJob(Request $request, $id)
     {
-        $job = Job::with(['client', 'worker', 'jobservice'])
-            ->find(base64_decode($id));
+        $job = Job::with(['client', 'offer', 'worker', 'jobservice'])
+            ->find($id);
 
-        $job->status = $request->status;
-        $job->rate = $request->total;
-        $job->save();
+        $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+
+        $job->update([
+            'status' => 'cancel',
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_by_role' => 'client',
+            'cancelled_at' => now()
+        ]);
 
         Notification::create([
             'user_id' => $job->client->id,

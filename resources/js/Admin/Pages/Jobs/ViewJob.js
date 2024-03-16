@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Sidebar from "../../Layouts/Sidebar";
 import ClientDetails from "../../Components/Job/ClientDetails";
 import WorkerDetails from "../../Components/Job/WorkerDetails";
 import Services from "../../Components/Job/Services";
 import Comment from "../../Components/Job/Comment";
 import WorkerTiming from "../../Components/Job/WorkerTiming";
-import axios from "axios";
+import CancelJobModal from "../../Components/Modals/CancelJobModal";
 
 export default function ViewJob() {
     const params = useParams();
@@ -15,6 +16,12 @@ export default function ViewJob() {
     const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
     const [address, setAddress] = useState({});
+
+    const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
+    const handleCancel = () => {
+        setIsOpenCancelModal(true);
+    };
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -31,40 +38,13 @@ export default function ViewJob() {
         });
     };
 
-    const cancelJob = (e) => {
-        e.preventDefault();
-        Swal.fire({
-            title: "Are you sure ?",
-            text: "You won't be revert this",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            cancelButtonText: "Cancel",
-            confirmButtonText: "Yes, Cancel it",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .post(
-                        `/api/admin/cancel-job`,
-                        { id: params.id },
-                        { headers }
-                    )
-                    .then((response) => {
-                        Swal.fire("Job cancelled succesfully", "", "success");
-                        setTimeout(() => {
-                            getJob();
-                        }, 1000);
-                    });
-            }
-        });
-    };
     useEffect(() => {
         getJob();
         setTimeout(() => {
             document.querySelector(".cdiv").style.display = "block";
         }, 1000);
     }, []);
+
     const handleClick = () => {
         navigate(`/admin/jobs`);
     };
@@ -96,7 +76,7 @@ export default function ViewJob() {
                                         ) : (
                                             <button
                                                 className="btn btn-danger float-right mt-2"
-                                                onClick={(e) => cancelJob(e)}
+                                                onClick={(e) => handleCancel(e)}
                                             >
                                                 Cancel
                                             </button>
@@ -129,6 +109,14 @@ export default function ViewJob() {
                     </div>
                 </div>
             </div>
+
+            {isOpenCancelModal && (
+                <CancelJobModal
+                    setIsOpen={setIsOpenCancelModal}
+                    isOpen={isOpenCancelModal}
+                    job={job}
+                />
+            )}
         </div>
     );
 }
