@@ -29,4 +29,8 @@ class JobService extends Model
     protected $casts = [
         'config' => 'array',
     ];
+    public function service()
+    {
+        return $this->belongsTo(Services::class, 'job_id');
+    }
 }

@@ -3,22 +3,6 @@ import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
 import { useAlert } from "react-alert";
 
-const slot = [
-    { value: "fullday-8am-16pm", label: "fullday-8am-16pm" },
-    { value: "morning1-8am-10am", label: "morning1-8am-10am" },
-    { value: "morning2-10am-12pm", label: "morning2-10am-12pm" },
-    { value: "morning-08am-12pm", label: "morning-08am-12pm" },
-    { value: "noon1-12pm-14pm", label: "noon1-12pm-14pm" },
-    { value: "noon2-14pm-16pm", label: "noon2-14pm-16pm" },
-    { value: "noon-12pm-16pm", label: "noon-12pm-16pm" },
-    { value: "af1-16pm-18pm", label: "af1-16pm-18pm" },
-    { value: "af2-18pm-20pm", label: "af2-18pm-20pm" },
-    { value: "afternoon-16pm-20pm", label: "afternoon-16pm-20pm" },
-    { value: "ev1-20pm-22pm", label: "ev1-20pm-22pm" },
-    { value: "ev2-22pm-24pm", label: "ev2-22pm-24pm" },
-    { value: "evening-20pm-24am", label: "evening-20pm-24am" },
-];
-
 const frequencyDays = [
     { value: "sunday", label: "Sunday" },
     { value: "monday", label: "Monday" },
@@ -142,59 +126,59 @@ const OfferServiceModal = memo(function OfferServiceModal({
             alert.error("The frequency is not selected");
             return false;
         } else {
-            if (tmpFormValues.start_date == "") {
-                alert.error("The Start date is not selected");
-                return false;
-            }
+            // if (tmpFormValues.start_date == "") {
+            //     alert.error("The Start date is not selected");
+            //     return false;
+            // }
 
-            if (tmpFormValues.cycle == "1") {
-                if (
-                    ["w", "2w", "3w", "4w", "5w"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    alert.error("The weekday is not selected");
-                    return false;
-                } else if (
-                    tmpFormValues.monthday_selection_type == "weekday" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(
-                        tmpFormValues.period
-                    ) &&
-                    tmpFormValues.weekday == ""
-                ) {
-                    alert.error("The weekday is not selected");
-                    return false;
-                }
+            // if (tmpFormValues.cycle == "1") {
+            //     if (
+            //         ["w", "2w", "3w", "4w", "5w"].includes(
+            //             tmpFormValues.period
+            //         ) &&
+            //         tmpFormValues.weekday == ""
+            //     ) {
+            //         alert.error("The weekday is not selected");
+            //         return false;
+            //     } else if (
+            //         tmpFormValues.monthday_selection_type == "weekday" &&
+            //         ["m", "2m", "3m", "6m", "y"].includes(
+            //             tmpFormValues.period
+            //         ) &&
+            //         tmpFormValues.weekday == ""
+            //     ) {
+            //         alert.error("The weekday is not selected");
+            //         return false;
+            //     }
 
-                if (
-                    tmpFormValues.monthday_selection_type == "date" &&
-                    ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
-                ) {
-                    if (tmpFormValues.month_date == "") {
-                        alert.error("The month date is not selected");
-                        return false;
-                    } else if (
-                        new Date(tmpFormValues.start_date).getDate() >
-                        tmpFormValues.month_date
-                    ) {
-                        alert.error(
-                            "The start date should be less than or equal to selected month date"
-                        );
-                        return false;
-                    }
-                }
-            }
+            //     if (
+            //         tmpFormValues.monthday_selection_type == "date" &&
+            //         ["m", "2m", "3m", "6m", "y"].includes(tmpFormValues.period)
+            //     ) {
+            //         if (tmpFormValues.month_date == "") {
+            //             alert.error("The month date is not selected");
+            //             return false;
+            //         } else if (
+            //             new Date(tmpFormValues.start_date).getDate() >
+            //             tmpFormValues.month_date
+            //         ) {
+            //             alert.error(
+            //                 "The start date should be less than or equal to selected month date"
+            //             );
+            //             return false;
+            //         }
+            //     }
+            // }
 
-            if (
-                tmpFormValues.period == "w" &&
-                tmpFormValues.cycle != "0" &&
-                tmpFormValues.cycle != "1" &&
-                tmpFormValues.weekdays.length != tmpFormValues.cycle
-            ) {
-                alert.error("The frequency week-days are invalid");
-                return false;
-            }
+            // if (
+            //     tmpFormValues.period == "w" &&
+            //     tmpFormValues.cycle != "0" &&
+            //     tmpFormValues.cycle != "1" &&
+            //     tmpFormValues.weekdays.length != tmpFormValues.cycle
+            // ) {
+            //     alert.error("The frequency week-days are invalid");
+            //     return false;
+            // }
         }
 
         return true;
@@ -471,7 +455,7 @@ const OfferServiceModal = memo(function OfferServiceModal({
                                 })}
                             </select>
                         </div>
-                        <div
+                        {/* <div
                             className="form-group"
                             style={{
                                 display: tmpFormValues.period
@@ -711,7 +695,7 @@ const OfferServiceModal = memo(function OfferServiceModal({
                                             : "none",
                                 }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </Modal.Body>

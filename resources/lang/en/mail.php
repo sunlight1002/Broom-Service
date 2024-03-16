@@ -20,7 +20,8 @@ return [
        'company'     =>'Broom Service',
        'tel'         =>'Telephone',
        'price_offer' => 'Price offer',
-       'quality_check'=>'Quality check'
+       'quality_check'=>'Quality check',
+       'upload_meeting_files' => 'Upload meeting files'
     ],
     'cancel_meeting'=>[
 

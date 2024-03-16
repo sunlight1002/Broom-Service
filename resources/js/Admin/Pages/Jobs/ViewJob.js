@@ -29,7 +29,7 @@ export default function ViewJob() {
             setClient(r.client);
             setWorker(r.worker);
             setServices(r.jobservice);
-            setAddress(r.property_address);
+            setAddress(r.property_address ? r.property_address : {});
         });
     };
 

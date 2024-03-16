@@ -16,6 +16,7 @@ class ServiceSchedule extends Model
         'name_heb',
         'cycle',
         'period',
-        'status'
+        'status',
+        'color_code'
     ];
 }

@@ -8,12 +8,13 @@ import swal from "sweetalert";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
+import { frequencyDescription } from "../Utils/job.utils";
 
 export default function PriceOffer() {
     const { t } = useTranslation();
     const param = useParams();
-    const navigate = useNavigate();
     const [offer, setOffer] = useState([]);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState([]);
@@ -22,29 +23,32 @@ export default function PriceOffer() {
 
     const getOffer = () => {
         axios
-            .post(`/api/client/get-offer`, { id: Base64.decode(param.id) })
+            .post(`/api/client/get-offer/${Base64.decode(param.id)}`)
             .then((res) => {
-                setOffer(res.data.offer[0]);
-                setStatus(res.data.offer[0].status);
-                setServices(JSON.parse(res.data.offer[0].services));
-                setClient(res.data.offer[0].client);
-                i18next.changeLanguage(res.data.offer[0].client.lng);
+                setOffer(res.data.data);
+                setStatus(res.data.data.status);
+                setClient(res.data.data.client);
+                i18next.changeLanguage(res.data.data.client.lng);
+                let _services = JSON.parse(res.data.data.services);
 
-                if (res.data.offer[0].client.lng == "heb") {
+                setServices(_services);
+
+                if (res.data.data.client.lng == "heb") {
                     import("../Assets/css/rtl.css");
                     document.querySelector("html").setAttribute("dir", "rtl");
-                } else document.querySelector("html").removeAttribute("dir");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                }
 
-                let serv = JSON.parse(res.data.offer[0].services);
                 let tm = [];
-                serv &&
-                    serv.map(async (s, i) => {
-                        //const d  = await axiosTemplate(s.service);
-                        tm[i] = s.template;
-                        tm = tm.filter((v, i, a) => {
-                            return a.indexOf(v) === i;
-                        });
+                _services.map(async (s, i) => {
+                    //const d  = await axiosTemplate(s.service);
+                    tm[i] = s.template;
+                    tm = tm.filter((v, i, a) => {
+                        return a.indexOf(v) === i;
                     });
+                });
+
                 setAllTemplates(tm);
             });
     };
@@ -109,41 +113,15 @@ export default function PriceOffer() {
             document.querySelector(".parent").style.display = "block";
         }, 500);
     }, []);
-    services &&
-        services.filter((s, i, a) => {
-            //rg.includes(parseInt(s.service)) in IF commented
-            if (i == 0 && s.service == "10" && a.length >= 2) {
-                [a[0], a[a.length - 1]] = [a[a.length - 1], a[0]];
-                return a;
-            }
-        });
-    const frequancyDescription = (sObj) => {
-        let descriptionStr = "";
-        if (sObj.period == "w" && sObj.cycle == 1) {
-            descriptionStr += `On ${sObj.weekday}`;
+
+    services.filter((s, i, a) => {
+        //rg.includes(parseInt(s.service)) in IF commented
+        if (i == 0 && s.service == "10" && a.length >= 2) {
+            [a[0], a[a.length - 1]] = [a[a.length - 1], a[0]];
+            return a;
         }
-        if (["m", "2m", "3m", "6m", "y"].includes(sObj.period)) {
-            if (sObj.monthday_selection_type == "date") {
-                descriptionStr += `Day ${sObj.month_date}`;
-            }
-        }
-        if (
-            ["2w", "3w", "4w", "5w", "m", "2m", "3m", "6m", "y"].includes(
-                sObj.period
-            )
-        ) {
-            if (sObj.monthday_selection_type == "weekday") {
-                descriptionStr += `The ${sObj.weekday_occurrence} ${sObj.weekday}`;
-            }
-        }
-        if (["2m", "3m", "6m", "y"].includes(sObj.period)) {
-            descriptionStr += ` of ${sObj.month_occurrence} month`;
-        }
-        if (sObj.period == "w" && sObj.cycle > 1) {
-            descriptionStr += `Week ${sObj.weekdays}`;
-        }
-        return descriptionStr;
-    };
+    });
+
     return (
         <>
             <div className="container parent" style={{ display: "none" }}>
@@ -319,50 +297,49 @@ export default function PriceOffer() {
                                     && (!rg.includes(sid) && sid == 7)
                                     || (rg.includes(sid) && sid == 10)*/}
 
-                            {services &&
-                                services.map((s, i) => {
-                                    if (
-                                        s.service == "10" &&
-                                        allTemplates.includes("others") &&
-                                        !allTemplates.includes("regular")
-                                    ) {
-                                        return (
-                                            <div className="shift-20" key={i}>
-                                                <h4 className="mt-4">
-                                                    &bull; {s.other_title}
-                                                </h4>
+                            {services.map((s, i) => {
+                                if (
+                                    s.service == "10" &&
+                                    allTemplates.includes("others") &&
+                                    !allTemplates.includes("regular")
+                                ) {
+                                    return (
+                                        <div className="shift-20" key={i}>
+                                            <h4 className="mt-4">
+                                                &bull; {s.other_title}
+                                            </h4>
 
-                                                <ul className="list-unstyled">
-                                                    <li>
-                                                        <img src={star} />{" "}
-                                                        {t(
-                                                            "price_offer.regular_services.rs1_p1"
-                                                        )}
-                                                    </li>
-                                                    <li>
-                                                        <img src={star} />{" "}
-                                                        {t(
-                                                            "price_offer.regular_services.rs1_p2"
-                                                        )}
-                                                    </li>
-                                                    <li>
-                                                        <img src={star} />{" "}
-                                                        {t(
-                                                            "price_offer.regular_services.rs1_p3"
-                                                        )}
-                                                    </li>
-                                                    {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
-                                                    <li>
-                                                        <img src={star} />{" "}
-                                                        {t(
-                                                            "price_offer.regular_services.rs1_p5"
-                                                        )}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        );
-                                    }
-                                })}
+                                            <ul className="list-unstyled">
+                                                <li>
+                                                    <img src={star} />{" "}
+                                                    {t(
+                                                        "price_offer.regular_services.rs1_p1"
+                                                    )}
+                                                </li>
+                                                <li>
+                                                    <img src={star} />{" "}
+                                                    {t(
+                                                        "price_offer.regular_services.rs1_p2"
+                                                    )}
+                                                </li>
+                                                <li>
+                                                    <img src={star} />{" "}
+                                                    {t(
+                                                        "price_offer.regular_services.rs1_p3"
+                                                    )}
+                                                </li>
+                                                {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
+                                                <li>
+                                                    <img src={star} />{" "}
+                                                    {t(
+                                                        "price_offer.regular_services.rs1_p5"
+                                                    )}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    );
+                                }
+                            })}
 
                             <>
                                 {allTemplates.includes("thorough_cleaning") ? (
@@ -865,77 +842,70 @@ export default function PriceOffer() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {" "}
-                                            {services &&
-                                                services.map((s, i) => {
-                                                    return (
-                                                        <tr key={i}>
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <tr key={i}>
+                                                        <td>
+                                                            {s.address &&
+                                                            s.address
+                                                                .geo_address
+                                                                ? s.address
+                                                                      .geo_address
+                                                                : "NA"}
+                                                        </td>
+                                                        <td>
+                                                            {s.service == 10
+                                                                ? s.other_title
+                                                                : s.name}
+                                                        </td>
+                                                        <td>{s.type}</td>
+                                                        <td>
+                                                            {s.freq_name}{" "}
+                                                            {/* <p>
+                                                                {
+                                                                    "Start from date : "
+                                                                }
+                                                                {Moment(
+                                                                    s.start_date
+                                                                ).format(
+                                                                    "DD-MM-Y"
+                                                                )}
+                                                            </p>
+                                                            <p>
+                                                                {frequencyDescription(
+                                                                    s
+                                                                )}
+                                                            </p> */}
+                                                        </td>
+                                                        <td>
+                                                            {s.jobHours}{" "}
+                                                            {t(
+                                                                "price_offer.hours"
+                                                            )}
+                                                        </td>
+                                                        {s.type == "fixed" ? (
                                                             <td>
-                                                                {s.address &&
-                                                                s.address
-                                                                    .geo_address
-                                                                    ? s.address
-                                                                          .geo_address
-                                                                    : "NA"}
-                                                            </td>
-                                                            <td>
-                                                                {s.service == 10
-                                                                    ? s.other_title
-                                                                    : s.name}
-                                                            </td>
-                                                            <td>{s.type}</td>
-                                                            <td>
-                                                                {s.freq_name}{" "}
-                                                                <p>
-                                                                    {
-                                                                        "Start from date : "
-                                                                    }
-                                                                    {Moment(
-                                                                        s.start_date
-                                                                    ).format(
-                                                                        "DD-MM-Y"
-                                                                    )}
-                                                                </p>
-                                                                <p>
-                                                                    {frequancyDescription(
-                                                                        s
-                                                                    )}
-                                                                </p>
-                                                            </td>
-                                                            <td>
-                                                                {s.jobHours}{" "}
+                                                                {s.totalamount}{" "}
                                                                 {t(
-                                                                    "price_offer.hours"
+                                                                    "global.currency"
                                                                 )}
                                                             </td>
-                                                            {s.type ==
-                                                            "fixed" ? (
-                                                                <td>
-                                                                    {
-                                                                        s.totalamount
-                                                                    }{" "}
-                                                                    {t(
-                                                                        "global.currency"
-                                                                    )}
-                                                                </td>
-                                                            ) : (
-                                                                <td>
-                                                                    {
-                                                                        s.rateperhour
-                                                                    }{" "}
-                                                                    {t(
-                                                                        "global.currency"
-                                                                    )}{" "}
-                                                                    {t(
-                                                                        "global.perhour"
-                                                                    )}{" "}
-                                                                    {`X` +
-                                                                        s.jobHours}{" "}
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    );
-                                                })}
+                                                        ) : (
+                                                            <td>
+                                                                {s.rateperhour}{" "}
+                                                                {t(
+                                                                    "global.currency"
+                                                                )}{" "}
+                                                                {t(
+                                                                    "global.perhour"
+                                                                )}{" "}
+                                                                {`X` +
+                                                                    s.jobHours}{" "}
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

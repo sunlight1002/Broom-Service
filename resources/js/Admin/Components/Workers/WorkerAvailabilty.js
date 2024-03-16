@@ -66,16 +66,16 @@ export default function WorkerAvailabilty({ interval }) {
     let handleSubmit = () => {
         let worker_id = params.id;
         let newworker = Object.assign({}, worker_aval);
-        let newworker1 = Object.assign({}, { data: newworker });
+
         axios
-            .post(`/api/admin/update_availability/${worker_id}`, newworker1, {
+            .post(`/api/admin/update_availability/${worker_id}`, newworker, {
                 headers,
             })
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
                 } else {
-                    alert.success("Worker Availabilty Updated Successfully");
+                    alert.success("Worker availabilty updated successfully");
                     getWorkerAvailabilty();
                 }
             });
@@ -129,8 +129,8 @@ export default function WorkerAvailabilty({ interval }) {
         axios
             .get(`/api/admin/worker_availability/${params.id}`, { headers })
             .then((response) => {
-                if (response.data.availability) {
-                    setWorkerAval(response.data.availability);
+                if (response.data.data) {
+                    setWorkerAval(response.data.data);
                 }
             });
     };

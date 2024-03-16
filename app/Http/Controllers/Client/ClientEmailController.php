@@ -12,7 +12,7 @@ use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Models\Notification;
-use App\Models\ClientPropertyAddress;
+use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
+  use PriceOffered;
+
   public function ShowMeeting(Request $request)
   {
     $id = $request->id;
@@ -45,24 +47,14 @@ class ClientEmailController extends Controller
     ]);
   }
 
-  public function GetOffer(Request $request)
+  public function GetOffer($id)
   {
-    $id = $request->id;
-    $offer = Offer::where('id', $id)->with('client')->get();
-    $services = ($offer[0]->services != '') ? json_decode($offer[0]->services) : [];
+    $offer = Offer::query()->with('client')->find($id);
 
-    //map serice property address
-    if (isset($services)) {
-        foreach ($services as $service) {
-            if(!empty($service->address)){
-                $service->address = ClientPropertyAddress::find($service->address)->toArray();
-            }
-        }
-    }
-    $offer[0]->services = json_encode($services, true);
+    $offer->services = $this->formatServices($offer);
 
     return response()->json([
-      'offer' => $offer
+      'data' => $offer
     ]);
   }
 
@@ -309,37 +301,26 @@ class ClientEmailController extends Controller
     }
   }
 
-  public function GetOfferFromHash(Request $request)
+  public function contractByHash($hash)
   {
-    $offer = Contract::where('unique_hash', $request->token)->get()->last();
-    $goffer = Offer::where('id', $offer->offer_id)->with('client')->get();
-    $cid = $goffer[0]->client_id;
+    $contract = Contract::where('unique_hash', $hash)->latest()->first();
+    $offer = Offer::query()->with('client')->find($contract->offer_id);
+    $cid = $offer->client_id;
 
     $exist_card = ClientCard::where('client_id', $cid)->where('card_token', '!=', null)->first();
 
-    for ($i=0; $i < count($goffer) ; $i++) { 
-      $services = json_decode($goffer[$i]['services']);
-      if (isset($services)) {
-          foreach ($services as $service) {
-              if(!empty($service->address)){
-                  $service->address = ClientPropertyAddress::find($service->address)->toArray();
-              }
-          }            
-      }
-      $goffer[$i]['services'] = json_encode($services, true);
-    }
-
+    $offer['services'] = $this->formatServices($offer);
 
     if (isset($exist_card->card_token)) {
-      $offer->add_card = 0;
+      $contract->add_card = 0;
     } else {
-      $offer->add_card = 1;
+      $contract->add_card = 1;
     }
 
     return response()->json([
       'old_contract' => config('services.app.old_contract'),
-      'offer' => $goffer,
-      'contract' => $offer,
+      'offer' => $offer,
+      'contract' => $contract,
       'card' => $exist_card,
     ]);
   }

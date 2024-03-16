@@ -43,6 +43,17 @@ class Job extends Model
         'is_next_job_created' => 'boolean',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($job) {
+            Invoices::where('job_id', $job->id)->delete();
+            JobService::where('job_id', $job->id)->delete();
+            JobHours::where('job_id', $job->id)->delete();
+            JobComments::where('job_id', $job->id)->delete();
+        });
+    }
+
     public function worker()
     {
         return $this->belongsTo(User::class, 'worker_id');
@@ -87,18 +98,14 @@ class Job extends Model
     {
         return $this->hasMany(Invoices::class, 'job_id');
     }
+
     public function propertyAddress()
     {
         return $this->belongsTo(ClientPropertyAddress::class, 'address_id');
     }
-    public static function boot()
+
+    public function workerShifts()
     {
-        parent::boot();
-        static::deleting(function ($job) {
-            Invoices::where('job_id', $job->id)->delete();
-            JobService::where('job_id', $job->id)->delete();
-            JobHours::where('job_id', $job->id)->delete();
-            JobComments::where('job_id', $job->id)->delete();
-        });
+        return $this->hasMany(JobWorkerShift::class, 'job_id');
     }
 }

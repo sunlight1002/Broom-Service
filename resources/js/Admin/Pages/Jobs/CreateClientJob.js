@@ -48,6 +48,7 @@ export default function CreateClientJob() {
     }, []);
 
     services.length ? $("#edit-work-time").modal("show") : "";
+
     return (
         <div id="container">
             <Sidebar />
@@ -68,54 +69,57 @@ export default function CreateClientJob() {
                                     <div className="col-sm-2">
                                         <div className="form-group">
                                             <label>Services</label>
-                                            {services &&
-                                                services.map((item, index) => {
-                                                    return (
-                                                        <p
-                                                            className={`services-${index}`}
-                                                            key={index}
-                                                        >
-                                                            {item.service ==
-                                                            "10"
-                                                                ? item.other_title
-                                                                : item.name}
-                                                        </p>
-                                                    );
-                                                })}
+                                            {services.map((item, index) => {
+                                                return (
+                                                    <p
+                                                        className={`services-${index}`}
+                                                        key={index}
+                                                    >
+                                                        {item.service == "10"
+                                                            ? item.other_title
+                                                            : item.name}
+                                                    </p>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                     <div className="col-sm-2">
                                         <div className="form-group">
                                             <label>Frequency</label>
-                                            {services &&
-                                                services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${index}`}
-                                                        key={index}
-                                                    >
-                                                        {item.freq_name}
-                                                    </p>
-                                                ))}
+                                            {services.map((item, index) => (
+                                                <p
+                                                    className={`services-${index}`}
+                                                    key={index}
+                                                >
+                                                    {item.freq_name}
+                                                </p>
+                                            ))}
                                         </div>
                                     </div>
                                     <div className="col-sm-2">
                                         <div className="form-group">
                                             <label>Complete Time</label>
-                                            {services &&
-                                                services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${index}`}
-                                                        key={index}
-                                                    >
-                                                        {item.jobHours} hours
-                                                    </p>
-                                                ))}
+                                            {services.map((item, index) => (
+                                                <p
+                                                    className={`services-${index}`}
+                                                    key={index}
+                                                >
+                                                    {item.jobHours} hours
+                                                </p>
+                                            ))}
                                         </div>
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
                                             <label>Address</label>
-                                            <p>{address}</p>
+                                            {services.map((item, index) => (
+                                                <p
+                                                    className={`services-${index}`}
+                                                    key={index}
+                                                >
+                                                    {item.address.geo_address}
+                                                </p>
+                                            ))}
                                         </div>
                                     </div>
                                     <div className="col-sm-12">

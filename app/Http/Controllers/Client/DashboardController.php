@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\ClientCard;
 use App\Models\ClientPropertyAddress;
 use App\Models\Notification;
+use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -25,6 +26,8 @@ use Intervention\Image\Facades\Image;
 
 class DashboardController extends Controller
 {
+    use PriceOffered;
+
     public function dashboard(Request $request)
     {
         $id              = $request->id;
@@ -112,21 +115,18 @@ class DashboardController extends Controller
 
     public function viewOffer(Request $request)
     {
-        $offer = Offer::where('id', $request->id)->with('client')->get()->first();
+        $offer = Offer::query()->with('client')->find($request->id);
         if (isset($offer)) {
             $perhour = false;
             $services = json_decode($offer->services);
             if (isset($services)) {
                 foreach ($services as $service) {
-                    if(!empty($service->address)){
-                        $service->address = ClientPropertyAddress::find($service->address)->toArray();
-                    }
                     if ($service->type == 'hourly') {
                         $perhour = true;
                     }
                 }
             }
-            $offer->services = json_encode($services, true);
+            $offer->services = $this->formatServices($offer);
             ($perhour == true) ? $offer->perhour = 1 : $offer->perhour = 0;
         }
         return response()->json([

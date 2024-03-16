@@ -325,4 +325,86 @@ trait JobSchedule
 
         return $date;
     }
+
+    private function scheduleNextJobDate($jobDate, $period, $preferredWeekDay)
+    {
+        $jobsArr = [];
+        $jobIdx = 0;
+
+        $next_job_date = NULL;
+
+        // recurring
+        [$period_type, $period_sequence_length] = $this->periodType($period);
+        if ($period_type == "day") {
+            $next_job_date = $jobDate
+                ->clone()
+                ->addDays($period_sequence_length);
+
+            if ($this->isHoliday($next_job_date)) {
+                $next_job_date->modify('next sunday');
+            }
+        } else if ($period_type == 'week') {
+            $next_job_date = $jobDate
+                ->clone()
+                ->addWeeks($period_sequence_length);
+        } elseif ($period_type == 'month') {
+            $next_job_date = $jobDate
+                ->clone()
+                ->addMonths($period_sequence_length);
+
+            if (
+                !$next_job_date->is($preferredWeekDay) ||
+                $this->isHoliday($next_job_date)
+            ) {
+                $next_job_date->modify('next ' . $preferredWeekDay);
+            }
+        } elseif ($period_type == 'year') {
+            $next_job_date = $jobDate
+                ->clone()
+                ->addYears($period_sequence_length);
+
+            if (
+                !$next_job_date->is($preferredWeekDay) ||
+                $this->isHoliday($next_job_date)
+            ) {
+                $next_job_date->modify('next ' . $preferredWeekDay);
+            }
+        }
+
+        return $next_job_date ? $next_job_date->toDateString() : NULL;
+    }
+
+    private function isHoliday($date)
+    {
+        return $date->is('friday') || $date->is('saturday');
+    }
+
+    private function mergeContinuousTimes($times)
+    {
+        $mergedTimes = [];
+        $currentSlot = null;
+
+        foreach ($times as $time) {
+            $startingAt = strtotime($time['starting_at']);
+            $endingAt = strtotime($time['ending_at']);
+
+            if ($currentSlot === null) {
+                $currentSlot = ['starting_at' => $time['starting_at'], 'ending_at' => $time['ending_at']];
+            } elseif ($startingAt == strtotime($currentSlot['ending_at'])) {
+                // Merge the current slot with the next slot
+                $currentSlot['ending_at'] = $time['ending_at'];
+            } else {
+                // Push the current merged slot and start a new one
+                $mergedTimes[] = $currentSlot;
+                $currentSlot = ['starting_at' => $time['starting_at'], 'ending_at' => $time['ending_at']];
+            }
+        }
+
+        // Add the last merged slot
+        if ($currentSlot !== null) {
+            $mergedTimes[] = $currentSlot;
+        }
+
+        return $mergedTimes;
+    }
 }
