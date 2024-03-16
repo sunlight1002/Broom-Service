@@ -6,6 +6,9 @@ import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import { useAlert } from "react-alert";
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
@@ -14,12 +17,53 @@ export default function Clients() {
     const [loading, setLoading] = useState("Loading...");
 
     const [stat, setStat] = useState(null);
+    const [show, setShow] = useState(false);
+    const [importFile, setImportFile] = useState("");
+    const alert = useAlert();
+
+    const handleClose = () => {
+        setImportFile("");
+        setShow(false);
+    };
+    const handleShow = () => {
+        setImportFile("");
+        setShow(true);
+    };
 
     const navigate = useNavigate();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+    const formHeaders = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const handleImportSubmit = () => {
+        const formData = new FormData();
+        formData.append("file", importFile);
+        axios
+            .post("/api/admin/import-clients", formData, {
+                headers: formHeaders,
+            })
+            .then((response) => {
+                handleClose();
+                if (response.data.error) {
+                    alert.error(response.data.error);
+                } else {
+                    alert.success(response.data.message);
+                    setTimeout(() => {
+                        getclients();
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+                handleClose();
+                alert.error(error.message);
+            });
     };
 
     const getclients = () => {
@@ -221,7 +265,14 @@ export default function Clients() {
                                         Export to CSV
                                     </CSVLink>
                                 </div>
-
+                                <div className="action-dropdown dropdown mt-4 mr-2">
+                                    <button
+                                        className="btn btn-pink"
+                                        onClick={handleShow}
+                                    >
+                                        Import
+                                    </button>
+                                </div>
                                 <div className="action-dropdown dropdown mt-4 mr-2">
                                     <button
                                         type="button"
@@ -553,6 +604,43 @@ export default function Clients() {
                     </div>
                 </div>
             </div>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Import File</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <a href="/api/admin/clients-sample-file">
+                        Download sample file
+                    </a>
+                    <form encType="multipart/form-data">
+                        <div className="row mt-2">
+                            <div className="col-sm-12">
+                                <div className="form-group">
+                                    <input
+                                        type="file"
+                                        onChange={(e) =>
+                                            setImportFile(e.target.files[0])
+                                        }
+                                        className="form-control"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button
+                        className="btn btn-pink"
+                        onClick={handleImportSubmit}
+                    >
+                        Submit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

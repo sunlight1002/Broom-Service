@@ -16,6 +16,7 @@
         "laravel/passport": "^10.4",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "maatwebsite/excel": "^3.1",
         "twilio/sdk": "^7.15"
     },
     "require-dev": {
