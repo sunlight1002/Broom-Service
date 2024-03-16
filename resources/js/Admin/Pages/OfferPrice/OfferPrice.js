@@ -6,6 +6,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import { useAlert } from "react-alert";
 
 export default function OfferPrice() {
     const [offers, setOffers] = useState([]);
@@ -15,6 +18,52 @@ export default function OfferPrice() {
     const [pageCount, setPageCount] = useState(0);
     const navigate = useNavigate();
     const [copy, setCopy] = useState([]);
+
+    const [stat, setStat] = useState(null);
+    const [show, setShow] = useState(false);
+    const [importFile, setImportFile] = useState("");
+    const alert = useAlert();
+
+
+    const handleClose = () => {
+        setImportFile("");
+        setShow(false);
+    };
+    const handleShow = () => {
+        setImportFile("");
+        setShow(true);
+    };
+
+    const formHeaders = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const handleImportSubmit = () => {
+        const formData = new FormData();
+        formData.append("file", importFile);
+        axios
+            .post("/api/admin/import-client-offers", formData, {
+                headers: formHeaders,
+            })
+            .then((response) => {
+                handleClose();
+                if (response.data.error) {
+                    alert.error(response.data.error);
+                } else {
+                    alert.success(response.data.message);
+                    setTimeout(() => {
+                        getOffers();
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+                handleClose();
+                alert.error(error.message);
+            });
+    };
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -147,10 +196,20 @@ export default function OfferPrice() {
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-6">
+                        <div className="col-sm-5">
                             <h1 className="page-title">Offered Prices</h1>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-7">
+
+                                <div className="action-dropdown dropdown d-inline-block float-right ml-2">
+                                    <button
+                                        className="btn btn-pink addButton"
+                                        onClick={handleShow}
+                                    >
+                                        Import
+                                    </button>
+                                </div>
+
                             <div className="search-data">
                                 <input
                                     type="text"
@@ -442,6 +501,45 @@ export default function OfferPrice() {
                     </div>
                 </div>
             </div>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Import File</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <a href="/api/admin/offers-sample-file">
+                        Download sample file
+                    </a>
+                    <form encType="multipart/form-data">
+                        <div className="row mt-2">
+                            <div className="col-sm-12">
+                                <div className="form-group">
+                                    <input
+                                        type="file"
+                                        onChange={(e) =>
+                                            setImportFile(e.target.files[0])
+                                        }
+                                        className="form-control"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button
+                        className="btn btn-pink"
+                        onClick={handleImportSubmit}
+                    >
+                        Submit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 }
