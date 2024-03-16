@@ -13,6 +13,7 @@ export default function CreateJobCalender() {
     const alert = useAlert();
     const [AllWorkers, setAllWorkers] = useState([]);
     const [interval, setTimeInterval] = useState([]);
+    const [shiftFreezeTime, setShiftFreezeTime] = useState({});
     const [selected_service, setSelectedService] = useState(0);
     const [data, setData] = useState([]);
     const [c_time, setCTime] = useState(0);
@@ -48,6 +49,14 @@ export default function CreateJobCalender() {
                     return ai.indexOf(obj) == -1;
                 });
                 setTimeInterval(hid);
+                const { freeze_shift_start_time, freeze_shift_end_time } =
+                    res.data.data;
+                if (freeze_shift_start_time && freeze_shift_end_time) {
+                    setShiftFreezeTime({
+                        start: freeze_shift_start_time,
+                        end: freeze_shift_end_time,
+                    });
+                }
             }
         });
     };
@@ -300,7 +309,8 @@ export default function CreateJobCalender() {
                                                           shiftOptions[
                                                               aval[element]
                                                           ],
-                                                          shifts
+                                                          shifts,
+                                                          shiftFreezeTime
                                                       )
                                                     : [];
                                             let list =
@@ -348,7 +358,6 @@ export default function CreateJobCalender() {
                                                                 </div>
                                                             );
                                                         })}
-
                                                     {aval[element] &&
                                                     aval[element] != "" ? (
                                                         <Select
@@ -359,7 +368,8 @@ export default function CreateJobCalender() {
                                                                         element
                                                                     ]
                                                                 ],
-                                                                shifts
+                                                                shifts,
+                                                                shiftFreezeTime
                                                             )}
                                                             className="basic-multi-single"
                                                             isClearable={true}
@@ -424,7 +434,8 @@ export default function CreateJobCalender() {
                                                           shiftOptions[
                                                               aval[element]
                                                           ],
-                                                          shifts
+                                                          shifts,
+                                                          shiftFreezeTime
                                                       )
                                                     : [];
                                             let list =
@@ -483,7 +494,8 @@ export default function CreateJobCalender() {
                                                                         element
                                                                     ]
                                                                 ],
-                                                                shifts
+                                                                shifts,
+                                                                shiftFreezeTime
                                                             )}
                                                             className="basic-multi-single"
                                                             isClearable={true}
@@ -548,7 +560,8 @@ export default function CreateJobCalender() {
                                                           shiftOptions[
                                                               aval[element]
                                                           ],
-                                                          shifts
+                                                          shifts,
+                                                          shiftFreezeTime
                                                       )
                                                     : [];
                                             let list =
@@ -607,7 +620,8 @@ export default function CreateJobCalender() {
                                                                         element
                                                                     ]
                                                                 ],
-                                                                shifts
+                                                                shifts,
+                                                                shiftFreezeTime
                                                             )}
                                                             className="basic-multi-single"
                                                             isClearable={true}

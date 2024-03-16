@@ -48,7 +48,11 @@ export const frequencyDescription = (_service) => {
     return descriptionStr;
 };
 
-export const filterShiftOptions = (options, selectedShifts) => {
+export const filterShiftOptions = (
+    options,
+    selectedShifts,
+    shiftFreezeTime = {}
+) => {
     const shifts = selectedShifts;
 
     // Convert the selectedShifts to an array of shift start and end times
@@ -64,7 +68,6 @@ export const filterShiftOptions = (options, selectedShifts) => {
     if (isFullDay) {
         return [];
     }
-
     // Filter out the options that are not overlapped with any selected shifts
     const nonOverlappingOptions = options.filter((option) => {
         const [_, start, end] = option.label.match(
@@ -78,10 +81,21 @@ export const filterShiftOptions = (options, selectedShifts) => {
         if (!isOverlapping) {
             return isOverlapping;
         }
-
         const _startTime = moment(start, "ha");
         const _endTime = moment(end, "ha");
 
+        if (shiftFreezeTime.start && shiftFreezeTime.end) {
+            const _startTimeF = moment(shiftFreezeTime["start"], "ha");
+            const _endTimeF = moment(shiftFreezeTime["end"], "ha");
+            return !(
+                _startTimeF.isSame(_startTime) ||
+                _endTimeF.isSame(_endTime) ||
+                _startTimeF.isBetween(_startTime, _endTime) ||
+                _endTimeF.isBetween(_startTime, _endTime) ||
+                _startTime.isBetween(_startTimeF, _endTimeF) ||
+                _endTime.isBetween(_startTimeF, _endTimeF)
+            );
+        }
         return !shiftTimes.some((shift) => {
             const _shiftStartTime = moment(shift.start, "ha");
             const _shiftEndTime = moment(shift.end, "ha");

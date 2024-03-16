@@ -21,6 +21,7 @@ export default function CreateClientByJob() {
     const [data, setData] = useState([]);
     const [c_time, setCTime] = useState(0);
     const [nextweek, setNextweek] = useState([]);
+    const [shiftFreezeTime, setShiftFreezeTime] = useState({});
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -83,6 +84,14 @@ export default function CreateClientByJob() {
                     return ai.indexOf(obj) == -1;
                 });
                 setTimeInterval(hid);
+                const { freeze_shift_start_time, freeze_shift_end_time } =
+                    res.data.data;
+                if (freeze_shift_start_time && freeze_shift_end_time) {
+                    setShiftFreezeTime({
+                        start: freeze_shift_start_time,
+                        end: freeze_shift_end_time,
+                    });
+                }
             }
         });
     };
@@ -122,7 +131,11 @@ export default function CreateClientByJob() {
             });
     };
     const handleSubmit = () => {
-        let formdata = { workers: data, service: services[0], client_page: true };
+        let formdata = {
+            workers: data,
+            service: services[0],
+            client_page: true,
+        };
         if (data.length > 0) {
             axios
                 .post(`/api/admin/create-job/${params.id}`, formdata, {
@@ -324,7 +337,8 @@ export default function CreateClientByJob() {
                                                           shiftOptions[
                                                               aval[element]
                                                           ],
-                                                          shifts
+                                                          shifts,
+                                                          shiftFreezeTime
                                                       )
                                                     : [];
                                             let list =
@@ -384,7 +398,8 @@ export default function CreateClientByJob() {
                                                                         element
                                                                     ]
                                                                 ],
-                                                                shifts
+                                                                shifts,
+                                                                shiftFreezeTime
                                                             )}
                                                             className="basic-multi-single "
                                                             isClearable={true}
@@ -449,7 +464,8 @@ export default function CreateClientByJob() {
                                                           shiftOptions[
                                                               aval[element]
                                                           ],
-                                                          shifts
+                                                          shifts,
+                                                          shiftFreezeTime
                                                       )
                                                     : [];
                                             let list =
@@ -512,7 +528,8 @@ export default function CreateClientByJob() {
                                                                         element
                                                                     ]
                                                                 ],
-                                                                shifts
+                                                                shifts,
+                                                                shiftFreezeTime
                                                             )}
                                                             className="basic-multi-single"
                                                             isClearable={true}
@@ -578,7 +595,8 @@ export default function CreateClientByJob() {
                                                               shiftOptions[
                                                                   aval[element]
                                                               ],
-                                                              shifts
+                                                              shifts,
+                                                              shiftFreezeTime
                                                           )
                                                         : [];
                                                 let list =
@@ -643,7 +661,8 @@ export default function CreateClientByJob() {
                                                                             element
                                                                         ]
                                                                     ],
-                                                                    shifts
+                                                                    shifts,
+                                                                    shiftFreezeTime
                                                                 )}
                                                                 className="basic-multi-single"
                                                                 isClearable={

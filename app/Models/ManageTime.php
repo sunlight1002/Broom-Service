@@ -13,5 +13,7 @@ class ManageTime extends Model
         'start_time',
         'end_time',
         'days',
+        'freeze_shift_start_time',
+        'freeze_shift_end_time'
     ];
 }
