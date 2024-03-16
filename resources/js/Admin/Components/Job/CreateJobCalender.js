@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
@@ -22,7 +22,7 @@ export default function CreateJobCalender() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
+    let isPrevWorker = useRef();
     const [services, setServices] = useState([]);
     const [clientname, setClientName] = useState("");
     const getJob = () => {
@@ -86,7 +86,11 @@ export default function CreateJobCalender() {
     };
 
     const handleSubmit = () => {
-        let formdata = { workers: data, service: services[0] };
+        let formdata = {
+            workers: data,
+            service: services[0],
+            prevWorker: isPrevWorker.current.checked,
+        };
         let viewbtn = document.querySelectorAll(".viewBtn");
         if (data.length > 0) {
             viewbtn[0].setAttribute("disabled", true);
@@ -812,6 +816,19 @@ export default function CreateJobCalender() {
                         </div>
                         <div className="modal-body">
                             <div className="row">
+                                <div className="col-sm-12 mb-4">
+                                    <div className="form-check">
+                                        <label className="form-check-label">
+                                            <input
+                                                ref={isPrevWorker}
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                name={"is_keep_prev_worker"}
+                                            />
+                                            Keep previous worker
+                                        </label>
+                                    </div>
+                                </div>
                                 <div className="col-sm-12">
                                     <label className="control-label">
                                         Services

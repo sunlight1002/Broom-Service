@@ -455,6 +455,7 @@ class JobController extends Controller
                     'status'        => $status,
                     'next_start_date'    => $next_job_date,
                     'address_id'  => $selectedService['address']['id'],
+                    'keep_prev_worker' => isset($data['prevWorker'])?$data['prevWorker']:false,
                 ]);
 
                 JobService::create([

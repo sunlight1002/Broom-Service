@@ -30,7 +30,8 @@ class Job extends Model
         'status',
         'address_id',
         'next_start_date',
-        'is_next_job_created'
+        'is_next_job_created',
+        'keep_prev_worker'
     ];
 
     /**
