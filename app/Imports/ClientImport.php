@@ -57,7 +57,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'Potential Customer' => 1,
                     'Customer' => 2,
                 ];
-                if (!in_array(Str::title($row['status'] ?? ''), $status)) {
+                if (!in_array(Str::title($row['status'] ?? ''), array_keys($status))) {
                     throw new Exception('Invalid client status');
                 }
                 $clientData = [
