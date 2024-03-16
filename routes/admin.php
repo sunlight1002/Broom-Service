@@ -50,6 +50,8 @@ Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
+Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
+
 // Authenticated Routes
 Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
@@ -80,8 +82,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Lead Api
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
-    Route::post('leads/save-property-address',[LeadController::class, 'savePropertyAddress']);
-    Route::delete('leads/remove-property-address/{id}',[LeadController::class, 'removePropertyAddress']);
+    Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
+    Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
     Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
 
     // workers Api
@@ -101,6 +103,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Clients Api
     Route::resource('clients', ClientController::class)->except('create');
     Route::get('all-clients', [ClientController::class, 'AllClients']);
+    Route::post('import-clients', [ClientController::class, 'import']);
 
     // Services Api
     Route::resource('services', ServicesController::class)->except('show');

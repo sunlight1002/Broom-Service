@@ -130,17 +130,14 @@ export default function WorkerDashboard() {
                                                                 </Td>
                                                                 <Td>
                                                                     {item.jobservice &&
-                                                                        item.jobservice.map(
-                                                                            (
-                                                                                s,
-                                                                                i
-                                                                            ) => {
-                                                                                return w_lng ==
-                                                                                    "en"
-                                                                                    ? s.name
-                                                                                    : s.heb_name;
-                                                                            }
-                                                                        )}
+                                                                        (w_lng ==
+                                                                        "en"
+                                                                            ? item
+                                                                                  .jobservice
+                                                                                  .name
+                                                                            : item
+                                                                                  .jobservice
+                                                                                  .heb_name)}
                                                                 </Td>
                                                                 <Td>
                                                                     {

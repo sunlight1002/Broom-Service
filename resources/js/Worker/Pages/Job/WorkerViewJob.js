@@ -15,7 +15,6 @@ export default function WorkerViewJob() {
     const [job_status, setJobStatus] = useState("completed");
     const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
-    const [services, setServices] = useState([]);
     const [counter, setCounter] = useState("00:00:00");
     const [isRunning, setIsRunning] = useState(false);
     const [startTime, setStartTime] = useState(new Date());
@@ -37,7 +36,6 @@ export default function WorkerViewJob() {
             setJobStatus(r.status);
             setClient(r.client);
             setWorker(r.worker);
-            setServices(r.jobservice);
         });
     };
     useEffect(() => {
@@ -265,7 +263,7 @@ export default function WorkerViewJob() {
                                 <ClientDetails client={client} />
                             </div>
                             <div className="col-sm-12">
-                                <Services services={services} job={job} />
+                                <Services job={job} />
                             </div>
                             <div className="col-sm-12">
                                 <h2 className="text-custom">

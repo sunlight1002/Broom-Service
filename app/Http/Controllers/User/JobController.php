@@ -32,10 +32,11 @@ class JobController extends Controller
     {
         $w = $request->filter_week;
 
-        $jobs = Job::with('worker', 'client', 'offer', 'jobservice')->where('worker_id', $request->id);
+        $jobs = Job::query()
+            ->with('worker', 'client', 'offer', 'jobservice')
+            ->where('worker_id', $request->id);
 
         if ((is_null($w) || $w == 'current') && $w != 'all') {
-
             $startDate = Carbon::now()->toDateString();
             $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5)->toDateString();
         }
@@ -219,43 +220,37 @@ class JobController extends Controller
             'night-20pm-24pm'    => '20:30:00-00:00:00',
         ];
 
-        if (!empty($jobs)) {
-            foreach ($jobs as $job) {
-                $t     = $_shifts[str_replace(' ', '', $job->shifts)];
-                $et    = explode('-', $t);
+        foreach ($jobs as $job) {
+            $t     = $_shifts[str_replace(' ', '', $job->shifts)];
+            $et    = explode('-', $t);
 
-                $_start = Carbon::today()->format('Y-m-d ' . $et[0]);
-                $_end   = Carbon::today()->format('Y-m-d ' . $et[1]);
-                $_now   = Carbon::now()->format('Y-m-d H:i:s');
+            $_start = Carbon::today()->format('Y-m-d ' . $et[0]);
+            $_end   = Carbon::today()->format('Y-m-d ' . $et[1]);
+            $_now   = Carbon::now()->format('Y-m-d H:i:s');
 
-                $start  = Carbon::createFromFormat('Y-m-d H:i:s', $_start);
-                $end    = Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
-                $now    = Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
+            $start  = Carbon::createFromFormat('Y-m-d H:i:s', $_start);
+            $end    = Carbon::createFromFormat('Y-m-d H:i:s',  $_end);
+            $now    = Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
 
-                if (($start->lt($now)) && ($end->gt($now))) {
-                    $this->order($job->id);
-                }
+            if (($start->lt($now)) && ($end->gt($now))) {
+                $this->order($job->id);
             }
         }
     }
 
     public function order($id)
     {
-        $job = Job::query()->with('jobservice', 'client')->find($id);
-        $services = json_decode($job->jobservice);
-        $items = [];
-        if (isset($services)) {
-            foreach ($services as $service) {
-                $itm = [
-                    "description" => $service->name . " - " . Carbon::today()->format('d, M Y'),
-                    "unitprice"   => $service->total,
-                    "quantity"    => 1,
-                ];
-                array_push($items, $itm);
-            }
+        $job = Job::query()->with(['jobservice', 'client'])->find($id);
+        $service = $job->jobservice;
+        $items = [
+            [
+                "description" => $service->name . " - " . Carbon::today()->format('d, M Y'),
+                "unitprice"   => $service->total,
+                "quantity"    => 1,
+            ]
+        ];
 
-            JobService::where('id', $service->id)->update(['order_status' => 1]);
-        }
+        JobService::where('id', $service->id)->update(['order_status' => 1]);
 
         $invoice = 1;
         if (str_contains($job->schedule, 'w')) {
@@ -544,7 +539,7 @@ class JobController extends Controller
             }
 
             Order::where('id', $job->order[0]->id)->update(['status' => 'Closed']);
-            JobService::where('id', $job->jobservice[0]->id)->update(['order_status' => 2]);
+            JobService::where('id', $job->jobservice->id)->update(['order_status' => 2]);
             Order::where('id', $oid)->update(['invoice_status' => 2]);
         }
     }

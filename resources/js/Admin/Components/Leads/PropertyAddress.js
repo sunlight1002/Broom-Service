@@ -56,7 +56,7 @@ const PropertyAddress = memo(function PropertyAddress({
     useEffect(() => {
         setTimeout(() => {
             if (address && isModalOpen && isAdd.current) {
-                fullAddress.current.value = address;
+                fullAddress.current && (fullAddress.current.value = address);
             }
             if ((address && isModalOpen) || (!isAdd.current && isModalOpen)) {
                 let newErrors = { ...errors };

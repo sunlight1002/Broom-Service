@@ -72,20 +72,13 @@ class CronController extends Controller
                 $new->save();
 
                 $jserv = ($job->jobservice->toArray());
-                $jobSer = [];
-                foreach ($jserv as $k => $v) {
-                    unset($v['id']);
-                    unset($v['created_at']);
-                    unset($v['updated_at']);
-                    $v['job_id'] = $new->id;
-                    $jobSer[$k] = $v;
-                }
+                unset($jserv['id']);
+                unset($jserv['created_at']);
+                unset($jserv['updated_at']);
+                $jserv['job_id'] = $new->id;
+                $jobSer = $jserv;
 
-                if (!empty($jobSer)) {
-                    foreach ($jobSer as $jser) {
-                        JobService::create($jser);
-                    }
-                }
+                JobService::create($jobSer);
             }
         }
         // $this->sendUnscheduledMail();

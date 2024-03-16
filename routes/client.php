@@ -28,9 +28,6 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('contracts', [DashboardController::class, 'contracts'])->name('contracts');
     Route::post('view-contract', [DashboardController::class, 'viewContract'])->name('view-contract');
     Route::post('get-contract', [DashboardController::class, 'getContract'])->name('get-contract');
-    Route::post('add-file', [DashboardController::class, 'addfile'])->name('add-file');
-    Route::post('get-files', [DashboardController::class, 'getfiles'])->name('get-files');
-    Route::post('delete-file', [DashboardController::class, 'deletefile'])->name('delete-file');
 
     //job APis
     Route::post('jobs', [DashboardController::class, 'listJobs'])->name('jobs');
@@ -56,12 +53,15 @@ Route::post('get-client', [ClientEmailController::class, 'getClient'])->name('ge
 Route::get('get-schedule/{id}', [ClientEmailController::class, 'getSchedule'])->name('get-schedule');
 Route::post('add-meet', [ClientEmailController::class, 'addMeet'])->name('add-meet');
 Route::post('meeting', [ClientEmailController::class, 'ShowMeeting'])->name('meeting');
-Route::post('get-offer', [ClientEmailController::class, 'GetOffer'])->name('get-offer');
+Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer'])->name('get-offer');
 Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer'])->name('accept-offer');
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer'])->name('accept-offer');
 Route::post('accept-meeting', [ClientEmailController::class, 'AcceptMeeting'])->name('accept-meeting');
-Route::post('get-offer-token', [ClientEmailController::class, 'GetOfferFromHash'])->name('get-offer-token');
+Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);
 Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract'])->name('accept-contract');
 Route::post('reject-contract', [ClientEmailController::class, 'RejectContract'])->name('reject-contract');
 Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate'])->name('get-service-template');
 Route::post('save-card', [ClientEmailController::class, 'saveCard'])->name('save-card');
+Route::post('add-file', [DashboardController::class, 'addfile'])->name('add-file');
+Route::post('delete-file', [DashboardController::class, 'deletefile'])->name('delete-file');
+Route::post('get-files', [DashboardController::class, 'getfiles'])->name('get-files');

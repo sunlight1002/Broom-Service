@@ -357,7 +357,7 @@ const OfferServiceForm = memo(function OfferServiceModal({
                         />
                     </div>
 
-                    <div
+                    {/*<div
                         className="form-group"
                         style={{
                             display: showWeekDayOption ? "block" : "none",
@@ -575,7 +575,7 @@ const OfferServiceForm = memo(function OfferServiceModal({
                                         : "none",
                             }}
                         />
-                    </div>
+                    </div>*/}
                 </div>
             </div>
         </>

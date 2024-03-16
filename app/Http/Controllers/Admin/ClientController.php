@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportClientJob;
 use App\Models\Client;
 use App\Models\ClientCard;
 use App\Models\Files;
@@ -25,6 +27,7 @@ use Intervention\Image\Facades\Image;
 use App\Models\ClientPropertyAddress;
 use App\Traits\JobSchedule;
 use Illuminate\Support\Arr;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientController extends Controller
 {
@@ -172,7 +175,7 @@ class ClientController extends Controller
 
         if (!empty($request->jobdata)) {
             $allServices = json_decode($request->jobdata['services'], true);
-            for ($i=0; $i < count($allServices) ; $i++) { 
+            for ($i = 0; $i < count($allServices); $i++) {
                 $allServices[$i]['address'] =  $addressIds[$allServices[$i]['address']];
             }
 
@@ -825,5 +828,38 @@ class ClientController extends Controller
         return response()->json([
             'success' => 'shift updated successfully'
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()]);
+        }
+
+        $file = $request->file('file');
+        $fileName = 'file_' . $request->user()->id . '_' . date('YmdHis') . '_' . $file->getClientOriginalName();
+
+        if (!Storage::disk('public')->exists('uploads/imports')) {
+            Storage::disk('public')->makeDirectory('uploads/imports');
+        }
+
+        if (!Storage::disk('public')->putFileAs("uploads/imports", $file, $fileName)) {
+            return response()->json(['error' => 'File not uploaded']);
+        }
+
+        ImportClientJob::dispatch($fileName);
+
+        return response()->json([
+            'message' => 'File has been submitted, it will be imported soon',
+        ]);
+    }
+
+    public function sampleFileExport(Request $request)
+    {
+        return Excel::download(new ClientSampleFileExport, 'client-import-sheet.xlsx');
     }
 }

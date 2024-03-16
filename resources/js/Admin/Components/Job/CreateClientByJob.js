@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Select from "react-select";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { shiftOptions } from "../../../Utils/common.utils";
+import { filterShiftOptions } from "../../../Utils/job.utils";
 
 export default function CreateClientByJob() {
     const params = useParams();
@@ -120,7 +122,7 @@ export default function CreateClientByJob() {
             });
     };
     const handleSubmit = () => {
-        let formdata = { workers: data, services: services, client_page: true };
+        let formdata = { workers: data, service: services[0], client_page: true };
         if (data.length > 0) {
             axios
                 .post(`/api/admin/create-job/${params.id}`, formdata, {
@@ -178,43 +180,6 @@ export default function CreateClientByJob() {
             nextnextweek.push(firstday);
         }
     }
-    const colourOptions = {
-        "8am-16pm": [
-            { value: 0, label: "fullday-8am-16pm" },
-            { value: 1, label: "morning1-8am-10am" },
-            { value: 2, label: "morning2-10am-12pm" },
-            { value: 3, label: "morning-8am-12pm" },
-            { value: 4, label: "noon1-12pm-14pm" },
-            { value: 5, label: "noon2-14pm-16pm" },
-            { value: 6, label: "noon-12pm-16pm" },
-            { value: 7, label: "evening1-16pm-18pm" },
-            { value: 8, label: "evening2-18pm-20pm" },
-            { value: 9, label: "evening-16pm-20pm" },
-            { value: 10, label: "night1-20pm-22pm" },
-            { value: 11, label: "night2-22pm-24pm" },
-            { value: 12, label: "night-20pm-24pm" },
-        ],
-        "8am-12pm": [
-            { value: 0, label: "morning1-8am-10am" },
-            { value: 1, label: "morning2-10am-12pm" },
-            { value: 2, label: "morning-8am-12pm" },
-        ],
-        "12pm-16pm": [
-            { value: 0, label: "af1-12pm-14pm" },
-            { value: 1, label: "af2-14pm-16pm" },
-            { value: 2, label: "afternoon-12pm-16pm" },
-        ],
-        "16pm-20pm": [
-            { value: 0, label: "ev1-16pm-18pm" },
-            { value: 1, label: "ev2-18pm-20pm" },
-            { value: 2, label: "evening-16pm-20pm" },
-        ],
-        "20pm-24am": [
-            { value: 0, label: "night1-20pm-22pm" },
-            { value: 1, label: "night2-22pm-24pm" },
-            { value: 2, label: "night-20pm-24pm" },
-        ],
-    };
     const changeShift = (w_id, date, e) => {
         let w_n = $("#worker-" + w_id).html();
         let filtered = data.filter((d) => {
@@ -268,105 +233,7 @@ export default function CreateClientByJob() {
         "16pm-20pm": "Evening",
         "20pm-24am": "Night",
     };
-    const filterOptions = (options, shifts) => {
-        let new_options = [];
-        let new_s = [];
-        let new_end = [];
-        let full_day = "";
-        shifts.map((s, i) => {
-            if (s.split("-")[1] == "8am" && s.split("-")[2] == "16pm") {
-                full_day = s;
-            }
-            new_s.push(s.split("-")[1]);
-            new_end.push(s.split("-")[2]);
-        });
-        if (full_day == "") {
-            options.map((o, i) => {
-                let check = true;
-                if (options.length == 3 && i == 2 && new_s.length > 0) {
-                    check = false;
-                }
-                if (
-                    options.length == 3 &&
-                    new_s.length > 0 &&
-                    new_s.includes(options[2].label.split("-")[1]) &&
-                    new_end.includes(options[2].label.split("-")[2])
-                ) {
-                    check = false;
-                }
 
-                if (c_time <= 2 && options.length != 3) {
-                    if ([0, 3, 6, 9, 12].includes(i)) {
-                        check = false;
-                    }
-                }
-                if (c_time > 2 && c_time <= 4 && options.length != 3) {
-                    if ([0, 1, 2, 4, 5, 7, 8, 10, 11].includes(i)) {
-                        check = false;
-                    }
-                }
-                if (c_time <= 2 && options.length == 3) {
-                    if ([2].includes(i)) {
-                        check = false;
-                    }
-                }
-                if (c_time > 2 && c_time <= 4 && options.length == 3) {
-                    if ([0, 1].includes(i)) {
-                        check = false;
-                    }
-                }
-
-                if (check) {
-                    if (!new_s.includes(o.label.split("-")[1])) {
-                        new_options = [
-                            ...new_options,
-                            {
-                                value: o.value,
-                                label: o.label,
-                            },
-                        ];
-                    }
-                }
-            });
-        }
-
-        let remOptions = [];
-
-        if (shifts.includes("morning2-10am-12pm")) {
-            remOptions.push("morning1-8am-10am");
-            remOptions.push("morning1-08am-10am");
-            remOptions.push("morning2-10am-12pm");
-        }
-
-        if (shifts.includes("morning1-8am-10am")) {
-            remOptions.push("morning-8am-12pm");
-        }
-
-        if (shifts.includes("noon2-14pm-16pm")) {
-            remOptions.push("noon1-12pm-14pm");
-            remOptions.push("noon2-14pm-16pm");
-        }
-
-        if (shifts.includes("evening2-18pm-20pm")) {
-            remOptions.push("evening1-16pm-18pmm");
-            remOptions.push("evening2-18pm-20pm");
-        }
-
-        if (shifts.includes("night2-22pm-24pm")) {
-            remOptions.push("night1-20pm-22pm");
-            remOptions.push("night2-22pm-24pm");
-        }
-
-        for (var i = 0; i < new_options.length; i++) {
-            var obj = new_options[i];
-
-            if (remOptions.indexOf(obj.label.replace(/\s/g, "")) !== -1) {
-                new_options.splice(i, 1);
-            }
-        }
-
-        return new_options;
-    };
     return (
         <>
             <ul className="nav nav-tabs mb-2" role="tablist">
@@ -453,8 +320,8 @@ export default function CreateClientByJob() {
                                                 : [];
                                             let sav =
                                                 shifts.length > 0
-                                                    ? filterOptions(
-                                                          colourOptions[
+                                                    ? filterShiftOptions(
+                                                          shiftOptions[
                                                               aval[element]
                                                           ],
                                                           shifts
@@ -511,8 +378,8 @@ export default function CreateClientByJob() {
                                                         <Select
                                                             isMulti
                                                             name="colors"
-                                                            options={filterOptions(
-                                                                colourOptions[
+                                                            options={filterShiftOptions(
+                                                                shiftOptions[
                                                                     aval[
                                                                         element
                                                                     ]
@@ -578,8 +445,8 @@ export default function CreateClientByJob() {
                                                 : [];
                                             let sav =
                                                 shifts.length > 0
-                                                    ? filterOptions(
-                                                          colourOptions[
+                                                    ? filterShiftOptions(
+                                                          shiftOptions[
                                                               aval[element]
                                                           ],
                                                           shifts
@@ -639,8 +506,8 @@ export default function CreateClientByJob() {
                                                         <Select
                                                             isMulti
                                                             name="colors"
-                                                            options={filterOptions(
-                                                                colourOptions[
+                                                            options={filterShiftOptions(
+                                                                shiftOptions[
                                                                     aval[
                                                                         element
                                                                     ]
@@ -707,8 +574,8 @@ export default function CreateClientByJob() {
                                                     : [];
                                                 let sav =
                                                     shifts.length > 0
-                                                        ? filterOptions(
-                                                              colourOptions[
+                                                        ? filterShiftOptions(
+                                                              shiftOptions[
                                                                   aval[element]
                                                               ],
                                                               shifts
@@ -770,8 +637,8 @@ export default function CreateClientByJob() {
                                                             <Select
                                                                 isMulti
                                                                 name="colors"
-                                                                options={filterOptions(
-                                                                    colourOptions[
+                                                                options={filterShiftOptions(
+                                                                    shiftOptions[
                                                                         aval[
                                                                             element
                                                                         ]

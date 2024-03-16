@@ -11,8 +11,10 @@ use App\Models\Services;
 use App\Models\ServiceSchedule;
 use App\Models\JobHours;
 use App\Models\JobService;
+use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
@@ -20,6 +22,8 @@ use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
+    use JobSchedule;
+
     /**
      * Display a listing of the resource.
      *
@@ -29,7 +33,16 @@ class JobController extends Controller
     {
         $q = $request->q;
         $w = $request->filter_week;
-        $jobs = Job::with(['worker', 'client', 'offer', 'jobservice', 'order', 'invoice']);
+        $jobs = Job::query()
+            ->with([
+                'worker',
+                'client',
+                'offer',
+                'jobservice',
+                'order',
+                'invoice',
+                'jobservice.service'
+            ]);
 
         if ($q != '') {
             $jobs = $jobs->orWhereHas('worker', function ($qr) use ($q) {
@@ -52,6 +65,7 @@ class JobController extends Controller
                 })
                 ->orWhere('status', 'like', '%' . $q . '%');
         }
+
         // if($w != ''){
         if ((is_null($w) || $w == 'current') && $w != 'all') {
             $startDate = Carbon::now()->toDateString();
@@ -99,50 +113,43 @@ class JobController extends Controller
     {
         $ava_workers = User::query()
             ->with(['availabilities', 'jobs'])
-            ->where('skill',  'like', '%' . $sid . '%');
-
-        $ava_workers = $ava_workers
+            ->where('skill',  'like', '%' . $sid . '%')
             ->whereHas('availabilities', function ($query) use ($date) {
                 $query->where('date', '=', $date);
-            });
-
-        $ava_workers = $ava_workers
+            })
             ->where('status', 1)
-            ->get()
-            ->toArray();
+            ->get();
 
         return response()->json([
-            'workers' => $ava_workers,
+            'data' => $ava_workers,
         ]);
     }
 
     public function AvlWorker($id)
     {
         $job = Job::find($id);
-        $serv = $job->jobservice;
+        $js = $job->jobservice;
         $ava_worker = array();
 
-        foreach ($serv as $sk => $js) {
-            $ava_workers = User::query()
-                ->with(['availabilities', 'jobs'])
-                ->where('skill',  'like', '%' . $js->service_id . '%')
-                ->whereHas('availabilities', function ($query) use ($job) {
-                    $query->where('date', '=', $job->start_date);
-                })
-                ->where('status', 1)
+        $ava_workers = User::query()
+            ->with(['availabilities', 'jobs'])
+            ->where('skill',  'like', '%' . $js->service_id . '%')
+            ->whereHas('availabilities', function ($query) use ($job) {
+                $query->where('date', '=', $job->start_date);
+            })
+            ->where('status', 1)
+            ->get()
+            ->toArray();
+
+        foreach ($ava_workers as $w) {
+            $check_worker_job = Job::query()
+                ->where('worker_id', $w['id'])
+                ->where('start_date', $job->start_date)
                 ->get()
                 ->toArray();
 
-            foreach ($ava_workers as $w) {
-                $check_worker_job = Job::query()
-                    ->where('worker_id', $w['id'])
-                    ->where('start_date', $job->start_date)
-                    ->get()
-                    ->toArray();
-
-                if (!$check_worker_job) {
-                    $ava_worker[] = $w;
-                }
+            if (!$check_worker_job) {
+                $ava_worker[] = $w;
             }
         }
 
@@ -368,6 +375,8 @@ class JobController extends Controller
 
     public function createJob(Request $request, $id)
     {
+        $data = $request->all();
+
         $repeat_value = '';
         $s_name = '';
         $s_heb_name = '';
@@ -375,98 +384,112 @@ class JobController extends Controller
         $s_total = '';
         $s_id = 0;
         $contract_id = 0;
-        foreach ($request->services as $service) {
-            $service_schedules = ServiceSchedule::find($service['frequency']);
-            $ser = Services::find($service['service']);
+        $isClientPage = (isset($request->client_page) && $request->client_page);
 
-            $repeat_value = $service_schedules->period;
-            if ($service['service'] == 10) {
-                $s_name = $service['other_title'];
-                $s_heb_name = $service['other_title'];
-            } else {
-                $s_name = $ser->name;
-                $s_heb_name = $ser->heb_name;
-            }
-            $s_hour = $service['jobHours'];
-            $s_freq   = $service['freq_name'];
-            $s_cycle  = $service['cycle'];
-            $s_period = $service['period'];
-            $s_total  = $service['totalamount'];
-            $s_id     = $service['service'];
-            if (isset($request->client_page) && $request->client_page) {
-                $contract_id = $service['c_id'];
-            }
-        }
+        $selectedService = $data['service'];
+        $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
+        $service = Services::find($selectedService['service']);
 
-        if (isset($request->client_page) && $request->client_page) {
-            $job = Contract::with('offer')->find($contract_id);
+        $repeat_value = $serviceSchedule->period;
+        if ($selectedService['service'] == 10) {
+            $s_name = $selectedService['other_title'];
+            $s_heb_name = $selectedService['other_title'];
         } else {
-            $job = Contract::with('offer')->find($id);
+            $s_name = $service->name;
+            $s_heb_name = $service->heb_name;
+        }
+        $s_hour = $selectedService['jobHours'];
+        $s_freq   = $selectedService['freq_name'];
+        $s_cycle  = $selectedService['cycle'];
+        $s_period = $selectedService['period'];
+        $s_total  = $selectedService['totalamount'];
+        $s_id     = $selectedService['service'];
+        if ($isClientPage) {
+            $contract_id = $selectedService['c_id'];
         }
 
-        $client_mail = array();
-        $client_email = '';
-        foreach ($request->workers as $worker) {
-            $count = 1;
-            if ($repeat_value == 'w') {
-                $count = 3;
-            }
-            for ($i = 0; $i < $count; $i++) {
-                $date = Carbon::createFromDate($worker['date']);
-                $j = 0;
-                if ($i == 1) {
-                    $j = 7;
-                }
-                if ($i == 2) {
-                    $j = 14;
-                }
-                $job_date = $date->addDays($j)->toDateString();
+        if ($isClientPage) {
+            $contract = Contract::with('offer')->find($contract_id);
+        } else {
+            $contract = Contract::with('offer')->find($id);
+        }
+
+        $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
+        foreach ($workerIDs as $workerID) {
+            $workerDates = Arr::where($data['workers'], function ($value) use ($workerID) {
+                return $value['worker_id'] == $workerID;
+            });
+
+            foreach ($workerDates as $key => $workerDate) {
+                $job_date = Carbon::parse($workerDate['date']);
+                $preferredWeekDay = strtolower($job_date->format('l'));
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+
+                $job_date = $job_date->toDateString();
+
                 $status = 'scheduled';
 
                 if (
                     Job::where('start_date', $job_date)
-                    ->where('worker_id', $worker['worker_id'])
+                    ->where('worker_id', $workerDate['worker_id'])
                     ->exists()
                 ) {
                     $status = 'unscheduled';
                 }
 
-                $new = new Job;
-                $new->worker_id     = $worker['worker_id'];
-                if (isset($request->client_page) && $request->client_page) {
-                    $new->client_id     = $id;
-                    $new->contract_id   = $contract_id;
-                } else {
-                    $new->client_id     = $job->client_id;
-                    $new->contract_id   = $id;
+                $job = Job::create([
+                    'worker_id'     => $workerDate['worker_id'],
+                    'client_id'     => $isClientPage ? $id : $contract->client_id,
+                    'contract_id'   => $isClientPage ? $contract_id : $id,
+                    'offer_id'      => $contract->offer_id,
+                    'start_date'    => $job_date,
+                    'shifts'        => $workerDate['shifts'],
+                    'schedule'      => $repeat_value,
+                    'schedule_id'   => $s_id,
+                    'status'        => $status,
+                    'next_start_date'    => $next_job_date,
+                ]);
+
+                JobService::create([
+                    'job_id'        => $job->id,
+                    'service_id'    => $s_id,
+                    'name'          => $s_name,
+                    'heb_name'      => $s_heb_name,
+                    'job_hour'      => $s_hour,
+                    'freq_name'     => $s_freq,
+                    'cycle'         => $s_cycle,
+                    'period'        => $s_period,
+                    'total'         => $s_total,
+                    'config'        => [
+                        'cycle'             => $serviceSchedule->cycle,
+                        'period'            => $serviceSchedule->period,
+                        'preferred_weekday' => $preferredWeekDay
+                    ]
+                ]);
+
+                $shiftArr = explode(',', $workerDate['shifts']);
+
+                $shiftFormattedArr = [];
+                foreach ($shiftArr as $key => $_shift) {
+                    $time = explode('-', $_shift);
+
+                    $start_time = Carbon::createFromFormat('H', str_replace(['am', 'pm'], '', $time[1]))->toTimeString();
+                    $end_time = Carbon::createFromFormat('H', str_replace(['am', 'pm'], '', $time[2]))->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    ];
                 }
-                $new->offer_id      = $job->offer_id;
-                $new->start_date    = $job_date;
-                $new->shifts        = $worker['shifts'];
-                $new->schedule      = $repeat_value;
-                $new->schedule_id   = $s_id;
-                $new->status        = $status;
-                $new->save();
 
-                $service           = new JobService;
-                $service->job_id   = $new->id;
-                $service->service_id = $s_id;
-                $service->name     = $s_name;
-                $service->heb_name = $s_heb_name;
-                $service->job_hour = $s_hour;
-                $service->freq_name = $s_freq;
-                $service->cycle     = $s_cycle;
-                $service->period    = $s_period;
-                $service->total     = $s_total;
-                $service->save();
+                foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+                    $job->workerShifts()->create($shift);
+                }
 
-                if ($i == 0) {
-                    $job = Job::query()
-                        ->with(['client', 'worker', 'jobservice'])
-                        ->where('id', $new->id)
-                        ->first();
+                if ($key == 0) {
+                    $job->load(['client', 'worker', 'jobservice']);
 
-                    $_timeShift = $worker['shifts'];
+                    $_timeShift = $workerDate['shifts'];
                     if ($_timeShift != '') {
                         $_timeShift1 = explode('-', $_timeShift)[1];
 
@@ -490,34 +513,8 @@ class JobController extends Controller
                             $messages->subject($sub);
                         });
                     }
-
-                    $data['job']['shifts'] = $this->getShifts($worker['shifts'], $job['client']['lng']);
-                    $client_mail[] = $data;
-                    $client_email = $job['client']['email'];
-                    $client_name = $job['client']['firstname'] . ' ' . $job['client']['lastname'];
-                    $client_lng = $job['client']['lng'];
                 }
             }
-        }
-
-        App::setLocale($client_lng);
-        $client_data = array(
-            'email' => $client_email,
-            'name' => $client_name,
-            'jobs' => $client_mail,
-            'lng' => $client_lng,
-            'start_time' => $_timeShift
-        );
-
-        if (!is_null($client_email) && $client_email != 'Null') {
-            // Mail::send('/Mails/NewJobClient', $client_data, function ($messages) use ($client_data) {
-            //     $messages->to($client_data['email']);
-            //     $id = $client_data['jobs'][0]['job']['id'];
-            //     ($client_data['lng'] == 'en') ?
-            //         $sub = __('mail.client_new_job.subject') . "  " . __('mail.client_new_job.company') . " #" . $id :
-            //         $sub = $id . "# " . __('mail.client_new_job.subject') . "  " . __('mail.client_new_job.company');
-            //     $messages->subject($sub);
-            // });
         }
 
         return response()->json([

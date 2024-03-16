@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-export default function Services({ services, job }) {
+export default function Services({ job }) {
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
     const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
@@ -58,67 +58,63 @@ export default function Services({ services, job }) {
     if (status == "cancel") {
         status = t("j_status.cancel");
     }
+
+    const service = job.jobservice;
+
     return (
         <>
             <h2 className="text-custom">Service Details</h2>
             <div className="dashBox p-4 mb-3">
-                {services &&
-                    services.map((s, i) => {
-                        return (
-                            <form key={i}>
-                                <div className="row">
-                                    <div className="col-sm-3">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t("client.jobs.view.services")}
-                                            </label>
-                                            <p>
-                                                {c_lng == "en"
-                                                    ? s.name
-                                                    : s.heb_name}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t("client.jobs.view.c_time")}
-                                            </label>
-                                            <p>
-                                                {s ? s.job_hour : "NA"}{" "}
-                                                {t("client.jobs.view.hour_s")}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t("client.jobs.view.shift")}
-                                            </label>
-                                            <p>
-                                                {job.shifts
-                                                    ? getShift(job.shifts)
-                                                    : ""}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t(
-                                                    "client.jobs.view.job_status"
-                                                )}
-                                            </label>
-                                            <p>{status}</p>
-                                            {job.status == "cancel"
-                                                ? `(With Cancellatiom fees ${job.rate} ILS)`
-                                                : ""}
-                                        </div>
-                                    </div>
+                {service && (
+                    <form>
+                        <div className="row">
+                            <div className="col-sm-3">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("client.jobs.view.services")}
+                                    </label>
+                                    <p>
+                                        {c_lng == "en"
+                                            ? service.name
+                                            : service.heb_name}
+                                    </p>
                                 </div>
-                            </form>
-                        );
-                    })}
+                            </div>
+                            <div className="col-sm-3">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("client.jobs.view.c_time")}
+                                    </label>
+                                    <p>
+                                        {service ? service.job_hour : "NA"}{" "}
+                                        {t("client.jobs.view.hour_s")}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="col-sm-3">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("client.jobs.view.shift")}
+                                    </label>
+                                    <p>
+                                        {job.shifts ? getShift(job.shifts) : ""}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="col-sm-3">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("client.jobs.view.job_status")}
+                                    </label>
+                                    <p>{status}</p>
+                                    {job.status == "cancel"
+                                        ? `(With Cancellatiom fees ${job.rate} ILS)`
+                                        : ""}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                )}
             </div>
         </>
     );

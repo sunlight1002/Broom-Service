@@ -299,18 +299,12 @@ export default function jobs() {
                                                     </td>
                                                     <td>
                                                         {j.jobservice &&
-                                                            j.jobservice.map(
-                                                                (js, i) => {
-                                                                    return j.client &&
-                                                                        j.client
-                                                                            .lng ==
-                                                                            "en"
-                                                                        ? js.name +
-                                                                              " "
-                                                                        : js.heb_name +
-                                                                              " ";
-                                                                }
-                                                            )}
+                                                            (j.client &&
+                                                            j.client.lng == "en"
+                                                                ? j.jobservice
+                                                                      .name
+                                                                : j.jobservice
+                                                                      .heb_name)}
                                                     </td>
                                                     <td>{j.status}</td>
                                                     <td>
@@ -428,19 +422,15 @@ export default function jobs() {
                                                         </td>
                                                         <td>
                                                             {j.jobservice &&
-                                                                j.jobservice.map(
-                                                                    (js, i) => {
-                                                                        return j.client &&
-                                                                            j
-                                                                                .client
-                                                                                .lng ==
-                                                                                "en"
-                                                                            ? js.name +
-                                                                                  " "
-                                                                            : js.heb_name +
-                                                                                  " ";
-                                                                    }
-                                                                )}
+                                                                (j.client &&
+                                                                j.client.lng ==
+                                                                    "en"
+                                                                    ? j
+                                                                          .jobservice
+                                                                          .name
+                                                                    : j
+                                                                          .jobservice
+                                                                          .heb_name)}
                                                         </td>
                                                         <td>{j.status}</td>
                                                         <td>
@@ -558,7 +548,6 @@ export default function jobs() {
                                     <tbody>
                                         {latestJobs &&
                                             latestJobs.map((item, index) => {
-                                                let total = 0;
                                                 return (
                                                     <tr
                                                         key={index}
@@ -583,22 +572,15 @@ export default function jobs() {
                                                         </td>
                                                         <td>
                                                             {item.jobservice &&
-                                                                item.jobservice.map(
-                                                                    (js, i) => {
-                                                                        total +=
-                                                                            parseInt(
-                                                                                js.total
-                                                                            );
-                                                                        return item
-                                                                            .client
-                                                                            .lng ==
-                                                                            "en"
-                                                                            ? js.name +
-                                                                                  " "
-                                                                            : js.heb_name +
-                                                                                  " ";
-                                                                    }
-                                                                )}
+                                                                (item.client &&
+                                                                item.client
+                                                                    .lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
                                                         </td>
                                                         <td>
                                                             {item.start_date}
@@ -622,7 +604,12 @@ export default function jobs() {
                                                         >
                                                             {item.status}
                                                         </td>
-                                                        <td>{total} ILS</td>
+                                                        <td>
+                                                            {item.jobservice &&
+                                                                item.jobservice
+                                                                    .total +
+                                                                    " ILS"}
+                                                        </td>
                                                         <td>
                                                             <div className="d-flex">
                                                                 <Link

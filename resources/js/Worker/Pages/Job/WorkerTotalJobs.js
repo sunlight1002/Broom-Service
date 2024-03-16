@@ -53,20 +53,10 @@ export default function WorkerTotalJobs() {
                     setTotalJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
+                    setTotalJobs([]);
                     setLoading("No Job found");
                 }
             });
-    };
-
-    const getTotalJobs = (response) => {
-        if (response.data.jobs.data.length > 0) {
-            setTotalJobs(response.data.jobs.data);
-            setPageCount(response.data.jobs.last_page);
-        } else {
-            setTotalJobs([]);
-            setPageCount(response.data.jobs.last_page);
-            setLoading("No Job found");
-        }
     };
 
     const filterJobDate = (w) => {
@@ -251,91 +241,77 @@ export default function WorkerTotalJobs() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {totalJobs &&
-                                                totalJobs.map((item, index) => {
-                                                    //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
-                                                    let total = 0;
-                                                    return (
-                                                        <Tr key={index}>
-                                                            <Td>
-                                                                {Moment(
-                                                                    item.start_date
-                                                                ).format(
-                                                                    "DD MMM, Y"
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.client
+                                            {totalJobs.map((item, index) => {
+                                                //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
+
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            {Moment(
+                                                                item.start_date
+                                                            ).format(
+                                                                "DD MMM, Y"
+                                                            )}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.client
+                                                                ? item.client
+                                                                      .firstname +
+                                                                  " " +
+                                                                  item.client
+                                                                      .lastname
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                (w_lng == "en"
                                                                     ? item
-                                                                          .client
-                                                                          .firstname +
-                                                                      " " +
-                                                                      item
-                                                                          .client
-                                                                          .lastname
-                                                                    : "NA"}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.jobservice &&
-                                                                    item.jobservice.map(
-                                                                        (
-                                                                            js,
-                                                                            i
-                                                                        ) => {
-                                                                            total +=
-                                                                                parseInt(
-                                                                                    js.total
-                                                                                );
-                                                                            return w_lng ==
-                                                                                "en"
-                                                                                ? js.name
-                                                                                : js.heb_name;
-                                                                        }
-                                                                    )}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.shifts}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.client
-                                                                    ? item
-                                                                          .client
-                                                                          .geo_address
-                                                                    : "NA"}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.end_time &&
-                                                                item.start_time
-                                                                    ? parseFloat(
-                                                                          `${item.end_time}.replace(":", ".")`
-                                                                      ) -
-                                                                      parseFloat(
-                                                                          `${item.start_time}.replace(":", ".")`
-                                                                      ) +
-                                                                      " Hours"
-                                                                    : "NA"}
-                                                            </Td>
-                                                            <Td
-                                                                style={{
-                                                                    textTransform:
-                                                                        "capitalize",
-                                                                }}
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </Td>
+                                                        <Td>{item.shifts}</Td>
+                                                        <Td>
+                                                            {item.client
+                                                                ? item.client
+                                                                      .geo_address
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.end_time &&
+                                                            item.start_time
+                                                                ? parseFloat(
+                                                                      `${item.end_time}.replace(":", ".")`
+                                                                  ) -
+                                                                  parseFloat(
+                                                                      `${item.start_time}.replace(":", ".")`
+                                                                  ) +
+                                                                  " Hours"
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td
+                                                            style={{
+                                                                textTransform:
+                                                                    "capitalize",
+                                                            }}
+                                                        >
+                                                            {item.status}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/worker/view-job/${item.id}`}
+                                                                className="btn btn-primary"
                                                             >
-                                                                {item.status}
-                                                            </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/worker/view-job/${item.id}`}
-                                                                    className="btn btn-primary"
-                                                                >
-                                                                    {t(
-                                                                        "worker.jobs.viewbtn"
-                                                                    )}
-                                                                </Link>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
+                                                                {t(
+                                                                    "worker.jobs.viewbtn"
+                                                                )}
+                                                            </Link>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (

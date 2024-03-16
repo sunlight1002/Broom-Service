@@ -26,7 +26,7 @@ export default function TeamAvailability() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const [services, setServices] = useState([]);
+    const [service, setService] = useState(null);
     const [clientname, setClientName] = useState("");
     // const [time_period, setTimePeriod]          = useState('');
     const getJob = () => {
@@ -35,7 +35,7 @@ export default function TeamAvailability() {
             .then((res) => {
                 const r = res.data.job;
                 setClientName(r.client.firstname + " " + r.client.lastname);
-                setServices(r.jobservice);
+                setService(r.jobservice);
             });
     };
     useEffect(() => {
@@ -114,7 +114,7 @@ export default function TeamAvailability() {
     Array.prototype.push.apply(events, events1);
     let time_period;
 
-    time_period = services ? services.job_hour : 0;
+    time_period = service ? service.job_hour : 0;
     const [data, setData] = useState([]);
     const handleEventClick = (e, s) => {
         let str = e.startStr;
@@ -258,23 +258,25 @@ export default function TeamAvailability() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <td>{clientname}</td>
-                                            <td>
-                                                <p>
-                                                    {services
-                                                        ? services.name
-                                                        : "NA"}
-                                                </p>
-                                            </td>
+                                            <tr>
+                                                <td>{clientname}</td>
+                                                <td>
+                                                    <p>
+                                                        {service
+                                                            ? service.name
+                                                            : "NA"}
+                                                    </p>
+                                                </td>
 
-                                            <td>
-                                                <p>
-                                                    {services
-                                                        ? services.job_hour +
-                                                          " hours"
-                                                        : "NA"}{" "}
-                                                </p>
-                                            </td>
+                                                <td>
+                                                    <p>
+                                                        {service
+                                                            ? service.job_hour +
+                                                              " hours"
+                                                            : "NA"}{" "}
+                                                    </p>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>

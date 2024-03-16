@@ -37,13 +37,11 @@
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['client']['firstname'] }} {{ $job['client']['lastname'] }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 					
-					   @foreach($job['jobservice'] as $js)
-					      @if($job['worker']['lng'] == 'heb')
-					           {{ $js['heb_name'].', ' }}
-						  @else
-						       {{ $js['name'].', ' }}
-						  @endif
-					   @endforeach
+					@if($job['worker']['lng'] == 'heb')
+						{{ $job['jobservice']['heb_name'].', ' }}
+					@else
+						{{ $job['jobservice']['name'].', ' }}
+					@endif
 					
 				   </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>

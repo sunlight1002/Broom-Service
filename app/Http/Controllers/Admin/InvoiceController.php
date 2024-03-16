@@ -322,7 +322,7 @@ class InvoiceController extends Controller
             }
         }
 
-        //JobService::where('id',$job->jobservice[0]->id)->update(['order_status'=>2]);
+        //JobService::where('id',$job->jobservice->id)->update(['order_status'=>2]);
 
         return response()->json([
             'msg' => 'Invoice created successfully'
@@ -536,9 +536,12 @@ class InvoiceController extends Controller
 
     public function orderJobs(Request $request)
     {
-        $services = Job::where('id', $request->id)->with('jobservice', 'client')->get();
+        $job = Job::query()
+            ->with(['jobservice', 'client'])
+            ->find($request->id);
+
         return response()->json([
-            'services' => $services
+            'data' => $job
         ]);
     }
 
@@ -1094,7 +1097,7 @@ class InvoiceController extends Controller
             $invoice->update(['invoice_icount_status' => 'Closed']);
         }
         Order::where('id', $job->order[0]->id)->update(['status' => 'Closed']);
-        JobService::where('id', $job->jobservice[0]->id)->update(['order_status' => 2]);
+        JobService::where('id', $job->jobservice->id)->update(['order_status' => 2]);
         Order::where('id', $oid)->update(['invoice_status' => 2]);
     }
 
@@ -1237,15 +1240,14 @@ class InvoiceController extends Controller
                 if ($job) {
                     $items = [];
                     if (isset($job->jobservice)) {
-                        foreach ($job->jobservice as $service) {
+                        $service = $job->jobservice;
 
-                            $itm = [
-                                "description" => ($job->client->lng == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
-                                "unitprice"   => $service->total,
-                                "quantity"    => 1,
-                            ];
-                            array_push($items, $itm);
-                        }
+                        $itm = [
+                            "description" => ($job->client->lng == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
+                            "unitprice"   => $service->total,
+                            "quantity"    => 1,
+                        ];
+                        array_push($items, $itm);
                     }
 
                     $invoice  = 1;

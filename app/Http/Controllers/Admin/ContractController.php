@@ -7,13 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
 use App\Models\ClientCard;
-use App\Models\ClientPropertyAddress;
 use App\Models\LeadStatus;
+use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
 {
+    use PriceOffered;
+
     /**
      * Display a listing of the resource.
      *
@@ -85,12 +87,14 @@ class ContractController extends Controller
      */
     public function show($id)
     {
-        $contracts = Contract::query()
+        $contract = Contract::query()
             ->with(['offer', 'client', 'job.propertyAddress'])
             ->find($id);
 
+        $contract['offer']['services'] = $this->formatServices($contract['offer']);
+
         return response()->json([
-            'contract' => $contracts
+            'contract' => $contract
         ]);
     }
 
@@ -120,17 +124,7 @@ class ContractController extends Controller
         $card = ClientCard::where('client_id', $contract[0]->client->id)->first();
 
         $contract[0]['card'] = $card;
-        if(isset($contract[0]) && isset($contract[0]['offer']) && $contract[0]['offer']['services']){
-            $services = json_decode($contract[0]['offer']['services']);
-            if (isset($services)) {
-                foreach ($services as $service) {
-                    if(!empty($service->address)){
-                        $service->address = ClientPropertyAddress::find($service->address)->toArray();
-                    }
-                }            
-            }
-            $contract[0]['offer']['services'] = json_encode($services, true);
-        }
+        $contract[0]['offer']['services'] = $this->formatServices($contract[0]['offer']);
 
         return response()->json([
             'contract' => $contract,
@@ -170,6 +164,11 @@ class ContractController extends Controller
             ->where('status', ContractStatusEnum::VERIFIED)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $contracts = $contracts->map(function ($item) {
+            $item->offer->services = $this->formatServices($item->offer);
+            return $item;
+        });
 
         $client = Client::find($id);
         return response()->json([

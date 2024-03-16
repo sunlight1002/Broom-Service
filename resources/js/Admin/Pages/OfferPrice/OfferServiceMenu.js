@@ -51,7 +51,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
     let param = useParams();
     const handleAddService = () => {
         if (!addresses.length) {
-            alert("Please add property address");
+            alert("Please add property address for the client");
             return;
         }
         setTmpFormValues(initialValue);

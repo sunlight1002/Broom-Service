@@ -260,7 +260,7 @@ export default function ClientDashboard() {
                                                                     "j_status.cancel"
                                                                 );
                                                         }
-                                                        let total = 0;
+
                                                         return (
                                                             <Tr key={index}>
                                                                 <Td
@@ -281,21 +281,14 @@ export default function ClientDashboard() {
                                                                 </Td>
                                                                 <Td>
                                                                     {item.jobservice &&
-                                                                        item.jobservice.map(
-                                                                            (
-                                                                                js,
-                                                                                i
-                                                                            ) => {
-                                                                                total +=
-                                                                                    parseInt(
-                                                                                        js.total
-                                                                                    );
-                                                                                return c_lng ==
-                                                                                    "en"
-                                                                                    ? js.name
-                                                                                    : js.heb_name;
-                                                                            }
-                                                                        )}
+                                                                        (c_lng ==
+                                                                        "en"
+                                                                            ? item
+                                                                                  .jobservice
+                                                                                  .name
+                                                                            : item
+                                                                                  .jobservice
+                                                                                  .heb_name)}
                                                                 </Td>
                                                                 <Td>
                                                                     {status}
@@ -334,11 +327,14 @@ export default function ClientDashboard() {
                                                                         : ""}
                                                                 </Td>
                                                                 <Td>
-                                                                    {total +
-                                                                        " " +
-                                                                        t(
-                                                                            "global.currency"
-                                                                        )}
+                                                                    {item.jobservice &&
+                                                                        item
+                                                                            .jobservice
+                                                                            .total +
+                                                                            " " +
+                                                                            t(
+                                                                                "global.currency"
+                                                                            )}
                                                                 </Td>
                                                                 <Td>
                                                                     <div className="d-flex">

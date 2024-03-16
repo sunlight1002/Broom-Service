@@ -57,7 +57,7 @@ export default function EditOffer() {
         if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
             newFormValues[indexKey] = tmpJobData;
         } else {
-            newFormValues = [...formValues, tmpJobData];
+            newFormValues = [...formValues, ...tmpJobData];
         }
         setFormValues(newFormValues);
     };

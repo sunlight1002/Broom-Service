@@ -9,12 +9,14 @@ import swal from "sweetalert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { frequencyDescription } from "../Utils/job.utils";
 
 export default function WorkContract() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [offer, setoffer] = useState([]);
+    const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState([]);
     const [contract, setContract] = useState([]);
@@ -66,8 +68,8 @@ export default function WorkContract() {
 
         const data = {
             unique_hash: param.id,
-            offer_id: offer[0].id,
-            client_id: offer[0].client.id,
+            offer_id: offer.id,
+            client_id: offer.client.id,
             additional_address: Aaddress,
             name_on_card: cname,
             status: "un-verified",
@@ -138,57 +140,49 @@ export default function WorkContract() {
         sigRef2.current.clear();
         setSignature2(null);
     };
-    useEffect(() => {
-        console.log(signature);
-    }, [signature]);
 
     const getOffer = () => {
-        axios
-            .post(`/api/client/get-offer-token`, { token: param.id })
-            .then((res) => {
-                if (res.data.offer.length > 0) {
-                    setoffer(res.data.offer);
-                    setServices(JSON.parse(res.data.offer[0].services));
-                    setClient(res.data.offer[0].client);
-                    setContract(res.data.contract);
-                    setStatus(res.data.contract.status);
-                    setOc(res.data.old_contract);
-                    if (
-                        res.data.contract.add_card == 0 ||
-                        res.data.old_contract == true
-                    ) {
-                        setSubmit(true);
-                    }
-
-                    if (res.data.card != null) {
-                        setCsdata(res.data.card);
-                        let s = res.data.card.valid.split("-");
-                        let fs = s[1] + " / " + s[0].substring(2, 4);
-                        console.log(fs);
-                        setFormatvalid(fs);
-                    }
-                    i18next.changeLanguage(res.data.offer[0].client.lng);
-
-                    if (res.data.offer[0].client.lng == "heb") {
-                        import("../Assets/css/rtl.css");
-                        document
-                            .querySelector("html")
-                            .setAttribute("dir", "rtl");
-                    } else
-                        document.querySelector("html").removeAttribute("dir");
-
-                    if (res.data.offer[0].client.lng == "heb") {
-                        document
-                            .querySelector("html")
-                            .setAttribute("dir", "rtl");
-                    }
-                } else {
-                    setoffer([]);
-                    setServices([]);
-                    setClient([]);
-                    setContract([]);
+        axios.post(`/api/client/contracts/${param.id}`).then((res) => {
+            if (res.data.offer) {
+                setOffer(res.data.offer);
+                setServices(JSON.parse(res.data.offer.services));
+                setClient(res.data.offer.client);
+                setContract(res.data.contract);
+                setStatus(res.data.contract.status);
+                setOc(res.data.old_contract);
+                if (
+                    res.data.contract.add_card == 0 ||
+                    res.data.old_contract == true
+                ) {
+                    setSubmit(true);
                 }
-            });
+
+                if (res.data.card != null) {
+                    setCsdata(res.data.card);
+                    let s = res.data.card.valid.split("-");
+                    let fs = s[1] + " / " + s[0].substring(2, 4);
+                    console.log(fs);
+                    setFormatvalid(fs);
+                }
+                i18next.changeLanguage(res.data.offer.client.lng);
+
+                if (res.data.offer.client.lng == "heb") {
+                    import("../Assets/css/rtl.css");
+                    document.querySelector("html").setAttribute("dir", "rtl");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                }
+
+                if (res.data.offer.client.lng == "heb") {
+                    document.querySelector("html").setAttribute("dir", "rtl");
+                }
+            } else {
+                setOffer({});
+                setServices([]);
+                setClient([]);
+                setContract([]);
+            }
+        });
     };
 
     const RejectContract = (e, id) => {
@@ -465,52 +459,30 @@ export default function WorkContract() {
                         <p style={{ textAlign: "center" }}>
                             {t("work-contract.and")}
                         </p>
-                        {offer &&
-                            offer.map((ofr, i) => {
-                                let cl = ofr.client;
-
-                                return (
-                                    <React.Fragment key={i}>
-                                        <ul className="list-inline">
-                                            <li className="list-inline-item ml-2">
-                                                {t("work-contract.full_name")}{" "}
-                                                <span>
-                                                    {cl.firstname +
-                                                        " " +
-                                                        cl.lastname}
-                                                </span>
-                                            </li>
-                                            <li className="list-inline-item">
-                                                {t("work-contract.city")}{" "}
-                                                <span>{cl.city}</span>
-                                            </li>
-                                        </ul>
-                                        <ul className="list-inline">
-                                            <li className="list-inline-item ml-2">
-                                                {t(
-                                                    "work-contract.street_and_number"
-                                                )}{" "}
-                                                <span>{cl.geo_address}</span>
-                                            </li>
-                                            {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
-                                        </ul>
-                                        <ul className="list-inline">
-                                            {/*<li className='list-inline-item ml-2'>{t('work-contract.apt_number')} <span>{cl.apt_no}</span></li>
-                                        <li className='list-inline-item'>{t('work-contract.enterance_code')} <span>{cl.entrence_code}</span></li>*/}
-                                        </ul>
-                                        <ul className="list-inline">
-                                            <li className="list-inline-item ml-2">
-                                                {t("work-contract.telephone")}{" "}
-                                                <span>{cl.phone}</span>
-                                            </li>
-                                            <li className="list-inline-item">
-                                                {t("work-contract.email")}{" "}
-                                                <span>{cl.email}</span>
-                                            </li>
-                                        </ul>
-                                    </React.Fragment>
-                                );
-                            })}
+                        {offer && offer.client && (
+                            <React.Fragment>
+                                <ul className="list-inline">
+                                    <li className="list-inline-item ml-2">
+                                        {t("work-contract.full_name")}{" "}
+                                        <span>
+                                            {offer.client.firstname +
+                                                " " +
+                                                offer.client.lastname}
+                                        </span>
+                                    </li>
+                                </ul>
+                                <ul className="list-inline">
+                                    <li className="list-inline-item ml-2">
+                                        {t("work-contract.telephone")}{" "}
+                                        <span>{offer.client.phone}</span>
+                                    </li>
+                                    <li className="list-inline-item">
+                                        {t("work-contract.email")}{" "}
+                                        <span>{offer.client.email}</span>
+                                    </li>
+                                </ul>
+                            </React.Fragment>
+                        )}
                         <h2 className="mb-4">
                             {t("work-contract.second_party_title")}
                         </h2>
@@ -599,16 +571,15 @@ export default function WorkContract() {
                                             {t("work-contract.the_service_txt")}
                                         </td>
                                         <td>
-                                            {services &&
-                                                services.map((s, i) => {
-                                                    return (
-                                                        <p key={i}>
-                                                            {s.service != "10"
-                                                                ? s.name
-                                                                : s.other_title}
-                                                        </p>
-                                                    );
-                                                })}
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <p key={i}>
+                                                        {s.service != "10"
+                                                            ? s.name
+                                                            : s.other_title}
+                                                    </p>
+                                                );
+                                            })}
                                         </td>
                                     </tr>
                                     <tr>
@@ -616,17 +587,13 @@ export default function WorkContract() {
                                             {t("work-contract.location_txt")}
                                         </td>
                                         <td>
-                                            {offer &&
-                                                offer.map((ofr, i) => {
-                                                    let address = ofr.client
-                                                        .geo_address
-                                                        ? ofr.client
-                                                              .geo_address +
-                                                          ", "
-                                                        : "";
-                                                    return address;
-                                                })}
-                                            <br />{" "}
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <p key={i}>
+                                                        {s.address.geo_address}
+                                                    </p>
+                                                );
+                                            })}
                                             <span
                                                 style={{ fontWeight: "600" }}
                                                 className="d-block mt-2"
@@ -679,15 +646,17 @@ export default function WorkContract() {
                                             {t("work-contract.frequency_txt")}
                                         </td>
                                         <td>
-                                            {services &&
-                                                services.map((s, i) => {
-                                                    return (
-                                                        <p key={i}>
-                                                            {" "}
-                                                            {s.freq_name}
-                                                        </p>
-                                                    );
-                                                })}
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <p key={i}>
+                                                        {" "}
+                                                        {s.freq_name};{" "}
+                                                        {/* {frequencyDescription(
+                                                            s
+                                                        )} */}
+                                                    </p>
+                                                );
+                                            })}
                                         </td>
                                     </tr>
                                     <tr>
@@ -697,32 +666,30 @@ export default function WorkContract() {
                                             )}
                                         </td>
                                         <td>
-                                            {services &&
-                                                services.map((s, i) => {
-                                                    return (
-                                                        <p key={i}>
-                                                            {s.totalamount +
-                                                                t(
-                                                                    "work-contract.ils"
-                                                                ) +
-                                                                " + " +
-                                                                t(
-                                                                    "work-contract.vat"
-                                                                ) +
-                                                                " " +
-                                                                t(
-                                                                    "work-contract.for"
-                                                                ) +
-                                                                " " +
-                                                                (s.service !=
-                                                                "10"
-                                                                    ? s.name
-                                                                    : s.other_title) +
-                                                                ", " +
-                                                                s.freq_name}
-                                                        </p>
-                                                    );
-                                                })}
+                                            {services.map((s, i) => {
+                                                return (
+                                                    <p key={i}>
+                                                        {s.totalamount +
+                                                            t(
+                                                                "work-contract.ils"
+                                                            ) +
+                                                            " + " +
+                                                            t(
+                                                                "work-contract.vat"
+                                                            ) +
+                                                            " " +
+                                                            t(
+                                                                "work-contract.for"
+                                                            ) +
+                                                            " " +
+                                                            (s.service != "10"
+                                                                ? s.name
+                                                                : s.other_title) +
+                                                            ", " +
+                                                            s.freq_name}
+                                                    </p>
+                                                );
+                                            })}
                                         </td>
                                     </tr>
                                     <tr>

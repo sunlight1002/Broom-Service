@@ -29,6 +29,7 @@ export default function CurrentJob() {
                     setJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
+                    setJobs([]);
                     setLoading("No Jobs found");
                 }
             });
@@ -51,6 +52,7 @@ export default function CurrentJob() {
                     setJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
+                    setJobs([]);
                     setLoading("No Employer found");
                 }
             });
@@ -164,75 +166,68 @@ export default function CurrentJob() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {jobs &&
-                                    jobs.map((item, index) => {
-                                        let total = 0;
-                                        return (
-                                            <tr key={index}>
-                                                <td>{item.id}</td>
-                                                <td>
-                                                    {item.client
-                                                        ? item.client
-                                                              .firstname +
-                                                          " " +
-                                                          item.client.lastname
-                                                        : "NA"}
-                                                </td>
-                                                <td>
-                                                    {item.jobservice &&
-                                                        item.jobservice.map(
-                                                            (js, i) => {
-                                                                total +=
-                                                                    parseInt(
-                                                                        js.total
-                                                                    );
-                                                                return js.name
-                                                                    ? js.name
-                                                                    : "NA";
-                                                            }
-                                                        )}
-                                                </td>
-                                                <td>{item.start_date}</td>
-                                                <td>{item.shifts}</td>
-                                                <td>{total} ILS + VAT</td>
-                                                <td
-                                                    style={{
-                                                        textTransform:
-                                                            "capitalize",
-                                                    }}
-                                                >
-                                                    {item.status}
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex">
-                                                        <Link
-                                                            to={`/admin/edit-job/${item.id}`}
-                                                            className="btn bg-green"
-                                                        >
-                                                            <i className="fa fa-edit"></i>
-                                                        </Link>
+                                {jobs.map((item, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td>{item.id}</td>
+                                            <td>
+                                                {item.client
+                                                    ? item.client.firstname +
+                                                      " " +
+                                                      item.client.lastname
+                                                    : "NA"}
+                                            </td>
+                                            <td>
+                                                {item.jobservice &&
+                                                item.jobservice.name
+                                                    ? item.jobservice.name
+                                                    : "NA"}
+                                            </td>
+                                            <td>{item.start_date}</td>
+                                            <td>{item.shifts}</td>
+                                            <td>
+                                                {item.jobservice &&
+                                                    item.jobservice.total +
+                                                        " " +
+                                                        "ILS + VAT"}
+                                            </td>
+                                            <td
+                                                style={{
+                                                    textTransform: "capitalize",
+                                                }}
+                                            >
+                                                {item.status}
+                                            </td>
+                                            <td>
+                                                <div className="d-flex">
+                                                    <Link
+                                                        to={`/admin/edit-job/${item.id}`}
+                                                        className="btn bg-green"
+                                                    >
+                                                        <i className="fa fa-edit"></i>
+                                                    </Link>
 
-                                                        <Link
-                                                            to={`/admin/view-job/${item.id}`}
-                                                            className="ml-2 btn btn-warning"
-                                                        >
-                                                            <i className="fa fa-eye"></i>
-                                                        </Link>
-                                                        <button
-                                                            className="ml-2 btn bg-red"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <i className="fa fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                                    <Link
+                                                        to={`/admin/view-job/${item.id}`}
+                                                        className="ml-2 btn btn-warning"
+                                                    >
+                                                        <i className="fa fa-eye"></i>
+                                                    </Link>
+                                                    <button
+                                                        className="ml-2 btn bg-red"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <i className="fa fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     ) : (

@@ -670,7 +670,10 @@ export default function AddClient() {
                                     )}
                                 </div>
 
-                                <div className="form-group mt-35">
+                                <div
+                                    className="form-group mt-35"
+                                    style={{ display: "none" }}
+                                >
                                     <label className="control-label">
                                         Create Job
                                     </label>
