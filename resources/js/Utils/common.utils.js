@@ -90,3 +90,7 @@ export const shiftOptions = {
         { value: 4, label: "night-20pm-24am" },
     ],
 };
+
+export const convertMinsToDecimalHrs = (minutes) => {
+    return minutes / 60;
+};

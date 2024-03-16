@@ -34,6 +34,9 @@ class JobController extends Controller
         $q = $request->q;
         $w = $request->filter_week;
         $jobs = Job::query()
+            ->leftJoin('job_hours', function ($join) {
+                $join->on('jobs.id', '=', 'job_hours.job_id');
+            })
             ->with([
                 'worker',
                 'client',
@@ -41,7 +44,8 @@ class JobController extends Controller
                 'jobservice',
                 'order',
                 'invoice',
-                'jobservice.service'
+                'jobservice.service',
+                'propertyAddress'
             ]);
 
         if ($q != '') {
@@ -83,24 +87,26 @@ class JobController extends Controller
             $endDate = Carbon::today()->toDateString();
         }
 
+        $jobs = $jobs
+            ->select('jobs.*')
+            ->selectRaw('(SELECT comment FROM job_comments WHERE job_comments.job_id = jobs.id AND job_comments.role = "worker" ORDER BY id DESC LIMIT 1) AS last_comment')
+            ->selectRaw('SUM(TIMESTAMPDIFF(MINUTE, job_hours.start_time, job_hours.end_time)) AS total_minutes')
+            ->orderBy('start_date')
+            ->orderBy('client_id')
+            ->groupBy('jobs.id');
+
         if ($w == 'all') {
             $jobs = $jobs
-                ->orderBy('start_date')
-                ->orderBy('client_id')
                 ->paginate(20);
         } else if ($request->p == 1) {
             $jobs = $jobs->whereDate('start_date', '>=', $startDate)
                 ->whereDate('start_date', '<=', $endDate)
-                ->orderBy('start_date')
-                ->orderBy('client_id')
                 ->paginate(5);
         } else {
             $pcount = Job::count();
 
             $jobs = $jobs->whereDate('start_date', '>=', $startDate)
                 ->whereDate('start_date', '<=', $endDate)
-                ->orderBy('start_date')
-                ->orderBy('client_id')
                 ->paginate($pcount);
         }
 
@@ -448,6 +454,7 @@ class JobController extends Controller
                     'schedule_id'   => $s_id,
                     'status'        => $status,
                     'next_start_date'    => $next_job_date,
+                    'address_id'  => $selectedService['address']['id'],
                 ]);
 
                 JobService::create([

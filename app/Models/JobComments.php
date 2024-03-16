@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobComments extends Model
 {
-    use HasFactory;
+    protected $table = 'job_comments';
+
+    protected $fillable = ['job_id', 'comment', 'name', 'role'];
 }

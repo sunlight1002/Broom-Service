@@ -7,6 +7,7 @@ import { useAlert } from "react-alert";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
@@ -658,6 +659,10 @@ export default function TotalJobs() {
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
+                                                <th scope="col">Hours</th>
+                                                <th scope="col">Done</th>
+                                                <th scope="col">Comments</th>
+                                                <th scope="col">Address</th>
                                                 <th
                                                     className="hidden-xs"
                                                     onClick={(e) => {
@@ -904,6 +909,58 @@ export default function TotalJobs() {
                                                                     : item
                                                                           .jobservice
                                                                           .heb_name)}
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {item.jobservice
+                                                                ? item
+                                                                      .jobservice
+                                                                      .job_hour
+                                                                : "NA"}
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {convertMinsToDecimalHrs(
+                                                                item.total_minutes
+                                                            )}
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {item.last_comment
+                                                                ? item.last_comment
+                                                                : "NA"}
+                                                        </td>
+                                                        <td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {item.property_address
+                                                                ? item
+                                                                      .property_address
+                                                                      .address_name
+                                                                : "NA"}
                                                         </td>
                                                         <td
                                                             style={

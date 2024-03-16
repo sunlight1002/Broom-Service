@@ -44,11 +44,13 @@ class JobCommentController extends Controller
             return response()->json(['error' => $validator->messages()]);
         }
 
+        $data = $request->all();
+
         JobComments::create([
-            'name' => $request->name,
-            'role' => $request->role,
-            'job_id' => $request->job_id,
-            'comment' => $request->comment,
+            'name' => $data['name'],
+            'role' => $data['role'],
+            'job_id' => $data['job_id'],
+            'comment' => $data['comment'],
         ]);
 
         return response()->json([
