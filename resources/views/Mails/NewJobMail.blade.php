@@ -45,7 +45,7 @@
 					
 				   </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $start_time }} </td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['start_time'] }} </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px;display:flex;height: 38px">
 						<a href='{{ url("worker/login") }}'  style="font-size: 13px;color: #007bff;min-width: 51px">View Job</a>

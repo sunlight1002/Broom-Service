@@ -755,6 +755,9 @@ export default function TotalJobs() {
                                                                         ? `/admin/view-client/${item.client.id}`
                                                                         : "#"
                                                                 }
+                                                                style={{
+                                                                    color: "#000000",
+                                                                }}
                                                             >
                                                                 {item.client
                                                                     ? item

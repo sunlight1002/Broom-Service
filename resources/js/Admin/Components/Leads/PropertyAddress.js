@@ -71,20 +71,23 @@ const PropertyAddress = memo(function PropertyAddress({
     };
     const onPlaceChanged = () => {
         if (place) {
-            setAddress(place.getPlace().formatted_address);
-            fullAddress.current.value = place.getPlace().formatted_address;
-            setLatitude(place.getPlace().geometry.location.lat());
-            lat.current.value = place.getPlace().geometry.location.lat();
-            setLongitude(place.getPlace().geometry.location.lng());
-            long.current.value = place.getPlace().geometry.location.lng();
+            const _place = place.getPlace();
+            setAddress(_place.formatted_address);
+            fullAddress.current.value = _place.formatted_address;
+            addressName.current.value = _place.name;
+            setLatitude(_place.geometry.location.lat());
+            lat.current.value = _place.geometry.location.lat();
+            setLongitude(_place.geometry.location.lng());
+            long.current.value = _place.geometry.location.lng();
         }
     };
     useEffect(() => {
         if (place?.getPlace() && isModalOpen && isAdd.current) {
-            lat.current.value = place.getPlace().geometry.location.lat();
-            long.current.value = place.getPlace().geometry.location.lng();
-            city.current.value = place.getPlace().vicinity;
-            const address_components = place?.getPlace().address_components;
+            const _place = place.getPlace();
+            lat.current.value = _place.geometry.location.lat();
+            long.current.value = _place.geometry.location.lng();
+            city.current.value = _place.vicinity;
+            const address_components = _place.address_components;
             $.each(address_components, function (index, component) {
                 var types = component.types;
                 $.each(types, function (index, type) {

@@ -80,7 +80,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     ->orWhere('email', $clientData['email'])
                     ->first();
 
-                if (empty($client->id)) {
+                if (empty($client)) {
                     $client = Client::create($clientData);
                 }
 

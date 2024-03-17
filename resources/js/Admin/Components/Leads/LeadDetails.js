@@ -5,6 +5,7 @@ import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Notes from "./Notes";
+import Files from "../Clients/Files";
 
 export default function LeadDetails({ lead }) {
     const navigate = useNavigate();
@@ -66,6 +67,18 @@ export default function LeadDetails({ lead }) {
                                         role="tab"
                                     >
                                         Comments
+                                    </a>
+                                </li>
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="files-tab"
+                                        className="nav-link"
+                                        data-toggle="tab"
+                                        href="#tab-files"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        Files
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -148,6 +161,15 @@ export default function LeadDetails({ lead }) {
                                     <div className="form-group">
                                         <Notes />
                                     </div>
+                                </div>
+
+                                <div
+                                    id="tab-files"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="rejected-tab"
+                                >
+                                    <Files />
                                 </div>
 
                                 <div

@@ -92,5 +92,5 @@ export const shiftOptions = {
 };
 
 export const convertMinsToDecimalHrs = (minutes) => {
-    return minutes / 60;
+    return parseFloat(minutes / 60).toFixed(2);
 };
