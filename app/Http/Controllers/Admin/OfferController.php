@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\PriceOffered;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\OfferSampleFileExport;
+use App\Jobs\ImportClientOfferJob;
+use Illuminate\Support\Facades\Storage;
 
 class OfferController extends Controller
 {
@@ -261,4 +265,39 @@ class OfferController extends Controller
             'latestOffer' => $latestOffer
         ]);
     }
+
+    public function sampleFileExport(Request $request)
+    {
+        return Excel::download(new OfferSampleFileExport, 'offers-import-sheet.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()]);
+        }
+
+        $file = $request->file('file');
+        $fileName = 'file_' . $request->user()->id . '_' . date('YmdHis') . '_' . $file->getClientOriginalName();
+
+        if (!Storage::disk('public')->exists('uploads/imports')) {
+            Storage::disk('public')->makeDirectory('uploads/imports');
+        }
+
+        if (!Storage::disk('public')->putFileAs("uploads/imports", $file, $fileName)) {
+            return response()->json(['error' => 'File not uploaded']);
+        }
+
+        ImportClientOfferJob::dispatch($fileName);
+
+        return response()->json([
+            'message' => 'File has been submitted, it will be imported soon',
+        ]);
+    
+    }
+
 }

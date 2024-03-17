@@ -51,6 +51,7 @@ Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
 Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
+Route::get('offers-sample-file', [OfferController::class, 'sampleFileExport']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
@@ -104,6 +105,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('clients', ClientController::class)->except('create');
     Route::get('all-clients', [ClientController::class, 'AllClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
+    Route::post('import-client-offers', [OfferController::class, 'import']);
 
     // Services Api
     Route::resource('services', ServicesController::class)->except('show');
