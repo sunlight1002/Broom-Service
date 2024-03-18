@@ -495,7 +495,7 @@ class JobController extends Controller
                 }
 
                 if ($key == 0) {
-                    $job->load(['client', 'worker', 'jobservice']);
+                    $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
                     $_timeShift = $workerDate['shifts'];
                     if ($_timeShift != '') {
@@ -737,7 +737,7 @@ class JobController extends Controller
     public function sendWorkerEmail($job_id)
     {
         $job = Job::query()
-            ->with(['client', 'worker', 'jobservice'])
+            ->with(['client', 'worker', 'jobservice','propertyAddress'])
             ->where('id', $job_id)
             ->first();
 

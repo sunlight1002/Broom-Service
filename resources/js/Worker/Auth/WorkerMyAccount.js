@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { createRef, useEffect, useRef, useState } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+const animalArray = [
+    {
+        name: "Dog",
+        key: "is_afraid_by_dog",
+    },
+    {
+        name: "Cat",
+        key: "is_afraid_by_cat",
+    },
+];
 export default function WorkerMyAccount() {
+    const elementsRef = useRef(animalArray.map(() => createRef()));
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [phone, setPhone] = useState("");
@@ -44,7 +55,6 @@ export default function WorkerMyAccount() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
-
     const handleUpdate = (e) => {
         e.preventDefault();
 
@@ -64,6 +74,9 @@ export default function WorkerMyAccount() {
             country: country,
         };
 
+        elementsRef.current.map(
+            (ref) => (data[ref.current.name] = ref.current.checked)
+        );
         axios
             .post(`/api/update_details/${id}`, data, { headers })
             .then((response) => {
@@ -92,6 +105,13 @@ export default function WorkerMyAccount() {
             setItemStatus(w.status);
             setLng(w.lng);
             setCountry(w.country);
+            elementsRef.current.map(
+                (ref) =>
+                    (ref.current.checked =
+                        ref.current.name === animalArray[0].key
+                            ? w.is_afraid_by_dog
+                            : w.is_afraid_by_cat)
+            );
         });
     };
     const getAvailableSkill = () => {
@@ -417,6 +437,28 @@ export default function WorkerMyAccount() {
                                         }
                                     })}
                             </div>
+                        </div>
+                        <div className="col-sm-12 mt-4">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Are you afraid of any follwing pet animals ?
+                                </label>
+                            </div>
+                            {animalArray &&
+                                animalArray.map((item, index) => (
+                                    <div className="form-check" key={item.key}>
+                                        <label className="form-check-label">
+                                            <input
+                                                ref={elementsRef.current[index]}
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                name={item.key}
+                                                value={item.key}
+                                            />
+                                            {item.name}
+                                        </label>
+                                    </div>
+                                ))}
                         </div>
                         <div className="form-group mt-4">
                             <label className="control-label">

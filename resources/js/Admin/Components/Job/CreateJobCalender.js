@@ -693,6 +693,13 @@ export default function CreateJobCalender() {
                                                 <th scope="col">
                                                     Complete Time
                                                 </th>
+                                                <th scope="col">
+                                                    Property Address
+                                                </th>
+                                                <th scope="col">
+                                                    Gender prefer type
+                                                </th>
+                                                <th scope="col">Pet animals</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -754,6 +761,64 @@ export default function CreateJobCalender() {
                                                                         item.jobHours
                                                                     }{" "}
                                                                     hours
+                                                                </p>
+                                                            )
+                                                        )}
+                                                </td>
+                                                <td>
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => (
+                                                                <p key={index}>
+                                                                    {
+                                                                        item
+                                                                            ?.address
+                                                                            ?.address_name
+                                                                    }
+                                                                </p>
+                                                            )
+                                                        )}
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        textTransform:
+                                                            "capitalize",
+                                                    }}
+                                                >
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => (
+                                                                <p key={index}>
+                                                                    {
+                                                                        item
+                                                                            ?.address
+                                                                            ?.prefer_type
+                                                                    }
+                                                                </p>
+                                                            )
+                                                        )}
+                                                </td>
+                                                <td>
+                                                    {services &&
+                                                        services.map(
+                                                            (item, index) => (
+                                                                <p key={index}>
+                                                                    {item
+                                                                        ?.address
+                                                                        ?.is_cat_avail
+                                                                        ? "Cat ,"
+                                                                        : item
+                                                                              ?.address
+                                                                              ?.is_dog_avail
+                                                                        ? "Dog"
+                                                                        : !item
+                                                                              ?.address
+                                                                              ?.is_cat_avail &&
+                                                                          !item
+                                                                              ?.address
+                                                                              ?.is_dog_avail
+                                                                        ? "NA"
+                                                                        : ""}
                                                                 </p>
                                                             )
                                                         )}

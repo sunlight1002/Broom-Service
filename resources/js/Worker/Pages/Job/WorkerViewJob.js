@@ -21,6 +21,7 @@ export default function WorkerViewJob() {
     const [time_id, setTimeId] = useState(null);
     const [job_time, setJobTime] = useState([]);
     const [total_time, setTotalTime] = useState(0);
+    const [address, setAddress] = useState({});
     const alert = useAlert();
     const { t } = useTranslation();
     const headers = {
@@ -36,6 +37,7 @@ export default function WorkerViewJob() {
             setJobStatus(r.status);
             setClient(r.client);
             setWorker(r.worker);
+            setAddress(r.property_address ? r.property_address : {});
         });
     };
     useEffect(() => {
@@ -260,7 +262,10 @@ export default function WorkerViewJob() {
                                     )}
                                 </div>
 
-                                <ClientDetails client={client} />
+                                <ClientDetails
+                                    client={client}
+                                    address={address}
+                                />
                             </div>
                             <div className="col-sm-12">
                                 <Services job={job} />

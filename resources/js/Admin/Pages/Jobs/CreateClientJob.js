@@ -117,10 +117,52 @@ export default function CreateClientJob() {
                                                     className={`services-${index}`}
                                                     key={index}
                                                 >
-                                                    {
-                                                        item?.address
-                                                            ?.address_name
-                                                    }
+                                                    {item?.address?.address_name
+                                                        ? item?.address
+                                                              ?.address_name
+                                                        : "NA"}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-4">
+                                        <div className="form-group">
+                                            <label>Pet animals :</label>
+                                            {services.map((item, index) => (
+                                                <p
+                                                    className={`services-${index}`}
+                                                    key={index}
+                                                >
+                                                    {item?.address?.is_cat_avail
+                                                        ? "Cat ,"
+                                                        : item?.address
+                                                              ?.is_dog_avail
+                                                        ? "Dog"
+                                                        : !item?.address
+                                                              ?.is_cat_avail &&
+                                                          !item?.address
+                                                              ?.is_dog_avail
+                                                        ? "NA"
+                                                        : ""}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-4">
+                                        <div className="form-group">
+                                            <label>
+                                                Gender prefer type of worker :
+                                            </label>
+                                            {services.map((item, index) => (
+                                                <p
+                                                    className={`services-${index}`}
+                                                    key={index}
+                                                    style={{
+                                                        textTransform:
+                                                            "capitalize",
+                                                    }}
+                                                >
+                                                    {item?.address?.prefer_type}
                                                 </p>
                                             ))}
                                         </div>

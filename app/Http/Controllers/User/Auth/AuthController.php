@@ -125,6 +125,8 @@ class AuthController extends Controller
         $worker->password      = Hash::make($request->password);
         $worker->status        = $request->status;
         $worker->country       = $request->country;
+        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();
 
         return response()->json([

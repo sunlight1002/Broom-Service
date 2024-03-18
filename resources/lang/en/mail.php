@@ -139,7 +139,8 @@ return [
         'scheduled'   => 'Scheduled',
         'to'          => 'to',
         'view_job'    =>'view job',
-        'start_time'  =>'Start Time'
+        'start_time'  =>'Start Time',
+        'property_address_txt'  => 'Property Address'
 
     ],
     'client_new_job' =>[
