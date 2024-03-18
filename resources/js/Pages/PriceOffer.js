@@ -877,12 +877,16 @@ export default function PriceOffer() {
                                                                 )}
                                                             </p> */}
                                                         </td>
-                                                        <td>
-                                                            {s.jobHours}{" "}
-                                                            {t(
-                                                                "price_offer.hours"
-                                                            )}
-                                                        </td>
+                                                        {s.type === "hourly" ? (
+                                                            <td>
+                                                                {s.jobHours}{" "}
+                                                                {t(
+                                                                    "price_offer.hours"
+                                                                )}
+                                                            </td>
+                                                        ) : (
+                                                            <td> {"--"}</td>
+                                                        )}
                                                         {s.type == "fixed" ? (
                                                             <td>
                                                                 {s.totalamount}{" "}
