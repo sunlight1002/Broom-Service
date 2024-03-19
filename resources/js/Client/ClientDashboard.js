@@ -318,13 +318,12 @@ export default function ClientDashboard() {
                                                                 <Td>
                                                                     {status}
                                                                     {item.status ==
-                                                                    "cancel"
-                                                                        ? `(With Cancellatiom fees ${
-                                                                              item.rate
-                                                                          } ${t(
-                                                                              "global.currency"
-                                                                          )} )`
-                                                                        : ""}
+                                                                        "cancel" &&
+                                                                        ` (with cancellation fees of ${
+                                                                            item.cancellation_fee_amount
+                                                                        } ${t(
+                                                                            "global.currency"
+                                                                        )} )`}
                                                                 </Td>
                                                                 <Td>
                                                                     {item.jobservice &&

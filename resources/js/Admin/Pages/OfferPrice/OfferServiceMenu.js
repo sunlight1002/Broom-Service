@@ -1,4 +1,4 @@
-import { useRef, useState, memo } from "react";
+import { useRef, useState, memo, useEffect } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import OfferServiceModal from "../../Components/Modals/OfferServiceModal";
 import { useParams } from "react-router-dom";
@@ -20,7 +20,6 @@ const initialValue = {
     freq_name: "",
     frequency: "",
     fixed_price: "",
-    jobHours: "",
     rateperhour: "",
     other_title: "",
     totalamount: "",
@@ -35,6 +34,7 @@ const initialValue = {
     month_occurrence: 1,
     month_date: 1,
     monthday_selection_type: "weekday",
+    workers: [{ jobHours: "" }],
 };
 const OfferServiceMenu = memo(function OfferServiceMenu({
     addresses,
@@ -59,6 +59,21 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
         setIsOpen(true);
     };
 
+    const calcJobHours = (_service) => {
+        return _service.workers.map((w) => w.jobHours).join(", ");
+    };
+
+    const calcPrice = (_service) => {
+        if (_service.type === "hourly") {
+            const _totalHours = _service.workers
+                .map((w) => parseInt(w.jobHours))
+                .reduce((a, b) => a + b, 0);
+            return _service.rateperhour * _totalHours;
+        } else {
+            return _service.fixed_price;
+        }
+    };
+
     return (
         <div>
             <div className="text-right" style={{ marginBottom: "5px" }}>
@@ -78,6 +93,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                 <Th>Address</Th>
                                 <Th>Service</Th>
                                 <Th>Type</Th>
+                                <Th>No. of Workers</Th>
                                 <Th>Job Hours</Th>
                                 <Th>Price</Th>
                                 <Th>Frequency</Th>
@@ -92,22 +108,18 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                             <Td>
                                                 {addresses.length > 0 &&
                                                 item.address
-                                                    ? addresses.filter(
+                                                    ? addresses.find(
                                                           (a) =>
                                                               a.id ==
                                                               item.address
-                                                      )[0]?.address_name
+                                                      )?.address_name
                                                     : "NA"}
                                             </Td>
                                             <Td>{item.name}</Td>
                                             <Td>{item.type}</Td>
-                                            <Td>{item.jobHours}</Td>
-                                            <Td>
-                                                {item.type === "hourly"
-                                                    ? item.jobHours *
-                                                      item.rateperhour
-                                                    : item.fixed_price}
-                                            </Td>
+                                            <Td>{item.workers.length}</Td>
+                                            <Td>{calcJobHours(item)}</Td>
+                                            <Td>{calcPrice(item)}</Td>
                                             <Td>{item.freq_name}</Td>
                                             <Td>
                                                 <div className="action-dropdown dropdown">

@@ -209,7 +209,7 @@ class InvoiceController extends Controller
         $doctype  = $req['doctype'];
 
         $subtotal = $req['amount'];
-        $tax = (17 / 100) * $subtotal;
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
         $due = ($req['due_date'] == null) ? Carbon::now()->endOfMonth()->toDateString() : $req['due_date'];
@@ -880,7 +880,7 @@ class InvoiceController extends Controller
         $pitems = [];
 
         $subtotal = (int) $stotal;
-        $tax = (17 / 100) * $subtotal;
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
         if (!empty($services)) {
@@ -938,7 +938,7 @@ class InvoiceController extends Controller
           "ZipCode": "",
           "PhoneNum": "",
           "FaxNum": "",
-          "TaxRate": "17",
+          "TaxRate": "' . config('services.app.tax_percentage') . '",
           "Comment": "",
           "ReceipientEmail": "",
           "EmailDocumentToReceipient": "",
@@ -984,7 +984,7 @@ class InvoiceController extends Controller
         $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
 
         $subtotal = (int)$services[0]->unitprice;
-        $tax = (17 / 100) * $subtotal;
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
         $order = Order::where('job_id', $_order->job_id)->first();

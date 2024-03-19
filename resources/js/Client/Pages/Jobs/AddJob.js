@@ -17,7 +17,6 @@ export default function AddJob() {
     const [endDate, setEndDate] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [rate, setRate] = useState("");
     const [instruction, setInstruction] = useState("");
     const [address, setAddress] = useState("");
     const [status, setStatus] = useState("");

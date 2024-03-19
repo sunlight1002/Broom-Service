@@ -49,9 +49,8 @@ export default function Services({ job }) {
                                         Job Status
                                     </label>
                                     <p>{job.status}</p>
-                                    {job.status == "cancel" && job.rate != null
-                                        ? `(With Cancellatiom fees ${job.rate} ILS)`
-                                        : ""}
+                                    {job.status == "cancel" &&
+                                        ` (with cancellation fees of ${job.cancellation_fee_amount} ILS)`}
                                 </div>
                             </div>
                         </div>

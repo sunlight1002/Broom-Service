@@ -19,13 +19,21 @@ export default function EditOffer() {
             freq_name: "",
             frequency: "",
             fixed_price: "",
-            jobHours: "",
             rateperhour: "",
             other_title: "",
             totalamount: "",
             template: "",
             cycle: "",
             period: "",
+            address: "",
+            start_date: "",
+            weekdays: [],
+            weekday_occurrence: "1",
+            weekday: "sunday",
+            month_occurrence: 1,
+            month_date: 1,
+            monthday_selection_type: "weekday",
+            workers: [{ jobHours: "" }],
         },
     ]);
     const [status, setStatus] = useState("");
@@ -54,10 +62,10 @@ export default function EditOffer() {
 
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
-        if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
+        if (indexKey > -1) {
             newFormValues[indexKey] = tmpJobData;
         } else {
-            newFormValues = [...formValues, ...tmpJobData];
+            newFormValues.push(tmpJobData);
         }
         setFormValues(newFormValues);
     };
@@ -97,8 +105,6 @@ export default function EditOffer() {
 
     let handleUpdate = (event) => {
         event.preventDefault();
-        let to = 0;
-        let taxper = 17;
 
         for (let t in formValues) {
             if (formValues[t].service == "" || formValues[t].service == 0) {
@@ -112,25 +118,30 @@ export default function EditOffer() {
             }
             !formValues[t].type ? (formValues[t].type = "fixed") : "";
             if (formValues[t].type == "hourly") {
-                if (formValues[t].jobHours == "") {
-                    alert.error("One of the job hours value is missing");
-                    return false;
-                }
                 if (formValues[t].service == "") {
                     alert.error("One of the rate per hour value is missing");
                     return false;
                 }
-                formValues[t].totalamount = parseInt(
-                    formValues[t].jobHours * formValues[t].rateperhour
-                );
-                to += parseInt(formValues[t].totalamount);
             } else {
                 if (formValues[t].fixed_price == "") {
                     alert.error("One of the job price is missing");
                     return false;
                 }
-                formValues[t].totalamount = parseInt(formValues[t].fixed_price);
-                to += parseInt(formValues[t].fixed_price);
+            }
+
+            let workerIssue = true;
+            for (let index = 0; index < formValues[t].workers.length; index++) {
+                const _worker = formValues[t].workers[index];
+
+                if (_worker.jobHours == "") {
+                    alert.error("One of the job hours value is missing");
+                    workerIssue = false;
+                    break;
+                }
+            }
+
+            if (!workerIssue) {
+                return workerIssue;
             }
             let ot = document.querySelector("#other_title" + t);
 
@@ -148,12 +159,9 @@ export default function EditOffer() {
             }
         }
 
-        let tax = (taxper / 100) * to;
         const data = {
             client_id: clientID,
             status: status,
-            subtotal: to,
-            total: to + tax,
             services: JSON.stringify(formValues),
             action: event.target.value,
         };
@@ -253,9 +261,7 @@ export default function EditOffer() {
                                                     services={services}
                                                     frequencies={frequencies}
                                                     formValues={formValues}
-                                                    handleSaveForm={
-                                                        handleSave
-                                                    }
+                                                    handleSaveForm={handleSave}
                                                     handleRemoveFormFields={
                                                         removeFormFields
                                                     }

@@ -307,7 +307,7 @@ class JobController extends Controller
         $job = Job::query()->with(['jobservice', 'client', 'contract', 'order'])->find($id);
         $pitems = [];
         $subtotal = (int)$services[0]->unitprice;
-        $tax = (17 / 100) * $subtotal;
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
         if (!empty($services)) {
@@ -362,7 +362,7 @@ class JobController extends Controller
           "ZipCode": "",
           "PhoneNum": "",
           "FaxNum": "",
-          "TaxRate": "17",
+          "TaxRate": "' . config('services.app.tax_percentage') . '",
           "Comment": "",
           "ReceipientEmail": "",
           "EmailDocumentToReceipient": "",
@@ -435,7 +435,7 @@ class JobController extends Controller
 
         if (str_contains($job->schedule, 'w') == false) {
             $subtotal = (int)$services[0]->unitprice;
-            $tax = (17 / 100) * $subtotal;
+            $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
             $total = $tax + $subtotal;
 
             $order = Order::where('job_id', $id)->first();
@@ -595,7 +595,7 @@ class JobController extends Controller
           "ZipCode": "",
           "PhoneNum": "",
           "FaxNum": "",
-          "TaxRate": "17",
+          "TaxRate": "' . config('services.app.tax_percentage') . '",
           "Comment": "",
           "ReceipientEmail": "",
           "EmailDocumentToReceipient": "",
@@ -704,7 +704,7 @@ class JobController extends Controller
             $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
 
             $subtotal = (int)$st;
-            $tax = (17 / 100) * $subtotal;
+            $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
             $total = $tax + $subtotal;
 
             $o_res = json_decode($orders[0]->response);

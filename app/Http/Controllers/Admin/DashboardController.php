@@ -328,7 +328,7 @@ class DashboardController extends Controller
           }
         }
 
-        $tax = (17 / 100) * $total;
+        $tax = (config('services.app.tax_percentage') / 100) * $total;
         $ofr = [
 
           'client_id' => $cid,

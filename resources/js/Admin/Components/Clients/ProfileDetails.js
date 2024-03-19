@@ -426,7 +426,7 @@ export default function ProfileDetails({
                                     ? "Schedule Meeting"
                                     : "Re-schedule Meeting"}
                             </Link>
-                            <Link to={`/admin/add-offer?c=${param.id}`}>
+                            <Link to={`/admin/offers/create?c=${param.id}`}>
                                 <i className="fas fa-hand-point-right"></i>
                                 {offerStatus == "Not Sent" ||
                                 offerStatus == "sent"

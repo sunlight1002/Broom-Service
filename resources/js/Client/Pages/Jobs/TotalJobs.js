@@ -305,7 +305,7 @@ export default function TotalJobs() {
                                                                 {status}
                                                                 {item.status ==
                                                                 "cancel"
-                                                                    ? `(${t(
+                                                                    ? ` (${t(
                                                                           "client.jobs.view.with_cancel"
                                                                       )} ${
                                                                           item.cancellation_fee_amount

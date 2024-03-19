@@ -498,7 +498,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="add-offer"
+                                path="offers/create"
                                 element={<AddOffer />}
                             />
                             <Route

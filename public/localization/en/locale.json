@@ -473,7 +473,7 @@
                 "confirm_cancel_btn": "Yes, Cancel Job",
                 "updated_msg": "Job has been updated.",
                 "updated": "Updated!",
-                "with_cancel": "With Cancellation fees"
+                "with_cancel": "with cancellation fees of"
             }
         },
         "settings": {

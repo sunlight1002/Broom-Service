@@ -24,4 +24,23 @@ trait PriceOffered
             return $services;
         }
     }
+
+    private function calcAmount($services)
+    {
+        $tax_percentage = config('services.app.tax_percentage');
+        $subtotal = 0;
+        foreach ($services as $key => $service) {
+            if ($service['type'] == 'hourly') {
+                foreach ($service['workers'] as $key => $worker) {
+                    $subtotal += $service['rateperhour'] * $worker['jobHours'];
+                }
+            } else {
+                $subtotal += $service['fixed_price'] * count($service['workers']);
+            }
+        }
+
+        $tax_amount = ($tax_percentage / 100) * $subtotal;
+
+        return [$subtotal, $tax_amount];
+    }
 }

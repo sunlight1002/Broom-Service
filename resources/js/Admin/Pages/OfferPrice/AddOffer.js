@@ -12,7 +12,7 @@ export default function AddOffer() {
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(window.location.search);
     const cid = parseInt(queryParams.get("c"));
-    const [clientID, setClientID] = useState(cid != null ? cid : "");
+    const [clientID, setClientID] = useState(cid ? cid : "");
     const [formValues, setFormValues] = useState([]);
     const [services, setServices] = useState([]);
     const [frequencies, setFrequencies] = useState([]);
@@ -21,10 +21,10 @@ export default function AddOffer() {
 
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
-        if (indexKey > -1 && indexKey !== "" && indexKey !== undefined) {
-            newFormValues[indexKey] = tmpJobData[0];
+        if (indexKey > -1) {
+            newFormValues[indexKey] = tmpJobData;
         } else {
-            newFormValues = [...formValues, ...tmpJobData];
+            newFormValues.push(tmpJobData);
         }
         setFormValues(newFormValues);
     };
@@ -99,9 +99,6 @@ export default function AddOffer() {
     let handleSubmit = (event) => {
         event.preventDefault();
 
-        let to = 0;
-        let taxper = 17;
-
         for (let t in formValues) {
             if (formValues[t].service == "" || formValues[t].service == 0) {
                 alert.error("One of the service is not selected");
@@ -124,36 +121,39 @@ export default function AddOffer() {
                 alert.error("One of the frequency is not selected");
                 return false;
             }
-            if (formValues[t].jobHours == "") {
-                alert.error("One of the job hours value is missing");
-                return false;
+
+            let workerIssue = true;
+            for (let index = 0; index < formValues[t].workers.length; index++) {
+                const _worker = formValues[t].workers[index];
+
+                if (_worker.jobHours == "") {
+                    alert.error("One of the job hours value is missing");
+                    workerIssue = false;
+                    break;
+                }
             }
+
+            if (!workerIssue) {
+                return workerIssue;
+            }
+
             !formValues[t].type ? (formValues[t].type = "fixed") : "";
             if (formValues[t].type == "hourly") {
                 if (formValues[t].rateperhour == "") {
                     alert.error("One of the rate per hour value is missing");
                     return false;
                 }
-                formValues[t].totalamount = parseInt(
-                    formValues[t].jobHours * formValues[t].rateperhour
-                );
-                to += parseInt(formValues[t].totalamount);
             } else {
                 if (formValues[t].fixed_price == "") {
                     alert.error("One of the job price is missing");
                     return false;
                 }
-                formValues[t].totalamount = parseInt(formValues[t].fixed_price);
-                to += parseInt(formValues[t].fixed_price);
             }
         }
 
-        let tax = (taxper / 100) * to;
         const data = {
             client_id: clientID,
             status: "sent",
-            subtotal: to,
-            total: to + tax,
             services: JSON.stringify(formValues),
             action: event.target.value,
         };
@@ -197,7 +197,7 @@ export default function AddOffer() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Client Name
+                                                Client
                                             </label>
                                             <SelectPicker
                                                 data={clientOptions}

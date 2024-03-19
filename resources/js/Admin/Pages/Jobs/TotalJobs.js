@@ -972,17 +972,19 @@ export default function TotalJobs() {
                                                                 )
                                                                     ? {
                                                                           color: "red",
-                                                                          textTransform:
-                                                                              "capitalize",
                                                                       }
-                                                                    : {
-                                                                          textTransform:
-                                                                              "capitalize",
-                                                                      }
+                                                                    : {}
                                                             }
                                                             className="hidden-xs"
                                                         >
-                                                            {item.status}
+                                                            <span
+                                                                style={{
+                                                                    textTransform:
+                                                                        "capitalize",
+                                                                }}
+                                                            >
+                                                                {item.status}
+                                                            </span>
 
                                                             {item.order &&
                                                                 item.order.map(
@@ -1074,10 +1076,7 @@ export default function TotalJobs() {
                                                             <p>
                                                                 {item.status ==
                                                                     "cancel" &&
-                                                                item.rate !=
-                                                                    null
-                                                                    ? `(With Cancellatiom fees ${item.rate} ILS)`
-                                                                    : ""}
+                                                                    ` (with cancellation fees of ${item.cancellation_fee_amount} ILS)`}
                                                             </p>
                                                         </td>
 

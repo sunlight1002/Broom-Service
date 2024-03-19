@@ -17,8 +17,7 @@ class TimeSeed extends Seeder
         ManageTime::create([
             'start_time'         => '08:00',
             'end_time'           => '17:00',
-            'days'               => '["0","1","2","3","4"]'                
+            'days'               => '["0","1","2","3","4"]'
         ]);
-       
     }
 }

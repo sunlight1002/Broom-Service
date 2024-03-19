@@ -107,9 +107,8 @@ export default function Services({ job }) {
                                         {t("client.jobs.view.job_status")}
                                     </label>
                                     <p>{status}</p>
-                                    {job.status == "cancel"
-                                        ? `(With Cancellatiom fees ${job.rate} ILS)`
-                                        : ""}
+                                    {job.status == "cancel" &&
+                                        ` (with cancellation fees of ${job.cancellation_fee_amount} ILS)`}
                                 </div>
                             </div>
                         </div>

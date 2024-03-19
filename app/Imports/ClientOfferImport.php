@@ -93,7 +93,7 @@ class ClientOfferImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $existing_services[] = $services;
 
                 $to = 0;
-                $taxper = 17;
+                $taxper = config('services.app.tax_percentage');
 
                 if (is_array($existing_services)) {
                     foreach ($existing_services as $existing_service) {

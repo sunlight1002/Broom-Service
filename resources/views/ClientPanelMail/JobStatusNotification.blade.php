@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,9 +9,10 @@
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<title>Job Status</title>
 </head>
+
 <body style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;">
 	<div style="max-width: 650px;margin: 0 auto;margin-top: 30px;margin-bottom: 20px;background: #fff;border: 1px solid #e6e8eb;border-radius: 6px;padding: 20px;">
-		<table cellpadding="0" cellspacing="0" width="100%" >
+		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td width="100%">
 					<img src='{{url("/images/sample.png")}}' style="margin: 0 auto;display: block">
@@ -18,21 +20,21 @@
 			</tr>
 		</table>
 		<h1 style="text-align: center;">{{__('mail.client_job_status.hi')}}, {{($by == 'client') ? $admin['name'] : $job['client']['firstname']." ".$job['client']['lastname'] }} </h1>
-		
+
 		@if($by == 'client')
-		<p style="text-align: center;line-height: 30px"> {{__('mail.client_job_status.content')}} {{ ucfirst($job['status']) }}. 
-		@if(  $job['rate'] != '' ) 
-		{{__('mail.client_job_status.cancellation_fee')}} {{  $job['rate'] }} ILS.
-		@endif
+		<p style="text-align: center;line-height: 30px"> {{__('mail.client_job_status.content')}} {{ ucfirst($job['status']) }}.
+			@if( $job['cancellation_fee_amount'] )
+			{{__('mail.client_job_status.cancellation_fee')}} {{ $job['cancellation_fee_amount'] }} ILS.
+			@endif
 
-		@else
-		<p style="text-align: center;line-height: 30px"> Job is marked as  {{ ucfirst($job['status']) }} by admin/team. 
+			@else
+		<p style="text-align: center;line-height: 30px"> Job is marked as {{ ucfirst($job['status']) }} by admin/team.
 
-		@endif
-	   </p>
-		
-         <table cellpadding="0" cellspacing="0" width="100%">
-			 <thead>
+			@endif
+		</p>
+
+		<table cellpadding="0" cellspacing="0" width="100%">
+			<thead>
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Date</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Worker</th>
@@ -56,10 +58,11 @@
 					</td>
 				</tr>
 			</tbody>
-			</table>      
+		</table>
 
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.client_job_status.thanks_text')}}</p>
 		</p>
 	</div>
 </body>
+
 </html>

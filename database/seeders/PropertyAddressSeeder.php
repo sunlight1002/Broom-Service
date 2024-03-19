@@ -18,18 +18,19 @@ class PropertyAddressSeeder extends Seeder
     {
         $clients = Client::all();
         foreach ($clients as $key => $client) {
-            if($client->geo_address){
+            if ($client->geo_address) {
                 ClientPropertyAddress::create(
                     [
                         'client_id' => $client->id,
-                        'city' => $client->city?$client->city:NULL,
-                        'floor' => $client->floor?$client->floor:NULL,
-                        'apt_no' => $client->apt_no?$client->apt_no:NULL,
-                        'entrence_code' => $client->entrence_code?$client->entrence_code:NULL,
-                        'zipcode' => $client->zipcode?$client->zipcode:NULL,
-                        'geo_address' => $client->geo_address?$client->geo_address:NULL, 
-                        'latitude' => $client->latitude?$client->latitude:NULL, 
-                        'longitude' => $client->longitude?$client->longitude:NULL, 
+                        'address_name' => $client->geo_address ? $client->geo_address : NULL,
+                        'city' => $client->city ? $client->city : NULL,
+                        'floor' => $client->floor ? $client->floor : NULL,
+                        'apt_no' => $client->apt_no ? $client->apt_no : NULL,
+                        'entrence_code' => $client->entrence_code ? $client->entrence_code : NULL,
+                        'zipcode' => $client->zipcode ? $client->zipcode : NULL,
+                        'geo_address' => $client->geo_address ? $client->geo_address : NULL,
+                        'latitude' => $client->latitude ? $client->latitude : NULL,
+                        'longitude' => $client->longitude ? $client->longitude : NULL,
                     ]
                 );
             }

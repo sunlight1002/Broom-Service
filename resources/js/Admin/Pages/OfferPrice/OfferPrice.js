@@ -221,7 +221,7 @@ export default function OfferPrice() {
                                     placeholder="Search"
                                 />
                                 <Link
-                                    to="/admin/add-offer"
+                                    to="/admin/offers/create"
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>

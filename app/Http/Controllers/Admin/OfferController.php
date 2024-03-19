@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Offer;
-use Illuminate\Http\Request;
+use App\Exports\OfferSampleFileExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportClientOfferJob;
 use App\Models\LeadStatus;
+use App\Traits\PriceOffered;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Traits\PriceOffered;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\OfferSampleFileExport;
-use App\Jobs\ImportClientOfferJob;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OfferController extends Controller
 {
@@ -73,11 +73,19 @@ class OfferController extends Controller
             'status'       => ['required'],
             'services'     => ['required']
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
+        $services = json_decode($request->get('services'), true);
+
+        [$subtotal, $tax_amount] = $this->calcAmount($services);
+
         $input = $request->except(['action']);
+        $input['subtotal'] = $subtotal;
+        $input['total'] = $subtotal + $tax_amount;
+
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
 
@@ -165,7 +173,7 @@ class OfferController extends Controller
                 if ($service->type == 'hourly') {
                     $perhour = true;
                 }
-            }            
+            }
         }
 
         $offer->services = $this->formatServices($offer);
@@ -213,8 +221,14 @@ class OfferController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
+        $services = json_decode($request->get('services'), true);
+
+        [$subtotal, $tax_amount] = $this->calcAmount($services);
+
         $offer = Offer::find($id);
         $input = $request->except(['action']);
+        $input['subtotal'] = $subtotal;
+        $input['total'] = $subtotal + $tax_amount;
 
         $offer->update($input);
         $offer->load(['client', 'service']);
@@ -297,7 +311,5 @@ class OfferController extends Controller
         return response()->json([
             'message' => 'File has been submitted, it will be imported soon',
         ]);
-    
     }
-
 }
