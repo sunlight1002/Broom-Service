@@ -10,7 +10,7 @@ class Schedule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id', 'team_id', 'booking_status', 'purpose', 'start_time', 'end_time', 'start_date', 'meet_via', 'meet_link', 'is_calendar_event_created', 'meeting_mail_sent_at', 'google_calendar_event_id'
+        'client_id', 'team_id', 'booking_status', 'purpose', 'start_time', 'end_time', 'start_date', 'meet_via', 'meet_link', 'is_calendar_event_created', 'meeting_mail_sent_at', 'google_calendar_event_id', 'address_id'
     ];
 
     /**
@@ -30,5 +30,10 @@ class Schedule extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function propertyAddress()
+    {
+        return $this->belongsTo(ClientPropertyAddress::class, 'address_id');
     }
 }

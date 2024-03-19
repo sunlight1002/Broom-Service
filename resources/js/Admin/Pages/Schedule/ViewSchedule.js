@@ -22,13 +22,15 @@ export default function ViewSchedule() {
     const [endTime, setEndTime] = useState("");
     const [events, setEvents] = useState([]);
     const [lang, setLang] = useState("");
-    const [meetVia, setMeetVia] = useState("");
+    const [meetVia, setMeetVia] = useState("on-site");
     const [meetLink, setMeetLink] = useState("");
     const [startSlot, setStartSlot] = useState([]);
     const [endSlot, setEndSlot] = useState([]);
     const [interval, setInterval] = useState([]);
     const [purpose, setPurpose] = useState(null);
     const [purposeText, setPurposeText] = useState(null);
+    const [addresses, setAddresses] = useState([]);
+    const [address, setAddress] = useState(null);
 
     const param = useParams();
     const alert = useAlert();
@@ -89,6 +91,7 @@ export default function ViewSchedule() {
             meet_link: meetLink,
             purpose: purps,
             booking_status: st,
+            address_id: address,
         };
 
         let btn = document.querySelector(".sendBtn");
@@ -154,7 +157,11 @@ export default function ViewSchedule() {
 
     const getClient = () => {
         axios.get(`/api/admin/clients/${param.id}`, { headers }).then((res) => {
-            setClient(res.data.client);
+            const { client } = res.data;
+            setClient(client);
+            setAddresses(
+                client.property_addresses ? client.property_addresses : []
+            );
         });
     };
     const getTeam = () => {
@@ -179,6 +186,7 @@ export default function ViewSchedule() {
             setMeetVia(d.meet_via);
             setMeetLink(d.meet_link);
             setPurpose(d.purpose);
+            setAddress(d.address_id);
             if (d.purpose != "Price offer" && d.purpose != "Quality check") {
                 setPurposeText(d.purpose);
             }
@@ -317,12 +325,12 @@ export default function ViewSchedule() {
                                     <i className="fas fa-envelope"></i>{" "}
                                     {client.email}
                                 </li>
-                                <li>
+                                {/* <li>
                                     <i className="fas fa-map-marker"></i>{" "}
                                     {client.geo_address
                                         ? client.geo_address
                                         : ""}
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                         <div className="col-sm-4">
@@ -571,7 +579,37 @@ export default function ViewSchedule() {
                                 </div>
                             </div>
                         </div>
-
+                        {meetVia === "on-site" && (
+                            <div className="row">
+                                <div className="col-sm-4">
+                                    <div className="form-group">
+                                        <label>Select Address</label>
+                                        <select
+                                            name="address_id"
+                                            id="address_id"
+                                            value={address}
+                                            onChange={(e) => {
+                                                setAddress(e.target.value);
+                                                handleUpdate(e);
+                                            }}
+                                            className="form-control"
+                                        >
+                                            <option value="null">
+                                                --- Please Select ---
+                                            </option>
+                                            {addresses.map((address, i) => (
+                                                <option
+                                                    value={address.id}
+                                                    key={address.id}
+                                                >
+                                                    {address.address_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="text-center mt-3">
                             <button
                                 className="btn btn-pink sendBtn"

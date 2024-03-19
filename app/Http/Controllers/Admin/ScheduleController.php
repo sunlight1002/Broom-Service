@@ -90,6 +90,7 @@ class ScheduleController extends Controller
             'start_time'     => ['required'],
             'end_time'       => ['required'],
             'booking_status' => ['required'],
+            'address_id'     => ['required_if:meet_via,on-site']
         ]);
 
         if ($validator->fails()) {
@@ -121,7 +122,7 @@ class ScheduleController extends Controller
                 'url' => $authUrl,
             ]);
         } else {
-            $schedule->load(['client', 'team']);
+            $schedule->load(['client', 'team', 'propertyAddress']);
             $this->pushEvent($schedule);
 
             Notification::create([
@@ -154,7 +155,7 @@ class ScheduleController extends Controller
         }
 
         try {
-            $schedule->load(['client', 'team']);
+            $schedule->load(['client', 'team', 'propertyAddress']);
             if (!$schedule->is_calendar_event_created) {
                 // Initializes Google Client object
                 $client = $this->getClient();
@@ -258,7 +259,6 @@ class ScheduleController extends Controller
         $scheduleArr = $schedule->toArray();
         $scheduleArr['service_names'] = $service_names;
         App::setLocale($scheduleArr['client']['lng']);
-
         Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
 

@@ -315,7 +315,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $client = Client::find($id);
+        $client = Client::with('property_addresses')->find($id);
 
         if (!$client) {
             return response()->json([

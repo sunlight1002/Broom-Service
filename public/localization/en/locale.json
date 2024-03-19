@@ -38,7 +38,8 @@
         "txt": "If you are not available for this date, please email us and let us know so that we can schedule another date.",
         "btn": "Schedule another date",
         "accepted_text": "This meeting is already accepted.",
-        "write_email_text": "Please write us an email if any query."
+        "write_email_text": "Please write us an email if any query.",
+        "address": "Address"
     },
     "price_offer": {
         "button": "Accept Offer",

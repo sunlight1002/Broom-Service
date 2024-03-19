@@ -97,7 +97,7 @@ class Client extends Authenticatable
 
     public function property_addresses()
     {
-        return $this->hasMany(ClientPropertyAddress::class)->orderBy('id', 'desc');;
+        return $this->hasMany(ClientPropertyAddress::class)->orderBy('id', 'desc');
     }
 
     public function ScopeReply($query)

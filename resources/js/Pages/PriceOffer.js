@@ -889,7 +889,7 @@ export default function PriceOffer() {
                                                         )}
                                                         {s.type == "fixed" ? (
                                                             <td>
-                                                                {s.totalamount}{" "}
+                                                                {s.fixed_price}{" "}
                                                                 {t(
                                                                     "global.currency"
                                                                 )}

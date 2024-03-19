@@ -22,7 +22,7 @@ export default function MeetingFiles() {
     const [file, setFile] = useState([]);
     const [AllFiles, setAllFiles] = useState([]);
     const [loading, setLoading] = useState("Loading...");
-
+    const [address, setAddress] = useState([]);
     const meetId = Base64.decode(param.id);
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -33,9 +33,13 @@ export default function MeetingFiles() {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
-                setMeeting(res.data.schedule);
-                setTeamName(res.data.schedule.team?.name);
-                const lng = res.data.schedule.client.lng;
+                const { schedule } = res.data;
+                setMeeting(schedule);
+                setTeamName(schedule.team?.name);
+                setAddress(
+                    schedule.property_address ? schedule.property_address : []
+                );
+                const lng = schedule.client.lng;
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {
                     import("../Assets/css/rtl.css");
@@ -198,6 +202,25 @@ export default function MeetingFiles() {
                         <li>
                             {t("meet_stat.service")}:{" "}
                             <span>{meeting.service_names}</span>
+                        </li>
+                    ) : (
+                        ""
+                    )}
+                    {address.address_name ? (
+                        <li>
+                            {t("meet_stat.address")}:{" "}
+                            <span>
+                                <Link
+                                    target="_blank"
+                                    to={`https://maps.google.com?q=${
+                                        address.latitude +
+                                        "," +
+                                        address.longitude
+                                    }`}
+                                >
+                                    {address.address_name}
+                                </Link>
+                            </span>
                         </li>
                     ) : (
                         ""

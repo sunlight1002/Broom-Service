@@ -25,7 +25,7 @@ class ClientEmailController extends Controller
   public function ShowMeeting(Request $request)
   {
     $id = $request->id;
-    $schedule = Schedule::query()->with('client', 'team')->find($id);
+    $schedule = Schedule::query()->with('client', 'team', 'propertyAddress')->find($id);
     $services = Offer::where('client_id', $schedule->client->id)->get()->last();
     $str = '';
     if (!empty($services->services)) {
