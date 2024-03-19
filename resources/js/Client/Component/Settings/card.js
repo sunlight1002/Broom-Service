@@ -4,6 +4,7 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { daDK } from "rsuite/esm/locales";
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 
 export default function card() {
     const { t } = useTranslation();
@@ -204,17 +205,19 @@ export default function card() {
         }
     }, []);
 
-    let exp = "";
-    if (card.length > 0) {
-        let vl = card[0].valid.split("-");
+    function getExp(card) {
+        let exp = "";
+        let vl = card.split("-");
         exp = " " + vl[1] + " / " + vl[0].substring(2, 4);
+        return exp;
     }
+
     return (
         <div className="card">
             <div className="card-body">
                 {
                     <button
-                        className="btn btn-pink float-right"
+                        className="btn btn-pink float-right mb-3 "
                         data-toggle="modal"
                         data-target="#exampleModal"
                     >
@@ -222,31 +225,40 @@ export default function card() {
                         {t("work-contract.edit_btn")}
                     </button>
                 }
-                {card.length > 0 ? (
-                    <form>
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("work-contract.card_type")} :{" "}
-                            </label>
-                            <span>{card[0].card_type}</span>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("work-contract.card_number")} :{" "}
-                            </label>
-                            <span> {card[0].card_number}</span>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label">
-                                {" "}
-                                {t("work-contract.card_expiry")} :{" "}
-                            </label>
-                            <span>{exp}</span>
-                        </div>
-                    </form>
-                ) : (
-                    <div>No card added</div>
-                )}
+                <div className="table-responsive">
+                    <Table className="table table-bordered">
+                        <Thead>
+                            <Tr>
+                                <Th>{t("work-contract.card_type")}</Th>
+                                <Th>{t("work-contract.card_number")}</Th>
+                                <Th scope="col">
+                                    {t("work-contract.card_expiry")}
+                                </Th>
+                                {/* <Th scope="col">Action</Th> */}
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {card?.length > 0 ? (
+                                card.map((card, index) => {
+                                    const exp = getExp(card.valid);
+                                    return (
+                                        <Tr key={index}>
+                                            <Td>{card.card_type}</Td>
+
+                                            <Td>{card.card_number}</Td>
+
+                                            <Td className="pl-3">{exp}</Td>
+                                        </Tr>
+                                    );
+                                })
+                            ) : (
+                                <Tr>
+                                    <Td colspan="3">No card added</Td>
+                                </Tr>
+                            )}
+                        </Tbody>
+                    </Table>
+                </div>
             </div>
             <div
                 className="modal fade"
