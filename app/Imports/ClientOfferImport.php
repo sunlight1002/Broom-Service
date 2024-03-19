@@ -66,6 +66,16 @@ class ClientOfferImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $total_amount = $row['job_hours'] * $row['fixed_price'];
                 }
 
+                $workerJobHours = [];
+                if(!empty($row['worker_hours']))
+                {
+                    $workerhours  = explode(',', $row['worker_hours']);
+                    foreach($workerhours as $workerhour)
+                    {
+                        array_push($workerJobHours,  array('jobHours'=> $workerhour));
+                    }
+                }
+
                 $services = [
                     'service' => $service->id ?? '',
                     'name' => $row['service_name'] ?? '',
@@ -82,6 +92,7 @@ class ClientOfferImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'period' => $serviceschedule->period ?? '',
                     'address' => $clientpropertyaddress->id ?? '',
                     'start_date' => $row['start_date'] ?? '',
+                    'workers' => $workerJobHours,
                     "weekdays" => [],
                     "weekday_occurrence" => "1",
                     "weekday" => "sunday",

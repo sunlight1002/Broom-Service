@@ -36,6 +36,7 @@ class OfferSampleFileExport implements FromCollection, WithHeadings, WithStrictN
                 "totalamount" =>100,
                 "address" =>"1", // client properrty address                
                 "start_date" =>"2024-03-30",
+                "worker_hours" =>"5,7,10",
             ]
         ]);
     }
