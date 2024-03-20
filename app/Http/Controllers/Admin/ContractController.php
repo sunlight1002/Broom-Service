@@ -115,16 +115,16 @@ class ContractController extends Controller
         ]);
     }
 
-    public function getContract(Request $request)
+    public function getContract($id)
     {
         $contract = Contract::query()
             ->with(['client', 'offer'])
-            ->where('id', $request->id)
-            ->get();
-        $card = ClientCard::where('client_id', $contract[0]->client->id)->first();
+            ->find($id);
 
-        $contract[0]['card'] = $card;
-        $contract[0]['offer']['services'] = $this->formatServices($contract[0]['offer']);
+        $card = ClientCard::where('client_id', $contract->client->id)->first();
+
+        $contract['card'] = $card;
+        $contract['offer']['services'] = $this->formatServices($contract['offer']);
 
         return response()->json([
             'contract' => $contract,

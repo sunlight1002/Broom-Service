@@ -301,6 +301,7 @@
             "sign_card_err": "Please enter signature on the card",
             "add_card_err": "Please add card before sign contract!",
             "sign_err": "Please sign the contract",
+            "start_date_err": "Please select start date",
             "invalid_cvv": "Invalid cvv",
             "success": "Thanks, for accepting contract",
             "reject_title": "Are you sure?",
@@ -332,7 +333,8 @@
         "select_month": "-- select expire month --",
         "model_submit": "Submit",
         "edit_btn": "Add/Edit Card",
-        "back_btn": "Back"
+        "back_btn": "Back",
+        "start_date": "Start Date"
     },
     "j_status": {
         "not-started": "Not started",

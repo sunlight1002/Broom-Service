@@ -27,7 +27,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('view-offer', [DashboardController::class, 'viewOffer'])->name('view-offer');
     Route::post('contracts', [DashboardController::class, 'contracts'])->name('contracts');
     Route::post('view-contract', [DashboardController::class, 'viewContract'])->name('view-contract');
-    Route::post('get-contract', [DashboardController::class, 'getContract'])->name('get-contract');
+    Route::post('get-contract/{id}', [DashboardController::class, 'getContract'])->name('get-contract');
 
     //job APis
     Route::post('jobs', [DashboardController::class, 'listJobs'])->name('jobs');

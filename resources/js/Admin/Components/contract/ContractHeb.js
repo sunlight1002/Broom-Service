@@ -44,11 +44,11 @@ export default function WorkContractRHS() {
 
     const getContract = () => {
         axios
-            .post(`/api/admin/get-contract`, { id: param.id }, { headers })
+            .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
                 setContract(res.data.contract);
-                setClient(res.data.contract[0].client);
-                setServices(JSON.parse(res.data.contract[0].offer.services));
+                setClient(res.data.contract.client);
+                setServices(JSON.parse(res.data.contract.offer.services));
             });
     };
 
@@ -65,50 +65,45 @@ export default function WorkContractRHS() {
                     <div className="send-offer client-contract">
                         <div className="maxWidthControl dashBox mb-4">
                             <div className="row">
-                                {contract &&
-                                    contract.map((c, i) => {
-                                        if (c.status == "un-verified") {
-                                            return (
-                                                <React.Fragment key={i}>
-                                                    <div className="col-sm-6">
-                                                        <div className="mt-2 float-right">
-                                                            <input
-                                                                className="btn btn-warning"
-                                                                onClick={
-                                                                    handleVerify
-                                                                }
-                                                                value="Verify"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        } else if (c.status == "verified") {
-                                            return (
-                                                <React.Fragment key={i}>
-                                                    <div className="col-sm-6">
-                                                        <div className="mt-2 float-right">
-                                                            <input
-                                                                className="btn btn-success"
-                                                                value="Verified"
-                                                            />
-                                                        </div>
-                                                    </div>
+                                {contract && (
+                                    <>
+                                        {contract.status == "un-verified" && (
+                                            <div className="col-sm-6">
+                                                <div className="mt-2 float-right">
+                                                    <input
+                                                        className="btn btn-warning"
+                                                        onClick={handleVerify}
+                                                        value="Verify"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
 
-                                                    <div className="col-sm-6">
-                                                        <div className="mt-2 float-left">
-                                                            <Link
-                                                                to={`/admin/create-job/${c.id}`}
-                                                                className="btn btn-pink"
-                                                            >
-                                                                Create Job
-                                                            </Link>
-                                                        </div>
+                                        {contract.status == "verified" && (
+                                            <React.Fragment>
+                                                <div className="col-sm-6">
+                                                    <div className="mt-2 float-right">
+                                                        <input
+                                                            className="btn btn-success"
+                                                            value="Verified"
+                                                        />
                                                     </div>
-                                                </React.Fragment>
-                                            );
-                                        }
-                                    })}
+                                                </div>
+
+                                                <div className="col-sm-6">
+                                                    <div className="mt-2 float-left">
+                                                        <Link
+                                                            to={`/admin/create-job/${contract.id}`}
+                                                            className="btn btn-pink"
+                                                        >
+                                                            Create Job
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </React.Fragment>
+                                        )}
+                                    </>
+                                )}
                                 <div className="col-sm-6">
                                     <div className="float-right">
                                         <svg
@@ -334,33 +329,22 @@ export default function WorkContractRHS() {
                                                             </p>
                                                         );
                                                     })}
-                                                    {contract &&
-                                                        contract.map((c, i) => {
-                                                            let address = c
-                                                                .client
-                                                                .geo_address
-                                                                ? c.client
-                                                                      .geo_address +
-                                                                  ", "
-                                                                : "";
-
-                                                            if (
-                                                                c.additional_address
-                                                            ) {
-                                                                if (
-                                                                    c.status ==
-                                                                    "not-signed"
-                                                                ) {
-                                                                    return (
-                                                                        <React.Fragment
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
+                                                    {contract && (
+                                                        <>
+                                                            {contract.additional_address && (
+                                                                <>
+                                                                    {contract.status ==
+                                                                    "not-signed" ? (
+                                                                        <React.Fragment>
                                                                             <span>
-                                                                                {
-                                                                                    address
-                                                                                }
+                                                                                {contract
+                                                                                    .client
+                                                                                    .geo_address
+                                                                                    ? contract
+                                                                                          .client
+                                                                                          .geo_address +
+                                                                                      ", "
+                                                                                    : ""}
                                                                             </span>
                                                                             <span
                                                                                 style={{
@@ -392,18 +376,17 @@ export default function WorkContractRHS() {
                                                                                 className="form-control"
                                                                             />
                                                                         </React.Fragment>
-                                                                    );
-                                                                } else {
-                                                                    return (
-                                                                        <React.Fragment
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
+                                                                    ) : (
+                                                                        <React.Fragment>
                                                                             <span>
-                                                                                {
-                                                                                    address
-                                                                                }
+                                                                                {contract
+                                                                                    .client
+                                                                                    .geo_address
+                                                                                    ? contract
+                                                                                          .client
+                                                                                          .geo_address +
+                                                                                      ", "
+                                                                                    : ""}
                                                                             </span>
                                                                             <span
                                                                                 style={{
@@ -420,14 +403,15 @@ export default function WorkContractRHS() {
                                                                             <br />
                                                                             <span className="form-control">
                                                                                 {
-                                                                                    c.additional_address
+                                                                                    contract.additional_address
                                                                                 }
                                                                             </span>
                                                                         </React.Fragment>
-                                                                    );
-                                                                }
-                                                            }
-                                                        })}
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
 
                                                     <span
                                                         className="d-block mt-2"
@@ -518,6 +502,25 @@ export default function WorkContractRHS() {
                                                     })}
                                                 </Td>
                                             </Tr>
+
+                                            <Tr>
+                                                <Td
+                                                    style={{
+                                                        width: "60%",
+                                                    }}
+                                                >
+                                                    {t(
+                                                        "work-contract.start_date"
+                                                    )}
+                                                </Td>
+                                                <Td>
+                                                    <span className="form-control">
+                                                        {contract.start_date
+                                                            ? contract.start_date
+                                                            : "NA"}
+                                                    </span>
+                                                </Td>
+                                            </Tr>
                                             <Tr>
                                                 <Td style={{ width: "60%" }}>
                                                     {t(
@@ -534,22 +537,22 @@ export default function WorkContractRHS() {
                                                 </Td>
                                                 <Td>&nbsp;</Td>
                                             </Tr>
-                                            {contract &&
-                                                contract.map((c, i) => {
-                                                    return c.status ==
-                                                        "not-signed" ? (
-                                                        <React.Fragment key={i}>
+                                            {contract && (
+                                                <>
+                                                    {contract.status ==
+                                                    "not-signed" ? (
+                                                        <React.Fragment>
                                                             {/*<Tr>
-                                                            <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
-                                                            <Td>
-                                                                <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                                                    <option value=""> --- Please Select --- </option>
-                                                                    <option value='Visa'>Visa</option>
-                                                                    <option value='Master Card'>Master Card</option>
-                                                                    <option value='American Express'>American Express</option>
-                                                                </select>
-                                                            </Td>
-                                                         </Tr>*/}
+                                                                <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
+                                                                <Td>
+                                                                    <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                                                        <option value=""> --- Please Select --- </option>
+                                                                        <option value='Visa'>Visa</option>
+                                                                        <option value='Master Card'>Master Card</option>
+                                                                        <option value='American Express'>American Express</option>
+                                                                    </select>
+                                                                </Td>
+                                                             </Tr>*/}
                                                             <Tr>
                                                                 <Td
                                                                     style={{
@@ -582,9 +585,9 @@ export default function WorkContractRHS() {
                                                             </Tr>
 
                                                             {/*<Tr>
-                                                            <Td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</Td>
-                                                            <Td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} /></Td>
-                                                        </Tr>*/}
+                                                                <Td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</Td>
+                                                                <Td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} /></Td>
+                                                            </Tr>*/}
                                                             <Tr>
                                                                 <td>
                                                                     {t(
@@ -611,8 +614,8 @@ export default function WorkContractRHS() {
                                                             </Tr>
                                                         </React.Fragment>
                                                     ) : (
-                                                        <React.Fragment key={i}>
-                                                            {c.card_type !=
+                                                        <React.Fragment>
+                                                            {contract.card_type !=
                                                                 null && (
                                                                 <Tr>
                                                                     <Td
@@ -627,7 +630,7 @@ export default function WorkContractRHS() {
                                                                     <Td>
                                                                         <span className="form-control">
                                                                             {
-                                                                                c.card_type
+                                                                                contract.card_type
                                                                             }
                                                                         </span>
                                                                     </Td>
@@ -646,12 +649,13 @@ export default function WorkContractRHS() {
                                                                 <Td>
                                                                     <span className="form-control">
                                                                         {
-                                                                            c.name_on_card
+                                                                            contract.name_on_card
                                                                         }
                                                                     </span>
                                                                 </Td>
                                                             </Tr>
-                                                            {c.cvv != null && (
+                                                            {contract.cvv !=
+                                                                null && (
                                                                 <Tr>
                                                                     <Td
                                                                         style={{
@@ -665,7 +669,7 @@ export default function WorkContractRHS() {
                                                                     <Td>
                                                                         <span className="form-control">
                                                                             {
-                                                                                c.cvv
+                                                                                contract.cvv
                                                                             }
                                                                         </span>
                                                                     </Td>
@@ -684,7 +688,7 @@ export default function WorkContractRHS() {
                                                                 <Td>
                                                                     <img
                                                                         src={
-                                                                            c.card_sign
+                                                                            contract.card_sign
                                                                         }
                                                                         className="img-fluid"
                                                                         alt="Company"
@@ -692,8 +696,9 @@ export default function WorkContractRHS() {
                                                                 </Td>
                                                             </Tr>
                                                         </React.Fragment>
-                                                    );
-                                                })}
+                                                    )}
+                                                </>
+                                            )}
 
                                             <Tr>
                                                 <Td style={{ width: "60%" }}>
@@ -893,11 +898,11 @@ export default function WorkContractRHS() {
                                                 "work-contract.the_tenant_subtitle"
                                             )}
                                         </h5>
-                                        {contract &&
-                                            contract.map((c, i) => {
-                                                return c.status ==
-                                                    "not-signed" ? (
-                                                    <React.Fragment key={i}>
+                                        {contract && (
+                                            <>
+                                                {contract.status ==
+                                                "not-signed" ? (
+                                                    <React.Fragment>
                                                         <h6>
                                                             {t(
                                                                 "work-contract.draw_signature"
@@ -917,13 +922,13 @@ export default function WorkContractRHS() {
                                                     </React.Fragment>
                                                 ) : (
                                                     <img
-                                                        src={c.signature}
+                                                        src={contract.signature}
                                                         className="img-fluid"
                                                         alt="Company"
-                                                        key={i}
                                                     />
-                                                );
-                                            })}
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="float-right">
@@ -939,39 +944,35 @@ export default function WorkContractRHS() {
                                             />
                                         </div>
                                     </div>
-                                    {contract &&
-                                        contract.map((c, i) => {
-                                            if (c.status == "un-verified") {
-                                                return (
-                                                    <React.Fragment key={i}>
-                                                        <div className="col-sm-6">
-                                                            <div className="mt-2 ">
-                                                                <input
-                                                                    className="btn btn-warning"
-                                                                    onClick={
-                                                                        handleVerify
-                                                                    }
-                                                                    value="Verify"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </React.Fragment>
-                                                );
-                                            } else if (c.status == "verified") {
-                                                return (
-                                                    <React.Fragment key={i}>
-                                                        <div className="col-sm-6">
-                                                            <div className="mt-2 ">
-                                                                <input
-                                                                    className="btn btn-success"
-                                                                    value="Verified"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </React.Fragment>
-                                                );
-                                            }
-                                        })}
+                                    {contract && (
+                                        <>
+                                            {contract.status ==
+                                                "un-verified" && (
+                                                <div className="col-sm-6">
+                                                    <div className="mt-2 ">
+                                                        <input
+                                                            className="btn btn-warning"
+                                                            onClick={
+                                                                handleVerify
+                                                            }
+                                                            value="Verify"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {contract.status == "verified" && (
+                                                <div className="col-sm-6">
+                                                    <div className="mt-2 ">
+                                                        <input
+                                                            className="btn btn-success"
+                                                            value="Verified"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                                 <div className="mb-4">&nbsp;</div>
                             </div>

@@ -27,6 +27,7 @@ export default function WorkContract() {
     const [signature2, setSignature2] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
     const [ctype, setCtype] = useState("");
+    const [startDate, setStartDate] = useState(null);
     const [cname, setCname] = useState("");
     const [cvv, setCvv] = useState("");
     const [status, setStatus] = useState("");
@@ -46,6 +47,10 @@ export default function WorkContract() {
             return false;
         }
 
+        if (startDate == null) {
+            window.alert(t("work-contract.messages.start_date_err"));
+            return false;
+        }
         if (oc == true) {
             if (!ctype) {
                 window.alert(t("work-contract.messages.card_type_err"));
@@ -76,6 +81,7 @@ export default function WorkContract() {
             signature: signature,
             card_sign: signature2,
             card_type: ctype,
+            start_date: startDate,
             cvv: cvv.substring(0, 3),
         };
         if (submit == false && sesid == null) {
@@ -690,6 +696,21 @@ export default function WorkContract() {
                                                     </p>
                                                 );
                                             })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.start_date")}
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                value={contract.start_date}
+                                                onChange={(e) =>
+                                                    setStartDate(e.target.value)
+                                                }
+                                            />
                                         </td>
                                     </tr>
                                     <tr>

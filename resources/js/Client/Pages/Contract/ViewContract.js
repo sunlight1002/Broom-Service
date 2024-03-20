@@ -27,6 +27,7 @@ export default function WorkContract() {
     const [ctype, setCtype] = useState("");
     const [cname, setCname] = useState("");
     const [cvv, setCvv] = useState("");
+    const [startDate, setStartDate] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -35,6 +36,10 @@ export default function WorkContract() {
     };
 
     const handleAccept = (e) => {
+        if (startDate == null) {
+            window.alert(t("work-contract.messages.start_date_err"));
+            return false;
+        }
         if (!ctype) {
             swal("Please select card type", "", "error");
             return false;
@@ -71,6 +76,7 @@ export default function WorkContract() {
             status: "un-verified",
             signature: signature,
             card_sign: signature2,
+            start_date: startDate,
         };
 
         axios.post(`/api/client/accept-contract`, data).then((res) => {
@@ -108,12 +114,13 @@ export default function WorkContract() {
     const getContract = () => {
         axios
             .post(
-                `/api/client/get-contract`,
-                { id: Base64.decode(param.id) },
+                `/api/client/get-contract/${Base64.decode(param.id)}`,
+                {},
                 { headers }
             )
             .then((res) => {
-                setContract(res.data.contract[0]);
+                setContract(res.data.contract);
+                setStartDate(res.data.contract.start_date);
             });
     };
 
@@ -156,9 +163,10 @@ export default function WorkContract() {
                             {t("work-contract.signed")}{" "}
                             <span>{client.city ? client.city : "NA"}</span> on{" "}
                             <span>
-                                {Moment(contract.created_at).format(
-                                    "DD MMMM,Y"
-                                )}
+                                {contract &&
+                                    Moment(contract.created_at).format(
+                                        "DD MMMM,Y"
+                                    )}
                             </span>
                         </p>
                     </div>
@@ -428,6 +436,21 @@ export default function WorkContract() {
                                                     </p>
                                                 );
                                             })}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ width: "60%" }}>
+                                            {t("work-contract.start_date")}
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                value={startDate}
+                                                onChange={(e) =>
+                                                    setStartDate(e.target.value)
+                                                }
+                                            />
                                         </td>
                                     </tr>
                                     <tr>

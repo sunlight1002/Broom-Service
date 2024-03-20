@@ -168,9 +168,9 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function getContract(Request $request)
+    public function getContract($id)
     {
-        $contract = Contract::where('id', $request->id)->with('client')->get();
+        $contract = Contract::query()->with('client')->find($id);
 
         return response()->json([
             'contract' => $contract

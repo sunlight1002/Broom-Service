@@ -42,11 +42,11 @@ export default function WorkContract() {
 
     const getContract = () => {
         axios
-            .post(`/api/admin/get-contract`, { id: param.id }, { headers })
+            .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
                 setContract(res.data.contract);
-                setClient(res.data.contract[0].client);
-                setServices(JSON.parse(res.data.contract[0].offer.services));
+                setClient(res.data.contract.client);
+                setServices(JSON.parse(res.data.contract.offer.services));
             });
     };
 
@@ -75,50 +75,44 @@ export default function WorkContract() {
                                     ></image>
                                 </svg>
                             </div>
-                            {contract &&
-                                contract.map((c, i) => {
-                                    if (c.status == "un-verified") {
-                                        return (
-                                            <React.Fragment key={i}>
-                                                <div className="col-sm-6">
-                                                    <div className="mt-2 float-right">
-                                                        <input
-                                                            className="btn btn-warning"
-                                                            onClick={
-                                                                handleVerify
-                                                            }
-                                                            value="Verify"
-                                                        />
-                                                    </div>
+                            {contract && (
+                                <>
+                                    {contract.status == "un-verified" && (
+                                        <div className="col-sm-6">
+                                            <div className="mt-2 float-right">
+                                                <input
+                                                    className="btn btn-warning"
+                                                    onClick={handleVerify}
+                                                    value="Verify"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                    {contract.status == "verified" && (
+                                        <React.Fragment>
+                                            <div className="col-sm-3">
+                                                <div className="mt-2 float-right">
+                                                    <input
+                                                        className="btn btn-success"
+                                                        value="Verified"
+                                                    />
                                                 </div>
-                                            </React.Fragment>
-                                        );
-                                    } else if (c.status == "verified") {
-                                        return (
-                                            <React.Fragment key={i}>
-                                                <div className="col-sm-3">
-                                                    <div className="mt-2 float-right">
-                                                        <input
-                                                            className="btn btn-success"
-                                                            value="Verified"
-                                                        />
-                                                    </div>
-                                                </div>
+                                            </div>
 
-                                                <div className="col-sm-3">
-                                                    <div className="mt-2 float-left">
-                                                        <Link
-                                                            to={`/admin/create-job/${c.id}`}
-                                                            className="btn btn-pink"
-                                                        >
-                                                            Create Job
-                                                        </Link>
-                                                    </div>
+                                            <div className="col-sm-3">
+                                                <div className="mt-2 float-left">
+                                                    <Link
+                                                        to={`/admin/create-job/${contract.id}`}
+                                                        className="btn btn-pink"
+                                                    >
+                                                        Create Job
+                                                    </Link>
                                                 </div>
-                                            </React.Fragment>
-                                        );
-                                    }
-                                })}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
+                                </>
+                            )}
                         </div>
                         <h4 className="inHead">
                             Broom Service L.M. Ltd Private Company no. 515184208
@@ -353,30 +347,22 @@ export default function WorkContract() {
                                                         </p>
                                                     );
                                                 })}
-                                                {contract &&
-                                                    contract.map((c, i) => {
-                                                        let address = c.client
-                                                            .geo_address
-                                                            ? c.client
-                                                                  .geo_address +
-                                                              ", "
-                                                            : "";
-
-                                                        if (
-                                                            c.additional_address
-                                                        ) {
-                                                            if (
-                                                                c.status ==
-                                                                "not-signed"
-                                                            ) {
-                                                                return (
-                                                                    <React.Fragment
-                                                                        key={i}
-                                                                    >
+                                                {contract && (
+                                                    <>
+                                                        {contract.additional_address && (
+                                                            <>
+                                                                {contract.status ==
+                                                                "not-signed" ? (
+                                                                    <React.Fragment>
                                                                         <span>
-                                                                            {
-                                                                                address
-                                                                            }
+                                                                            {contract
+                                                                                .client
+                                                                                .geo_address
+                                                                                ? contract
+                                                                                      .client
+                                                                                      .geo_address +
+                                                                                  ", "
+                                                                                : ""}
                                                                         </span>
                                                                         <span
                                                                             style={{
@@ -407,16 +393,17 @@ export default function WorkContract() {
                                                                             className="form-control"
                                                                         />
                                                                     </React.Fragment>
-                                                                );
-                                                            } else {
-                                                                return (
-                                                                    <React.Fragment
-                                                                        key={i}
-                                                                    >
+                                                                ) : (
+                                                                    <React.Fragment>
                                                                         <span>
-                                                                            {
-                                                                                address
-                                                                            }
+                                                                            {contract
+                                                                                .client
+                                                                                .geo_address
+                                                                                ? contract
+                                                                                      .client
+                                                                                      .geo_address +
+                                                                                  ", "
+                                                                                : ""}
                                                                         </span>
                                                                         <span
                                                                             style={{
@@ -433,14 +420,15 @@ export default function WorkContract() {
                                                                         <br />
                                                                         <span className="form-control">
                                                                             {
-                                                                                c.additional_address
+                                                                                contract.additional_address
                                                                             }
                                                                         </span>
                                                                     </React.Fragment>
-                                                                );
-                                                            }
-                                                        }
-                                                    })}
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                         <tr>
@@ -511,6 +499,22 @@ export default function WorkContract() {
                                             </td>
                                         </tr>
                                         <tr>
+                                            <td
+                                                style={{
+                                                    width: "60%",
+                                                }}
+                                            >
+                                                Start Date
+                                            </td>
+                                            <td>
+                                                <span className="form-control">
+                                                    {contract.start_date
+                                                        ? contract.start_date
+                                                        : "NA"}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td style={{ width: "60%" }}>
                                                 Payment method:
                                             </td>
@@ -531,22 +535,22 @@ export default function WorkContract() {
                                             </td>
                                             <td>&nbsp;</td>
                                         </tr>
-                                        {contract &&
-                                            contract.map((c, i) => {
-                                                return c.status ==
-                                                    "not-signed" ? (
-                                                    <React.Fragment key={i}>
+                                        {contract && (
+                                            <>
+                                                {contract.status ==
+                                                "not-signed" ? (
+                                                    <React.Fragment>
                                                         {/*<tr>
-                                                        <td style={{ width: "60%" }}>Card Type:</td>
-                                                        <td>
-                                                            <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                                                <option value=""> --- Please Select --- </option>
-                                                                <option value='Visa'>Visa</option>
-                                                                <option value='Master Card'>Master Card</option>
-                                                                <option value='American Express'>American Express</option>
-                                                            </select>
-                                                        </td>
-                                                     </tr>*/}
+                                                    <td style={{ width: "60%" }}>Card Type:</td>
+                                                    <td>
+                                                        <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                                            <option value=""> --- Please Select --- </option>
+                                                            <option value='Visa'>Visa</option>
+                                                            <option value='Master Card'>Master Card</option>
+                                                            <option value='American Express'>American Express</option>
+                                                        </select>
+                                                    </td>
+                                                 </tr>*/}
                                                         <tr>
                                                             <td
                                                                 style={{
@@ -574,18 +578,18 @@ export default function WorkContract() {
                                                             </td>
                                                         </tr>
                                                         {/*<tr>
-                                                        <td style={{ width: "60%" }}>Valid Through:</td>
-                                                        <td>
-                                                            <div className='d-flex'>
-                                                                <input type='number' name="month" onChange={(e) => setCm(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 2) e.target.value = e.target.value.slice(0, 2); }} className='form-control' placeholder='MM' />
-                                                                <input type='number' name="year" onChange={(e) => setCy(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 2) e.target.value = e.target.value.slice(0, 2); }} className='ml-2 form-control' placeholder='YY' />
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style={{ width: "60%" }}>CVV</td>
-                                                        <td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder='CVV' /></td>
-                                                    </tr>*/}
+                                                    <td style={{ width: "60%" }}>Valid Through:</td>
+                                                    <td>
+                                                        <div className='d-flex'>
+                                                            <input type='number' name="month" onChange={(e) => setCm(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 2) e.target.value = e.target.value.slice(0, 2); }} className='form-control' placeholder='MM' />
+                                                            <input type='number' name="year" onChange={(e) => setCy(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 2) e.target.value = e.target.value.slice(0, 2); }} className='ml-2 form-control' placeholder='YY' />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style={{ width: "60%" }}>CVV</td>
+                                                    <td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder='CVV' /></td>
+                                                </tr>*/}
                                                         <tr>
                                                             <td>
                                                                 Signature on the
@@ -609,8 +613,8 @@ export default function WorkContract() {
                                                         </tr>
                                                     </React.Fragment>
                                                 ) : (
-                                                    <React.Fragment key={i}>
-                                                        {c.card_type !=
+                                                    <React.Fragment>
+                                                        {contract.card_type !=
                                                             null && (
                                                             <tr>
                                                                 <td
@@ -622,8 +626,8 @@ export default function WorkContract() {
                                                                 </td>
                                                                 <td>
                                                                     <span className="form-control">
-                                                                        {c.card_type
-                                                                            ? c.card_type
+                                                                        {contract.card_type
+                                                                            ? contract.card_type
                                                                             : "NA"}
                                                                     </span>
                                                                 </td>
@@ -639,13 +643,14 @@ export default function WorkContract() {
                                                             </td>
                                                             <td>
                                                                 <span className="form-control">
-                                                                    {c.name_on_card
-                                                                        ? c.name_on_card
+                                                                    {contract.name_on_card
+                                                                        ? contract.name_on_card
                                                                         : "NA"}
                                                                 </span>
                                                             </td>
                                                         </tr>
-                                                        {c.cvv != null && (
+                                                        {contract.cvv !=
+                                                            null && (
                                                             <tr>
                                                                 <td
                                                                     style={{
@@ -656,8 +661,8 @@ export default function WorkContract() {
                                                                 </td>
                                                                 <td>
                                                                     <span className="form-control">
-                                                                        {c.cvv
-                                                                            ? c.cvv
+                                                                        {contract.cvv
+                                                                            ? contract.cvv
                                                                             : "NA"}
                                                                     </span>
                                                                 </td>
@@ -675,8 +680,8 @@ export default function WorkContract() {
                                                             <td>
                                                                 <img
                                                                     src={
-                                                                        c.card_sign
-                                                                            ? c.card_sign
+                                                                        contract.card_sign
+                                                                            ? contract.card_sign
                                                                             : "/images/NA.jpg"
                                                                     }
                                                                     className="img-fluid"
@@ -685,8 +690,9 @@ export default function WorkContract() {
                                                             </td>
                                                         </tr>
                                                     </React.Fragment>
-                                                );
-                                            })}
+                                                )}
+                                            </>
+                                        )}
 
                                         <tr>
                                             <td style={{ width: "60%" }}>
@@ -1039,10 +1045,10 @@ export default function WorkContract() {
                                 <div className="col-sm-6">
                                     <h5 className="mt-2 mb-4">The Tenant</h5>
 
-                                    {contract &&
-                                        contract.map((c, i) => {
-                                            return c.status == "not-signed" ? (
-                                                <React.Fragment key={i}>
+                                    {contract && (
+                                        <>
+                                            {contract.status == "not-signed" ? (
+                                                <React.Fragment>
                                                     <h6>
                                                         Draw Signature with
                                                         mouse or touch
@@ -1062,16 +1068,16 @@ export default function WorkContract() {
                                             ) : (
                                                 <img
                                                     src={
-                                                        c.signature
-                                                            ? c.signature
+                                                        contract.signature
+                                                            ? contract.signature
                                                             : "/images/NA.jpg"
                                                     }
                                                     className="img-fluid"
                                                     alt="Company"
-                                                    key={i}
                                                 />
-                                            );
-                                        })}
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                                 <div className="col-sm-6">
                                     <div className="float-right">
@@ -1088,39 +1094,32 @@ export default function WorkContract() {
                                     </div>
                                 </div>
 
-                                {contract &&
-                                    contract.map((c, i) => {
-                                        if (c.status == "un-verified") {
-                                            return (
-                                                <React.Fragment key={i}>
-                                                    <div className="col-sm-6">
-                                                        <div className="mt-2 ">
-                                                            <input
-                                                                className="btn btn-warning"
-                                                                onClick={
-                                                                    handleVerify
-                                                                }
-                                                                value="Verify"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        } else if (c.status == "verified") {
-                                            return (
-                                                <React.Fragment key={i}>
-                                                    <div className="col-sm-6">
-                                                        <div className="mt-2 ">
-                                                            <input
-                                                                className="btn btn-success"
-                                                                value="Verified"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        }
-                                    })}
+                                {contract && (
+                                    <>
+                                        {contract.status == "un-verified" && (
+                                            <div className="col-sm-6">
+                                                <div className="mt-2 ">
+                                                    <input
+                                                        className="btn btn-warning"
+                                                        onClick={handleVerify}
+                                                        value="Verify"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {contract.status == "verified" && (
+                                            <div className="col-sm-6">
+                                                <div className="mt-2 ">
+                                                    <input
+                                                        className="btn btn-success"
+                                                        value="Verified"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
 
                             <div className="mb-4">&nbsp;</div>

@@ -16,6 +16,16 @@ class Contract extends Model
         'signature',
         'card_sign',
         'status',
+        'start_date',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'start_date' => 'datetime:Y-m-d',
     ];
 
     public function client()

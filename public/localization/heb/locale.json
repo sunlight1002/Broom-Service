@@ -301,6 +301,7 @@
             "sign_card_err": "נא הזן חתימה על הכרטיס",
             "add_card_err": "אנא אמת את הכרטיס לפני חתימת החוזה!",
             "sign_err": "בבקשה תחתום על החוזה",
+            "start_date_err": "אנא בחר תאריך התחלה",
             "invalid_cvv": "cvv לא חוקי",
             "success": "תודה על אישור ההסכם",
             "reject_title": "אתה בטוח?",
@@ -332,7 +333,8 @@
         "select_month": "-- בחר חודש תפוגה --",
         "model_submit": "שלח",
         "edit_btn": "הוסף/ערוך כרטיס",
-        "back_btn": "חזור"
+        "back_btn": "חזור",
+        "start_date": "תאריך התחלה"
     },
     "j_status": {
         "not-started": "לא התחיל",
