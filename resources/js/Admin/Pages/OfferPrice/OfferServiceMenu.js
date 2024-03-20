@@ -59,18 +59,26 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
         setIsOpen(true);
     };
 
-    const calcJobHours = (_service) => {
-        return _service.workers.map((w) => w.jobHours).join(", ");
+    const workerJobHours = (_service) => {
+        if (_service.workers) {
+            return _service.workers.map((w) => w.jobHours).join(", ");
+        }
+
+        return "-";
     };
 
     const calcPrice = (_service) => {
-        if (_service.type === "hourly") {
-            const _totalHours = _service.workers
-                .map((w) => parseInt(w.jobHours))
-                .reduce((a, b) => a + b, 0);
-            return _service.rateperhour * _totalHours;
+        if (_service.workers) {
+            if (_service.type === "hourly") {
+                const _totalHours = _service.workers
+                    .map((w) => parseInt(w.jobHours))
+                    .reduce((a, b) => a + b, 0);
+                return _service.rateperhour * _totalHours;
+            } else {
+                return _service.fixed_price * _service.workers.length;
+            }
         } else {
-            return _service.fixed_price;
+            return "-";
         }
     };
 
@@ -117,8 +125,12 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                             </Td>
                                             <Td>{item.name}</Td>
                                             <Td>{item.type}</Td>
-                                            <Td>{item.workers.length}</Td>
-                                            <Td>{calcJobHours(item)}</Td>
+                                            <Td>
+                                                {item.workers
+                                                    ? item.workers.length
+                                                    : 0}
+                                            </Td>
+                                            <Td>{workerJobHours(item)}</Td>
                                             <Td>{calcPrice(item)}</Td>
                                             <Td>{item.freq_name}</Td>
                                             <Td>

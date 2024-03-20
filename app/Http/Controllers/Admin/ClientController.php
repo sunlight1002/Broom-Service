@@ -671,7 +671,7 @@ class ClientController extends Controller
 
     public function cardToken($id)
     {
-        $card = ClientCard::where('client_id', $id)->get()->first();
+        $card = ClientCard::where('client_id', $id)->first();
         $cvv  = Contract::where('client_id', $id)->where('cvv', '!=', 'null')->get('cvv')->last();
 
         return response()->json([

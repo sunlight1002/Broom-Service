@@ -80,11 +80,28 @@ class OfferController extends Controller
 
         $services = json_decode($request->get('services'), true);
 
-        [$subtotal, $tax_amount] = $this->calcAmount($services);
+        $tax_percentage = config('services.app.tax_percentage');
+        $subtotal = 0;
+        foreach ($services as $skey => $service) {
+            $serviceTotal = 0;
+            if ($service['type'] == 'hourly') {
+                foreach ($service['workers'] as $wkey => $worker) {
+                    $serviceTotal = $service['rateperhour'] * $worker['jobHours'];
+                    $subtotal += $serviceTotal;
+                }
+            } else {
+                $serviceTotal = $service['fixed_price'] * count($service['workers']);
+                $subtotal += $serviceTotal;
+            }
+            $services[$skey]['totalamount'] = $serviceTotal;
+        }
+
+        $tax_amount = ($tax_percentage / 100) * $subtotal;
 
         $input = $request->except(['action']);
         $input['subtotal'] = $subtotal;
         $input['total'] = $subtotal + $tax_amount;
+        $input['services'] = json_encode($services);
 
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
@@ -196,7 +213,7 @@ class OfferController extends Controller
      */
     public function edit($id)
     {
-        $offer = Offer::where('id', $id)->get();
+        $offer = Offer::find($id);
 
         return response()->json([
             'offer' => $offer
@@ -223,12 +240,29 @@ class OfferController extends Controller
 
         $services = json_decode($request->get('services'), true);
 
-        [$subtotal, $tax_amount] = $this->calcAmount($services);
+        $tax_percentage = config('services.app.tax_percentage');
+        $subtotal = 0;
+        foreach ($services as $skey => $service) {
+            $serviceTotal = 0;
+            if ($service['type'] == 'hourly') {
+                foreach ($service['workers'] as $wkey => $worker) {
+                    $serviceTotal = $service['rateperhour'] * $worker['jobHours'];
+                    $subtotal += $serviceTotal;
+                }
+            } else {
+                $serviceTotal = $service['fixed_price'] * count($service['workers']);
+                $subtotal += $serviceTotal;
+            }
+            $services[$skey]['totalamount'] = $serviceTotal;
+        }
+
+        $tax_amount = ($tax_percentage / 100) * $subtotal;
 
         $offer = Offer::find($id);
         $input = $request->except(['action']);
         $input['subtotal'] = $subtotal;
         $input['total'] = $subtotal + $tax_amount;
+        $input['services'] = json_encode($services);
 
         $offer->update($input);
         $offer->load(['client', 'service']);

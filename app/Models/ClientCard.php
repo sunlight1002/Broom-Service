@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientCard extends Model
 {
-    use HasFactory;
     protected $table = 'client_card';
+
     protected $fillable = [
         'client_id',
         'card_number',
@@ -17,6 +17,15 @@ class ClientCard extends Model
         'cc_charge',
         'card_holder',
         'valid',
+        'card_token',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
         'card_token',
     ];
 }

@@ -194,11 +194,11 @@ export default function EditOffer() {
         axios
             .get(`/api/admin/offers/${param.id}/edit`, { headers })
             .then((res) => {
-                const d = res.data.offer[0];
-                setClientID(d.client_id);
-                handleServiceLng(d.client_id);
-                setStatus(d.status);
-                setFormValues(JSON.parse(d.services));
+                const _offer = res.data.offer;
+                setClientID(_offer.client_id);
+                handleServiceLng(_offer.client_id);
+                setStatus(_offer.status);
+                setFormValues(JSON.parse(_offer.services));
             });
     };
 
