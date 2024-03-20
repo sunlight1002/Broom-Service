@@ -47,40 +47,40 @@ class ClientOfferImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 }
 
                 $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
-                    // ->Where('address_name', $row['address'])
                     ->first();
 
                 $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
 
                 $existing_services = [];
-                if (!empty($offer)) {
+                if ($offer) {
                     $existing_services = json_decode($offer->services);
                 }
 
                 $service = Services::Where('name', $row['service_name'])->first();
                 $serviceschedule = ServiceSchedule::Where('name', $row['frequency'])->first();
 
-                $total_amount = $row['fixed_price'];
-
-                if ($row['type'] == 'hourly') {
-                    $total_amount = $row['job_hours'] * $row['fixed_price'];
-                }
+                $total_amount = 0;
 
                 $workerJobHours = [];
-                if(!empty($row['worker_hours']))
-                {
+                if (!empty($row['worker_hours'])) {
                     $workerhours  = explode(',', $row['worker_hours']);
-                    foreach($workerhours as $workerhour)
-                    {
-                        array_push($workerJobHours,  array('jobHours'=> $workerhour));
+                    foreach ($workerhours as $workerhour) {
+                        array_push($workerJobHours,  array('jobHours' => $workerhour));
                     }
+                }
+
+                if ($row['type'] == 'hourly') {
+                    foreach ($workerJobHours as $key => $worker) {
+                        $total_amount += $worker['jobHours'] * $row['fixed_price'];
+                    }
+                } else {
+                    $total_amount += $row['fixed_price'];
                 }
 
                 $services = [
                     'service' => $service->id ?? '',
                     'name' => $row['service_name'] ?? '',
                     'type' => $row['type'] ?? '',
-                    'jobHours' => $row['job_hours'] ?? '',
                     'rateperhour' => ($row['type'] == 'hourly') ? $row['fixed_price'] : '',
                     'freq_name' => $row['frequency'] ?? '',
                     'frequency' => $serviceschedule->id ?? '',
@@ -103,49 +103,41 @@ class ClientOfferImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                 $existing_services[] = $services;
 
-                $to = 0;
-                $taxper = config('services.app.tax_percentage');
+                $subtotal = 0;
+                $tax_percentage = config('services.app.tax_percentage');
 
-                if (is_array($existing_services)) {
-                    foreach ($existing_services as $existing_service) {
-                        if (is_array($existing_service)) {
-                            if (isset($existing_service['type']) && $existing_service['type'] == 'hourly') {
-                                if (
-                                    isset($existing_service['jobHours']) && is_numeric($existing_service['jobHours']) &&
-                                    isset($existing_service['rateperhour']) && is_numeric($existing_service['rateperhour'])
-                                ) {
-                                    $to = $to + ($existing_service['jobHours'] * $existing_service['rateperhour']);
-                                }
-                            } else {
-                                if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
-                                    $to = $to + $existing_service['fixed_price'];
-                                }
+                foreach ($existing_services as $existing_service) {
+                    if (isset($existing_service['type']) && $existing_service['type'] == 'hourly') {
+                        foreach ($workerJobHours as $key => $worker) {
+                            if (
+                                isset($worker['jobHours']) && is_numeric($worker['jobHours']) &&
+                                isset($existing_service['rateperhour']) && is_numeric($existing_service['rateperhour'])
+                            ) {
+                                $subtotal += ($worker['jobHours'] * $existing_service['rateperhour']);
                             }
-                        } else {
-                            if ($existing_service->type == "hourly") {
-                                $to = $to + ($existing_service->jobHours * $existing_service->rateperhour);
-                            } else {
-                                $to = $to + $existing_service->fixed_price;
-                            }
+                        }
+                    } else {
+                        if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
+                            $subtotal += ($existing_service['fixed_price'] * count($workerJobHours));
                         }
                     }
                 }
 
-                $tax = ($taxper / 100) * $to;
+                $tax = ($tax_percentage / 100) * $subtotal;
 
                 if (!$offer) {
                     Offer::create([
                         'client_id' => $client->id,
                         'services' => json_encode($existing_services),
-                        'subtotal' => $to,
-                        'total' => ($to + $tax),
+                        'subtotal' => $subtotal,
+                        'total' => ($subtotal + $tax),
                         'status' => 'sent',
                     ]);
                 } else {
                     Offer::where('id', $offer->id)->update([
                         'services' => json_encode($existing_services),
-                        'subtotal' => $to,
-                        'total' => ($to + $tax),
+                        'subtotal' => $subtotal,
+                        'total' => ($subtotal + $tax),
                         'status' => 'sent',
                     ]);
                 }

@@ -23,20 +23,17 @@ class OfferSampleFileExport implements FromCollection, WithHeadings, WithStrictN
     {
         return collect([
             [
-                "client_email" =>  "test@gmail.com",
-                "property_name" =>  "Home",
-                "service_name" =>"5 Star",
-                "name" =>"Office Cleaning",
-                "frequency" =>"One Time",
-                "type" =>"fixed",
-                "fixed_price" =>"100",
-                "jobHours" =>"20",
-                "rateperhour" =>"",
-                "other_title" =>"",
-                "totalamount" =>100,
-                "address" =>"1", // client properrty address                
-                "start_date" =>"2024-03-30",
-                "worker_hours" =>"5,7,10",
+                "client_email" => "test@gmail.com",
+                "property_name" => "Home",
+                "service_name" => "5 Star",
+                "name" => "Office Cleaning",
+                "frequency" => "One Time",
+                "type" => "fixed",
+                "fixed_price" => "100",
+                "rateperhour" => "",
+                "other_title" => "",
+                "start_date" => "2024-03-30",
+                "worker_hours" => "5,7,10",
             ]
         ]);
     }
