@@ -250,6 +250,7 @@ export default function OfferPrice() {
                                     <Table className="table table-bordered">
                                         <Thead>
                                             <Tr>
+                                                <Th scope="col">ID</Th>
                                                 <Th scope="col">Client</Th>
                                                 <Th scope="col">Email</Th>
                                                 {/* <Th scope="col">Address</Th> */}
@@ -329,6 +330,7 @@ export default function OfferPrice() {
                                                                 cursor: "pointer",
                                                             }}
                                                         >
+                                                            <Td> {ofr.id} </Td>
                                                             <Td>
                                                                 <Link
                                                                     to={`/admin/view-client/${ofr.client.id}`}
