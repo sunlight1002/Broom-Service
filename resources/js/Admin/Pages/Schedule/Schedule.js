@@ -248,22 +248,20 @@ export default function Schedule() {
                                                 schedules.map((item, index) => {
                                                     if (item.client) {
                                                         let address =
-                                                            item.client
-                                                                .geo_address !=
-                                                            null
-                                                                ? item.client
-                                                                      .geo_address
+                                                            item.property_address;
+
+                                                        let address_name =
+                                                            address &&
+                                                            address.address_name
+                                                                ? address.address_name
                                                                 : "NA";
                                                         let cords =
-                                                            item.client
-                                                                .latitude &&
-                                                            item.client
-                                                                .longitude
-                                                                ? item.client
-                                                                      .latitude +
+                                                            address &&
+                                                            address.latitude &&
+                                                            address.longitude
+                                                                ? address.latitude +
                                                                   "," +
-                                                                  item.client
-                                                                      .longitude
+                                                                  address.longitude
                                                                 : "NA";
                                                         let color = "";
                                                         if (
@@ -363,14 +361,23 @@ export default function Schedule() {
                                                                         )}
                                                                 </Td>
                                                                 <Td>
-                                                                    <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
-                                                                        target="_blank"
-                                                                    >
-                                                                        {
-                                                                            address
-                                                                        }
-                                                                    </Link>
+                                                                    {cords !==
+                                                                    "NA" ? (
+                                                                        <Link
+                                                                            to={`https://maps.google.com?q=${cords}`}
+                                                                            target="_blank"
+                                                                        >
+                                                                            {
+                                                                                address_name
+                                                                            }
+                                                                        </Link>
+                                                                    ) : (
+                                                                        <>
+                                                                            {
+                                                                                address_name
+                                                                            }
+                                                                        </>
+                                                                    )}
                                                                 </Td>
                                                                 <Td
                                                                     onClick={(

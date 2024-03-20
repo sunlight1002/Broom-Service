@@ -207,12 +207,12 @@ export default function Contract() {
                                             <Tr>
                                                 <Th scope="col">Client</Th>
                                                 <Th scope="col">Email</Th>
-                                                <Th
+                                                {/* <Th
                                                     scope="col"
                                                     style={{ width: "16%" }}
                                                 >
                                                     Address
-                                                </Th>
+                                                </Th> */}
                                                 <Th scope="col">Phone</Th>
                                                 <Th scope="col">
                                                     Service Name
@@ -241,20 +241,20 @@ export default function Contract() {
                                             {contracts &&
                                                 contracts.map((c, i) => {
                                                     if (c.client) {
-                                                        let address = c.client
-                                                            .address_name
-                                                            ? c.client
-                                                                  .address_name
-                                                            : "NA";
-                                                        let cords =
-                                                            c.client.latitude &&
-                                                            c.client.longitude
-                                                                ? c.client
-                                                                      .latitude +
-                                                                  "," +
-                                                                  c.client
-                                                                      .longitude
-                                                                : "";
+                                                        // let address = c.client
+                                                        //     .address_name
+                                                        //     ? c.client
+                                                        //           .address_name
+                                                        //     : "NA";
+                                                        // let cords =
+                                                        //     c.client.latitude &&
+                                                        //     c.client.longitude
+                                                        //         ? c.client
+                                                        //               .latitude +
+                                                        //           "," +
+                                                        //           c.client
+                                                        //               .longitude
+                                                        //         : "";
 
                                                         let services = c.offer
                                                             ? JSON.parse(
@@ -325,7 +325,7 @@ export default function Contract() {
                                                                             .email
                                                                     }
                                                                 </Td>
-                                                                <Td>
+                                                                {/* <Td>
                                                                     <Link
                                                                         to={`https://maps.google.com?q=${cords}`}
                                                                     >
@@ -333,7 +333,7 @@ export default function Contract() {
                                                                             address
                                                                         }
                                                                     </Link>
-                                                                </Td>
+                                                                </Td> */}
                                                                 <Td>
                                                                     {phone &&
                                                                         phone.map(

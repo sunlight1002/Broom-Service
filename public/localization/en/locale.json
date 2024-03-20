@@ -384,6 +384,7 @@
             "scheduled": "Scheduled",
             "status": "Status",
             "files": "Files",
+            "address_txt": "Address",
             "cfiles": {
                 "title": "Meeting Files",
                 "button": "Add Files",

@@ -165,24 +165,40 @@ export default function TotalJobs() {
                                             {totalJobs &&
                                                 totalJobs.map((item, index) => {
                                                     //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
-                                                    let address = item.client
-                                                        .geo_address
-                                                        ? item.client
-                                                              .geo_address
-                                                        : 0;
-                                                    let Ad = [];
-                                                    if (address) {
-                                                        let ar =
-                                                            address.split("\n");
-                                                        for (let a in ar) {
-                                                            Ad.push(
-                                                                <span>
-                                                                    {ar[a]}
-                                                                    <br />
-                                                                </span>
-                                                            );
-                                                        }
-                                                    }
+                                                    // let address = item.client
+                                                    //     .geo_address
+                                                    //     ? item.client
+                                                    //           .geo_address
+                                                    //     : 0;
+                                                    // let Ad = [];
+                                                    // if (address) {
+                                                    //     let ar =
+                                                    //         address.split("\n");
+                                                    //     for (let a in ar) {
+                                                    //         Ad.push(
+                                                    //             <span>
+                                                    //                 {ar[a]}
+                                                    //                 <br />
+                                                    //             </span>
+                                                    //         );
+                                                    //     }
+                                                    // }
+                                                    let address =
+                                                        item.property_address;
+
+                                                    let address_name =
+                                                        address &&
+                                                        address.address_name
+                                                            ? address.address_name
+                                                            : "NA";
+                                                    let cords =
+                                                        address &&
+                                                        address.latitude &&
+                                                        address.longitude
+                                                            ? address.latitude +
+                                                              "," +
+                                                              address.longitude
+                                                            : "NA";
                                                     let status = item.status;
                                                     if (
                                                         status == "not-started"
@@ -288,7 +304,25 @@ export default function TotalJobs() {
                                                                     item.shifts
                                                                 )}
                                                             </Td>
-                                                            <Td>{Ad}</Td>
+                                                            <Td>
+                                                                {cords !==
+                                                                "NA" ? (
+                                                                    <Link
+                                                                        to={`https://maps.google.com?q=${cords}`}
+                                                                        target="_blank"
+                                                                    >
+                                                                        {
+                                                                            address_name
+                                                                        }
+                                                                    </Link>
+                                                                ) : (
+                                                                    <>
+                                                                        {
+                                                                            address_name
+                                                                        }
+                                                                    </>
+                                                                )}
+                                                            </Td>
                                                             <Td>
                                                                 {item.end_time &&
                                                                 item.start_time

@@ -38,7 +38,7 @@ class ScheduleController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
-        $result = Schedule::query()->with('client', 'team');
+        $result = Schedule::query()->with('client', 'team', 'propertyAddress');
         $result->orWhere('booking_status', 'like', '%' . $q . '%');
         $result->orWhere('end_time',       'like', '%' . $q . '%');
         $result->orWhere('start_date',     'like', '%' . $q . '%');

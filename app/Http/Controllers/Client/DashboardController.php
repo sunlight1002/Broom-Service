@@ -56,7 +56,7 @@ class DashboardController extends Controller
     public function meetings(Request $request)
     {
         $id = $request->id;
-        $result = Schedule::with('team');
+        $result = Schedule::with(['team', 'propertyAddress']);
 
         if (isset($request->q)) {
             $q = $request->q;
@@ -393,7 +393,7 @@ class DashboardController extends Controller
     public function listJobs(Request $request)
     {
         $jobs = Job::query()
-            ->with(['offer', 'client', 'worker', 'jobservice'])
+            ->with(['offer', 'client', 'worker', 'jobservice', 'propertyAddress'])
             ->where('client_id', $request->cid)
             ->orderBy('start_date')
             ->get();

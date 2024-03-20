@@ -243,7 +243,22 @@ export default function WorkerTotalJobs() {
                                         <Tbody>
                                             {totalJobs.map((item, index) => {
                                                 //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
+                                                let address =
+                                                    item.property_address;
 
+                                                let address_name =
+                                                    address &&
+                                                    address.address_name
+                                                        ? address.address_name
+                                                        : "NA";
+                                                let cords =
+                                                    address &&
+                                                    address.latitude &&
+                                                    address.longitude
+                                                        ? address.latitude +
+                                                          "," +
+                                                          address.longitude
+                                                        : "NA";
                                                 return (
                                                     <Tr key={index}>
                                                         <Td>
@@ -274,10 +289,22 @@ export default function WorkerTotalJobs() {
                                                         </Td>
                                                         <Td>{item.shifts}</Td>
                                                         <Td>
-                                                            {item.client
-                                                                ? item.client
-                                                                      .geo_address
-                                                                : "NA"}
+                                                            {cords !== "NA" ? (
+                                                                <Link
+                                                                    to={`https://maps.google.com?q=${cords}`}
+                                                                    target="_blank"
+                                                                >
+                                                                    {
+                                                                        address_name
+                                                                    }
+                                                                </Link>
+                                                            ) : (
+                                                                <>
+                                                                    {
+                                                                        address_name
+                                                                    }
+                                                                </>
+                                                            )}
                                                         </Td>
                                                         <Td>
                                                             {item.end_time &&

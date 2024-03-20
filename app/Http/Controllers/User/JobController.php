@@ -33,7 +33,7 @@ class JobController extends Controller
         $w = $request->filter_week;
 
         $jobs = Job::query()
-            ->with('worker', 'client', 'offer', 'jobservice')
+            ->with('worker', 'client', 'offer', 'jobservice', 'propertyAddress')
             ->where('worker_id', $request->id);
 
         if ((is_null($w) || $w == 'current') && $w != 'all') {

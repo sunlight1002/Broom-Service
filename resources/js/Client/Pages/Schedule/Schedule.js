@@ -112,6 +112,11 @@ export default function Schedule() {
                                                 </Th>
                                                 <Th scope="col">
                                                     {t(
+                                                        "client.meeting.address_txt"
+                                                    )}
+                                                </Th>
+                                                <Th scope="col">
+                                                    {t(
                                                         "client.meeting.scheduled"
                                                     )}
                                                 </Th>
@@ -126,6 +131,22 @@ export default function Schedule() {
                                         <Tbody>
                                             {schedules &&
                                                 schedules.map((item, index) => {
+                                                    let address =
+                                                        item.property_address;
+
+                                                    let address_name =
+                                                        address &&
+                                                        address.address_name
+                                                            ? address.address_name
+                                                            : "NA";
+                                                    let cords =
+                                                        address &&
+                                                        address.latitude &&
+                                                        address.longitude
+                                                            ? address.latitude +
+                                                              "," +
+                                                              address.longitude
+                                                            : "NA";
                                                     return (
                                                         <Tr key={index}>
                                                             <Td>
@@ -134,7 +155,25 @@ export default function Schedule() {
                                                                           .name
                                                                     : "NA"}
                                                             </Td>
-
+                                                            <Td>
+                                                                {cords !==
+                                                                "NA" ? (
+                                                                    <Link
+                                                                        to={`https://maps.google.com?q=${cords}`}
+                                                                        target="_blank"
+                                                                    >
+                                                                        {
+                                                                            address_name
+                                                                        }
+                                                                    </Link>
+                                                                ) : (
+                                                                    <>
+                                                                        {
+                                                                            address_name
+                                                                        }
+                                                                    </>
+                                                                )}
+                                                            </Td>
                                                             <Td>
                                                                 <span
                                                                     style={{
