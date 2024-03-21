@@ -47,6 +47,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('update-card', [ClientCardController::class, 'update']);
     Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);
+    Route::put('cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 });
 
 Route::post('login', [AuthController::class, 'login']);
