@@ -10,7 +10,6 @@ use App\Models\Schedule;
 use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
-use App\Models\ClientCard;
 use App\Models\ClientPropertyAddress;
 use App\Models\Notification;
 use App\Traits\PriceOffered;
@@ -341,52 +340,6 @@ class DashboardController extends Controller
 
         return response()->json([
             'message' => 'Password changed successfully',
-        ]);
-    }
-
-    public function getCard()
-    {
-        $res = ClientCard::where('client_id', Auth::user()->id)->get();
-
-        return response()->json([
-            'res' => $res,
-        ]);
-    }
-
-    public function updateCard(Request $request)
-    {
-        if (isset($request->cdata['cid'])) {
-            $cc = ClientCard::query()
-                ->select('cc_charge')
-                ->find($request->cdata['cid']);
-
-            $nc = (int)$cc->cc_charge +  (int)$request->cdata['cc_charge'];
-            $args = [
-                'card_type'   => $request->cdata['card_type'],
-                'card_number' => $request->cdata['card_number'],
-                'valid'       => $request->cdata['valid'],
-                'cvv'         => $request->cdata['cvv'],
-                'cc_charge'   => $nc,
-                'card_token'  => $request->cdata['card_token'],
-            ];
-
-            $cc->update($args);
-        } else {
-            $args = [
-                'card_type'   => $request->cdata['card_type'],
-                'client_id'   => Auth::user()->id,
-                'card_number' => $request->cdata['card_number'],
-                'valid'       => $request->cdata['valid'],
-                'cvv'         => $request->cdata['cvv'],
-                'cc_charge'   => $request->cdata['cc_charge'],
-                'card_token'  => $request->cdata['card_token'],
-            ];
-
-            ClientCard::create($args);
-        }
-
-        return response()->json([
-            'message' => "Card validated successfully"
         ]);
     }
 

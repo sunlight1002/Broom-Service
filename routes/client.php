@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Client\Auth\AuthController;
+use App\Http\Controllers\Client\ClientCardController;
 use App\Http\Controllers\Client\ClientEmailController;
 use App\Http\Controllers\Client\DashboardController;
 use App\Http\Controllers\Client\JobCommentController;
@@ -36,14 +37,16 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
-    Route::get('get-card', [DashboardController::class, 'getCard']);
     Route::post('my-account', [DashboardController::class, 'saveAccountDetails']);
 
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
-    Route::post('update-card', [DashboardController::class, 'updateCard'])->name('update-card');
+
+    Route::get('get-card', [ClientCardController::class, 'index']);
+    Route::post('update-card', [ClientCardController::class, 'update']);
+    Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);
 });
 
 Route::post('login', [AuthController::class, 'login']);
