@@ -316,7 +316,8 @@
             "card_year": "Please select expire year",
             "please_wait": "Please wait..",
             "card_success": "Thanks, card is added successfully, Now you can sign contract!",
-            "card_success_panel": "Thanks, card is updated successfully"
+            "card_success_panel": "Thanks, card is updated successfully",
+            "card_updated":"Your card is updated successfully"
         },
         "card": {
             "four_digits": "Card last 4 digits",
