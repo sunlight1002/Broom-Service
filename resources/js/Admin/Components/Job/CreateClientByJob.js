@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
@@ -117,13 +117,18 @@ export default function CreateClientByJob() {
         setCTime(complete_time);
         setServices(filtered);
         setSelectedService(value);
-        getWorkers();
+        const notAllowedWorkerId = [...filtered].map((f) => {
+            if (f.address && f.address.not_allowed_worker_ids) {
+                return f.address.not_allowed_worker_ids;
+            }
+        });
+        getWorkers(notAllowedWorkerId[0]);
         $("#edit-work-time").modal("hide");
     };
-    const getWorkers = () => {
+    const getWorkers = (notAllowedWorkerId) => {
         axios
             .get(
-                `/api/admin/all-workers?filter=true&service_id=${service_id}`,
+                `/api/admin/all-workers?filter=true&service_id=${service_id}&workerId=${notAllowedWorkerId}`,
                 { headers }
             )
             .then((res) => {

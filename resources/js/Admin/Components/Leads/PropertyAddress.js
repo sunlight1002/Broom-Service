@@ -4,6 +4,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Map from "../Map/map";
+import Select from "react-select";
 
 const addressMenu = [
     {
@@ -36,6 +37,8 @@ const PropertyAddress = memo(function PropertyAddress({
     const [latitude, setLatitude] = useState(32.109333);
     const [longitude, setLongitude] = useState(34.855499);
     const [libraries] = useState(["places", "geometry"]);
+    const [allWorkers, setAllWorkers] = useState([]);
+    const [workers, setWorkers] = useState([]);
 
     let isAdd = useRef(true);
     let fullAddress = useRef();
@@ -116,6 +119,7 @@ const PropertyAddress = memo(function PropertyAddress({
             setErrors(newErrors);
             return false;
         } else {
+            const getWorkerId = [...workers].map((w) => w.value);
             const updatedData = {
                 geo_address: fullAddress.current.value,
                 address_name: addressName.current.value
@@ -133,6 +137,8 @@ const PropertyAddress = memo(function PropertyAddress({
                 is_cat_avail: is_cat_avail.current.checked,
                 client_id: client_id.current.value,
                 id: 0,
+                not_allowed_worker_ids:
+                    getWorkerId.length > 0 ? getWorkerId.toString() : null,
             };
             const adId = addressId.current?.value;
             if (isAdd.current) {
@@ -162,6 +168,10 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.latitude;
                 addressVal[addressId.current.value]["address_name"] =
                     updatedData.address_name ? updatedData.address_name : "";
+                addressVal[addressId.current.value]["not_allowed_worker_ids"] =
+                    updatedData.not_allowed_worker_ids
+                        ? updatedData.not_allowed_worker_ids
+                        : "";
             }
             if (params.id) {
                 axios
@@ -209,6 +219,7 @@ const PropertyAddress = memo(function PropertyAddress({
         setAddress("");
         setLatitude(32.109333);
         setLongitude(34.855499);
+        setWorkers([]);
     };
 
     const handleMenu = (e, data) => {
@@ -238,6 +249,14 @@ const PropertyAddress = memo(function PropertyAddress({
                 setLatitude(Number(data.latitude));
                 setLongitude(Number(data.longitude));
                 setAddress(data.geo_address);
+                let wArr = [];
+                if (data.not_allowed_worker_ids) {
+                    const strToArr = data.not_allowed_worker_ids.split(",");
+                    wArr = [...allWorkers].filter((w) =>
+                        strToArr.includes(w.value.toString())
+                    );
+                }
+                setWorkers(wArr);
             }, 500);
         } else {
             Swal.fire({
@@ -277,6 +296,24 @@ const PropertyAddress = memo(function PropertyAddress({
             });
         }
     };
+
+    const getWorkers = () => {
+        axios.get("/api/admin/all-workers", { headers }).then((res) => {
+            const { workers } = res.data;
+            const mapWorkersArr = workers.map((w) => {
+                let obj = {
+                    value: w.id,
+                    label: `${w.firstname} ${w.lastname}`,
+                };
+                return obj;
+            });
+            setAllWorkers(mapWorkersArr);
+        });
+    };
+
+    useEffect(() => {
+        getWorkers();
+    }, []);
     return (
         <div>
             <div className="row">
@@ -535,6 +572,28 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 Is there Cat in the property ?
                                             </label>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Not allowed workers
+                                        </label>
+                                        <Select
+                                            value={workers}
+                                            name="workers"
+                                            isMulti
+                                            options={allWorkers}
+                                            className="basic-multi-single "
+                                            isClearable={true}
+                                            placeholder="--Please select--"
+                                            classNamePrefix="select"
+                                            onChange={(newValue) =>
+                                                setWorkers(newValue)
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </div>

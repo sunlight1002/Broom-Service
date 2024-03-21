@@ -24,6 +24,7 @@ class ClientPropertyAddress extends Model
         'prefer_type',
         'is_dog_avail',
         'is_cat_avail',
-        'address_name'
+        'address_name',
+        'not_allowed_worker_ids'
     ];
 }

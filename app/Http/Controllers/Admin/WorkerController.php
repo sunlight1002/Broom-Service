@@ -60,6 +60,7 @@ class WorkerController extends Controller
     public function AllWorkers(Request $request)
     {
         $service = '';
+        $workerId = $request->workerId?explode(',', $request->workerId):[];
         if ($request->service_id) {
             // $contract=Contract::with('offer','client')->find($request->contract_id);
             // if($contract->offer){
@@ -75,7 +76,10 @@ class WorkerController extends Controller
                 $service = $services[0]->service;
             }
         }
-        $workers = User::with('availabilities', 'jobs');
+        $workers = User:: with('availabilities', 'jobs');
+        if($workerId && count($workerId) > 0){
+            $workers = $workers->whereNotIn('id', $workerId);
+        }
         if ($service != '') {
             $workers = $workers->whereHas('availabilities', function ($query) {
                 $query->where('date', '>=', Carbon::now()->toDateString());
