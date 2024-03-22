@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { daDK } from "rsuite/esm/locales";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { Badge } from "react-bootstrap";
 
 export default function card() {
     const { t } = useTranslation();
@@ -74,7 +75,6 @@ export default function card() {
             CardNumber: ncard,
             ExpDate_MMYY: exm + exy.substring(2, 4),
         };
-        //console.log(cardVal);
         //return
         var config = {
             method: "post",
@@ -212,6 +212,58 @@ export default function card() {
         return exp;
     }
 
+    const handleMarkDefault = (id) => {
+        axios
+            .put(`/api/client/cards/${id}/mark-default`, {}, { headers })
+            .then((re) => {
+                document.querySelector(".closeb").click();
+                swal(t("work-contract.messages.card_updated"), "", "success");
+                getCard();
+            })
+            .catch((e) => {
+                document.querySelector(".closeb").click();
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Delete Card!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .delete(`/api/client/cards/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            "Deleted!",
+                            "card has been deleted.",
+                            "success"
+                        );
+                        setTimeout(() => {
+                            getCard();
+                        }, 1000);
+                    })
+                    .catch((e) => {
+                        document.querySelector(".closeb").click();
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
+                    });
+            }
+        });
+    };
+
     return (
         <div className="card">
             <div className="card-body">
@@ -221,7 +273,6 @@ export default function card() {
                         data-toggle="modal"
                         data-target="#exampleModal"
                     >
-                        {" "}
                         {t("work-contract.edit_btn")}
                     </button>
                 }
@@ -234,7 +285,7 @@ export default function card() {
                                 <Th scope="col">
                                     {t("work-contract.card_expiry")}
                                 </Th>
-                                {/* <Th scope="col">Action</Th> */}
+                                <Th scope="col">Action</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -243,11 +294,47 @@ export default function card() {
                                     const exp = getExp(card.valid);
                                     return (
                                         <Tr key={index}>
-                                            <Td>{card.card_type}</Td>
-
+                                            <Td>
+                                                {card.card_type}
+                                                {card.is_default && (
+                                                    <Badge bg="success ml-3">
+                                                        default
+                                                    </Badge>
+                                                )}
+                                            </Td>
                                             <Td>{card.card_number}</Td>
-
                                             <Td className="pl-3">{exp}</Td>
+                                            <Td
+                                                className="pl-3 "
+                                                style={{ width: "10%" }}
+                                            >
+                                                <div className="d-flex mx-2">
+                                                    {!card.is_default && (
+                                                        <>
+                                                            <button
+                                                                className="btn btn-sm btn-info mr-2"
+                                                                onClick={() =>
+                                                                    handleMarkDefault(
+                                                                        card.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                Mark as Default
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-danger ms-2"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        card.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </Td>
                                         </Tr>
                                     );
                                 })
