@@ -383,12 +383,6 @@ class JobController extends Controller
     {
         $data = $request->all();
 
-        $repeat_value = '';
-        $s_name = '';
-        $s_heb_name = '';
-        $s_hour = '';
-        $s_total = '';
-        $s_id = 0;
         $contract_id = 0;
         $isClientPage = (isset($request->client_page) && $request->client_page);
 
@@ -404,7 +398,6 @@ class JobController extends Controller
             $s_name = $service->name;
             $s_heb_name = $service->heb_name;
         }
-        $s_hour = $selectedService['jobHours'];
         $s_freq   = $selectedService['freq_name'];
         $s_cycle  = $selectedService['cycle'];
         $s_period = $selectedService['period'];
@@ -427,6 +420,10 @@ class JobController extends Controller
             });
 
             foreach ($workerDates as $key => $workerDate) {
+                $minutes = 0;
+                foreach ($workerDate['shifts'] as $key => $timing) {
+                    $minutes += $this->calcTimeDiffInMins($timing['start'], $timing['end']);
+                }
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
                 $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
@@ -443,46 +440,48 @@ class JobController extends Controller
                     $status = 'unscheduled';
                 }
 
+                $shiftString = collect($workerDate['shifts'])
+                    ->map(function ($item, $key) {
+                        return $item['start'] . '-' . $item['end'];
+                    })
+                    ->implode(',');
+
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $isClientPage ? $id : $contract->client_id,
                     'contract_id'   => $isClientPage ? $contract_id : $id,
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
-                    'shifts'        => $workerDate['shifts'],
+                    'shifts'        => $shiftString,
                     'schedule'      => $repeat_value,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
                     'next_start_date'    => $next_job_date,
                     'address_id'  => $selectedService['address']['id'],
-                    'keep_prev_worker' => isset($data['prevWorker'])?$data['prevWorker']:false,
+                    'keep_prev_worker' => isset($data['prevWorker']) ? $data['prevWorker'] : false,
                 ]);
 
                 JobService::create([
-                    'job_id'        => $job->id,
-                    'service_id'    => $s_id,
-                    'name'          => $s_name,
-                    'heb_name'      => $s_heb_name,
-                    'job_hour'      => $s_hour,
-                    'freq_name'     => $s_freq,
-                    'cycle'         => $s_cycle,
-                    'period'        => $s_period,
-                    'total'         => $s_total,
-                    'config'        => [
+                    'job_id'            => $job->id,
+                    'service_id'        => $s_id,
+                    'name'              => $s_name,
+                    'heb_name'          => $s_heb_name,
+                    'duration_minutes'  => $minutes,
+                    'freq_name'         => $s_freq,
+                    'cycle'             => $s_cycle,
+                    'period'            => $s_period,
+                    'total'             => $s_total,
+                    'config'            => [
                         'cycle'             => $serviceSchedule->cycle,
                         'period'            => $serviceSchedule->period,
                         'preferred_weekday' => $preferredWeekDay
                     ]
                 ]);
 
-                $shiftArr = explode(',', $workerDate['shifts']);
-
                 $shiftFormattedArr = [];
-                foreach ($shiftArr as $key => $_shift) {
-                    $time = explode('-', $_shift);
-
-                    $start_time = Carbon::createFromFormat('H', str_replace(['am', 'pm'], '', $time[1]))->toTimeString();
-                    $end_time = Carbon::createFromFormat('H', str_replace(['am', 'pm'], '', $time[2]))->toTimeString();
+                foreach ($workerDate['shifts'] as $key => $time) {
+                    $start_time = Carbon::createFromFormat('H:i', str_replace(['am', 'pm'], '', $time['start']))->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', str_replace(['am', 'pm'], '', $time['end']))->toTimeString();
 
                     $shiftFormattedArr[$key] = [
                         'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
@@ -497,26 +496,16 @@ class JobController extends Controller
                 if ($key == 0) {
                     $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-                    $_timeShift = $workerDate['shifts'];
-                    if ($_timeShift != '') {
-                        $_timeShift1 = explode('-', $_timeShift)[1];
-
-                        $_ts = preg_replace('/[^0-9]/', '', $_timeShift1) . ":00";
-                        $ttime = strtotime($_ts) + 60 * 90;
-                        $atime = date('H:i', $ttime);
-                        $_timeShift = $_ts . " - " . $atime;
-                    }
-
-                    $data = array(
+                    $emailData = array(
                         'email' => $job['worker']['email'],
-                        'job'  => $job->toArray(),
-                        'start_time' => $_timeShift
+                        'job' => $job->toArray(),
+                        'start_time' => $workerDate['shifts'][0]['start']
                     );
                     App::setLocale($job->worker->lng);
 
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
-                        Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
-                            $messages->to($data['email']);
+                        Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                            $messages->to($emailData['email']);
                             $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
                             $messages->subject($sub);
                         });
@@ -530,48 +519,48 @@ class JobController extends Controller
         ]);
     }
 
-    public function getShifts($shift, $lng = 'en')
-    {
-        $show_shift = array(
-            "Full Day",
-            "Morning",
-            'Afternoon',
-            'Evening',
-            'Night',
-        );
-        $shifts = explode(',', $shift);
-        $check = '';
-        $new_shift = '';
-        foreach ($show_shift as $s_s) {
-            if ($s_s == 'Afternoon') {
-                $check = 'noon';
-            } else {
-                $check = $s_s;
-            }
+    // public function getShifts($shift, $lng = 'en')
+    // {
+    //     $show_shift = array(
+    //         "Full Day",
+    //         "Morning",
+    //         'Afternoon',
+    //         'Evening',
+    //         'Night',
+    //     );
+    //     $shifts = explode(',', $shift);
+    //     $check = '';
+    //     $new_shift = '';
+    //     foreach ($show_shift as $s_s) {
+    //         if ($s_s == 'Afternoon') {
+    //             $check = 'noon';
+    //         } else {
+    //             $check = $s_s;
+    //         }
 
-            foreach ($shifts as $shift) {
-                if (str_contains($shift, strtolower($check))) {
-                    if ($new_shift == '') {
-                        $new_shift = $s_s;
-                    } else {
-                        if (!str_contains($new_shift, $s_s)) {
-                            $new_shift = $new_shift . ' | ' . $s_s;
-                        }
-                    }
-                }
-            }
-        }
+    //         foreach ($shifts as $shift) {
+    //             if (str_contains($shift, strtolower($check))) {
+    //                 if ($new_shift == '') {
+    //                     $new_shift = $s_s;
+    //                 } else {
+    //                     if (!str_contains($new_shift, $s_s)) {
+    //                         $new_shift = $new_shift . ' | ' . $s_s;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        if ($lng == 'heb') {
-            $new_shift = str_replace("Full Day", "יום שלם", $new_shift);
-            $new_shift = str_replace("Morning", "בוקר", $new_shift);
-            $new_shift = str_replace("Noon", "צהריים", $new_shift);
-            $new_shift = str_replace("Afternoon", "אחהצ", $new_shift);
-            $new_shift = str_replace("Evening", "ערב", $new_shift);
-            $new_shift = str_replace("Night", "לילה", $new_shift);
-        }
-        return $new_shift;
-    }
+    //     if ($lng == 'heb') {
+    //         $new_shift = str_replace("Full Day", "יום שלם", $new_shift);
+    //         $new_shift = str_replace("Morning", "בוקר", $new_shift);
+    //         $new_shift = str_replace("Noon", "צהריים", $new_shift);
+    //         $new_shift = str_replace("Afternoon", "אחהצ", $new_shift);
+    //         $new_shift = str_replace("Evening", "ערב", $new_shift);
+    //         $new_shift = str_replace("Night", "לילה", $new_shift);
+    //     }
+    //     return $new_shift;
+    // }
 
     public function getJobTime(Request $request)
     {
@@ -737,9 +726,8 @@ class JobController extends Controller
     public function sendWorkerEmail($job_id)
     {
         $job = Job::query()
-            ->with(['client', 'worker', 'jobservice','propertyAddress'])
-            ->where('id', $job_id)
-            ->first();
+            ->with(['client', 'worker', 'jobservice', 'propertyAddress'])
+            ->find($job_id);
 
         $data = array(
             'email' => $job['worker']['email'],

@@ -48,68 +48,15 @@ export const frequencyDescription = (_service) => {
     return descriptionStr;
 };
 
-export const filterShiftOptions = (
-    options,
-    selectedShifts,
-    shiftFreezeTime = {}
-) => {
-    const shifts = selectedShifts;
+export const createTimeArray = (startTime, endTime) => {
+    const timeArray = [];
+    const startHour = parseInt(startTime.split(":")[0]);
+    const endHour = parseInt(endTime.split(":")[0]);
 
-    // Convert the selectedShifts to an array of shift start and end times
-    const shiftTimes = shifts.map((shift) => {
-        const [_, start, end] = shift.match(/(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/);
-        return { start, end };
-    });
-
-    const isFullDay = shiftTimes.some((shift) => {
-        return shift.start === "8am" && shift.end === "16pm";
-    });
-
-    if (isFullDay) {
-        return [];
+    for (let hour = startHour; hour <= endHour; hour++) {
+        const timeString = hour.toString().padStart(2, "0") + ":00";
+        timeArray.push(timeString);
     }
-    // Filter out the options that are not overlapped with any selected shifts
-    const nonOverlappingOptions = options.filter((option) => {
-        const [_, start, end] = option.label.match(
-            /(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/
-        );
 
-        let isOverlapping = !shiftTimes.some((shift) => {
-            return start === shift.start || end === shift.end;
-        });
-
-        if (!isOverlapping) {
-            return isOverlapping;
-        }
-        const _startTime = moment(start, "ha");
-        const _endTime = moment(end, "ha");
-
-        if (shiftFreezeTime.start && shiftFreezeTime.end) {
-            const _startTimeF = moment(shiftFreezeTime["start"], "ha");
-            const _endTimeF = moment(shiftFreezeTime["end"], "ha");
-            return !(
-                _startTimeF.isSame(_startTime) ||
-                _endTimeF.isSame(_endTime) ||
-                _startTimeF.isBetween(_startTime, _endTime) ||
-                _endTimeF.isBetween(_startTime, _endTime) ||
-                _startTime.isBetween(_startTimeF, _endTimeF) ||
-                _endTime.isBetween(_startTimeF, _endTimeF)
-            );
-        }
-        return !shiftTimes.some((shift) => {
-            const _shiftStartTime = moment(shift.start, "ha");
-            const _shiftEndTime = moment(shift.end, "ha");
-
-            return (
-                _shiftStartTime.isSame(_startTime) ||
-                _shiftEndTime.isSame(_endTime) ||
-                _shiftStartTime.isBetween(_startTime, _endTime) ||
-                _shiftEndTime.isBetween(_startTime, _endTime) ||
-                _startTime.isBetween(_shiftStartTime, _shiftEndTime) ||
-                _endTime.isBetween(_shiftStartTime, _shiftEndTime)
-            );
-        });
-    });
-
-    return nonOverlappingOptions;
+    return timeArray;
 };

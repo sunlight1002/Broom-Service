@@ -30,10 +30,19 @@ export default function () {
                 setServices(JSON.parse(r.offer.services));
             });
     };
+
     useEffect(() => {
         getJob();
     }, []);
-    services.length ? $("#edit-work-time").modal("show") : "";
+
+    useEffect(() => {
+        if (services.length) {
+            $("#edit-work-time").modal({
+                backdrop: "static",
+                keyboard: false,
+            });
+        }
+    }, [services]);
 
     return (
         <div id="container">
@@ -84,7 +93,7 @@ export default function () {
                                     </div>
                                     <div className="col-sm-2">
                                         <div className="form-group">
-                                            <label>Complete Time</label>
+                                            <label>Time to Complete</label>
                                             {services.map((item, index) => (
                                                 <p
                                                     className={`services-${item.service}`}
@@ -97,7 +106,7 @@ export default function () {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>Address</label>
+                                            <label>Property</label>
                                             {services.map((item, index) => (
                                                 <p
                                                     className={`services-${item.service}`}
@@ -113,7 +122,7 @@ export default function () {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>Pet animals :</label>
+                                            <label>Pet animals</label>
                                             {services.map((item, index) => (
                                                 <p
                                                     className={`services-${item.service}`}
@@ -136,9 +145,7 @@ export default function () {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>
-                                                Gender prefer type of worker :
-                                            </label>
+                                            <label>Gender preference</label>
                                             {services.map((item, index) => (
                                                 <p
                                                     className={`services-${item.service}`}

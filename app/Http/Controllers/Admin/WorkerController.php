@@ -60,7 +60,7 @@ class WorkerController extends Controller
     public function AllWorkers(Request $request)
     {
         $service = '';
-        $workerId = $request->workerId?explode(',', $request->workerId):[];
+        $workerIDArr = $request->worker_ids ? explode(',', $request->worker_ids) : [];
         if ($request->service_id) {
             // $contract=Contract::with('offer','client')->find($request->contract_id);
             // if($contract->offer){
@@ -76,32 +76,50 @@ class WorkerController extends Controller
                 $service = $services[0]->service;
             }
         }
-        $workers = User:: with('availabilities', 'jobs');
-        if($workerId && count($workerId) > 0){
-            $workers = $workers->whereNotIn('id', $workerId);
-        }
-        if ($service != '') {
-            $workers = $workers->whereHas('availabilities', function ($query) {
-                $query->where('date', '>=', Carbon::now()->toDateString());
-            });
-            // $workers = $workers->whereRelation('jobs', function ($query) {
-            //          $query->where('start_date', '>=',Carbon::now()->toDateString());
-            //      });
-            $workers = $workers->where('skill',  'like', '%' . $service . '%');
-        }
-        $workers = $workers->where('status', 1)->get();
+        $available_date = $request->get('available_date');
+        $has_cat = $request->get('has_cat');
+        $has_dog = $request->get('has_dog');
+        $prefer_type = $request->get('prefer_type');
+
+        $workers = User::query()
+            ->with(['availabilities', 'jobs:worker_id,start_date,shifts'])
+            ->when(count($workerIDArr), function ($q) use ($workerIDArr) {
+                return $q->whereNotIn('id', $workerIDArr);
+            })
+            ->when($service != '', function ($q) use ($service) {
+                return $q
+                    ->whereHas('availabilities', function ($query) {
+                        $query->where('date', '>=', Carbon::now()->toDateString());
+                    })
+                    // ->whereRelation('jobs', function ($query) {
+                    //     $query->where('start_date', '>=', Carbon::now()->toDateString());
+                    // })
+                    ->where('skill',  'like', '%' . $service . '%');
+            })
+            ->when($has_dog == '1', function ($q) {
+                return $q->where('is_afraid_by_dog', false);
+            })
+            ->when($has_cat == '1', function ($q) {
+                return $q->where('is_afraid_by_cat', false);
+            })
+            ->when(in_array($prefer_type, ['male', 'female']), function ($q) use ($prefer_type) {
+                return $q->where('gender', $prefer_type);
+            })
+            ->whereDoesntHave('notAvailabileDates', function ($q) use ($available_date) {
+                $q->where('date', $available_date);
+            })
+            ->where('status', 1)
+            ->get();
 
         if (isset($request->filter)) {
-            $newworker = array();
-            foreach ($workers as $worker) {
-                if (count($worker->availabilities)) {
-                    $worker->aval = $this->workerAvl($worker->availabilities);
-                    $worker->wjobs = $this->workerJobs($worker->jobs);
-                    $newworker[] = $worker;
-                }
-            }
+            $workers = $workers->map(function ($worker, $key) {
+                $worker->aval = $this->workerAvl($worker->availabilities);
+                $worker->wjobs = $this->workerJobs($worker->jobs);
+                return $worker;
+            });
+
             return response()->json([
-                'workers' => $newworker,
+                'workers' => $workers,
             ]);
         }
 

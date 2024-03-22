@@ -59,6 +59,7 @@
         "react-csv": "^2.2.2",
         "react-datepicker": "^4.11.0",
         "react-filepond": "^7.1.2",
+        "react-flatpickr": "^3.10.13",
         "react-geocode": "^0.2.3",
         "react-google-recaptcha": "^2.1.0",
         "react-i18next": "^12.1.5",

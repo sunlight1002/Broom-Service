@@ -53,39 +53,39 @@ export default function TotalJobs() {
                 }
             });
     };
-    const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
-    const getShift = (shifts) => {
-        let s = shifts.split(",");
-        let check = "";
-        let new_shift = "";
-        show_shift.map((p) => {
-            if (p == "Afternoon") {
-                check = "noon";
-            } else {
-                check = p;
-            }
-            s.map((sh) => {
-                if (sh.includes(check.toLowerCase())) {
-                    if (new_shift == "") {
-                        new_shift = p;
-                    } else {
-                        if (!new_shift.includes(p)) {
-                            new_shift =
-                                t("global." + new_shift.toLowerCase()) +
-                                " | " +
-                                t("global." + p.toLowerCase());
-                        }
-                    }
-                }
-            });
-        });
-        if (new_shift == "Full Day") return t("global.fullday");
-        if (new_shift == "Morning") return t("global.morning");
-        if (new_shift == "Noon") return t("global.noon");
-        if (new_shift == "Afternoon") return t("global.afternoon");
-        if (new_shift == "Evening") return t("global.evening");
-        return new_shift;
-    };
+    // const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
+    // const getShift = (shifts) => {
+    //     let s = shifts.split(",");
+    //     let check = "";
+    //     let new_shift = "";
+    //     show_shift.map((p) => {
+    //         if (p == "Afternoon") {
+    //             check = "noon";
+    //         } else {
+    //             check = p;
+    //         }
+    //         s.map((sh) => {
+    //             if (sh.includes(check.toLowerCase())) {
+    //                 if (new_shift == "") {
+    //                     new_shift = p;
+    //                 } else {
+    //                     if (!new_shift.includes(p)) {
+    //                         new_shift =
+    //                             t("global." + new_shift.toLowerCase()) +
+    //                             " | " +
+    //                             t("global." + p.toLowerCase());
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     });
+    //     if (new_shift == "Full Day") return t("global.fullday");
+    //     if (new_shift == "Morning") return t("global.morning");
+    //     if (new_shift == "Noon") return t("global.noon");
+    //     if (new_shift == "Afternoon") return t("global.afternoon");
+    //     if (new_shift == "Evening") return t("global.evening");
+    //     return new_shift;
+    // };
 
     return (
         <div id="container">
@@ -300,9 +300,7 @@ export default function TotalJobs() {
                                                                               .heb_name)}
                                                             </Td>
                                                             <Td>
-                                                                {getShift(
-                                                                    item.shifts
-                                                                )}
+                                                                {item.shifts}
                                                             </Td>
                                                             <Td>
                                                                 {cords !==

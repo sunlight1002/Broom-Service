@@ -10,6 +10,7 @@ class JobService extends Model
         'job_id',
         'name',
         'job_hour',
+        'duration_minutes',
         'freq_name',
         'cycle',
         'period',
@@ -28,6 +29,7 @@ class JobService extends Model
      */
     protected $casts = [
         'config' => 'array',
+        'duration_minutes' => 'integer',
     ];
 
     public function service()

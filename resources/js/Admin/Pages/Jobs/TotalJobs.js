@@ -136,12 +136,12 @@ export default function TotalJobs() {
     const handleform = (job_id, e) => {
         let date = "";
         let worker = getSelectedWorkers(job_id);
-        let shifts = null;
+        let _shifts = null;
 
         let data = {
             date: date,
             worker: worker != undefined ? worker : "",
-            shifts: shifts != null ? shifts : "",
+            _shifts: _shifts != null ? _shifts : "",
         };
         axios
             .post(`/api/admin/update-job/${job_id}`, data, { headers })
@@ -307,25 +307,42 @@ export default function TotalJobs() {
             });
     };
 
-    const allShifts = [
-        { bg: "#d3d3d3", tc: "#444", shift: "fullday-8am-16pm" },
-        { bg: "#FFE87C", tc: "#444", shift: "morning1-8am-10am" },
-        { bg: "#FFAE42", tc: "#fff", shift: "morning2-10am-12pm" },
-        { bg: "yellow", tc: "#444", shift: "morning-8am-12pm" },
-        { bg: "#79BAEC", tc: "#fff", shift: "afternoon1-12pm-14pm" },
-        { bg: "#1569C7", tc: "#fff", shift: "afternoon2-14pm-16pm" },
-        { bg: "#ADDFFF", tc: "#fff", shift: "afternoon-12pm-16pm" },
-        { bg: "#DBF9DB", tc: "#444", shift: "evening1-16pm-18pm" },
-        { bg: "#3EA055", tc: "#fff", shift: "evening2-18pm-20pm" },
-        { bg: "#B5EAAA", tc: "#fff", shift: "evening-16pm-20pm" },
-        { bg: "#B09FCA", tc: "#fff", shift: "night1-20pm-22pm" },
-        { bg: "#800080", tc: "#fff", shift: "night2-22pm-24pm" },
-        { bg: "#D2B9D3", tc: "#fff", shift: "night-20pm-24pm" },
-
-        { bg: "yellow", tc: "#444", shift: "morning" },
-        { bg: "#79BAEC", tc: "#fff", shift: "afternoon" },
-        { bg: "#DBF9DB", tc: "#444", shift: "evening" },
-        { bg: "#B09FCA", tc: "#fff", shift: "night" },
+    const shiftColors = [
+        {
+            bg: "yellow",
+            tc: "#444",
+            shift: "morning",
+            start: "08:00",
+            end: "12:00",
+        },
+        {
+            bg: "#79BAEC",
+            tc: "#fff",
+            shift: "afternoon",
+            start: "12:00",
+            end: "16:00",
+        },
+        {
+            bg: "#DBF9DB",
+            tc: "#444",
+            shift: "evening",
+            start: "16:00",
+            end: "20:00",
+        },
+        {
+            bg: "#B09FCA",
+            tc: "#fff",
+            shift: "night",
+            start: "20:00",
+            end: "24:00",
+        },
+        {
+            bg: "#d3d3d3",
+            tc: "#444",
+            shift: "fullday",
+            start: "08:00",
+            end: "16:00",
+        },
     ];
 
     const slot = [
@@ -689,26 +706,55 @@ export default function TotalJobs() {
                                         </thead>
                                         <tbody>
                                             {totalJobs.map((item, index) => {
-                                                let ix = allShifts.find(
-                                                    function (el, i) {
-                                                        if (
-                                                            item.shifts != null
-                                                        ) {
-                                                            if (
-                                                                el.shift.replace(
-                                                                    / /g,
-                                                                    ""
-                                                                ) ==
-                                                                item.shifts.replace(
-                                                                    / /g,
-                                                                    ""
-                                                                )
-                                                            ) {
-                                                                return allShifts.indexOf(
-                                                                    el.shift
-                                                                );
-                                                            }
-                                                        }
+                                                const _shifts =
+                                                    item.shifts.split(", ");
+                                                const _shift =
+                                                    _shifts[0].split("-");
+
+                                                const _startTime = Moment(
+                                                    "1990-01-01 " + _shift[0]
+                                                );
+                                                const _endTime = Moment(
+                                                    "1990-01-01 " + _shift[1]
+                                                );
+
+                                                const ix = shiftColors.find(
+                                                    (_s) => {
+                                                        const _shiftStartTime =
+                                                            Moment(
+                                                                "1990-01-01 " +
+                                                                    _s.start
+                                                            );
+                                                        const _shiftEndTime =
+                                                            Moment(
+                                                                "1990-01-01 " +
+                                                                    _s.end
+                                                            );
+
+                                                        return (
+                                                            _shiftStartTime.isSame(
+                                                                _startTime
+                                                            ) ||
+                                                            _shiftEndTime.isSame(
+                                                                _endTime
+                                                            ) ||
+                                                            _shiftStartTime.isBetween(
+                                                                _startTime,
+                                                                _endTime
+                                                            ) ||
+                                                            _shiftEndTime.isBetween(
+                                                                _startTime,
+                                                                _endTime
+                                                            ) ||
+                                                            _startTime.isBetween(
+                                                                _shiftStartTime,
+                                                                _shiftEndTime
+                                                            ) ||
+                                                            _endTime.isBetween(
+                                                                _shiftStartTime,
+                                                                _shiftEndTime
+                                                            )
+                                                        );
                                                     }
                                                 );
 

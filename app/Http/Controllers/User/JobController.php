@@ -224,8 +224,8 @@ class JobController extends Controller
             $t     = $_shifts[str_replace(' ', '', $job->shifts)];
             $et    = explode('-', $t);
 
-            $_start = Carbon::today()->format('Y-m-d ' . $et[0]);
-            $_end   = Carbon::today()->format('Y-m-d ' . $et[1]);
+            $_start = Carbon::today()->format('Y-m-d ' . $et[0] . ':00');
+            $_end   = Carbon::today()->format('Y-m-d ' . $et[1] . ':00');
             $_now   = Carbon::now()->format('Y-m-d H:i:s');
 
             $start  = Carbon::createFromFormat('Y-m-d H:i:s', $_start);

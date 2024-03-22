@@ -407,4 +407,14 @@ trait JobSchedule
 
         return $mergedTimes;
     }
+
+    private function calcTimeDiffInMins($time1, $time2)
+    {
+        // Parse time strings into Carbon objects
+        $time1Obj = Carbon::createFromFormat('H:i', $time1);
+        $time2Obj = Carbon::createFromFormat('H:i', $time2);
+
+        // Calculate the difference
+        return $time2Obj->diffInMinutes($time1Obj);
+    }
 }

@@ -47,7 +47,14 @@ export default function CreateClientJob() {
         getJob();
     }, []);
 
-    services.length ? $("#edit-work-time").modal("show") : "";
+    useEffect(() => {
+        if (services.length) {
+            $("#edit-work-time").modal({
+                backdrop: "static",
+                keyboard: false,
+            });
+        }
+    }, [services]);
 
     return (
         <div id="container">
@@ -72,7 +79,7 @@ export default function CreateClientJob() {
                                             {services.map((item, index) => {
                                                 return (
                                                     <p
-                                                        className={`services-${index}`}
+                                                        className={`services-${item.service}-${item.c_id}`}
                                                         key={index}
                                                     >
                                                         {item.service == "10"
@@ -88,7 +95,7 @@ export default function CreateClientJob() {
                                             <label>Frequency</label>
                                             {services.map((item, index) => (
                                                 <p
-                                                    className={`services-${index}`}
+                                                    className={`services-${item.service}-${item.c_id}`}
                                                     key={index}
                                                 >
                                                     {item.freq_name}
@@ -98,10 +105,10 @@ export default function CreateClientJob() {
                                     </div>
                                     <div className="col-sm-2">
                                         <div className="form-group">
-                                            <label>Complete Time</label>
+                                            <label>Time to Complete</label>
                                             {services.map((item, index) => (
                                                 <p
-                                                    className={`services-${index}`}
+                                                    className={`services-${item.service}-${item.c_id}`}
                                                     key={index}
                                                 >
                                                     {item.jobHours} hours
@@ -111,10 +118,10 @@ export default function CreateClientJob() {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>Address</label>
+                                            <label>Property</label>
                                             {services.map((item, index) => (
                                                 <p
-                                                    className={`services-${index}`}
+                                                    className={`services-${item.service}-${item.c_id}`}
                                                     key={index}
                                                 >
                                                     {item?.address?.address_name
@@ -127,10 +134,10 @@ export default function CreateClientJob() {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>Pet animals :</label>
+                                            <label>Pet animals</label>
                                             {services.map((item, index) => (
                                                 <p
-                                                    className={`services-${index}`}
+                                                    className={`services-${item.service}-${item.c_id}`}
                                                     key={index}
                                                 >
                                                     {item?.address?.is_cat_avail
@@ -150,12 +157,10 @@ export default function CreateClientJob() {
                                     </div>
                                     <div className="col-sm-4">
                                         <div className="form-group">
-                                            <label>
-                                                Gender prefer type of worker :
-                                            </label>
+                                            <label>Gender preference</label>
                                             {services.map((item, index) => (
                                                 <p
-                                                    className={`services-${index}`}
+                                                    className={`services-${item.service}-${item.c_id}`}
                                                     key={index}
                                                     style={{
                                                         textTransform:
