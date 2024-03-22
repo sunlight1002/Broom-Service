@@ -302,41 +302,37 @@ export default function card() {
                                                     </Badge>
                                                 )}
                                             </Td>
-
                                             <Td>{card.card_number}</Td>
-
                                             <Td className="pl-3">{exp}</Td>
                                             <Td
                                                 className="pl-3 "
                                                 style={{ width: "10%" }}
                                             >
-                                                <div className="d-flex  mx-2">
-                                                    <button
-                                                        className="btn btn-sm btn-info mr-2"
-                                                        disabled={
-                                                            card.is_default
-                                                        }
-                                                        onClick={() =>
-                                                            handleMarkDefault(
-                                                                card.id
-                                                            )
-                                                        }
-                                                    >
-                                                        Mark as Default
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-danger ms-2"
-                                                        disabled={
-                                                            card.is_default
-                                                        }
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                card.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <i className="fa fa-trash"></i>
-                                                    </button>
+                                                <div className="d-flex mx-2">
+                                                    {!card.is_default && (
+                                                        <>
+                                                            <button
+                                                                className="btn btn-sm btn-info mr-2"
+                                                                onClick={() =>
+                                                                    handleMarkDefault(
+                                                                        card.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                Mark as Default
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-danger ms-2"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        card.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </Td>
                                         </Tr>
