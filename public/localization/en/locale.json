@@ -19,7 +19,11 @@
         "end": "End Time",
         "op_start": "Choose start time",
         "op_end": "Choose end time",
-        "btn": "Schedule Meeting"
+        "btn": "Schedule Meeting",
+        "accept": "Accept",
+        "reject": "Reject",
+        "reschedule": "Reschedule",
+        "upload_meeting_files": "Upload meeting files"
     },
     "res_txt": "Thankyou for your response",
     "meet_accept": {
@@ -39,7 +43,9 @@
         "btn": "Schedule another date",
         "accepted_text": "This meeting is already accepted.",
         "write_email_text": "Please write us an email if any query.",
-        "address": "Address"
+        "address": "Address",
+        "team_name": "Team name",
+        "meet_link": "Meet Link"
     },
     "price_offer": {
         "button": "Accept Offer",
@@ -317,7 +323,7 @@
             "please_wait": "Please wait..",
             "card_success": "Thanks, card is added successfully, Now you can sign contract!",
             "card_success_panel": "Thanks, card is updated successfully",
-            "card_updated":"Your card is updated successfully"
+            "card_updated": "Your card is updated successfully"
         },
         "card": {
             "four_digits": "Card last 4 digits",

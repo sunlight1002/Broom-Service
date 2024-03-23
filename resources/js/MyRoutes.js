@@ -121,6 +121,7 @@ import Chat from "./Admin/Pages/Chat/chat";
 import Responses from "./Admin/Pages/Chat/responses";
 import Messenger from "./Admin/Pages/Chat/messenger";
 import MeetingFiles from "./Pages/MeetingFIles";
+import MeetingSchedule from "./Pages/MeetingSchedule";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -155,7 +156,11 @@ export default function MyRoutes() {
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
                     />
-
+                    <Route
+                        exact
+                        path="meeting-schedule/:id"
+                        element={<MeetingSchedule />}
+                    />
                     <Route
                         exact
                         path="price-offer/:id"

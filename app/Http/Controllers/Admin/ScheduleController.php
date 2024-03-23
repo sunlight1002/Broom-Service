@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Event\WhatsappNotificationEvent;
 
 class ScheduleController extends Controller
 {
@@ -259,6 +260,9 @@ class ScheduleController extends Controller
         $scheduleArr = $schedule->toArray();
         $scheduleArr['service_names'] = $service_names;
         App::setLocale($scheduleArr['client']['lng']);
+        if(isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])){
+            event (new WhatsappNotificationEvent(["type" => 'client_meeting_schedule',"notificationData" => $scheduleArr]));
+        }
         Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
 
