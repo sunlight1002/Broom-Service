@@ -1,14 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
+import moment from "moment";
 import axios from "axios";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
 
 export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const alert = useAlert();
-    const [formValues, setFormValues] = useState({ fee: "50" });
+    const [formValues, setFormValues] = useState({
+        fee: "50",
+        repeatancy: "",
+        until_date: null,
+    });
+    const [minUntilDate, setMinUntilDate] = useState(null);
     const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
+    const flatpickrRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -27,6 +37,12 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                 navigate(`/admin/jobs`);
             });
     };
+
+    useEffect(() => {
+        setMinUntilDate(
+            moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
+        );
+    }, []);
 
     const feeInAmount = useMemo(() => {
         return job.offer.total * (formValues.fee / 100);
@@ -99,6 +115,63 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
 
                             <p>{feeInAmount} ILS will be charged.</p>
                         </div>
+
+                        <div className="form-group">
+                            <label className="control-label">Repeatancy</label>
+
+                            <select
+                                name="repeatancy"
+                                onChange={(e) => {
+                                    setFormValues({
+                                        ...formValues,
+                                        repeatancy: e.target.value,
+                                    });
+                                }}
+                                value={formValues.repeatancy}
+                                className="form-control mb-3"
+                            >
+                                <option value=""> --- Please select ---</option>
+                                <option value="one_time">
+                                    One Time ( for single job )
+                                </option>
+                                <option value="forever">Forever</option>
+                                <option value="until_date">Until Date</option>
+                            </select>
+                        </div>
+
+                        {formValues.repeatancy == "until_date" && (
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Until Date
+                                </label>
+                                <Flatpickr
+                                    name="date"
+                                    className="form-control"
+                                    onChange={(
+                                        selectedDates,
+                                        dateStr,
+                                        instance
+                                    ) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            until_date: dateStr,
+                                        });
+                                    }}
+                                    options={{
+                                        disableMobile: true,
+                                        minDate: minUntilDate,
+                                        disable: [
+                                            (date) => {
+                                                // return true to disable
+                                                return date.getDay() === 6;
+                                            },
+                                        ],
+                                    }}
+                                    defaultValue={minUntilDate}
+                                    ref={flatpickrRef}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </Modal.Body>
