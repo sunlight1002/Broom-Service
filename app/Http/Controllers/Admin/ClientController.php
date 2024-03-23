@@ -678,7 +678,6 @@ class ClientController extends Controller
             'status_code'  => (!empty($card)) ? 200 : 0,
             'card'         => (!empty($card)) ? $card->card_number : 0,
             'expiry'       => (!empty($card)) ? $card->valid : 0,
-            'token'        => (!empty($card)) ? $card->card_token : 0,
             'ctype'        => (!empty($card)) ? $card->card_type : 0,
             'holder'       => (!empty($card)) ? $card->card_holder : 0,
             'cvv'          => (!empty($cvv)) ? $cvv : 0,

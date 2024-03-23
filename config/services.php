@@ -43,6 +43,7 @@ return [
         'old_contract' => env('OLD_CONTRACT'),
         'notify_failed_process_to' => env('NOTIFY_FAILED_PROCESS_TO'),
         'tax_percentage' => env('TAX_PERCENTAGE'),
+        'currency' => env('CURRENCY'),
     ],
 
     'zcredit' => [

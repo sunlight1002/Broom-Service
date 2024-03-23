@@ -280,7 +280,7 @@ export default function AddContract() {
                                                             <tr>
                                                                 <td
                                                                     className="text-right"
-                                                                    colspan="6"
+                                                                    colSpan="6"
                                                                 >
                                                                     <button
                                                                         type="button"

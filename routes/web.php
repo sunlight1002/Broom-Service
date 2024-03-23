@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Webhook\TwilioController;
 
 /*
@@ -20,6 +21,8 @@ use App\Http\Controllers\Webhook\TwilioController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 

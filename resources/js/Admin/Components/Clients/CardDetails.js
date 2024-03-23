@@ -3,12 +3,10 @@ import React, { useState, useEffect } from "react";
 export default function CardDetails({ latestContract, client }) {
     const [pass, setPass] = useState(null);
     const [passVal, setPassVal] = useState(null);
-    const [token, setToken] = useState(null);
     const [card, setCard] = useState(null);
     const [expiry, setExpiry] = useState(null);
     const [ctype, setCtype] = useState(null);
     const [holder, setHolder] = useState(null);
-    const [cvv, setCvv] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -25,7 +23,6 @@ export default function CardDetails({ latestContract, client }) {
             axios
                 .get(`/api/admin/card_token/${client.id}`, { headers })
                 .then((res) => {
-                    setToken(res.data.status_code != 0 ? res.data.token : null);
                     setCard(res.data.status_code != 0 ? res.data.card : null);
                     setExpiry(
                         res.data.status_code != 0 ? res.data.expiry : null
@@ -33,11 +30,6 @@ export default function CardDetails({ latestContract, client }) {
                     setCtype(res.data.status_code != 0 ? res.data.ctype : null);
                     setHolder(
                         res.data.status_code != 0 ? res.data.holder : null
-                    );
-                    setCvv(
-                        res.data.cvv.cvv != null && res.data.cvv != 0
-                            ? res.data.cvv.cvv
-                            : null
                     );
                 });
         }
@@ -51,7 +43,6 @@ export default function CardDetails({ latestContract, client }) {
         //         if (res.data.response == false) {
         //             window.alert('Wrong password!');
         //         } else {
-        //              setCvv(or_cvv);
         //             document.querySelector('.closeCv').click();
         //         }
         //     })
@@ -85,14 +76,6 @@ export default function CardDetails({ latestContract, client }) {
                 <li>
                     <strong>Card Holder : </strong>
                     {holder != null ? holder : "NA"}
-                </li>
-                <li>
-                    <strong>Card Token : </strong>
-                    {token != null ? token : "NA"}
-                </li>
-                <li>
-                    <strong>Cvv : </strong>
-                    {cvv != null ? cvv : "NA"}
                 </li>
             </ul>
             <div

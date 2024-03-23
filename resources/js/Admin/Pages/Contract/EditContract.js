@@ -285,7 +285,7 @@ export default function EditContract() {
                                                             <tr>
                                                                 <td
                                                                     className="text-right"
-                                                                    colspan="6"
+                                                                    colSpan="6"
                                                                 >
                                                                     <button
                                                                         type="button"

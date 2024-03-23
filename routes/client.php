@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('get-card', [ClientCardController::class, 'index']);
-    Route::post('update-card', [ClientCardController::class, 'update']);
+    Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);
     Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);
     Route::put('cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 });

@@ -323,7 +323,8 @@
             "please_wait": "Please wait..",
             "card_success": "Thanks, card is added successfully, Now you can sign contract!",
             "card_success_panel": "Thanks, card is updated successfully",
-            "card_updated": "Your card is updated successfully"
+            "card_updated": "Your card is updated successfully",
+            "card_adding_failed": "Card not added"
         },
         "card": {
             "four_digits": "Card last 4 digits",
@@ -339,7 +340,7 @@
         "select_year": "-- select expire year --",
         "select_month": "-- select expire month --",
         "model_submit": "Submit",
-        "edit_btn": "Add/Edit Card",
+        "add_card": "Add Card",
         "back_btn": "Back",
         "start_date": "Start Date"
     },

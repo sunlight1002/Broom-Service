@@ -289,7 +289,7 @@ export default function AddInvoce() {
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th colspan="2">Details</th>
+                                                    <th colSpan="2">Details</th>
                                                     <th>unitprice</th>
                                                     <th>quantity</th>
                                                     <th>Total</th>
@@ -303,7 +303,7 @@ export default function AddInvoce() {
                                                                 key={i}
                                                             >
                                                                 <tr>
-                                                                    <td colspan="2">
+                                                                    <td colSpan="2">
                                                                         {
                                                                             js.description
                                                                         }

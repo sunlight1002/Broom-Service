@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\TransactionStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\ClientCard;
+use App\Models\Transaction;
+use App\Traits\PaymentAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ClientCardController extends Controller
 {
+    use PaymentAPI;
+
     public function index()
     {
         $res = ClientCard::where('client_id', Auth::user()->id)->get();
@@ -18,44 +23,52 @@ class ClientCardController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function createCardSession()
     {
-        if (isset($request->cdata['cid'])) {
-            $cc = ClientCard::query()
-                ->select('cc_charge')
-                ->find($request->cdata['cid']);
+        $client = Auth::user();
 
-            $nc = (int)$cc->cc_charge +  (int)$request->cdata['cc_charge'];
-            $args = [
-                'card_type'   => $request->cdata['card_type'],
-                'card_number' => $request->cdata['card_number'],
-                'valid'       => $request->cdata['valid'],
-                'cvv'         => $request->cdata['cvv'],
-                'cc_charge'   => $nc,
-                'card_token'  => $request->cdata['card_token'],
-            ];
+        $amount = 1.00;
 
-            $cc->update($args);
-        } else {
-            $args = [
-                'card_type'   => $request->cdata['card_type'],
-                'client_id'   => Auth::user()->id,
-                'card_number' => $request->cdata['card_number'],
-                'valid'       => $request->cdata['valid'],
-                'cvv'         => $request->cdata['cvv'],
-                'cc_charge'   => $request->cdata['cc_charge'],
-                'card_token'  => $request->cdata['card_token'],
-            ];
+        $transaction = Transaction::create([
+            'client_id' => $client->id,
+            'amount' => $amount,
+            'currency' => config('services.app.currency'),
+            'status' => TransactionStatusEnum::INITIATED,
+            'type' => 'deposit',
+            'description' => 'Validate credit card',
+            'source' => 'credit-card',
+            'destination' => 'merchant',
+            'metadata' => [],
+            'gateway' => 'zcredit'
+        ]);
 
-            $card = ClientCard::create($args);
+        $sessionResponse = $this->createSession([
+            'unique_id' => 'BROOM-TX' . $transaction->id,
+            'client_name' => $client->firstname . ' ' . $client->lastname,
+            'client_email' => $client->email,
+            'client_phone' => $client->phone,
+            'card_items' => [
+                [
+                    'Amount' => $amount,
+                    'Currency' => "ILS",
+                    'Name' => "Validate credit card",
+                    'Quantity' => 1,
+                ],
+            ]
+        ]);
 
-            if (!ClientCard::where('client_id', $card->client_id)->where('is_default', true)->exists()) {
-                $card->update(['is_default' => true]);
-            }
+        if ($sessionResponse && $sessionResponse['HasError']) {
+            return response()->json([
+                'message' => "Error while initiating session"
+            ], 500);
         }
 
+        $transaction->update([
+            'session_id' => $sessionResponse['Data']['SessionId'],
+        ]);
+
         return response()->json([
-            'message' => "Card validated successfully"
+            'redirect_url' => $sessionResponse['Data']['SessionUrl']
         ]);
     }
 
