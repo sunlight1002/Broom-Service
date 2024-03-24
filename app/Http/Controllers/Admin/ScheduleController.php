@@ -91,7 +91,7 @@ class ScheduleController extends Controller
             'start_time'     => ['required'],
             'end_time'       => ['required'],
             'booking_status' => ['required'],
-            'address_id'     => ['required_if:meet_via,on-site']
+            'address_id'     => ['required']
         ]);
 
         if ($validator->fails()) {

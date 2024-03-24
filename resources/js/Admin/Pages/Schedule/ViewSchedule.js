@@ -579,37 +579,35 @@ export default function ViewSchedule() {
                                 </div>
                             </div>
                         </div>
-                        {meetVia === "on-site" && (
-                            <div className="row">
-                                <div className="col-sm-4">
-                                    <div className="form-group">
-                                        <label>Select Address</label>
-                                        <select
-                                            name="address_id"
-                                            id="address_id"
-                                            value={address}
-                                            onChange={(e) => {
-                                                setAddress(e.target.value);
-                                                handleUpdate(e);
-                                            }}
-                                            className="form-control"
-                                        >
-                                            <option value="null">
-                                                --- Please Select ---
+                        <div className="row">
+                            <div className="col-sm-4">
+                                <div className="form-group">
+                                    <label>Property</label>
+                                    <select
+                                        name="address_id"
+                                        id="address_id"
+                                        value={address}
+                                        onChange={(e) => {
+                                            setAddress(e.target.value);
+                                            handleUpdate(e);
+                                        }}
+                                        className="form-control"
+                                    >
+                                        <option value="null">
+                                            --- Please Select ---
+                                        </option>
+                                        {addresses.map((address, i) => (
+                                            <option
+                                                value={address.id}
+                                                key={address.id}
+                                            >
+                                                {address.address_name}
                                             </option>
-                                            {addresses.map((address, i) => (
-                                                <option
-                                                    value={address.id}
-                                                    key={address.id}
-                                                >
-                                                    {address.address_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
-                        )}
+                        </div>
                         <div className="text-center mt-3">
                             <button
                                 className="btn btn-pink sendBtn"

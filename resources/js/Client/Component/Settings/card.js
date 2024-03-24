@@ -28,7 +28,12 @@ export default function card() {
         const _paymentStatus = queryParams.get("cps");
 
         if (_paymentStatus == "payment-success") {
-            swal(t("work-contract.messages.card_success"), "", "success");
+            // swal(t("work-contract.messages.card_success"), "", "success");
+            swal(
+                "Thanks, card is added successfully, Now you can sign contract!",
+                "",
+                "success"
+            );
             navigate(`/client/settings`);
         } else if (_paymentStatus == "payment-cancelled") {
             swal(t("work-contract.messages.card_adding_failed"), "", "error");
@@ -57,7 +62,6 @@ export default function card() {
                 window.location.href = response.data.redirect_url;
             })
             .catch((e) => {
-                document.querySelector(".closeb").click();
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -75,12 +79,10 @@ export default function card() {
         axios
             .put(`/api/client/cards/${id}/mark-default`, {}, { headers })
             .then((re) => {
-                document.querySelector(".closeb").click();
                 swal(t("work-contract.messages.card_updated"), "", "success");
                 getCard();
             })
             .catch((e) => {
-                document.querySelector(".closeb").click();
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -113,7 +115,6 @@ export default function card() {
                         }, 1000);
                     })
                     .catch((e) => {
-                        document.querySelector(".closeb").click();
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
