@@ -19,7 +19,7 @@ class PaymentController extends Controller
         Log::info('ZCREDIT CALLABLE...');
         $json = file_get_contents('php://input');
 
-        file_put_contents('/var/www/html/broom-service/zcredit.txt', $json);
+        file_put_contents(base_path('zcredit.txt'), $json);
 
         $data = json_decode($json, true);
 
