@@ -12,7 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'record-invoice/',
         'webhook_fb',
         'twilio/voice/webhook',
         'zcredit/callback'

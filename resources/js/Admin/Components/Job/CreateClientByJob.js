@@ -20,8 +20,6 @@ export default function CreateClientByJob() {
     const [c_time, setCTime] = useState(0);
     const [isOpenWorker, setIsOpenWorker] = useState(false);
     const [services, setServices] = useState([]);
-    const [contracts, setContracts] = useState(null);
-    const [contractStartDate, setContractStartDate] = useState(null);
     const [shiftFormValues, setShiftFormValues] = useState([]);
     const [tmpFormValues, setTmpFormValues] = useState({});
     const [editIndex, setEditIndex] = useState(-1);
@@ -39,7 +37,6 @@ export default function CreateClientByJob() {
             .get(`/api/admin/get-contract-by-client/${params.id}`, { headers })
             .then((res) => {
                 const _contracts = res.data.contract;
-                setContracts(_contracts);
                 setClientName(
                     res.data.client.firstname + " " + res.data.client.lastname
                 );
@@ -102,9 +99,6 @@ export default function CreateClientByJob() {
 
         setServices([_service]);
         setSelectedService(_service);
-
-        const _contract = contracts.find((c) => c.id == _service.c_id);
-        setContractStartDate(_contract.start_date);
 
         $("#edit-work-time").modal("hide");
     };
@@ -196,7 +190,6 @@ export default function CreateClientByJob() {
                             setIsOpen={setIsOpenWorker}
                             isOpen={isOpenWorker}
                             service={selectedService}
-                            start_date={contractStartDate}
                             handleSaveForm={handleSave}
                             tmpFormValues={tmpFormValues}
                             editIndex={editIndex}

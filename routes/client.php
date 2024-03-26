@@ -62,10 +62,11 @@ Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer'])->name
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer'])->name('accept-offer');
 Route::post('accept-meeting', [ClientEmailController::class, 'AcceptMeeting'])->name('accept-meeting');
 Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);
-Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract'])->name('accept-contract');
-Route::post('reject-contract', [ClientEmailController::class, 'RejectContract'])->name('reject-contract');
+Route::post('contracts/{hash}/initialize-card', [ClientCardController::class, 'createCardSession']);
+Route::post('contracts/{hash}/check-card', [ClientCardController::class, 'checkContractCard']);
+Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract']);
+Route::post('reject-contract', [ClientEmailController::class, 'RejectContract']);
 Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate'])->name('get-service-template');
-Route::post('save-card', [ClientEmailController::class, 'saveCard'])->name('save-card');
 Route::post('add-file', [DashboardController::class, 'addfile'])->name('add-file');
 Route::post('delete-file', [DashboardController::class, 'deletefile'])->name('delete-file');
 Route::post('get-files', [DashboardController::class, 'getfiles'])->name('get-files');

@@ -15,6 +15,7 @@ use App\Models\JobHours;
 use App\Models\JobService;
 use App\Models\Order;
 use App\Models\Invoices;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -310,6 +311,14 @@ class JobController extends Controller
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
+        $zcreditTerminalNumber = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
+            ->value('value');
+
+        $zcreditPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_PASS)
+            ->value('value');
+
         if (!empty($services)) {
             foreach ($services as $service) {
                 $pitems[] = [
@@ -325,8 +334,8 @@ class JobController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . config("services.zcredit.terminalnumber") . '",
-        "Password": "' . config("services.zcredit.terminalpassword") . '",
+        "TerminalNumber": "' . $zcreditTerminalNumber . '",
+        "Password": "' . $zcreditPassword . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -472,13 +481,9 @@ class JobController extends Controller
                 $ex = explode('-', $card->valid);
                 $cc = ['cc' => [
                     "sum" => $total,
-                    "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number, 12),
-                    "exp_year" => $ex[0],
-                    "exp_month" => $ex[1],
-                    "holder_id" => "",
-                    "holder_name" => $contract->name_on_card,
-                    "confirmation_code" => ""
+                    "num_of_payments" => 1,
+                    "first_payment" => 1,
+                    "token_id" => $card->card_token,
                 ]];
 
                 $_params = array_merge($params, $cc);
@@ -546,6 +551,14 @@ class JobController extends Controller
 
     public function commitRegularInvoicePayment($service, $total, $token, $client)
     {
+        $zcreditTerminalNumber = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
+            ->value('value');
+
+        $zcreditPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_PASS)
+            ->value('value');
+
         $pitems[] = [
             'ItemDescription' => $service[0]->description,
             'ItemQuantity'    => $service[0]->quantity,
@@ -558,8 +571,8 @@ class JobController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . config("services.zcredit.terminalnumber") . '",
-        "Password": "' . config("services.zcredit.terminalpassword") . '",
+        "TerminalNumber": "' . $zcreditTerminalNumber . '",
+        "Password": "' . $zcreditPassword . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -739,13 +752,9 @@ class JobController extends Controller
                 $ex = explode('-', $card->valid);
                 $cc = ['cc' => [
                     "sum" => $total,
-                    "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number, 12),
-                    "exp_year" => $ex[0],
-                    "exp_month" => $ex[1],
-                    "holder_id" => "",
-                    "holder_name" => $contract->name_on_card,
-                    "confirmation_code" => ""
+                    "num_of_payments" => 1,
+                    "first_payment" => 1,
+                    "token_id" => $card->card_token,
                 ]];
 
                 $_params = array_merge($params, $cc);

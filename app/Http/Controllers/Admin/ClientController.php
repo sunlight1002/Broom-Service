@@ -672,15 +672,13 @@ class ClientController extends Controller
     public function cardToken($id)
     {
         $card = ClientCard::where('client_id', $id)->first();
-        $cvv  = Contract::where('client_id', $id)->where('cvv', '!=', 'null')->get('cvv')->last();
 
         return response()->json([
             'status_code'  => (!empty($card)) ? 200 : 0,
             'card'         => (!empty($card)) ? $card->card_number : 0,
             'expiry'       => (!empty($card)) ? $card->valid : 0,
             'ctype'        => (!empty($card)) ? $card->card_type : 0,
-            'holder'       => (!empty($card)) ? $card->card_holder : 0,
-            'cvv'          => (!empty($cvv)) ? $cvv : 0,
+            'holder'       => (!empty($card)) ? $card->card_holder_name : 0,
         ]);
     }
 

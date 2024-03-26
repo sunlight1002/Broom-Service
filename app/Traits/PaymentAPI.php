@@ -46,7 +46,42 @@ trait PaymentAPI
         return $data;
     }
 
-    private function chargeCard($chargeData)
+    private function getCardByToken($token)
+    {
+        $zcreditTerminalNumber = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
+            ->value('value');
+
+        $zcreditPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_PASS)
+            ->value('value');
+
+        $url = 'https://pci.zcredit.co.il/ZCreditWS/api/Token/GetTokenData';
+
+        $postData = [
+            'TerminalNumber' => $zcreditTerminalNumber,
+            'Password' => $zcreditPassword,
+            'Token' => $token,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to validate card');
+        }
+
+        return $data;
+    }
+
+    private function captureCardCharge($chargeData)
     {
         $zcreditTerminalNumber = Setting::query()
             ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
@@ -143,25 +178,50 @@ trait PaymentAPI
         // https://zcreditwc.docs.apiary.io/#reference/0/create-webcheckout-session/createsession
         $postData = [
             'Key' => $zcreditKey,
-            'Local' => 'En',
+            'Local' => $sessionData['local'],
             'UniqueId' => $sessionData['unique_id'],
-            'SuccessUrl' => url('client/settings?cps=payment-success'),
+            'SuccessUrl' => url('thanks/' . $sessionData['client_id']),
             'CancelUrl' => url('client/settings?cps=payment-cancelled'),
             'CallbackUrl' => url('zcredit/callback'),
             'PaymentType' => 'authorize',
-            // 'CreateInvoice' => false,
-            // 'AdditionalText' => '',
-            // 'ShowCart' => true,
-            // 'BitButtonEnabled' => true,
-            // 'FocusType' => "None",
+            'CreateInvoice' => false,
+            'AdditionalText' => '',
+            'ShowCart' => true,
+            "ThemeColor" => "005ebb",
+            "BitButtonEnabled" => "false",
+            "ApplePayButtonEnabled" => "true",
+            "GooglePayButtonEnabled" => "true",
+            "Installments" => [
+                "Type" => "regular",
+                "MinQuantity" => "1",
+                "MaxQuantity" => "1"
+            ],
             // 'ShowTotalSumInPayButton' => true,
             // 'Bypass3DS' => false,
             'Customer' => [
                 'Email' => $sessionData['client_email'],
                 'Name' => $sessionData['client_name'],
                 'PhoneNumber' => $sessionData['client_phone'],
+                "Attributes" => [
+                    "HolderId" =>  "required",
+                    "Name" =>  "required",
+                    "PhoneNumber" =>  "required",
+                    "Email" =>  "required"
+                ]
             ],
             'CartItems' => $sessionData['card_items'],
+            "CardIcons" => [
+                "ShowVisaIcon" => "true",
+                "ShowMastercardIcon" => "true",
+                "ShowDinersIcon" => "true",
+                "ShowAmericanExpressIcon" => "true",
+                "ShowIsracardIcon" => "true",
+            ],
+            "IssuerWhiteList" => "[1,2,3,4,5,6]",
+            "BrandWhiteList" => "[1,2,3,4,5,6]",
+            'FocusType' => "None",
+            "UseLightMode" => "false",
+            "UseCustomCSS" => "false"
         ];
 
         $response = Http::withHeaders([

@@ -41,16 +41,6 @@ export default function ProfileDetails({
         " " +
         Moment(client.created_at).format("dddd");
 
-    const cardType = latestContract ? latestContract.card_type : "";
-    const nameOnCard = latestContract ? latestContract.name_on_card : "";
-    const or_cvv = latestContract ? latestContract.cvv : "";
-    const signature = latestContract ? (
-        <a href={latestContract.card_sign} target="_blank">
-            view
-        </a>
-    ) : (
-        ""
-    );
     const param = useParams();
 
     let scolor = "",

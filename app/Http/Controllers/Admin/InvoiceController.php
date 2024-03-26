@@ -14,6 +14,7 @@ use App\Models\Receipts;
 use App\Models\Refunds;
 use App\Models\Services;
 use App\Helpers\Helper;
+use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -381,7 +382,7 @@ class InvoiceController extends Controller
                     $sum += (int)$itm->unitprice;
                 }
 
-                $card = ClientCard::where('client_id', $client->id)->get()->first();
+                $card = ClientCard::where('client_id', $client->id)->first();
                 $name =  ($client->invoicename != null) ? $client->invoicename : $client->firstname . " " . $client->lastname;
                 $url = "https://api.icount.co.il/api/v3.php/doc/create";
                 $ln = ($client->lng == 'heb') ? 'he' : 'en';
@@ -552,193 +553,6 @@ class InvoiceController extends Controller
         $pdf = Pdf::loadView('InvoicePdf', compact('invoice'));
 
         return $pdf->stream('invoice_' . $id . '.pdf');
-    }
-
-    public function generatePayment($cid)
-    {
-        $client = Client::where('id', $cid)->get()->first();
-
-        $services[] = [
-            "Amount"       => "1.00",
-            "Currency"     => "ILS",
-            "Name"         => (($client->lng == 'heb') ? "הוספת כרטיס - " : "Add a Card - ") . $client->firstname . " " . $client->lastname,
-            "Description"  => 'card validation transaction',
-            "Quantity"     =>  1,
-            "Image"        =>  "https://i.ibb.co/m8fr72P/sample.png",
-            "IsTaxFree"    =>  "false",
-            "AdjustAmount" => "false"
-        ];
-
-        $se = json_encode($services);
-
-        $username = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER);
-        $password = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS);
-
-        $ln = ($client->lng == 'heb') ? 'He' : 'En';
-        $data = '{
-            "Key": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_KEY) . '",
-            "j"  : "5",
-            "Local": "' . $ln . '",
-            "UniqueId": "",
-            "SuccessUrl": "' . url('/thanks') . '/' . $cid . '",
-            "CancelUrl": "",
-            "CallbackUrl": "' . url('/thanks') . '/' . $cid . '",
-            "PaymentType": "authorize",
-            "CreateInvoice": "false",
-            "AdditionalText": "",
-            "ShowCart": "true",
-            "ClientReciept": "",
-            "SellerReciept": "",
-            "ThemeColor": "005ebb",
-            "BitButtonEnabled": "false",
-            "ApplePayButtonEnabled": "true",
-            "GooglePayButtonEnabled": "true",   
-            "Installments": {
-                "Type": "regular" , 
-                "MinQuantity": "1",
-                "MaxQuantity": "1"
-            },
-            "Customer": {
-                "Email": "' . $client->email . '",
-                "Name": "' . $client->firstname . " " . $client->lastname . '" ,
-                "PhoneNumber":  "' . $client->phone . '",
-                "Attributes": {
-                    "HolderId":  "none" ,
-                    "Name":  "required" ,
-                    "PhoneNumber":  "optional" ,
-                    "Email":  "optional"
-                }
-            },
-        "CartItems": ' . $se . ',
-
-            "FocusType": "None",
-            "CardIcons": {
-                "ShowVisaIcon": "true",
-                "ShowMastercardIcon": "true",
-                "ShowDinersIcon": "true",
-                "ShowAmericanExpressIcon": "true",
-                "ShowIsracardIcon": "true",
-            },
-            "IssuerWhiteList": "1,2,3,4,5,6",
-            "BrandWhiteList": "1,2,3,4,5,6",
-            "UseLightMode": "false",
-            "UseCustomCSS": "false"
-        }';
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pci.zcredit.co.il/webcheckout/api/WebCheckout/CreateSession',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_USERPWD => $username . ":" . $password,
-
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $re = json_decode($response);
-
-        if ($re->HasError == true) {
-            die('Something went wrong ! Please contact Administrator !');
-        }
-
-        //Invoices::where('id',$id)->update(['session_id'=>$re->Data->SessionId]);
-        return response()->json(["url" => $re->Data->SessionUrl, 'session_id' => $re->Data->SessionId]);
-    }
-
-    public function recordInvoice($sid, $cid, $holder)
-    {
-        $key = config("services.zcredit.key");
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pci.zcredit.co.il/webcheckout/api/WebCheckout/GetSessionStatus',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => '{
-            "Key": "' . $key . '",
-            "SessionId": "' . $sid . '"
-            }',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $re = json_decode($response);
-        curl_close($curl);
-        $cb = json_decode($re->CallBackJSON);
-
-        $x = explode('/', $cb->ExpDate_MMYY);
-        $expiry = "20" . $x[1] . "-" . $x[0];
-        if (!empty($cb)) {
-            $args = [
-                'client_id'   => $cid,
-                'card_token'  => $cb->Token,
-                'card_number' => $cb->CardNum,
-                'card_type'   => $cb->CardName,
-                'card_holder' => $holder,
-                'valid'       => $expiry,
-                'cc_charge'   => 1,
-            ];
-
-            $cap = $this->releaseCapure($cb->Total, $re->TransactionID, $cb->Token);
-
-            ClientCard::create($args);
-        }
-    }
-
-    public function releaseCapure($amount, $tid, $token)
-    {
-        $username = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER);
-        $password = Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS);
-
-        $data = '{
-        "TerminalNumber": "' . $username . '",
-        "Password": "' . $password . '",
-        "TransactionSum": "' . $amount . '",
-        "NumberOfPayments": "1",
-        "ObeligoAction": "2",
-        "OriginalZCreditReferenceNumber": "' . $tid . '",
-        "CardNumber":"' . $token . '",
-        "j":0
-        }';
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/CommitFullTransaction',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        return json_decode($response);
     }
 
     public function displayThanks($id)
@@ -1039,13 +853,9 @@ class InvoiceController extends Controller
             $ex = explode('-', $card->valid);
             $cc = ['cc' => [
                 "sum" => $total,
-                "card_type" => $card->card_type,
-                "card_number" => $card->card_number,
-                "exp_year" => $ex[0],
-                "exp_month" => $ex[1],
-                "holder_id" => "",
-                "holder_name" => $card->card_holder,
-                "confirmation_code" => ""
+                "num_of_payments" => 1,
+                "first_payment" => 1,
+                "token_id" => $card->card_token,
             ]];
 
             $_params = array_merge($params, $cc);

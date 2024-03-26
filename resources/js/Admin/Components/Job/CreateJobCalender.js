@@ -176,7 +176,6 @@ export default function CreateJobCalender() {
                             setIsOpen={setIsOpenWorker}
                             isOpen={isOpenWorker}
                             service={selectedService}
-                            start_date={contract.start_date}
                             handleSaveForm={handleSave}
                             tmpFormValues={tmpFormValues}
                             editIndex={editIndex}

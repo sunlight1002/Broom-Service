@@ -125,7 +125,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
     Route::post('client-contracts', [ContractController::class, 'clientContracts'])->name('client-contracts');
-    Route::post('get-contract/{id}', [ContractController::class, 'getContract'])->name('get-contract');
+    Route::post('get-contract/{id}', [ContractController::class, 'getContract']);
     Route::post('verify-contract', [ContractController::class, 'verifyContract'])->name('verify-contract');
     Route::get('get-contract-by-client/{id}', [ContractController::class, 'getContractByClient']);
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);

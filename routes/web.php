@@ -32,9 +32,7 @@ Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 Route::get('/import', [DashboardController::class, 'import']);
 Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
 Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
-Route::get('/generate-payment/{id}', [InvoiceController::class, 'generatePayment']);
-Route::get('/record-invoice/{sesid}/{cid}/{holder}', [InvoiceController::class, 'recordInvoice']);
-Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks'])->name('thanks');
+Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
 
