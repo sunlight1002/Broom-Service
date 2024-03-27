@@ -18,6 +18,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
@@ -638,6 +639,7 @@ class JobController extends Controller
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
             'cancelled_by_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
             'cancelled_at' => now()
         ]);
 

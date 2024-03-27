@@ -15,12 +15,16 @@ use App\Models\Refunds;
 use App\Models\Services;
 use App\Helpers\Helper;
 use App\Models\Setting;
+use App\Traits\PaymentAPI;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    use PaymentAPI;
+
     public function index(Request $request)
     {
         $invoices = Invoices::with('client', 'receipt');
@@ -963,62 +967,50 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function AddOrder(Request $request)
+    public function createOrder(Request $request)
     {
-        $id = $request->data['job'];
+        $id = $request->job_id;
         $job = Job::query()->with(['jobservice', 'client'])->find($id);
 
-        $services = json_decode($request->data['services']);
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
 
-        // $items = []; 
-        // if(isset($services)){
-        //     foreach($services as $service){
+        if ($job->isOrdered == '0') {
+            return response()->json([
+                'message' => 'Order is already created for the Job'
+            ], 403);
+        }
 
-        //       $itm = [
-        //         "description" => $service->name." - ".Carbon::today()->format('d, M Y'),
-        //         "unitprice"   => $service->total,
-        //         "quantity"    => 1,
-        //       ];
-        //       array_push($items,$itm);
-        //     }
-        //     JobService::where('id',$service->id)->update(['order_status'=>1]);
-        // }
+        if (empty($job->client->invoicename)) {
+            return response()->json([
+                'message' => "Client's invoice name is not set"
+            ], 403);
+        }
+
+        $services = $request->services;
 
         $invoice  = 1;
         if (str_contains($job->schedule, 'w')) {
             $invoice = 0;
         }
-        $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
-        $url = "https://api.icount.co.il/api/v3.php/doc/create";
-        $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
 
-        $params = array(
-            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
-            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
-            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
-            "doctype" => "order",
-            "client_name" => $name,
+        $json = $this->createOrderDocument([
+            "client_name" => $job->client->invoicename,
             "client_address" => $job->client->geo_address,
             "email" => $job->client->email,
-            "lang" => $ln,
-            "currency_code" => "ILS",
+            "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
             "items" => $services,
-            "send_email" => 0,
-            "email_to_client" => 0,
             "email_to" => $job->client->email,
-        );
+        ]);
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($ch);
-        $info = curl_getinfo($ch);
+        $response = json_encode($json, true);
 
-        //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
-        $json = json_decode($response, true);
-
-        //if(!$json["status"]) die($json["reason"]);
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        };
 
         Order::create([
             'order_id' => $json['docnum'],
@@ -1033,6 +1025,10 @@ class InvoiceController extends Controller
         ]);
 
         $job->update(['isOrdered' => 1]);
+
+        return response()->json([
+            'message' => 'Order generated successfully'
+        ]);
     }
 
     public function multipleOrders(Request $request)

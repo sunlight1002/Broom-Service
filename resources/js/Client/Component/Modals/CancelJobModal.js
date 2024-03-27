@@ -54,6 +54,20 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
         return job.offer.total * (_feePercentage / 100);
     }, [job]);
 
+    useEffect(() => {
+        if (formValues.repeatancy == "until_date") {
+            setFormValues({
+                ...formValues,
+                until_date: minUntilDate,
+            });
+        } else {
+            setFormValues({
+                ...formValues,
+                until_date: null,
+            });
+        }
+    }, [formValues.repeatancy]);
+
     return (
         <Modal
             size="md"
@@ -126,7 +140,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                             },
                                         ],
                                     }}
-                                    defaultValue={minUntilDate}
+                                    value={formValues.until_date}
                                     ref={flatpickrRef}
                                 />
                             </div>

@@ -7,6 +7,8 @@ use App\Http\Controllers\Client\ClientCardController;
 use App\Http\Controllers\Client\ClientEmailController;
 use App\Http\Controllers\Client\DashboardController;
 use App\Http\Controllers\Client\JobCommentController;
+use App\Http\Controllers\Client\JobController;
+
 /*
 |--------------------------------------------------------------------------
 | Admin API Routes
@@ -31,9 +33,9 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('get-contract/{id}', [DashboardController::class, 'getContract'])->name('get-contract');
 
     //job APis
-    Route::post('jobs', [DashboardController::class, 'listJobs'])->name('jobs');
-    Route::post('view-job', [DashboardController::class, 'viewJob'])->name('view-job');
-    Route::put('jobs/{id}/cancel', [DashboardController::class, 'cancelJob']);
+    Route::post('jobs', [JobController::class, 'index']);
+    Route::post('view-job', [JobController::class, 'show']);
+    Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);

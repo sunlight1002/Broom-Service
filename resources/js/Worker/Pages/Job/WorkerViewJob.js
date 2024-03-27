@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import WorkerSidebar from "../../Layouts/WorkerSidebar";
-import ClientDetails from "../../Components/Job/ClientDetails";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import Services from "../../Components/Job/Services";
-import Comment from "../../Components/Job/Comment";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
+
+import WorkerSidebar from "../../Layouts/WorkerSidebar";
+import ClientDetails from "../../Components/Job/ClientDetails";
+import Services from "../../Components/Job/Services";
+import Comment from "../../Components/Job/Comment";
 
 export default function WorkerViewJob() {
     const params = useParams();

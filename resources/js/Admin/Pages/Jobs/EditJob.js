@@ -5,9 +5,11 @@ import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
 import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
-import TeamAvailability from "../../Components/Job/TeamAvailability";
 
-export default function AddJob() {
+import TeamAvailability from "../../Components/Job/TeamAvailability";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+
+export default function EditJob() {
     const alert = useAlert();
     const navigate = useNavigate();
     const params = useParams();
@@ -63,12 +65,13 @@ export default function AddJob() {
                                     </div>
                                     <div className="col-sm-2">
                                         <div className="form-group">
-                                            <label>Complete Time</label>
+                                            <label>Time to Complete</label>
 
                                             <p>
                                                 {service
-                                                    ? service.job_hour +
-                                                      " hours"
+                                                    ? convertMinsToDecimalHrs(
+                                                          service.duration_minutes
+                                                      ) + " hours"
                                                     : "NA"}
                                             </p>
                                         </div>

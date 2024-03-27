@@ -36,61 +36,6 @@ export const monthOccurrenceArr = [
     { value: 12, label: "twelfth" },
 ];
 
-export const shiftOptions = {
-    "8am-16pm": [
-        { value: 0, label: "fullday-8am-16pm" },
-        { value: 1, label: "morning1-8am-9am" },
-        { value: 2, label: "morning2-9am-10am" },
-        { value: 3, label: "morning3-10am-11am" },
-        { value: 4, label: "morning4-11am-12pm" },
-        { value: 5, label: "morning-8am-12pm" },
-        { value: 6, label: "afternoon1-12pm-13pm" },
-        { value: 7, label: "afternoon2-13pm-14pm" },
-        { value: 8, label: "afternoon3-14pm-15pm" },
-        { value: 9, label: "afternoon4-15pm-16pm" },
-        { value: 10, label: "afternoon-12pm-16pm" },
-        { value: 11, label: "evening1-16pm-17pm" },
-        { value: 12, label: "evening2-17pm-18pm" },
-        { value: 13, label: "evening3-18pm-19pm" },
-        { value: 14, label: "evening4-19pm-20pm" },
-        { value: 15, label: "evening-16pm-20pm" },
-        { value: 16, label: "night1-20pm-21pm" },
-        { value: 17, label: "night2-21pm-22pm" },
-        { value: 18, label: "night3-22pm-23pm" },
-        { value: 19, label: "night4-23pm-24am" },
-        { value: 20, label: "night-20pm-24am" },
-    ],
-    "8am-12pm": [
-        { value: 0, label: "fullday-8am-16pm" },
-        { value: 1, label: "morning1-8am-9am" },
-        { value: 2, label: "morning2-9am-10am" },
-        { value: 3, label: "morning3-10am-11am" },
-        { value: 4, label: "morning4-11am-12pm" },
-        { value: 5, label: "morning-8am-12pm" },
-    ],
-    "12pm-16pm": [
-        { value: 0, label: "afternoon1-12pm-13pm" },
-        { value: 1, label: "afternoon2-13pm-14pm" },
-        { value: 2, label: "afternoon3-14pm-15pm" },
-        { value: 3, label: "afternoon4-15pm-16pm" },
-        { value: 4, label: "afternoon-12pm-16pm" },
-    ],
-    "16pm-20pm": [
-        { value: 0, label: "evening1-16pm-17pm" },
-        { value: 1, label: "evening2-17pm-18pm" },
-        { value: 2, label: "evening3-18pm-19pm" },
-        { value: 3, label: "evening4-19pm-20pm" },
-        { value: 4, label: "evening-16pm-20pm" },
-    ],
-    "20pm-24am": [
-        { value: 0, label: "night1-20pm-21pm" },
-        { value: 1, label: "night2-21pm-22pm" },
-        { value: 2, label: "night3-22pm-23pm" },
-        { value: 3, label: "night4-23pm-24am" },
-        { value: 4, label: "night-20pm-24am" },
-    ],
-};
-
 export const convertMinsToDecimalHrs = (minutes) => {
     return parseFloat(minutes / 60).toFixed(2);
 };

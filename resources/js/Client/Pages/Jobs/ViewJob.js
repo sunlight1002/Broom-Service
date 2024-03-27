@@ -29,11 +29,7 @@ export default function ViewJob() {
 
     const getJob = () => {
         axios
-            .post(
-                `/api/client/view-job`,
-                { id: Base64.decode(params.id) },
-                { headers }
-            )
+            .post(`/api/client/view-job`, { id: params.id }, { headers })
             .then((res) => {
                 const r = res.data.job;
                 setJob(r);

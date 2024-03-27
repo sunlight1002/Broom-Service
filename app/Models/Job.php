@@ -35,6 +35,7 @@ class Job extends Model
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
+        'cancelled_by',
         'cancelled_at',
     ];
 

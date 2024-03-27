@@ -331,4 +331,53 @@ trait PaymentAPI
             return NULL;
         }
     }
+
+    private function createOrderDocument($orderData)
+    {
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => $orderData['lang'],
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $orderData['email'],
+            "doctype" => "order",
+            "client_name" => $orderData['client_name'],
+            "client_address" => $orderData['client_address'],
+            "currency_code" => "ILS",
+            "items" => $orderData['items'],
+            "send_email" => 0,
+            "email_to_client" => 0,
+            "email_to" => $orderData['email_to'],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create document');
+        }
+
+        return $data;
+    }
 }

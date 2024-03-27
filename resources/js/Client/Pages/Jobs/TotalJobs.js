@@ -9,6 +9,8 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
 
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+
 export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
@@ -31,6 +33,7 @@ export default function TotalJobs() {
                     setTotalJobs(response.data.jobs);
                     setPageCount(response.data.jobs.last_page);
                 } else {
+                    setTotalJobs([]);
                     setLoading("No Job found");
                 }
             });
@@ -49,6 +52,7 @@ export default function TotalJobs() {
                     setTotalJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
+                    setTotalJobs([]);
                     setLoading("No Job found");
                 }
             });
@@ -118,28 +122,22 @@ export default function TotalJobs() {
                                         <Thead>
                                             <Tr>
                                                 <Th scope="col">
-                                                    {t("client.jobs.job_date")}
+                                                    {t("client.jobs.date")}
                                                 </Th>
                                                 <Th
                                                     scope="col"
                                                     style={{ display: "none" }}
                                                 >
-                                                    {t(
-                                                        "client.jobs.worker_name"
-                                                    )}
+                                                    {t("client.jobs.worker")}
                                                 </Th>
                                                 <Th
                                                     scope="col"
                                                     style={{ display: "none" }}
                                                 >
-                                                    {t(
-                                                        "client.jobs.client_name"
-                                                    )}
+                                                    {t("client.jobs.client")}
                                                 </Th>
                                                 <Th scope="col">
-                                                    {t(
-                                                        "client.jobs.service_name"
-                                                    )}
+                                                    {t("client.jobs.service")}
                                                 </Th>
                                                 <Th scope="col">
                                                     {t("client.jobs.shift")}
@@ -162,219 +160,190 @@ export default function TotalJobs() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {totalJobs &&
-                                                totalJobs.map((item, index) => {
-                                                    //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
-                                                    // let address = item.client
-                                                    //     .geo_address
-                                                    //     ? item.client
-                                                    //           .geo_address
-                                                    //     : 0;
-                                                    // let Ad = [];
-                                                    // if (address) {
-                                                    //     let ar =
-                                                    //         address.split("\n");
-                                                    //     for (let a in ar) {
-                                                    //         Ad.push(
-                                                    //             <span>
-                                                    //                 {ar[a]}
-                                                    //                 <br />
-                                                    //             </span>
-                                                    //         );
-                                                    //     }
-                                                    // }
-                                                    let address =
-                                                        item.property_address;
+                                            {totalJobs.map((item, index) => {
+                                                //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
+                                                // let address = item.client
+                                                //     .geo_address
+                                                //     ? item.client
+                                                //           .geo_address
+                                                //     : 0;
+                                                // let Ad = [];
+                                                // if (address) {
+                                                //     let ar =
+                                                //         address.split("\n");
+                                                //     for (let a in ar) {
+                                                //         Ad.push(
+                                                //             <span>
+                                                //                 {ar[a]}
+                                                //                 <br />
+                                                //             </span>
+                                                //         );
+                                                //     }
+                                                // }
+                                                let address =
+                                                    item.property_address;
 
-                                                    let address_name =
-                                                        address &&
-                                                        address.address_name
-                                                            ? address.address_name
-                                                            : "NA";
-                                                    let cords =
-                                                        address &&
-                                                        address.latitude &&
-                                                        address.longitude
-                                                            ? address.latitude +
-                                                              "," +
-                                                              address.longitude
-                                                            : "NA";
-                                                    let status = item.status;
-                                                    if (
-                                                        status == "not-started"
-                                                    ) {
-                                                        status = t(
-                                                            "j_status.not-started"
-                                                        );
-                                                    }
-                                                    if (status == "progress") {
-                                                        status =
-                                                            t(
-                                                                "j_status.progress"
-                                                            );
-                                                    }
-                                                    if (status == "completed") {
-                                                        status =
-                                                            t(
-                                                                "j_status.completed"
-                                                            );
-                                                    }
-                                                    if (status == "scheduled") {
-                                                        status =
-                                                            t(
-                                                                "j_status.scheduled"
-                                                            );
-                                                    }
-                                                    if (
-                                                        status == "unscheduled"
-                                                    ) {
-                                                        status = t(
-                                                            "j_status.unscheduled"
-                                                        );
-                                                    }
-                                                    if (
-                                                        status == "re-scheduled"
-                                                    ) {
-                                                        status = t(
-                                                            "j_status.re-scheduled"
-                                                        );
-                                                    }
-                                                    if (status == "cancel") {
-                                                        status =
-                                                            t(
-                                                                "j_status.cancel"
-                                                            );
-                                                    }
-                                                    return (
-                                                        <Tr key={index}>
-                                                            <Td>
-                                                                {Moment(
-                                                                    item.start_date
-                                                                ).format(
-                                                                    "DD MMM, Y"
-                                                                )}
-                                                            </Td>
-                                                            <Td
-                                                                style={{
-                                                                    display:
-                                                                        "none",
-                                                                }}
-                                                            >
-                                                                <h6>
-                                                                    {item.worker
-                                                                        ? item
-                                                                              .worker
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .worker
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </h6>
-                                                            </Td>
-                                                            <Td
-                                                                style={{
-                                                                    display:
-                                                                        "none",
-                                                                }}
-                                                            >
-                                                                {item.client
+                                                let address_name =
+                                                    address &&
+                                                    address.address_name
+                                                        ? address.address_name
+                                                        : "NA";
+                                                let cords =
+                                                    address &&
+                                                    address.latitude &&
+                                                    address.longitude
+                                                        ? address.latitude +
+                                                          "," +
+                                                          address.longitude
+                                                        : "NA";
+                                                let status = item.status;
+                                                if (status == "not-started") {
+                                                    status = t(
+                                                        "j_status.not-started"
+                                                    );
+                                                }
+                                                if (status == "progress") {
+                                                    status =
+                                                        t("j_status.progress");
+                                                }
+                                                if (status == "completed") {
+                                                    status =
+                                                        t("j_status.completed");
+                                                }
+                                                if (status == "scheduled") {
+                                                    status =
+                                                        t("j_status.scheduled");
+                                                }
+                                                if (status == "unscheduled") {
+                                                    status = t(
+                                                        "j_status.unscheduled"
+                                                    );
+                                                }
+                                                if (status == "re-scheduled") {
+                                                    status = t(
+                                                        "j_status.re-scheduled"
+                                                    );
+                                                }
+                                                if (status == "cancel") {
+                                                    status =
+                                                        t("j_status.cancel");
+                                                }
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            {Moment(
+                                                                item.start_date
+                                                            ).format(
+                                                                "DD MMM, Y"
+                                                            )}
+                                                        </Td>
+                                                        <Td
+                                                            style={{
+                                                                display: "none",
+                                                            }}
+                                                        >
+                                                            <h6>
+                                                                {item.worker
                                                                     ? item
-                                                                          .client
+                                                                          .worker
                                                                           .firstname +
                                                                       " " +
                                                                       item
-                                                                          .client
+                                                                          .worker
                                                                           .lastname
                                                                     : "NA"}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.jobservice &&
-                                                                    (c_lng ==
-                                                                    "en"
-                                                                        ? item
-                                                                              .jobservice
-                                                                              .name
-                                                                        : item
-                                                                              .jobservice
-                                                                              .heb_name)}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.shifts}
-                                                            </Td>
-                                                            <Td>
-                                                                {cords !==
-                                                                "NA" ? (
-                                                                    <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
-                                                                        target="_blank"
-                                                                    >
-                                                                        {
-                                                                            address_name
-                                                                        }
-                                                                    </Link>
-                                                                ) : (
-                                                                    <>
-                                                                        {
-                                                                            address_name
-                                                                        }
-                                                                    </>
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.end_time &&
-                                                                item.start_time
-                                                                    ? parseFloat(
-                                                                          `${item.end_time}.replace(":", ".")`
-                                                                      ) -
-                                                                      parseFloat(
-                                                                          `${item.start_time}.replace(":", ".")`
-                                                                      ) +
-                                                                      " Hours"
-                                                                    : "NA"}
-                                                            </Td>
-                                                            <Td>
-                                                                {status}
-                                                                {item.status ==
-                                                                "cancel"
-                                                                    ? ` (${t(
-                                                                          "client.jobs.view.with_cancel"
-                                                                      )} ${
-                                                                          item.cancellation_fee_amount
-                                                                      } + ${t(
-                                                                          "global.currency"
-                                                                      )})`
-                                                                    : ""}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.jobservice &&
-                                                                    item
-                                                                        .jobservice
-                                                                        .total +
-                                                                        " " +
-                                                                        t(
-                                                                            "global.currency"
-                                                                        ) +
-                                                                        " + " +
-                                                                        t(
-                                                                            "global.vat"
-                                                                        )}
-                                                            </Td>
-                                                            <Td>
+                                                            </h6>
+                                                        </Td>
+                                                        <Td
+                                                            style={{
+                                                                display: "none",
+                                                            }}
+                                                        >
+                                                            {item.client
+                                                                ? item.client
+                                                                      .firstname +
+                                                                  " " +
+                                                                  item.client
+                                                                      .lastname
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                (c_lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </Td>
+                                                        <Td>{item.shifts}</Td>
+                                                        <Td>
+                                                            {cords !== "NA" ? (
                                                                 <Link
-                                                                    to={`/client/view-job/${Base64.encode(
-                                                                        item.id.toString()
-                                                                    )}`}
-                                                                    className="btn btn-primary"
+                                                                    to={`https://maps.google.com?q=${cords}`}
+                                                                    target="_blank"
                                                                 >
-                                                                    {t(
-                                                                        "client.jobs.view_btn"
-                                                                    )}
+                                                                    {
+                                                                        address_name
+                                                                    }
                                                                 </Link>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
+                                                            ) : (
+                                                                <>
+                                                                    {
+                                                                        address_name
+                                                                    }
+                                                                </>
+                                                            )}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice
+                                                                ? convertMinsToDecimalHrs(
+                                                                      item
+                                                                          .jobservice
+                                                                          .duration_minutes
+                                                                  ) + " Hours"
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {status}
+                                                            {item.status ==
+                                                            "cancel"
+                                                                ? ` (${t(
+                                                                      "client.jobs.view.with_cancel"
+                                                                  )} ${
+                                                                      item.cancellation_fee_amount
+                                                                  } + ${t(
+                                                                      "global.currency"
+                                                                  )})`
+                                                                : ""}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                item.jobservice
+                                                                    .total +
+                                                                    " " +
+                                                                    t(
+                                                                        "global.currency"
+                                                                    ) +
+                                                                    " + " +
+                                                                    t(
+                                                                        "global.vat"
+                                                                    )}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/client/view-job/${item.id}`}
+                                                                className="btn btn-primary"
+                                                            >
+                                                                {t(
+                                                                    "client.jobs.view_btn"
+                                                                )}
+                                                            </Link>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (

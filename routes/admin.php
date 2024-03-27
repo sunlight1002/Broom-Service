@@ -198,7 +198,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('client-orders/{id}', [InvoiceController::class, 'getClientOrders']);
     Route::get('delete-oders/{id}', [InvoiceController::class, 'deleteOrders']);
     Route::post('get-codes-order', [InvoiceController::class, 'getCodesOrders']);
-    Route::post('add-order', [InvoiceController::class, 'AddOrder']);
+    Route::post('create-order', [InvoiceController::class, 'createOrder']);
 
     // ManualInvoice
     Route::get('client-invoice-job', [InvoiceController::class, 'getClientInvoiceJob']);

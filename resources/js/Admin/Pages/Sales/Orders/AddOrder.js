@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from "react";
-import Sidebar from "../../../Layouts/Sidebar";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Moment from "moment";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { SelectPicker } from "rsuite";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../../Layouts/Sidebar";
 
 export default function AddOrder() {
-    const [amount, setAmount] = useState(0);
-    const [dueDate, setDueDate] = useState();
-    const [customer, setCustomer] = useState();
-    const [selectedJobs, setSelectedJobs] = useState(null);
-    const [job, setJob] = useState();
+    const [selectedClientID, setSelectedClientID] = useState(null);
+    const [selectedJobID, setSelectedJobID] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [formValues, setFormValues] = useState({
+        description: null,
+        unitprice: 0,
+        quantity: 0,
+    });
     const [lng, setLng] = useState();
 
     const queryParams = new URLSearchParams(window.location.search);
-    const jid = queryParams.get("j");
-    const cid = queryParams.get("c");
+    const jobID = queryParams.get("j");
+    const clientID = queryParams.get("c");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -30,9 +34,6 @@ export default function AddOrder() {
     const [cjobs, setCjobs] = useState();
     const [jservice, setjService] = useState(null);
 
-    const [corders, setCOrders] = useState();
-    const [codes, setCodes] = useState();
-
     const alert = useAlert();
     const navigate = useNavigate();
 
@@ -41,31 +42,6 @@ export default function AddOrder() {
             setClients(res.data.clients);
         });
     };
-
-    const clientOrders = (cid) => {
-        setCOrders([]);
-        axios
-            .post(`/api/admin/get-client-invorders`, { cid }, { headers })
-            .then((res) => {
-                let jar = [];
-                const j = res.data.orders;
-
-                if (j.length > 0) {
-                    for (let i in j) {
-                        let n =
-                            Moment(j[i].start_date).format("DD - MMM") +
-                            " | #" +
-                            j[i].order_id;
-                        jar.push({ value: j[i].id, label: n });
-                    }
-                    setCOrders(jar);
-                }
-            });
-    };
-
-    function onlyUnique(value, index, array) {
-        return array.indexOf(value) === index;
-    }
 
     const getJobs = (cid) => {
         setCjobs([]);
@@ -77,12 +53,6 @@ export default function AddOrder() {
     };
 
     const getServices = (sel) => {
-        // let r_code = [];
-        // sel && sel.map((s, i) => {
-        //     r_code.push(s.value);
-        // })
-        // let codes = r_code.filter(onlyUnique);
-
         axios
             .post(`/api/admin/order-jobs`, { id: sel }, { headers })
             .then((res) => {
@@ -97,78 +67,24 @@ export default function AddOrder() {
                             "DD MMM, Y"
                         );
 
-                        lng == "heb"
-                            ? $(".details").val(_service.heb_name + " - " + d)
-                            : $(".details").val(_service.name + " - " + d);
-
-                        $(".quantity").val(1);
-                        $(".price").val(_service.total);
-                        $(".rtotal").val(_service.total);
-
-                        st += parseFloat(_service.total);
-                        setAmount(st);
+                        setFormValues({
+                            description:
+                                lng == "heb"
+                                    ? _service.heb_name + " - " + d
+                                    : _service.name + " - " + d,
+                            unitprice: _service.total,
+                            quantity: 1,
+                        });
                     }, 200);
                 }
             });
     };
 
-    const curr = (v) => {
-        let c = v.toLocaleString("en-US", {
+    const curr = (_value) => {
+        return _value.toLocaleString("en-US", {
             style: "currency",
             currency: "ILS",
         });
-        return c;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (lng == undefined) {
-            window.alert("client language is not set!");
-            return;
-        }
-
-        if (customer == null) {
-            alert.error("Please select customer");
-            return;
-        }
-        if (jservice == null) {
-            alert.error("Please select job");
-            return;
-        }
-        const ser = [
-            {
-                description: $(".details0").val(),
-                unitprice: $(".price0").val(),
-                quantity: $(".quantity0").val(),
-            },
-        ];
-
-        const data = {
-            customer: customer,
-            job: job,
-            doctype: "order",
-            services: JSON.stringify(ser),
-            due_date: dueDate != undefined ? dueDate : "",
-            amount: amount,
-            status: "Open",
-        };
-
-        axios
-            .post(`/api/admin/add-order`, { data }, { headers })
-            .then((res) => {
-                alert.success("Order created successfully");
-                setTimeout(() => {
-                    navigate("/admin/orders");
-                }, 1000);
-            });
-    };
-
-    const changePrice = (e) => {
-        let v = e.target.value;
-        setAmount(curr(v));
-        $(".price0").val(v);
-        $(".rtotal0").val(v);
     };
 
     const cData =
@@ -177,24 +93,81 @@ export default function AddOrder() {
             return { value: c.id, label: c.firstname + " " + c.lastname };
         });
 
+    const handleChangeClient = (_clientID) => {
+        if (_clientID) {
+            axios
+                .get(`/api/admin/clients/${_clientID}`, { headers })
+                .then((res) => {
+                    setLng(res.data.client.lng);
+                });
+
+            getJobs(_clientID);
+            setSelectedClientID(_clientID);
+        }
+    };
+
+    const handleChangeJob = (_jobID) => {
+        if (_jobID) {
+            setSelectedJobID(_jobID);
+            getServices(_jobID);
+        }
+    };
+
     useEffect(() => {
+        setSelectedJobID(jobID);
+        setSelectedClientID(clientID);
         getCustomers();
+    }, []);
 
-        if (jid != null && cid != null) {
-            getJobs(cid);
-            setJob(jid);
-            getServices(jid);
+    const totalAmount = useMemo(() => {
+        return formValues.unitprice * formValues.quantity;
+    }, [formValues.unitprice, formValues.quantity]);
 
-            setCustomer(cid);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (lng == undefined) {
+            alert.error("Client language is not set!");
+            return;
         }
 
-        setTimeout(() => {
-            const cus = $(".cus").val();
-            axios.get(`/api/admin/clients/${1}`, { headers }).then((res) => {
-                setLng(res.data.client.lng);
+        if (selectedClientID == null) {
+            alert.error("Please select client");
+            return;
+        }
+
+        if (selectedJobID == null) {
+            alert.error("Please select job");
+            return;
+        }
+
+        setLoading(true);
+        axios
+            .post(
+                `/api/admin/create-order`,
+                {
+                    client_id: selectedClientID,
+                    job_id: selectedJobID,
+                    services: [formValues],
+                },
+                { headers }
+            )
+            .then((res) => {
+                setLoading(false);
+                alert.success("Order created successfully");
+                setTimeout(() => {
+                    navigate("/admin/orders");
+                }, 1000);
+            })
+            .catch((e) => {
+                setLoading(false);
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
-        }, 1000);
-    }, []);
+    };
 
     return (
         <div id="container">
@@ -212,10 +185,9 @@ export default function AddOrder() {
                                         </label>
                                         <SelectPicker
                                             data={cData}
-                                            defaultValue={parseInt(cid)}
+                                            defaultValue={parseInt(clientID)}
                                             onChange={(value, event) => {
-                                                setCustomer(value);
-                                                getJobs(value);
+                                                handleChangeClient(value);
                                             }}
                                             size="lg"
                                             required
@@ -229,9 +201,9 @@ export default function AddOrder() {
                                         <select
                                             className="form-control"
                                             onChange={(e) => {
-                                                setJob(e.target.value);
-                                                getServices(e.target.value);
+                                                handleChangeJob(e.target.value);
                                             }}
+                                            value={jobID}
                                         >
                                             <option value={0}>
                                                 --- Select Job ---
@@ -240,10 +212,6 @@ export default function AddOrder() {
                                                 cjobs.map((j, i) => {
                                                     return (
                                                         <option
-                                                            selected={
-                                                                j.id ==
-                                                                parseInt(jid)
-                                                            }
                                                             value={j.id}
                                                             key={i}
                                                         >
@@ -279,9 +247,13 @@ export default function AddOrder() {
                                                 <input
                                                     type="text"
                                                     name="details"
+                                                    value={
+                                                        formValues.description
+                                                    }
                                                     className={`form-control details`}
                                                     placeholder="Service"
                                                     required
+                                                    readOnly
                                                 />
                                             </div>
                                         </div>
@@ -294,8 +266,13 @@ export default function AddOrder() {
                                                 <input
                                                     type="number"
                                                     name="unitprice"
+                                                    value={formValues.unitprice}
                                                     onChange={(e) =>
-                                                        changePrice(e)
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            unitprice:
+                                                                e.target.value,
+                                                        })
                                                     }
                                                     className={`form-control price`}
                                                     placeholder="Unit Price"
@@ -307,14 +284,15 @@ export default function AddOrder() {
                                         <div className="col-sm-3">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    quantity
+                                                    Quantity
                                                 </label>
                                                 <input
                                                     type="number"
                                                     name="quantity"
+                                                    value={formValues.quantity}
                                                     className={`form-control quantity`}
                                                     placeholder="quantity"
-                                                    required
+                                                    readOnly
                                                 />
                                             </div>
                                         </div>
@@ -326,26 +304,23 @@ export default function AddOrder() {
                                                 </label>
                                                 <input
                                                     type="number"
-                                                    name="rtotal"
-                                                    onChange={(e) =>
-                                                        changePrice(e)
-                                                    }
-                                                    className={`form-control rtotal`}
+                                                    value={totalAmount}
+                                                    className={`form-control`}
                                                     placeholder="Total"
-                                                    required
+                                                    readOnly
                                                 />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                {amount != 0 && (
+                                {totalAmount != 0 && (
                                     <div className="col-sm-12">
                                         <div className="form-group text-center">
                                             <h5>
                                                 Total Amount :{" "}
                                                 <span className="total">
-                                                    {curr(amount)}
+                                                    {curr(totalAmount)}
                                                 </span>
                                             </h5>
                                         </div>
@@ -358,7 +333,7 @@ export default function AddOrder() {
                                         value="Generate Document"
                                         onClick={handleSubmit}
                                         className="btn btn-success saveBtn"
-                                        disabled={amount == 0}
+                                        disabled={totalAmount == 0 || loading}
                                     />
                                 </div>
                             </div>
