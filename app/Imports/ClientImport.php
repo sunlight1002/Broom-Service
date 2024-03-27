@@ -4,6 +4,12 @@ namespace App\Imports;
 
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
+use App\Models\Offer;
+use App\Models\ServiceSchedule;
+use App\Models\Services;
+use App\Models\Contract;
+use App\Models\ClientCard;
+use App\Models\LeadStatus;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +18,7 @@ use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
@@ -102,7 +109,156 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         'is_cat_avail' => strtolower($row['cat_in_the_property'] ?? '') == 'yes' ? 1 : 0,
                     ]);
                 }
+
+                if($row['has_offer'] == "Yes") {
+                    $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
+                        ->first();
+
+                    $offer = Offer::where('client_id', $client->id)->where('status', 'accepted')->first();
+
+                    $existing_services = [];
+                    if ($offer) {
+                        $existing_services = json_decode($offer->services, true);
+                    }
+
+                    $existing_services_names = array_column($existing_services, 'name');
+
+                    $service = Services::Where('name', $row['service_name'])->first();
+                    $serviceschedule = ServiceSchedule::Where('name', $row['frequency'])->first();
+
+                    $total_amount = 0;
+
+                    $workerJobHours = [];
+                    if (!empty($row['worker_hours'])) {
+                        $workerhours  = explode(',', $row['worker_hours']);
+                        foreach ($workerhours as $workerhour) {
+                            array_push($workerJobHours,  array('jobHours' => $workerhour));
+                        }
+                    }
+
+                    if ($row['type'] == 'hourly') {
+                        foreach ($workerJobHours as $key => $worker) {
+                            $total_amount += $worker['jobHours'] * $row['fixed_price'];
+                        }
+                    } else {
+                        $total_amount += $row['fixed_price'];
+                    }
+
+                    if(!in_array($row['service_name'], $existing_services_names))
+                    {
+                        $services = [
+                            'service' => $service->id ?? '',
+                            'name' => $row['service_name'] ?? '',
+                            'type' => $row['type'] ?? '',
+                            'rateperhour' => ($row['type'] == 'hourly') ? $row['fixed_price'] : '',
+                            'freq_name' => $row['frequency'] ?? '',
+                            'frequency' => $serviceschedule->id ?? '',
+                            'fixed_price' => ($row['type'] == 'fixed') ? $row['fixed_price'] : '',
+                            'other_title' => ($row['frequency'] == 'Others') ? $row['other_title'] : '',
+                            'totalamount' => $total_amount,
+                            'template' => $service->template ?? '',
+                            'cycle' => $serviceschedule->cycle ?? '',
+                            'period' => $serviceschedule->period ?? '',
+                            'address' => $clientpropertyaddress->id ?? '',
+                            'workers' => $workerJobHours,
+                            "weekdays" => [],
+                            "weekday_occurrence" => "1",
+                            "weekday" => "sunday",
+                            "month_occurrence" => 1,
+                            "month_date" => 1,
+                            "monthday_selection_type" => "weekday"
+                        ];
+
+                        $existing_services[] = $services;
+                    }
+
+                    $subtotal = 0;
+                    $tax_percentage = config('services.app.tax_percentage');
+
+                    foreach ($existing_services as $existing_service) {
+                        if (isset($existing_service['type']) && $existing_service['type'] == 'hourly') {
+                            foreach ($workerJobHours as $key => $worker) {
+                                if (
+                                    isset($worker['jobHours']) && is_numeric($worker['jobHours']) &&
+                                    isset($existing_service['rateperhour']) && is_numeric($existing_service['rateperhour'])
+                                ) {
+                                    $subtotal += ($worker['jobHours'] * $existing_service['rateperhour']);
+                                }
+                            }
+                        } else {
+                            if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
+                                $subtotal += ($existing_service['fixed_price'] * count($workerJobHours));
+                            }
+                        }
+                    }
+
+                    $tax = ($tax_percentage / 100) * $subtotal;
+
+                    if (!$offer) {
+                        $offer = Offer::create([
+                            'client_id' => $client->id,
+                            'services' => json_encode($existing_services),
+                            'subtotal' => $subtotal,
+                            'total' => ($subtotal + $tax),
+                            'status' => 'accepted',
+                        ]);
+                    } else {
+                        Offer::where('id', $offer->id)->update([
+                            'services' => json_encode($existing_services),
+                            'subtotal' => $subtotal,
+                            'total' => ($subtotal + $tax),
+                            'status' => 'accepted',
+                        ]);
+                    }
+                }
+
+                if($row['has_offer'] == "Yes" && $row['has_contract'] == "Yes") {
+
+                    $hash = md5($client->email . $offer->id);
+
+                    $contract = Contract::where('unique_hash', $hash)->first();
+
+                    if (!$contract) {
+                        $contract = Contract::create([
+                            'offer_id' => $offer->id,
+                            'client_id' => $client->id,
+                            'additional_address' => $row['additional_address'],
+                            'status' => 'verified',
+                            'start_date' => $row['start_date'],
+                            'unique_hash' => $hash
+                        ]);
+                    } else {
+                        Contract::where('id', $contract->id)->update([
+                            'offer_id' => $offer->id,
+                            'client_id' => $client->id,
+                            'additional_address' => $row['additional_address'],
+                            'status' => 'verified',
+                            'start_date' => $row['start_date'],
+                            'unique_hash' => $hash
+                        ]);
+                    }
+
+                    $card = ClientCard::query()
+                        ->where('client_id', $contract->client->id)
+                        ->first();
+
+                    if (config('services.app.old_contract') == true || (config('services.app.old_contract') == false && !empty($card))) {
+                        Client::where('id', $contract->client_id)->update(['status' => 2]);
+
+                        LeadStatus::UpdateOrCreate(
+                          [
+                            'client_id' => $contract->client->id
+                          ],
+                          [
+                            'client_id' => $contract->client->id,
+                            'lead_status' => 'Contract Accepted'
+                          ]
+                        );
+                    }
+                }
+
             } catch (Exception $e) {
+                Log::error($e);
                 $failedImports->push($row);
                 continue;
             }
