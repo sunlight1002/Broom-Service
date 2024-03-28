@@ -49,63 +49,71 @@ class PaymentController extends Controller
                         $address = $client->property_addresses()->first();
                     }
 
-                    $captureChargeResponse = $this->captureCardCharge([
-                        'card_number' => $ZCreditTrx['Token'],
-                        'card_cvv' => '',
-                        'card_exp' => '',
-                        'amount' => $transaction->amount,
-                        'client_name' => $client->firstname . ' ' . $client->lastname,
-                        'client_address' => $address ? $address->geo_address : '',
-                        'client_email' => $client->email,
-                        'client_phone' => $client->phone,
-                        'J' => 0,
-                        'obeligo_action' => 1,
-                        'original_zcredit_reference_number' => $ZCreditTrx['ReferenceNumber']
-                    ]);
+                    if ($transaction->description == 'Validate credit card') {
+                        $captureChargeResponse = $this->captureCardCharge([
+                            'card_number' => $ZCreditTrx['Token'],
+                            'amount' => $transaction->amount,
+                            'client_name' => $client->firstname . ' ' . $client->lastname,
+                            'client_address' => $address ? $address->geo_address : '',
+                            'client_email' => $client->email,
+                            'client_phone' => $client->phone,
+                            'J' => 0,
+                            'obeligo_action' => 1,
+                            'original_zcredit_reference_number' => $ZCreditTrx['ReferenceNumber'],
+                            'items' => [
+                                [
+                                    'ItemDescription' => "Authorize card",
+                                    'ItemQuantity' => "1",
+                                    'ItemPrice' => "1",
+                                    'IsTaxFree' => "false",
+                                ],
+                            ]
+                        ]);
 
-                    if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
-                        $refundResponse = $this->refundByReferenceID($captureChargeResponse['ReferenceNumber']);
+                        if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
+                            $refundResponse = $this->refundByReferenceID($captureChargeResponse['ReferenceNumber']);
 
-                        if ($refundResponse && !$refundResponse['HasError']) {
-                            $cardType = $this->cardBrandNameByCode($ZCreditTrx['CardBrandCode']);
+                            if ($refundResponse && !$refundResponse['HasError']) {
+                                $cardType = $this->cardBrandNameByCode($ZCreditTrx['CardBrandCode']);
 
-                            $card = ClientCard::create([
-                                'client_id'   => $client->id,
-                                'card_number' => $ZCreditTrx['CardNumber'],
-                                'card_type'   => $cardType,
-                                'card_holder_id' => $ZCreditTrx['HolderID'],
-                                'card_holder_name' => $ZCreditTrx['CustomerName'],
-                                'valid'       => $ZCreditTrx['ExpDate_MMYY'],
-                                'cc_charge'   => $ZCreditTrx['TransactionSum'],
-                                'card_token'  => $ZCreditTrx['Token'],
-                            ]);
-
-                            if ($belongToContract && $contract) {
-                                $contract->update([
-                                    'card_id' => $card->id
-                                ]);
-                            }
-
-                            if (
-                                !ClientCard::where('client_id', $card->client_id)
-                                    ->where('is_default', true)
-                                    ->exists()
-                            ) {
-                                $card->update(['is_default' => true]);
-                            }
-
-                            $transaction->update([
-                                'status' => TransactionStatusEnum::COMPLETED,
-                                'transaction_id' => $captureChargeResponse['ReferenceNumber'],
-                                'transaction_at' => now(),
-                                'metadata' => [
-                                    'card_type' => $cardType,
-                                    'card_exp' => $ZCreditTrx['ExpDate_MMYY'],
+                                $card = ClientCard::create([
+                                    'client_id'   => $client->id,
                                     'card_number' => $ZCreditTrx['CardNumber'],
+                                    'card_type'   => $cardType,
                                     'card_holder_id' => $ZCreditTrx['HolderID'],
                                     'card_holder_name' => $ZCreditTrx['CustomerName'],
-                                ],
-                            ]);
+                                    'valid'       => $ZCreditTrx['ExpDate_MMYY'],
+                                    'cc_charge'   => $ZCreditTrx['TransactionSum'],
+                                    'card_token'  => $ZCreditTrx['Token'],
+                                ]);
+
+                                if ($belongToContract && $contract) {
+                                    $contract->update([
+                                        'card_id' => $card->id
+                                    ]);
+                                }
+
+                                if (
+                                    !ClientCard::where('client_id', $card->client_id)
+                                        ->where('is_default', true)
+                                        ->exists()
+                                ) {
+                                    $card->update(['is_default' => true]);
+                                }
+
+                                $transaction->update([
+                                    'status' => TransactionStatusEnum::COMPLETED,
+                                    'transaction_id' => $captureChargeResponse['ReferenceNumber'],
+                                    'transaction_at' => now(),
+                                    'metadata' => [
+                                        'card_type' => $cardType,
+                                        'card_exp' => $ZCreditTrx['ExpDate_MMYY'],
+                                        'card_number' => $ZCreditTrx['CardNumber'],
+                                        'card_holder_id' => $ZCreditTrx['HolderID'],
+                                        'card_holder_name' => $ZCreditTrx['CustomerName'],
+                                    ],
+                                ]);
+                            }
                         }
                     }
                 }

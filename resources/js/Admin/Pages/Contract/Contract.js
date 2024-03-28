@@ -427,7 +427,7 @@ export default function Contract() {
                                                                     {c.offer
                                                                         ? c
                                                                               .offer
-                                                                              .total +
+                                                                              .subtotal +
                                                                           " ILS + VAT"
                                                                         : "NA"}{" "}
                                                                 </Td>

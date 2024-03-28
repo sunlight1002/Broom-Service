@@ -45,7 +45,7 @@ export default function CreateClientByJob() {
                 _contracts.map((c) => {
                     new_data = JSON.parse(c.offer.services);
                     new_data = new_data.filter((n) => {
-                        n["c_id"] = c.id;
+                        n["contract_id"] = c.id;
                         return n;
                     });
                     Array.prototype.push.apply(all_s, new_data);
@@ -88,7 +88,7 @@ export default function CreateClientByJob() {
     const handleServices = (value) => {
         services.forEach((_s, index) => {
             if (index != value) {
-                $(".services-" + _s.service + "-" + _s.c_id).css(
+                $(".services-" + _s.service + "-" + _s.contract_id).css(
                     "display",
                     "none"
                 );
@@ -116,7 +116,8 @@ export default function CreateClientByJob() {
     const handleSubmit = () => {
         let formdata = {
             workers: shiftFormValues,
-            service: selectedService,
+            service_id: selectedService.service,
+            contract_id: selectedService.contract_id,
             prevWorker: isPrevWorker.current.checked,
             client_page: true,
         };

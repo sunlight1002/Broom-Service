@@ -163,11 +163,11 @@ export default function Contract() {
                                                             </Td>
                                                             <Td>{c.status}</Td>
                                                             <Td>
-                                                                {c.offer.total}{" "}
+                                                                {c.offer.subtotal}{" "}
                                                                 {t(
                                                                     "global.currency"
                                                                 ) +
-                                                                    " " +
+                                                                    " + " +
                                                                     t(
                                                                         "global.vat"
                                                                     )}

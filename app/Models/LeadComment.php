@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LeadComment extends Model
 {
-    use HasFactory;
     protected $fillable = [
-        'comment',
+        'lead_id',
         'team_id',
-        'lead_id'
+        'comment',
     ];
 
     public function team()

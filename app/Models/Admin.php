@@ -23,12 +23,11 @@ class Admin extends Authenticatable
         'email',
         'phone',
         'address',
-        'password',
-        'confirm_password',
+        'avatar',
         'color',
         'status',
-        'avatar',
-        'role'
+        'role',
+        'password',
     ];
 
     /**

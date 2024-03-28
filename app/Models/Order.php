@@ -11,9 +11,9 @@ class Order extends Model
     protected $fillable = [
         'order_id',
         'job_id',
+        'contract_id',
         'client_id',
         'doc_url',
-        'contract_id',
         'response',
         'items',
         'status',

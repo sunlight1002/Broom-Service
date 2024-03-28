@@ -716,7 +716,7 @@ export default function Invoices() {
                                                         " ILS";
 
                                                     return (
-                                                        <Tr key={i}>
+                                                        <Tr key={index}>
                                                             <Td>
                                                                 #
                                                                 {

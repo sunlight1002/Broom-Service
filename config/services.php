@@ -50,6 +50,7 @@ return [
         'key' => env('ZCREDIT_KEY'),
         'terminalnumber' => env('ZCREDIT_TERMINALNUMBER'),
         'terminalpassword' => env('ZCREDIT_TERMINALPASSWORD'),
+        'callback-url' => env('ZCREDIT_CALLBACK_URL'),
     ],
 
     'google' => [

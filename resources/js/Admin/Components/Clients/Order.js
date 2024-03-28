@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
 import { Base64 } from "js-base64";
+import Swal from "sweetalert2";
 
 export default function Order() {
     const [loading, setLoading] = useState("Loading...");
@@ -169,6 +170,13 @@ export default function Order() {
                         setTimeout(() => {
                             getOrders("f=all");
                         }, 1000);
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });

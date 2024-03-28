@@ -103,7 +103,7 @@ export default function CreateJobCalender() {
     const handleSubmit = () => {
         let formdata = {
             workers: shiftFormValues,
-            service: selectedService,
+            service_id: selectedService.service,
             prevWorker: isPrevWorker.current.checked,
         };
 

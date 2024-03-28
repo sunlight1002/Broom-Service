@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
+use App\Models\Order;
 use App\Models\Setting;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -97,15 +98,15 @@ trait PaymentAPI
         $postData = [
             'TerminalNumber' => $zcreditTerminalNumber,
             'Password' => $zcreditPassword,
-            // 'Track2' => "",
+            'Track2' => "",
             'CardNumber' => $chargeData['card_number'],
-            'CVV' => $chargeData['card_cvv'],
-            'ExpDate_MMYY' => $chargeData['card_exp'],
+            'CVV' => "",
+            'ExpDate_MMYY' => "",
             'TransactionSum' => $chargeData['amount'],
             'NumberOfPayments' => "1",
-            // 'FirstPaymentSum' => "0",
-            // 'OtherPaymentsSum' => "0",
-            // 'TransactionType' => "01",           // 01 - regular transaction, 53 - refund transaction
+            'FirstPaymentSum' => "0",
+            'OtherPaymentsSum' => "0",
+            'TransactionType' => "01",           // 01 - regular transaction, 53 - refund transaction
             'CurrencyType' => "1",                // 1 - NIS, 2 - USD, 3 - EUR
             'CreditType' => "1",
             'J' => $chargeData['J'],
@@ -117,37 +118,30 @@ trait PaymentAPI
             'CustomerAddress' => $chargeData['client_address'],
             'CustomerEmail' => $chargeData['client_email'],
             'PhoneNumber' => $chargeData['client_phone'],
-            // 'ItemDescription' => "",
+            'ItemDescription' => "",
             'ObeligoAction' => isset($chargeData['obeligo_action']) ?
                 $chargeData['obeligo_action'] : 0,
             'OriginalZCreditReferenceNumber' => isset($chargeData['original_zcredit_reference_number']) ?
                 $chargeData['original_zcredit_reference_number'] : 0,
-            // 'TransactionUniqueIdForQuery' => "",
-            // 'TransactionUniqueID' => "",
-            // 'UseAdvancedDuplicatesCheck' => "",
-            // 'ZCreditInvoiceReceipt' => [
-            //     'Type' => "0",
-            //     'TaxRate' => "0",
-            //     'RecepientName' => "",
-            //     'RecepientCompanyID' => "",
-            //     'Address' => "",
-            //     'City' => "",
-            //     'ZipCode' => "",
-            //     'PhoneNum' => "",
-            //     'FaxNum' => "",
-            //     'Comment' => "",
-            //     'ReceipientEmail' => "",
-            //     'EmailDocumentToReceipient' => "",
-            //     'ReturnDocumentInResponse' => "",
-            //     'Items' => [
-            //         [
-            //             'ItemDescription' => "Authorize card",
-            //             'ItemQuantity' => "1",
-            //             'ItemPrice' => "1",
-            //             'IsTaxFree' => "false",
-            //         ],
-            //     ],
-            // ],
+            'TransactionUniqueIdForQuery' => "",
+            'TransactionUniqueID' => "",
+            'UseAdvancedDuplicatesCheck' => "",
+            'ZCreditInvoiceReceipt' => [
+                'Type' => "0",
+                'TaxRate' => config('services.app.tax_percentage'),
+                'RecepientName' => "",
+                'RecepientCompanyID' => "",
+                'Address' => "",
+                'City' => "",
+                'ZipCode' => "",
+                'PhoneNum' => "",
+                'FaxNum' => "",
+                'Comment' => "",
+                'ReceipientEmail' => "",
+                'EmailDocumentToReceipient' => "",
+                'ReturnDocumentInResponse' => "",
+                'Items' => $chargeData['items'],
+            ],
         ];
 
         $response = Http::withHeaders([
@@ -182,7 +176,7 @@ trait PaymentAPI
             'UniqueId' => $sessionData['unique_id'],
             'SuccessUrl' => url('thanks/' . $sessionData['client_id']),
             'CancelUrl' => url('client/settings?cps=payment-cancelled'),
-            'CallbackUrl' => url('zcredit/callback'),
+            'CallbackUrl' => config('services.zcredit.callback-url'),
             'PaymentType' => 'authorize',
             'CreateInvoice' => false,
             'AdditionalText' => '',
@@ -332,7 +326,48 @@ trait PaymentAPI
         }
     }
 
-    private function createOrderDocument($orderData)
+    private function generateOrderDocument($job, $services)
+    {
+        $invoice_status = 1;
+        if (str_contains($job->schedule, 'w')) {
+            $invoice_status = 0;
+        }
+
+        $json = $this->createICountDocument([
+            "client_name" => $job->client->invoicename,
+            "client_address" => $job->client->geo_address,
+            "email" => $job->client->email,
+            "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
+            "items" => $services,
+            "email_to" => $job->client->email,
+        ]);
+
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        };
+
+        $order = Order::create([
+            'order_id'          => $json['docnum'],
+            'doc_url'           => $json['doc_url'],
+            'job_id'            => $job->id,
+            'contract_id'       => $job->contract_id,
+            'client_id'         => $job->client->id,
+            'response'          => json_encode($json, true),
+            'items'             => json_encode($services),
+            'status'            => 'Open',
+            'invoice_status'    => $invoice_status,
+        ]);
+
+        $job->update([
+            'isOrdered' => '1',
+            'order_id' => $order->id,
+            'is_order_generated' => true
+        ]);
+
+        return $order;
+    }
+
+    private function createICountDocument($documentData)
     {
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
@@ -350,18 +385,18 @@ trait PaymentAPI
 
         $postData = [
             "cid"  => $iCountCompanyID,
-            "lang" => $orderData['lang'],
+            "lang" => $documentData['lang'],
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
-            "email" => $orderData['email'],
+            "email" => $documentData['email'],
             "doctype" => "order",
-            "client_name" => $orderData['client_name'],
-            "client_address" => $orderData['client_address'],
+            "client_name" => $documentData['client_name'],
+            "client_address" => $documentData['client_address'],
             "currency_code" => "ILS",
-            "items" => $orderData['items'],
+            "items" => $documentData['items'],
             "send_email" => 0,
             "email_to_client" => 0,
-            "email_to" => $orderData['email_to'],
+            "email_to" => $documentData['email_to'],
         ];
 
         $response = Http::withHeaders([

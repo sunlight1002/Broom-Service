@@ -6,6 +6,7 @@ import Moment from "moment";
 import ReactPaginate from "react-paginate";
 import { RotatingLines } from "react-loader-spinner";
 import { useAlert } from "react-alert";
+import Swal from "sweetalert2";
 
 export default function Jobs({ contracts, client }) {
     const [jobs, setJobs] = useState([]);
@@ -188,28 +189,42 @@ export default function Jobs({ contracts, client }) {
             .then((res) => {
                 getJobs(filtered);
                 alert.success("Job Order(s) created successfully");
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 
     const genInvoice = () => {
         let cb = document.querySelectorAll(".cb");
-        let ar = [];
+        let order_id_arr = [];
         cb.forEach((c, i) => {
             if (c.checked == true) {
                 let id = c.getAttribute("oid");
-                if (id != "") ar.push(id);
+                if (id != "") order_id_arr.push(id);
             }
         });
-        if (ar.length == 0) {
+        if (order_id_arr.length == 0) {
             alert.error("Please check job");
             return;
         }
 
         axios
-            .post(`/api/admin/multiple-invoices`, { ar }, { headers })
+            .post(`/api/admin/multiple-invoices`, order_id_arr, { headers })
             .then((res) => {
                 getJobs(filtered);
                 alert.success("Job Invoice(s) created successfully");
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

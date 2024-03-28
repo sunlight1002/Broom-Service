@@ -21,7 +21,6 @@ export default function EditOffer() {
             fixed_price: "",
             rateperhour: "",
             other_title: "",
-            totalamount: "",
             template: "",
             cycle: "",
             period: "",

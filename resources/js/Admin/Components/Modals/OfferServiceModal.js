@@ -12,7 +12,6 @@ const initialValues = {
     fixed_price: "",
     rateperhour: "",
     other_title: "",
-    totalamount: "",
     template: "",
     cycle: "",
     period: "",

@@ -832,7 +832,9 @@ export default function PriceOffer() {
                                                         </td>
                                                         {s.type == "fixed" ? (
                                                             <td>
-                                                                {s.fixed_price}{" "}
+                                                                {s.workers
+                                                                    .length *
+                                                                    s.fixed_price}{" "}
                                                                 {t(
                                                                     "global.currency"
                                                                 )}

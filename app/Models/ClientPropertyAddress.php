@@ -9,6 +9,9 @@ class ClientPropertyAddress extends Model
     protected $table = "client_property_addresses";
 
     protected $fillable = [
+        'client_id',
+        'address_name',
+        'city',
         'floor',
         'apt_no',
         'entrence_code',
@@ -16,12 +19,9 @@ class ClientPropertyAddress extends Model
         'geo_address',
         'latitude',
         'longitude',
-        'city',
-        'client_id',
         'prefer_type',
         'is_dog_avail',
         'is_cat_avail',
-        'address_name',
         'not_allowed_worker_ids'
     ];
 }

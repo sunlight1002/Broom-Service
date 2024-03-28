@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class WhatsappLastReply extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'phone',
+        'message',
+        'check_current',
+    ];
 }

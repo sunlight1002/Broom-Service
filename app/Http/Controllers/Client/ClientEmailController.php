@@ -12,6 +12,7 @@ use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Models\Notification;
+use App\Traits\ClientCardTrait;
 use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
-  use PriceOffered;
+  use PriceOffered, ClientCardTrait;
 
   public function ShowMeeting(Request $request)
   {
@@ -292,14 +293,7 @@ class ClientEmailController extends Controller
 
     $card = $contract->card;
     if (!$card) {
-      $card = ClientCard::query()
-        ->where('client_id', $contract->client_id)
-        ->where(function ($q) {
-          $q->where('is_default', true)
-            ->orWhere('is_default', false);
-        })
-        ->orderBy('is_default', 'desc')
-        ->first();
+      $card = $this->getClientCard($contract->client_id);
     }
 
     $offer['services'] = $this->formatServices($offer);

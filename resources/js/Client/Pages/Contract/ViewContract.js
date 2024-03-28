@@ -384,6 +384,7 @@ export default function WorkContract() {
                                                 return (
                                                     <p key={i}>
                                                         {s.totalamount +
+                                                            " " +
                                                             t(
                                                                 "work-contract.ils"
                                                             ) +

@@ -15,6 +15,7 @@ use App\Models\Refunds;
 use App\Models\Services;
 use App\Helpers\Helper;
 use App\Models\Setting;
+use App\Traits\ClientCardTrait;
 use App\Traits\PaymentAPI;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    use PaymentAPI;
+    use PaymentAPI, ClientCardTrait;
 
     public function index(Request $request)
     {
@@ -695,6 +696,10 @@ class InvoiceController extends Controller
         $job = Job::query()
             ->with(['jobservice', 'client', 'contract', 'order'])
             ->find($id);
+
+        $client = $job->client;
+        $address = $client->property_addresses()->first();
+
         $pitems = [];
 
         $subtotal = (int) $stotal;
@@ -703,7 +708,6 @@ class InvoiceController extends Controller
 
         if (!empty($services)) {
             foreach ($services as $k => $service) {
-
                 if ($k == 0) {
                     $pitems[] = [
                         'ItemDescription' => $service->description,
@@ -716,90 +720,44 @@ class InvoiceController extends Controller
         }
         $pay_items = json_encode($pitems);
 
-        $curl = curl_init();
+        $captureChargeResponse =  $this->captureCardCharge([
+            'card_number' => $token,
+            'amount' => $total,
+            'client_name' => $client->firstname . ' ' . $client->lastname,
+            'client_address' => $address ? $address->geo_address : '',
+            'client_email' => $client->email,
+            'client_phone' => $client->phone,
+            'J' => 0,
+            'obeligo_action' => "",
+            'original_zcredit_reference_number' => "",
+            'items' => $pay_items
+        ]);
 
-        $pdata = '{
-        "TerminalNumber": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER) . '",
-        "Password": "' . Helper::get_setting(SettingKeyEnum::ZCREDIT_TERMINAL_PASS) . '",
-        "Track2": "",
-        "CardNumber": "' . $token . '",
-        "CVV": "",
-        "ExpDate_MMYY": "",
-        "TransactionSum": "' . $total . '",
-        "NumberOfPayments": "1",
-        "FirstPaymentSum": "0",
-        "OtherPaymentsSum": "0",
-        "TransactionType": "01",
-        "CurrencyType": "1",
-        "CreditType": "1",
-        "J": "0",
-        "IsCustomerPresent": "true",
-        "AuthNum": "",
-        "HolderID": "",
-        "ExtraData": "",
-        "CustomerName":"' . $job->client->firstname . " " . $job->client->lastname . '",
-        "CustomerAddress": "' . $job->client->geo_address . '",
-        "CustomerEmail": "",
-        "PhoneNumber": "",
-        "ItemDescription": "",
-        "ObeligoAction": "",
-        "OriginalZCreditReferenceNumber": "",
-        "TransactionUniqueIdForQuery": "",
-        "TransactionUniqueID": "",
-        "UseAdvancedDuplicatesCheck": "",
-        "ZCreditInvoiceReceipt": {
-          "Type": "0",
-          "RecepientName": "",
-          "RecepientCompanyID": "",
-          "Address": "",
-          "City": "",
-          "ZipCode": "",
-          "PhoneNum": "",
-          "FaxNum": "",
-          "TaxRate": "' . config('services.app.tax_percentage') . '",
-          "Comment": "",
-          "ReceipientEmail": "",
-          "EmailDocumentToReceipient": "",
-          "ReturnDocumentInResponse": "",
-          "Items": ' . $pay_items . '
+        if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
+            return $captureChargeResponse;
         }
-      }';
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/CommitFullTransaction',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $pdata,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
-        ));
-
-        $pre = curl_exec($curl);
-        $pres = json_decode($pre);
-        curl_close($curl);
-        return $pres;
+        throw new Exception("Error Processing Charge Request", 500);
     }
 
     public function manualInvoice($oid)
     {
         $_order = Order::find($oid);
+
         $job = Job::query()
             ->with(['jobservice', 'client', 'contract', 'order'])
             ->find($_order->job_id);
 
         $services = json_decode($job->order[0]->items);
 
-        $total = 0;
+        $card = $this->getClientCard($job->client_id);
+        $payment_method = $job->client->payment_method;
 
-        $card = ClientCard::where('client_id', $job->client_id)->first();
-        $p_method = $job->client->payment_method;
-        $doctype  = ($card != null && $card->card_token != null && $p_method == 'cc') ? "invrec" : "invoice";
+        $doctype = (!$card && $payment_method == 'cc') ? "invrec" : "invoice";
+
+        if ($doctype == "invrec" && !$card) {
+            throw new Exception("'Card not added for this client'", 1);
+        }
 
         $subtotal = (int)$services[0]->unitprice;
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
@@ -808,8 +766,7 @@ class InvoiceController extends Controller
         $order = Order::where('job_id', $_order->job_id)->first();
         $o_res = json_decode($order->response);
 
-        $due      = Carbon::now()->endOfMonth()->toDateString();
-        $name     = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
+        $due = Carbon::now()->endOfMonth()->toDateString();
         $url = "https://api.icount.co.il/api/v3.php/doc/create";
         $ln = ($job->client->lng == 'heb') ? 'he' : 'en';
 
@@ -830,7 +787,7 @@ class InvoiceController extends Controller
 
             "doctype"        => $doctype,
             "client_id"      => $o_res->client_id,
-            "client_name"    => $name,
+            "client_name"    => $job->client->invoicename,
             "client_address" => $job->client->geo_address,
             "email"          => $job->client->email,
             "lang"           => $ln,
@@ -838,22 +795,16 @@ class InvoiceController extends Controller
             "doc_lang"       => $ln,
             "items"          => $services,
             "duedate"        => $due,
-            "based_on"       => ['docnum' => $order->order_id, 'doctype' => 'order'],
-
+            "based_on"       => [
+                'docnum'  => $order->order_id,
+                'doctype' => 'order'
+            ],
             "send_email"      => 1,
             "email_to_client" => 1,
             "email_to"        => $job->client->email,
         );
 
         if ($doctype == "invrec") {
-
-            if ($card == null) {
-                return response()->json([
-                    'rescode' => 401,
-                    'msg' => 'Card Not Added for this user'
-                ]);
-            }
-
             $ex = explode('-', $card->valid);
             $cc = ['cc' => [
                 "sum" => $total,
@@ -917,16 +868,11 @@ class InvoiceController extends Controller
 
     public function multipleInvoices(Request $request)
     {
-        $oids = $request->ar;
+        $orders = Order::find($request->all());
 
-        if (!empty($oids)) {
-            foreach ($oids as $oid) {
-
-                $o = Order::where('id', $oid)->get()->first();
-                if ($o->invoice_status == 1 || $o->invoice_status == 0) {
-
-                    $this->manualInvoice($oid);
-                }
+        foreach ($orders as $order) {
+            if ($order->invoice_status == 1 || $order->invoice_status == 0) {
+                $this->manualInvoice($order->id);
             }
         }
     }
@@ -978,7 +924,7 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        if ($job->isOrdered == '0') {
+        if ($job->is_order_generated) {
             return response()->json([
                 'message' => 'Order is already created for the Job'
             ], 403);
@@ -992,39 +938,7 @@ class InvoiceController extends Controller
 
         $services = $request->services;
 
-        $invoice  = 1;
-        if (str_contains($job->schedule, 'w')) {
-            $invoice = 0;
-        }
-
-        $json = $this->createOrderDocument([
-            "client_name" => $job->client->invoicename,
-            "client_address" => $job->client->geo_address,
-            "email" => $job->client->email,
-            "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
-            "items" => $services,
-            "email_to" => $job->client->email,
-        ]);
-
-        $response = json_encode($json, true);
-
-        if (!$json["status"]) {
-            throw new Exception($json["reason"], 500);
-        };
-
-        Order::create([
-            'order_id' => $json['docnum'],
-            'doc_url' => $json['doc_url'],
-            'job_id' => $job->id,
-            'contract_id' => $job->contract_id,
-            'client_id' => $job->client->id,
-            'response' => $response,
-            'items' => json_encode($services),
-            'status' => 'Open',
-            'invoice_status' => ($invoice == 1) ? 1 : 0,
-        ]);
-
-        $job->update(['isOrdered' => 1]);
+        $this->generateOrderDocument($job, $services);
 
         return response()->json([
             'message' => 'Order generated successfully'
