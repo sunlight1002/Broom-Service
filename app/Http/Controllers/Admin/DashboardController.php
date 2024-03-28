@@ -25,9 +25,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\PriceOffered;
 
 class DashboardController extends Controller
 {
+  use PriceOffered;
   public function dashboard()
   {
     $total_workers   = User::all()->count();
@@ -251,14 +253,19 @@ class DashboardController extends Controller
   public function pendingData($for)
   {
     if ($for == 'meetings') {
-      $meetings = Schedule::where('booking_status', 'pending')->with('client', 'team')->paginate(5);
+      $meetings = Schedule::where('booking_status', 'pending')->with('client', 'team', 'propertyAddress')->paginate(5);
       return response()->json([
         'data' => $meetings,
       ]);
     }
 
     if ($for == 'offers') {
-      $offers = Offer::where('status', 'sent')->with('client', 'service')->paginate(5);
+      $offers = Offer::where('status', 'sent')->with('client', 'service')
+      ->paginate(5)
+      ->through(function ($item) {
+        $item->services = $this->formatServices($item);
+        return $item;
+      });
       return response()->json([
         'data' => $offers,
       ]);
@@ -269,8 +276,11 @@ class DashboardController extends Controller
         ->with(['client', 'offer'])
         ->where('status', ContractStatusEnum::UN_VERIFIED)
         ->orWhere('status', ContractStatusEnum::NOT_SIGNED)
-        ->paginate(5);
-
+        ->paginate(5)
+        ->through(function ($item) {
+          $item->offer->services = $this->formatServices($item->offer);
+          return $item;
+        });
       return response()->json([
         'data' => $contracts,
       ]);

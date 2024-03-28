@@ -265,12 +265,14 @@ export default function () {
                                 <tbody>
                                     {data &&
                                         data.map((d, i) => {
+                                            const property = d.property_address;
                                             let cords =
-                                                d.client.latitude &&
-                                                d.client.longitude
-                                                    ? d.client.latitude +
+                                                property &&
+                                                property.latitude &&
+                                                property.longitude
+                                                    ? property.latitude +
                                                       "," +
-                                                      d.client.longitude
+                                                      property.longitude
                                                     : "";
                                             let phone =
                                                 d.client.phone != undefined
@@ -316,14 +318,20 @@ export default function () {
                                                             )}
                                                     </td>
                                                     <td>
-                                                        <Link
-                                                            to={`https://maps.google.com?q=${cords}`}
-                                                        >
-                                                            {
-                                                                d.client
-                                                                    .geo_address
-                                                            }
-                                                        </Link>
+                                                        {property && cords ? (
+                                                            <Link
+                                                                to={`https://maps.google.com?q=${cords}`}
+                                                            >
+                                                                {property &&
+                                                                property.address_name
+                                                                    ? d
+                                                                          .property_address
+                                                                          .address_name
+                                                                    : "NA"}
+                                                            </Link>
+                                                        ) : (
+                                                            "NA"
+                                                        )}
                                                     </td>
                                                     <td>
                                                         {d.team
@@ -454,20 +462,13 @@ export default function () {
                                 <tbody>
                                     {data &&
                                         data.map((d, i) => {
-                                            let cords =
-                                                d.client.latitude &&
-                                                d.client.longitude
-                                                    ? d.client.latitude +
-                                                      "," +
-                                                      d.client.longitude
-                                                    : "";
+                                            let services = d.offer
+                                                ? JSON.parse(d.offer.services)
+                                                : [];
                                             let phone =
                                                 d.client.phone != undefined
                                                     ? d.client.phone.split(",")
                                                     : [];
-                                            let services = d.offer
-                                                ? JSON.parse(d.offer.services)
-                                                : [];
 
                                             return (
                                                 <tr key={i}>
@@ -485,14 +486,51 @@ export default function () {
                                                             : "NA"}
                                                     </td>
                                                     <td>
-                                                        <Link
-                                                            to={`https://maps.google.com?q=${cords}`}
-                                                        >
-                                                            {
-                                                                d.client
-                                                                    .geo_address
-                                                            }
-                                                        </Link>
+                                                        {services &&
+                                                            services.map(
+                                                                (s, j) => {
+                                                                    return s.address ? (
+                                                                        s
+                                                                            .address
+                                                                            .latitude &&
+                                                                        s
+                                                                            .address
+                                                                            .longitude ? (
+                                                                            <Link
+                                                                                to={`https://maps.google.com?q=${
+                                                                                    s
+                                                                                        .address
+                                                                                        .latitude +
+                                                                                    "," +
+                                                                                    s
+                                                                                        .address
+                                                                                        .longitude
+                                                                                }`}
+                                                                            >
+                                                                                {s
+                                                                                    .address
+                                                                                    .address_name
+                                                                                    ? s
+                                                                                          .address
+                                                                                          .address_name +
+                                                                                      " "
+                                                                                    : "NA"}
+                                                                            </Link>
+                                                                        ) : s
+                                                                              .address
+                                                                              .address_name ? (
+                                                                            s
+                                                                                .address
+                                                                                .address_name +
+                                                                            " "
+                                                                        ) : (
+                                                                            "NA"
+                                                                        )
+                                                                    ) : (
+                                                                        "NA"
+                                                                    );
+                                                                }
+                                                            )}
                                                     </td>
                                                     <td>
                                                         {phone &&
@@ -640,19 +678,12 @@ export default function () {
                                 <tbody>
                                     {data &&
                                         data.map((d, i) => {
-                                            let cords =
-                                                d.client.latitude &&
-                                                d.client.longitude
-                                                    ? d.client.latitude +
-                                                      "," +
-                                                      d.client.longitude
-                                                    : "";
                                             let phone =
                                                 d.client.phone != undefined
                                                     ? d.client.phone.split(",")
                                                     : [];
-                                            let services = d.offer
-                                                ? JSON.parse(d.offer.services)
+                                            let services = d.services
+                                                ? JSON.parse(d.services)
                                                 : [];
                                             return (
                                                 <tr key={i}>
@@ -670,14 +701,51 @@ export default function () {
                                                             : "NA"}
                                                     </td>
                                                     <td>
-                                                        <Link
-                                                            to={`https://maps.google.com?q=${cords}`}
-                                                        >
-                                                            {
-                                                                d.client
-                                                                    .geo_address
-                                                            }
-                                                        </Link>
+                                                        {services &&
+                                                            services.map(
+                                                                (s, j) => {
+                                                                    return s.address ? (
+                                                                        s
+                                                                            .address
+                                                                            .latitude &&
+                                                                        s
+                                                                            .address
+                                                                            .longitude ? (
+                                                                            <Link
+                                                                                to={`https://maps.google.com?q=${
+                                                                                    s
+                                                                                        .address
+                                                                                        .latitude +
+                                                                                    "," +
+                                                                                    s
+                                                                                        .address
+                                                                                        .longitude
+                                                                                }`}
+                                                                            >
+                                                                                {s
+                                                                                    .address
+                                                                                    .address_name
+                                                                                    ? s
+                                                                                          .address
+                                                                                          .address_name +
+                                                                                      " "
+                                                                                    : "NA"}
+                                                                            </Link>
+                                                                        ) : s
+                                                                              .address
+                                                                              .address_name ? (
+                                                                            s
+                                                                                .address
+                                                                                .address_name +
+                                                                            " "
+                                                                        ) : (
+                                                                            "NA"
+                                                                        )
+                                                                    ) : (
+                                                                        "NA"
+                                                                    );
+                                                                }
+                                                            )}
                                                     </td>
                                                     <td>
                                                         {phone &&
@@ -714,7 +782,9 @@ export default function () {
                                                     >
                                                         {d.status}
                                                     </td>
-                                                    <td>{d.subtotal} ILS + VAT</td>
+                                                    <td>
+                                                        {d.subtotal} ILS + VAT
+                                                    </td>
 
                                                     <td>
                                                         {" "}

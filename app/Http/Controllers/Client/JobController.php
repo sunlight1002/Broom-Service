@@ -37,7 +37,7 @@ class JobController extends Controller
     public function show(Request $request)
     {
         $job = Job::query()
-            ->with(['client', 'worker', 'service', 'offer', 'jobservice'])
+            ->with(['client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress'])
             ->find($request->id);
 
         return response()->json([

@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { Link } from "react-router-dom";
 export default function Services({ job }) {
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
@@ -115,6 +116,35 @@ export default function Services({ job }) {
                                         ` (with cancellation fees of ${job.cancellation_fee_amount} ILS)`}
                                 </div>
                             </div>
+                            {job.property_address &&
+                                job.property_address.address_name &&
+                                job.property_address.latitude &&
+                                job.property_address.longitude && (
+                                    <div className="col-sm-3">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("client.jobs.view.address")}
+                                            </label>
+                                            <p>
+                                                <Link
+                                                    target="_blank"
+                                                    to={`https://maps.google.com?q=${
+                                                        job.property_address
+                                                            .latitude +
+                                                        "," +
+                                                        job.property_address
+                                                            .longitude
+                                                    }`}
+                                                >
+                                                    {
+                                                        job.property_address
+                                                            .address_name
+                                                    }
+                                                </Link>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                         </div>
                     </form>
                 )}
