@@ -613,7 +613,7 @@ class ClientController extends Controller
         $files = Files::where('user_id', $id)->get();
 
         foreach ($files as $k => $file) {
-            $files[$k]->path = Storage::disk('public')->url('uploads/ClientFiles/' . $file->file);
+            $files[$k]->path = asset('storage/uploads/ClientFiles') . "/" . $file->file;
         }
 
         return response()->json([
