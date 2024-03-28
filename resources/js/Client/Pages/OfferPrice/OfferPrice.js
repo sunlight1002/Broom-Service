@@ -162,7 +162,7 @@ export default function ClientOfferPrice() {
                                                                 {ofr.status}
                                                             </Td>
                                                             <Td>
-                                                                {ofr.total}{" "}
+                                                                {ofr.subtotal}{" "}
                                                                 {t(
                                                                     "global.currency"
                                                                 ) +

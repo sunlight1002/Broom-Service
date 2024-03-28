@@ -13,10 +13,12 @@ import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
-export default function WorkContractRHS() {
+export default function ContractHeb() {
     const [contract, setContract] = useState([]);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState([]);
+    const [clientCard, setClientCard] = useState(null);
+
     const param = useParams();
     const sigRef = useRef();
     const { t } = useTranslation();
@@ -49,6 +51,7 @@ export default function WorkContractRHS() {
                 setContract(res.data.contract);
                 setClient(res.data.contract.client);
                 setServices(JSON.parse(res.data.contract.offer.services));
+                setClientCard(res.data.contract.card);
             });
     };
 
@@ -502,25 +505,6 @@ export default function WorkContractRHS() {
                                                     })}
                                                 </Td>
                                             </Tr>
-
-                                            <Tr>
-                                                <Td
-                                                    style={{
-                                                        width: "60%",
-                                                    }}
-                                                >
-                                                    {t(
-                                                        "work-contract.start_date"
-                                                    )}
-                                                </Td>
-                                                <Td>
-                                                    <span className="form-control">
-                                                        {contract.start_date
-                                                            ? contract.start_date
-                                                            : "NA"}
-                                                    </span>
-                                                </Td>
-                                            </Tr>
                                             <Tr>
                                                 <Td style={{ width: "60%" }}>
                                                     {t(
@@ -529,6 +513,23 @@ export default function WorkContractRHS() {
                                                 </Td>
                                                 <Td>&nbsp;</Td>
                                             </Tr>
+                                            {clientCard && (
+                                                <Tr>
+                                                    <Td
+                                                        style={{ width: "60%" }}
+                                                    >
+                                                        {t(
+                                                            "credit-card.added-card"
+                                                        )}
+                                                    </Td>
+                                                    <Td>
+                                                        **** **** ****{" "}
+                                                        {clientCard.card_number}{" "}
+                                                        - {clientCard.valid} (
+                                                        {clientCard.card_type})
+                                                    </Td>
+                                                </Tr>
+                                            )}
                                             <Tr>
                                                 <Td style={{ width: "60%" }}>
                                                     {t(
@@ -540,54 +541,8 @@ export default function WorkContractRHS() {
                                             {contract && (
                                                 <>
                                                     {contract.status ==
-                                                    "not-signed" ? (
+                                                        "not-signed" && (
                                                         <React.Fragment>
-                                                            {/*<Tr>
-                                                                <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
-                                                                <Td>
-                                                                    <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                                                        <option value=""> --- Please Select --- </option>
-                                                                        <option value='Visa'>Visa</option>
-                                                                        <option value='Master Card'>Master Card</option>
-                                                                        <option value='American Express'>American Express</option>
-                                                                    </select>
-                                                                </Td>
-                                                             </Tr>*/}
-                                                            <Tr>
-                                                                <Td
-                                                                    style={{
-                                                                        width: "60%",
-                                                                    }}
-                                                                >
-                                                                    {t(
-                                                                        "work-contract.card_name"
-                                                                    )}
-                                                                </Td>
-                                                                <Td>
-                                                                    <input
-                                                                        type="text"
-                                                                        name="name_on_card"
-                                                                        onChange={(
-                                                                            e
-                                                                        ) =>
-                                                                            setCname(
-                                                                                e
-                                                                                    .target
-                                                                                    .value
-                                                                            )
-                                                                        }
-                                                                        className="form-control"
-                                                                        placeholder={t(
-                                                                            "work-contract.card_name"
-                                                                        )}
-                                                                    />
-                                                                </Td>
-                                                            </Tr>
-
-                                                            {/*<Tr>
-                                                                <Td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</Td>
-                                                                <Td><input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} /></Td>
-                                                            </Tr>*/}
                                                             <Tr>
                                                                 <td>
                                                                     {t(
@@ -611,89 +566,6 @@ export default function WorkContractRHS() {
                                                                     />
                                                                     &nbsp;
                                                                 </td>
-                                                            </Tr>
-                                                        </React.Fragment>
-                                                    ) : (
-                                                        <React.Fragment>
-                                                            {contract.card_type !=
-                                                                null && (
-                                                                <Tr>
-                                                                    <Td
-                                                                        style={{
-                                                                            width: "60%",
-                                                                        }}
-                                                                    >
-                                                                        {t(
-                                                                            "work-contract.card_type"
-                                                                        )}
-                                                                    </Td>
-                                                                    <Td>
-                                                                        <span className="form-control">
-                                                                            {
-                                                                                contract.card_type
-                                                                            }
-                                                                        </span>
-                                                                    </Td>
-                                                                </Tr>
-                                                            )}
-                                                            <Tr>
-                                                                <Td
-                                                                    style={{
-                                                                        width: "60%",
-                                                                    }}
-                                                                >
-                                                                    {t(
-                                                                        "work-contract.card_name"
-                                                                    )}
-                                                                </Td>
-                                                                <Td>
-                                                                    <span className="form-control">
-                                                                        {
-                                                                            contract.name_on_card
-                                                                        }
-                                                                    </span>
-                                                                </Td>
-                                                            </Tr>
-                                                            {contract.cvv !=
-                                                                null && (
-                                                                <Tr>
-                                                                    <Td
-                                                                        style={{
-                                                                            width: "60%",
-                                                                        }}
-                                                                    >
-                                                                        {t(
-                                                                            "work-contract.card_cvv"
-                                                                        )}
-                                                                    </Td>
-                                                                    <Td>
-                                                                        <span className="form-control">
-                                                                            {
-                                                                                contract.cvv
-                                                                            }
-                                                                        </span>
-                                                                    </Td>
-                                                                </Tr>
-                                                            )}
-                                                            <Tr>
-                                                                <Td
-                                                                    style={{
-                                                                        width: "60%",
-                                                                    }}
-                                                                >
-                                                                    {t(
-                                                                        "work-contract.card_cvv"
-                                                                    )}
-                                                                </Td>
-                                                                <Td>
-                                                                    <img
-                                                                        src={
-                                                                            contract.card_sign
-                                                                        }
-                                                                        className="img-fluid"
-                                                                        alt="Company"
-                                                                    />
-                                                                </Td>
                                                             </Tr>
                                                         </React.Fragment>
                                                     )}

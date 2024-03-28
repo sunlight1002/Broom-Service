@@ -12,6 +12,7 @@ use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Models\Notification;
+use App\Traits\ClientCardTrait;
 use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
-  use PriceOffered;
+  use PriceOffered, ClientCardTrait;
 
   public function ShowMeeting(Request $request)
   {
@@ -197,65 +198,49 @@ class ClientEmailController extends Controller
         ->with('client')
         ->where('unique_hash', $request->unique_hash)
         ->first();
-      $card = ClientCard::query()
-        ->where('client_id', $contract->client->id)
-        ->first();
 
-      if (
-        config('services.app.old_contract') == true ||
-        (config('services.app.old_contract') == false && !empty($card))
-      ) {
-        Contract::where('unique_hash', $request->unique_hash)->update($request->input());
-        Client::where('id', $contract->client_id)->update(['status' => 2]);
-
-        Notification::create([
-          'user_id' => $contract->client_id,
-          'type' => 'contract-accept',
-          'contract_id' => $contract->id,
-          'status' => 'accepted'
-        ]);
-
-        LeadStatus::UpdateOrCreate(
-          [
-            'client_id' => $contract->client->id
-          ],
-          [
-            'client_id' => $contract->client->id,
-            'lead_status' => 'Contract Accepted'
-          ]
-        );
-
+      if (!$contract) {
         return response()->json([
-          'message' => "Thanks, for accepting contract"
-        ]);
-      } else {
-        return response()->json([
-          'message' => 0
-        ]);
+          'message' => "Contract not found"
+        ], 404);
       }
+
+      $card = ClientCard::query()->find($request->card_id);
+
+      if (!$card) {
+        return response()->json([
+          'message' => "No card found"
+        ], 404);
+      }
+
+      Contract::where('unique_hash', $request->unique_hash)->update($request->input());
+      Client::where('id', $contract->client_id)->update(['status' => 2]);
+
+      Notification::create([
+        'user_id' => $contract->client_id,
+        'type' => 'contract-accept',
+        'contract_id' => $contract->id,
+        'status' => 'accepted'
+      ]);
+
+      LeadStatus::UpdateOrCreate(
+        [
+          'client_id' => $contract->client->id
+        ],
+        [
+          'client_id' => $contract->client->id,
+          'lead_status' => 'Contract Accepted'
+        ]
+      );
+
+      return response()->json([
+        'message' => "Thanks, for accepting contract"
+      ]);
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
       ]);
     }
-  }
-
-  public function saveCard(Request $request)
-  {
-    $args = [
-      'client_id'   => $request->cdata['cid'],
-      'card_type'   => $request->cdata['card_type'],
-      'card_number' => $request->cdata['card_number'],
-      'valid'       => $request->cdata['valid'],
-      'cvv'         => $request->cdata['cvv'],
-      'cc_charge'   => $request->cdata['cc_charge'],
-      'card_token'  => $request->cdata['card_token'],
-    ];
-
-    ClientCard::create($args);
-    return response()->json([
-      'message' => "Card validated successfully"
-    ]);
   }
 
   public function RejectContract(Request $request)
@@ -303,25 +288,20 @@ class ClientEmailController extends Controller
 
   public function contractByHash($hash)
   {
-    $contract = Contract::where('unique_hash', $hash)->latest()->first();
+    $contract = Contract::with('card')->where('unique_hash', $hash)->latest()->first();
     $offer = Offer::query()->with('client')->find($contract->offer_id);
-    $cid = $offer->client_id;
 
-    $exist_card = ClientCard::where('client_id', $cid)->where('card_token', '!=', null)->first();
+    $card = $contract->card;
+    if (!$card) {
+      $card = $this->getClientCard($contract->client_id);
+    }
 
     $offer['services'] = $this->formatServices($offer);
 
-    if (isset($exist_card->card_token)) {
-      $contract->add_card = 0;
-    } else {
-      $contract->add_card = 1;
-    }
-
     return response()->json([
-      'old_contract' => config('services.app.old_contract'),
       'offer' => $offer,
       'contract' => $contract,
-      'card' => $exist_card,
+      'card' => $card,
     ]);
   }
 

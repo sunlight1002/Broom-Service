@@ -10,22 +10,11 @@ class Contract extends Model
         'offer_id',
         'client_id',
         'additional_address',
-        'name_on_card',
-        'cvv',
-        'unique_hash',
         'signature',
-        'card_sign',
         'status',
-        'start_date',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'start_date' => 'datetime:Y-m-d',
+        'unique_hash',
+        'card_id',
+        'job_status',
     ];
 
     public function client()
@@ -41,5 +30,10 @@ class Contract extends Model
     public function job()
     {
         return $this->belongsTo(Job::class, 'id', 'contract_id');
+    }
+
+    public function card()
+    {
+        return $this->belongsTo(ClientCard::class, 'card_id');
     }
 }

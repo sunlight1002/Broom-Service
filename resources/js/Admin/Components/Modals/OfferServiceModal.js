@@ -12,7 +12,6 @@ const initialValues = {
     fixed_price: "",
     rateperhour: "",
     other_title: "",
-    totalamount: "",
     template: "",
     cycle: "",
     period: "",
@@ -369,9 +368,7 @@ export default function OfferServiceModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">
-                                Property address
-                            </label>
+                            <label className="control-label">Property</label>
                             <select
                                 className="form-control"
                                 name="address"

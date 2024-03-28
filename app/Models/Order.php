@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasFactory;
     protected $table = 'order';
+
     protected $fillable = [
         'order_id',
         'job_id',
+        'contract_id',
         'client_id',
         'doc_url',
-        'contract_id',
         'response',
         'items',
         'status',

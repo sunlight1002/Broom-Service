@@ -61,6 +61,7 @@
         "service_txt": "Service Name",
         "freq_s_txt": "Frequency of Services",
         "job_h_txt": "Job Hours",
+        "worker_hours": "Worker Hours",
         "job_price": "Job Price",
         "hourly_rate": "Hourly Rate",
         "hours": "hour(s)",
@@ -301,13 +302,13 @@
         "accept_contract": "Accept Contract",
         "please_select": "Please select",
         "messages": {
+            "card_err": "Please add card",
             "card_type_err": "Please select card type",
             "card_holder_err": "Please enter card holder name",
             "cvv_err": "Please enter card cvv",
             "sign_card_err": "Please enter signature on the card",
             "add_card_err": "Please add card before sign contract!",
             "sign_err": "Please sign the contract",
-            "start_date_err": "Please select start date",
             "invalid_cvv": "Invalid cvv",
             "success": "Thanks, for accepting contract",
             "reject_title": "Are you sure?",
@@ -332,7 +333,7 @@
             "type": "Card type",
             "holder": "Card holder name"
         },
-        "add_card_txt": "Add Credit Card ( charge of 1 ILS is aplicable )*",
+        "add_card_txt": "Add Credit Card ( charge of 1 ILS is applicable )*",
         "add_card_btn": "Add Card Securely",
         "model_title": "Add Credit Card",
         "card_ex_year": "Card Expire Year",
@@ -341,8 +342,7 @@
         "select_month": "-- select expire month --",
         "model_submit": "Submit",
         "add_card": "Add Card",
-        "back_btn": "Back",
-        "start_date": "Start Date"
+        "back_btn": "Back"
     },
     "j_status": {
         "not-started": "Not started",
@@ -448,10 +448,11 @@
         },
         "jobs": {
             "title": "Jobs",
+            "date": "Date",
             "job_date": "Job Dated",
-            "worker_name": "Worker Name",
-            "client_name": "Client Name",
-            "service_name": "Service Name",
+            "worker": "Worker",
+            "client": "Client",
+            "service": "Service",
             "shift": "Shift",
             "address": "Address",
             "c_time": "Complete Time",
@@ -467,7 +468,7 @@
                 "w_phone": "Worker Phone",
                 "address": "Address",
                 "service_dtl": "Service Details",
-                "services": "Services",
+                "service": "Service",
                 "c_time": "Complete Time",
                 "shift": "Shift",
                 "to": "To",
@@ -852,5 +853,8 @@
         "disclaimer_details2": "I undertake to inform the employer of any change that will apply to my personal details and the details above within a week from the date of the change.",
         "button_clear": "Clear",
         "button_submit": "Submit"
+    },
+    "credit-card": {
+        "added-card": "Added Card"
     }
 }

@@ -7,6 +7,8 @@ use App\Http\Controllers\Client\ClientCardController;
 use App\Http\Controllers\Client\ClientEmailController;
 use App\Http\Controllers\Client\DashboardController;
 use App\Http\Controllers\Client\JobCommentController;
+use App\Http\Controllers\Client\JobController;
+
 /*
 |--------------------------------------------------------------------------
 | Admin API Routes
@@ -31,9 +33,9 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('get-contract/{id}', [DashboardController::class, 'getContract'])->name('get-contract');
 
     //job APis
-    Route::post('jobs', [DashboardController::class, 'listJobs'])->name('jobs');
-    Route::post('view-job', [DashboardController::class, 'viewJob'])->name('view-job');
-    Route::put('jobs/{id}/cancel', [DashboardController::class, 'cancelJob']);
+    Route::post('jobs', [JobController::class, 'index']);
+    Route::post('view-job', [JobController::class, 'show']);
+    Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
@@ -62,10 +64,11 @@ Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer'])->name
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer'])->name('accept-offer');
 Route::post('accept-meeting', [ClientEmailController::class, 'AcceptMeeting'])->name('accept-meeting');
 Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);
-Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract'])->name('accept-contract');
-Route::post('reject-contract', [ClientEmailController::class, 'RejectContract'])->name('reject-contract');
+Route::post('contracts/{hash}/initialize-card', [ClientCardController::class, 'createCardSession']);
+Route::post('contracts/{hash}/check-card', [ClientCardController::class, 'checkContractCard']);
+Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract']);
+Route::post('reject-contract', [ClientEmailController::class, 'RejectContract']);
 Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate'])->name('get-service-template');
-Route::post('save-card', [ClientEmailController::class, 'saveCard'])->name('save-card');
 Route::post('add-file', [DashboardController::class, 'addfile'])->name('add-file');
 Route::post('delete-file', [DashboardController::class, 'deletefile'])->name('delete-file');
 Route::post('get-files', [DashboardController::class, 'getfiles'])->name('get-files');

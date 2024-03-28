@@ -1,5 +1,7 @@
 import React from "react";
 
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+
 export default function Services({ job }) {
     const service = job.jobservice;
 
@@ -13,7 +15,7 @@ export default function Services({ job }) {
                             <div className="col-sm-3">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Services
+                                        Service
                                     </label>
                                     <p>{service.name}</p>
                                 </div>
@@ -21,7 +23,7 @@ export default function Services({ job }) {
                             <div className="col-sm-2">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        frequency
+                                        Frequency
                                     </label>
                                     <p>{service.freq_name}</p>
                                 </div>
@@ -32,7 +34,12 @@ export default function Services({ job }) {
                                         Complete Time
                                     </label>
 
-                                    <p>{service.job_hour} hours</p>
+                                    <p>
+                                        {convertMinsToDecimalHrs(
+                                            service.duration_minutes
+                                        )}{" "}
+                                        hours
+                                    </p>
                                 </div>
                             </div>
                             <div className="col-sm-2">

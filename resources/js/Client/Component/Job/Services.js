@@ -1,5 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 export default function Services({ job }) {
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
@@ -71,7 +73,7 @@ export default function Services({ job }) {
                             <div className="col-sm-3">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        {t("client.jobs.view.services")}
+                                        {t("client.jobs.view.service")}
                                     </label>
                                     <p>
                                         {c_lng == "en"
@@ -86,7 +88,11 @@ export default function Services({ job }) {
                                         {t("client.jobs.view.c_time")}
                                     </label>
                                     <p>
-                                        {service ? service.job_hour : "NA"}{" "}
+                                        {service.duration_minutes
+                                            ? convertMinsToDecimalHrs(
+                                                  service.duration_minutes
+                                              )
+                                            : "NA"}{" "}
                                         {t("client.jobs.view.hour_s")}
                                     </p>
                                 </div>

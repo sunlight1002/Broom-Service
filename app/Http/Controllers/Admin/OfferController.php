@@ -86,11 +86,11 @@ class OfferController extends Controller
             $serviceTotal = 0;
             if ($service['type'] == 'hourly') {
                 foreach ($service['workers'] as $wkey => $worker) {
-                    $serviceTotal = $service['rateperhour'] * $worker['jobHours'];
-                    $subtotal += $serviceTotal;
+                    $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
+                $subtotal += $serviceTotal;
             } else {
-                $serviceTotal = $service['fixed_price'] * count($service['workers']);
+                $serviceTotal += $service['fixed_price'] * count($service['workers']);
                 $subtotal += $serviceTotal;
             }
             $services[$skey]['totalamount'] = $serviceTotal;
@@ -246,11 +246,11 @@ class OfferController extends Controller
             $serviceTotal = 0;
             if ($service['type'] == 'hourly') {
                 foreach ($service['workers'] as $wkey => $worker) {
-                    $serviceTotal = $service['rateperhour'] * $worker['jobHours'];
-                    $subtotal += $serviceTotal;
+                    $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
+                $subtotal += $serviceTotal;
             } else {
-                $serviceTotal = $service['fixed_price'] * count($service['workers']);
+                $serviceTotal += $service['fixed_price'] * count($service['workers']);
                 $subtotal += $serviceTotal;
             }
             $services[$skey]['totalamount'] = $serviceTotal;

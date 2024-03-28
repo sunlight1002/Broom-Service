@@ -15,6 +15,8 @@ use App\Models\JobHours;
 use App\Models\JobService;
 use App\Models\Order;
 use App\Models\Invoices;
+use App\Models\Setting;
+use App\Traits\PaymentAPI;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -23,6 +25,8 @@ use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
+    use PaymentAPI;
+
     /**
      * Display a listing of the resource.
      *
@@ -191,14 +195,20 @@ class JobController extends Controller
         }
 
         return response()->json([
-            'time'     => $time,
-            'total'    => $total
+            'time' => $time,
+            'total' => $total
         ]);
     }
 
     public function jobOrderGenerate()
     {
-        $jobs = Job::where(['start_date' => Carbon::today()->format('Y-m-d'), 'isOrdered' => 0])->get();
+        $jobs = Job::query()
+            ->with(['jobservice', 'client'])
+            ->where([
+                'start_date' => Carbon::today()->format('Y-m-d'),
+                'isOrdered' => 0
+            ])
+            ->get();
 
         $_shifts = [
             'fullday-8am-16pm'   => '08:30:00-16:00:00',
@@ -233,73 +243,20 @@ class JobController extends Controller
             $now    = Carbon::createFromFormat('Y-m-d H:i:s',  $_now);
 
             if (($start->lt($now)) && ($end->gt($now))) {
-                $this->order($job->id);
+                $service = $job->jobservice;
+                $items = [
+                    [
+                        "description" => $service->name . " - " . Carbon::today()->format('d, M Y'),
+                        "unitprice"   => $service->total,
+                        "quantity"    => 1,
+                    ]
+                ];
+
+                JobService::where('id', $service->id)->update(['order_status' => 1]);
+
+                $this->generateOrderDocument($job, $items);
             }
         }
-    }
-
-    public function order($id)
-    {
-        $job = Job::query()->with(['jobservice', 'client'])->find($id);
-        $service = $job->jobservice;
-        $items = [
-            [
-                "description" => $service->name . " - " . Carbon::today()->format('d, M Y'),
-                "unitprice"   => $service->total,
-                "quantity"    => 1,
-            ]
-        ];
-
-        JobService::where('id', $service->id)->update(['order_status' => 1]);
-
-        $invoice = 1;
-        if (str_contains($job->schedule, 'w')) {
-            $invoice = 0;
-        }
-        $name = ($job->client->invoicename != null) ? $job->client->invoicename : $job->client->firstname . " " . $job->client->lastname;
-        $url = "https://api.icount.co.il/api/v3.php/doc/create";
-
-        $params = array(
-            "cid"  => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
-            "user" => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
-            "pass" => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
-            "doctype" => "order",
-            "client_name" => $name,
-            "client_address" => $job->client->geo_address,
-            "email" => $job->client->email,
-            "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
-            "currency_code" => "ILS",
-            "items" => $items,
-            "send_email" => 0,
-            "email_to_client" => 0,
-            "email_to" => $job->client->email,
-        );
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($ch);
-        $info = curl_getinfo($ch);
-
-        //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
-        $json = json_decode($response, true);
-
-        if (!$json["status"]) die($json["reason"]);
-
-        Order::create([
-            'order_id' => $json['docnum'],
-            'doc_url' => $json['doc_url'],
-            'job_id' => $id,
-            'contract_id' => $job->contract_id,
-            'client_id' => $job->client->id,
-            'response' => $response,
-            'items' => json_encode($items),
-            'status' => 'Open',
-            'invoice_status' => ($invoice == 1) ? 1 : 0,
-        ]);
-
-        Job::where('id', $id)->update(['isOrdered' => 1]);
     }
 
     public function commitPayment($services, $id, $token)
@@ -309,6 +266,14 @@ class JobController extends Controller
         $subtotal = (int)$services[0]->unitprice;
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
+
+        $zcreditTerminalNumber = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
+            ->value('value');
+
+        $zcreditPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_PASS)
+            ->value('value');
 
         if (!empty($services)) {
             foreach ($services as $service) {
@@ -325,8 +290,8 @@ class JobController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . config("services.zcredit.terminalnumber") . '",
-        "Password": "' . config("services.zcredit.terminalpassword") . '",
+        "TerminalNumber": "' . $zcreditTerminalNumber . '",
+        "Password": "' . $zcreditPassword . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -472,13 +437,9 @@ class JobController extends Controller
                 $ex = explode('-', $card->valid);
                 $cc = ['cc' => [
                     "sum" => $total,
-                    "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number, 12),
-                    "exp_year" => $ex[0],
-                    "exp_month" => $ex[1],
-                    "holder_id" => "",
-                    "holder_name" => $contract->name_on_card,
-                    "confirmation_code" => ""
+                    "num_of_payments" => 1,
+                    "first_payment" => 1,
+                    "token_id" => $card->card_token,
                 ]];
 
                 $_params = array_merge($params, $cc);
@@ -546,6 +507,14 @@ class JobController extends Controller
 
     public function commitRegularInvoicePayment($service, $total, $token, $client)
     {
+        $zcreditTerminalNumber = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
+            ->value('value');
+
+        $zcreditPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_PASS)
+            ->value('value');
+
         $pitems[] = [
             'ItemDescription' => $service[0]->description,
             'ItemQuantity'    => $service[0]->quantity,
@@ -558,8 +527,8 @@ class JobController extends Controller
         $curl = curl_init();
 
         $pdata = '{
-        "TerminalNumber": "' . config("services.zcredit.terminalnumber") . '",
-        "Password": "' . config("services.zcredit.terminalpassword") . '",
+        "TerminalNumber": "' . $zcreditTerminalNumber . '",
+        "Password": "' . $zcreditPassword . '",
         "Track2": "",
         "CardNumber": "' . $token . '",
         "CVV": "",
@@ -739,13 +708,9 @@ class JobController extends Controller
                 $ex = explode('-', $card->valid);
                 $cc = ['cc' => [
                     "sum" => $total,
-                    "card_type" => $card->card_type,
-                    "card_number" => substr($card->card_number, 12),
-                    "exp_year" => $ex[0],
-                    "exp_month" => $ex[1],
-                    "holder_id" => "",
-                    "holder_name" => $contract->name_on_card,
-                    "confirmation_code" => ""
+                    "num_of_payments" => 1,
+                    "first_payment" => 1,
+                    "token_id" => $card->card_token,
                 ]];
 
                 $_params = array_merge($params, $cc);

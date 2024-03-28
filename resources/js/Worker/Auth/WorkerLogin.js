@@ -63,7 +63,7 @@ export default function Login() {
                             </svg>
                         </div>
                         <h1 className="page-title">Worker Login</h1>
-                        <form>
+                        <form onSubmit={HandleLogin}>
                             <div className="form-group">
                                 <div className="input-group mt-2">
                                     <div className="input-group-prepend">
@@ -82,14 +82,13 @@ export default function Login() {
                                         onChange={(e) =>
                                             setWorker(e.target.value)
                                         }
+                                        autoFocus
                                     />
                                 </div>
-                                {errors.worker ? (
+                                {errors.worker && (
                                     <small className="text-danger mb-1">
                                         {errors.worker}
                                     </small>
-                                ) : (
-                                    ""
                                 )}
                             </div>
                             <div className="form-group">
@@ -113,12 +112,10 @@ export default function Login() {
                                         autoComplete="new-password"
                                     />
                                 </div>
-                                {errors.password ? (
+                                {errors.password && (
                                     <small className="text-danger mb-1">
                                         {errors.password}
                                     </small>
-                                ) : (
-                                    ""
                                 )}
                             </div>
                             <div className="form-group mt-4">
@@ -126,7 +123,6 @@ export default function Login() {
                                     as="input"
                                     type="submit"
                                     className="btn btn-danger btn-block"
-                                    onClick={HandleLogin}
                                 >
                                     {" "}
                                     Login

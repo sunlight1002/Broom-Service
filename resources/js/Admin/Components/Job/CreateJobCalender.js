@@ -103,7 +103,7 @@ export default function CreateJobCalender() {
     const handleSubmit = () => {
         let formdata = {
             workers: shiftFormValues,
-            service: selectedService,
+            service_id: selectedService.service,
             prevWorker: isPrevWorker.current.checked,
         };
 
@@ -176,7 +176,6 @@ export default function CreateJobCalender() {
                             setIsOpen={setIsOpenWorker}
                             isOpen={isOpenWorker}
                             service={selectedService}
-                            start_date={contract.start_date}
                             handleSaveForm={handleSave}
                             tmpFormValues={tmpFormValues}
                             editIndex={editIndex}

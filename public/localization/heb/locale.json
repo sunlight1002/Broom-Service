@@ -54,6 +54,7 @@
         "service_txt": "שירות",
         "freq_s_txt": "תדירות ביקורים",
         "job_h_txt": "שעות עבודה",
+        "worker_hours": "שעות עבודה",
         "job_price": "מחיר עבודה",
         "hourly_rate": "תעריף לשעה",
         "hours": "שעה (ות)",
@@ -295,13 +296,13 @@
         "accept_contract": "אשר הסכם",
         "please_select": "אנא בחר",
         "messages": {
+            "card_err": "נא להוסיף כרטיס",
             "card_type_err": "בחר סוג כרטיס",
             "card_holder_err": "הזן את שם מחזיק הכרטיס",
             "cvv_err": "בחר CVV כרטיס",
             "sign_card_err": "נא הזן חתימה על הכרטיס",
             "add_card_err": "אנא אמת את הכרטיס לפני חתימת החוזה!",
             "sign_err": "בבקשה תחתום על החוזה",
-            "start_date_err": "אנא בחר תאריך התחלה",
             "invalid_cvv": "cvv לא חוקי",
             "success": "תודה על אישור ההסכם",
             "reject_title": "אתה בטוח?",
@@ -335,8 +336,7 @@
         "select_month": "-- בחר חודש תפוגה --",
         "model_submit": "שלח",
         "add_card": "הוסף כרטיס",
-        "back_btn": "חזור",
-        "start_date": "תאריך התחלה"
+        "back_btn": "חזור"
     },
     "j_status": {
         "not-started": "לא התחיל",
@@ -439,10 +439,11 @@
         },
         "jobs": {
             "title": "שירותים",
+            "date": "תאריך",
             "job_date": "תאריך",
-            "worker_name": "שם העובד",
-            "client_name": "שם הלקוח",
-            "service_name": "השירות",
+            "worker": "עוֹבֵד",
+            "client": "לָקוּחַ",
+            "service": "שֵׁרוּת",
             "shift": "משמרת",
             "address": "כתובת",
             "c_time": "זמן",
@@ -458,7 +459,7 @@
                 "w_phone": "טלפון לעובד",
                 "address": "כתובת",
                 "service_dtl": "פרטי שירות",
-                "services": "שירותים",
+                "service": "שֵׁרוּת",
                 "c_time": "זמן",
                 "shift": "משמרת",
                 "to": "ל",
@@ -840,5 +841,8 @@
         "disclaimer_details2": "אני מתחייב/ת להודיע למעסיק על כל שינוי שיחול בפרטיי האישיים ובפרטים דלעיל תוך שבוע ימים מתאריך השינוי.",
         "button_clear": "נקה",
         "button_submit": "שלח"
+    },
+    "credit-card": {
+        "added-card": "נוסף כרטיס"
     }
 }

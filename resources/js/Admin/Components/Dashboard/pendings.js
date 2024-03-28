@@ -541,7 +541,7 @@ export default function () {
                                                     </td>
                                                     <td>
                                                         {d.offer
-                                                            ? d.offer.total +
+                                                            ? d.offer.subtotal +
                                                               " ILS +VAT"
                                                             : 0}{" "}
                                                     </td>
@@ -714,7 +714,7 @@ export default function () {
                                                     >
                                                         {d.status}
                                                     </td>
-                                                    <td>{d.total} ILS + VAT</td>
+                                                    <td>{d.subtotal} ILS + VAT</td>
 
                                                     <td>
                                                         {" "}

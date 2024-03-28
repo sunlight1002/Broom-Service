@@ -15,11 +15,11 @@ class JobService extends Model
         'cycle',
         'period',
         'total',
-        'heb_name',
-        'service_id',
         'pay_status',
         'order_status',
-        'config'
+        'config',
+        'heb_name',
+        'service_id',
     ];
 
     /**

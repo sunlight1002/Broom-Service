@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use App\Models\Lead;
 use App\Models\Client;
 use App\Models\LeadComment;
 use App\Models\LeadStatus;

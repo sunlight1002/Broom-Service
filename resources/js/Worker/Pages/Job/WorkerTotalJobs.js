@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
-import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useLocation } from "react-router-dom";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
+
+import WorkerSidebar from "../../Layouts/WorkerSidebar";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function WorkerTotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
@@ -307,15 +309,12 @@ export default function WorkerTotalJobs() {
                                                             )}
                                                         </Td>
                                                         <Td>
-                                                            {item.end_time &&
-                                                            item.start_time
-                                                                ? parseFloat(
-                                                                      `${item.end_time}.replace(":", ".")`
-                                                                  ) -
-                                                                  parseFloat(
-                                                                      `${item.start_time}.replace(":", ".")`
-                                                                  ) +
-                                                                  " Hours"
+                                                            {item.jobservice
+                                                                ? convertMinsToDecimalHrs(
+                                                                      item
+                                                                          .jobservice
+                                                                          .duration_minutes
+                                                                  ) + " Hours"
                                                                 : "NA"}
                                                         </Td>
                                                         <Td

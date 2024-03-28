@@ -12,17 +12,19 @@ use App\Models\ServiceSchedule;
 use App\Models\JobHours;
 use App\Models\JobService;
 use App\Traits\JobSchedule;
+use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
-    use JobSchedule;
+    use JobSchedule, PriceOffered;
 
     /**
      * Display a listing of the resource.
@@ -386,9 +388,25 @@ class JobController extends Controller
         $contract_id = 0;
         $isClientPage = (isset($request->client_page) && $request->client_page);
 
-        $selectedService = $data['service'];
+        if ($isClientPage) {
+            $contract_id = $data['contract_id'];
+        }
+
+        if ($isClientPage) {
+            $contract = Contract::with('offer')->find($contract_id);
+        } else {
+            $contract = Contract::with('offer')->find($id);
+        }
+
+        $offerServices = $this->formatServices($contract->offer, false);
+        $filtered = Arr::where($offerServices, function ($value, $key) use ($data) {
+            return $value['service'] == $data['service_id'];
+        });
+
+        $selectedService = head($filtered);
+
+        $service = Services::find($data['service_id']);
         $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
-        $service = Services::find($selectedService['service']);
 
         $repeat_value = $serviceSchedule->period;
         if ($selectedService['service'] == 10) {
@@ -403,15 +421,6 @@ class JobController extends Controller
         $s_period = $selectedService['period'];
         $s_total  = $selectedService['totalamount'];
         $s_id     = $selectedService['service'];
-        if ($isClientPage) {
-            $contract_id = $selectedService['c_id'];
-        }
-
-        if ($isClientPage) {
-            $contract = Contract::with('offer')->find($contract_id);
-        } else {
-            $contract = Contract::with('offer')->find($id);
-        }
 
         $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
         foreach ($workerIDs as $workerID) {
@@ -420,6 +429,12 @@ class JobController extends Controller
             });
 
             foreach ($workerDates as $key => $workerDate) {
+                // if ($selectedService['type'] == 'hourly') {
+                //     $total_amount = $selectedService['rateperhour'];
+                // } else {
+                //     $total_amount = $selectedService['fixed_price'];
+                // }
+
                 $minutes = 0;
                 foreach ($workerDate['shifts'] as $key => $timing) {
                     $minutes += $this->calcTimeDiffInMins($timing['start'], $timing['end']);
@@ -456,9 +471,10 @@ class JobController extends Controller
                     'schedule'      => $repeat_value,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
-                    'next_start_date'    => $next_job_date,
-                    'address_id'  => $selectedService['address']['id'],
-                    'keep_prev_worker' => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+                    'total_amount'  => $s_total,
+                    'next_start_date'   => $next_job_date,
+                    'address_id'        => $selectedService['address']['id'],
+                    'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
                 ]);
 
                 JobService::create([
@@ -638,6 +654,7 @@ class JobController extends Controller
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
             'cancelled_by_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
             'cancelled_at' => now()
         ]);
 

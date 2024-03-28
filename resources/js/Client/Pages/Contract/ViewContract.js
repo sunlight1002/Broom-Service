@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import swal from "sweetalert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
@@ -19,15 +20,10 @@ export default function WorkContract() {
     const [services, setServices] = useState([]);
     const param = useParams();
     const sigRef = useRef();
-    const sigRef2 = useRef();
     const { t } = useTranslation();
     const [signature, setSignature] = useState(null);
-    const [signature2, setSignature2] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
-    const [ctype, setCtype] = useState("");
-    const [cname, setCname] = useState("");
-    const [cvv, setCvv] = useState("");
-    const [startDate, setStartDate] = useState(null);
+    const [clientCard, setClientCard] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -36,32 +32,8 @@ export default function WorkContract() {
     };
 
     const handleAccept = (e) => {
-        if (startDate == null) {
-            window.alert(t("work-contract.messages.start_date_err"));
-            return false;
-        }
-        if (!ctype) {
-            swal("Please select card type", "", "error");
-            return false;
-        }
-        if (!cname) {
-            swal("Please enter card holder name", "", "error");
-            return false;
-        }
-        if (!cvv) {
-            swal("Please select card cvv", "", "error");
-            return false;
-        }
         if (!signature) {
             swal("Please sign the contract", "", "error");
-            return false;
-        }
-        if (!signature2) {
-            swal("Please enter signature on the card", "", "error");
-            return false;
-        }
-        if (cvv.length < 3) {
-            swal("Invalid cvv", "", "error");
             return false;
         }
 
@@ -70,21 +42,25 @@ export default function WorkContract() {
             offer_id: offer.id,
             client_id: offer.client.id,
             additional_address: Aaddress,
-            card_type: ctype,
-            name_on_card: cname,
-            cvv: cvv.substring(0, 3),
             status: "un-verified",
             signature: signature,
-            card_sign: signature2,
-            start_date: startDate,
         };
 
-        axios.post(`/api/client/accept-contract`, data).then((res) => {
-            swal(res.data.message, "", "success");
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 1000);
-        });
+        axios
+            .post(`/api/client/accept-contract`, data)
+            .then((res) => {
+                swal(res.data.message, "", "success");
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
 
     const handleSignatureEnd = () => {
@@ -95,19 +71,12 @@ export default function WorkContract() {
         setSignature(null);
     };
 
-    const handleSignatureEnd2 = () => {
-        setSignature2(sigRef2.current.toDataURL());
-    };
-    const clearSignature2 = () => {
-        sigRef2.current.clear();
-        setSignature2(null);
-    };
-
     const getOffer = () => {
         axios.post(`/api/client/contracts/${param.hash}`).then((res) => {
             setOffer(res.data.offer);
             setClient(res.data.offer.client);
             setServices(JSON.parse(res.data.offer.services));
+            setClientCard(res.data.card);
         });
     };
 
@@ -120,7 +89,6 @@ export default function WorkContract() {
             )
             .then((res) => {
                 setContract(res.data.contract);
-                setStartDate(res.data.contract.start_date);
             });
     };
 
@@ -416,6 +384,7 @@ export default function WorkContract() {
                                                 return (
                                                     <p key={i}>
                                                         {s.totalamount +
+                                                            " " +
                                                             t(
                                                                 "work-contract.ils"
                                                             ) +
@@ -439,27 +408,25 @@ export default function WorkContract() {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.start_date")}
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={startDate}
-                                                onChange={(e) =>
-                                                    setStartDate(e.target.value)
-                                                }
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr>
                                         {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
                                         <td colSpan="2">
                                             {t("work-contract.payment_method")}
                                         </td>
                                         {/* <td>&nbsp;</td> */}
                                     </tr>
+                                    {clientCard && (
+                                        <tr>
+                                            <td style={{ width: "60%" }}>
+                                                {t("credit-card.added-card")}
+                                            </td>
+                                            <td>
+                                                **** **** ****{" "}
+                                                {clientCard.card_number} -{" "}
+                                                {clientCard.valid} (
+                                                {clientCard.card_type})
+                                            </td>
+                                        </tr>
+                                    )}
                                     <tr>
                                         <td colSpan="2">
                                             {t(
@@ -467,100 +434,6 @@ export default function WorkContract() {
                                             )}
                                         </td>
                                         {/* <td>&nbsp;</td> */}
-                                    </tr>
-                                    {/* <tr>
-                                    <td style={{ width: "60%" }}>{t('work-contract.card_type')}</td>
-                                    <td>
-                                    { contract && contract.card_type != null ?
-                                        <input type="text" value={contract.card_type} className="form-control" readOnly />
-                                        :
-                                        <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                                            <option value="">--- Please Select ---</option>
-                                            <option value='Visa'>Visa</option>
-                                            <option value='Master Card'>Master Card</option>
-                                            <option value='American Express'>American Express</option>
-                                        </select>
-                                    }
-                                    </td>
-                                </tr>*/}
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.card_name")}
-                                        </td>
-                                        <td>
-                                            {contract &&
-                                            contract.name_on_card != null ? (
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        contract.name_on_card
-                                                    }
-                                                    className="form-control"
-                                                    readOnly
-                                                />
-                                            ) : (
-                                                <input
-                                                    type="text"
-                                                    name="name_on_card"
-                                                    onChange={(e) =>
-                                                        setCname(e.target.value)
-                                                    }
-                                                    className="form-control"
-                                                    placeholder={t(
-                                                        "work-contract.card_name"
-                                                    )}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-
-                                    {/*<tr>
-                                    <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
-                                    <td>
-                                    { contract && contract.cvv != null ?
-                                        <input type="text" value={contract.cvv} className="form-control" readOnly/>
-                                        :
-                                        <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
-                                    }
-                                    </td>
-                                </tr>*/}
-
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.signature")}
-                                        </td>
-                                        <td>
-                                            {contract &&
-                                            contract.card_sign != null ? (
-                                                <img src={contract.card_sign} />
-                                            ) : (
-                                                <>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            className:
-                                                                "sigCanvas",
-                                                            width: 300,
-                                                            height: 115,
-                                                        }}
-                                                        ref={sigRef2}
-                                                        onEnd={
-                                                            handleSignatureEnd2
-                                                        }
-                                                    />
-                                                    <button
-                                                        className="btn btn-warning"
-                                                        onClick={
-                                                            clearSignature2
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "work-contract.btn_warning_txt"
-                                                        )}
-                                                    </button>
-                                                </>
-                                            )}
-                                        </td>
                                     </tr>
                                     <tr>
                                         <td style={{ width: "60%" }}>

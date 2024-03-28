@@ -16,9 +16,7 @@ export default function WorkerDetails({ worker, job }) {
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Worker Name
-                                </label>
+                                <label className="control-label">Name</label>
                                 <p>
                                     <Link
                                         to={`/admin/view-worker/${worker.id}`}
@@ -32,17 +30,13 @@ export default function WorkerDetails({ worker, job }) {
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Worker Email
-                                </label>
+                                <label className="control-label">Email</label>
                                 <p>{worker.email}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Worker Phone
-                                </label>
+                                <label className="control-label">Phone</label>
                                 <p>
                                     <a href={`tel:${worker.phone}`}>
                                         {worker.phone}

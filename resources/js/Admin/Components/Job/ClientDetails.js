@@ -14,9 +14,7 @@ export default function ClientDetails({ client, address }) {
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Client Name
-                                </label>
+                                <label className="control-label">Name</label>
                                 <p>
                                     {" "}
                                     <Link
@@ -33,17 +31,13 @@ export default function ClientDetails({ client, address }) {
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Client Email
-                                </label>
+                                <label className="control-label">Email</label>
                                 <p>{client.email}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">
-                                    Client Phone
-                                </label>
+                                <label className="control-label">Phone</label>
                                 <p>
                                     <a href={`tel:${client.phone}`}>
                                         {client.phone}

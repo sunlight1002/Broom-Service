@@ -118,12 +118,9 @@ class ContractController extends Controller
     public function getContract($id)
     {
         $contract = Contract::query()
-            ->with(['client', 'offer'])
+            ->with(['client', 'offer', 'card'])
             ->find($id);
 
-        $card = ClientCard::where('client_id', $contract->client->id)->first();
-
-        $contract['card'] = $card;
         $contract['offer']['services'] = $this->formatServices($contract['offer']);
 
         return response()->json([

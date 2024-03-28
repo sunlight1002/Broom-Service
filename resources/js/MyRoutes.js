@@ -105,7 +105,6 @@ import ThoroughCleaningTemplate from "./Pages/offertemplates/template_throughout
 import TemplateWindowCleaning from "./Pages/offertemplates/template_windowCleaning";
 import TemplateOthers from "./Pages/offertemplates/template_others";
 import WorkerContract from "./Pages/WorkerContract";
-import WorkContractRHS from "./Pages/WorkContractRHS";
 import Form101 from "./Pages/Form101";
 import Languages from "./Admin/Pages/Languages/language";
 import EditLanguages from "./Admin/Pages/Languages/EditLanguage";
@@ -180,11 +179,6 @@ export default function MyRoutes() {
                         exact
                         path="work-contract/:id"
                         element={<WorkContract />}
-                    />
-                    <Route
-                        exact
-                        path="work-contract2"
-                        element={<WorkContractRHS />}
                     />
                     <Route exact path="form101/:id" element={<Form101 />} />
                     <Route

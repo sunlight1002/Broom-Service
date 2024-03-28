@@ -968,9 +968,11 @@ export default function TotalJobs() {
                                                             }
                                                         >
                                                             {item.jobservice
-                                                                ? item
-                                                                      .jobservice
-                                                                      .job_hour
+                                                                ? convertMinsToDecimalHrs(
+                                                                      item
+                                                                          .jobservice
+                                                                          .duration_minutes
+                                                                  )
                                                                 : "NA"}
                                                         </td>
                                                         <td

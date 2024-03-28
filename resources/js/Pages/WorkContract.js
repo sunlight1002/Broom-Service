@@ -22,50 +22,20 @@ export default function WorkContract() {
     const [contract, setContract] = useState([]);
     const param = useParams();
     const sigRef = useRef();
-    const sigRef2 = useRef();
     const [signature, setSignature] = useState(null);
-    const [signature2, setSignature2] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
-    const [ctype, setCtype] = useState("");
-    const [startDate, setStartDate] = useState(null);
-    const [cname, setCname] = useState("");
-    const [cvv, setCvv] = useState("");
     const [status, setStatus] = useState("");
-    const [card, setCard] = useState("");
-    const [exy, setExy] = useState("0");
-    const [exm, setExm] = useState("0");
-    const [submit, setSubmit] = useState(false);
-    const [oc, setOc] = useState(null);
-    const [gurl, setGurl] = useState("");
-    const [sesid, setSesid] = useState(null);
-    const [csdata, setCsdata] = useState(null);
-    const [formatValid, setFormatvalid] = useState();
+    const [sessionURL, setSessionURL] = useState("");
+    const [addCardBtnDisabled, setAddCardBtnDisabled] = useState(false);
+    const [checkingForCard, setCheckingForCard] = useState(false);
+    const [clientCard, setClientCard] = useState(null);
 
     const handleAccept = (e) => {
-        if (!cname && csdata == null && oc == false) {
-            swal(t("work-contract.messages.card_holder_err"), "", "error");
+        if (!clientCard) {
+            swal(t("work-contract.messages.card_err"), "", "error");
             return false;
         }
 
-        if (startDate == null) {
-            window.alert(t("work-contract.messages.start_date_err"));
-            return false;
-        }
-        if (oc == true) {
-            if (!ctype) {
-                window.alert(t("work-contract.messages.card_type_err"));
-                return false;
-            }
-            if (!cvv) {
-                window.alert(t("work-contract.messages.cvv_err"));
-                return false;
-            }
-        }
-
-        if (!signature2) {
-            swal(t("work-contract.messages.sign_card_err"), "", "error");
-            return false;
-        }
         if (!signature) {
             swal(t("work-contract.messages.sign_err"), "", "error");
             return false;
@@ -75,76 +45,41 @@ export default function WorkContract() {
             unique_hash: param.id,
             offer_id: offer.id,
             client_id: offer.client.id,
+            card_id: clientCard.id,
             additional_address: Aaddress,
-            name_on_card: cname,
             status: "un-verified",
             signature: signature,
-            card_sign: signature2,
-            card_type: ctype,
-            start_date: startDate,
-            cvv: cvv.substring(0, 3),
         };
-        if (submit == false && sesid == null) {
-            window.alert(t("work-contract.messages.add_card_err"));
-            return;
-        }
 
-        if (oc == true) {
-            const cdata = {
-                cid: client.id,
-                card_type: ctype,
-                card_number: "",
-                valid: "",
-                cc_charge: 0,
-                card_token: "",
-                cvv: cvv.substring(0, 3),
-            };
-
-            // axios.
-            //     post(`/api/client/save-card`, { cdata })
-            //     .then((re) => {})
-        }
-
-        if (oc == false && submit == false && sesid == null) {
-            window.alert(
-                t("Something went work with adding card. Please try again")
-            );
-            return;
-        } else if (csdata == null && oc == false) {
-            axios
-                .get(`/record-invoice/${sesid}/${client.id}/${cname}`)
-                .then((res) => {});
-        }
-
-        axios.post(`/api/client/accept-contract`, data).then((res) => {
-            if (res.data.error) {
-                swal("", res.data.error, "error");
-            } else if (res.data.message == 0) {
-                window.alert(t("work-contract.messages.add_card_err"));
-            } else {
-                setStatus("un-verified");
-                swal(t("work-contract.messages.success"), "", "success");
-                setTimeout(() => {
-                    window.location.reload(true);
-                }, 2000);
-            }
-        });
+        axios
+            .post(`/api/client/accept-contract`, data)
+            .then((res) => {
+                if (res.data.error) {
+                    swal("", res.data.error, "error");
+                } else {
+                    setStatus("un-verified");
+                    swal(t("work-contract.messages.success"), "", "success");
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                }
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
 
     const handleSignatureEnd = () => {
         setSignature(sigRef.current.toDataURL());
     };
+
     const clearSignature = () => {
         sigRef.current.clear();
         setSignature(null);
-    };
-
-    const handleSignatureEnd2 = () => {
-        setSignature2(sigRef2.current.toDataURL());
-    };
-    const clearSignature2 = () => {
-        sigRef2.current.clear();
-        setSignature2(null);
     };
 
     const getOffer = () => {
@@ -155,21 +90,8 @@ export default function WorkContract() {
                 setClient(res.data.offer.client);
                 setContract(res.data.contract);
                 setStatus(res.data.contract.status);
-                setOc(res.data.old_contract);
-                if (
-                    res.data.contract.add_card == 0 ||
-                    res.data.old_contract == true
-                ) {
-                    setSubmit(true);
-                }
 
-                if (res.data.card != null) {
-                    setCsdata(res.data.card);
-                    let s = res.data.card.valid.split("-");
-                    let fs = s[1] + " / " + s[0].substring(2, 4);
-                    console.log(fs);
-                    setFormatvalid(fs);
-                }
+                setClientCard(res.data.card);
                 i18next.changeLanguage(res.data.offer.client.lng);
 
                 if (res.data.offer.client.lng == "heb") {
@@ -218,165 +140,65 @@ export default function WorkContract() {
         });
     };
 
-    const handleCard = (e) => {
-        axios.get(`/generate-payment/${client.id}`).then((res) => {
-            setGurl(res.data.url);
-            setSesid(res.data.session_id);
-            $("#exampleModal2").modal("show");
-        });
-        /*
+    const handleCard = () => {
+        setAddCardBtnDisabled(true);
 
-        e.preventDefault();
-        if (!ctype) { window.alert(t('work-contract.messages.card_type_err')); return false; }
-        if (!card) { window.alert(t('work-contract.messages.card_msg')); return false; }
-        if (card.length < 16) { window.alert(t('work-contract.messages.card_msg2')); return false; }
-        if (exy == '0') { window.alert(t('work-contract.messages.card_year')); return false; }
-        if (exm == '0') { window.alert(t('work-contract.messages.card_month')); return false; }
-        if (!cvv) { window.alert(t('work-contract.messages.cvv_err')); return false; }
-        if (cvv.length < 3) { window.alert(t('work-contract.messages.invalid_cvv')); return false; }
+        axios
+            .post(`/api/client/contracts/${param.id}/initialize-card`, {})
+            .then((response) => {
+                setCheckingForCard(true);
 
-        const msbtn = document.querySelector('.msbtn');
-        msbtn.setAttribute('disabled', true);
-        msbtn.innerHTML = t('work-contract.messages.please_wait');
-
-        const cardVal = {
-            "TerminalNumber": "0882016016",
-            "Password": "Z0882016016",
-            "Track2": "",
-            "CardNumber": card,
-            "ExpDate_MMYY": exm + exy.substring(2, 4)
-        }
-
-        var config = {
-            method: 'post',
-            url: 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/ValidateCard',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: cardVal
-        };
-        axios(config)
-            .then(function (response) {
-                if (response.data.HasError == true) {
-                    window.alert(response.data.ReturnMessage);
-                    msbtn.removeAttribute('disabled');
-                    msbtn.innerHTML = t('work-contract.model_submit');
-                    return;
-                }
-                const vd = response.data;
-
-                var txnData = JSON.stringify({
-                    "TerminalNumber": "0882016016",
-                    "Password": "Z0882016016",
-                    "Track2": "",
-                    "CardNumber": vd.Token,
-                    "CVV": "",
-                    "ExpDate_MMYY": "",
-                    "TransactionSum": "1.00",
-                    "NumberOfPayments": "1",
-                    "FirstPaymentSum": "0",
-                    "OtherPaymentsSum": "0",
-                    "TransactionType": "01",
-                    "CurrencyType": "1",
-                    "CreditType": "1",
-                    "J": "0",
-                    "IsCustomerPresent": "false",
-                    "AuthNum": "",
-                    "HolderID": "",
-                    "ExtraData": "",
-                    "CustomerName": "",
-                    "CustomerAddress": client.geo_address,
-                    "CustomerEmail": client.email,
-                    "PhoneNumber": "",
-                    "ItemDescription": "",
-                    "ObeligoAction": "",
-                    "OriginalZCreditReferenceNumber": "",
-                    "TransactionUniqueIdForQuery": "",
-                    "TransactionUniqueID": "",
-                    "UseAdvancedDuplicatesCheck": "",
-                    "ZCreditInvoiceReceipt": {
-                        "Type": "0",
-                        "RecepientName": "",
-                        "RecepientCompanyID": "",
-                        "Address": "",
-                        "City": "",
-                        "ZipCode": "",
-                        "PhoneNum": "",
-                        "FaxNum": "",
-                        "TaxRate": "0",
-                        "Comment": "",
-                        "ReceipientEmail": "",
-                        "EmailDocumentToReceipient": "",
-                        "ReturnDocumentInResponse": "",
-                        "Items": [
-                            {
-                                "ItemDescription": "Authorize card",
-                                "ItemQuantity": "1",
-                                "ItemPrice": "1",
-                                "IsTaxFree": "false"
-                            }
-                        ]
-                    }
+                setSessionURL(response.data.redirect_url);
+                $("#exampleModal").modal("show");
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
                 });
-
-
-                var txnConfig = {
-                    method: 'post',
-                    url: 'https://pci.zcredit.co.il/ZCreditWS/api/Transaction/CommitFullTransaction',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    data: txnData
-                };
-
-                axios(txnConfig)
-                    .then(function (res) {
-                        if (res.data.HasError == true) {
-                            window.alert(res.data.ReturnMessage);
-                            msbtn.removeAttribute('disabled');
-                            msbtn.innerHTML = t('work-contract.model_submit');
-                            return;
-                        }
-
-                        const cdata = {
-
-                            "cid": client.id,
-                            "card_type": ctype,
-                            "card_number": card,
-                            "valid": exy + "-" + exm,
-                            "cc_charge": 1,
-                            "card_token": res.data.Token,
-                            "cvv": cvv.substring(0, 3),
-                        }
-                     
-                      
-                        axios.
-                            post(`/api/client/save-card`, { cdata })
-                            .then((re) => {
-                                document.querySelector('.closeb').click();
-                                swal(t('work-contract.messages.card_success'), '', 'success');
-                                setSubmit(true);
-                            })
-
-                    })
-
             });
-            */
     };
 
     useEffect(() => {
-        getOffer();
-        let dateDropdown = document.getElementById("date-dropdown");
+        let _intervalID;
 
-        let currentYear = new Date().getFullYear();
-        let earliestYear = 2080;
-        while (currentYear <= earliestYear) {
-            let dateOption = document.createElement("option");
-            dateOption.text = currentYear;
-            dateOption.value = currentYear;
-            dateDropdown.appendChild(dateOption);
-            currentYear += 1;
+        if (checkingForCard) {
+            _intervalID = setInterval(() => {
+                if (checkingForCard) {
+                    axios
+                        .post(
+                            `/api/client/contracts/${param.id}/check-card`,
+                            {}
+                        )
+                        .then((response) => {
+                            console.log(response.data.card);
+                            if (response.data.card) {
+                                setClientCard(response.data.card);
+                                setCheckingForCard(false);
+                                clearInterval(_intervalID);
+                            }
+                        })
+                        .catch((e) => {
+                            setCheckingForCard(false);
+                            clearInterval(_intervalID);
+
+                            Swal.fire({
+                                title: "Error!",
+                                text: e.response.data.message,
+                                icon: "error",
+                            });
+                        });
+                }
+            }, 2000);
         }
+
+        return () => clearInterval(_intervalID);
+    }, [checkingForCard]);
+
+    useEffect(() => {
+        getOffer();
+
         setTimeout(() => {
             document.querySelector(".parent").style.display = "block";
             var c = document.querySelectorAll("canvas");
@@ -676,6 +498,7 @@ export default function WorkContract() {
                                                 return (
                                                     <p key={i}>
                                                         {s.totalamount +
+                                                            " " +
                                                             t(
                                                                 "work-contract.ils"
                                                             ) +
@@ -699,21 +522,6 @@ export default function WorkContract() {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.start_date")}
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={contract.start_date}
-                                                onChange={(e) =>
-                                                    setStartDate(e.target.value)
-                                                }
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr>
                                         {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
                                         <td colSpan="2">
                                             {t("work-contract.payment_method")}
@@ -729,246 +537,19 @@ export default function WorkContract() {
                                         {/* <td>&nbsp;</td> */}
                                     </tr>
 
-                                    {/*<tr>
-                                    <td style={{ width: "60%" }}>{t('work-contract.card_number')}</td>
-                                    <td>
-                                    { contract && contract.name_on_card != null ?
-                                      <input type="text" value={contract.name_on_card} className="form-control" readOnly/>
-                                      :
-                                    <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_number')} />
-                                    }
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td style={{ width: "60%" }}>{t('work-contract.card_expiry')}</td>
-                                    <td>
-                                    { contract && contract.name_on_card != null ?
-                                      <input type="text" value={contract.name_on_card} className="form-control" readOnly/>
-                                      :
-                                    <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_expiry')} />
-                                    }
-                                    </td>
-                                </tr>*/}
-
-                                    {oc != false && (
-                                        <tr>
-                                            <td>
-                                                <label className="control-label">
-                                                    {t(
-                                                        "work-contract.card_type"
-                                                    )}
-                                                </label>
-                                            </td>
-                                            <td>
-                                                <select
-                                                    className="form-control"
-                                                    value={contract.card_type}
-                                                    onChange={(e) =>
-                                                        setCtype(e.target.value)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        {t(
-                                                            "work-contract.please_select"
-                                                        )}
-                                                    </option>
-                                                    <option value="Visa">
-                                                        Visa
-                                                    </option>
-                                                    <option value="Master Card">
-                                                        Master Card
-                                                    </option>
-                                                    <option value="American Express">
-                                                        American Express
-                                                    </option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    )}
-
-                                    {(oc == true || csdata == null) && (
+                                    {clientCard ? (
                                         <tr>
                                             <td style={{ width: "60%" }}>
-                                                {t("work-contract.card_name")}
+                                                {t("credit-card.added-card")}
                                             </td>
                                             <td>
-                                                {contract &&
-                                                contract.name_on_card !=
-                                                    null ? (
-                                                    <input
-                                                        type="text"
-                                                        value={
-                                                            contract.name_on_card
-                                                        }
-                                                        className="form-control"
-                                                        readOnly
-                                                    />
-                                                ) : (
-                                                    <input
-                                                        type="text"
-                                                        name="name_on_card"
-                                                        onChange={(e) =>
-                                                            setCname(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className="form-control"
-                                                        placeholder={t(
-                                                            "work-contract.card_name"
-                                                        )}
-                                                    />
-                                                )}
+                                                **** **** ****{" "}
+                                                {clientCard.card_number} -{" "}
+                                                {clientCard.valid} (
+                                                {clientCard.card_type})
                                             </td>
                                         </tr>
-                                    )}
-
-                                    {oc == false && csdata && (
-                                        <>
-                                            <tr>
-                                                <td style={{ width: "60%" }}>
-                                                    {t(
-                                                        "work-contract.card.four_digits"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span className="form-control">
-                                                        {csdata.card_number}
-                                                    </span>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td style={{ width: "60%" }}>
-                                                    {t(
-                                                        "work-contract.card.valid"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span className="form-control">
-                                                        {formatValid}
-                                                    </span>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td style={{ width: "60%" }}>
-                                                    {t(
-                                                        "work-contract.card.type"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span className="form-control">
-                                                        {csdata.card_type}
-                                                    </span>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td style={{ width: "60%" }}>
-                                                    {t(
-                                                        "work-contract.card.holder"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span className="form-control">
-                                                        {csdata.card_holder}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        </>
-                                    )}
-
-                                    {oc != false && (
-                                        <tr>
-                                            <td>
-                                                {" "}
-                                                <label className="control-label">
-                                                    {t(
-                                                        "work-contract.card_cvv"
-                                                    )}
-                                                </label>
-                                            </td>
-                                            <td>
-                                                {contract &&
-                                                contract.name_on_card !=
-                                                    null ? (
-                                                    <input
-                                                        type="text"
-                                                        value={contract.cvv}
-                                                        className="form-control"
-                                                        readOnly
-                                                    />
-                                                ) : (
-                                                    <input
-                                                        type="text"
-                                                        name="cvv"
-                                                        onChange={(e) =>
-                                                            setCvv(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        onKeyUp={(e) => {
-                                                            if (
-                                                                e.target.value
-                                                                    .length >= 3
-                                                            )
-                                                                e.target.value =
-                                                                    e.target.value.slice(
-                                                                        0,
-                                                                        3
-                                                                    );
-                                                        }}
-                                                        className="form-control"
-                                                        placeholder={t(
-                                                            "work-contract.card_cvv"
-                                                        )}
-                                                    />
-                                                )}
-                                            </td>
-                                        </tr>
-                                    )}
-
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.signature")}
-                                        </td>
-                                        <td>
-                                            {contract &&
-                                            contract.card_sign != null ? (
-                                                <img src={contract.card_sign} />
-                                            ) : (
-                                                <>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            className:
-                                                                "sigCanvas",
-                                                            width: 300,
-                                                            height: 115,
-                                                        }}
-                                                        ref={sigRef2}
-                                                        onEnd={
-                                                            handleSignatureEnd2
-                                                        }
-                                                    />
-                                                    <button
-                                                        className="btn btn-warning"
-                                                        onClick={
-                                                            clearSignature2
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "work-contract.btn_warning_txt"
-                                                        )}
-                                                    </button>
-                                                </>
-                                            )}
-                                        </td>
-                                    </tr>
-
-                                    {oc == false && contract.add_card == 1 && (
+                                    ) : (
                                         <tr>
                                             <td style={{ width: "60%" }}>
                                                 {t(
@@ -976,19 +557,22 @@ export default function WorkContract() {
                                                 )}
                                             </td>
                                             <td>
-                                                {status == "not-signed" &&
-                                                    submit == false && (
-                                                        <button
-                                                            className="btn btn-success ac"
-                                                            onClick={(e) =>
-                                                                handleCard(e)
-                                                            }
-                                                        >
-                                                            {t(
-                                                                "work-contract.add_card_btn"
-                                                            )}
-                                                        </button>
-                                                    )}
+                                                {status == "not-signed" && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-success ac"
+                                                        onClick={(e) =>
+                                                            handleCard(e)
+                                                        }
+                                                        disabled={
+                                                            addCardBtnDisabled
+                                                        }
+                                                    >
+                                                        {t(
+                                                            "work-contract.add_card_btn"
+                                                        )}
+                                                    </button>
+                                                )}
                                                 {status != "not-signed" && (
                                                     <span className="text text-success font-weight-bold">
                                                         {" "}
@@ -1235,245 +819,14 @@ export default function WorkContract() {
                         </div>
 
                         <div className="mb-4">&nbsp;</div>
+
+                        {/*Iframe*/}
                         <div
                             className="modal fade"
                             id="exampleModal"
                             tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Add credit card
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t(
-                                                            "work-contract.card_type"
-                                                        )}
-                                                    </label>
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) =>
-                                                            setCtype(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-                                                        <option value="">
-                                                            {" "}
-                                                            {t(
-                                                                "work-contract.please_select"
-                                                            )}
-                                                        </option>
-                                                        <option value="Visa">
-                                                            Visa
-                                                        </option>
-                                                        <option value="Master Card">
-                                                            Master Card
-                                                        </option>
-                                                        <option value="American Express">
-                                                            American Express
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t(
-                                                            "work-contract.card_number"
-                                                        )}
-                                                    </label>
-                                                    <input
-                                                        type="number"
-                                                        onChange={(e) => {
-                                                            e.target.value =
-                                                                e.target.value.slice(
-                                                                    0,
-                                                                    16
-                                                                );
-                                                            setCard(
-                                                                e.target.value
-                                                            );
-                                                        }}
-                                                        className="form-control"
-                                                        required
-                                                        placeholder={t(
-                                                            "work-contract.card_number"
-                                                        )}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t(
-                                                            "work-contract.card_ex_year"
-                                                        )}
-                                                    </label>
-                                                    <select
-                                                        id="date-dropdown"
-                                                        className="form-control"
-                                                        onChange={(e) =>
-                                                            setExy(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-                                                        <option value="0">
-                                                            {t(
-                                                                "work-contract.select_year"
-                                                            )}
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t(
-                                                            "work-contract.card_ex_month"
-                                                        )}
-                                                    </label>
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) =>
-                                                            setExm(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-                                                        <option value="0">
-                                                            {t(
-                                                                "work-contract.select_month"
-                                                            )}
-                                                        </option>
-                                                        <option value="01">
-                                                            01
-                                                        </option>
-                                                        <option value="02">
-                                                            02
-                                                        </option>
-                                                        <option value="03">
-                                                            03
-                                                        </option>
-                                                        <option value="04">
-                                                            04
-                                                        </option>
-                                                        <option value="05">
-                                                            05
-                                                        </option>
-                                                        <option value="06">
-                                                            06
-                                                        </option>
-                                                        <option value="07">
-                                                            07
-                                                        </option>
-                                                        <option value="08">
-                                                            08
-                                                        </option>
-                                                        <option value="09">
-                                                            09
-                                                        </option>
-                                                        <option value="10">
-                                                            10
-                                                        </option>
-                                                        <option value="11">
-                                                            11
-                                                        </option>
-                                                        <option value="12">
-                                                            12
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t(
-                                                            "work-contract.card_cvv"
-                                                        )}
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="cvv"
-                                                        onChange={(e) =>
-                                                            setCvv(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        onKeyUp={(e) => {
-                                                            if (
-                                                                e.target.value
-                                                                    .length >= 3
-                                                            )
-                                                                e.target.value =
-                                                                    e.target.value.slice(
-                                                                        0,
-                                                                        3
-                                                                    );
-                                                        }}
-                                                        className="form-control"
-                                                        placeholder={t(
-                                                            "work-contract.card_cvv"
-                                                        )}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary closeb"
-                                            data-dismiss="modal"
-                                        >
-                                            {t("client.jobs.view.close")}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => handleCard(e)}
-                                            className="btn btn-primary msbtn"
-                                        >
-                                            {t("work-contract.model_submit")}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/*Iframe*/}
-                        <div
-                            className="modal fade"
-                            id="exampleModal2"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel2"
                             aria-hidden="true"
                         >
                             <div
@@ -1496,7 +849,7 @@ export default function WorkContract() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <iframe
-                                                        src={gurl}
+                                                        src={sessionURL}
                                                         title="Pay Card Transaction"
                                                         width="100%"
                                                         height="800"

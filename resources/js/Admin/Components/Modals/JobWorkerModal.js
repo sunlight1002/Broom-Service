@@ -21,7 +21,6 @@ export default function JobWorkerModal({
     tmpFormValues,
     handleSaveForm,
     editIndex,
-    start_date,
 }) {
     const alert = useAlert();
     const [workers, setWorkers] = useState([]);
@@ -35,25 +34,25 @@ export default function JobWorkerModal({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const startDate = useMemo(() => {
-        const _weekDay = moment(start_date).day();
+    const calendarMinDate = useMemo(() => {
+        const _weekDay = moment().day();
 
         if (_weekDay == 5) {
             // include friday for now.
-            // return moment(start_date).add(2, "days").format("YYYY-MM-DD");
+            // return moment().add(2, "days").format("YYYY-MM-DD");
         } else if (_weekDay == 6) {
-            return moment(start_date).add(1, "days").format("YYYY-MM-DD");
+            return moment().add(1, "days").format("YYYY-MM-DD");
         }
 
-        return start_date;
-    }, [start_date]);
+        return moment().format("YYYY-MM-DD");
+    }, []);
 
     const [workerForm, setWorkerForm] = useState(
         editIndex > -1
             ? tmpFormValues
             : {
                   ...initialValues,
-                  date: startDate,
+                  date: calendarMinDate,
               }
     );
 
@@ -268,7 +267,7 @@ export default function JobWorkerModal({
                                 }}
                                 options={{
                                     disableMobile: true,
-                                    minDate: startDate,
+                                    minDate: calendarMinDate,
                                     maxDate: calendarMaxDate,
                                     disable: [
                                         (date) => {
@@ -277,7 +276,7 @@ export default function JobWorkerModal({
                                         },
                                     ],
                                 }}
-                                defaultValue={startDate}
+                                defaultValue={calendarMinDate}
                                 ref={flatpickrRef}
                             />
                         </div>

@@ -20,8 +20,6 @@ export default function CreateClientByJob() {
     const [c_time, setCTime] = useState(0);
     const [isOpenWorker, setIsOpenWorker] = useState(false);
     const [services, setServices] = useState([]);
-    const [contracts, setContracts] = useState(null);
-    const [contractStartDate, setContractStartDate] = useState(null);
     const [shiftFormValues, setShiftFormValues] = useState([]);
     const [tmpFormValues, setTmpFormValues] = useState({});
     const [editIndex, setEditIndex] = useState(-1);
@@ -39,7 +37,6 @@ export default function CreateClientByJob() {
             .get(`/api/admin/get-contract-by-client/${params.id}`, { headers })
             .then((res) => {
                 const _contracts = res.data.contract;
-                setContracts(_contracts);
                 setClientName(
                     res.data.client.firstname + " " + res.data.client.lastname
                 );
@@ -48,7 +45,7 @@ export default function CreateClientByJob() {
                 _contracts.map((c) => {
                     new_data = JSON.parse(c.offer.services);
                     new_data = new_data.filter((n) => {
-                        n["c_id"] = c.id;
+                        n["contract_id"] = c.id;
                         return n;
                     });
                     Array.prototype.push.apply(all_s, new_data);
@@ -91,7 +88,7 @@ export default function CreateClientByJob() {
     const handleServices = (value) => {
         services.forEach((_s, index) => {
             if (index != value) {
-                $(".services-" + _s.service + "-" + _s.c_id).css(
+                $(".services-" + _s.service + "-" + _s.contract_id).css(
                     "display",
                     "none"
                 );
@@ -102,9 +99,6 @@ export default function CreateClientByJob() {
 
         setServices([_service]);
         setSelectedService(_service);
-
-        const _contract = contracts.find((c) => c.id == _service.c_id);
-        setContractStartDate(_contract.start_date);
 
         $("#edit-work-time").modal("hide");
     };
@@ -122,7 +116,8 @@ export default function CreateClientByJob() {
     const handleSubmit = () => {
         let formdata = {
             workers: shiftFormValues,
-            service: selectedService,
+            service_id: selectedService.service,
+            contract_id: selectedService.contract_id,
             prevWorker: isPrevWorker.current.checked,
             client_page: true,
         };
@@ -196,7 +191,6 @@ export default function CreateClientByJob() {
                             setIsOpen={setIsOpenWorker}
                             isOpen={isOpenWorker}
                             service={selectedService}
-                            start_date={contractStartDate}
                             handleSaveForm={handleSave}
                             tmpFormValues={tmpFormValues}
                             editIndex={editIndex}

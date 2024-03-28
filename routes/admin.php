@@ -125,7 +125,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
     Route::post('client-contracts', [ContractController::class, 'clientContracts'])->name('client-contracts');
-    Route::post('get-contract/{id}', [ContractController::class, 'getContract'])->name('get-contract');
+    Route::post('get-contract/{id}', [ContractController::class, 'getContract']);
     Route::post('verify-contract', [ContractController::class, 'verifyContract'])->name('verify-contract');
     Route::get('get-contract-by-client/{id}', [ContractController::class, 'getContractByClient']);
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
@@ -198,7 +198,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('client-orders/{id}', [InvoiceController::class, 'getClientOrders']);
     Route::get('delete-oders/{id}', [InvoiceController::class, 'deleteOrders']);
     Route::post('get-codes-order', [InvoiceController::class, 'getCodesOrders']);
-    Route::post('add-order', [InvoiceController::class, 'AddOrder']);
+    Route::post('create-order', [InvoiceController::class, 'createOrder']);
 
     // ManualInvoice
     Route::get('client-invoice-job', [InvoiceController::class, 'getClientInvoiceJob']);
