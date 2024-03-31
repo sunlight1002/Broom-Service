@@ -175,7 +175,7 @@ trait PaymentAPI
             'Key' => $zcreditKey,
             'Local' => $sessionData['local'],
             'UniqueId' => $sessionData['unique_id'],
-            'SuccessUrl' => url('thanks/' . $sessionData['client_id']),
+            'SuccessUrl' => $sessionData['success_url'],
             'CancelUrl' => url('client/settings?cps=payment-cancelled'),
             'CallbackUrl' => config('services.zcredit.callback-url'),
             'PaymentType' => 'authorize',

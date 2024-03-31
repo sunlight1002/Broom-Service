@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('order:generate')->everyMinute();
+        // $schedule->command('order:generate')->everyMinute();
         $schedule->command('worker:default-availability')->weekly();
         // $schedule->command('regular-invoice:generate')->dailyAt('17:00');
         // $schedule->command('invoice:generate')->dailyAt('16:30');
