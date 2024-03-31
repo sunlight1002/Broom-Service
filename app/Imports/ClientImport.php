@@ -10,6 +10,7 @@ use App\Models\Services;
 use App\Models\Contract;
 use App\Models\ClientCard;
 use App\Models\LeadStatus;
+use App\Traits\PaymentAPI;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 
 class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
+    use PaymentAPI;
     /**
      * @param Collection $collection
      */
@@ -224,7 +226,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'client_id' => $client->id,
                             'additional_address' => $row['additional_address'],
                             'status' => 'verified',
-                            'start_date' => $row['start_date'],
                             'unique_hash' => $hash
                         ]);
                     } else {
@@ -233,7 +234,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'client_id' => $client->id,
                             'additional_address' => $row['additional_address'],
                             'status' => 'verified',
-                            'start_date' => $row['start_date'],
                             'unique_hash' => $hash
                         ]);
                     }
@@ -254,6 +254,35 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'lead_status' => 'Contract Accepted'
                           ]
                         );
+                    }
+                }
+
+                $validDate = explode("-", $row['valid'])[1] . substr(explode("-", $row['valid'])[0], -2);
+                $validateResponse = $this->validateCard(['card_number' => $row['card_number'], 'card_exp' => $validDate]);
+
+                if(!$validateResponse['HasError'])
+                {
+                    $isdefault = ClientCard::where('client_id', $client->id)->where('is_default', 1)->first();
+                    $existingCard = ClientCard::where('client_id', $client->id)->where('card_number', $row['card_number'])->first();
+
+                    if($existingCard) {
+                        if($existingCard->is_default == 0 && !$isdefault) {
+                            $existingCard->update(['is_default' => 1]);
+                        }
+                    }
+                    else
+                    {
+                        $card = ClientCard::Create([
+                            'client_id'   => $client->id,
+                            'card_number' => $row['card_number'],
+                            'card_type'   => $row['card_type'],
+                            'card_holder_id' => $row['card_holder_id'],
+                            'card_holder_name' => $row['card_holder_name'],
+                            'valid'       => $row['valid'],
+                            'cvv'       => $row['cvv'],
+                            'card_token'  => $validateResponse['Token'],
+                            'is_default'  => $isdefault ? 0 : 1
+                        ]);
                     }
                 }
 
