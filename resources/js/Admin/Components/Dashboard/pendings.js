@@ -506,6 +506,7 @@ export default function () {
                                                                                         .address
                                                                                         .longitude
                                                                                 }`}
+                                                                                key={j}
                                                                             >
                                                                                 {s
                                                                                     .address
@@ -721,6 +722,7 @@ export default function () {
                                                                                         .address
                                                                                         .longitude
                                                                                 }`}
+                                                                                key={j}
                                                                             >
                                                                                 {s
                                                                                     .address

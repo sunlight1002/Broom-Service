@@ -2,7 +2,7 @@ import React from "react";
 import { Base64 } from "js-base64";
 import { Link } from "react-router-dom";
 
-export default function WorkerDetails({ worker, job }) {
+export default function WorkerDetails({ worker }) {
     var cords =
         worker.latitude && worker.longitude
             ? worker.latitude + "," + worker.longitude
@@ -57,28 +57,6 @@ export default function WorkerDetails({ worker, job }) {
                                 </p>
                             </div>
                         </div>
-                        {/*} {
-                                (job.order && job.order.status != undefined) && <div className='col-sm-8'>
-                                    <div className='form-group'>
-                                        <label className='control-label'>Order Status</label>
-                                        <p style={ {color:"green",fontSize:"17px"} }><b>{job.order.status}</b></p>
-                                    </div>
-                                </div>
-                                }
-                                <div className='col-sm-2'>
-                                    <div className='form-group'>
-                                    {
-                                (  job.order && job.order.docurl != undefined ) &&
-                              
-                                 <a className='btn btn-warning mb-2' target='_blank' href={job.order.doc_url}>view Order</a>
-                                }
-                                {
-                                (job.invoice_url) &&
-                              
-                                 <a className='btn btn-success' target='_blank' href={job.invoice_url}>view invoice</a>
-                                }
-                                 </div>
-                                </div>*/}
                     </div>
                 </form>
             </div>

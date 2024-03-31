@@ -8,12 +8,11 @@ class Invoices extends Model
 {
     protected $fillable = [
         'invoice_id',
-        'job_id',
         'amount',
         'paid_amount',
         'doc_url',
         'type',
-        'customer',
+        'client_id',
         'due_date',
         'pay_method',
         'txn_id',
@@ -26,12 +25,12 @@ class Invoices extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class, 'customer');
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
-    public function job()
+    public function jobs()
     {
-        return $this->belongsTo(Job::class, 'job_id');
+        return $this->hasMany(Job::class, 'order_id');
     }
 
     public function receipt()

@@ -7,7 +7,7 @@ import UserIcon from "../Assets/image/icons/user-client.jpeg";
 import Jobs from "./Components/Dashboard/jobs";
 import Pendings from "./Components/Dashboard/pendings";
 
-export default function AdminDashboard() {
+export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
     const [totalClients, setTotalClients] = useState([0]);
     const [totalWorkers, setTotalWorkers] = useState([0]);

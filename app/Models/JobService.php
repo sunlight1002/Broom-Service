@@ -16,7 +16,6 @@ class JobService extends Model
         'period',
         'total',
         'pay_status',
-        'order_status',
         'config',
         'heb_name',
         'service_id',

@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
 import { Base64 } from "js-base64";
-
+import Swal from "sweetalert2";
 import { render } from "react-dom";
 import AceEditor from "react-ace";
 
@@ -136,12 +136,19 @@ export default function Invoice() {
         };
 
         axios
-            .post(`/api/admin/update-invoice/${payId}`, { data }, { headers })
+            .post(`/api/admin/update-invoice/${payId}`, data, { headers })
             .then((res) => {
                 document.querySelector(".closeb1").click();
                 getInvoices("");
                 setPaidAmount("");
                 setPayID(0);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 
@@ -159,10 +166,17 @@ export default function Invoice() {
                 axios
                     .get(`/api/admin/close-doc/${id}/${type}`, { headers })
                     .then((response) => {
-                        Swal.fire("Closed", response.data.msg, "success");
+                        Swal.fire("Closed", response.data.message, "success");
                         setTimeout(() => {
                             getInvoices("f=all");
                         }, 1000);
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });
@@ -204,11 +218,18 @@ export default function Invoice() {
         };
 
         axios
-            .post(`/api/admin/cancel-doc`, { data }, { headers })
+            .post(`/api/admin/cancel-doc`, data, { headers })
             .then((res) => {
                 $(".closeb11").click();
-                Swal.fire(res.data.msg, "", "info");
+                Swal.fire(res.data.message, "", "info");
                 getInvoices();
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

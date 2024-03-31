@@ -35,6 +35,7 @@ class Job extends Model
         'next_start_date',
         'is_next_job_created',
         'keep_prev_worker',
+        'is_one_time_job',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
@@ -53,6 +54,7 @@ class Job extends Model
         'is_invoice_generated' => 'boolean',
         'next_start_date' => 'datetime',
         'is_next_job_created' => 'boolean',
+        'is_one_time_job' => 'boolean',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',
@@ -62,7 +64,6 @@ class Job extends Model
     {
         parent::boot();
         static::deleting(function ($job) {
-            Invoices::where('job_id', $job->id)->delete();
             JobService::where('job_id', $job->id)->delete();
             JobHours::where('job_id', $job->id)->delete();
             JobComments::where('job_id', $job->id)->delete();
@@ -106,12 +107,12 @@ class Job extends Model
 
     public function order()
     {
-        return $this->hasMany(Order::class, 'job_id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function invoice()
     {
-        return $this->hasMany(Invoices::class, 'job_id');
+        return $this->belongsTo(Invoices::class, 'invoice_id');
     }
 
     public function propertyAddress()

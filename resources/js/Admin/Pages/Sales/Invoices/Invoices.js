@@ -7,7 +7,6 @@ import axios from "axios";
 import Moment from "moment";
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
-
 import { render } from "react-dom";
 import AceEditor from "react-ace";
 
@@ -187,20 +186,24 @@ export default function Invoices() {
         let sb = $(".sbtn").prop("disabled", true);
         sb.html("Please wait..");
         axios
-            .post(`/api/admin/update-invoice/${payId}`, { data }, { headers })
+            .post(`/api/admin/update-invoice/${payId}`, data, { headers })
             .then((res) => {
-                if (res.data.rescode != undefined && res.data.rescode == 401) {
-                    window.alert(res.data.msg);
-                    sb.prop("disabled", false);
-                    sb.html("Save Payment");
-                    return;
-                }
                 document.querySelector(".closeb1").click();
                 sb.prop("disabled", false);
                 sb.html("Save Payment");
                 getInvoices("");
                 setPaidAmount("");
                 setPayID(0);
+            })
+            .catch((e) => {
+                sb.prop("disabled", false);
+                sb.html("Save Payment");
+
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 
@@ -245,10 +248,17 @@ export default function Invoices() {
                 axios
                     .get(`/api/admin/close-doc/${id}/${type}`, { headers })
                     .then((response) => {
-                        Swal.fire("Closed", response.data.msg, "success");
+                        Swal.fire("Closed", response.data.message, "success");
                         setTimeout(() => {
                             getInvoices();
                         }, 1000);
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });
@@ -263,11 +273,18 @@ export default function Invoices() {
         };
 
         axios
-            .post(`/api/admin/cancel-doc`, { data }, { headers })
+            .post(`/api/admin/cancel-doc`, data, { headers })
             .then((res) => {
                 $(".closeb11").click();
-                Swal.fire(res.data.msg, "", "info");
+                Swal.fire(res.data.message, "", "info");
                 getInvoices();
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 
@@ -338,7 +355,7 @@ export default function Invoices() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Manage Invoices</h1>
                         </div>
-                        <div className="col-sm-6">
+                        {/* <div className="col-sm-6">
                             <Link
                                 to="/admin/add-invoice"
                                 className="ml-2 btn btn-pink addButton"
@@ -346,7 +363,7 @@ export default function Invoices() {
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Create Invoice
                             </Link>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="sales-filter">
@@ -985,7 +1002,7 @@ export default function Invoices() {
                                                 Amount
                                             </label>
                                             <input
-                                                type="text"
+                                                type="number"
                                                 value={paidAmount}
                                                 onChange={(e) =>
                                                     setPaidAmount(
@@ -1004,7 +1021,7 @@ export default function Invoices() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Transaction / Refrence ID
+                                                Transaction / Reference ID
                                                 <small>
                                                     {" "}
                                                     ( Optional in credit card
@@ -1019,7 +1036,7 @@ export default function Invoices() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter Transaction / Refrence ID"
+                                                placeholder="Enter Transaction / Reference ID"
                                             ></input>
                                         </div>
                                     </div>

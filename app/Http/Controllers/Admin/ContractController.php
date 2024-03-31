@@ -6,7 +6,6 @@ use App\Enums\ContractStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
-use App\Models\ClientCard;
 use App\Models\LeadStatus;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;

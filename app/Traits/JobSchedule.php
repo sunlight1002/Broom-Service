@@ -26,6 +26,9 @@ trait JobSchedule
         } else if (Str::endsWith($period, 'y')) {
             $type = 'year';
             $total_sequence = (int)Str::replaceLast('y', '', $period);
+        } else if ($period == 'na') {
+            $type = 'day';
+            $total_sequence = 0;
         }
 
         if (!$type) {
@@ -328,8 +331,9 @@ trait JobSchedule
 
     private function scheduleNextJobDate($jobDate, $period, $preferredWeekDay)
     {
-        $jobsArr = [];
-        $jobIdx = 0;
+        if ($period == 'na') {
+            return NULL;
+        }
 
         $next_job_date = NULL;
 

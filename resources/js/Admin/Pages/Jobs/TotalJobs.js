@@ -133,38 +133,6 @@ export default function TotalJobs() {
         }, 500);
     };
 
-    const handleform = (job_id, e) => {
-        let date = "";
-        let worker = getSelectedWorkers(job_id);
-        let _shifts = null;
-
-        let data = {
-            date: date,
-            worker: worker != undefined ? worker : "",
-            _shifts: _shifts != null ? _shifts : "",
-        };
-        axios
-            .post(`/api/admin/update-job/${job_id}`, data, { headers })
-            .then((response) => {
-                if (response.data.errors) {
-                    setErrors(response.data.errors);
-                } else {
-                    alert.success("Job Updated Successfully");
-                    setTimeout(() => {
-                        getJobs();
-                    }, 1000);
-                }
-            });
-    };
-
-    const getSelectedWorkers = (job_id) => {
-        if (workers[job_id] !== "undefined") {
-            return workers[job_id];
-        } else {
-            return "";
-        }
-    };
-
     const handleNavigate = (e, id) => {
         e.preventDefault();
         navigate(`/admin/view-job/${id}`);
@@ -1034,90 +1002,63 @@ export default function TotalJobs() {
                                                                 {item.status}
                                                             </span>
 
-                                                            {item.order &&
-                                                                item.order.map(
-                                                                    (o, i) => {
-                                                                        return (
-                                                                            <React.Fragment
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {" "}
-                                                                                <br />
-                                                                                <Link
-                                                                                    target="_blank"
-                                                                                    to={
-                                                                                        o.doc_url
-                                                                                    }
-                                                                                    className="jorder"
-                                                                                >
-                                                                                    {" "}
-                                                                                    order
-                                                                                    -
-                                                                                    {
-                                                                                        o.order_id
-                                                                                    }{" "}
-                                                                                </Link>
-                                                                                <br />
-                                                                            </React.Fragment>
-                                                                        );
-                                                                    }
-                                                                )}
-
-                                                            {item.invoice &&
-                                                                item.invoice.map(
-                                                                    (
-                                                                        inv,
-                                                                        i
-                                                                    ) => {
-                                                                        if (
-                                                                            i ==
-                                                                            0
-                                                                        ) {
-                                                                            pstatus =
-                                                                                inv.status;
+                                                            {item.order && (
+                                                                <React.Fragment>
+                                                                    <br />
+                                                                    <Link
+                                                                        target="_blank"
+                                                                        to={
+                                                                            item
+                                                                                .order
+                                                                                .doc_url
                                                                         }
+                                                                        className="jorder"
+                                                                    >
+                                                                        order -
+                                                                        {
+                                                                            item
+                                                                                .order
+                                                                                .order_id
+                                                                        }
+                                                                    </Link>
+                                                                </React.Fragment>
+                                                            )}
 
-                                                                        return (
-                                                                            <React.Fragment
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {" "}
-                                                                                <br />
-                                                                                <Link
-                                                                                    target="_blank"
-                                                                                    to={
-                                                                                        inv.doc_url
-                                                                                    }
-                                                                                    className="jinv"
-                                                                                >
-                                                                                    {" "}
-                                                                                    Invoice
-                                                                                    -
-                                                                                    {
-                                                                                        inv.invoice_id
-                                                                                    }{" "}
-                                                                                </Link>
-                                                                                <br />
-                                                                            </React.Fragment>
-                                                                        );
-                                                                    }
-                                                                )}
+                                                            {item.invoice && (
+                                                                <React.Fragment>
+                                                                    {" "}
+                                                                    <br />
+                                                                    <Link
+                                                                        target="_blank"
+                                                                        to={
+                                                                            item
+                                                                                .invoice
+                                                                                .doc_url
+                                                                        }
+                                                                        className="jinv"
+                                                                    >
+                                                                        Invoice
+                                                                        -
+                                                                        {
+                                                                            item
+                                                                                .invoice
+                                                                                .invoice_id
+                                                                        }
+                                                                    </Link>
+                                                                </React.Fragment>
+                                                            )}
 
-                                                            {pstatus !=
-                                                                null && (
+                                                            {item.invoice && (
                                                                 <>
                                                                     {" "}
                                                                     <br />
                                                                     <span className="jorder">
                                                                         {
-                                                                            pstatus
+                                                                            item
+                                                                                .invoice
+                                                                                .status
                                                                         }
                                                                     </span>
-                                                                    <br />
                                                                 </>
                                                             )}
 
@@ -1141,10 +1082,7 @@ export default function TotalJobs() {
                                                                 {item.client && (
                                                                     <div className="dropdown-menu">
                                                                         {item.client &&
-                                                                            item
-                                                                                .invoice
-                                                                                .length ==
-                                                                                0 && (
+                                                                            !item.invoice && (
                                                                                 <Link
                                                                                     to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
                                                                                     className="dropdown-item"
@@ -1153,11 +1091,8 @@ export default function TotalJobs() {
                                                                                     Order
                                                                                 </Link>
                                                                             )}
-                                                                        {item.client &&
-                                                                            item
-                                                                                .order
-                                                                                .length >
-                                                                                0 && (
+                                                                        {/* {item.client &&
+                                                                            item.order && (
                                                                                 <Link
                                                                                     to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
                                                                                     className="dropdown-item"
@@ -1165,7 +1100,7 @@ export default function TotalJobs() {
                                                                                     Create
                                                                                     Invoice
                                                                                 </Link>
-                                                                            )}
+                                                                            )} */}
                                                                         <Link
                                                                             to={`/admin/view-job/${item.id}`}
                                                                             className="dropdown-item"
@@ -1221,22 +1156,6 @@ export default function TotalJobs() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <button
-                                                                type="button"
-                                                                style={{
-                                                                    display:
-                                                                        "none",
-                                                                }}
-                                                                className="btn btn-success"
-                                                                onClick={(e) =>
-                                                                    handleform(
-                                                                        item.id,
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                Update
-                                                            </button>
                                                         </td>
                                                     </tr>
                                                 );

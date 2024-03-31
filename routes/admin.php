@@ -67,7 +67,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Jobs Api
     Route::resource('jobs', JobController::class)->except('create');
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
-    Route::post('update-job/{id}', [JobController::class, 'updateJob']);
     Route::post('create-job/{id}', [JobController::class, 'createJob']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
@@ -202,7 +201,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // ManualInvoice
     Route::get('client-invoice-job', [InvoiceController::class, 'getClientInvoiceJob']);
-    Route::post('get-client-invorders', [InvoiceController::class, 'clientInvoiceOrders']);
+    Route::post('clients/{id}/invorders', [InvoiceController::class, 'clientInvoiceOrders']);
 
     // Multiple Orders
     Route::post('multiple-orders', [InvoiceController::class, 'multipleOrders']);

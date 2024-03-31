@@ -173,19 +173,19 @@ export default function Jobs({ contracts, client }) {
 
     const genOrder = () => {
         let cb = document.querySelectorAll(".cb");
-        let ar = [];
+        let job_id_arr = [];
         cb.forEach((c, i) => {
             if (c.checked == true) {
-                ar.push(c.value);
+                job_id_arr.push(c.value);
             }
         });
-        if (ar.length == 0) {
+        if (job_id_arr.length == 0) {
             alert.error("Please check job");
             return;
         }
 
         axios
-            .post(`/api/admin/multiple-orders`, { ar }, { headers })
+            .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
             .then((res) => {
                 getJobs(filtered);
                 alert.success("Job Order(s) created successfully");
@@ -559,8 +559,8 @@ export default function Jobs({ contracts, client }) {
                                                     name="cb"
                                                     value={j.id}
                                                     oid={
-                                                        j.order.length > 0
-                                                            ? j.order[0].id
+                                                        j.order
+                                                            ? j.order.id
                                                             : ""
                                                     }
                                                     className="form-control cb"
@@ -594,71 +594,47 @@ export default function Jobs({ contracts, client }) {
                                             <td>
                                                 {j.status}
 
-                                                {j.order &&
-                                                    j.order.map((o, i) => {
-                                                        return (
-                                                            <React.Fragment
-                                                                key={i}
-                                                            >
-                                                                {" "}
-                                                                <br />
-                                                                <Link
-                                                                    target="_blank"
-                                                                    to={
-                                                                        o.doc_url
-                                                                    }
-                                                                    className="jorder"
-                                                                >
-                                                                    {" "}
-                                                                    order -
-                                                                    {
-                                                                        o.order_id
-                                                                    }{" "}
-                                                                </Link>
-                                                                <br />
-                                                            </React.Fragment>
-                                                        );
-                                                    })}
+                                                {j.order && (
+                                                    <React.Fragment>
+                                                        <br />
+                                                        <Link
+                                                            target="_blank"
+                                                            to={j.order.doc_url}
+                                                            className="jorder"
+                                                        >
+                                                            order -
+                                                            {j.order.order_id}
+                                                        </Link>
+                                                    </React.Fragment>
+                                                )}
 
-                                                {j.invoice &&
-                                                    j.invoice.map((inv, i) => {
-                                                        if (i == 0) {
-                                                            pstatus =
-                                                                inv.status;
-                                                        }
+                                                {j.invoice && (
+                                                    <React.Fragment>
+                                                        <br />
+                                                        <Link
+                                                            target="_blank"
+                                                            to={
+                                                                j.invoice
+                                                                    .doc_url
+                                                            }
+                                                            className="jinv"
+                                                        >
+                                                            Invoice -
+                                                            {
+                                                                j.invoice
+                                                                    .invoice_id
+                                                            }
+                                                        </Link>
+                                                    </React.Fragment>
+                                                )}
 
-                                                        return (
-                                                            <React.Fragment
-                                                                key={i}
-                                                            >
-                                                                {" "}
-                                                                <br />
-                                                                <Link
-                                                                    target="_blank"
-                                                                    to={
-                                                                        inv.doc_url
-                                                                    }
-                                                                    className="jinv"
-                                                                >
-                                                                    {" "}
-                                                                    Invoice -
-                                                                    {
-                                                                        inv.invoice_id
-                                                                    }{" "}
-                                                                </Link>
-                                                                <br />
-                                                            </React.Fragment>
-                                                        );
-                                                    })}
-
-                                                {pstatus != null && (
+                                                {j.invoice && (
                                                     <>
                                                         {" "}
                                                         <br />
                                                         <span className="jorder">
-                                                            {pstatus}
+                                                            {j.invoice.status}
                                                         </span>
-                                                        <br />
                                                     </>
                                                 )}
                                             </td>
@@ -688,18 +664,22 @@ export default function Jobs({ contracts, client }) {
                                                             View Job
                                                         </Link>
 
-                                                        <Link
-                                                            to={`/admin/add-order/?j=${j.id}&c=${params.id}`}
-                                                            className="dropdown-item"
-                                                        >
-                                                            Create Order
-                                                        </Link>
-                                                        <Link
-                                                            to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`}
-                                                            className="dropdown-item"
-                                                        >
-                                                            Create Invoice
-                                                        </Link>
+                                                        {!j.is_order_generated && (
+                                                            <Link
+                                                                to={`/admin/add-order/?j=${j.id}&c=${params.id}`}
+                                                                className="dropdown-item"
+                                                            >
+                                                                Create Order
+                                                            </Link>
+                                                        )}
+                                                        {/* {!j.is_invoice_generated && (
+                                                            <Link
+                                                                to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`}
+                                                                className="dropdown-item"
+                                                            >
+                                                                Create Invoice
+                                                            </Link>
+                                                        )} */}
 
                                                         <button
                                                             className="dropdown-item"

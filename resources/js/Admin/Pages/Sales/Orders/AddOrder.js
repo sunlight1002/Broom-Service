@@ -62,7 +62,6 @@ export default function AddOrder() {
                 if (_service) {
                     setjService(_service);
                     setTimeout(() => {
-                        let st = 0;
                         let d = Moment(res.data.data.start_date).format(
                             "DD MMM, Y"
                         );
