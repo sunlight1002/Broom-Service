@@ -644,26 +644,6 @@ export default function TotalJobs() {
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
-                                                <th scope="col">Hours</th>
-                                                <th scope="col">Done</th>
-                                                <th scope="col">Comments</th>
-                                                <th scope="col">Address</th>
-                                                <th
-                                                    className="hidden-xs"
-                                                    onClick={(e) => {
-                                                        sortTable(e, "status");
-                                                    }}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    scope="col"
-                                                >
-                                                    Status{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </th>
                                                 <th
                                                     className="text-center"
                                                     scope="col"
@@ -725,8 +705,6 @@ export default function TotalJobs() {
                                                         );
                                                     }
                                                 );
-
-                                                let pstatus = null;
 
                                                 return (
                                                     <tr
@@ -927,148 +905,6 @@ export default function TotalJobs() {
                                                                           .jobservice
                                                                           .heb_name)}
                                                         </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.jobservice
-                                                                ? convertMinsToDecimalHrs(
-                                                                      item
-                                                                          .jobservice
-                                                                          .duration_minutes
-                                                                  )
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {convertMinsToDecimalHrs(
-                                                                item.total_minutes
-                                                            )}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.last_comment
-                                                                ? item.last_comment
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.property_address
-                                                                ? item
-                                                                      .property_address
-                                                                      .address_name
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            style={
-                                                                item.status.includes(
-                                                                    "cancel"
-                                                                )
-                                                                    ? {
-                                                                          color: "red",
-                                                                      }
-                                                                    : {}
-                                                            }
-                                                            className="hidden-xs"
-                                                        >
-                                                            <span
-                                                                style={{
-                                                                    textTransform:
-                                                                        "capitalize",
-                                                                }}
-                                                            >
-                                                                {item.status}
-                                                            </span>
-
-                                                            {item.order && (
-                                                                <React.Fragment>
-                                                                    <br />
-                                                                    <Link
-                                                                        target="_blank"
-                                                                        to={
-                                                                            item
-                                                                                .order
-                                                                                .doc_url
-                                                                        }
-                                                                        className="jorder"
-                                                                    >
-                                                                        order -
-                                                                        {
-                                                                            item
-                                                                                .order
-                                                                                .order_id
-                                                                        }
-                                                                    </Link>
-                                                                </React.Fragment>
-                                                            )}
-
-                                                            {item.invoice && (
-                                                                <React.Fragment>
-                                                                    {" "}
-                                                                    <br />
-                                                                    <Link
-                                                                        target="_blank"
-                                                                        to={
-                                                                            item
-                                                                                .invoice
-                                                                                .doc_url
-                                                                        }
-                                                                        className="jinv"
-                                                                    >
-                                                                        Invoice
-                                                                        -
-                                                                        {
-                                                                            item
-                                                                                .invoice
-                                                                                .invoice_id
-                                                                        }
-                                                                    </Link>
-                                                                </React.Fragment>
-                                                            )}
-
-                                                            {item.invoice && (
-                                                                <>
-                                                                    {" "}
-                                                                    <br />
-                                                                    <span className="jorder">
-                                                                        {
-                                                                            item
-                                                                                .invoice
-                                                                                .status
-                                                                        }
-                                                                    </span>
-                                                                </>
-                                                            )}
-
-                                                            <p>
-                                                                {item.status ==
-                                                                    "cancel" &&
-                                                                    ` (with cancellation fees of ${item.cancellation_fee_amount} ILS)`}
-                                                            </p>
-                                                        </td>
-
                                                         <td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
                                                                 <button

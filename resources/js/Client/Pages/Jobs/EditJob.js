@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { SelectPicker } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
 import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
 import { update } from "lodash";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function EditJob() {
     const alert = useAlert();
@@ -37,7 +39,7 @@ export default function EditJob() {
 
     const getJob = () => {
         axios
-            .get(`/api/admin/jobs/${params.id}/edit`, { headers })
+            .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
                 const r = res.data.job;
                 setService(r.service.id);
@@ -52,6 +54,13 @@ export default function EditJob() {
                 setInstruction(r.instruction);
                 setStatus(r.status);
                 console.log(res);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

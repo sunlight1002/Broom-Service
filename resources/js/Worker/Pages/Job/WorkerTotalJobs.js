@@ -213,17 +213,13 @@ export default function WorkerTotalJobs() {
                                         <Thead>
                                             <Tr>
                                                 <Th scope="col">
-                                                    {t("worker.jobs.job_date")}
+                                                    {t("worker.jobs.date")}
                                                 </Th>
                                                 <Th scope="col">
-                                                    {t(
-                                                        "worker.jobs.client_name"
-                                                    )}
+                                                    {t("worker.jobs.client")}
                                                 </Th>
                                                 <Th scope="col">
-                                                    {t(
-                                                        "worker.jobs.service_name"
-                                                    )}
+                                                    {t("worker.jobs.service")}
                                                 </Th>
                                                 <Th scope="col">
                                                     {t("worker.jobs.shift")}

@@ -65,7 +65,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('latest-clients', [ClientController::class, 'latestClients']);
 
     // Jobs Api
-    Route::resource('jobs', JobController::class)->except('create');
+    Route::resource('jobs', JobController::class)->except(['create', 'edit']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('create-job/{id}', [JobController::class, 'createJob']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);

@@ -25,7 +25,7 @@ class Job extends Model
         'comment',
         'total_amount',
         'order_id',
-        'is_order_generated', 
+        'is_order_generated',
         'isOrdered',
         'invoice_id',
         'is_invoice_generated',
