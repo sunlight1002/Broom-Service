@@ -269,12 +269,12 @@ export default function JobWorkerModal({
                                     disableMobile: true,
                                     minDate: calendarMinDate,
                                     maxDate: calendarMaxDate,
-                                    disable: [
-                                        (date) => {
-                                            // return true to disable
-                                            return date.getDay() === 6;
-                                        },
-                                    ],
+                                    // disable: [
+                                    //     (date) => {
+                                    //         // return true to disable
+                                    //         return date.getDay() === 6;
+                                    //     },
+                                    // ],
                                 }}
                                 defaultValue={calendarMinDate}
                                 ref={flatpickrRef}

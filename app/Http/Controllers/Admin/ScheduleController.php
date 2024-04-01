@@ -226,7 +226,8 @@ class ScheduleController extends Controller
             $eventTime,
             $userTimezone,
             $googleAccessToken,
-            $description
+            $description,
+            $schedule->propertyAddress->geo_address
         );
 
         $schedule->update([
@@ -285,7 +286,8 @@ class ScheduleController extends Controller
         $event_time,
         $event_timezone,
         $access_token,
-        $description
+        $description,
+        $location
     ) {
         $postData = array('summary' => $summary);
 
@@ -305,6 +307,7 @@ class ScheduleController extends Controller
                 //     array('email' => 'demo01@example.com'),
                 //     array('email' => 'demo02@example.com'),
                 // ),
+                'location' => $location,
                 'reminders' => array(
                     'useDefault' => FALSE,
                     'overrides' => array(
@@ -329,6 +332,7 @@ class ScheduleController extends Controller
                 //     array('email' => 'demo01@example.com'),
                 //     array('email' => 'demo02@example.com'),
                 // ),
+                'location' => $location,
                 'reminders' => array(
                     'useDefault' => FALSE,
                     'overrides' => array(
