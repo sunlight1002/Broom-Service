@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
-import Sidebar from "../../Layouts/Sidebar";
 import axios from "axios";
 import { MultiSelect } from "react-multi-select-component";
+import Swal from "sweetalert2";
 import Select from "react-select";
 import { create } from "lodash";
+
+import Sidebar from "../../Layouts/Sidebar";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import JobMenu from "../../Components/Job/JobMenu";
 
@@ -69,9 +71,6 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
-        {
-            /*Client Data */
-        }
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {
@@ -107,23 +106,17 @@ export default function AddLeadClient() {
                     alert.success("Client has been created successfully");
 
                     setTimeout(() => {
-                        //updateLeadStatus()
                         navigate("/admin/leads");
                     }, 1000);
                 }
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
-    };
-    const lead_data = {
-        lead_status: "converted to customer",
-    };
-    const updateLeadStatus = () => {
-        axios
-            .post(
-                `/api/admin/update-lead-status/${params.id}`,
-                { lead_data },
-                { headers }
-            )
-            .then((res) => {});
     };
 
     /*  Job Add */

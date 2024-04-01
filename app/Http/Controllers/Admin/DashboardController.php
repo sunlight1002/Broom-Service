@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -261,11 +262,11 @@ class DashboardController extends Controller
 
     if ($for == 'offers') {
       $offers = Offer::where('status', 'sent')->with('client', 'service')
-      ->paginate(5)
-      ->through(function ($item) {
-        $item->services = $this->formatServices($item);
-        return $item;
-      });
+        ->paginate(5)
+        ->through(function ($item) {
+          $item->services = $this->formatServices($item);
+          return $item;
+        });
       return response()->json([
         'data' => $offers,
       ]);
@@ -443,9 +444,8 @@ class DashboardController extends Controller
             ],
             [
               'client_id' => $c->id,
-              'lead_status' => ($mstat == 'confirmed') ? 'Meeting Set' : ($mstat == 'rescheduled' ? 'Meeting Rescheduled' : ($mstat == 'pending' ? 'Meeting pending' : 'Meeting Rejected'))
+              'lead_status' => ($mstat == 'confirmed') ? LeadStatusEnum::MEETING_SET : ($mstat == 'rescheduled' ? LeadStatusEnum::MEETING_RESCHEDULED : ($mstat == 'pending' ? LeadStatusEnum::MEETING_PENDING : LeadStatusEnum::MEETING_REJECTED))
             ]
-
           );
         }
       }
@@ -466,7 +466,9 @@ class DashboardController extends Controller
             ],
             [
               'client_id' => $c->id,
-              'lead_status' => ($ostat == 'sent') ? 'Offer Sent' : ($ostat == 'accepted' ? 'Offer Accepted' :  'Offer Rejected')
+              'lead_status' => ($ostat == 'sent') ?
+                LeadStatusEnum::OFFER_SENT : ($ostat == 'accepted' ?
+                  LeadStatusEnum::OFFER_ACCEPTED : LeadStatusEnum::OFFER_REJECTED)
             ]
 
           );
@@ -491,10 +493,10 @@ class DashboardController extends Controller
               [
                 'client_id' => $c->id,
                 'lead_status' => ($cstat == ContractStatusEnum::VERIFIED) ?
-                  'Contract Verified' : (
+                  LeadStatusEnum::CONTRACT_VERIFIED : (
                     $cstat == ContractStatusEnum::UN_VERIFIED ?
-                    'Contract Unverified' :
-                    'Contract Rejected'
+                    LeadStatusEnum::CONTRACT_UNVERIFIED :
+                    LeadStatusEnum::CONTRACT_REJECTED
                   )
               ]
             );

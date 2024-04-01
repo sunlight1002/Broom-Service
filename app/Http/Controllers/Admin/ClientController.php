@@ -390,12 +390,14 @@ class ClientController extends Controller
 
         $client = Client::find($id);
 
+        $hasVerifiedContract = Contract::query()
+            ->where('client_id', $client->id)
+            ->where('status', ContractStatusEnum::VERIFIED)
+            ->exists();
+
         if (!$client) {
             return response()->json([
-                'error' => [
-                    'message' => 'Client not found!',
-                    'code' => 404
-                ]
+                'message' => 'Client not found!',
             ], 404);
         }
 
@@ -406,6 +408,11 @@ class ClientController extends Controller
             $input['password'] = $client->password;
         }
 
+        if ($hasVerifiedContract && $input['status'] != 2) {
+            return response()->json([
+                'message' => "Can't convert client to lead",
+            ], 422);
+        }
         $client->update($input);
 
         if (!empty($request->jobdata)) {

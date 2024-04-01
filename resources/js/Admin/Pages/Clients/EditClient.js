@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import { useParams } from "react-router-dom";
-import Sidebar from "../../Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import JobMenu from "../../Components/Job/JobMenu";
 
@@ -105,6 +107,13 @@ export default function EditClient() {
                         navigate("/admin/clients");
                     }, 1000);
                 }
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

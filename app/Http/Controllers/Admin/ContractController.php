@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
@@ -127,11 +128,24 @@ class ContractController extends Controller
         ]);
     }
 
-    public function verifyContract(Request $request)
+    public function verify(Request $request)
     {
         $contract = Contract::query()
             ->with('client')
             ->find($request->id);
+
+        if (!$contract) {
+            return response()->json([
+                'message' => 'Contract not found',
+            ], 401);
+        }
+
+        $client = $contract->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found',
+            ], 401);
+        }
 
         $contract->update([
             'status' => ContractStatusEnum::VERIFIED
@@ -143,9 +157,13 @@ class ContractController extends Controller
             ],
             [
                 'client_id' => $contract->client->id,
-                'lead_status' =>  'Contract Verified'
+                'lead_status' => LeadStatusEnum::CONTRACT_VERIFIED
             ]
         );
+
+        $client->update([
+            'status' => '2'
+        ]);
 
         return response()->json([
             'message' => 'Contract verified successfully'

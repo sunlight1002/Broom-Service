@@ -84,7 +84,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
-    Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
 
     // workers Api
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
@@ -125,7 +124,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
     Route::post('client-contracts', [ContractController::class, 'clientContracts'])->name('client-contracts');
     Route::post('get-contract/{id}', [ContractController::class, 'getContract']);
-    Route::post('verify-contract', [ContractController::class, 'verifyContract'])->name('verify-contract');
+    Route::post('verify-contract', [ContractController::class, 'verify']);
     Route::get('get-contract-by-client/{id}', [ContractController::class, 'getContractByClient']);
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
 

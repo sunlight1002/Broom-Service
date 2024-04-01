@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -55,31 +56,31 @@ class LeadController extends Controller
         if ($q == 'pending') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                    $q->where('lead_status', 'Pending');
+                    $q->where('lead_status', LeadStatusEnum::PENDING);
                 });
             })->orWhereDoesntHave('lead_status');
         } else if ($q == 'set') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                    $q->where('lead_status', 'Meeting Set');
+                    $q->where('lead_status', LeadStatusEnum::MEETING_SET);
                 });
             });
         } else if ($q == 'offersend') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                    $q->where('lead_status', 'Offer Sent');
+                    $q->where('lead_status', LeadStatusEnum::OFFER_SENT);
                 });
             });
         } else if ($q == 'offerdecline') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                    $q->where('lead_status', 'Offer Rejected');
+                    $q->where('lead_status', LeadStatusEnum::OFFER_REJECTED);
                 });
             });
         } else if ($q == 'uninterested') {
             $result = $result->WhereHas('lead_status', function ($q) {
                 $q->where(function ($q) {
-                    $q->where('lead_status', 'Uninterested');
+                    $q->where('lead_status', LeadStatusEnum::UNINTERESTED);
                 });
             });
         }
@@ -133,7 +134,7 @@ class LeadController extends Controller
             ],
             [
                 'client_id' => $client->id,
-                'lead_status' => 'Pending'
+                'lead_status' => LeadStatusEnum::PENDING
             ]
         );
 
@@ -225,6 +226,11 @@ class LeadController extends Controller
         $client = Client::find($id);
 
         $input = $request->data;
+
+        if (isset($input['status'])) {
+            unset($input['status']);
+        }
+
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
             $input['password'] = Hash::make($input['passcode']);
         } else {
@@ -250,13 +256,6 @@ class LeadController extends Controller
 
         return response()->json([
             'message' => "Lead has been deleted"
-        ]);
-    }
-
-    public function updateStatus(Request $request, $id)
-    {
-        return response()->json([
-            'message' => 'status updated',
         ]);
     }
 
@@ -304,7 +303,7 @@ class LeadController extends Controller
             ],
             [
                 'client_id'   => $id,
-                'lead_status' => 'Uninterested'
+                'lead_status' => LeadStatusEnum::UNINTERESTED
             ]
         );
 

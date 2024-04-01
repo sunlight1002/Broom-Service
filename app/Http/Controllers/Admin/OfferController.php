@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\LeadStatusEnum;
 use App\Models\Offer;
 use App\Exports\OfferSampleFileExport;
 use App\Http\Controllers\Controller;
@@ -112,7 +113,7 @@ class OfferController extends Controller
             ],
             [
                 'client_id' => $offer->client_id,
-                'lead_status' =>  'Offer Sent'
+                'lead_status' =>  LeadStatusEnum::OFFER_SENT
             ]
         );
 

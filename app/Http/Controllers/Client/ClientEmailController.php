@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -84,7 +85,7 @@ class ClientEmailController extends Controller
       ],
       [
         'client_id' => $ofr['client']['id'],
-        'lead_status' => 'Offer Accepted'
+        'lead_status' => LeadStatusEnum::OFFER_ACCEPTED
       ]
     );
 
@@ -139,7 +140,7 @@ class ClientEmailController extends Controller
       ],
       [
         'client_id' => $offerArr['client']['id'],
-        'lead_status' => 'Offer Rejected'
+        'lead_status' => LeadStatusEnum::OFFER_REJECTED
       ]
     );
   }
@@ -159,7 +160,9 @@ class ClientEmailController extends Controller
         ],
         [
           'client_id' => $sch->client_id,
-          'lead_status' => ($request->response == 'confirmed') ? 'Meeting Set' : ($request->response == 'rescheduled' ? 'Meeting Rescheduled' : 'Meeting Rejected')
+          'lead_status' => ($request->response == 'confirmed') ?
+            LeadStatusEnum::MEETING_SET : ($request->response == 'rescheduled'
+              ? LeadStatusEnum::MEETING_RESCHEDULED : LeadStatusEnum::MEETING_REJECTED)
         ]
       );
 
@@ -214,7 +217,6 @@ class ClientEmailController extends Controller
       }
 
       Contract::where('unique_hash', $request->unique_hash)->update($request->input());
-      Client::where('id', $contract->client_id)->update(['status' => 2]);
 
       Notification::create([
         'user_id' => $contract->client_id,
@@ -229,7 +231,7 @@ class ClientEmailController extends Controller
         ],
         [
           'client_id' => $contract->client->id,
-          'lead_status' => 'Contract Accepted'
+          'lead_status' => LeadStatusEnum::CONTRACT_ACCEPTED
         ]
       );
 
@@ -272,7 +274,7 @@ class ClientEmailController extends Controller
         ],
         [
           'client_id' => $contract->client->id,
-          'lead_status' => 'Contract Rejected'
+          'lead_status' => LeadStatusEnum::CONTRACT_REJECTED
         ]
       );
 
