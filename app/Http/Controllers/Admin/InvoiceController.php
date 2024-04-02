@@ -477,12 +477,14 @@ class InvoiceController extends Controller
             ];
         } else if ($mode == "Cheque") {
             $otherInvDocOptions['cheques'] = [
-                "sum" => $total,
-                "date"   => $data['date'],
-                "bank"   => $data['bank'],
-                "branch" => $data['branch'],
-                "account" => $data['account'],
-                "number" => $data['number']
+                [
+                    "sum" => $total,
+                    "date"   => $data['date'],
+                    "bank"   => $data['bank'],
+                    "branch" => $data['branch'],
+                    "account" => $data['account'],
+                    "number" => $data['number']
+                ]
             ];
         } else if ($mode == "Cash") {
             $otherInvDocOptions['cash'] = [
