@@ -41,6 +41,8 @@ class User extends Authenticatable
         'geo_address',
         'latitude',
         'longitude',
+        'freeze_shift_start_time',
+        'freeze_shift_end_time',
     ];
 
     /**

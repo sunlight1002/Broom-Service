@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
+import Swal from "sweetalert2";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
+
+import Sidebar from "../../Layouts/Sidebar";
+import FreezeWorkerShiftModal from "../../Components/Modals/FreezeWorkerShiftModal";
 
 export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
     const [filter, setFilter] = useState("");
+    const [isOpenFreezeWorker, setIsOpenFreezeWorker] = useState(false);
+    const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const navigate = useNavigate();
 
     const headers = {
@@ -25,6 +30,7 @@ export default function AllWorkers() {
                 setWorkers(response.data.workers.data);
                 setPageCount(response.data.workers.last_page);
             } else {
+                setWorkers([]);
                 setLoading("No Workers found");
             }
         });
@@ -44,6 +50,7 @@ export default function AllWorkers() {
                     setWorkers(response.data.workers.data);
                     setPageCount(response.data.workers.last_page);
                 } else {
+                    setWorkers([]);
                     setLoading("No Workers found");
                 }
             });
@@ -63,6 +70,11 @@ export default function AllWorkers() {
                 }
             });
     };
+
+    const handleFreezeShift = (_workerID) => {
+        setSelectedWorkerId(_workerID);
+        setIsOpenFreezeWorker(true);
+    }
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -206,7 +218,7 @@ export default function AllWorkers() {
                                                         );
                                                     }}
                                                 >
-                                                    Worker Name{" "}
+                                                    Worker{" "}
                                                     <span className="arr">
                                                         {" "}
                                                         &darr;{" "}
@@ -250,123 +262,126 @@ export default function AllWorkers() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {workers &&
-                                                workers.map((item, index) => {
-                                                    let cords =
-                                                        item.latitude &&
-                                                        item.longitude
-                                                            ? item.latitude +
-                                                              "," +
-                                                              item.longitude
-                                                            : "";
+                                            {workers.map((item, index) => {
+                                                let cords =
+                                                    item.latitude &&
+                                                    item.longitude
+                                                        ? item.latitude +
+                                                          "," +
+                                                          item.longitude
+                                                        : "";
 
-                                                    return (
-                                                        <Tr
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                            key={index}
+                                                return (
+                                                    <Tr
+                                                        style={{
+                                                            cursor: "pointer",
+                                                        }}
+                                                        key={index}
+                                                    >
+                                                        <Td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
                                                         >
-                                                            <Td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        item.id
-                                                                    )
-                                                                }
+                                                            {item.id}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/admin/view-worker/${item.id}`}
                                                             >
-                                                                {item.id}
-                                                            </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/admin/view-worker/${item.id}`}
-                                                                >
-                                                                    {
-                                                                        item.firstname
-                                                                    }{" "}
-                                                                    {
-                                                                        item.lastname
-                                                                    }
-                                                                </Link>
-                                                            </Td>
-                                                            <Td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        item.id
-                                                                    )
-                                                                }
+                                                                {item.firstname}{" "}
+                                                                {item.lastname}
+                                                            </Link>
+                                                        </Td>
+                                                        <Td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {item.email}
+                                                        </Td>
+                                                        <Td>
+                                                            <a
+                                                                href={`https://maps.google.com?q=${cords}`}
+                                                                target="_blank"
                                                             >
-                                                                {item.email}
-                                                            </Td>
-                                                            <Td>
-                                                                <a
-                                                                    href={`https://maps.google.com?q=${cords}`}
-                                                                    target="_blank"
-                                                                >
-                                                                    {
-                                                                        item.address
-                                                                    }
-                                                                </a>
-                                                            </Td>
-                                                            <Td>
-                                                                <a
-                                                                    href={`tel:${item.phone}`}
-                                                                >
-                                                                    {item.phone}
-                                                                </a>
-                                                            </Td>
-                                                            <Td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        item.id
-                                                                    )
-                                                                }
+                                                                {item.address}
+                                                            </a>
+                                                        </Td>
+                                                        <Td>
+                                                            <a
+                                                                href={`tel:${item.phone}`}
                                                             >
-                                                                {item.status ==
-                                                                0
-                                                                    ? "Inactive"
-                                                                    : "Active"}
-                                                            </Td>
-                                                            <Td>
-                                                                <div className="action-dropdown dropdown">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-default dropdown-toggle"
-                                                                        data-toggle="dropdown"
+                                                                {item.phone}
+                                                            </a>
+                                                        </Td>
+                                                        <Td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            {item.status == 0
+                                                                ? "Inactive"
+                                                                : "Active"}
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="action-dropdown dropdown">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                >
+                                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                                </button>
+                                                                <div className="dropdown-menu">
+                                                                    <Link
+                                                                        to={`/admin/edit-worker/${item.id}`}
+                                                                        className="dropdown-item"
                                                                     >
-                                                                        <i className="fa fa-ellipsis-vertical"></i>
+                                                                        Edit
+                                                                    </Link>
+                                                                    <Link
+                                                                        to={`/admin/view-worker/${item.id}`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        View
+                                                                    </Link>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
+                                                                            handleFreezeShift(
+                                                                                item.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Freeze
+                                                                        Shift
                                                                     </button>
-                                                                    <div className="dropdown-menu">
-                                                                        <Link
-                                                                            to={`/admin/edit-worker/${item.id}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            Edit
-                                                                        </Link>
-                                                                        <Link
-                                                                            to={`/admin/view-worker/${item.id}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            View
-                                                                        </Link>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleDelete(
-                                                                                    item.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
+                                                                            handleDelete(
+                                                                                item.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Delete
+                                                                    </button>
                                                                 </div>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
+                                                            </div>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (
@@ -374,7 +389,7 @@ export default function AllWorkers() {
                                         {loading}
                                     </p>
                                 )}
-                                {workers.length > 0 ? (
+                                {workers.length > 0 && (
                                     <ReactPaginate
                                         previousLabel={"Previous"}
                                         nextLabel={"Next"}
@@ -396,13 +411,19 @@ export default function AllWorkers() {
                                         breakLinkClassName={"page-link"}
                                         activeClassName={"active"}
                                     />
-                                ) : (
-                                    <></>
                                 )}
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {isOpenFreezeWorker && (
+                    <FreezeWorkerShiftModal
+                        setIsOpen={setIsOpenFreezeWorker}
+                        isOpen={isOpenFreezeWorker}
+                        workerId={selectedWorkerId}
+                    />
+                )}
             </div>
         </div>
     );

@@ -1073,9 +1073,9 @@ class InvoiceController extends Controller
         $order->delete();
     }
 
-    public function getPayments(Request $request)
+    public function payments(Request $request)
     {
-        $payments = Invoices::with('jobs', 'client');
+        $payments = Invoices::with(['jobs', 'client']);
 
         if (isset($request->from_date) && isset($request->to_date)) {
             $payments = $payments->whereDate('created_at', '>=', $request->from_date)
@@ -1120,7 +1120,7 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function getClientPayments($id)
+    public function clientPayments($id)
     {
         $payments = Invoices::query()
             ->with('jobs', 'client')

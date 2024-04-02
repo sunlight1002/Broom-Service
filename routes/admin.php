@@ -88,6 +88,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // workers Api
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
     Route::get('all-workers', [WorkerController::class, 'AllWorkers']);
+    Route::post('workers/{id}/freeze-shift', [WorkerController::class, 'updateFreezeShift']);
     Route::get('all-workers/availability', [WorkerController::class, 'getALLWorkerAvailability']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
@@ -178,7 +179,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('invoice-jobs-order', [InvoiceController::class, 'invoiceJobOrder']);
     Route::post('order-jobs', [InvoiceController::class, 'orderJobs']);
     Route::get('delete-invoice/{id}', [InvoiceController::class, 'deleteInvoice']);
-    Route::get('payments', [InvoiceController::class, 'getPayments']);
+    Route::get('payments', [InvoiceController::class, 'payments']);
     Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
@@ -189,7 +190,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('order-manual-invoice/{id}', [InvoiceController::class, 'manualInvoice']);
     Route::get('client-invoices/{id}', [InvoiceController::class, 'getClientInvoices']);
 
-    Route::get('client-payments/{id}', [InvoiceController::class, 'getClientPayments']);
+    Route::get('client-payments/{id}', [InvoiceController::class, 'clientPayments']);
 
     // Orders
     Route::get('orders', [InvoiceController::class, 'getOrders']);

@@ -71,8 +71,6 @@ class DashboardController extends Controller
       'start_time' => $request->start_time,
       'end_time'   => $request->end_time,
       'days'       => $request->days,
-      'freeze_shift_start_time' => $request->freeze_shift_start_time,
-      'freeze_shift_end_time' => $request->freeze_shift_end_time,
     ]);
 
     return response()->json(['message' => 'Time update successfully']);

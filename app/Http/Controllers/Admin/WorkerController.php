@@ -252,7 +252,8 @@ class WorkerController extends Controller
      */
     public function edit($id)
     {
-        $worker                = User::find($id);
+        $worker = User::find($id);
+
         return response()->json([
             'worker' => $worker,
         ]);
@@ -542,6 +543,28 @@ class WorkerController extends Controller
         return response()->json([
             'data' => $workers,
             'message' => 'Workers fetched successfully'
+        ]);
+    }
+
+    public function updateFreezeShift(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $data = $request->all();
+
+        $worker->update([
+            'freeze_shift_start_time' => $data['start_time'],
+            'freeze_shift_end_time' => $data['end_time'],
+        ]);
+
+        return response()->json([
+            'message' => 'Freeze shift updated successfully'
         ]);
     }
 }

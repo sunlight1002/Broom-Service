@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import Sidebar from "../../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "react-alert";
 
+import Sidebar from "../../../Layouts/Sidebar";
+
 export default function ManageTime() {
-    let shiftStartTime = useRef();
-    let shiftEndTime = useRef();
     const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -33,8 +32,6 @@ export default function ManageTime() {
             start_time: start,
             end_time: end,
             days: u_days,
-            freeze_shift_start_time: shiftStartTime.current.value,
-            freeze_shift_end_time: shiftEndTime.current.value,
         };
 
         axios.post(`/api/admin/update-time`, data, { headers }).then((res) => {
@@ -67,12 +64,6 @@ export default function ManageTime() {
                 aday.includes("6") ? ds[6].setAttribute("checked", true) : "";
                 st.value = res.data.data.start_time;
                 et.value = res.data.data.end_time;
-                shiftStartTime.current &&
-                    (shiftStartTime.current.value =
-                        res.data.data.freeze_shift_start_time);
-                shiftEndTime.current &&
-                    (shiftEndTime.current.value =
-                        res.data.data.freeze_shift_end_time);
             }
         });
     };
@@ -239,31 +230,6 @@ export default function ManageTime() {
                                 id="timing_ends"
                                 name="timing_ends"
                                 placeholder="Enter End Timing"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="freeze_shift_timing_starts">
-                                Freeze Shift Timing Starts at
-                            </label>
-                            <input
-                                ref={shiftStartTime}
-                                type="time"
-                                className="form-control"
-                                id="freeze_shift_timing_starts"
-                                name="freeze_shift_timing_starts"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="freeze_shift_timing_ends">
-                                Freeze Shift Timing Ends at
-                            </label>
-                            <input
-                                ref={shiftEndTime}
-                                type="time"
-                                className="form-control"
-                                id="freeze_shift_timing_ends"
-                                name="freeze_shift_timing_ends"
                             />
                         </div>
                     </div>
