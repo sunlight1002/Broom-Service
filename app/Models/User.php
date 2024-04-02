@@ -83,7 +83,7 @@ class User extends Authenticatable
         return $this->hasMany(WorkerAvailability::class);
     }
 
-    public function notAvailabileDates()
+    public function notAvailableDates()
     {
         return $this->hasMany(WorkerNotAvailableDate::class);
     }

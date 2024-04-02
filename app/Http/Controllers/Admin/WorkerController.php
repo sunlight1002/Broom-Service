@@ -82,7 +82,7 @@ class WorkerController extends Controller
         $prefer_type = $request->get('prefer_type');
 
         $workers = User::query()
-            ->with(['availabilities', 'jobs:worker_id,start_date,shifts'])
+            ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
             ->when(count($workerIDArr), function ($q) use ($workerIDArr) {
                 return $q->whereNotIn('id', $workerIDArr);
             })
@@ -105,7 +105,7 @@ class WorkerController extends Controller
             ->when(in_array($prefer_type, ['male', 'female']), function ($q) use ($prefer_type) {
                 return $q->where('gender', $prefer_type);
             })
-            ->whereDoesntHave('notAvailabileDates', function ($q) use ($available_date) {
+            ->whereDoesntHave('notAvailableDates', function ($q) use ($available_date) {
                 $q->where('date', $available_date);
             })
             ->where('status', 1)
@@ -113,9 +113,11 @@ class WorkerController extends Controller
 
         if (isset($request->filter)) {
             $workers = $workers->map(function ($worker, $key) {
-                $worker->aval = $this->workerAvl($worker->availabilities);
-                $worker->wjobs = $this->workerJobs($worker->jobs);
-                return $worker;
+                $workerArr = $worker->toArray();
+                $workerArr['aval'] = $this->workerAvl($worker->availabilities);
+                $workerArr['wjobs'] = $this->workerJobs($worker->jobs);
+                $workerArr['not_available_dates'] = $worker->notAvailableDates->pluck('date')->toArray();
+                return $workerArr;
             });
 
             return response()->json([
@@ -528,7 +530,7 @@ class WorkerController extends Controller
             ->when(in_array($property['prefer_type'], ['male', 'female']), function ($q) use ($property) {
                 return $q->where('gender', $property['prefer_type']);
             })
-            ->whereDoesntHave('notAvailabileDates', function ($q) use ($dates) {
+            ->whereDoesntHave('notAvailableDates', function ($q) use ($dates) {
                 $q->whereIn('date', $dates);
             })
             ->where('status', 1)
