@@ -133,38 +133,6 @@ export default function TotalJobs() {
         }, 500);
     };
 
-    const handleform = (job_id, e) => {
-        let date = "";
-        let worker = getSelectedWorkers(job_id);
-        let _shifts = null;
-
-        let data = {
-            date: date,
-            worker: worker != undefined ? worker : "",
-            _shifts: _shifts != null ? _shifts : "",
-        };
-        axios
-            .post(`/api/admin/update-job/${job_id}`, data, { headers })
-            .then((response) => {
-                if (response.data.errors) {
-                    setErrors(response.data.errors);
-                } else {
-                    alert.success("Job Updated Successfully");
-                    setTimeout(() => {
-                        getJobs();
-                    }, 1000);
-                }
-            });
-    };
-
-    const getSelectedWorkers = (job_id) => {
-        if (workers[job_id] !== "undefined") {
-            return workers[job_id];
-        } else {
-            return "";
-        }
-    };
-
     const handleNavigate = (e, id) => {
         e.preventDefault();
         navigate(`/admin/view-job/${id}`);
@@ -676,26 +644,6 @@ export default function TotalJobs() {
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
-                                                <th scope="col">Hours</th>
-                                                <th scope="col">Done</th>
-                                                <th scope="col">Comments</th>
-                                                <th scope="col">Address</th>
-                                                <th
-                                                    className="hidden-xs"
-                                                    onClick={(e) => {
-                                                        sortTable(e, "status");
-                                                    }}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    scope="col"
-                                                >
-                                                    Status{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </th>
                                                 <th
                                                     className="text-center"
                                                     scope="col"
@@ -757,8 +705,6 @@ export default function TotalJobs() {
                                                         );
                                                     }
                                                 );
-
-                                                let pstatus = null;
 
                                                 return (
                                                     <tr
@@ -959,175 +905,6 @@ export default function TotalJobs() {
                                                                           .jobservice
                                                                           .heb_name)}
                                                         </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.jobservice
-                                                                ? convertMinsToDecimalHrs(
-                                                                      item
-                                                                          .jobservice
-                                                                          .duration_minutes
-                                                                  )
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {convertMinsToDecimalHrs(
-                                                                item.total_minutes
-                                                            )}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.last_comment
-                                                                ? item.last_comment
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.property_address
-                                                                ? item
-                                                                      .property_address
-                                                                      .address_name
-                                                                : "NA"}
-                                                        </td>
-                                                        <td
-                                                            style={
-                                                                item.status.includes(
-                                                                    "cancel"
-                                                                )
-                                                                    ? {
-                                                                          color: "red",
-                                                                      }
-                                                                    : {}
-                                                            }
-                                                            className="hidden-xs"
-                                                        >
-                                                            <span
-                                                                style={{
-                                                                    textTransform:
-                                                                        "capitalize",
-                                                                }}
-                                                            >
-                                                                {item.status}
-                                                            </span>
-
-                                                            {item.order &&
-                                                                item.order.map(
-                                                                    (o, i) => {
-                                                                        return (
-                                                                            <React.Fragment
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {" "}
-                                                                                <br />
-                                                                                <Link
-                                                                                    target="_blank"
-                                                                                    to={
-                                                                                        o.doc_url
-                                                                                    }
-                                                                                    className="jorder"
-                                                                                >
-                                                                                    {" "}
-                                                                                    order
-                                                                                    -
-                                                                                    {
-                                                                                        o.order_id
-                                                                                    }{" "}
-                                                                                </Link>
-                                                                                <br />
-                                                                            </React.Fragment>
-                                                                        );
-                                                                    }
-                                                                )}
-
-                                                            {item.invoice &&
-                                                                item.invoice.map(
-                                                                    (
-                                                                        inv,
-                                                                        i
-                                                                    ) => {
-                                                                        if (
-                                                                            i ==
-                                                                            0
-                                                                        ) {
-                                                                            pstatus =
-                                                                                inv.status;
-                                                                        }
-
-                                                                        return (
-                                                                            <React.Fragment
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {" "}
-                                                                                <br />
-                                                                                <Link
-                                                                                    target="_blank"
-                                                                                    to={
-                                                                                        inv.doc_url
-                                                                                    }
-                                                                                    className="jinv"
-                                                                                >
-                                                                                    {" "}
-                                                                                    Invoice
-                                                                                    -
-                                                                                    {
-                                                                                        inv.invoice_id
-                                                                                    }{" "}
-                                                                                </Link>
-                                                                                <br />
-                                                                            </React.Fragment>
-                                                                        );
-                                                                    }
-                                                                )}
-
-                                                            {pstatus !=
-                                                                null && (
-                                                                <>
-                                                                    {" "}
-                                                                    <br />
-                                                                    <span className="jorder">
-                                                                        {
-                                                                            pstatus
-                                                                        }
-                                                                    </span>
-                                                                    <br />
-                                                                </>
-                                                            )}
-
-                                                            <p>
-                                                                {item.status ==
-                                                                    "cancel" &&
-                                                                    ` (with cancellation fees of ${item.cancellation_fee_amount} ILS)`}
-                                                            </p>
-                                                        </td>
-
                                                         <td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
                                                                 <button
@@ -1141,10 +918,7 @@ export default function TotalJobs() {
                                                                 {item.client && (
                                                                     <div className="dropdown-menu">
                                                                         {item.client &&
-                                                                            item
-                                                                                .invoice
-                                                                                .length ==
-                                                                                0 && (
+                                                                            !item.is_order_generated && (
                                                                                 <Link
                                                                                     to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
                                                                                     className="dropdown-item"
@@ -1153,11 +927,8 @@ export default function TotalJobs() {
                                                                                     Order
                                                                                 </Link>
                                                                             )}
-                                                                        {item.client &&
-                                                                            item
-                                                                                .order
-                                                                                .length >
-                                                                                0 && (
+                                                                        {/* {item.client &&
+                                                                            item.order && (
                                                                                 <Link
                                                                                     to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
                                                                                     className="dropdown-item"
@@ -1165,7 +936,7 @@ export default function TotalJobs() {
                                                                                     Create
                                                                                     Invoice
                                                                                 </Link>
-                                                                            )}
+                                                                            )} */}
                                                                         <Link
                                                                             to={`/admin/view-job/${item.id}`}
                                                                             className="dropdown-item"
@@ -1221,22 +992,6 @@ export default function TotalJobs() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <button
-                                                                type="button"
-                                                                style={{
-                                                                    display:
-                                                                        "none",
-                                                                }}
-                                                                className="btn btn-success"
-                                                                onClick={(e) =>
-                                                                    handleform(
-                                                                        item.id,
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                Update
-                                                            </button>
                                                         </td>
                                                     </tr>
                                                 );

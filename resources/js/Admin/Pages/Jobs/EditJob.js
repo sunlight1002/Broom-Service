@@ -5,6 +5,7 @@ import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
 import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import TeamAvailability from "../../Components/Job/TeamAvailability";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
@@ -25,12 +26,19 @@ export default function EditJob() {
 
     const getJob = () => {
         axios
-            .get(`/api/admin/jobs/${params.id}/edit`, { headers })
+            .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
                 const r = res.data.job;
                 setClient(r.client.firstname + " " + r.client.lastname);
                 setAddress(r?.property_address?.address_name);
                 setService(r.jobservice);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
     useEffect(() => {

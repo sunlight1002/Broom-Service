@@ -23,14 +23,6 @@ class Helper
         );
         // $pdf = PDF::loadView('InvoicePdf', compact('invoice'));
 
-
-        // Mail::send('/Mails/MailInvoiceToClient',$data,function($messages) use ($data){
-        //         $messages->to($data['job']['client']['email']);
-        //         $sub = __('invoice.pdf.mailsubject')." #".$data['docnum'];
-        //         $messages->subject($sub);
-        //         //$messages->attachData($pdf->output(), 'Invoice_000'.$id.'.pdf');
-        // });
-
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
     }
 

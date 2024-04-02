@@ -576,11 +576,11 @@ export default function MyRoutes() {
                                 path="invoices"
                                 element={<Invoices />}
                             />
-                            <Route
+                            {/* <Route
                                 exact
                                 path="add-invoice"
                                 element={<AddInvoice />}
-                            />
+                            /> */}
                             <Route
                                 exact
                                 path="add-order"

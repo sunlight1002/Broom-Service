@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Webhook;
 
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Client;
@@ -34,7 +35,7 @@ class TwilioController extends Controller
             ],
             [
                 'client_id' => $webhook_response_client->id,
-                'lead_status' => 'Pending'
+                'lead_status' => LeadStatusEnum::PENDING
             ]
         );
 

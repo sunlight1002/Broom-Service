@@ -95,6 +95,7 @@ trait GoogleAPI
                 // \Google\Service\Oauth2::OPENID,
                 \Google\Service\Calendar::CALENDAR_EVENTS,
                 \Google\Service\Calendar::CALENDAR_SETTINGS_READONLY,
+                \Google\Service\Calendar::CALENDAR_READONLY,
             ]
         );
         // $client->setIncludeGrantedScopes(true);

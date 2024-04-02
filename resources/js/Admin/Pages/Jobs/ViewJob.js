@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
+
 import Sidebar from "../../Layouts/Sidebar";
 import ClientDetails from "../../Components/Job/ClientDetails";
 import WorkerDetails from "../../Components/Job/WorkerDetails";
@@ -29,13 +31,22 @@ export default function ViewJob() {
     };
 
     const getJob = () => {
-        axios.get(`/api/admin/jobs/${params.id}`, { headers }).then((res) => {
-            const r = res.data.job;
-            setJob(r);
-            setClient(r.client);
-            setWorker(r.worker);
-            setAddress(r.property_address ? r.property_address : {});
-        });
+        axios
+            .get(`/api/admin/jobs/${params.id}`, { headers })
+            .then((res) => {
+                const r = res.data.job;
+                setJob(r);
+                setClient(r.client);
+                setWorker(r.worker);
+                setAddress(r.property_address ? r.property_address : {});
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
 
     useEffect(() => {

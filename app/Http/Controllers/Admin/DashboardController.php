@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -25,9 +26,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\PriceOffered;
 
 class DashboardController extends Controller
 {
+  use PriceOffered;
   public function dashboard()
   {
     $total_workers   = User::all()->count();
@@ -251,14 +254,19 @@ class DashboardController extends Controller
   public function pendingData($for)
   {
     if ($for == 'meetings') {
-      $meetings = Schedule::where('booking_status', 'pending')->with('client', 'team')->paginate(5);
+      $meetings = Schedule::where('booking_status', 'pending')->with('client', 'team', 'propertyAddress')->paginate(5);
       return response()->json([
         'data' => $meetings,
       ]);
     }
 
     if ($for == 'offers') {
-      $offers = Offer::where('status', 'sent')->with('client', 'service')->paginate(5);
+      $offers = Offer::where('status', 'sent')->with('client', 'service')
+        ->paginate(5)
+        ->through(function ($item) {
+          $item->services = $this->formatServices($item);
+          return $item;
+        });
       return response()->json([
         'data' => $offers,
       ]);
@@ -269,8 +277,11 @@ class DashboardController extends Controller
         ->with(['client', 'offer'])
         ->where('status', ContractStatusEnum::UN_VERIFIED)
         ->orWhere('status', ContractStatusEnum::NOT_SIGNED)
-        ->paginate(5);
-
+        ->paginate(5)
+        ->through(function ($item) {
+          $item->offer->services = $this->formatServices($item->offer);
+          return $item;
+        });
       return response()->json([
         'data' => $contracts,
       ]);
@@ -433,9 +444,8 @@ class DashboardController extends Controller
             ],
             [
               'client_id' => $c->id,
-              'lead_status' => ($mstat == 'confirmed') ? 'Meeting Set' : ($mstat == 'rescheduled' ? 'Meeting Rescheduled' : ($mstat == 'pending' ? 'Meeting pending' : 'Meeting Rejected'))
+              'lead_status' => ($mstat == 'confirmed') ? LeadStatusEnum::MEETING_SET : ($mstat == 'rescheduled' ? LeadStatusEnum::MEETING_RESCHEDULED : ($mstat == 'pending' ? LeadStatusEnum::MEETING_PENDING : LeadStatusEnum::MEETING_REJECTED))
             ]
-
           );
         }
       }
@@ -456,7 +466,9 @@ class DashboardController extends Controller
             ],
             [
               'client_id' => $c->id,
-              'lead_status' => ($ostat == 'sent') ? 'Offer Sent' : ($ostat == 'accepted' ? 'Offer Accepted' :  'Offer Rejected')
+              'lead_status' => ($ostat == 'sent') ?
+                LeadStatusEnum::OFFER_SENT : ($ostat == 'accepted' ?
+                  LeadStatusEnum::OFFER_ACCEPTED : LeadStatusEnum::OFFER_REJECTED)
             ]
 
           );
@@ -481,10 +493,10 @@ class DashboardController extends Controller
               [
                 'client_id' => $c->id,
                 'lead_status' => ($cstat == ContractStatusEnum::VERIFIED) ?
-                  'Contract Verified' : (
+                  LeadStatusEnum::CONTRACT_VERIFIED : (
                     $cstat == ContractStatusEnum::UN_VERIFIED ?
-                    'Contract Unverified' :
-                    'Contract Rejected'
+                    LeadStatusEnum::CONTRACT_UNVERIFIED :
+                    LeadStatusEnum::CONTRACT_REJECTED
                   )
               ]
             );

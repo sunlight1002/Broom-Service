@@ -65,9 +65,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('latest-clients', [ClientController::class, 'latestClients']);
 
     // Jobs Api
-    Route::resource('jobs', JobController::class)->except('create');
+    Route::resource('jobs', JobController::class)->except(['create', 'edit']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
-    Route::post('update-job/{id}', [JobController::class, 'updateJob']);
     Route::post('create-job/{id}', [JobController::class, 'createJob']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
@@ -85,7 +84,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
-    Route::post('update-lead-status/{id}', [JobController::class, 'updateStatus']);
 
     // workers Api
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
@@ -126,7 +124,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
     Route::post('client-contracts', [ContractController::class, 'clientContracts'])->name('client-contracts');
     Route::post('get-contract/{id}', [ContractController::class, 'getContract']);
-    Route::post('verify-contract', [ContractController::class, 'verifyContract'])->name('verify-contract');
+    Route::post('verify-contract', [ContractController::class, 'verify']);
     Route::get('get-contract-by-client/{id}', [ContractController::class, 'getContractByClient']);
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
 
@@ -202,7 +200,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // ManualInvoice
     Route::get('client-invoice-job', [InvoiceController::class, 'getClientInvoiceJob']);
-    Route::post('get-client-invorders', [InvoiceController::class, 'clientInvoiceOrders']);
+    Route::post('clients/{id}/invorders', [InvoiceController::class, 'clientInvoiceOrders']);
 
     // Multiple Orders
     Route::post('multiple-orders', [InvoiceController::class, 'multipleOrders']);

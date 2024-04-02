@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { SelectPicker } from "rsuite";
 import swal from "sweetalert";
+import Swal from "sweetalert2";
 import { error } from "jquery";
 
 export default function AddInvoce() {
@@ -15,7 +16,6 @@ export default function AddInvoce() {
     const [dueDate, setDueDate] = useState();
     const [customer, setCustomer] = useState();
     const [selectedJobs, setSelectedJobs] = useState(null);
-    const [job, setJob] = useState();
     const [lng, setLng] = useState();
 
     const queryParams = new URLSearchParams(window.location.search);
@@ -32,7 +32,7 @@ export default function AddInvoce() {
     const [cjobs, setCjobs] = useState();
     const [jservices, setjServices] = useState([]);
 
-    const [corders, setCOrders] = useState();
+    const [corders, setCOrders] = useState([]);
     const [codes, setCodes] = useState();
 
     const alert = useAlert();
@@ -47,21 +47,19 @@ export default function AddInvoce() {
     const clientOrders = (cid) => {
         setCOrders([]);
         axios
-            .post(`/api/admin/get-client-invorders`, { cid }, { headers })
+            .post(`/api/admin/clients/${cid}/invorders`, {}, { headers })
             .then((res) => {
                 let jar = [];
                 const j = res.data.orders;
 
-                if (j.length > 0) {
-                    for (let i in j) {
-                        let n =
-                            Moment(j[i].start_date).format("DD - MMM") +
-                            " | #" +
-                            j[i].order_id;
-                        jar.push({ value: j[i].id, label: n });
-                    }
-                    setCOrders(jar);
+                for (let i in j) {
+                    let n =
+                        Moment(j[i].start_date).format("DD - MMM") +
+                        " | #" +
+                        j[i].order_id;
+                    jar.push({ value: j[i].id, label: n });
                 }
+                setCOrders(jar);
             });
     };
 
@@ -132,8 +130,7 @@ export default function AddInvoce() {
         }
 
         const data = {
-            customer: customer,
-            job: job,
+            client_id: customer,
             codes: codes,
             doctype: type,
             services: JSON.stringify(jservices),
@@ -143,16 +140,19 @@ export default function AddInvoce() {
         };
 
         axios
-            .post(`/api/admin/add-invoice`, { data }, { headers })
+            .post(`/api/admin/add-invoice`, data, { headers })
             .then((res) => {
-                if (res.data.rescode != 401) {
-                    alert.success("Invoice created successfully");
-                    setTimeout(() => {
-                        navigate("/admin/invoices");
-                    }, 1000);
-                } else {
-                    swal(res.data.msg, "", "error");
-                }
+                alert.success("Invoice created successfully");
+                setTimeout(() => {
+                    navigate("/admin/invoices");
+                }, 1000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
     const cData =
@@ -171,14 +171,13 @@ export default function AddInvoce() {
 
         if (jid != null && cid != null) {
             getJobs(cid);
-            setJob(jid);
-            clientOrders(jid);
+            clientOrders(cid);
 
             setCustomer(cid);
             fetchLng(cid);
         }
     }, []);
-    console.log(cjobs);
+
     return (
         <div id="container">
             <Sidebar />
@@ -218,6 +217,7 @@ export default function AddInvoce() {
                                                 setCustomer(value);
                                                 getJobs(value);
                                                 fetchLng(value);
+                                                clientOrders(value);
                                             }}
                                             size="lg"
                                             required
@@ -226,48 +226,10 @@ export default function AddInvoce() {
 
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Job
-                                        </label>
-                                        <select
-                                            className="form-control"
-                                            onChange={(e) => {
-                                                setJob(e.target.value);
-                                                clientOrders(e.target.value);
-                                            }}
-                                        >
-                                            <option value={0}>
-                                                --- Select Job ---
-                                            </option>
-                                            {cjobs &&
-                                                cjobs.map((j, i) => {
-                                                    return (
-                                                        <option
-                                                            value={j.id}
-                                                            selected={
-                                                                j.id ==
-                                                                parseInt(jid)
-                                                            }
-                                                            key={i}
-                                                        >
-                                                            {" "}
-                                                            {j.start_date +
-                                                                " | " +
-                                                                j.shifts +
-                                                                " | " +
-                                                                j.service_name}
-                                                        </option>
-                                                    );
-                                                })}
-                                        </select>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="control-label">
                                             Orders
                                         </label>
                                         <Select
                                             isMulti
-                                            name="colors"
                                             options={corders}
                                             className="basic-multi-single"
                                             isClearable={true}

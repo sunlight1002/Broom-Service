@@ -139,10 +139,17 @@ export default function Order() {
                 axios
                     .get(`/api/admin/close-doc/${id}/${type}`, { headers })
                     .then((response) => {
-                        Swal.fire("Closed", response.data.msg, "success");
+                        Swal.fire("Closed", response.data.message, "success");
                         setTimeout(() => {
                             getOrders("f=all");
                         }, 1000);
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });
@@ -164,7 +171,7 @@ export default function Order() {
                     .then((response) => {
                         Swal.fire(
                             "Invoice Generated",
-                            response.data.msg,
+                            response.data.message,
                             "success"
                         );
                         setTimeout(() => {
@@ -260,7 +267,6 @@ export default function Order() {
                                     #Order ID{" "}
                                     <span className="arr"> &darr;</span>
                                 </Th>
-                                <Th scope="col">Job </Th>
                                 <Th
                                     scope="col"
                                     style={{ cursor: "pointer" }}
@@ -288,53 +294,27 @@ export default function Order() {
                         <Tbody>
                             {orders &&
                                 orders.map((item, index) => {
-                                    let services =
-                                        item.items != undefined &&
-                                        item.items != null
-                                            ? JSON.parse(item.items)
-                                            : [];
-
                                     return (
                                         <Tr key={index}>
                                             <Td>#{item.order_id}</Td>
-                                            <Td>
-                                                <Link
-                                                    to={`/admin/view-job/${
-                                                        item.job
-                                                            ? item.job.id
-                                                            : "NA"
-                                                    }`}
-                                                >
-                                                    {item.job
-                                                        ? Moment(
-                                                              item.job
-                                                                  .start_date
-                                                          ).format("DD-MM-Y") +
-                                                          " | " +
-                                                          item.job.shifts
-                                                        : "NA"}
-                                                </Link>
-                                            </Td>
                                             <Td>
                                                 {Moment(item.created_at).format(
                                                     "DD, MMM Y"
                                                 )}
                                             </Td>
                                             <Td>
-                                                <Link
-                                                    to={`/admin/view-client/${
-                                                        item.client
-                                                            ? item.client.id
-                                                            : "NA"
-                                                    }`}
-                                                >
-                                                    {item.client
-                                                        ? item.client
-                                                              .firstname +
-                                                          " " +
-                                                          item.client.lastname
-                                                        : "NA"}
-                                                </Link>
+                                                {item.client ? (
+                                                    <Link
+                                                        to={`/admin/view-client/${item.client.id}`}
+                                                    >
+                                                        {item.client.firstname +
+                                                            " " +
+                                                            item.client
+                                                                .lastname}
+                                                    </Link>
+                                                ) : (
+                                                    "NA"
+                                                )}
                                             </Td>
                                             <Td>{item.status}</Td>
                                             <Td>

@@ -333,7 +333,9 @@ export default function TotalJobs() {
                                                         </Td>
                                                         <Td>
                                                             <Link
-                                                                to={`/client/view-job/${item.id}`}
+                                                                to={`/client/view-job/${Base64.encode(
+                                                                    item.id.toString()
+                                                                )}`}
                                                                 className="btn btn-primary"
                                                             >
                                                                 {t(

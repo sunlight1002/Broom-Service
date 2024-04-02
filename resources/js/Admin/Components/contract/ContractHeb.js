@@ -8,6 +8,7 @@ import { Table, Tr, Td, Tbody } from "react-super-responsive-table";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import swal from "sweetalert";
+import Swal from "sweetalert2";
 import Moment from "moment";
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
@@ -37,6 +38,13 @@ export default function ContractHeb() {
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

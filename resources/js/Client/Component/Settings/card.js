@@ -27,7 +27,15 @@ export default function card() {
     useEffect(() => {
         const _paymentStatus = queryParams.get("cps");
 
-        if (_paymentStatus == "payment-cancelled") {
+        if (_paymentStatus == "payment-success") {
+            // swal(t("work-contract.messages.card_success"), "", "success");
+            swal(
+                "Thanks, card is added successfully, Now you can sign contract!",
+                "",
+                "success"
+            );
+            navigate(`/client/settings`);
+        } else if (_paymentStatus == "payment-cancelled") {
             swal(t("work-contract.messages.card_adding_failed"), "", "error");
             navigate(`/client/settings`);
         }

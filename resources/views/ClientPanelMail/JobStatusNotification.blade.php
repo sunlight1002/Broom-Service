@@ -15,7 +15,7 @@
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td width="100%">
-					<img src='{{url("/images/sample.png")}}' style="margin: 0 auto;display: block">
+					<img src="{{ asset('images/sample.png') }}" style="margin: 0 auto;display: block">
 				</td>
 			</tr>
 		</table>

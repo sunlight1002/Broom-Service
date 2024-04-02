@@ -6,6 +6,7 @@ import SignatureCanvas from "react-signature-canvas";
 import companySign from "../../../Assets/image/company-sign.png";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import swal from "sweetalert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
@@ -35,6 +36,13 @@ export default function WorkContract() {
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 

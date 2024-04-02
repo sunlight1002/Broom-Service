@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
@@ -56,6 +57,38 @@ export default function Services({ job }) {
                                         Job Status
                                     </label>
                                     <p>{job.status}</p>
+
+                                    {job.order && (
+                                        <React.Fragment>
+                                            <br />
+                                            <Link
+                                                target="_blank"
+                                                to={job.order.doc_url}
+                                                className="jorder"
+                                            >
+                                                Order - {job.order.order_id}
+                                            </Link>
+                                        </React.Fragment>
+                                    )}
+
+                                    {job.invoice && (
+                                        <React.Fragment>
+                                            <br />
+                                            <Link
+                                                target="_blank"
+                                                to={job.invoice.doc_url}
+                                                className="jinv"
+                                            >
+                                                Invoice -{" "}
+                                                {job.invoice.invoice_id}
+                                            </Link>
+                                            <br />
+                                            <span className="jorder">
+                                                {job.invoice.status}
+                                            </span>
+                                        </React.Fragment>
+                                    )}
+
                                     {job.status == "cancel" &&
                                         ` (with cancellation fees of ${job.cancellation_fee_amount} ILS)`}
                                 </div>

@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
+use App\Models\Job;
 use App\Models\Order;
 use App\Models\Setting;
 use Exception;
@@ -174,7 +175,7 @@ trait PaymentAPI
             'Key' => $zcreditKey,
             'Local' => $sessionData['local'],
             'UniqueId' => $sessionData['unique_id'],
-            'SuccessUrl' => url('thanks/' . $sessionData['client_id']),
+            'SuccessUrl' => $sessionData['success_url'],
             'CancelUrl' => url('client/settings?cps=payment-cancelled'),
             'CallbackUrl' => config('services.zcredit.callback-url'),
             'PaymentType' => 'authorize',
@@ -270,7 +271,7 @@ trait PaymentAPI
         return $data;
     }
 
-    private function refundByReferenceID($referenceID)
+    private function refundByReferenceID($referenceID, $amount = NULL)
     {
         $zcreditTerminalNumber = Setting::query()
             ->where('key', SettingKeyEnum::ZCREDIT_TERMINAL_NUMBER)
@@ -287,6 +288,10 @@ trait PaymentAPI
             'Password' => $zcreditPassword,
             'TransactionIdToCancelOrRefund' => $referenceID
         ];
+
+        if ($amount) {
+            $postData['TransactionSum'] = $amount;
+        }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -326,49 +331,11 @@ trait PaymentAPI
         }
     }
 
-    private function generateOrderDocument($job, $services)
+    // Same API but different configuration for 'order' doctype.
+    private function generateOrderDocument($client, $jobIDs, $items, $duedate, $isOneTime)
     {
-        $invoice_status = 1;
-        if (str_contains($job->schedule, 'w')) {
-            $invoice_status = 0;
-        }
+        $address = $client->property_addresses()->first();
 
-        $json = $this->createICountDocument([
-            "client_name" => $job->client->invoicename,
-            "client_address" => $job->client->geo_address,
-            "email" => $job->client->email,
-            "lang" => ($job->client->lng == 'heb') ? 'he' : 'en',
-            "items" => $services,
-            "email_to" => $job->client->email,
-        ]);
-
-        if (!$json["status"]) {
-            throw new Exception($json["reason"], 500);
-        };
-
-        $order = Order::create([
-            'order_id'          => $json['docnum'],
-            'doc_url'           => $json['doc_url'],
-            'job_id'            => $job->id,
-            'contract_id'       => $job->contract_id,
-            'client_id'         => $job->client->id,
-            'response'          => json_encode($json, true),
-            'items'             => json_encode($services),
-            'status'            => 'Open',
-            'invoice_status'    => $invoice_status,
-        ]);
-
-        $job->update([
-            'isOrdered' => '1',
-            'order_id' => $order->id,
-            'is_order_generated' => true
-        ]);
-
-        return $order;
-    }
-
-    private function createICountDocument($documentData)
-    {
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
             ->value('value');
@@ -385,18 +352,83 @@ trait PaymentAPI
 
         $postData = [
             "cid"  => $iCountCompanyID,
-            "lang" => $documentData['lang'],
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
-            "email" => $documentData['email'],
-            "doctype" => "order",
-            "client_name" => $documentData['client_name'],
-            "client_address" => $documentData['client_address'],
+            "email" => $client->email,
+            "doctype" => 'order',
+            "client_name" => $client->invoicename,
+            "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
-            "items" => $documentData['items'],
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "items" => $items,
+            "duedate" => $duedate,
             "send_email" => 0,
             "email_to_client" => 0,
-            "email_to" => $documentData['email_to'],
+            "email_to" => $client->email,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create order document');
+        }
+
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        }
+
+        $order = Order::create([
+            'order_id'          => $json['docnum'],
+            'doc_url'           => $json['doc_url'],
+            'client_id'         => $client->id,
+            'response'          => json_encode($json, true),
+            'items'             => json_encode($items),
+            'status'            => 'Open',
+            'invoice_status'    => $isOneTime ? 0 : 1,
+        ]);
+
+        Job::whereIn('id', $jobIDs)
+            ->update([
+                'isOrdered' => '1',
+                'order_id' => $order->id,
+                'is_order_generated' => true
+            ]);
+
+        return $order;
+    }
+
+    private function getICountDocument($docnum, $doctype)
+    {
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/info';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "doctype"   => $doctype,
+            "docnum"    => $docnum,
+            "get_items" => 1
         ];
 
         $response = Http::withHeaders([
@@ -410,9 +442,226 @@ trait PaymentAPI
         $http_code = $response->status();
 
         if ($http_code != 200) {
-            throw new Exception('Error : Failed to create document');
+            throw new Exception('Error : Failed to get document');
         }
 
         return $data;
+    }
+
+    private function closeICountDocument($docnum, $doctype)
+    {
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/close';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "doctype"   => $doctype,
+            "docnum"    => $docnum,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to close document');
+        }
+
+        return $data;
+    }
+
+    private function cancelICountDocument($docnum, $doctype, $reason)
+    {
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/cancel';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "doctype"   => $doctype,
+            "docnum"    => $docnum,
+            "reason"    => $reason,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to close document');
+        }
+
+        return $data;
+    }
+
+    private function generateInvoiceDocument(
+        $iCountClientID,
+        $client,
+        $items,
+        $duedate,
+        $otherInvDocOptions
+    ) {
+        $address = $client->property_addresses()->first();
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $client->email,
+            "doctype" => 'invoice',
+            "client_id" => $iCountClientID,
+            "client_name" => $client->invoicename,
+            "client_address" => $address ? $address->geo_address : '',
+            "currency_code" => "ILS",
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "items" => $items,
+            "duedate" => $duedate,
+            "based_on" => $otherInvDocOptions['based_on'],
+            "send_email" => 1,
+            "email_to_client" => 1,
+            "email_to" => $client->email,
+            "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create invoice document');
+        }
+
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        }
+
+        return $json;
+    }
+
+    private function generateInvRecDocument(
+        $iCountClientID,
+        $client,
+        $items,
+        $duedate,
+        $otherInvDocOptions
+    ) {
+        $address = $client->property_addresses()->first();
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $client->email,
+            "doctype" => 'invrec',
+            "client_id" => $iCountClientID,
+            "client_name" => $client->invoicename,
+            "client_address" => $address ? $address->geo_address : '',
+            "currency_code" => "ILS",
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "items" => $items,
+            "duedate" => $duedate,
+            "based_on" => $otherInvDocOptions['based_on'],
+            "send_email" => 1,
+            "email_to_client" => 1,
+            "email_to" => $client->email,
+            "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
+            "banktransfer" => isset($otherInvDocOptions['banktransfer']) ? $otherInvDocOptions['banktransfer'] : [],
+            "cheques" => isset($otherInvDocOptions['cheques']) ? $otherInvDocOptions['cheques'] : [],
+            "cash" => isset($otherInvDocOptions['cash']) ? $otherInvDocOptions['cash'] : [],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create invoice receipt document');
+        }
+
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        }
+
+        return $json;
     }
 }

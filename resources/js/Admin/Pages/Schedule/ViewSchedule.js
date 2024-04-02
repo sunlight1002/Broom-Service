@@ -98,22 +98,31 @@ export default function ViewSchedule() {
         btn.setAttribute("disabled", true);
         btn.innerHTML = "Sending..";
 
-        axios.post(`/api/admin/schedule`, data, { headers }).then((res) => {
-            if (res.data.errors) {
-                for (let e in res.data.errors) {
-                    alert.error(res.data.errors[e]);
-                }
-                btn.removeAttribute("disabled");
-                btn.innerHTML = "Send meeting";
-            } else {
-                if (res.data.action == "redirect") {
-                    window.location = res.data.url;
+        axios
+            .post(`/api/admin/schedule`, data, { headers })
+            .then((res) => {
+                if (res.data.errors) {
+                    for (let e in res.data.errors) {
+                        alert.error(res.data.errors[e]);
+                    }
+                    btn.removeAttribute("disabled");
+                    btn.innerHTML = "Send meeting";
                 } else {
-                    alert.success(res.data.message);
-                    createAndSendMeeting(res.data.data.id);
+                    if (res.data.action == "redirect") {
+                        window.location = res.data.url;
+                    } else {
+                        alert.success(res.data.message);
+                        createAndSendMeeting(res.data.data.id);
+                    }
                 }
-            }
-        });
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
 
     const createAndSendMeeting = (_scheduleID) => {
@@ -261,6 +270,13 @@ export default function ViewSchedule() {
                             window.location.reload(true);
                         }, 2000);
                     }
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
                 });
         }
     };

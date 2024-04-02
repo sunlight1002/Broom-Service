@@ -219,8 +219,7 @@ class WorkerController extends Controller
 
         App::setLocale($worker->lng);
         $worker = $worker->toArray();
-        if (!is_null($worker['email'])) :
-
+        if (!is_null($worker['email'])) {
             Mail::send('/Mails/Form101Mail', $worker, function ($messages) use ($worker) {
                 $messages->to($worker['email']);
                 ($worker['lng'] == 'heb') ?
@@ -236,7 +235,7 @@ class WorkerController extends Controller
                     $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $worker['id'];
                 $messages->subject($sub);
             });
-        endif;
+        }
 
         return response()->json([
             'message' => 'Worker updated successfully',

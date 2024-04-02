@@ -8,6 +8,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
+import Swal from "sweetalert2";
 
 export default function TeamAvailability() {
     const params = useParams();
@@ -31,11 +32,18 @@ export default function TeamAvailability() {
     // const [time_period, setTimePeriod]          = useState('');
     const getJob = () => {
         axios
-            .get(`/api/admin/jobs/${params.id}/edit`, { headers })
+            .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
                 const r = res.data.job;
                 setClientName(r.client.firstname + " " + r.client.lastname);
                 setService(r.jobservice);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
     useEffect(() => {

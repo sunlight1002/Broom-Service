@@ -68,9 +68,11 @@ class ClientCardController extends Controller
         ]);
 
         $uniqueID = $belongToContract ? 'BROOM-CNTRCT' . $contract->id : 'BROOM-TX' . $transaction->id;
+        $successUrl = $belongToContract ? url('thanks/' . $client->id) : url('client/settings?cps=payment-success');
 
         $sessionResponse = $this->createSession([
             'unique_id'     => $uniqueID,
+            'success_url'   => $successUrl,
             'local'         => ($client->lng == 'heb') ? 'He' : 'En',
             'client_id'     => $client->id,
             'client_name'   => $client->firstname . ' ' . $client->lastname,

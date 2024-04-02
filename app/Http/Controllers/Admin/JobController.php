@@ -36,9 +36,6 @@ class JobController extends Controller
         $q = $request->q;
         $w = $request->filter_week;
         $jobs = Job::query()
-            ->leftJoin('job_hours', function ($join) {
-                $join->on('jobs.id', '=', 'job_hours.job_id');
-            })
             ->with([
                 'worker',
                 'client',
@@ -91,8 +88,6 @@ class JobController extends Controller
 
         $jobs = $jobs
             ->select('jobs.*')
-            ->selectRaw('(SELECT comment FROM job_comments WHERE job_comments.job_id = jobs.id AND job_comments.role = "worker" ORDER BY id DESC LIMIT 1) AS last_comment')
-            ->selectRaw('SUM(TIMESTAMPDIFF(MINUTE, job_hours.start_time, job_hours.end_time)) AS total_minutes')
             ->orderBy('start_date')
             ->orderBy('client_id')
             ->groupBy('jobs.id');
@@ -206,25 +201,27 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'order', 'propertyAddress'])->find($id);
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'service',
+                'offer',
+                'jobservice',
+                'order',
+                'invoice',
+                'propertyAddress'
+            ])
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
 
         return response()->json([
             'job' => $job,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $job = Job::with(['client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress'])->find($id);
-
-        return response()->json([
-            'job' => $job
         ]);
     }
 
@@ -292,13 +289,13 @@ class JobController extends Controller
         if (isset($request->q)) {
             $q = $request->q;
             if ($q == 'ordered') {
-                $jobQuery->has('order');
+                $jobQuery->where('is_order_generated', true);
             } else if ($q == 'unordered') {
-                $jobQuery->whereDoesntHave('order');
+                $jobQuery->where('is_order_generated', false);
             } else if ($q == 'invoiced') {
-                $jobQuery->has('invoice');
+                $jobQuery->where('is_invoice_generated', true);
             } else if ($q == 'uninvoiced') {
-                $jobQuery->whereDoesntHave('invoice');
+                $jobQuery->where('is_invoice_generated', false);
             }
         }
 
@@ -308,10 +305,10 @@ class JobController extends Controller
         $progress   = Job::where('status', 'progress')->where('client_id', $id)->count();
         $completed  = Job::where('status', 'completed')->where('client_id', $id)->count();
 
-        $ordered    = Job::has('order')->where('client_id', $id)->count();
-        $unordered  = Job::whereDoesntHave('order')->where('client_id', $id)->count();
-        $invoiced   = Job::has('invoice')->where('client_id', $id)->count();
-        $unordered  = Job::whereDoesntHave('invoice')->where('client_id', $id)->count();
+        $ordered    = Job::where('client_id', $id)->where('is_order_generated', true)->count();
+        $unordered  = Job::where('client_id', $id)->where('is_order_generated', false)->count();
+        $invoiced   = Job::where('client_id', $id)->where('is_invoice_generated', true)->count();
+        $unordered  = Job::where('client_id', $id)->where('is_invoice_generated', false)->count();
 
         $jobs = $jobQuery
             ->orderBy('start_date', 'desc')
@@ -352,32 +349,6 @@ class JobController extends Controller
 
         return response()->json([
             'jobs' => $jobs
-        ]);
-    }
-
-    public function updateJob(Request $request, $id)
-    {
-        $job = Job::find($id);
-        if ($request->date != '') {
-            $job->start_date = $request->date;
-        }
-        if ($request->worker != '') {
-            $job->worker_id = $request->worker;
-        }
-        if ($request->shifts != '') {
-            $job->shifts = $request->shifts;
-        }
-        if ($request->comment != '') {
-            $job->comment = $request->comment;
-        }
-
-        $job->save();
-        if ($request->worker != '') {
-            $this->sendWorkerEmail($id);
-        }
-
-        return response()->json([
-            'message' => 'Job has been updated successfully'
         ]);
     }
 
@@ -469,6 +440,7 @@ class JobController extends Controller
                     'start_date'    => $job_date,
                     'shifts'        => $shiftString,
                     'schedule'      => $repeat_value,
+                    'is_one_time_job'   => $repeat_value == 'na',
                     'schedule_id'   => $s_id,
                     'status'        => $status,
                     'total_amount'  => $s_total,

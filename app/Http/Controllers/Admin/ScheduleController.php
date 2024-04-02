@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\LeadStatus;
@@ -103,7 +104,7 @@ class ScheduleController extends Controller
 
         LeadStatus::updateOrCreate(
             ['client_id' => $schedule->client_id],
-            ['lead_status' => 'Meeting pending']
+            ['lead_status' => LeadStatusEnum::MEETING_PENDING]
         );
 
         $googleAccessToken = Setting::query()
@@ -225,7 +226,8 @@ class ScheduleController extends Controller
             $eventTime,
             $userTimezone,
             $googleAccessToken,
-            $description
+            $description,
+            $schedule->propertyAddress->geo_address
         );
 
         $schedule->update([
@@ -260,8 +262,8 @@ class ScheduleController extends Controller
         $scheduleArr = $schedule->toArray();
         $scheduleArr['service_names'] = $service_names;
         App::setLocale($scheduleArr['client']['lng']);
-        if(isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])){
-            event (new WhatsappNotificationEvent(["type" => 'client_meeting_schedule',"notificationData" => $scheduleArr]));
+        if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+            event(new WhatsappNotificationEvent(["type" => 'client_meeting_schedule', "notificationData" => $scheduleArr]));
         }
         Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
@@ -284,7 +286,8 @@ class ScheduleController extends Controller
         $event_time,
         $event_timezone,
         $access_token,
-        $description
+        $description,
+        $location
     ) {
         $postData = array('summary' => $summary);
 
@@ -304,6 +307,7 @@ class ScheduleController extends Controller
                 //     array('email' => 'demo01@example.com'),
                 //     array('email' => 'demo02@example.com'),
                 // ),
+                'location' => $location,
                 'reminders' => array(
                     'useDefault' => FALSE,
                     'overrides' => array(
@@ -328,6 +332,7 @@ class ScheduleController extends Controller
                 //     array('email' => 'demo01@example.com'),
                 //     array('email' => 'demo02@example.com'),
                 // ),
+                'location' => $location,
                 'reminders' => array(
                     'useDefault' => FALSE,
                     'overrides' => array(
