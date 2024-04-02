@@ -367,9 +367,14 @@ class InvoiceController extends Controller
     {
         $data = $request->all();
 
-        $invoice = Invoices::query()->with('client')->find($id);
-        $client = $invoice->client;
+        $invoice = Invoices::query()->with(['client', 'order'])->find($id);
+        if (empty($invoice)) {
+            return response()->json([
+                'message' => "Invoice not found"
+            ], 404);
+        }
 
+        $client = $invoice->client;
         if (empty($client->invoicename)) {
             return response()->json([
                 'message' => "Client's invoice name is not set"
@@ -382,127 +387,136 @@ class InvoiceController extends Controller
             if (!$card) {
                 return response()->json([
                     'message' => 'Card not found for this client'
-                ], 401);
+                ], 404);
             }
         }
-        dd($data);
 
-        $cb = '';
-
-        if ($invoice->amount <= $data['paid_amount'] && $invoice->type == 'invoice') {
-            $services = $this->getICountDocument($invoice->invoice_id, 'invoice');
-
-            if (!$services["status"]) {
-                throw new Exception($services["reason"], 500);
-            }
-
-            $sum = 0;
-            $items = $services['doc_info']['items'];
-            if (!empty($items)) {
-                foreach ($items as $itm) {
-                    $sum += (int)$itm['unitprice'];
-                }
-
-                $url = "https://api.icount.co.il/api/v3.php/doc/create";
-
-                $params = array(
-                    "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
-                    "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
-                    "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
-
-                    "doctype"        => 'receipt',
-                    "client_name"    => $client->invoicename,
-                    "client_address" => $client->geo_address,
-                    "email"          => $client->email,
-                    "lang"           => ($client->lng == 'heb') ? 'he' : 'en',
-                    "currency_code"  => "ILS",
-                    "doc_lang"       => ($client->lng == 'heb') ? 'he' : 'en',
-                    "items"          => json_encode($items, true),
-                    "based_on"       => ['docnum' => $invoice->invoice_id, 'doctype' => 'invoice'],
-
-                    "send_email"      => 1,
-                    "email_to_client" => 1,
-                    "email_to"        => $client->email,
-                );
-
-                $txnID = $data['txn_id'];
-
-                if ($mode == "Credit Card") {
-                    $ex = explode('-', $card->valid);
-                    $cc = ['cc' => [
-                        "sum" => $sum,
-                        "card_type" => $card->card_type,
-                        "card_number" => $card->card_number,
-                        "exp_year" => $ex[0],
-                        "exp_month" => $ex[1],
-                        "holder_id" => "",
-                        "confirmation_code" => ""
-                    ]];
-
-                    $_params = array_merge($params, $cc);
-
-                    $payment = $this->commitInvoicePayment($client, $items, $card->card_token, $sum);
-
-                    $txnID  = $payment->ReferenceNumber;
-
-                    $cb = json_encode($payment);
-                } else if ($mode == "Bank Transfer") {
-                    $bt = ["banktransfer" => [
-                        "sum"    => $sum,
-                        "date"   => $data['date'],
-                        "account" => $data['account'],
-                    ]];
-                    $_params = array_merge($params, $bt);
-                } else if ($mode == "Cheque") {
-                    $ch = ["cheques" => [[
-                        "sum"    => $sum,
-                        "date"   => $data['date'],
-                        "bank"   => $data['bank'],
-                        "branch" => $data['branch'],
-                        "account" => $data['account'],
-                        "number" => $data['number']
-                    ]]];
-                    $_params = array_merge($params, $ch);
-                } else if ($mode == "Cash") {
-                    $cs = ["cash" => [
-                        "sum"    => $sum,
-                    ]];
-                    $_params = array_merge($params, $cs);
-                } else {
-                    $_params = $params;
-                }
-
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_params, null, '&'));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                $response = curl_exec($ch);
-                $info = curl_getinfo($ch);
-
-                //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
-                $json = json_decode($response, true);
-
-                if (!empty($json)) {
-                    $rcp = Receipts::create([
-                        'invoice_id' => $invoice->id,
-                        'invoice_icount_id' => $invoice->invoice_id,
-                        'receipt_id' => $json['docnum'],
-                        'docurl' => $json['doc_url'],
-                    ]);
-
-                    $this->closeDoc($invoice->invoice_id, 'invoice');
-                    $invoice->update([
-                        'invoice_icount_status' => 'Closed',
-                        'receipt_id' => $rcp->id
-                    ]);
-                }
-            }
+        if ($invoice->type != 'invoice') {
+            return response()->json([
+                'message' => 'Document is not an invoice'
+            ], 403);
         }
+
+        // if ($invoice->amount != $data['paid_amount']) {
+        //     return response()->json([
+        //         'message' => 'Entered amount is equal to invoice amount'
+        //     ], 403);
+        // }
+
+        $order = $invoice->order;
+        if (!$order) {
+            return response()->json([
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        $orderResponse = json_decode($order->response, true);
+
+        $iCountClientID = $orderResponse['client_id'];
+        $iCountDocument = $this->getICountDocument($invoice->invoice_id, 'invoice');
+
+        if (!$iCountDocument["status"]) {
+            throw new Exception($iCountDocument["reason"], 500);
+        }
+
+        $subtotal = 0;
+        $services = [];
+        $items = $iCountDocument['doc_info']['items'];
+        foreach ($items as $item) {
+            $subtotal += (int)$item['unitprice'];
+
+            $services[] = [
+                'description' => $item['description'],
+                'unitprice' => $item['unitprice'],
+                'quantity' => $item['quantity'],
+            ];
+        }
+
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
+        $total = $tax + $subtotal;
+
+        $otherInvDocOptions = [
+            'based_on' => [
+                [
+                    'docnum'  => $order->order_id,
+                    'doctype' => 'order'
+                ],
+                [
+                    'docnum'  => $invoice->invoice_id,
+                    'doctype' => 'invoice'
+                ]
+            ]
+        ];
+
+        $txnID = $data['txn_id'];
+
+        if ($mode == "Credit Card") {
+            $otherInvDocOptions['cc'] = [
+                "sum" => $total,
+                "card_type" => $card->card_type,
+                "card_number" => $card->card_number,
+                "exp_year" => explode('/', $card->valid)[0],
+                "exp_month" => explode('/', $card->valid)[1],
+                "holder_id" => $card->card_holder_id,
+            ];
+
+            $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
+
+            if ($paymentResponse['HasError'] == true) {
+                return response()->json([
+                    'message' => 'Unable to pay from credit card'
+                ], 500);
+            }
+
+            $txnID = $paymentResponse['ReferenceNumber'];
+        } else if ($mode == "Bank Transfer") {
+            $otherInvDocOptions['banktransfer'] = [
+                "sum" => $total,
+                "date"   => $data['date'],
+                "account" => $data['account'],
+            ];
+        } else if ($mode == "Cheque") {
+            $otherInvDocOptions['cheques'] = [
+                "sum" => $total,
+                "date"   => $data['date'],
+                "bank"   => $data['bank'],
+                "branch" => $data['branch'],
+                "account" => $data['account'],
+                "number" => $data['number']
+            ];
+        } else if ($mode == "Cash") {
+            $otherInvDocOptions['cash'] = [
+                "sum" => $total,
+            ];
+        }
+
+        $duedate = Carbon::today()->endOfMonth()->toDateString();
+
+        $json = $this->generateInvRecDocument(
+            $iCountClientID,
+            $client,
+            $services,
+            $duedate,
+            $otherInvDocOptions
+        );
+
+        $rcp = Receipts::create([
+            'invoice_id' => $invoice->id,
+            'invoice_icount_id' => $invoice->invoice_id,
+            'receipt_id' => $json['docnum'],
+            'docurl' => $json['doc_url'],
+        ]);
+
+        // $this->closeDoc($invoice->invoice_id, 'invoice');
+        $invoice->update([
+            'invoice_icount_status' => 'Closed',
+            'receipt_id' => $rcp->id
+        ]);
 
         $invoice->update([
             'pay_method'  => $data['pay_method'],
             'txn_id'      => $txnID,
-            'callback'    => $cb,
+            'callback'    => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
             'paid_amount' => $data['paid_amount'],
             'status'      => $data['status']
         ]);
@@ -736,7 +750,7 @@ class InvoiceController extends Controller
 
         $orderResponse = json_decode($order->response, true);
 
-        $duedate = Carbon::now()->endOfMonth()->toDateString();
+        $duedate = Carbon::today()->endOfMonth()->toDateString();
 
         $isPaymentProcessed = false;
         /* Auto payment */
@@ -753,8 +767,10 @@ class InvoiceController extends Controller
         $iCountClientID = $orderResponse['client_id'];
         $otherInvDocOptions = [
             'based_on' => [
-                'docnum'  => $order->order_id,
-                'doctype' => 'order'
+                [
+                    'docnum'  => $order->order_id,
+                    'doctype' => 'order'
+                ]
             ]
         ];
 
@@ -766,23 +782,30 @@ class InvoiceController extends Controller
                 "exp_year" => explode('/', $card->valid)[0],
                 "exp_month" => explode('/', $card->valid)[1],
                 "holder_id" => $card->card_holder_id,
-                // "num_of_payments" => 1,
-                // "first_payment" => 1,
-                // "token_id" => $card->card_token,
             ];
         }
 
-        $json = $this->generateInvoiceDocument(
-            $iCountClientID,
-            $client,
-            $services,
-            $doctype,
-            $duedate,
-            $otherInvDocOptions
-        );
+        if ($doctype == 'invoice') {
+            $json = $this->generateInvoiceDocument(
+                $iCountClientID,
+                $client,
+                $services,
+                $duedate,
+                $otherInvDocOptions
+            );
+        } else {
+            $json = $this->generateInvRecDocument(
+                $iCountClientID,
+                $client,
+                $services,
+                $duedate,
+                $otherInvDocOptions
+            );
+        }
 
         $invoice = Invoices::create([
             'invoice_id' => $json['docnum'],
+            'order_id'  => $order->id,
             'amount'     => $total,
             'paid_amount' => $total,
             'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
@@ -902,8 +925,9 @@ class InvoiceController extends Controller
         }
 
         $items = $request->services;
+        $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-        $this->generateOrderDocument($client, [$job->id], $items, $job->is_one_time_job);
+        $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
 
         return response()->json([
             'message' => 'Order generated successfully'
@@ -962,8 +986,9 @@ class InvoiceController extends Controller
             ];
         }
 
+        $dueDate = Carbon::today()->endOfMonth()->toDateString();
         if (count($not_one_time_job_ids) > 0) {
-            $this->generateOrderDocument($client, $not_one_time_job_ids, $items, false);
+            $this->generateOrderDocument($client, $not_one_time_job_ids, $items, $dueDate, false);
         }
 
         foreach ($oneTimeJobs as $job) {
@@ -975,7 +1000,7 @@ class InvoiceController extends Controller
                 "quantity"    => 1,
             ];
 
-            $this->generateOrderDocument($client, [$job->id], [$item], $job->is_one_time_job);
+            $this->generateOrderDocument($client, [$job->id], [$item], $dueDate, $job->is_one_time_job);
         }
 
         return response()->json([

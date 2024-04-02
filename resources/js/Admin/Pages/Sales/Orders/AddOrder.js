@@ -3,15 +3,14 @@ import axios from "axios";
 import Moment from "moment";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select";
 import { SelectPicker } from "rsuite";
 import Swal from "sweetalert2";
 
 import Sidebar from "../../../Layouts/Sidebar";
 
 export default function AddOrder() {
-    const [selectedClientID, setSelectedClientID] = useState(null);
-    const [selectedJobID, setSelectedJobID] = useState(null);
+    const [selectedClientID, setSelectedClientID] = useState("");
+    const [selectedJobID, setSelectedJobID] = useState("");
     const [loading, setLoading] = useState(false);
     const [formValues, setFormValues] = useState({
         description: null,
@@ -21,8 +20,8 @@ export default function AddOrder() {
     const [lng, setLng] = useState();
 
     const queryParams = new URLSearchParams(window.location.search);
-    const jobID = queryParams.get("j");
-    const clientID = queryParams.get("c");
+    const jobID = parseInt(queryParams.get("j"));
+    const clientID = parseInt(queryParams.get("c"));
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -92,25 +91,37 @@ export default function AddOrder() {
             return { value: c.id, label: c.firstname + " " + c.lastname };
         });
 
-    const handleChangeClient = (_clientID) => {
-        if (_clientID) {
+    const resetServiceForm = () => {
+        setjService(null);
+        setFormValues({
+            description: null,
+            unitprice: 0,
+            quantity: 0,
+        });
+    };
+
+    useEffect(() => {
+        if (selectedClientID) {
             axios
-                .get(`/api/admin/clients/${_clientID}`, { headers })
+                .get(`/api/admin/clients/${selectedClientID}`, { headers })
                 .then((res) => {
                     setLng(res.data.client.lng);
                 });
 
-            getJobs(_clientID);
-            setSelectedClientID(_clientID);
+            getJobs(selectedClientID);
+        } else {
+            setCjobs([]);
         }
-    };
+        resetServiceForm();
+    }, [selectedClientID]);
 
-    const handleChangeJob = (_jobID) => {
-        if (_jobID) {
-            setSelectedJobID(_jobID);
-            getServices(_jobID);
+    useEffect(() => {
+        if (selectedJobID) {
+            getServices(selectedJobID);
+        } else {
+            resetServiceForm();
         }
-    };
+    }, [selectedJobID]);
 
     useEffect(() => {
         setSelectedJobID(jobID);
@@ -184,9 +195,10 @@ export default function AddOrder() {
                                         </label>
                                         <SelectPicker
                                             data={cData}
-                                            defaultValue={parseInt(clientID)}
+                                            value={selectedClientID}
+                                            defaultValue={clientID}
                                             onChange={(value, event) => {
-                                                handleChangeClient(value);
+                                                setSelectedClientID(value);
                                             }}
                                             size="lg"
                                             required
@@ -200,9 +212,11 @@ export default function AddOrder() {
                                         <select
                                             className="form-control"
                                             onChange={(e) => {
-                                                handleChangeJob(e.target.value);
+                                                setSelectedJobID(
+                                                    e.target.value
+                                                );
                                             }}
-                                            value={jobID}
+                                            value={selectedJobID}
                                         >
                                             <option value={0}>
                                                 --- Select Job ---

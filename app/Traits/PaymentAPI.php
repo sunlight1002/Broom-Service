@@ -331,25 +331,56 @@ trait PaymentAPI
         }
     }
 
-    private function generateOrderDocument($client, $jobIDs, $items, $isOneTime)
+    // Same API but different configuration for 'order' doctype.
+    private function generateOrderDocument($client, $jobIDs, $items, $duedate, $isOneTime)
     {
         $address = $client->property_addresses()->first();
 
-        $json = $this->createICountDocument([
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $client->email,
             "doctype" => 'order',
-            "client_id" => null,
             "client_name" => $client->invoicename,
             "client_address" => $address ? $address->geo_address : '',
-            "email" => $client->email,
-            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "currency_code" => "ILS",
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
-            "email_to" => $client->email,
-            "duedate" => '',
-            "based_on" => [],
+            "duedate" => $duedate,
             "send_email" => 0,
             "email_to_client" => 0,
-            "cc" => [],
-        ]);
+            "email_to" => $client->email,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create order document');
+        }
 
         if (!$json["status"]) {
             throw new Exception($json["reason"], 500);
@@ -373,60 +404,6 @@ trait PaymentAPI
             ]);
 
         return $order;
-    }
-
-    private function createICountDocument($documentData)
-    {
-        $iCountCompanyID = Setting::query()
-            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
-            ->value('value');
-
-        $iCountUsername = Setting::query()
-            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
-            ->value('value');
-
-        $iCountPassword = Setting::query()
-            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
-            ->value('value');
-
-        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
-
-        $postData = [
-            "cid"  => $iCountCompanyID,
-            "lang" => $documentData['lang'],
-            "user" => $iCountUsername,
-            "pass" => $iCountPassword,
-            "email" => $documentData['email'],
-            "doctype" => $documentData['doctype'],
-            "client_id" => $documentData['client_id'],
-            "client_name" => $documentData['client_name'],
-            "client_address" => $documentData['client_address'],
-            "currency_code" => "ILS",
-            "doc_lang" => $documentData['lang'],
-            "items" => $documentData['items'],
-            "duedate" => $documentData['duedate'],
-            "based_on" => $documentData['based_on'],
-            "send_email" => $documentData['send_email'],
-            "email_to_client" => $documentData['email_to_client'],
-            "email_to" => $documentData['email_to'],
-            "cc" => $documentData['cc'],
-        ];
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post(
-            $url,
-            $postData
-        );
-
-        $data = $response->json();
-        $http_code = $response->status();
-
-        if ($http_code != 200) {
-            throw new Exception('Error : Failed to create document');
-        }
-
-        return $data;
     }
 
     private function getICountDocument($docnum, $doctype)
@@ -493,7 +470,6 @@ trait PaymentAPI
             "pass" => $iCountPassword,
             "doctype"   => $doctype,
             "docnum"    => $docnum,
-            // "based_on"  => $docnum
         ];
 
         $response = Http::withHeaders([
@@ -559,27 +535,128 @@ trait PaymentAPI
         $iCountClientID,
         $client,
         $items,
-        $doctype,
         $duedate,
         $otherInvDocOptions
     ) {
         $address = $client->property_addresses()->first();
 
-        $json = $this->createICountDocument([
-            "doctype" => $doctype,
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $client->email,
+            "doctype" => 'invoice',
             "client_id" => $iCountClientID,
             "client_name" => $client->invoicename,
             "client_address" => $address ? $address->geo_address : '',
-            "email" => $client->email,
-            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "currency_code" => "ILS",
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
-            "email_to" => $client->email,
             "duedate" => $duedate,
             "based_on" => $otherInvDocOptions['based_on'],
             "send_email" => 1,
             "email_to_client" => 1,
-            "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : []
-        ]);
+            "email_to" => $client->email,
+            "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create invoice document');
+        }
+
+        if (!$json["status"]) {
+            throw new Exception($json["reason"], 500);
+        }
+
+        return $json;
+    }
+
+    private function generateInvRecDocument(
+        $iCountClientID,
+        $client,
+        $items,
+        $duedate,
+        $otherInvDocOptions
+    ) {
+        $address = $client->property_addresses()->first();
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "email" => $client->email,
+            "doctype" => 'invrec',
+            "client_id" => $iCountClientID,
+            "client_name" => $client->invoicename,
+            "client_address" => $address ? $address->geo_address : '',
+            "currency_code" => "ILS",
+            "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "items" => $items,
+            "duedate" => $duedate,
+            "based_on" => $otherInvDocOptions['based_on'],
+            "send_email" => 1,
+            "email_to_client" => 1,
+            "email_to" => $client->email,
+            "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
+            "banktransfer" => isset($otherInvDocOptions['banktransfer']) ? $otherInvDocOptions['banktransfer'] : [],
+            "cheques" => isset($otherInvDocOptions['cheques']) ? $otherInvDocOptions['cheques'] : [],
+            "cash" => isset($otherInvDocOptions['cash']) ? $otherInvDocOptions['cash'] : [],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $json = $response->json();
+
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to create invoice receipt document');
+        }
 
         if (!$json["status"]) {
             throw new Exception($json["reason"], 500);

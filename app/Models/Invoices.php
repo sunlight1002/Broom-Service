@@ -8,6 +8,7 @@ class Invoices extends Model
 {
     protected $fillable = [
         'invoice_id',
+        'order_id',
         'amount',
         'paid_amount',
         'doc_url',
@@ -36,5 +37,10 @@ class Invoices extends Model
     public function receipt()
     {
         return $this->belongsTo(Receipts::class, 'receipt_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 }
