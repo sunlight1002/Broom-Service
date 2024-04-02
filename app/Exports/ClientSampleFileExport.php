@@ -68,11 +68,11 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithStrict
                 "worker_hours" => "5,7,10",
                 "has_contract" => "Yes",
                 "additional_address" => "Home Address",
-                "card_number" => "123",
+                "card_number" => "0000000000000000",
                 "card_type" => "Visa",
                 "card_holder_id" => "123456789",
-                "card_holder_name" => "Name",
-                "valid" => "123",
+                "card_holder_name" => "Card Holder",
+                "valid" => "12/25",
                 "cvv" => "123",
             ]
         ]);

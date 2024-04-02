@@ -112,7 +112,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     ]);
                 }
 
-                if($row['has_offer'] == "Yes") {
+                if ($row['has_offer'] == "Yes") {
                     $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
                         ->first();
 
@@ -146,8 +146,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         $total_amount += $row['fixed_price'];
                     }
 
-                    if(!in_array($row['service_name'], $existing_services_names))
-                    {
+                    if (!in_array($row['service_name'], $existing_services_names)) {
                         $services = [
                             'service' => $service->id ?? '',
                             'name' => $row['service_name'] ?? '',
@@ -214,7 +213,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     }
                 }
 
-                if($row['has_offer'] == "Yes" && $row['has_contract'] == "Yes") {
+                if ($row['has_offer'] == "Yes" && $row['has_contract'] == "Yes") {
 
                     $hash = md5($client->email . $offer->id);
 
@@ -239,39 +238,42 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     }
 
                     $card = ClientCard::query()
-                        ->where('client_id', $contract->client->id)
+                        ->where('client_id', $client->id)
                         ->first();
 
-                    if (config('services.app.old_contract') == true || (config('services.app.old_contract') == false && !empty($card))) {
+                    if (
+                        config('services.app.old_contract') == true ||
+                        (config('services.app.old_contract') == false && !empty($card))
+                    ) {
                         Client::where('id', $contract->client_id)->update(['status' => 2]);
 
                         LeadStatus::UpdateOrCreate(
-                          [
-                            'client_id' => $contract->client->id
-                          ],
-                          [
-                            'client_id' => $contract->client->id,
-                            'lead_status' => 'Contract Accepted'
-                          ]
+                            [
+                                'client_id' => $client->id
+                            ],
+                            [
+                                'client_id' => $client->id,
+                                'lead_status' => 'Contract Accepted'
+                            ]
                         );
                     }
                 }
+                
+                $validDate = explode("/", $row['valid'])[0] . substr(explode("/", $row['valid'])[1], -2);
+                $validateResponse = $this->validateCard([
+                    'card_number' => $row['card_number'],
+                    'card_exp' => $validDate
+                ]);
 
-                $validDate = explode("-", $row['valid'])[1] . substr(explode("-", $row['valid'])[0], -2);
-                $validateResponse = $this->validateCard(['card_number' => $row['card_number'], 'card_exp' => $validDate]);
-
-                if(!$validateResponse['HasError'])
-                {
+                if (!$validateResponse['HasError']) {
                     $isdefault = ClientCard::where('client_id', $client->id)->where('is_default', 1)->first();
                     $existingCard = ClientCard::where('client_id', $client->id)->where('card_number', $row['card_number'])->first();
 
-                    if($existingCard) {
-                        if($existingCard->is_default == 0 && !$isdefault) {
+                    if ($existingCard) {
+                        if ($existingCard->is_default == 0 && !$isdefault) {
                             $existingCard->update(['is_default' => 1]);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         $card = ClientCard::Create([
                             'client_id'   => $client->id,
                             'card_number' => $row['card_number'],
@@ -285,7 +287,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         ]);
                     }
                 }
-
             } catch (Exception $e) {
                 Log::error($e);
                 $failedImports->push($row);
