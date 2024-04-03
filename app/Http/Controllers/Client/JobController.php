@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\JobStatusEnum;
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
@@ -54,12 +55,14 @@ class JobController extends Controller
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
 
         $job->update([
-            'status' => 'cancel',
+            'status' => JobStatusEnum::CANCEL,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
             'cancelled_by_role' => 'client',
             'cancelled_by' => Auth::user()->id,
-            'cancelled_at' => now()
+            'cancelled_at' => now(),
+            'cancelled_for' => $request->repeatancy,
+            'cancel_until_date' => $request->until_date,
         ]);
 
         Notification::create([

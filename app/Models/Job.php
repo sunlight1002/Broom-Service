@@ -36,11 +36,17 @@ class Job extends Model
         'is_next_job_created',
         'keep_prev_worker',
         'is_one_time_job',
+        'previous_worker_id',
+        'previous_worker_after',
+        'previous_shifts',
+        'previous_shifts_after',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
         'cancelled_by',
         'cancelled_at',
+        'cancelled_for',
+        'cancel_until_date',
     ];
 
     /**
@@ -55,9 +61,12 @@ class Job extends Model
         'next_start_date' => 'datetime',
         'is_next_job_created' => 'boolean',
         'is_one_time_job' => 'boolean',
+        'previous_worker_after' => 'date:Y-m-d',
+        'previous_shifts_after' => 'date:Y-m-d',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',
+        'cancel_until_date' => 'date:Y-m-d',
     ];
 
     public static function boot()

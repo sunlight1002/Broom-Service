@@ -16,6 +16,7 @@ export default function FreezeWorkerShiftModal({
         start_time: "",
         end_time: "",
     });
+    const [isLoading, setIsLoading] = useState(false);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -120,6 +121,7 @@ export default function FreezeWorkerShiftModal({
             hasError = true;
         }
         if (!hasError) {
+            setIsLoading(true);
             axios
                 .post(
                     `/api/admin/workers/${workerId}/freeze-shift`,
@@ -135,6 +137,7 @@ export default function FreezeWorkerShiftModal({
                         "success"
                     );
                     setIsOpen(false);
+                    setIsLoading(false);
                 })
                 .catch((e) => {
                     Swal.fire({
@@ -142,6 +145,7 @@ export default function FreezeWorkerShiftModal({
                         text: e.response.data.message,
                         icon: "error",
                     });
+                    setIsLoading(false);
                 });
         }
     };
@@ -226,6 +230,7 @@ export default function FreezeWorkerShiftModal({
                 </Button>
                 <Button
                     type="button"
+                    disabled={isLoading}
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >

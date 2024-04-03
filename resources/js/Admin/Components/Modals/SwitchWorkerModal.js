@@ -1,31 +1,36 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
-import axios from "axios";
 import moment from "moment";
+import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 
-export default function CancelJobModal({ setIsOpen, isOpen, job }) {
+export default function SwitchWorkerModal({ setIsOpen, isOpen, jobId }) {
     const alert = useAlert();
+    const [workers, setWorkers] = useState([]);
     const [formValues, setFormValues] = useState({
-        repeatancy: "",
+        worker_id: "",
+        repeatancy: "one_time",
         until_date: null,
     });
     const [minUntilDate, setMinUntilDate] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const navigate = useNavigate();
     const flatpickrRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("client-token"),
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handleConfirmCancel = () => {
+    const checkValidation = () => {
+        if (!formValues.worker_id) {
+            alert.error("The worker is missing");
+            return false;
+        }
+
         if (!formValues.repeatancy) {
             alert.error("The Repeatancy is missing");
             return false;
@@ -36,47 +41,68 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             return false;
         }
 
-        setLoading(true);
+        return true;
+    };
 
+    const handleInputChange = (e) => {
+        let newFormValues = { ...formValues };
+
+        newFormValues[e.target.name] = e.target.value;
+
+        setFormValues({ ...newFormValues });
+    };
+
+    const getWorkerToSwitch = () => {
         axios
-            .put(`/api/client/jobs/${job.id}/cancel`, formValues, { headers })
+            .get(`/api/admin/jobs/${jobId}/worker-to-switch`, {
+                headers,
+            })
             .then((response) => {
-                setLoading(false);
-                alert.success("Job cancelled successfully");
-                navigate(`/client/jobs`);
+                setWorkers(response.data.data);
             });
     };
+
+    const handleSubmit = () => {
+        let hasError = false;
+        const valid = checkValidation();
+        if (!valid) {
+            hasError = true;
+        }
+        if (!hasError) {
+            setIsLoading(true);
+            axios
+                .post(`/api/admin/jobs/${jobId}/switch-worker`, formValues, {
+                    headers,
+                })
+                .then((response) => {
+                    Swal.fire(
+                        "Updated!",
+                        "Worker switched successfully.",
+                        "success"
+                    );
+                    setIsOpen(false);
+                    setIsLoading(false);
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                    setIsLoading(false);
+                });
+        }
+    };
+
+    useEffect(() => {
+        getWorkerToSwitch();
+    }, [jobId]);
 
     useEffect(() => {
         setMinUntilDate(
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
         );
     }, []);
-
-    const feeInAmount = useMemo(() => {
-        const diffInDays = moment(job.start_date).diff(
-            moment().startOf("day"),
-            "days"
-        );
-
-        const _feePercentage = diffInDays >= 1 ? 50 : 100;
-
-        return job.offer.total * (_feePercentage / 100);
-    }, [job]);
-
-    useEffect(() => {
-        if (formValues.repeatancy == "until_date") {
-            setFormValues({
-                ...formValues,
-                until_date: minUntilDate,
-            });
-        } else {
-            setFormValues({
-                ...formValues,
-                until_date: null,
-            });
-        }
-    }, [formValues.repeatancy]);
 
     return (
         <Modal
@@ -86,19 +112,36 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             onHide={() => {
                 setIsOpen(false);
             }}
+            backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Cancel Job</Modal.Title>
+                <Modal.Title>Switch worker</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12">
-                        <p className="mb-4">
-                            Cancellation fee of {feeInAmount} ILS will be
-                            charged.
-                        </p>
+                        <div className="form-group">
+                            <label className="control-label">Worker</label>
+                            <select
+                                name="worker_id"
+                                className="form-control"
+                                value={formValues.worker_id}
+                                onChange={(e) => {
+                                    handleInputChange(e);
+                                }}
+                            >
+                                <option value="">--Please select--</option>
+                                {workers.map((w, i) => (
+                                    <option value={w.id} key={i}>
+                                        {w.firstname} {w.lastname}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
 
+                    <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">Repeatancy</label>
 
@@ -113,16 +156,17 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                 value={formValues.repeatancy}
                                 className="form-control mb-3"
                             >
-                                <option value=""> --- Please select ---</option>
                                 <option value="one_time">
                                     One Time ( for single job )
                                 </option>
-                                <option value="forever">Forever</option>
                                 <option value="until_date">Until Date</option>
+                                <option value="forever">Forever</option>
                             </select>
                         </div>
+                    </div>
 
-                        {formValues.repeatancy == "until_date" && (
+                    {formValues.repeatancy == "until_date" && (
+                        <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">
                                     Until Date
@@ -143,19 +187,13 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                     options={{
                                         disableMobile: true,
                                         minDate: minUntilDate,
-                                        disable: [
-                                            (date) => {
-                                                // return true to disable
-                                                return date.getDay() === 6;
-                                            },
-                                        ],
                                     }}
                                     value={formValues.until_date}
                                     ref={flatpickrRef}
                                 />
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </Modal.Body>
 
@@ -171,11 +209,11 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                 </Button>
                 <Button
                     type="button"
-                    onClick={handleConfirmCancel}
-                    className="btn btn-danger"
-                    disabled={loading}
+                    disabled={isLoading}
+                    onClick={handleSubmit}
+                    className="btn btn-primary"
                 >
-                    Cancel
+                    Save
                 </Button>
             </Modal.Footer>
         </Modal>
