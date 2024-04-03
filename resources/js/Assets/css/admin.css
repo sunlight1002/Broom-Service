@@ -1664,6 +1664,19 @@ h1 {
 .crt-jb.responsiveTable tbody tr td:last-child {
   padding-top: 11px !important;
 }
+.crt-jb-table-scrollable{
+  overflow-x: auto;
+}
+.crt-jb-wrap.responsiveTable tbody tr td {
+  min-width: 280px;
+}
+.crt-jb-wrap.responsiveTable tbody tr td > div{
+  max-height: 250px;
+  overflow-y: auto;
+}
+.crt-jb-wrap.responsiveTable tbody tr td div:last-child{
+  border-bottom: 0px !important;
+}
 
 .fc-license-message {
   display: none;
