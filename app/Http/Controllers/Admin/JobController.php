@@ -358,7 +358,7 @@ class JobController extends Controller
         $data = $request->all();
 
         $contract_id = 0;
-        $isClientPage = (isset($request->client_page) && $request->client_page);
+        $isClientPage = (isset($data['client_page']) && $data['client_page']);
 
         if ($isClientPage) {
             $contract_id = $data['contract_id'];
@@ -400,6 +400,7 @@ class JobController extends Controller
                 return $value['worker_id'] == $workerID;
             });
 
+            $workerDates = array_values($workerDates);
             foreach ($workerDates as $key => $workerDate) {
                 // if ($selectedService['type'] == 'hourly') {
                 //     $total_amount = $selectedService['rateperhour'];
@@ -407,9 +408,22 @@ class JobController extends Controller
                 //     $total_amount = $selectedService['fixed_price'];
                 // }
 
+                $shifts = explode(',', $workerDate['shifts']);
+                $shiftsInHour = [];
+                foreach ($shifts as $key => $shift) {
+                    $timing = explode('-', $shift);
+                    $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
+                    $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+
+                    $shiftsInHour[] = [
+                        'start' => $timing[0],
+                        'end' => $timing[1]
+                    ];
+                }
+
                 $minutes = 0;
-                foreach ($workerDate['shifts'] as $key => $timing) {
-                    $minutes += $this->calcTimeDiffInMins($timing['start'], $timing['end']);
+                foreach ($shiftsInHour as $key => $value) {
+                    $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
                 }
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
@@ -427,19 +441,13 @@ class JobController extends Controller
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
-                $shiftString = collect($workerDate['shifts'])
-                    ->map(function ($item, $key) {
-                        return $item['start'] . '-' . $item['end'];
-                    })
-                    ->implode(',');
-
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $isClientPage ? $id : $contract->client_id,
                     'contract_id'   => $isClientPage ? $contract_id : $id,
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
-                    'shifts'        => $shiftString,
+                    'shifts'        => $workerDate['shifts'],
                     'schedule'      => $repeat_value,
                     'is_one_time_job'   => $repeat_value == 'na',
                     'schedule_id'   => $s_id,
@@ -468,9 +476,9 @@ class JobController extends Controller
                 ]);
 
                 $shiftFormattedArr = [];
-                foreach ($workerDate['shifts'] as $key => $time) {
-                    $start_time = Carbon::createFromFormat('H:i', str_replace(['am', 'pm'], '', $time['start']))->toTimeString();
-                    $end_time = Carbon::createFromFormat('H:i', str_replace(['am', 'pm'], '', $time['end']))->toTimeString();
+                foreach ($shiftsInHour as $key => $time) {
+                    $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
 
                     $shiftFormattedArr[$key] = [
                         'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
@@ -491,7 +499,7 @@ class JobController extends Controller
                         $emailData = array(
                             'email' => $job['worker']['email'],
                             'job' => $job->toArray(),
-                            'start_time' => $workerDate['shifts'][0]['start'],
+                            'start_time' => $shiftsInHour[0]['start'],
                             'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
                         );
 

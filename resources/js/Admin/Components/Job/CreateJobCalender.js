@@ -99,7 +99,6 @@ export default function CreateJobCalender() {
         let formdata = {
             workers: data,
             service_id: services[0].service,
-            service: services[0],
             prevWorker: isPrevWorker.current.checked,
         };
         let viewbtn = document.querySelectorAll(".viewBtn");
@@ -262,13 +261,6 @@ export default function CreateJobCalender() {
             }
         }
         return false;
-    };
-    const person = {
-        "8am-16pm": "Full Day",
-        "8am-12pm": "Morning",
-        "12pm-16pm": "Afternoon",
-        "16pm-20pm": "Evening",
-        "20pm-24am": "Night",
     };
 
     return (
@@ -443,7 +435,7 @@ export default function CreateJobCalender() {
                                                                                 </div>
                                                                                 {isActive ? (
                                                                                     <i
-                                                                                        class="fa-solid fa-minus"
+                                                                                        className="fa-solid fa-minus"
                                                                                         onClick={() =>
                                                                                             removeShift(
                                                                                                 w.id,
@@ -454,7 +446,7 @@ export default function CreateJobCalender() {
                                                                                     ></i>
                                                                                 ) : (
                                                                                     <i
-                                                                                        class="fa-solid fa-plus"
+                                                                                        className="fa-solid fa-plus"
                                                                                         onClick={() =>
                                                                                             changeShift(
                                                                                                 w.id,
@@ -609,7 +601,7 @@ export default function CreateJobCalender() {
                                                                                 </div>
                                                                                 {isActive ? (
                                                                                     <i
-                                                                                        class="fa-solid fa-minus"
+                                                                                        className="fa-solid fa-minus"
                                                                                         onClick={() =>
                                                                                             removeShift(
                                                                                                 w.id,
@@ -620,7 +612,7 @@ export default function CreateJobCalender() {
                                                                                     ></i>
                                                                                 ) : (
                                                                                     <i
-                                                                                        class="fa-solid fa-plus"
+                                                                                        className="fa-solid fa-plus"
                                                                                         onClick={() =>
                                                                                             changeShift(
                                                                                                 w.id,
@@ -773,7 +765,7 @@ export default function CreateJobCalender() {
                                                                                     </div>
                                                                                     {isActive ? (
                                                                                         <i
-                                                                                            class="fa-solid fa-minus"
+                                                                                            className="fa-solid fa-minus"
                                                                                             onClick={() =>
                                                                                                 removeShift(
                                                                                                     w.id,
@@ -784,7 +776,7 @@ export default function CreateJobCalender() {
                                                                                         ></i>
                                                                                     ) : (
                                                                                         <i
-                                                                                            class="fa-solid fa-plus"
+                                                                                            className="fa-solid fa-plus"
                                                                                             onClick={() =>
                                                                                                 changeShift(
                                                                                                     w.id,

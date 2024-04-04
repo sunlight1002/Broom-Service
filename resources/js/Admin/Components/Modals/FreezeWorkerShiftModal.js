@@ -78,6 +78,9 @@ export default function FreezeWorkerShiftModal({
         let newFormValues = { ...formValues };
 
         newFormValues[e.target.name] = e.target.value;
+        if (e.target.name == "start_time") {
+            newFormValues["end_time"] = "";
+        }
 
         setFormValues({ ...newFormValues });
     };

@@ -15,6 +15,7 @@ import logo from "../Assets/image/sample.svg";
 export default function ChooseMeetingSlot() {
     const { t } = useTranslation();
     const [meeting, setMeeting] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [availableSlots, setAvailableSlots] = useState([]);
     const [bookedSlots, setBookedSlots] = useState([]);
     const [teamName, setTeamName] = useState("");
@@ -131,6 +132,7 @@ export default function ChooseMeetingSlot() {
             return false;
         }
 
+        setIsLoading(true);
         const _meetingID = Base64.decode(param.id);
 
         axios
@@ -142,8 +144,10 @@ export default function ChooseMeetingSlot() {
                     icon: "success",
                 });
                 getMeeting();
+                setIsLoading(false);
             })
             .catch((e) => {
+                setIsLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -306,6 +310,7 @@ export default function ChooseMeetingSlot() {
                                 <div className="col-sm-12">
                                     <button
                                         type="button"
+                                        disabled={isLoading}
                                         className="btn btn-primary"
                                         onClick={() => handleSaveSlot()}
                                     >
