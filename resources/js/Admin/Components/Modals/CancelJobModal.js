@@ -27,6 +27,21 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     };
 
     const handleConfirmCancel = () => {
+        if (!formValues.fee) {
+            alert.error("The fee is missing");
+            return false;
+        }
+
+        if (!formValues.repeatancy) {
+            alert.error("The Repeatancy is missing");
+            return false;
+        }
+
+        if (formValues.repeatancy == "until_date" && !formValues.until_date) {
+            alert.error("The Until Date is missing");
+            return false;
+        }
+
         setLoading(true);
 
         axios
@@ -73,6 +88,28 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                     className="form-check-input"
                                     type="radio"
                                     name="fee"
+                                    id="fee0"
+                                    value={0}
+                                    checked={formValues.fee == 0}
+                                    onChange={(e) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            fee: e.target.value,
+                                        });
+                                    }}
+                                />
+                                <label
+                                    className="form-check-label"
+                                    htmlFor="fee0"
+                                >
+                                    0%
+                                </label>
+                            </div>
+                            <div className="form-check">
+                                <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="fee"
                                     id="fee50"
                                     value={50}
                                     checked={formValues.fee == 50}
@@ -113,7 +150,11 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                 </label>
                             </div>
 
-                            <p>{feeInAmount} ILS will be charged.</p>
+                            {feeInAmount > 0 ? (
+                                <p>{feeInAmount} ILS will be charged.</p>
+                            ) : (
+                                <p>No charge.</p>
+                            )}
                         </div>
 
                         <div className="form-group">

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
-import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
+
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import Sidebar from "../../Layouts/Sidebar";
+import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 
 export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
@@ -39,6 +41,8 @@ export default function TotalJobs() {
         period: "",
         shift_time: "",
     });
+    const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -465,6 +469,11 @@ export default function TotalJobs() {
                 $("#edit-shift").modal("hide");
                 alert.success(res.data.success);
             });
+    };
+
+    const handleSwitchWorker = (_jobID) => {
+        setSelectedJobId(_jobID);
+        setIsOpenSwitchWorker(true);
     };
 
     return (
@@ -982,6 +991,17 @@ export default function TotalJobs() {
                                                                         <button
                                                                             className="dropdown-item"
                                                                             onClick={() =>
+                                                                                handleSwitchWorker(
+                                                                                    item.id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Switch
+                                                                            Worker
+                                                                        </button>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>
                                                                                 handleDelete(
                                                                                     item.id
                                                                                 )
@@ -1460,6 +1480,14 @@ export default function TotalJobs() {
                     </div>
                 </div>
             </div>
+
+            {isOpenSwitchWorker && (
+                <SwitchWorkerModal
+                    setIsOpen={setIsOpenSwitchWorker}
+                    isOpen={isOpenSwitchWorker}
+                    jobId={selectedJobId}
+                />
+            )}
         </div>
     );
 }

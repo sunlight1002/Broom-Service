@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\JobStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
 use App\Helpers\Helper;
@@ -316,7 +317,7 @@ class InvoiceController extends Controller
             'invoice_no'    => $json["docnum"],
             'invoice_url'   => $json["doc_url"],
             'isOrdered'     => 2,
-            'status'        => 'completed'
+            'status'        => JobStatusEnum::COMPLETED
         ]);
 
         $invoice = Invoices::create([
@@ -531,7 +532,7 @@ class InvoiceController extends Controller
     public function invoiceJobs(Request $request)
     {
         $jobs = Job::where('client_id', $request->cid)
-            ->where('status', '!=', 'completed')
+            ->where('status', '!=', JobStatusEnum::COMPLETED)
             ->where('isOrdered', 0)
             ->orWhere('isOrdered', 'c')
             ->get();
@@ -549,7 +550,7 @@ class InvoiceController extends Controller
     public function invoiceJobOrder(Request $request)
     {
         $jobs = Job::where('client_id', $request->cid)
-            ->where('status', '!=', 'completed')
+            ->where('status', '!=', JobStatusEnum::COMPLETED)
             ->where('isOrdered', 1)
             ->get();
 
@@ -827,7 +828,7 @@ class InvoiceController extends Controller
             'invoice_no'            => $json["docnum"],
             'invoice_url'           => $json["doc_url"],
             'isOrdered'             => 2,
-            'status'                => 'completed'
+            'status'                => JobStatusEnum::COMPLETED
         ]);
 
         /*Close Order */

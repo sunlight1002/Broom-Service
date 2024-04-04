@@ -15,6 +15,7 @@ use App\Models\LeadStatus;
 use App\Models\Notification;
 use App\Traits\ClientCardTrait;
 use App\Traits\PriceOffered;
+use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -22,30 +23,54 @@ use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
-  use PriceOffered, ClientCardTrait;
+  use PriceOffered, ClientCardTrait, ScheduleMeeting;
 
   public function ShowMeeting(Request $request)
   {
     $id = $request->id;
-    $schedule = Schedule::query()->with('client', 'team', 'propertyAddress')->find($id);
-    $services = Offer::where('client_id', $schedule->client->id)->get()->last();
-    $str = '';
-    if (!empty($services->services)) {
+    $schedule = Schedule::query()
+      ->with([
+        'client:id,lng,firstname,lastname',
+        'team:id,name,heb_name',
+        'team.availability:team_member_id,time_slots',
+        'propertyAddress:id,address_name,latitude,longitude'
+      ])
+      ->find($id);
 
-      $allServices = json_decode($services->services);
-      foreach ($allServices as $k => $serv) {
-        $s = Services::where('id', $serv->service)->get('name')->first()->toArray();
-        if ($k != count($s)) {
-          $str .= $s['name'] . ", ";
-        } else {
-          $str .= $s['name'];
-        }
-      }
+    if (!$schedule) {
+      return response()->json([
+        'message' => 'Meeting not found'
+      ], 404);
     }
 
-    $schedule->service_names = $str;
+    $scheduleArr = $schedule;
+    $startDate = Carbon::parse($scheduleArr['start_date'])->toDateString();
+
+    $bookedSlots = Schedule::query()
+      ->whereDate('start_date', $startDate)
+      ->whereNotNull('start_time')
+      ->where('start_time', '!=', '')
+      ->whereNotNull('end_time')
+      ->where('end_time', '!=', '')
+      // ->selectRaw("DATE_FORMAT(start_date, '%Y-%m-%d') as start_date")
+      ->selectRaw("DATE_FORMAT(STR_TO_DATE(start_time, '%h:%i %p'), '%H:%i') as start_time")
+      ->selectRaw("DATE_FORMAT(STR_TO_DATE(end_time, '%h:%i %p'), '%H:%i') as end_time")
+      ->get();
+
+    $timeSlot = json_decode($schedule->team->availability->time_slots, true);
+    $availableSlots = $timeSlot[$startDate];
+    $availableSlots24Hrs = [];
+    foreach ($availableSlots as $key => $value) {
+      $availableSlots24Hrs[] = [
+        'start' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[0])->format('H:i'),
+        'end' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[1])->format('H:i'),
+      ];
+    }
+
     return response()->json([
-      'schedule' => $schedule
+      'schedule' => $scheduleArr,
+      'booked_slots' => $bookedSlots,
+      'available_slots' => $availableSlots24Hrs
     ]);
   }
 
@@ -357,5 +382,59 @@ class ClientEmailController extends Controller
         'status_code' => 400
       ]);
     }
+  }
+
+  public function saveMeetingSlot(Request $request, $id)
+  {
+    $schedule = Schedule::find($id);
+    if (!$schedule) {
+      return response()->json([
+        'message' => 'Meeting not found'
+      ], 404);
+    }
+
+    if ($schedule->booking_status == 'completed') {
+      return response()->json([
+        'message' => 'Meeting is already completed'
+      ], 403);
+    }
+
+    if ($schedule->booking_status == 'confirmed') {
+      return response()->json([
+        'message' => 'Meeting is already confirmed'
+      ], 403);
+    }
+
+    if ($schedule->booking_status == 'declined') {
+      return response()->json([
+        'message' => 'Meeting is already declined'
+      ], 403);
+    }
+
+    if ($schedule->booking_status == 'rescheduled') {
+      return response()->json([
+        'message' => 'Meeting is already rescheduled'
+      ], 403);
+    }
+
+    $data = $request->all();
+
+    $startTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['start_time'])->format('h:i A');
+    $endTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['end_time'])->format('h:i A');
+
+    $schedule->update([
+      'start_time' => $startTime,
+      'end_time' => $endTime,
+      'booking_status' => 'confirmed'
+    ]);
+
+    $schedule->load(['client', 'team', 'propertyAddress']);
+
+    $this->saveGoogleCalendarEvent($schedule);
+    $this->sendMeetingMail($schedule);
+
+    return response()->json([
+      'message' => 'Meeting is confirmed successfully'
+    ]);
   }
 }

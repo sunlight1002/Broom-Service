@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\JobStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Admin;
@@ -87,7 +88,7 @@ class JobController extends Controller
     {
         $job = Job::with('client', 'worker', 'jobservice')->find($id);
         //$this->invoice($id);
-        $job->status = 'completed';
+        $job->status = JobStatusEnum::COMPLETED;
         $job->save();
 
         $admin = Admin::find(1)->first();
@@ -142,8 +143,8 @@ class JobController extends Controller
     public function JobStartTime(Request $request)
     {
         $job = Job::find($request->job_id);
-        if ($job->status != 'progress') {
-            $job->status = 'progress';
+        if ($job->status != JobStatusEnum::PROGRESS) {
+            $job->status = JobStatusEnum::PROGRESS;
             $job->save();
         }
 

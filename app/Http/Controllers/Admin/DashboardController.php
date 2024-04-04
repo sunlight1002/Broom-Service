@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
@@ -41,7 +42,7 @@ class DashboardController extends Controller
     $total_contracts  = Contract::count();
     $latest_jobs     = Job::query()
       ->with(['client', 'service', 'worker', 'jobservice'])
-      ->where('status', 'completed')
+      ->where('status', JobStatusEnum::COMPLETED)
       ->orderBy('created_at', 'desc')
       ->paginate(5);
 
@@ -209,7 +210,7 @@ class DashboardController extends Controller
   {
     $tasks = Job::query()
       ->with(['client', 'worker', 'offer', 'hours'])
-      ->where('status', 'completed');
+      ->where('status', JobStatusEnum::COMPLETED);
 
     if (empty($request->duration) || $request->duration == 'all') {
       $tasks = $tasks->get();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\JobStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Job;
@@ -299,11 +300,11 @@ class JobController extends Controller
             }
         }
 
-        $sch        = Job::where('status', 'scheduled')->where('client_id', $id)->count();
-        $un_sch     = Job::where('status', 'unscheduled')->where('client_id', $id)->count();
-        $cancel     = Job::where('status', 'canceled')->where('client_id', $id)->count();
-        $progress   = Job::where('status', 'progress')->where('client_id', $id)->count();
-        $completed  = Job::where('status', 'completed')->where('client_id', $id)->count();
+        $sch        = Job::where('status', JobStatusEnum::SCHEDULED)->where('client_id', $id)->count();
+        $un_sch     = Job::where('status', JobStatusEnum::UNSCHEDULED)->where('client_id', $id)->count();
+        $cancel     = Job::where('status', JobStatusEnum::CANCEL)->where('client_id', $id)->count();
+        $progress   = Job::where('status', JobStatusEnum::PROGRESS)->where('client_id', $id)->count();
+        $completed  = Job::where('status', JobStatusEnum::COMPLETED)->where('client_id', $id)->count();
 
         $ordered    = Job::where('client_id', $id)->where('is_order_generated', true)->count();
         $unordered  = Job::where('client_id', $id)->where('is_order_generated', false)->count();
@@ -340,9 +341,9 @@ class JobController extends Controller
             ->where('worker_id', $request->wid);
 
         if (isset($filter['status']) && $filter['status']) {
-            $jobs = $jobs->where('status', 'completed');
+            $jobs = $jobs->where('status', JobStatusEnum::COMPLETED);
         } else {
-            $jobs = $jobs->where('status', '!=', 'completed');
+            $jobs = $jobs->where('status', '!=', JobStatusEnum::COMPLETED);
         }
 
         $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
@@ -416,14 +417,14 @@ class JobController extends Controller
 
                 $job_date = $job_date->toDateString();
 
-                $status = 'scheduled';
+                $status = JobStatusEnum::SCHEDULED;
 
                 if (
                     Job::where('start_date', $job_date)
                     ->where('worker_id', $workerDate['worker_id'])
                     ->exists()
                 ) {
-                    $status = 'unscheduled';
+                    $status = JobStatusEnum::UNSCHEDULED;
                 }
 
                 $shiftString = collect($workerDate['shifts'])
@@ -484,14 +485,16 @@ class JobController extends Controller
                 if ($key == 0) {
                     $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-                    $emailData = array(
-                        'email' => $job['worker']['email'],
-                        'job' => $job->toArray(),
-                        'start_time' => $workerDate['shifts'][0]['start']
-                    );
-                    App::setLocale($job->worker->lng);
-
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
+                        App::setLocale($job->worker->lng);
+
+                        $emailData = array(
+                            'email' => $job['worker']['email'],
+                            'job' => $job->toArray(),
+                            'start_time' => $workerDate['shifts'][0]['start'],
+                            'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                        );
+
                         Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                             $messages->to($emailData['email']);
                             $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -622,12 +625,14 @@ class JobController extends Controller
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
 
         $job->update([
-            'status' => 'cancel',
+            'status' => JobStatusEnum::CANCEL,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
             'cancelled_by_role' => 'admin',
             'cancelled_by' => Auth::user()->id,
-            'cancelled_at' => now()
+            'cancelled_at' => now(),
+            'cancelled_for' => $request->repeatancy,
+            'cancel_until_date' => $request->until_date,
         ]);
 
         $admin = Admin::find(1)->first();
@@ -718,17 +723,19 @@ class JobController extends Controller
             ->with(['client', 'worker', 'jobservice', 'propertyAddress'])
             ->find($job_id);
 
-        $data = array(
-            'email' => $job['worker']['email'],
-            'job'  => $job->toArray(),
-        );
-
         if (
             isset($job['worker']['email']) &&
             $job['worker']['email'] != null &&
             $job['worker']['email'] != 'Null'
         ) {
             App::setLocale($job->worker->lng);
+
+            $data = array(
+                'email' => $job['worker']['email'],
+                'job'  => $job->toArray(),
+                'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+            );
+
             Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -737,5 +744,178 @@ class JobController extends Controller
         }
 
         return true;
+    }
+
+    public function workersToSwitch($id)
+    {
+        $job = Job::find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled',
+            ], 403);
+        }
+
+        $workers = User::query()
+            ->whereIn('id', function ($q) use ($job) {
+                $q->from('jobs')
+                    ->whereNotIn('status', [
+                        JobStatusEnum::COMPLETED,
+                        JobStatusEnum::CANCEL
+                    ])
+                    ->where('worker_id', '!=', $job->worker_id)
+                    ->where('start_date', $job->start_date)
+                    ->where('shifts', $job->shifts)
+                    ->select('worker_id');
+            })
+            ->get(['id', 'firstname', 'lastname']);
+
+        return response()->json([
+            'data' => $workers,
+        ]);
+    }
+
+    public function switchWorker(Request $request, $id)
+    {
+        $data = $request->all();
+        if (!in_array($data['repeatancy'], ['one_time', 'until_date', 'forever'])) {
+            return response()->json([
+                'message' => "Repeatancy is invalid",
+            ], 422);
+        }
+
+        $job = Job::find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled',
+            ], 403);
+        }
+
+        $otherWorkerJob =
+            Job::query()
+            ->whereNotIn('status', [
+                JobStatusEnum::COMPLETED,
+                JobStatusEnum::CANCEL
+            ])
+            ->where('worker_id', '!=', $job->worker_id)
+            ->where('start_date', $job->start_date)
+            ->where('shifts', $job->shifts)
+            ->first();
+
+        if (!$otherWorkerJob) {
+            return response()->json([
+                'message' => "Other worker's job not found",
+            ], 404);
+        }
+
+        if ($otherWorkerJob->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => "Other worker's job already completed",
+            ], 403);
+        }
+
+        if ($otherWorkerJob->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => "Other worker's job already cancelled",
+            ], 403);
+        }
+
+        $jobData = $otherJobData = [];
+
+        $jobData['worker_id'] = $otherWorkerJob->worker_id;
+        $otherJobData['worker_id'] = $job->worker_id;
+
+        if ($data['repeatancy'] == 'one_time') {
+            $jobData['previous_worker_id'] = $job->worker_id;
+            $jobData['previous_worker_after'] = NULL;
+            $otherJobData['previous_worker_id'] = $otherWorkerJob->worker_id;
+            $otherJobData['previous_worker_after'] = NULL;
+        } else if ($data['repeatancy'] == 'until_date') {
+            $jobData['previous_worker_id'] = $job->worker_id;
+            $jobData['previous_worker_after'] = $data['until_date'];
+            $otherJobData['previous_worker_id'] = $otherWorkerJob->worker_id;
+            $otherJobData['previous_worker_after'] = $data['until_date'];
+        } else if ($data['repeatancy'] == 'forever') {
+            $jobData['previous_worker_id'] = NULL;
+            $jobData['previous_worker_after'] = NULL;
+            $otherJobData['previous_worker_id'] = NULL;
+            $otherJobData['previous_worker_after'] = NULL;
+        }
+
+        $job->update($jobData);
+        $otherWorkerJob->update($otherJobData);
+
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $jobArray = $job->toArray();
+
+        if (
+            isset($jobArray['worker']['email']) &&
+            $jobArray['worker']['email']
+        ) {
+            App::setLocale($jobArray['worker']['lng']);
+
+            $emailData = array(
+                'email' => $jobArray['worker']['email'],
+                'job'  => $jobArray,
+                'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+            );
+
+            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                $messages->to($emailData['email']);
+                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                $messages->subject($sub);
+            });
+        }
+
+        $otherWorkerJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $otherJobArray = $otherWorkerJob->toArray();
+
+        if (
+            isset($otherJobArray['worker']['email']) &&
+            $otherJobArray['worker']['email']
+        ) {
+            App::setLocale($otherJobArray['worker']['lng']);
+
+            $emailData = array(
+                'email' => $otherJobArray['worker']['email'],
+                'job'  => $otherJobArray,
+                'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+            );
+
+            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                $messages->to($emailData['email']);
+                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                $messages->subject($sub);
+            });
+        }
+
+        return response()->json([
+            'message' => "Worker switched successfully",
+        ]);
     }
 }

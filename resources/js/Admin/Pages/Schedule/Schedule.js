@@ -90,14 +90,12 @@ export default function Schedule() {
                             getSchedules();
                         }, 1000);
                     })
-                    .catch((error) => {
-                        if (error.response.data.error.message) {
-                            Swal.fire({
-                                title: "Error!",
-                                text: error.response.data.error.message,
-                                icon: "error",
-                            });
-                        }
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });
@@ -205,7 +203,7 @@ export default function Schedule() {
                                                 <Th>Client</Th>
                                                 <Th>Contact</Th>
                                                 <Th>Address</Th>
-                                                <Th>Meeting Attender</Th>
+                                                <Th>Attender</Th>
                                                 <Th
                                                     style={{
                                                         cursor: "pointer",
@@ -436,24 +434,29 @@ export default function Schedule() {
                                                                             "dddd"
                                                                         )}
                                                                     </span>
-                                                                    <br />
-                                                                    <span
-                                                                        style={{
-                                                                            color: "green",
-                                                                        }}
-                                                                    >
-                                                                        {"Start :" +
-                                                                            item.start_time}
-                                                                    </span>
-                                                                    <br />
-                                                                    <span
-                                                                        style={{
-                                                                            color: "red",
-                                                                        }}
-                                                                    >
-                                                                        {"End   :" +
-                                                                            item.end_time}
-                                                                    </span>
+                                                                    {item.start_time &&
+                                                                        item.end_time && (
+                                                                            <>
+                                                                                <br />
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: "green",
+                                                                                    }}
+                                                                                >
+                                                                                    {"Start :" +
+                                                                                        item.start_time}
+                                                                                </span>
+                                                                                <br />
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: "red",
+                                                                                    }}
+                                                                                >
+                                                                                    {"End   :" +
+                                                                                        item.end_time}
+                                                                                </span>
+                                                                            </>
+                                                                        )}
                                                                 </Td>
 
                                                                 <Td

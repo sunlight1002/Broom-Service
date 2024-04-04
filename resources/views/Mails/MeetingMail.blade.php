@@ -44,7 +44,6 @@
 		 @if(isset($property_address))
 		 {{__('mail.meeting.address_txt')}}       <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
 		 @endif
-		 <!--<span style="color:#0130c6;font-weight:700;">{{$service_names}}&nbsp;</span>{{__('mail.meeting.service')}}</p>-->
 		
 		 @if($purpose != '') 
          {{__('mail.meeting.for')}}  

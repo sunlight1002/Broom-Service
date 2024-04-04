@@ -5,7 +5,7 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import moment from "moment";
 
-import { createTimeArray } from "../../../Utils/job.utils";
+import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
 const initialValues = {
     date: null,
@@ -399,7 +399,7 @@ const TimingForm = ({
             return [];
         }
 
-        return createTimeArray(
+        return createHourlyTimeArray(
             selectedWorker.shift.start,
             selectedWorker.shift.end
         );

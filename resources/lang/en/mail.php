@@ -5,7 +5,8 @@ return [
        'hi'          =>'Hi',
        'greetings'   =>'Greetings',
        'from'        =>'from',
-       'appointment' =>'Just a friendly reminder that you have an upcoming appointement',
+       'appointment' =>'Just a friendly reminder that you have an upcoming appointment',
+       'select_preferred_slot' =>'Please, select preferred appointment slot',
        'with'        =>'with',
        'on'          =>'on',
        'between'     =>'between',
@@ -22,7 +23,8 @@ return [
        'price_offer' => 'Price offer',
        'quality_check'=>'Quality check',
        'upload_meeting_files' => 'Upload meeting files',
-       'address_txt' => 'Address'
+       'address_txt' => 'Address',
+       'choose_slot'=>'Choose slot'
     ],
     'cancel_meeting'=>[
 
@@ -126,6 +128,9 @@ return [
         'from'        =>'from',
         'company'     =>'Broom Service',
         'content'     =>'New Job Assign.Please check the details.',
+        'please_check'=>'Please check the details.',
+        'new_job_assigned' =>'New job assigned.',
+        'change_in_job' =>'Change in your job.',
         'below_txt'   =>'Click the below button to check the contract.',
         'btn_txt'     =>'Check Contract',
         'reply_txt'   =>'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',

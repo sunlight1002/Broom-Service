@@ -53,14 +53,12 @@ export default function ScheduledMeeting() {
                             getSchedules();
                         }, 1000);
                     })
-                    .catch((error) => {
-                        if (error.response.data.error.message) {
-                            Swal.fire({
-                                title: "Error!",
-                                text: error.response.data.error.message,
-                                icon: "error",
-                            });
-                        }
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
             }
         });

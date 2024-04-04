@@ -84,14 +84,6 @@ export default function MeetingSchedule() {
                             {timeFormat(meeting.end_time)}
                         </span>
                     </li>
-                    {meeting.service_names ? (
-                        <li>
-                            {t("meet_stat.service")}:{" "}
-                            <span>{meeting.service_names}</span>
-                        </li>
-                    ) : (
-                        ""
-                    )}
                     {meeting.team ? (
                         <li>
                             {t("meet_stat.team_name")}:{" "}

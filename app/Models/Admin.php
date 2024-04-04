@@ -48,4 +48,9 @@ class Admin extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function availability()
+    {
+        return $this->hasOne(TeamMemberAvailability::class, 'team_member_id');
+    }
 }

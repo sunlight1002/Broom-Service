@@ -92,6 +92,7 @@ import InsuranceEng from "./Pages/Insurance/InsuranceEng";
 import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
 import WorkContract from "./Pages/WorkContract";
 import MeetingStatus from "./Pages/MeetingStatus";
+import ChooseMeetingSlot from "./Pages/ChooseMeetingSlot";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
@@ -121,6 +122,7 @@ import Responses from "./Admin/Pages/Chat/responses";
 import Messenger from "./Admin/Pages/Chat/messenger";
 import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
+import Availibility from "./Pages/TeamMembers/Availibility";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -154,6 +156,11 @@ export default function MyRoutes() {
                         exact
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
+                    />
+                    <Route
+                        exact
+                        path="meetings/:id/choose-slot"
+                        element={<ChooseMeetingSlot />}
                     />
                     <Route
                         exact
@@ -424,6 +431,11 @@ export default function MyRoutes() {
                                 exact
                                 path="teams/:id/edit"
                                 element={<EditTeam />}
+                            />
+                            <Route
+                                exact
+                                path="team-member/availability/:id"
+                                element={<Availibility />}
                             />
                             <Route
                                 exact

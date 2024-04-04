@@ -79,6 +79,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('add-job-time', [JobController::class, 'addJobTime']);
     Route::post('update-job-time', [JobController::class, 'updateJobTime']);
     Route::delete('delete-job-time/{id}', [JobController::class, 'deleteJobTime']);
+    Route::get('jobs/{id}/worker-to-switch', [JobController::class, 'workersToSwitch']);
+    Route::post('jobs/{id}/switch-worker', [JobController::class, 'switchWorker']);
 
     // Lead Api
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
@@ -131,6 +133,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
+    Route::post('teams/update-availability', [TeamMemberController::class, 'updateAvailability']);
+    Route::get('teams/availability/{id}', [TeamMemberController::class, 'availability']);
 
     // Notes
     Route::post('get-notes', [ClientController::class, 'getNotes']);

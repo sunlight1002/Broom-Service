@@ -18,7 +18,7 @@
 			</tr>
 		</table>
 		<h1 style="text-align: center;">{{__('mail.worker_new_job.hi')}}, {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }}</h1>
-		<p style="text-align: center;line-height: 30px">{{__('mail.worker_new_job.greetings')}} {{__('mail.worker_new_job.from')}} {{__('mail.worker_new_job.company')}}. {{__('mail.worker_new_job.content')}}</p>
+		<p style="text-align: center;line-height: 30px">{{__('mail.worker_new_job.greetings')}} {{__('mail.worker_new_job.from')}} {{__('mail.worker_new_job.company')}}. {{ $content }}</p>
 		<table cellpadding="0" cellspacing="0" width="100%">
 			 <thead>
 			 <tr>
