@@ -1,10 +1,9 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
-import moment from "moment";
 import Swal from "sweetalert2";
 
-import { createTimeArray } from "../../../Utils/job.utils";
+import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
 export default function FreezeWorkerShiftModal({
     setIsOpen,
@@ -39,7 +38,7 @@ export default function FreezeWorkerShiftModal({
     };
 
     const timeOptions = useMemo(() => {
-        return createTimeArray("08:00", "24:00");
+        return createHourlyTimeArray("08:00", "24:00");
     }, []);
 
     const startTimeOptions = useMemo(() => {

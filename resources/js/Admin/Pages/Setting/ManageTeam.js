@@ -232,6 +232,12 @@ export default function ManageTeam() {
                                                         </button>
                                                         <div className="dropdown-menu">
                                                             <Link
+                                                                to={`/admin/team-member/availability/${item.id}`}
+                                                                className="dropdown-item"
+                                                            >
+                                                                Availability
+                                                            </Link>
+                                                            <Link
                                                                 to={`/admin/teams/${item.id}/edit`}
                                                                 className="dropdown-item"
                                                             >

@@ -198,14 +198,6 @@ export default function MeetingFiles() {
                             {timeFormat(meeting.end_time)}
                         </span>
                     </li>
-                    {meeting.service_names ? (
-                        <li>
-                            {t("meet_stat.service")}:{" "}
-                            <span>{meeting.service_names}</span>
-                        </li>
-                    ) : (
-                        ""
-                    )}
                     {address.address_name ? (
                         <li>
                             {t("meet_stat.address")}:{" "}

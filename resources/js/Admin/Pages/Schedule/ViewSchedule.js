@@ -483,7 +483,7 @@ export default function ViewSchedule() {
                         </div>
                     </div>
                     <div className="mSchedule">
-                        <h4>Meeting time and date</h4>
+                        <h4>Meeting date and time</h4>
                         <div className="row">
                             <div className="col-sm-4">
                                 <div className="form-group">
@@ -577,7 +577,7 @@ export default function ViewSchedule() {
                                     </select>
                                 </div>
                             </div>
-                            <div className="col-sm-6">
+                            <div className="col-sm-4">
                                 <div className="form-group">
                                     <label>Meet Link</label>
                                     <input
@@ -634,7 +634,9 @@ export default function ViewSchedule() {
                         </div>
 
                         <div className="worker-avail1">
-                            <h4 className="text-center">Worker Availability</h4>
+                            <h4 className="text-center">
+                                Attender Availability
+                            </h4>
                             <FullCalendar
                                 initialView="timeGridWeek"
                                 allDaySlot={false}

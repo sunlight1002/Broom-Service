@@ -6,6 +6,7 @@ return [
         'greetings'    =>'תזכורת',
         'from'        =>'מ',
         'appointment' =>'רצינו לתזכר אותכם על הפגישה שנקבעה לכם',
+        'select_preferred_slot' =>'אנא בחר משבצת פגישה מועדפת',
         'with'        =>'עם',
         'on'          =>'ב',
         'between'     =>'בין',
@@ -20,7 +21,8 @@ return [
         'company'     =>'ברום סרוויס',
         'tel'         =>'טלפון',
         'price_offer' => 'הצעת מחיר',
-        'quality_check'=>'בקרת איכות'
+        'quality_check'=>'בקרת איכות',
+        'choose_slot'=>'בחר משבצת'
      ],
      'cancel_meeting'=>[
 

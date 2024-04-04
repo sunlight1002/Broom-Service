@@ -79,11 +79,7 @@ export default function MeetingStatus() {
         <ul className='list-unstyled'>
           <li>{t('meet_stat.date')}: <span>{dt}</span></li>
           <li>{t('meet_stat.time')}: <span>{timeFormat(meeting.start_time)} {t('meet_stat.to')} {timeFormat(meeting.end_time)}</span></li>
-          {/*
-            meeting.service_names
-              ? <li>{t('meet_stat.service')}: <span>{meeting.service_names}</span></li>
-              : ''
-          */ }
+         
 
         </ul>
         <div className='cta'>

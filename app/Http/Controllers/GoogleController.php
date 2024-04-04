@@ -14,13 +14,6 @@ class GoogleController extends Controller
 {
     use GoogleAPI;
 
-    protected $googleCalendarID;
-
-    public function __construct()
-    {
-        $this->googleCalendarID = config('services.google.calendar_id');
-    }
-
     public function callback(Request $request)
     {
         $code = $request->get('code');

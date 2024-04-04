@@ -48,7 +48,7 @@ export const frequencyDescription = (_service) => {
     return descriptionStr;
 };
 
-export const createTimeArray = (startTime, endTime) => {
+export const createHourlyTimeArray = (startTime, endTime) => {
     const timeArray = [];
     const startHour = parseInt(startTime.split(":")[0]);
     const endHour = parseInt(endTime.split(":")[0]);
@@ -59,4 +59,32 @@ export const createTimeArray = (startTime, endTime) => {
     }
 
     return timeArray;
+};
+
+export const createHalfHourlyTimeArray = (startTime, endTime) => {
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+    let times = [];
+
+    let currentHour = startHour;
+    let currentMinute = startMinute;
+
+    while (
+        currentHour < endHour ||
+        (currentHour === endHour && currentMinute <= endMinute)
+    ) {
+        let hourString =
+            currentHour < 10 ? "0" + currentHour : currentHour.toString();
+        let minuteString =
+            currentMinute < 10 ? "0" + currentMinute : currentMinute.toString();
+        times.push(hourString + ":" + minuteString);
+
+        currentMinute += 30;
+        if (currentMinute >= 60) {
+            currentMinute -= 60;
+            currentHour++;
+        }
+    }
+
+    return times;
 };

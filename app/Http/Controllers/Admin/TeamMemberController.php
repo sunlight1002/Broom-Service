@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\TeamMemberAvailability;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -161,6 +162,36 @@ class TeamMemberController extends Controller
         $admin->delete();
         return response()->json([
             'message' => 'Team member deleted successfully'
+        ]);
+    }
+
+    public function updateAvailability(Request $request)
+    {
+        $data = $request->all();
+        $time_slots = $data['time_slots'];
+        $team_id = $data['teamId'];
+        try {
+            TeamMemberAvailability::updateOrCreate([
+                'team_member_id' => $team_id,
+            ], [
+                'time_slots' => $time_slots
+            ]);
+
+            return response()->json([
+                'message' => 'Availability updated successfully'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error'
+            ], 500);
+        }
+    }
+
+    public function availability($id)
+    {
+        $availArr = TeamMemberAvailability::select('time_slots')->where('team_member_id', $id)->first();
+        return response()->json([
+            'data' => $availArr
         ]);
     }
 }

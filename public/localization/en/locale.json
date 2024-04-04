@@ -23,7 +23,8 @@
         "accept": "Accept",
         "reject": "Reject",
         "reschedule": "Reschedule",
-        "upload_meeting_files": "Upload meeting files"
+        "upload_meeting_files": "Upload meeting files",
+        "choose_slot": "Choose slot"
     },
     "res_txt": "Thankyou for your response",
     "meet_accept": {
@@ -44,6 +45,7 @@
         "accepted_text": "This meeting is already accepted.",
         "write_email_text": "Please write us an email if any query.",
         "address": "Address",
+        "client": "Client",
         "team_name": "Team name",
         "meet_link": "Meet Link"
     },
