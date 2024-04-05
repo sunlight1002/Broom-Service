@@ -231,7 +231,13 @@ export default function CreateJobCalender({
             if (index > -1) {
                 shift.splice(index, 1);
                 const tmpworker = [...workerData];
-                var indexWorker = tmpworker.indexOf(e);
+                var indexWorker = tmpworker.findIndex(
+                    (item) =>
+                        item.date === date &&
+                        item.w_id === w_id &&
+                        item.value === e.value &&
+                        item.label === e.label
+                );
                 if (indexWorker > -1) {
                     tmpworker.splice(indexWorker, 1);
                     setWorkerData(tmpworker);
@@ -440,11 +446,24 @@ export default function CreateJobCalender({
 
                                                                         return (
                                                                             <div
-                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
+                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center  ${
                                                                                     isActive
                                                                                         ? "bg-primary"
                                                                                         : ""
                                                                                 }`}
+                                                                                onClick={() => {
+                                                                                    isActive
+                                                                                        ? removeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          )
+                                                                                        : changeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          );
+                                                                                }}
                                                                                 key={
                                                                                     _sIdx
                                                                                 }
@@ -455,27 +474,9 @@ export default function CreateJobCalender({
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
-                                                                                    <i
-                                                                                        className="fa-solid fa-minus"
-                                                                                        onClick={() =>
-                                                                                            removeShift(
-                                                                                                w.id,
-                                                                                                element,
-                                                                                                shift
-                                                                                            )
-                                                                                        }
-                                                                                    ></i>
+                                                                                    <i className="fa-solid fa-minus"></i>
                                                                                 ) : (
-                                                                                    <i
-                                                                                        className="fa-solid fa-plus"
-                                                                                        onClick={() =>
-                                                                                            changeShift(
-                                                                                                w.id,
-                                                                                                element,
-                                                                                                shift
-                                                                                            )
-                                                                                        }
-                                                                                    ></i>
+                                                                                    <i className="fa-solid fa-plus"></i>
                                                                                 )}
                                                                             </div>
                                                                         );
@@ -635,6 +636,19 @@ export default function CreateJobCalender({
                                                                                 key={
                                                                                     _sIdx
                                                                                 }
+                                                                                onClick={() => {
+                                                                                    isActive
+                                                                                        ? removeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          )
+                                                                                        : changeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          );
+                                                                                }}
                                                                             >
                                                                                 <div>
                                                                                     {
@@ -642,27 +656,9 @@ export default function CreateJobCalender({
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
-                                                                                    <i
-                                                                                        className="fa-solid fa-minus"
-                                                                                        onClick={() =>
-                                                                                            removeShift(
-                                                                                                w.id,
-                                                                                                element,
-                                                                                                shift
-                                                                                            )
-                                                                                        }
-                                                                                    ></i>
+                                                                                    <i className="fa-solid fa-minus"></i>
                                                                                 ) : (
-                                                                                    <i
-                                                                                        className="fa-solid fa-plus"
-                                                                                        onClick={() =>
-                                                                                            changeShift(
-                                                                                                w.id,
-                                                                                                element,
-                                                                                                shift
-                                                                                            )
-                                                                                        }
-                                                                                    ></i>
+                                                                                    <i className="fa-solid fa-plus"></i>
                                                                                 )}
                                                                             </div>
                                                                         );
@@ -816,6 +812,19 @@ export default function CreateJobCalender({
                                                                                     key={
                                                                                         _sIdx
                                                                                     }
+                                                                                    onClick={() => {
+                                                                                        isActive
+                                                                                            ? removeShift(
+                                                                                                  w.id,
+                                                                                                  element,
+                                                                                                  shift
+                                                                                              )
+                                                                                            : changeShift(
+                                                                                                  w.id,
+                                                                                                  element,
+                                                                                                  shift
+                                                                                              );
+                                                                                    }}
                                                                                 >
                                                                                     <div>
                                                                                         {
@@ -823,27 +832,9 @@ export default function CreateJobCalender({
                                                                                         }
                                                                                     </div>
                                                                                     {isActive ? (
-                                                                                        <i
-                                                                                            className="fa-solid fa-minus"
-                                                                                            onClick={() =>
-                                                                                                removeShift(
-                                                                                                    w.id,
-                                                                                                    element,
-                                                                                                    shift
-                                                                                                )
-                                                                                            }
-                                                                                        ></i>
+                                                                                        <i className="fa-solid fa-minus"></i>
                                                                                     ) : (
-                                                                                        <i
-                                                                                            className="fa-solid fa-plus"
-                                                                                            onClick={() =>
-                                                                                                changeShift(
-                                                                                                    w.id,
-                                                                                                    element,
-                                                                                                    shift
-                                                                                                )
-                                                                                            }
-                                                                                        ></i>
+                                                                                        <i className="fa-solid fa-plus"></i>
                                                                                     )}
                                                                                 </div>
                                                                             );

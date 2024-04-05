@@ -1669,6 +1669,7 @@ h1 {
 }
 .crt-jb-wrap.responsiveTable tbody tr td {
   min-width: 280px;
+  cursor: pointer;
 }
 .crt-jb-wrap.responsiveTable tbody tr td > div{
   max-height: 250px;
