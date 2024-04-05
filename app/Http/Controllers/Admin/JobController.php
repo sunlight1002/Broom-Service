@@ -358,19 +358,7 @@ class JobController extends Controller
     {
         $data = $request->all();
 
-        $contract_id = 0;
-        $isClientPage = (isset($data['client_page']) && $data['client_page']);
-
-        if ($isClientPage) {
-            $contract_id = $data['contract_id'];
-        }
-
-        if ($isClientPage) {
-            $contract = Contract::with('offer')->find($contract_id);
-        } else {
-            $contract = Contract::with('offer')->find($id);
-        }
-
+        $contract = Contract::with('offer')->find($data['contract_id']);
         if (!$contract) {
             return response()->json([
                 'message' => 'Contract not found'
@@ -457,8 +445,8 @@ class JobController extends Controller
 
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
-                    'client_id'     => $isClientPage ? $id : $contract->client_id,
-                    'contract_id'   => $isClientPage ? $contract_id : $id,
+                    'client_id'     => $contract->client_id,
+                    'contract_id'   => $contract->id,
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
                     'shifts'        => $workerDate['shifts'],

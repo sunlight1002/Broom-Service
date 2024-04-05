@@ -70,7 +70,7 @@ export const filterShiftOptions = (
 
     // Convert the selectedShifts to an array of shift start and end times
     const shiftTimes = shifts.map((shift) => {
-        const [_, start, end] = shift.match(/(\d{1,2})-(\d{1,2})/);
+        const [_, start, end] = shift.match(/(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/);
         return { start, end };
     });
     const isFullDay = shiftTimes.some((shift) => {

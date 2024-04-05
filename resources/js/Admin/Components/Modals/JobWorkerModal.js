@@ -215,7 +215,7 @@ export default function JobWorkerModal({
                     has_cat: _service.address.is_cat_avail,
                     has_dog: _service.address.is_dog_avail,
                     prefer_type: _service.address.prefer_type,
-                    worker_ids: _service.address.not_allowed_worker_ids,
+                    ignore_worker_ids: _service.address.not_allowed_worker_ids,
                     available_date: _date,
                 },
             })

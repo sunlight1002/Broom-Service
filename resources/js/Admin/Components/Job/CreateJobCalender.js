@@ -8,15 +8,17 @@ import Swal from "sweetalert2";
 import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
-export default function CreateJobCalender() {
+export default function CreateJobCalender({
+    services: clientServices,
+    client,
+}) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerData, setWorkerData] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [interval, setTimeInterval] = useState([]);
-    const [shiftFreezeTime, setShiftFreezeTime] = useState({});
-    const [selected_service, setSelectedService] = useState(0);
+    const [selectedService, setSelectedService] = useState(0);
     const [data, setData] = useState([]);
     const [c_time, setCTime] = useState(0);
 
@@ -26,20 +28,11 @@ export default function CreateJobCalender() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
     let isPrevWorker = useRef();
-    const [services, setServices] = useState([]);
-    const [clientname, setClientName] = useState("");
-    const getJob = () => {
-        axios
-            .get(`/api/admin/contract/${params.id}`, { headers })
-            .then((res) => {
-                const r = res.data.contract;
-                setClientName(r.client.firstname + " " + r.client.lastname);
-                setServices(JSON.parse(r.offer.services));
-            });
-    };
+    const [services, setServices] = useState(clientServices);
+
     useEffect(() => {
-        getJob();
-    }, []);
+        setServices(clientServices);
+    }, [clientServices]);
 
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
@@ -51,14 +44,6 @@ export default function CreateJobCalender() {
                     return ai.indexOf(obj) == -1;
                 });
                 setTimeInterval(hid);
-                const { freeze_shift_start_time, freeze_shift_end_time } =
-                    res.data.data;
-                if (freeze_shift_start_time && freeze_shift_end_time) {
-                    setShiftFreezeTime({
-                        start: freeze_shift_start_time,
-                        end: freeze_shift_end_time,
-                    });
-                }
             }
         });
     };
@@ -66,31 +51,38 @@ export default function CreateJobCalender() {
         getTime();
     }, []);
 
-    let service_id;
-    let complete_time;
     const handleServices = (value) => {
-        const filtered = services.filter((s) => {
-            if (s.service == value) {
-                service_id = value;
-                complete_time = parseFloat(s.jobHours);
-                return s;
-            } else {
-                $(".services-" + s.service).css("display", "none");
+        services.forEach((_s) => {
+            if (_s.service != value) {
+                $(".services-" + _s.service + "-" + _s.contract_id).css(
+                    "display",
+                    "none"
+                );
             }
         });
-        setCTime(complete_time);
-        setServices(filtered);
-        setSelectedService(value);
-        getWorkers();
+
+        const _service = services.find((_s, _index) => _s.service == value);
+
+        setCTime(parseFloat(_service.jobHours));
+        setServices([_service]);
+        setSelectedService(_service);
+        getWorkers(_service);
         $("#edit-work-time").modal("hide");
     };
 
-    const getWorkers = () => {
+    const getWorkers = (_service) => {
         axios
-            .get(
-                `/api/admin/all-workers?filter=true&service_id=${service_id}`,
-                { headers }
-            )
+            .get(`/api/admin/all-workers`, {
+                headers,
+                params: {
+                    filter: true,
+                    service_id: _service.service,
+                    has_cat: _service.address.is_cat_avail,
+                    has_dog: _service.address.is_dog_avail,
+                    prefer_type: _service.address.prefer_type,
+                    ignore_worker_ids: _service.address.not_allowed_worker_ids,
+                },
+            })
             .then((res) => {
                 setAllWorkers(res.data.workers);
             });
@@ -99,7 +91,8 @@ export default function CreateJobCalender() {
     const handleSubmit = () => {
         let formdata = {
             workers: data,
-            service_id: services[0].service,
+            service_id: selectedService.service,
+            contract_id: selectedService.contract_id,
             prevWorker: isPrevWorker.current.checked,
         };
         let viewbtn = document.querySelectorAll(".viewBtn");
@@ -347,6 +340,15 @@ export default function CreateJobCalender() {
                                     let wjobs = w.wjobs ? w.wjobs : [];
                                     let fullname =
                                         w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
                                     return (
                                         <Tr key={index}>
                                             <Td>
@@ -376,6 +378,10 @@ export default function CreateJobCalender() {
                                                     shifts.length > 0
                                                         ? true
                                                         : false;
+                                                const isDateAvailable =
+                                                    !notAvailableDates.includes(
+                                                        element
+                                                    );
 
                                                 return (
                                                     <Td key={index}>
@@ -408,7 +414,8 @@ export default function CreateJobCalender() {
                                                                 );
                                                             })} */}
 
-                                                            {aval[element] &&
+                                                            {isDateAvailable &&
+                                                            aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
@@ -420,7 +427,10 @@ export default function CreateJobCalender() {
                                                                     shifts,
                                                                     shiftFreezeTime
                                                                 ).map(
-                                                                    (shift) => {
+                                                                    (
+                                                                        shift,
+                                                                        _sIdx
+                                                                    ) => {
                                                                         const isActive =
                                                                             hasActive(
                                                                                 w.id,
@@ -430,11 +440,14 @@ export default function CreateJobCalender() {
 
                                                                         return (
                                                                             <div
-                                                                                className={`d-flex justify-content-between  p-2 border-bottom align-items-center ${
+                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
                                                                                     isActive
                                                                                         ? "bg-primary"
                                                                                         : ""
                                                                                 }`}
+                                                                                key={
+                                                                                    _sIdx
+                                                                                }
                                                                             >
                                                                                 <div>
                                                                                     {
@@ -470,7 +483,7 @@ export default function CreateJobCalender() {
                                                                 )
                                                             ) : (
                                                                 <div
-                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center `}
+                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
                                                                 >
                                                                     Not
                                                                     Available
@@ -513,6 +526,15 @@ export default function CreateJobCalender() {
                                     let wjobs = w.wjobs ? w.wjobs : [];
                                     let fullname =
                                         w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
                                     return (
                                         <Tr key={index}>
                                             <Td>
@@ -542,6 +564,11 @@ export default function CreateJobCalender() {
                                                     shifts.length > 0
                                                         ? true
                                                         : false;
+
+                                                const isDateAvailable =
+                                                    !notAvailableDates.includes(
+                                                        element
+                                                    );
 
                                                 return (
                                                     <Td key={index}>
@@ -574,7 +601,8 @@ export default function CreateJobCalender() {
                                                                 );
                                                             })} */}
 
-                                                            {aval[element] &&
+                                                            {isDateAvailable &&
+                                                            aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
@@ -586,7 +614,10 @@ export default function CreateJobCalender() {
                                                                     shifts,
                                                                     shiftFreezeTime
                                                                 ).map(
-                                                                    (shift) => {
+                                                                    (
+                                                                        shift,
+                                                                        _sIdx
+                                                                    ) => {
                                                                         const isActive =
                                                                             hasActive(
                                                                                 w.id,
@@ -596,11 +627,14 @@ export default function CreateJobCalender() {
 
                                                                         return (
                                                                             <div
-                                                                                className={`d-flex justify-content-between  p-2 border-bottom align-items-center ${
+                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
                                                                                     isActive
                                                                                         ? "bg-primary"
                                                                                         : ""
                                                                                 }`}
+                                                                                key={
+                                                                                    _sIdx
+                                                                                }
                                                                             >
                                                                                 <div>
                                                                                     {
@@ -636,7 +670,7 @@ export default function CreateJobCalender() {
                                                                 )
                                                             ) : (
                                                                 <div
-                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center `}
+                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
                                                                 >
                                                                     Not
                                                                     Available
@@ -679,6 +713,15 @@ export default function CreateJobCalender() {
                                     let wjobs = w.wjobs ? w.wjobs : [];
                                     let fullname =
                                         w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
                                     return (
                                         <Tr key={index}>
                                             <Td>
@@ -714,6 +757,11 @@ export default function CreateJobCalender() {
                                                             ? true
                                                             : false;
 
+                                                    const isDateAvailable =
+                                                        !notAvailableDates.includes(
+                                                            element
+                                                        );
+
                                                     return (
                                                         <Td key={index}>
                                                             <div>
@@ -734,9 +782,8 @@ export default function CreateJobCalender() {
                                                                     }
                                                                 )}
 
-                                                                {aval[
-                                                                    element
-                                                                ] &&
+                                                                {isDateAvailable &&
+                                                                aval[element] &&
                                                                 aval[element] !=
                                                                     "" ? (
                                                                     filterShiftOptions(
@@ -749,7 +796,8 @@ export default function CreateJobCalender() {
                                                                         shiftFreezeTime
                                                                     ).map(
                                                                         (
-                                                                            shift
+                                                                            shift,
+                                                                            _sIdx
                                                                         ) => {
                                                                             const isActive =
                                                                                 hasActive(
@@ -760,11 +808,14 @@ export default function CreateJobCalender() {
 
                                                                             return (
                                                                                 <div
-                                                                                    className={`d-flex justify-content-between  p-2 border-bottom align-items-center ${
+                                                                                    className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
                                                                                         isActive
                                                                                             ? "bg-primary"
                                                                                             : ""
                                                                                     }`}
+                                                                                    key={
+                                                                                        _sIdx
+                                                                                    }
                                                                                 >
                                                                                     <div>
                                                                                         {
@@ -800,7 +851,7 @@ export default function CreateJobCalender() {
                                                                     )
                                                                 ) : (
                                                                     <div
-                                                                        className={`text-danger text-right pr-5 pr-md-0 text-md-center `}
+                                                                        className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
                                                                     >
                                                                         Not
                                                                         Available
@@ -857,97 +908,90 @@ export default function CreateJobCalender() {
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col">Client Name</th>
-                                                <th scope="col">Services</th>
+                                                <th scope="col">Client</th>
+                                                <th scope="col">Service</th>
                                                 <th scope="col">Frequency</th>
                                                 <th scope="col">
-                                                    Complete Time
+                                                    Time to Complete
                                                 </th>
+                                                <th scope="col">Property</th>
                                                 <th scope="col">
-                                                    Property Address
-                                                </th>
-                                                <th scope="col">
-                                                    Gender prefer type
+                                                    Gender preference
                                                 </th>
                                                 <th scope="col">Pet animals</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{clientname}</td>
+                                                <td>
+                                                    `${client.firstname} $
+                                                    {client.lastname}`
+                                                </td>
                                                 <td>
                                                     {" "}
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => {
-                                                                if (
-                                                                    item.service ==
-                                                                    "10"
-                                                                )
-                                                                    return (
-                                                                        <p
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                item.other_title
-                                                                            }
-                                                                        </p>
-                                                                    );
-                                                                else
-                                                                    return (
-                                                                        <p
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                item.name
-                                                                            }
-                                                                        </p>
-                                                                    );
-                                                            }
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => {
+                                                            if (
+                                                                item.service ==
+                                                                "10"
+                                                            )
+                                                                return (
+                                                                    <p
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            item.other_title
+                                                                        }
+                                                                    </p>
+                                                                );
+                                                            else
+                                                                return (
+                                                                    <p
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            item.name
+                                                                        }
+                                                                    </p>
+                                                                );
+                                                        }
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item.freq_name
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item.freq_name}
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item.jobHours
-                                                                    }{" "}
-                                                                    hours
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item.jobHours}{" "}
+                                                                hours
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item
-                                                                            ?.address
-                                                                            ?.address_name
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {
+                                                                    item
+                                                                        ?.address
+                                                                        ?.address_name
+                                                                }
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td
                                                     style={{
@@ -955,43 +999,40 @@ export default function CreateJobCalender() {
                                                             "capitalize",
                                                     }}
                                                 >
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item
-                                                                            ?.address
-                                                                            ?.prefer_type
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {
+                                                                    item
+                                                                        ?.address
+                                                                        ?.prefer_type
+                                                                }
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {item
-                                                                        ?.address
-                                                                        ?.is_cat_avail
-                                                                        ? "Cat ,"
-                                                                        : item
-                                                                              ?.address
-                                                                              ?.is_dog_avail
-                                                                        ? "Dog"
-                                                                        : !item
-                                                                              ?.address
-                                                                              ?.is_cat_avail &&
-                                                                          !item
-                                                                              ?.address
-                                                                              ?.is_dog_avail
-                                                                        ? "NA"
-                                                                        : ""}
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item?.address
+                                                                    ?.is_cat_avail
+                                                                    ? "Cat ,"
+                                                                    : item
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "Dog"
+                                                                    : !item
+                                                                          ?.address
+                                                                          ?.is_cat_avail &&
+                                                                      !item
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "NA"
+                                                                    : ""}
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1002,9 +1043,7 @@ export default function CreateJobCalender() {
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">
-                                                        Worker Name
-                                                    </th>
+                                                    <th scope="col">Worker</th>
                                                     <th scope="col">Data</th>
                                                     <th scope="col">Shifts</th>
                                                 </tr>
@@ -1083,7 +1122,6 @@ export default function CreateJobCalender() {
                                         Services
                                     </label>
                                     <select
-                                        value={selected_service}
                                         onChange={(e) =>
                                             handleServices(e.target.value)
                                         }
@@ -1092,19 +1130,18 @@ export default function CreateJobCalender() {
                                         <option value="">
                                             --- Please Select Service ---
                                         </option>
-                                        {services &&
-                                            services.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={item.service}
-                                                        key={index}
-                                                    >
-                                                        {item.service != "10"
-                                                            ? item.name
-                                                            : item.other_title}
-                                                    </option>
-                                                );
-                                            })}
+                                        {services.map((item, index) => {
+                                            return (
+                                                <option
+                                                    value={item.service}
+                                                    key={index}
+                                                >
+                                                    {item.service != "10"
+                                                        ? item.name
+                                                        : item.other_title}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
                                 </div>
                             </div>
