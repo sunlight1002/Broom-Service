@@ -109,8 +109,7 @@ class ClientEmailController extends Controller
         'client_id' => $ofr['client']['id']
       ],
       [
-        'client_id' => $ofr['client']['id'],
-        'lead_status' => LeadStatusEnum::OFFER_ACCEPTED
+        'lead_status' => LeadStatusEnum::POTENTIAL_CLIENT
       ]
     );
 
@@ -143,13 +142,24 @@ class ClientEmailController extends Controller
 
   public function RejectOffer(Request $request)
   {
-    $offer = Offer::find($request->id);
+    $offer = Offer::with('client')->find($request->id);
+    if (!$offer) {
+      return response()->json([
+        'message' => 'Offer not found'
+      ], 404);
+    }
+
+    $client = $offer->client;
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found'
+      ], 404);
+    }
 
     $offer->update([
       'status' => 'declined'
     ]);
 
-    $offer->load('client');
     $offerArr = $offer->toArray();
 
     Notification::create([
@@ -159,64 +169,112 @@ class ClientEmailController extends Controller
       'status' => 'declined'
     ]);
 
-    LeadStatus::UpdateOrCreate(
-      [
-        'client_id' => $offerArr['client']['id']
-      ],
-      [
-        'client_id' => $offerArr['client']['id'],
-        'lead_status' => LeadStatusEnum::OFFER_REJECTED
-      ]
+    $client->lead_status()->updateOrCreate(
+      [],
+      ['lead_status' => LeadStatusEnum::UNINTERESTED]
     );
+
+    return response()->json([
+      'message' => 'Thanks, your offer has been rejected'
+    ]);
   }
 
-  public function AcceptMeeting(Request $request)
+  public function acceptMeeting(Request $request)
   {
-    try {
-      Schedule::where('id', $request->id)->update([
-        'booking_status' => $request->response
-      ]);
-
-      $sch = Schedule::where('id', $request->id)->get('client_id')->first();
-
-      $ls =  LeadStatus::UpdateOrCreate(
-        [
-          'client_id' => $sch->client_id
-        ],
-        [
-          'client_id' => $sch->client_id,
-          'lead_status' => ($request->response == 'confirmed') ?
-            LeadStatusEnum::MEETING_SET : ($request->response == 'rescheduled'
-              ? LeadStatusEnum::MEETING_RESCHEDULED : LeadStatusEnum::MEETING_REJECTED)
-        ]
-      );
-
-      if ($request->response == 'confirmed') {
-        Client::where('id', $sch->client_id)->update(['status' => 1]);
-
-        Notification::create([
-          'user_id' => $sch->client_id,
-          'type' => 'accept-meeting',
-          'meet_id' => $request->id,
-          'status' => $request->response
-        ]);
-      } else {
-        Client::where('id', $sch->client_id)->update(['status' => 0]);
-
-        Notification::create([
-          'user_id' => $sch->client_id,
-          'type' => 'reject-meeting',
-          'meet_id' => $request->id,
-          'status' => $request->response
-        ]);
-      }
-
+    $schedule = Schedule::find($request->id);
+    if (!$schedule) {
       return response()->json([
-        'message' => 'Thanks, your meeting is ' . $request->response
-      ]);
-    } catch (\Exception $e) {
-      return $e->getMessage();
+        'message' => 'Meeting not found'
+      ], 404);
     }
+
+    $client = $schedule->client;
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found'
+      ], 404);
+    }
+
+    $schedule->update([
+      'booking_status' => 'confirmed'
+    ]);
+
+    $client->update(['status' => 1]);
+
+    Notification::create([
+      'user_id' => $schedule->client_id,
+      'type' => 'accept-meeting',
+      'meet_id' => $request->id,
+      'status' => 'confirmed'
+    ]);
+
+    return response()->json([
+      'message' => 'Thanks, your meeting is confirmed'
+    ]);
+  }
+
+  public function rejectMeeting(Request $request)
+  {
+    $schedule = Schedule::find($request->id);
+    if (!$schedule) {
+      return response()->json([
+        'message' => 'Meeting not found'
+      ], 404);
+    }
+
+    $client = $schedule->client;
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found'
+      ], 404);
+    }
+
+    $schedule->update([
+      'booking_status' => 'declined'
+    ]);
+
+    $client->lead_status()->updateOrCreate(
+      [],
+      ['lead_status' => LeadStatusEnum::IRRELEVANT]
+    );
+
+    $client->update(['status' => 0]);
+
+    Notification::create([
+      'user_id' => $schedule->client_id,
+      'type' => 'reject-meeting',
+      'meet_id' => $request->id,
+      'status' => 'declined'
+    ]);
+
+    return response()->json([
+      'message' => 'Thanks, your meeting is declined'
+    ]);
+  }
+
+  public function rescheduleMeeting(Request $request)
+  {
+    $schedule = Schedule::find($request->id);
+    if (!$schedule) {
+      return response()->json([
+        'message' => 'Meeting not found'
+      ], 404);
+    }
+
+    $client = $schedule->client;
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found'
+      ], 404);
+    }
+
+    $schedule->update([
+      'booking_status' => 'rescheduled'
+    ]);
+
+    return response()->json([
+      'message' => 'Thanks, your meeting is rescheduled'
+    ]);
   }
 
   public function AcceptContract(Request $request)
@@ -230,6 +288,13 @@ class ClientEmailController extends Controller
       if (!$contract) {
         return response()->json([
           'message' => "Contract not found"
+        ], 404);
+      }
+
+      $client = $contract->client;
+      if (!$client) {
+        return response()->json([
+          'message' => "Client not found"
         ], 404);
       }
 
@@ -250,14 +315,9 @@ class ClientEmailController extends Controller
         'status' => 'accepted'
       ]);
 
-      LeadStatus::UpdateOrCreate(
-        [
-          'client_id' => $contract->client->id
-        ],
-        [
-          'client_id' => $contract->client->id,
-          'lead_status' => LeadStatusEnum::CONTRACT_ACCEPTED
-        ]
+      $client->lead_status()->updateOrCreate(
+        [],
+        ['lead_status' => LeadStatusEnum::PENDING_CLIENT]
       );
 
       return response()->json([
@@ -292,16 +352,6 @@ class ClientEmailController extends Controller
         'contract_id' => $contract->id,
         'status' => 'declined'
       ]);
-
-      LeadStatus::UpdateOrCreate(
-        [
-          'client_id' => $contract->client->id
-        ],
-        [
-          'client_id' => $contract->client->id,
-          'lead_status' => LeadStatusEnum::CONTRACT_REJECTED
-        ]
-      );
 
       return response()->json([
         'message' => "Contract has been rejected"

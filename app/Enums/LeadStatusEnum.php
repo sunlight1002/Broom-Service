@@ -6,17 +6,13 @@ namespace App\Enums;
 
 final class LeadStatusEnum extends AbstractEnum
 {
-    public const UNINTERESTED = 'Uninterested';
-    public const PENDING = 'Pending';
-    public const MEETING_PENDING = 'Meeting pending';
-    public const MEETING_SET = 'Meeting Set';
-    public const MEETING_RESCHEDULED = 'Meeting Rescheduled';
-    public const MEETING_REJECTED = 'Meeting Rejected';
-    public const OFFER_SENT = 'Offer Sent';
-    public const OFFER_ACCEPTED = 'Offer Accepted';
-    public const OFFER_REJECTED = 'Offer Rejected';
-    public const CONTRACT_ACCEPTED = 'Contract Accepted';
-    public const CONTRACT_REJECTED = 'Contract Rejected';
-    public const CONTRACT_VERIFIED = 'Contract Verified';
-    public const CONTRACT_UNVERIFIED = 'Contract Unverified';
+    public const PENDING_LEAD = 'pending lead';
+    public const POTENTIAL_LEAD = 'potential lead';
+    public const IRRELEVANT = 'irrelevant';
+    public const UNINTERESTED = 'uninterested';
+    public const UNANSWERED = 'unanswered';
+    public const POTENTIAL_CLIENT = 'potential client';
+    public const PENDING_CLIENT = 'pending client';
+    public const FREEZE_CLIENT = 'freeze client';
+    public const ACTIVE_CLIENT = 'active client';
 }

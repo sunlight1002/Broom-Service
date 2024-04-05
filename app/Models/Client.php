@@ -114,13 +114,13 @@ class Client extends Authenticatable
     public static function boot()
     {
         parent::boot();
-        static::deleting(function ($Client) {
-            Schedule::where('client_id', $Client->id)->delete();
-            Offer::where('client_id', $Client->id)->delete();
-            Contract::where('client_id', $Client->id)->delete();
-            Notification::where('user_id', $Client->id)->delete();
-            Job::where('client_id', $Client->id)->delete();
-            Order::where('client_id', $Client->id)->delete();
+        static::deleting(function ($model) {
+            Schedule::where('client_id', $model->id)->delete();
+            Offer::where('client_id', $model->id)->delete();
+            Contract::where('client_id', $model->id)->delete();
+            Notification::where('user_id', $model->id)->delete();
+            Job::where('client_id', $model->id)->delete();
+            Order::where('client_id', $model->id)->delete();
         });
     }
 }

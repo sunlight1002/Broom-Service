@@ -59,7 +59,9 @@ Route::post('get-client', [ClientEmailController::class, 'getClient'])->name('ge
 Route::get('get-schedule/{id}', [ClientEmailController::class, 'getSchedule'])->name('get-schedule');
 Route::post('add-meet', [ClientEmailController::class, 'addMeet'])->name('add-meet');
 Route::post('meeting', [ClientEmailController::class, 'ShowMeeting']);
-Route::post('accept-meeting', [ClientEmailController::class, 'AcceptMeeting']);
+Route::post('accept-meeting', [ClientEmailController::class, 'acceptMeeting']);
+Route::post('reject-meeting', [ClientEmailController::class, 'rejectMeeting']);
+Route::post('reschedule-meeting', [ClientEmailController::class, 'rescheduleMeeting']);
 Route::post('meetings/{id}/slot-save', [ClientEmailController::class, 'saveMeetingSlot']);
 Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer'])->name('get-offer');
 Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer'])->name('accept-offer');

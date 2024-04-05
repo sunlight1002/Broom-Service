@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
@@ -9,6 +8,9 @@ import { CSVLink } from "react-csv";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useAlert } from "react-alert";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
@@ -417,7 +419,7 @@ export default function Clients() {
                                                     &darr;{" "}
                                                 </span>
                                             </Th>
-                                            {/* <Th>Status</Th> */}
+                                            <Th>Status</Th>
                                             <Th>Action</Th>
                                         </Tr>
                                     </Thead>
@@ -514,12 +516,21 @@ export default function Clients() {
                                                                     }
                                                                 )}
                                                         </Td>
-                                                        {/*                                                        
-                                                        <Td onClick={(e) => handleNavigate(e, item.id)}>
-                                                            { 
-                                                                item.lead_status ? item.lead_status.lead_status : 'NA'
+
+                                                        <Td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
                                                             }
-                                                        </Td> */}
+                                                        >
+                                                            {item.lead_status
+                                                                ? item
+                                                                      .lead_status
+                                                                      .lead_status
+                                                                : "NA"}
+                                                        </Td>
 
                                                         <Td>
                                                             <div className="action-dropdown dropdown">

@@ -7,7 +7,6 @@ use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
-use App\Models\LeadStatus;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -151,14 +150,9 @@ class ContractController extends Controller
             'status' => ContractStatusEnum::VERIFIED
         ]);
 
-        LeadStatus::updateOrCreate(
-            [
-                'client_id' => $contract->client->id,
-            ],
-            [
-                'client_id' => $contract->client->id,
-                'lead_status' => LeadStatusEnum::CONTRACT_VERIFIED
-            ]
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
         );
 
         $client->update([

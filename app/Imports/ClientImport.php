@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\LeadStatusEnum;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
 use App\Models\Offer;
@@ -91,6 +92,11 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                 if (empty($client)) {
                     $client = Client::create($clientData);
+
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                    );
                 }
 
                 // Create client address if not already exists
@@ -116,7 +122,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
                         ->first();
 
-                    $offer = Offer::where('client_id', $client->id)->where('status', 'accepted')->first();
+                    $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
 
                     $existing_services = [];
                     if ($offer) {
@@ -201,64 +207,67 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'services' => json_encode($existing_services),
                             'subtotal' => $subtotal,
                             'total' => ($subtotal + $tax),
-                            'status' => 'accepted',
+                            'status' => 'sent',
                         ]);
                     } else {
-                        Offer::where('id', $offer->id)->update([
+                        $offer->update([
                             'services' => json_encode($existing_services),
                             'subtotal' => $subtotal,
                             'total' => ($subtotal + $tax),
-                            'status' => 'accepted',
-                        ]);
-                    }
-                }
-
-                if ($row['has_offer'] == "Yes" && $row['has_contract'] == "Yes") {
-
-                    $hash = md5($client->email . $offer->id);
-
-                    $contract = Contract::where('unique_hash', $hash)->first();
-
-                    if (!$contract) {
-                        $contract = Contract::create([
-                            'offer_id' => $offer->id,
-                            'client_id' => $client->id,
-                            'additional_address' => $row['additional_address'],
-                            'status' => 'verified',
-                            'unique_hash' => $hash
-                        ]);
-                    } else {
-                        Contract::where('id', $contract->id)->update([
-                            'offer_id' => $offer->id,
-                            'client_id' => $client->id,
-                            'additional_address' => $row['additional_address'],
-                            'status' => 'verified',
-                            'unique_hash' => $hash
+                            'status' => 'sent',
                         ]);
                     }
 
-                    $card = ClientCard::query()
-                        ->where('client_id', $client->id)
-                        ->first();
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::POTENTIAL_CLIENT]
+                    );
 
-                    if (
-                        config('services.app.old_contract') == true ||
-                        (config('services.app.old_contract') == false && !empty($card))
-                    ) {
-                        Client::where('id', $contract->client_id)->update(['status' => 2]);
+                    if ($row['has_contract'] == "Yes") {
+                        $hash = md5($client->email . $offer->id);
 
-                        LeadStatus::UpdateOrCreate(
-                            [
-                                'client_id' => $client->id
-                            ],
-                            [
+                        $offer->update([
+                            'status' => 'accepted'
+                        ]);
+
+                        $contract = Contract::where('unique_hash', $hash)->first();
+
+                        if (!$contract) {
+                            $contract = Contract::create([
+                                'offer_id' => $offer->id,
                                 'client_id' => $client->id,
-                                'lead_status' => 'Contract Accepted'
-                            ]
+                                'additional_address' => $row['additional_address'],
+                                'status' => 'verified',
+                                'unique_hash' => $hash
+                            ]);
+                        } else {
+                            $contract->update([
+                                'offer_id' => $offer->id,
+                                'client_id' => $client->id,
+                                'additional_address' => $row['additional_address'],
+                                'status' => 'verified',
+                                'unique_hash' => $hash
+                            ]);
+                        }
+
+                        $client->lead_status()->updateOrCreate(
+                            [],
+                            ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
                         );
+
+                        $card = ClientCard::query()
+                            ->where('client_id', $client->id)
+                            ->first();
+
+                        if (
+                            config('services.app.old_contract') == true ||
+                            (config('services.app.old_contract') == false && !empty($card))
+                        ) {
+                            $client->update(['status' => 2]);
+                        }
                     }
                 }
-                
+
                 $validDate = explode("/", $row['valid'])[0] . substr(explode("/", $row['valid'])[1], -2);
                 $validateResponse = $this->validateCard([
                     'card_number' => $row['card_number'],
@@ -274,7 +283,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             $existingCard->update(['is_default' => 1]);
                         }
                     } else {
-                        $card = ClientCard::Create([
+                        $card = ClientCard::create([
                             'client_id'   => $client->id,
                             'card_number' => $row['card_number'],
                             'card_type'   => $row['card_type'],

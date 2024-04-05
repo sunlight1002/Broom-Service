@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\LeadStatusEnum;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Fblead;
@@ -61,6 +62,13 @@ class LeadWebhookController extends Controller
             $lead->password      = Hash::make($request->phone);
             $lead->geo_address   = $request->has('address') ? $request->address : '';
             $lead->save();
+
+            if (!$lead_exists) {
+                $lead->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                );
+            }
 
             $result = Helper::sendWhatsappMessage($lead->phone, 'leads', array('name' => ucfirst($lead->firstname)));
 

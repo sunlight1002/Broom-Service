@@ -1,45 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Moment from "moment";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Notes from "./Notes";
 import Files from "../Clients/Files";
 
 export default function LeadDetails({ lead }) {
-    const navigate = useNavigate();
-    const name = lead.firstname + " " + lead.lastname;
-    const phone = lead.phone;
-    const email = lead.email;
-    const meta = lead.meta;
-    const lead_status = lead.lead_status
-        ? lead.lead_status.lead_status
-        : "Pending";
-    const generated_on =
-        Moment(lead.created_at).format("DD/MM/Y") +
-        " " +
-        Moment(lead.created_at).format("dddd");
+    const generatedOn = useMemo(() => {
+        return (
+            Moment(lead.created_at).format("DD/MM/Y") +
+            " " +
+            Moment(lead.created_at).format("dddd")
+        );
+    }, [lead.created_at]);
 
-    const handleTab = (e) => {
-        e.preventDefault();
-        let id = e.target.getAttribute("id");
-        if (id == "ms") document.querySelector("#schedule-meeting").click();
-        if (id == "os") document.querySelector("#offered-price").click();
-        if (id == "cs") document.querySelector("#contract").click();
-    };
     const param = useParams();
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-    };
 
     return (
         <>
             <div className="client-view">
                 <h1>
-                    <span>#{lead.id}</span> {name}
+                    <span>#{lead.id}</span>{" "}
+                    {lead.firstname + " " + lead.lastname}
                 </h1>
                 <div className="row">
                     <div className="col-sm-8">
@@ -106,35 +88,44 @@ export default function LeadDetails({ lead }) {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label>Email</label>
-                                                <p>{email}</p>
+                                                <p>{lead.email}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label>Phone</label>
                                                 <p>
-                                                    <a href={`tel:${phone}`}>
-                                                        {phone}
+                                                    <a
+                                                        href={`tel:${lead.phone}`}
+                                                    >
+                                                        {lead.phone}
                                                     </a>
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-6">
-                                            <div className="form-group">
-                                                <label>status</label>
-                                                <p>{lead_status}</p>
+                                        {lead.lead_status && (
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label>Status</label>
+                                                    <p>
+                                                        {
+                                                            lead.lead_status
+                                                                .lead_status
+                                                        }
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label>Generated On</label>
-                                                <p>{generated_on}</p>
+                                                <p>{generatedOn}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-12">
                                             <div className="form-group">
                                                 <label>Meta</label>
-                                                <p>{meta}</p>
+                                                <p>{lead.meta}</p>
                                             </div>
                                         </div>
 

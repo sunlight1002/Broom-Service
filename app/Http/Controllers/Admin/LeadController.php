@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\LeadComment;
-use App\Models\LeadStatus;
 use App\Models\Offer;
 use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
@@ -29,59 +28,27 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $q = $request->q;
+        $keyword = $request->q;
         $c = $request->condition;
 
         $result = Client::with(['meetings', 'offers', 'lead_status']);
 
-        if (!is_null($q) &&  ($q !== 1 && $q !== 0 && $q != 'all') && $c != 'filter') {
+        if (!is_null($keyword) &&  ($keyword !== 1 && $keyword !== 0 && $keyword != 'all') && $c != 'filter') {
 
-            $result->where(function ($query) use ($q) {
-                $ex = explode(' ', $q);
-                $q2 = isset($ex[1]) ? $ex[1] : $q;
+            $result->where(function ($query) use ($keyword) {
+                $ex = explode(' ', $keyword);
+                $q2 = isset($ex[1]) ? $ex[1] : $keyword;
 
-                $query->where('email', 'like', '%' . $q . '%')
+                $query->where('email', 'like', '%' . $keyword . '%')
                     ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
                     ->orWhere('lastname', 'like', '%' . $q2 . '%')
-                    ->orWhere('phone', 'like', '%' . $q . '%');
+                    ->orWhere('phone', 'like', '%' . $keyword . '%');
             });
         }
 
-        if (!is_null($q) &&  ($q == 1 || $q == 0)) {
-            $result->where('status', $q);
-        } else if (is_null($q)) {
-            $result->where('status', 0)->orWhere('status', 1);
-        }
-
-        if ($q == 'pending') {
-            $result = $result->WhereHas('lead_status', function ($q) {
-                $q->where(function ($q) {
-                    $q->where('lead_status', LeadStatusEnum::PENDING);
-                });
-            })->orWhereDoesntHave('lead_status');
-        } else if ($q == 'set') {
-            $result = $result->WhereHas('lead_status', function ($q) {
-                $q->where(function ($q) {
-                    $q->where('lead_status', LeadStatusEnum::MEETING_SET);
-                });
-            });
-        } else if ($q == 'offersend') {
-            $result = $result->WhereHas('lead_status', function ($q) {
-                $q->where(function ($q) {
-                    $q->where('lead_status', LeadStatusEnum::OFFER_SENT);
-                });
-            });
-        } else if ($q == 'offerdecline') {
-            $result = $result->WhereHas('lead_status', function ($q) {
-                $q->where(function ($q) {
-                    $q->where('lead_status', LeadStatusEnum::OFFER_REJECTED);
-                });
-            });
-        } else if ($q == 'uninterested') {
-            $result = $result->WhereHas('lead_status', function ($q) {
-                $q->where(function ($q) {
-                    $q->where('lead_status', LeadStatusEnum::UNINTERESTED);
-                });
+        if ($request->condition == 'filter') {
+            $result = $result->whereHas('lead_status', function ($q) use ($keyword) {
+                $q->where('lead_status', $keyword);
             });
         }
 
@@ -128,35 +95,13 @@ class LeadController extends Controller
             }
         }
 
-        LeadStatus::UpdateOrCreate(
-            [
-                'client_id' => $client->id
-            ],
-            [
-                'client_id' => $client->id,
-                'lead_status' => LeadStatusEnum::PENDING
-            ]
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
         );
 
         return response()->json([
             'message' => 'Lead created successfully',
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, $id)
-    {
-        $lead                = Client::find($id);
-        $lead->lead_status   = $request->lead_status;
-        $lead->save();
-
-        return response()->json([
-            'message' => 'status updated',
         ]);
     }
 
@@ -295,21 +240,6 @@ class LeadController extends Controller
         return response()->json(['message' => 'comment deleted']);
     }
 
-    public function uninterested($id)
-    {
-        LeadStatus::UpdateOrCreate(
-            [
-                'client_id' => $id
-            ],
-            [
-                'client_id'   => $id,
-                'lead_status' => LeadStatusEnum::UNINTERESTED
-            ]
-        );
-
-        return response()->json(['message' => 'Marked Uninterested']);
-    }
-
     /* FB ADS LEADS */
     public function longLivedToken()
     {
@@ -431,7 +361,7 @@ class LeadController extends Controller
                 return response()->json([
                     'data' => $savedAddress,
                     'message'   => 'Lead property address saved successfully',
-                ], 200);
+                ]);
             } else {
                 return response()->json([
                     'message'   => 'Data is empty!',
@@ -448,11 +378,11 @@ class LeadController extends Controller
         try {
             ClientPropertyAddress::find($id)->delete();
             return response()->json([
-                'message'     => "Lead property address has been deleted"
-            ], 200);
+                'message' => "Lead property address has been deleted"
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'   => 'Something went wrong!',
+                'message' => 'Something went wrong!',
             ], 500);
         }
     }

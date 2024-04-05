@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client\Auth;
 
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -75,6 +76,11 @@ class AuthController extends Controller
         $input['password']      = bcrypt($input['password']);
         $Client                   = Client::create($input);
         $Client->token            = $Client->createToken('Client', ['Client'])->accessToken;
+
+        $Client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+        );
 
         return response()->json($Client);
     }

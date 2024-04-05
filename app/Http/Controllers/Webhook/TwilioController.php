@@ -18,7 +18,7 @@ class TwilioController extends Controller
     {
         $request_data = $request->all();
 
-        $webhook_response_client = Client::updateOrCreate([
+        $client = Client::updateOrCreate([
             'phone' => $request_data['From'],
         ], [
             'email'             => $request_data['From'] . '@lead.com',
@@ -29,14 +29,9 @@ class TwilioController extends Controller
             'firstname'         => 'lead_' . $request_data['From']
         ]);
 
-        LeadStatus::UpdateOrCreate(
-            [
-                'client_id' => $webhook_response_client->id
-            ],
-            [
-                'client_id' => $webhook_response_client->id,
-                'lead_status' => LeadStatusEnum::PENDING
-            ]
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
         );
 
         $webhook_response = WebhookResponse::create([

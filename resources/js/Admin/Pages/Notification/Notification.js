@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import Moment from "moment";
 import ReactPaginate from "react-paginate";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function Notification() {
     const [notices, setNotices] = useState([]);
