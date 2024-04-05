@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
+
+const leadStatuses = [
+    "pending lead",
+    "potential lead",
+    "irrelevant",
+    "uninterested",
+    "unanswered",
+    "potential client",
+    "pending client",
+    "freeze client",
+    "active client",
+];
 
 export default function Lead() {
     const [leads, setLeads] = useState([]);
@@ -13,8 +27,6 @@ export default function Lead() {
     const [filter, setFilter] = useState("");
     const [condition, setCondition] = useState("");
     const [loading, setLoading] = useState("Loading...");
-
-    const [stat, setStat] = useState(null);
 
     const navigate = useNavigate();
     const headers = {
@@ -64,19 +76,22 @@ export default function Lead() {
         setFilter(s);
         setCondition("filter");
 
-        axios
-            .get(`/api/admin/leads?q=${s}` + "&condition=filter", { headers })
-            .then((response) => {
-                if (response.data.leads.data.length > 0) {
-                    setLeads(response.data.leads.data);
-                    setPageCount(response.data.leads.last_page);
-                    setLoading("Loading...");
-                } else {
-                    setLeads([]);
-                    setPageCount(response.data.leads.last_page);
-                    setLoading("No lead found");
-                }
-            });
+        const params = {
+            q: s,
+            condition: "filter",
+        };
+
+        axios.get(`/api/admin/leads`, { headers, params }).then((response) => {
+            if (response.data.leads.data.length > 0) {
+                setLeads(response.data.leads.data);
+                setPageCount(response.data.leads.last_page);
+                setLoading("Loading...");
+            } else {
+                setLeads([]);
+                setPageCount(response.data.leads.last_page);
+                setLoading("No lead found");
+            }
+        });
     };
 
     const booknun = (s) => {
@@ -137,33 +152,6 @@ export default function Lead() {
                         Swal.fire(
                             "Deleted!",
                             "Lead has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getleads();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
-    const unintrested = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Mark Uninterested",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .post(`/api/admin/uninterested/${id}`, { id }, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Marked!",
-                            "Lead Marked Unintrested",
                             "success"
                         );
                         setTimeout(() => {
@@ -240,7 +228,6 @@ export default function Lead() {
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setStat("all");
                                                 setCondition("filter");
                                                 setFilter("all");
                                                 getleads();
@@ -248,76 +235,21 @@ export default function Lead() {
                                         >
                                             All
                                         </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("0");
-                                                setCondition("filter");
-                                                filterLeadsStat("0");
-                                            }}
-                                        >
-                                            Leads
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("1");
-                                                setCondition("filter");
-                                                filterLeadsStat("1");
-                                            }}
-                                        >
-                                            Potential Customer
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("pending");
-                                                setCondition("filter");
-                                                filterLeadsStat("pending");
-                                            }}
-                                        >
-                                            Pending
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("uninterested");
-                                                setCondition("filter");
-                                                filterLeadsStat("uninterested");
-                                            }}
-                                        >
-                                            Uninterested
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("set");
-                                                setCondition("filter");
-                                                filterLeadsStat("set");
-                                            }}
-                                        >
-                                            Meeting set
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("offersend");
-                                                setCondition("filter");
-                                                filterLeadsStat("offersend");
-                                            }}
-                                        >
-                                            Price offer sent
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                setStat("offerdecline");
-                                                setCondition("filter");
-                                                filterLeadsStat("offerdecline");
-                                            }}
-                                        >
-                                            Declined price offer
-                                        </button>
+                                        {leadStatuses.map((_status, _index) => {
+                                            return (
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={(e) => {
+                                                        filterLeadsStat(
+                                                            _status
+                                                        );
+                                                    }}
+                                                    key={_index}
+                                                >
+                                                    {_status}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -462,7 +394,7 @@ export default function Lead() {
                                                                 ? item
                                                                       .lead_status
                                                                       .lead_status
-                                                                : "Pending"}
+                                                                : "-"}
                                                         </Td>
                                                         <Td>
                                                             <div className="action-dropdown dropdown">
@@ -486,23 +418,6 @@ export default function Lead() {
                                                                     >
                                                                         View
                                                                     </Link>
-                                                                    {item
-                                                                        .lead_status
-                                                                        ?.lead_status ==
-                                                                        "Pending" ||
-                                                                        (item.lead_status ==
-                                                                            null && (
-                                                                            <button
-                                                                                onClick={() =>
-                                                                                    unintrested(
-                                                                                        item.id
-                                                                                    )
-                                                                                }
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                Uninterested
-                                                                            </button>
-                                                                        ))}
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>

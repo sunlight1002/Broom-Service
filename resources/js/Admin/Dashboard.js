@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./Layouts/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
+import Sidebar from "./Layouts/Sidebar";
 import UserIcon from "../Assets/image/icons/user-client.jpeg";
 import Jobs from "./Components/Dashboard/jobs";
 import Pendings from "./Components/Dashboard/pendings";

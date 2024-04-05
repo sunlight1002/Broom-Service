@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import Swal from "sweetalert2";
 
 export default function PastJob() {
     const [jobs, setJobs] = useState([]);

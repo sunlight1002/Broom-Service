@@ -4,23 +4,18 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Job;
-use App\Models\Admin;
 use App\Models\Offer;
 use App\Models\Schedule;
 use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
-use App\Models\Notification;
 use App\Traits\PriceOffered;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 

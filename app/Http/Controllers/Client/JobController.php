@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Client;
 
 use App\Enums\JobStatusEnum;
-use App\Models\JobComments;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Job;
@@ -13,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class JobController extends Controller
 {

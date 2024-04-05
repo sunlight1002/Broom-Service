@@ -3,8 +3,10 @@ import { Button, Modal } from "react-bootstrap";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
-import Map from "../Map/map";
 import Select from "react-select";
+import Swal from "sweetalert2";
+
+import Map from "../Map/map";
 
 const addressMenu = [
     {

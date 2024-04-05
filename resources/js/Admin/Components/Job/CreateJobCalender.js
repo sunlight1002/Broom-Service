@@ -3,6 +3,7 @@ import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import Swal from "sweetalert2";
 
 import JobWorkerModal from "../Modals/JobWorkerModal";
 
@@ -121,6 +122,13 @@ export default function CreateJobCalender() {
                     setTimeout(() => {
                         navigate("/admin/jobs");
                     }, 1000);
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
                 });
         } else {
             viewbtn[0].removeAttribute("disabled");

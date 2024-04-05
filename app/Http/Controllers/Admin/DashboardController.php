@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
-use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -14,24 +13,17 @@ use App\Models\Schedule;
 use App\Models\Contract;
 use App\Models\Notification;
 use App\Models\Admin;
-use App\Models\Fblead;
-use App\Models\Services;
-use App\Models\JobService;
-use App\Models\LeadStatus;
-use App\Models\ServiceSchedule;
 use App\Models\ManageTime;
-use App\Models\WebhookResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use App\Traits\PriceOffered;
 
 class DashboardController extends Controller
 {
   use PriceOffered;
+
   public function dashboard()
   {
     $total_workers   = User::all()->count();
@@ -284,225 +276,6 @@ class DashboardController extends Controller
       return response()->json([
         'data' => $contracts,
       ]);
-    }
-  }
-
-  public function import()
-  {
-    die('DIE Apply');
-    $csvFile = fopen(storage_path() . '/app/public/Broom Service - jobs.csv', 'r');
-    fgetcsv($csvFile);
-    $csv = [];
-    while (($csvData = fgetcsv($csvFile)) !== FALSE) {
-      $row = array_map("utf8_encode", $csvData);
-      $csv[$row[0]][$row[2]][] = $row;
-    }
-
-    if (!empty($csv)) {
-      foreach ($csv as $cid => $csr) {
-        $total = 0;
-        $servAr = [];
-        $oid = [];
-        $coid = [];
-
-        $client = Client::where('id', $cid)->first();
-        foreach ($csr as $k => $sep) {
-          $cs = $csr[$k][0];
-          $serv = Services::where('id', $k)->get()->toArray();
-          $serv = (!empty($serv)) ? $serv[0] : null;
-
-          if ($serv != null) {
-            $period = (substr((string)$cs[3], 0, 1) == 1) ? substr((string)$cs[3], 1)  : $cs[3];
-            $freq = ServiceSchedule::where('period', $period)->first();
-
-            if (!is_null($freq)) {
-              $freq = $freq->toArray();
-              $total += (int)$cs[5];
-              $service = [
-                "service" => $cs[2],
-                "name" => $serv['name'],
-                "type" => "fixed",
-                "freq_name" => $freq['name'],
-                "frequency" => $freq['id'],
-                "fixed_price" => $cs[5],
-                "jobHours" => $cs[6],
-                "rateperhour" => "",
-                "other_title" => "",
-                "totalamount" => $cs[5],
-                "template" => $serv['template'],
-                "cycle" => $freq['cycle'],
-                "period" => $cs[3]
-              ];
-              $servAr[] = $service;
-            }
-          }
-        }
-
-        $tax = (config('services.app.tax_percentage') / 100) * $total;
-        $ofr = [
-
-          'client_id' => $cid,
-          'services' => json_encode($servAr),
-          'subtotal' => $total,
-          'total' => $total + $tax,
-          'status' => 'accepted'
-
-        ];
-
-        $offer = Offer::create($ofr);
-        $oid[] = $offer->id;
-        $hash = md5($client->email . $offer->id);
-        $cont = [
-          'offer_id' => $offer->id,
-          'client_id' => $cid,
-          'unique_hash' => $hash,
-          'status' => 'verified',
-        ];
-
-        $contract = Contract::create($cont);
-        $coid[] = $contract->id;
-
-        foreach ($csr as $i => $ncs1) {
-          foreach ($ncs1 as $ncs) {
-
-            $count = 1;
-            if (str_contains($ncs[3], 'w')) {
-              $count = 3;
-            }
-            for ($a = 1; $a <= $count; $a++) {
-
-              $date = Carbon::createFromDate($ncs[4]);
-              $j = 0;
-              if ($a == 2) {
-                $j = 7;
-              }
-              if ($a == 3) {
-                $j = 14;
-              }
-              $job_date = $date->addDays($j)->toDateString();
-
-              $jobA = [
-                'client_id' => $cid,
-                'offer_id' => $oid[0],
-                'contract_id' => $coid[0],
-                'worker_id' => $ncs[1],
-                'start_date' => $job_date,
-                'schedule_id' => $ncs[2],
-                'schedule' => $ncs[3],
-                'shifts' => str_replace('/', ',', $ncs[7]),
-                'status' => 'scheduled'
-              ];
-
-              $job = Job::create($jobA);
-
-              $period = (substr((string)$ncs[3], 0, 1) == 1) ? substr((string)$ncs[3], 1)  : $ncs[3];
-              $freq = ServiceSchedule::where('period', $period)->first();
-              if (!is_null($freq)) {
-                $freq = $freq->toArray();
-                $s = Services::where('id', $ncs[2])->first();
-
-                preg_match_all('!\d+!', $ncs[3], $cycle);
-
-                $jh = new JobService();
-                $jh->job_id = $job->id;
-                $jh->name = $s->name;
-                $jh->job_hour = $ncs[6];
-                $jh->freq_name = $freq['name'];
-                $jh->cycle = $freq['cycle'];
-                $jh->period = $period;
-                $jh->total = $ncs[5];
-                $jh->heb_name = $s->heb_name;
-                $jh->service_id = $ncs[2];
-
-                $jh->save();
-              }
-            }
-          }
-        }
-      }
-      echo "Record Created";
-    }
-  }
-
-  public function updateClients(Request $request)
-  {
-    $clients = Client::with('meetings', 'offers', 'contract', 'jobs')->get();
-    $q = $request->q;
-
-    // Meetings
-    if (!is_null($q) && $q == 'meetings') {
-      foreach ($clients as $c) {
-        $meet  = Schedule::where('client_id', $c->id)->get()->last();
-        if (isset($meet)) {
-
-          $mstat =  $meet->booking_status;
-
-          LeadStatus::updateOrCreate(
-            [
-              'client_id' => $c->id
-            ],
-            [
-              'client_id' => $c->id,
-              'lead_status' => ($mstat == 'confirmed') ? LeadStatusEnum::MEETING_SET : ($mstat == 'rescheduled' ? LeadStatusEnum::MEETING_RESCHEDULED : ($mstat == 'pending' ? LeadStatusEnum::MEETING_PENDING : LeadStatusEnum::MEETING_REJECTED))
-            ]
-          );
-        }
-      }
-      echo "Updated client metings lead status";
-    }
-
-    // Offers
-    if (!is_null($q) && $q == 'offers') {
-      foreach ($clients as $c) {
-        $_ofr  = Offer::where('client_id', $c->id)->get()->last();
-
-        if (isset($_ofr)) {
-          $ostat =  $_ofr->status;
-
-          LeadStatus::updateOrCreate(
-            [
-              'client_id' => $c->id
-            ],
-            [
-              'client_id' => $c->id,
-              'lead_status' => ($ostat == 'sent') ?
-                LeadStatusEnum::OFFER_SENT : ($ostat == 'accepted' ?
-                  LeadStatusEnum::OFFER_ACCEPTED : LeadStatusEnum::OFFER_REJECTED)
-            ]
-
-          );
-        }
-      }
-      echo "Updated client offers lead status";
-    }
-
-    // Offers 
-    if (!is_null($q) && $q == 'contracts') {
-      foreach ($clients as $c) {
-        $_cn  = Contract::where('client_id', $c->id)->get()->last();
-
-        if (isset($_cn)) {
-          $cstat =  $_cn->status;
-
-          if ($cstat != ContractStatusEnum::NOT_SIGNED) {
-            LeadStatus::updateOrCreate(
-              [
-                'client_id' => $c->id
-              ],
-              [
-                'client_id' => $c->id,
-                'lead_status' => ($cstat == ContractStatusEnum::VERIFIED) ?
-                  LeadStatusEnum::CONTRACT_VERIFIED : (
-                    $cstat == ContractStatusEnum::UN_VERIFIED ?
-                    LeadStatusEnum::CONTRACT_UNVERIFIED :
-                    LeadStatusEnum::CONTRACT_REJECTED
-                  )
-              ]
-            );
-          }
-        }
-      }
-      echo "Updated client contracts lead status";
     }
   }
 }

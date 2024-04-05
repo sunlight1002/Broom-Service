@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function Lead() {
     const [clients, setClients] = useState([]);

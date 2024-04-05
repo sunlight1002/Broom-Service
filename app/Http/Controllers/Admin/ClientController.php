@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
@@ -42,7 +43,7 @@ class ClientController extends Controller
     {
         $q = $request->q;
 
-        $result = Client::where('status', 2);
+        $result = Client::with('lead_status')->where('status', 2);
 
         if (!is_null($q)) {
             // $result->where('email',      'like', '%' . $q . '%');
@@ -162,6 +163,11 @@ class ClientController extends Controller
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+        );
 
         $addressIds = [];
         $property_address_data = $request->propertyAddress;
@@ -299,6 +305,11 @@ class ClientController extends Controller
                     'config'     => $sdata['config'],
                 ]);
             }
+
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
+            );
         }
         /*End create job */
 
@@ -537,6 +548,11 @@ class ClientController extends Controller
                     'config'     => $sdata['config'],
                 ]);
             }
+
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
+            );
         }
         /*End create job */
 

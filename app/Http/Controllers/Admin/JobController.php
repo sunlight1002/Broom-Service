@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Job;
@@ -370,6 +371,19 @@ class JobController extends Controller
             $contract = Contract::with('offer')->find($id);
         }
 
+        if (!$contract) {
+            return response()->json([
+                'message' => 'Contract not found'
+            ], 404);
+        }
+
+        $client = $contract->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
         $offerServices = $this->formatServices($contract->offer, false);
         $filtered = Arr::where($offerServices, function ($value, $key) use ($data) {
             return $value['service'] == $data['service_id'];
@@ -504,6 +518,11 @@ class JobController extends Controller
                 }
             }
         }
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
+        );
 
         return response()->json([
             'message' => 'Job has been created successfully'

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Moment from "moment";
+import Swal from "sweetalert2";
 
 export default function Contract({ contracts, setContracts }) {
     const headers = {

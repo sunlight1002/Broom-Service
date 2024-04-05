@@ -96,7 +96,7 @@ class ScheduleController extends Controller
 
         LeadStatus::updateOrCreate(
             ['client_id' => $schedule->client_id],
-            ['lead_status' => LeadStatusEnum::MEETING_PENDING]
+            ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
         );
 
         $schedule->load(['client', 'propertyAddress']);
