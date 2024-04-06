@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\ManageTime;
 use App\Models\WorkerNotAvailableDate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -41,25 +42,24 @@ class DashboardController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'date'     => 'required',
-            'worker_id'  => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $date = new WorkerNotAvailableDate;
-        $date->user_id = $request->worker_id;
-        $date->date    = $request->date;
-        $date->status  = $request->status;
-        $date->save();
+        WorkerNotAvailableDate::create([
+            'user_id' => Auth::user()->id,
+            'date'    => $request->date,
+            'status'  => $request->status,
+        ]);
 
         return response()->json(['message' => 'Date added']);
     }
 
-    public function getNotAvailableDates(Request $request)
+    public function notAvailableDates()
     {
-        $dates = WorkerNotAvailableDate::where(['user_id' => $request->id])->get();
+        $dates = WorkerNotAvailableDate::where(['user_id' => Auth::user()->id])->get();
         return response()->json(['dates' => $dates]);
     }
 

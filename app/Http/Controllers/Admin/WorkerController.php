@@ -335,12 +335,12 @@ class WorkerController extends Controller
         WorkerAvailability::where('user_id', $id)->delete();
 
         foreach ($data as $key => $availabilty) {
-            $avl = new WorkerAvailability;
-            $avl->user_id = $id;
-            $avl->date = trim($key);
-            $avl->working = $availabilty;
-            $avl->status = '1';
-            $avl->save();
+            WorkerAvailability::create([
+                'user_id' => $id,
+                'date' => trim($key),
+                'working' => $availabilty,
+                'status' => '1',
+            ]);
         }
 
         return response()->json([
@@ -365,7 +365,7 @@ class WorkerController extends Controller
 
     public function getALLWorkerAvailability()
     {
-        $allslot =  [
+        $allslot = [
             '8am-16pm' => array('08:00', '16:00'),
             '8am-10am' => array('08:00', '10:00'),
             '10am-12pm' => array('10:00', '12:00'),
@@ -417,7 +417,7 @@ class WorkerController extends Controller
 
     public function Slot($w_id, $w_date, $slot)
     {
-        $allslot =  [
+        $allslot = [
             '8am-16pm' => array('08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'),
             '8am-10am' => array('08:00', '08:30', '09:00', '09:30', '10:00'),
             '10am-12pm' => array('10:00', '10:30', '11:00', '11:30', '12:00'),
@@ -481,11 +481,11 @@ class WorkerController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $date          = new WorkerNotAvailableDate;
-        $date->user_id = $request->worker_id;
-        $date->date    = $request->date;
-        $date->status  = $request->status;
-        $date->save();
+        WorkerNotAvailableDate::create([
+            'user_id' => $request->worker_id,
+            'date'    => $request->date,
+            'status'  => $request->status,
+        ]);
 
         return response()->json(['message' => 'Date added']);
     }

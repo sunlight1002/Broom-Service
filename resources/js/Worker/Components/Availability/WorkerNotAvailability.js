@@ -15,30 +15,26 @@ export default function WorkerNotAvailability() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
-    let worker_id = localStorage.getItem("worker-id");
 
     const handleDate = (e) => {
         e.preventDefault();
         const data = {
             date: date,
-            worker_id: worker_id,
             status: 1,
         };
 
-        axios
-            .post(`/api/add-not-available-date`, data, { headers })
-            .then((res) => {
-                if (res.data.errors) {
-                    for (let e in res.data.errors) {
-                        window.alert(res.data.errors[e]);
-                    }
-                } else {
-                    document.querySelector(".closeb1").click();
-                    alert.success(res.data.message);
-                    getDates();
-                    setDate("");
+        axios.post(`/api/not-available-date`, data, { headers }).then((res) => {
+            if (res.data.errors) {
+                for (let e in res.data.errors) {
+                    window.alert(res.data.errors[e]);
                 }
-            });
+            } else {
+                document.querySelector(".closeb1").click();
+                alert.success(res.data.message);
+                getDates();
+                setDate("");
+            }
+        });
     };
 
     const handleDelete = (e, id) => {
@@ -74,15 +70,9 @@ export default function WorkerNotAvailability() {
     };
 
     const getDates = () => {
-        axios
-            .post(
-                `/api/get-not-available-dates`,
-                { id: parseInt(worker_id) },
-                { headers }
-            )
-            .then((res) => {
-                setAllDates(res.data.dates);
-            });
+        axios.get(`/api/not-available-dates`, { headers }).then((res) => {
+            setAllDates(res.data.dates);
+        });
     };
     useEffect(() => {
         getDates();

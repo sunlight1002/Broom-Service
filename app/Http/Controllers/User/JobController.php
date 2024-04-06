@@ -12,6 +12,7 @@ use App\Traits\PaymentAPI;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
@@ -110,11 +111,12 @@ class JobController extends Controller
         ]);
     }
 
-    public function getWorkerAvailability($id)
+    public function getAvailability()
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', $id)
+        $worker_availabilities = WorkerAvailability::where('user_id', Auth::user()->id)
             ->orderBy('id', 'asc')
             ->get();
+
         $new_array = array();
         foreach ($worker_availabilities as $w_a) {
             $new_array[$w_a->date] = $w_a->working;
@@ -124,16 +126,34 @@ class JobController extends Controller
             'availability' => $new_array,
         ]);
     }
-    public function updateAvailability(Request $request, $id)
+    public function updateAvailability(Request $request)
     {
-        WorkerAvailability::where('user_id', $id)->delete();
-        foreach ($request->data as $key => $availabilty) {
-            $avl = new WorkerAvailability;
-            $avl->user_id = $id;
-            $avl->date = trim($key);
-            $avl->working = $availabilty;
-            $avl->status = '1';
-            $avl->save();
+        $isMondayPassed = Carbon::today()->weekday() > Carbon::MONDAY;
+
+        $data = $request->all();
+
+        if ($isMondayPassed) {
+            $firstEditDate = Carbon::today()->addWeeks(2)->startOfWeek(Carbon::SUNDAY);
+        } else {
+            $firstEditDate = Carbon::today()->addWeek()->startOfWeek(Carbon::SUNDAY);
+        }
+
+        WorkerAvailability::query()
+            ->where('user_id', Auth::user()->id)
+            ->whereDate('date', '>=', $firstEditDate->toDateString())
+            ->delete();
+
+        foreach ($data as $key => $availabilty) {
+            $date = trim($key);
+
+            if ($firstEditDate->lte(Carbon::parse($date))) {
+                WorkerAvailability::create([
+                    'user_id' => Auth::user()->id,
+                    'date' => $date,
+                    'working' => $availabilty,
+                    'status' => '1',
+                ]);
+            }
         }
 
         return response()->json([
@@ -148,11 +168,11 @@ class JobController extends Controller
             $job->save();
         }
 
-        $time = new JobHours();
-        $time->job_id = $request->job_id;
-        $time->worker_id = $request->worker_id;
-        $time->start_time = $request->start_time;
-        $time->save();
+        JobHours::create([
+            'job_id' => $request->job_id,
+            'worker_id' => $request->worker_id,
+            'start_time' => $request->start_time,
+        ]);
 
         return response()->json([
             'message' => 'Updated Successfully',
@@ -161,9 +181,11 @@ class JobController extends Controller
     public function JobEndTime(Request $request)
     {
         $time = JobHours::find($request->id);
-        $time->end_time = $request->end_time;
-        $time->time_diff = $request->time_diff;
-        $time->save();
+
+        $time->update([
+            'end_time' => $request->end_time,
+            'time_diff' => $request->time_diff,
+        ]);
 
         return response()->json([
             'message' => 'Updated Successfully',
