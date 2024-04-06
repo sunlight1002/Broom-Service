@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
 
 export default function Comment() {
+    let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
     const [role, setRole] = useState("");
     const [allClientComment, setAllClientComment] = useState([]);
@@ -15,7 +16,7 @@ export default function Comment() {
 
     const headers = {
         Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
@@ -29,12 +30,21 @@ export default function Comment() {
             window.alert("Please Enter Comment");
             return;
         }
-        let data = {
-            job_id: param.id,
-            comment: comment,
-            role: role,
-            name: localStorage.getItem("admin-name"),
-        };
+        const data = new FormData();
+        data.append("job_id", param.id);
+        data.append("comment", comment);
+        data.append("role", role);
+        data.append("name", localStorage.getItem("admin-name"));
+        if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
+            for (
+                let index = 0;
+                index < cmtFileRef.current.files.length;
+                index++
+            ) {
+                const element = cmtFileRef.current.files[index];
+                data.append("files[]", element);
+            }
+        }
 
         axios.post(`/api/admin/job-comments`, data, { headers }).then((res) => {
             if (res.data.error) {
@@ -42,7 +52,7 @@ export default function Comment() {
                     window.alert(res.data.error[e]);
                 }
             } else {
-                document.querySelector(".closeb").click();
+                document.querySelector("#exampleModal .closeb").click();
                 alert.success(res.data.message);
                 getComments();
                 setComment("");
@@ -83,7 +93,6 @@ export default function Comment() {
         axios
             .get(`/api/admin/job-comments?id=${param.id}`, { headers })
             .then((res) => {
-                console.log(res.data);
                 setAllClientComment(res.data.client_comments);
                 setAllWorkerComment(res.data.worker_comments);
             });
@@ -92,6 +101,14 @@ export default function Comment() {
     useEffect(() => {
         getComments();
     }, []);
+
+    const handleToggle = () => {
+        if (cmtFileRef.current) {
+            cmtFileRef.current.value = "";
+            cmtFileRef.current.type = "text";
+            cmtFileRef.current.type = "file";
+        }
+    };
 
     return (
         <div
@@ -102,6 +119,7 @@ export default function Comment() {
         >
             <div className="text-right pb-3">
                 <button
+                    onClick={() => handleToggle()}
                     type="button"
                     className="btn btn-pink"
                     data-toggle="modal"
@@ -196,6 +214,42 @@ export default function Comment() {
                                             </div>
                                             <div className="col-sm-12">
                                                 {c.comment}
+                                                <br />
+                                                {c.comments &&
+                                                    c.comments.length > 0 &&
+                                                    c.comments.map((cm, i) => {
+                                                        return (
+                                                            <span
+                                                                className="badge badge-warning text-dark"
+                                                                key={i}
+                                                            >
+                                                                <a
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        let show =
+                                                                            document.querySelector(
+                                                                                ".showFile"
+                                                                            );
+
+                                                                        show.setAttribute(
+                                                                            "src",
+                                                                            `${process.env.MIX_BACKEND_URL}/storage/uploads/comments/${cm.file}`
+                                                                        );
+                                                                        show.style.display =
+                                                                            "block";
+                                                                    }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModalFile"
+                                                                    style={{
+                                                                        cursor: "pointer",
+                                                                    }}
+                                                                >
+                                                                    {cm.file}
+                                                                </a>
+                                                            </span>
+                                                        );
+                                                    })}
                                             </div>
                                         </div>
                                     </div>
@@ -338,6 +392,23 @@ export default function Comment() {
                                         ></textarea>
                                     </div>
                                 </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label
+                                            htmlFor="cmtFiles"
+                                            className="form-label"
+                                        >
+                                            Upload files
+                                        </label>
+                                        <input
+                                            ref={cmtFileRef}
+                                            className="form-control"
+                                            type="file"
+                                            id="cmtFiles"
+                                            multiple
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="modal-footer">
@@ -355,6 +426,41 @@ export default function Comment() {
                             >
                                 Save Comment
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                className="modal fade"
+                id="exampleModalFile"
+                tabIndex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content" style={{ width: "130%" }}>
+                        <div className="modal-header">
+                            <button
+                                type="button"
+                                className="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <img
+                                            src=""
+                                            className="showFile form-control"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

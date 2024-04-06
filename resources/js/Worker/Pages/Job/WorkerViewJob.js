@@ -53,10 +53,11 @@ export default function WorkerViewJob() {
         const cbtn = document.querySelector(".cmbtn");
         cbtn.setAttribute("disabled", true);
         cbtn.value = "please wait ...";
-        axios.put(`/api/jobs/${params.id}`, data, { headers }).then((res) => {
-            alert.success("Job Mark as Completed.");
-            getJob();
-        });
+        document.querySelector(".note-btn").click();
+        // axios.put(`/api/jobs/${params.id}`, data, { headers }).then((res) => {
+        //     alert.success("Job Mark as Completed.");
+        //     getJob();
+        // });
     };
     const getDateTime = () => {
         var now = new Date();
@@ -357,7 +358,10 @@ export default function WorkerViewJob() {
                                         )}
                                     </div>
                                 </div>
-                                <Comment />
+                                <Comment
+                                    handleGetJob={getJob}
+                                    jobStatus={job_status}
+                                />
                             </div>
                             <div className="col-sm-12 text-center">
                                 <button
