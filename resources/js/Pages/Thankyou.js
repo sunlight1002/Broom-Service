@@ -4,7 +4,7 @@ import { useSSR, useTranslation } from "react-i18next";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
-
+import { useNavigate } from "react-router-dom";
 import logo from "../Assets/image/sample.svg";
 
 export default function Thankyou() {
@@ -12,6 +12,7 @@ export default function Thankyou() {
     const [instatus, setInstatus] = useState([]);
     const param = useParams();
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const updateMeeting = () => {
         let responseUrl =
             param.response == "accept"
@@ -42,7 +43,11 @@ export default function Thankyou() {
                 if (stat == "pending" || instat != stat) {
                     updateMeeting();
                 }
-
+                setTimeout(() => {
+                    if (param.response === "accept") {
+                        navigate(`/meetings/${param.id}/choose-slot`);
+                    }
+                }, 500);
                 const lng = res.data.schedule.client.lng;
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {

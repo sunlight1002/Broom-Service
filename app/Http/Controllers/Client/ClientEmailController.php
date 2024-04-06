@@ -56,9 +56,12 @@ class ClientEmailController extends Controller
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(start_time, '%h:%i %p'), '%H:%i') as start_time")
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(end_time, '%h:%i %p'), '%H:%i') as end_time")
       ->get();
-
-    $timeSlot = json_decode($schedule->team->availability->time_slots, true);
-    $availableSlots = $timeSlot[$startDate];
+    $timeSlot = [];
+    $availableSlots = [];
+    if($schedule->team->availability){
+      $timeSlot = json_decode($schedule->team->availability->time_slots, true);
+      $availableSlots = $timeSlot[$startDate];
+    }
     $availableSlots24Hrs = [];
     foreach ($availableSlots as $key => $value) {
       $availableSlots24Hrs[] = [
