@@ -234,7 +234,7 @@ export default function Comment() {
 
                                                                         show.setAttribute(
                                                                             "src",
-                                                                            `storage/uploads/comments/${cm.file}`
+                                                                            `/storage/uploads/comments/${cm.file}`
                                                                         );
                                                                         show.style.display =
                                                                             "block";

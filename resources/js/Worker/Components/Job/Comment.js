@@ -205,7 +205,7 @@ export default function Comment({ handleGetJob, jobStatus }) {
 
                                                                 show.setAttribute(
                                                                     "src",
-                                                                    `storage/uploads/comments/${cm.file}`
+                                                                    `/storage/uploads/comments/${cm.file}`
                                                                 );
                                                                 show.style.display =
                                                                     "block";
