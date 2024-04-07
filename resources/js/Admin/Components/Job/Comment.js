@@ -315,7 +315,42 @@ export default function Comment() {
                                                 </div>
                                             </div>
                                             <div className="col-sm-12">
-                                                {w.comment}
+                                                <p>{w.comment}</p>
+                                                {w.comments &&
+                                                    w.comments.length > 0 &&
+                                                    w.comments.map((cm, i) => {
+                                                        return (
+                                                            <span
+                                                                className="badge badge-warning text-dark"
+                                                                key={i}
+                                                            >
+                                                                <a
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        let show =
+                                                                            document.querySelector(
+                                                                                ".showFile"
+                                                                            );
+
+                                                                        show.setAttribute(
+                                                                            "src",
+                                                                            `/storage/uploads/comments/${cm.file}`
+                                                                        );
+                                                                        show.style.display =
+                                                                            "block";
+                                                                    }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModalFile"
+                                                                    style={{
+                                                                        cursor: "pointer",
+                                                                    }}
+                                                                >
+                                                                    {cm.file}
+                                                                </a>
+                                                            </span>
+                                                        );
+                                                    })}
                                             </div>
                                         </div>
                                     </div>
