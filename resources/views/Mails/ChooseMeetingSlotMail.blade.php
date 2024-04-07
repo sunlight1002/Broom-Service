@@ -60,7 +60,7 @@
 		<div style="display:flex;justify-content: center">
 			<a href='{{ url("thankyou/".base64_encode($id)."/accept")}}' target='_blank' style="background: green;color: #fff;border: 1px solid green;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center">{{__('mail.meeting.accept')}}</a>
 			<a href='{{ url("thankyou/".base64_encode($id)."/reject")}}' style="background: red;color: #fff;border: 1px solid red;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;margin: 0 15px;text-align: center">{{__('mail.meeting.reject')}}</a>
-			<a href='{{ url("meetings/".base64_encode($id)."/choose-slot")}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.choose_slot')}}</a>
+			{{--<a href='{{ url("meetings/".base64_encode($id)."/choose-slot")}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.choose_slot')}}</a>--}}
 		</div>
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>

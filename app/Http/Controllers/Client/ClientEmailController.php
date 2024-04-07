@@ -60,7 +60,7 @@ class ClientEmailController extends Controller
     $availableSlots = [];
     if($schedule->team->availability){
       $timeSlot = json_decode($schedule->team->availability->time_slots, true);
-      $availableSlots = $timeSlot[$startDate];
+      $availableSlots = isset($timeSlot[$startDate]) ? $timeSlot[$startDate] : [];
     }
     $availableSlots24Hrs = [];
     foreach ($availableSlots as $key => $value) {
@@ -452,9 +452,9 @@ class ClientEmailController extends Controller
       ], 403);
     }
 
-    if ($schedule->booking_status == 'confirmed') {
+    if ($schedule->start_time && $schedule->end_time) {
       return response()->json([
-        'message' => 'Meeting is already confirmed'
+        'message' => 'Meeting slot is already selected'
       ], 403);
     }
 

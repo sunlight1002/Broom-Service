@@ -16,8 +16,8 @@ export default function Thankyou() {
     const updateMeeting = () => {
         let responseUrl =
             param.response == "accept"
-                ? "`/api/client/accept-meeting`"
-                : "`/api/client/reject-meeting`";
+                ? "/api/client/accept-meeting"
+                : "/api/client/reject-meeting";
 
         axios
             .post(responseUrl, {
