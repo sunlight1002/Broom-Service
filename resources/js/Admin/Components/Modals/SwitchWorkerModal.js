@@ -6,7 +6,12 @@ import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 
-export default function SwitchWorkerModal({ setIsOpen, isOpen, jobId }) {
+export default function SwitchWorkerModal({
+    setIsOpen,
+    isOpen,
+    jobId,
+    onSuccess,
+}) {
     const alert = useAlert();
     const [workers, setWorkers] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -82,6 +87,7 @@ export default function SwitchWorkerModal({ setIsOpen, isOpen, jobId }) {
                     );
                     setIsOpen(false);
                     setIsLoading(false);
+                    onSuccess();
                 })
                 .catch((e) => {
                     Swal.fire({

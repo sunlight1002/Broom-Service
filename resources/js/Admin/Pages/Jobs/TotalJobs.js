@@ -1487,6 +1487,7 @@ export default function TotalJobs() {
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
                     jobId={selectedJobId}
+                    onSuccess={() => getJobs()}
                 />
             )}
         </div>
