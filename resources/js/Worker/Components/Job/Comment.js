@@ -188,9 +188,9 @@ export default function Comment({ handleGetJob, jobStatus }) {
                                     </div>
                                     <div className="col-sm-12">
                                         <p>{c.comment}</p>
-                                        {c.comments &&
-                                            c.comments.length > 0 &&
-                                            c.comments.map((cm, i) => {
+                                        {c.attachments &&
+                                            c.attachments.length > 0 &&
+                                            c.attachments.map((cm, i) => {
                                                 return (
                                                     <span
                                                         className="badge badge-warning text-dark"
@@ -205,7 +205,7 @@ export default function Comment({ handleGetJob, jobStatus }) {
 
                                                                 show.setAttribute(
                                                                     "src",
-                                                                    `/storage/uploads/comments/${cm.file}`
+                                                                    `/storage/uploads/attachments/${cm.file}`
                                                                 );
                                                                 show.style.display =
                                                                     "block";

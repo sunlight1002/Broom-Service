@@ -58,16 +58,11 @@ export default function WorkerViewJob() {
         navigate(`/worker/jobs`);
     };
     const HandleMarkComplete = () => {
-        let data = [];
         isRunning ? stopTimer() : "";
         const cbtn = document.querySelector(".cmbtn");
         cbtn.setAttribute("disabled", true);
         cbtn.value = "please wait ...";
         document.querySelector(".note-btn").click();
-        // axios.put(`/api/jobs/${params.id}`, data, { headers }).then((res) => {
-        //     alert.success("Job Mark as Completed.");
-        //     getJob();
-        // });
     };
     const getDateTime = () => {
         var now = new Date();

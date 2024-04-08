@@ -215,41 +215,45 @@ export default function Comment() {
                                             <div className="col-sm-12">
                                                 {c.comment}
                                                 <br />
-                                                {c.comments &&
-                                                    c.comments.length > 0 &&
-                                                    c.comments.map((cm, i) => {
-                                                        return (
-                                                            <span
-                                                                className="badge badge-warning text-dark"
-                                                                key={i}
-                                                            >
-                                                                <a
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        let show =
-                                                                            document.querySelector(
-                                                                                ".showFile"
-                                                                            );
-
-                                                                        show.setAttribute(
-                                                                            "src",
-                                                                            `/storage/uploads/comments/${cm.file}`
-                                                                        );
-                                                                        show.style.display =
-                                                                            "block";
-                                                                    }}
-                                                                    data-toggle="modal"
-                                                                    data-target="#exampleModalFile"
-                                                                    style={{
-                                                                        cursor: "pointer",
-                                                                    }}
+                                                {c.attachments &&
+                                                    c.attachments.length > 0 &&
+                                                    c.attachments.map(
+                                                        (cm, i) => {
+                                                            return (
+                                                                <span
+                                                                    className="badge badge-warning text-dark"
+                                                                    key={i}
                                                                 >
-                                                                    {cm.file}
-                                                                </a>
-                                                            </span>
-                                                        );
-                                                    })}
+                                                                    <a
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            let show =
+                                                                                document.querySelector(
+                                                                                    ".showFile"
+                                                                                );
+
+                                                                            show.setAttribute(
+                                                                                "src",
+                                                                                `/storage/uploads/attachments/${cm.file}`
+                                                                            );
+                                                                            show.style.display =
+                                                                                "block";
+                                                                        }}
+                                                                        data-toggle="modal"
+                                                                        data-target="#exampleModalFile"
+                                                                        style={{
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            cm.file
+                                                                        }
+                                                                    </a>
+                                                                </span>
+                                                            );
+                                                        }
+                                                    )}
                                             </div>
                                         </div>
                                     </div>
@@ -316,41 +320,45 @@ export default function Comment() {
                                             </div>
                                             <div className="col-sm-12">
                                                 <p>{w.comment}</p>
-                                                {w.comments &&
-                                                    w.comments.length > 0 &&
-                                                    w.comments.map((cm, i) => {
-                                                        return (
-                                                            <span
-                                                                className="badge badge-warning text-dark"
-                                                                key={i}
-                                                            >
-                                                                <a
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        let show =
-                                                                            document.querySelector(
-                                                                                ".showFile"
-                                                                            );
-
-                                                                        show.setAttribute(
-                                                                            "src",
-                                                                            `/storage/uploads/comments/${cm.file}`
-                                                                        );
-                                                                        show.style.display =
-                                                                            "block";
-                                                                    }}
-                                                                    data-toggle="modal"
-                                                                    data-target="#exampleModalFile"
-                                                                    style={{
-                                                                        cursor: "pointer",
-                                                                    }}
+                                                {w.attachments &&
+                                                    w.attachments.length > 0 &&
+                                                    w.attachments.map(
+                                                        (cm, i) => {
+                                                            return (
+                                                                <span
+                                                                    className="badge badge-warning text-dark"
+                                                                    key={i}
                                                                 >
-                                                                    {cm.file}
-                                                                </a>
-                                                            </span>
-                                                        );
-                                                    })}
+                                                                    <a
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            let show =
+                                                                                document.querySelector(
+                                                                                    ".showFile"
+                                                                                );
+
+                                                                            show.setAttribute(
+                                                                                "src",
+                                                                                `/storage/uploads/attachments/${cm.file}`
+                                                                            );
+                                                                            show.style.display =
+                                                                                "block";
+                                                                        }}
+                                                                        data-toggle="modal"
+                                                                        data-target="#exampleModalFile"
+                                                                        style={{
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            cm.file
+                                                                        }
+                                                                    </a>
+                                                                </span>
+                                                            );
+                                                        }
+                                                    )}
                                             </div>
                                         </div>
                                     </div>
