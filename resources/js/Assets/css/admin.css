@@ -1040,10 +1040,6 @@ h1 {
   margin: 0 auto;
 }
 
-.maxWidth770 {
-  max-width: 770px;
-}
-
 .sch-meet h1 {
   color: #dc3545;
   font-size: 21px !important;
@@ -1320,6 +1316,12 @@ h1 {
   color: #111;
   background: #f7d1c1;
   border: 1px solid #F4A583;
+}
+
+.timeslots label>input+.forcustom.not-allowed-date {
+  cursor: unset !important;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .worker-profile h2 {
@@ -1663,6 +1665,20 @@ h1 {
 
 .crt-jb.responsiveTable tbody tr td:last-child {
   padding-top: 11px !important;
+}
+.crt-jb-table-scrollable{
+  overflow-x: auto;
+}
+.crt-jb-wrap.responsiveTable tbody tr td {
+  min-width: 280px;
+  cursor: pointer;
+}
+.crt-jb-wrap.responsiveTable tbody tr td > div{
+  max-height: 250px;
+  overflow-y: auto;
+}
+.crt-jb-wrap.responsiveTable tbody tr td div:last-child{
+  border-bottom: 0px !important;
 }
 
 .fc-license-message {

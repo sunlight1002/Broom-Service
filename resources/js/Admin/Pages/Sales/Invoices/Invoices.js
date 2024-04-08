@@ -25,18 +25,16 @@ export default function Invoices() {
     const [reason, setReason] = useState("");
     const [cbvalue, setCbvalue] = useState("");
     const [res, setRes] = useState("");
+    const [payId, setPayID] = useState(0);
+    const [amount, setAmount] = useState();
+    const [txn, setTxn] = useState("");
+    const [filtered, setFiltered] = useState("");
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
-    const [payId, setPayID] = useState(0);
-    const [place, setPlace] = useState("");
-    const [paidAmount, setPaidAmount] = useState("");
-    const [amount, setAmount] = useState();
-    const [txn, setTxn] = useState("");
-    const [filtered, setFiltered] = useState("");
 
     const getInvoices = () => {
         axios.get("/api/admin/invoices", { headers }).then((res) => {
@@ -106,25 +104,20 @@ export default function Invoices() {
     };
 
     const handlePayment = () => {
-        if (paidAmount == "") {
-            window.alert("Please enter amount");
-            return;
-        }
-
         const m = document.querySelector(".mode").value;
 
-        const stat = paidAmount >= amount ? "Paid" : "Partially Paid";
         const pm = {
             cc: "Credit Card",
             mt: "Bank Transfer",
             cash: "Cash",
             cheque: "Cheque",
         };
+
         const mdata = {
-            paid_amount: paidAmount,
-            pay_method: paidAmount > 0 ? pm[m] : "",
+            paid_amount: amount,
+            pay_method: pm[m],
             txn_id: txn,
-            status: paidAmount > 0 ? stat : "Unpaid",
+            status: "Paid",
         };
         let data = {};
 
@@ -192,7 +185,6 @@ export default function Invoices() {
                 sb.prop("disabled", false);
                 sb.html("Save Payment");
                 getInvoices("");
-                setPaidAmount("");
                 setPayID(0);
             })
             .catch((e) => {
@@ -708,30 +700,6 @@ export default function Invoices() {
                                         <Tbody>
                                             {invoices &&
                                                 invoices.map((item, index) => {
-                                                    let services =
-                                                        item.services !=
-                                                            undefined &&
-                                                        item.services != null
-                                                            ? JSON.parse(
-                                                                  item.services
-                                                              )
-                                                            : [];
-
-                                                    let pl =
-                                                        item.amount !=
-                                                        item.paid_amount
-                                                            ? parseFloat(
-                                                                  item.amount
-                                                              ) -
-                                                              parseFloat(
-                                                                  item.paid_amount
-                                                              )
-                                                            : item.amount;
-                                                    pl =
-                                                        "Total Payable -  " +
-                                                        pl +
-                                                        " ILS";
-
                                                     return (
                                                         <Tr key={index}>
                                                             <Td>
@@ -850,9 +818,6 @@ export default function Invoices() {
                                                                                 ) => {
                                                                                     setPayID(
                                                                                         item.id
-                                                                                    );
-                                                                                    setPlace(
-                                                                                        pl
                                                                                     );
                                                                                     setAmount(
                                                                                         item.amount
@@ -1003,15 +968,9 @@ export default function Invoices() {
                                             </label>
                                             <input
                                                 type="number"
-                                                value={paidAmount}
-                                                onChange={(e) =>
-                                                    setPaidAmount(
-                                                        e.target.value
-                                                    )
-                                                }
+                                                value={amount}
                                                 className="form-control"
-                                                required
-                                                placeholder={place}
+                                                readOnly
                                             ></input>
                                         </div>
                                     </div>
@@ -1024,8 +983,8 @@ export default function Invoices() {
                                                 Transaction / Reference ID
                                                 <small>
                                                     {" "}
-                                                    ( Optional in credit card
-                                                    mode )
+                                                    (Optional in credit card
+                                                    mode)
                                                 </small>
                                             </label>
                                             <input

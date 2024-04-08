@@ -1,56 +1,38 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
 
-import JobWorkerModal from "../Modals/JobWorkerModal";
+import { shiftOptions } from "../../../Utils/common.utils";
+import { filterShiftOptions } from "../../../Utils/job.utils";
 
-export default function CreateJobCalender() {
+export default function CreateJobCalender({
+    services: clientServices,
+    client,
+}) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
+    const [workerData, setWorkerData] = useState([]);
+    const [AllWorkers, setAllWorkers] = useState([]);
     const [interval, setTimeInterval] = useState([]);
-    const [shiftFreezeTime, setShiftFreezeTime] = useState({});
-    const [selectedService, setSelectedService] = useState(null);
+    const [selectedService, setSelectedService] = useState(0);
     const [data, setData] = useState([]);
-    const [isOpenWorker, setIsOpenWorker] = useState(false);
-    const [services, setServices] = useState([]);
-    const [contract, setContract] = useState(null);
-    const [shiftFormValues, setShiftFormValues] = useState([]);
-    const [tmpFormValues, setTmpFormValues] = useState({});
-    const [editIndex, setEditIndex] = useState(-1);
-
-    let isPrevWorker = useRef();
+    const [c_time, setCTime] = useState(0);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
-    const getJob = () => {
-        axios
-            .get(`/api/admin/contract/${params.id}`, { headers })
-            .then((res) => {
-                const _contract = res.data.contract;
-                setContract(_contract);
-                setServices(JSON.parse(_contract.offer.services));
-            });
-    };
-
-    const clientName = useMemo(() => {
-        if (contract) {
-            return contract.client.firstname + " " + contract.client.lastname;
-        } else {
-            return "-";
-        }
-    }, [contract]);
+    let isPrevWorker = useRef();
+    const [services, setServices] = useState(clientServices);
 
     useEffect(() => {
-        getJob();
-    }, []);
+        setServices(clientServices);
+    }, [clientServices]);
 
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
@@ -62,14 +44,6 @@ export default function CreateJobCalender() {
                     return ai.indexOf(obj) == -1;
                 });
                 setTimeInterval(hid);
-                const { freeze_shift_start_time, freeze_shift_end_time } =
-                    res.data.data;
-                if (freeze_shift_start_time && freeze_shift_end_time) {
-                    setShiftFreezeTime({
-                        start: freeze_shift_start_time,
-                        end: freeze_shift_end_time,
-                    });
-                }
             }
         });
     };
@@ -80,38 +54,54 @@ export default function CreateJobCalender() {
     const handleServices = (value) => {
         services.forEach((_s) => {
             if (_s.service != value) {
-                $(".services-" + _s.service).css("display", "none");
+                $(".services-" + _s.service + "-" + _s.contract_id).css(
+                    "display",
+                    "none"
+                );
             }
         });
 
-        const _service = services.find((s) => s.service == value);
+        const _service = services.find((_s, _index) => _s.service == value);
 
+        setCTime(parseFloat(_service.jobHours));
         setServices([_service]);
         setSelectedService(_service);
+        getWorkers(_service);
         $("#edit-work-time").modal("hide");
     };
 
-    const handleSave = (indexKey, tmpWorkerData) => {
-        let newFormValues = [...shiftFormValues];
-        if (indexKey > -1) {
-            newFormValues[indexKey] = tmpWorkerData;
-        } else {
-            newFormValues.push(tmpWorkerData);
-        }
-        setShiftFormValues(newFormValues);
+    const getWorkers = (_service) => {
+        axios
+            .get(`/api/admin/all-workers`, {
+                headers,
+                params: {
+                    filter: true,
+                    service_id: _service.service,
+                    has_cat: _service.address.is_cat_avail,
+                    has_dog: _service.address.is_dog_avail,
+                    prefer_type: _service.address.prefer_type,
+                    ignore_worker_ids: _service.address.not_allowed_worker_ids,
+                },
+            })
+            .then((res) => {
+                setAllWorkers(res.data.workers);
+            });
     };
 
     const handleSubmit = () => {
         let formdata = {
-            workers: shiftFormValues,
+            workers: data,
             service_id: selectedService.service,
+            contract_id: selectedService.contract_id,
             prevWorker: isPrevWorker.current.checked,
         };
-
         let viewbtn = document.querySelectorAll(".viewBtn");
-        if (shiftFormValues.length > 0) {
+        if (data.length > 0) {
             viewbtn[0].setAttribute("disabled", true);
             viewbtn[0].value = "please wait ...";
+
+            viewbtn[1].setAttribute("disabled", true);
+            viewbtn[1].value = "please wait ...";
 
             axios
                 .post(`/api/admin/create-job/${params.id}`, formdata, {
@@ -133,132 +123,751 @@ export default function CreateJobCalender() {
         } else {
             viewbtn[0].removeAttribute("disabled");
             viewbtn[0].value = "View Job";
+            viewbtn[1].removeAttribute("disabled");
+            viewbtn[1].value = "View Job";
             alert.error("Please Select the Workers");
         }
     };
 
-    const handleEditShift = (_shift, _index) => {
-        setTmpFormValues(_shift);
-        setEditIndex(_index);
-        setIsOpenWorker(true);
+    let curr = new Date();
+    let week = [];
+    let nextweek = [];
+    let nextnextweek = [];
+    for (let i = 0; i < 7; i++) {
+        let first = curr.getDate() - curr.getDay() + i;
+        if (first >= curr.getDate()) {
+            if (!interval.includes(i)) {
+                let day = new Date(curr.setDate(first))
+                    .toISOString()
+                    .slice(0, 10);
+                week.push(day);
+            }
+        }
+    }
+
+    for (let i = 0; i < 7; i++) {
+        if (!interval.includes(i)) {
+            var today = new Date();
+            var first = today.getDate() - today.getDay() + 7 + i;
+            var firstday = new Date(today.setDate(first))
+                .toISOString()
+                .slice(0, 10);
+            nextweek.push(firstday);
+        }
+    }
+    for (let i = 0; i < 7; i++) {
+        if (!interval.includes(i)) {
+            var today = new Date();
+            var first = today.getDate() - today.getDay() + 14 + i;
+            var firstday = new Date(today.setDate(first))
+                .toISOString()
+                .slice(0, 10);
+            nextnextweek.push(firstday);
+        }
+    }
+
+    const changeShift = (w_id, date, e) => {
+        setWorkerData([...workerData, { ...e, w_id, date }]);
+        e = [
+            ...workerData.filter((d) => d.date == date && d.w_id == w_id),
+            { ...e, w_id, date },
+        ];
+        let w_n = $("#worker-" + w_id).html();
+        let filtered = data.filter((d) => {
+            if (d.date == date && d.worker_id == w_id) {
+                return false;
+            } else {
+                return d;
+            }
+        });
+        let shifts = "";
+        let value = false;
+        e.map((v) => {
+            if (v.label == "fullday-8am-16pm") {
+                value = true;
+            }
+            if (shifts == "") {
+                shifts = v.label;
+            } else {
+                if (value && [0, 1, 2, 3, 4, 5, 6].includes(v.value)) {
+                    Swal.fire(
+                        "Warning!",
+                        "Worker already assigned to full Day.",
+                        "success"
+                    );
+                } else {
+                    shifts = shifts + "," + v.label;
+                }
+            }
+        });
+
+        var newdata;
+        if (shifts != "") {
+            newdata = [
+                ...filtered,
+                {
+                    worker_id: w_id,
+                    worker_name: w_n,
+                    date: date,
+                    shifts: shifts,
+                },
+            ];
+        } else {
+            newdata = [...filtered];
+        }
+        setData(newdata);
     };
-
-    const handleDeleteShift = (_index) => {
-        let newFormValues = [...shiftFormValues];
-
-        if (_index > -1) {
-            newFormValues.splice(_index, 1);
-            setShiftFormValues(newFormValues);
+    const removeShift = (w_id, date, e) => {
+        let filtered = data.find((d) => {
+            if (d.date == date && d.worker_id == w_id) {
+                return d;
+            } else {
+                return false;
+            }
+        });
+        if (filtered) {
+            const shift = filtered.shifts.split(",") ?? [];
+            var index = shift.indexOf(e.label);
+            if (index > -1) {
+                shift.splice(index, 1);
+                const tmpworker = [...workerData];
+                var indexWorker = tmpworker.findIndex(
+                    (item) =>
+                        item.date === date &&
+                        item.w_id === w_id &&
+                        item.value === e.value &&
+                        item.label === e.label
+                );
+                if (indexWorker > -1) {
+                    tmpworker.splice(indexWorker, 1);
+                    setWorkerData(tmpworker);
+                }
+                setData(
+                    data.map((item) =>
+                        item.date === date && item.worker_id === w_id
+                            ? { ...item, shifts: shift.join(",") }
+                            : item
+                    )
+                );
+            }
         }
     };
-
-    const handleOpenWorkerModal = () => {
-        setEditIndex(-1);
-        setIsOpenWorker(true);
-    };
-
-    const person = {
-        "8am-16pm": "Full Day",
-        "8am-12pm": "Morning",
-        "12pm-16pm": "Afternoon",
-        "16pm-20pm": "Evening",
-        "20pm-24am": "Night",
+    const hasActive = (w_id, date, e) => {
+        let filtered = data.find((d) => {
+            if (d.date == date && d.worker_id == w_id) {
+                return d;
+            } else {
+                return false;
+            }
+        });
+        if (filtered) {
+            const shift = filtered.shifts.split(",") ?? [];
+            var index = shift.indexOf(e.label);
+            if (index > -1) {
+                return true;
+            }
+        }
+        return false;
     };
 
     return (
         <>
-            {selectedService && (
-                <>
-                    <div className="mb-3">
-                        <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={handleOpenWorkerModal}
-                        >
-                            Add worker
-                        </button>
-                    </div>
-
-                    {isOpenWorker && (
-                        <JobWorkerModal
-                            setIsOpen={setIsOpenWorker}
-                            isOpen={isOpenWorker}
-                            service={selectedService}
-                            handleSaveForm={handleSave}
-                            tmpFormValues={tmpFormValues}
-                            editIndex={editIndex}
-                        />
-                    )}
-                </>
-            )}
-
-            <Table className="table table-bordered crt-jb">
-                <Thead>
-                    <Tr>
-                        <Th>Worker</Th>
-                        <Th>Date</Th>
-                        <Th>Shifts</Th>
-                        <Th></Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {shiftFormValues.map((_shift, _index) => {
-                        const _workerShifts = _shift.shifts
-                            .map((t) => `${t.start}-${t.end}`)
-                            .join(", ");
-
-                        const dateInString = moment(_shift.date)
-                            .toString()
-                            .slice(0, 15);
-
-                        return (
-                            <Tr key={_index}>
-                                <Td>{_shift.worker_name}</Td>
-                                <Td>{dateInString}</Td>
-                                <Td>{_workerShifts}</Td>
-                                <Td>
-                                    <button
-                                        type="button"
-                                        className="btn btn-icon btn-sm btn-info"
-                                        onClick={() =>
-                                            handleEditShift(_shift, _index)
-                                        }
-                                    >
-                                        <i className="fa fa-edit"></i>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="btn btn-icon btn-sm btn-danger"
-                                        onClick={() =>
-                                            handleDeleteShift(_index)
-                                        }
-                                    >
-                                        <i className="fa fa-close"></i>
-                                    </button>
-                                </Td>
-                            </Tr>
-                        );
-                    })}
-                    {shiftFormValues.length == 0 && (
-                        <Tr>
-                            <Td colSpan="4" className="text-center">
-                                No worker selected
-                            </Td>
-                        </Tr>
-                    )}
-                </Tbody>
-            </Table>
-
-            <div className="form-group text-center">
+            <ul className="nav nav-tabs mb-2" role="tablist">
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="worker-availability"
+                        className="nav-link active"
+                        data-toggle="tab"
+                        href="#tab-worker-availability"
+                        aria-selected="true"
+                        role="tab"
+                    >
+                        Current Week
+                    </a>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="current-job"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-current-job"
+                        aria-selected="true"
+                        role="tab"
+                    >
+                        Next Week
+                    </a>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="current-next-job"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-current-next-job"
+                        aria-selected="true"
+                        role="tab"
+                    >
+                        Next Next Week
+                    </a>
+                </li>
+            </ul>
+            <div className="form-group text-right pr-2">
                 <input
                     type="button"
                     value="View Job"
                     className="btn btn-pink viewBtn"
                     data-toggle="modal"
                     data-target="#exampleModal"
-                    data-backdrop="static"
-                    data-keyboard="false"
+                />
+            </div>
+            <div className="tab-content" style={{ background: "#fff" }}>
+                <div
+                    id="tab-worker-availability"
+                    className="tab-pane active show  table-responsive"
+                    role="tab-panel"
+                    aria-labelledby="current-job"
+                >
+                    <div className="crt-jb-table-scrollable">
+                        <Table className="table table-bordered crt-jb-wrap">
+                            <Thead>
+                                <Tr>
+                                    <Th>Worker</Th>
+                                    {week.map((element, index) => (
+                                        <Th key={index}>
+                                            {moment(element)
+                                                .toString()
+                                                .slice(0, 15)}
+                                        </Th>
+                                    ))}
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {AllWorkers.map((w, index) => {
+                                    let aval = w.aval ? w.aval : [];
+                                    let wjobs = w.wjobs ? w.wjobs : [];
+                                    let fullname =
+                                        w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
+                                    return (
+                                        <Tr key={index}>
+                                            <Td>
+                                                <span
+                                                    id={`worker-${w.id}`}
+                                                    className="d-flex align-items-center justify-content-center"
+                                                >
+                                                    {fullname}
+                                                </span>
+                                            </Td>
+                                            {week.map((element, index) => {
+                                                let shifts = wjobs[element]
+                                                    ? wjobs[element].split(",")
+                                                    : [];
+                                                let sav =
+                                                    shifts.length > 0
+                                                        ? filterShiftOptions(
+                                                              shiftOptions[
+                                                                  aval[element]
+                                                              ],
+                                                              shifts,
+                                                              shiftFreezeTime
+                                                          )
+                                                        : [];
+
+                                                let list =
+                                                    shifts.length > 0
+                                                        ? true
+                                                        : false;
+                                                const isDateAvailable =
+                                                    !notAvailableDates.includes(
+                                                        element
+                                                    );
+
+                                                return (
+                                                    <Td key={index}>
+                                                        <div>
+                                                            {shifts.map(
+                                                                (s, i) => {
+                                                                    return (
+                                                                        <div
+                                                                            className="text-success p-2 bg-light border-bottom"
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        >
+                                                                            {s}
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            )}
+                                                            {/* {list &&
+                                                            sav.map((s, i) => {
+                                                                return (
+                                                                    <div
+                                                                        className="text-success p-0"
+                                                                        key={i}
+                                                                    >
+                                                                        {
+                                                                            s.label
+                                                                        }
+                                                                    </div>
+                                                                );
+                                                            })} */}
+
+                                                            {isDateAvailable &&
+                                                            aval[element] &&
+                                                            aval[element] !=
+                                                                "" ? (
+                                                                filterShiftOptions(
+                                                                    shiftOptions[
+                                                                        aval[
+                                                                            element
+                                                                        ]
+                                                                    ],
+                                                                    shifts,
+                                                                    shiftFreezeTime
+                                                                ).map(
+                                                                    (
+                                                                        shift,
+                                                                        _sIdx
+                                                                    ) => {
+                                                                        const isActive =
+                                                                            hasActive(
+                                                                                w.id,
+                                                                                element,
+                                                                                shift
+                                                                            );
+
+                                                                        return (
+                                                                            <div
+                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center  ${
+                                                                                    isActive
+                                                                                        ? "bg-primary"
+                                                                                        : ""
+                                                                                }`}
+                                                                                onClick={() => {
+                                                                                    isActive
+                                                                                        ? removeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          )
+                                                                                        : changeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          );
+                                                                                }}
+                                                                                key={
+                                                                                    _sIdx
+                                                                                }
+                                                                            >
+                                                                                <div>
+                                                                                    {
+                                                                                        shift.label
+                                                                                    }
+                                                                                </div>
+                                                                                {isActive ? (
+                                                                                    <i className="fa-solid fa-minus"></i>
+                                                                                ) : (
+                                                                                    <i className="fa-solid fa-plus"></i>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                )
+                                                            ) : (
+                                                                <div
+                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
+                                                                >
+                                                                    Not
+                                                                    Available
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Td>
+                                                );
+                                            })}
+                                        </Tr>
+                                    );
+                                })}
+                            </Tbody>
+                        </Table>
+                    </div>
+                </div>
+                <div
+                    id="tab-current-job"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="current-job"
+                >
+                    <div className="crt-jb-table-scrollable">
+                        <Table className="table table-bordered crt-jb-wrap">
+                            <Thead>
+                                <Tr>
+                                    <Th>Worker</Th>
+                                    {nextweek.map((element, index) => (
+                                        <Th key={index}>
+                                            {moment(element)
+                                                .toString()
+                                                .slice(0, 15)}
+                                        </Th>
+                                    ))}
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {AllWorkers.map((w, index) => {
+                                    let aval = w.aval ? w.aval : [];
+                                    let wjobs = w.wjobs ? w.wjobs : [];
+                                    let fullname =
+                                        w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
+                                    return (
+                                        <Tr key={index}>
+                                            <Td>
+                                                <span
+                                                    id={`worker-${w.id}`}
+                                                    className="d-flex align-items-center justify-content-center"
+                                                >
+                                                    {fullname}
+                                                </span>
+                                            </Td>
+                                            {nextweek.map((element, index) => {
+                                                let shifts = wjobs[element]
+                                                    ? wjobs[element].split(",")
+                                                    : [];
+                                                let sav =
+                                                    shifts.length > 0
+                                                        ? filterShiftOptions(
+                                                              shiftOptions[
+                                                                  aval[element]
+                                                              ],
+                                                              shifts,
+                                                              shiftFreezeTime
+                                                          )
+                                                        : [];
+
+                                                let list =
+                                                    shifts.length > 0
+                                                        ? true
+                                                        : false;
+
+                                                const isDateAvailable =
+                                                    !notAvailableDates.includes(
+                                                        element
+                                                    );
+
+                                                return (
+                                                    <Td key={index}>
+                                                        <div>
+                                                            {shifts.map(
+                                                                (s, i) => {
+                                                                    return (
+                                                                        <div
+                                                                            className="text-success p-2 bg-light border-bottom"
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        >
+                                                                            {s}
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            )}
+                                                            {/* {list &&
+                                                            sav.map((s, i) => {
+                                                                return (
+                                                                    <div
+                                                                        className="text-success p-0"
+                                                                        key={i}
+                                                                    >
+                                                                        {
+                                                                            s.label
+                                                                        }
+                                                                    </div>
+                                                                );
+                                                            })} */}
+
+                                                            {isDateAvailable &&
+                                                            aval[element] &&
+                                                            aval[element] !=
+                                                                "" ? (
+                                                                filterShiftOptions(
+                                                                    shiftOptions[
+                                                                        aval[
+                                                                            element
+                                                                        ]
+                                                                    ],
+                                                                    shifts,
+                                                                    shiftFreezeTime
+                                                                ).map(
+                                                                    (
+                                                                        shift,
+                                                                        _sIdx
+                                                                    ) => {
+                                                                        const isActive =
+                                                                            hasActive(
+                                                                                w.id,
+                                                                                element,
+                                                                                shift
+                                                                            );
+
+                                                                        return (
+                                                                            <div
+                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
+                                                                                    isActive
+                                                                                        ? "bg-primary"
+                                                                                        : ""
+                                                                                }`}
+                                                                                key={
+                                                                                    _sIdx
+                                                                                }
+                                                                                onClick={() => {
+                                                                                    isActive
+                                                                                        ? removeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          )
+                                                                                        : changeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          );
+                                                                                }}
+                                                                            >
+                                                                                <div>
+                                                                                    {
+                                                                                        shift.label
+                                                                                    }
+                                                                                </div>
+                                                                                {isActive ? (
+                                                                                    <i className="fa-solid fa-minus"></i>
+                                                                                ) : (
+                                                                                    <i className="fa-solid fa-plus"></i>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                )
+                                                            ) : (
+                                                                <div
+                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
+                                                                >
+                                                                    Not
+                                                                    Available
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Td>
+                                                );
+                                            })}
+                                        </Tr>
+                                    );
+                                })}
+                            </Tbody>
+                        </Table>
+                    </div>
+                </div>
+                <div
+                    id="tab-current-next-job"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="current-job"
+                >
+                    <div className="crt-jb-table-scrollable">
+                        <Table className="table table-bordered crt-jb-wrap">
+                            <Thead>
+                                <Tr>
+                                    <Th>Worker</Th>
+                                    {nextnextweek.map((element, index) => (
+                                        <Th key={index}>
+                                            {moment(element)
+                                                .toString()
+                                                .slice(0, 15)}
+                                        </Th>
+                                    ))}
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {AllWorkers.map((w, index) => {
+                                    let aval = w.aval ? w.aval : [];
+                                    let wjobs = w.wjobs ? w.wjobs : [];
+                                    let fullname =
+                                        w.firstname + " " + w.lastname;
+
+                                    const shiftFreezeTime = {
+                                        start: w.freeze_shift_start_time,
+                                        end: w.freeze_shift_end_time,
+                                    };
+
+                                    const notAvailableDates =
+                                        w.not_available_dates;
+
+                                    return (
+                                        <Tr key={index}>
+                                            <Td>
+                                                <span
+                                                    id={`worker-${w.id}`}
+                                                    className="d-flex align-items-center justify-content-center"
+                                                >
+                                                    {fullname}
+                                                </span>
+                                            </Td>
+                                            {nextnextweek.map(
+                                                (element, index) => {
+                                                    let shifts = wjobs[element]
+                                                        ? wjobs[element].split(
+                                                              ","
+                                                          )
+                                                        : [];
+                                                    let sav =
+                                                        shifts.length > 0
+                                                            ? filterShiftOptions(
+                                                                  shiftOptions[
+                                                                      aval[
+                                                                          element
+                                                                      ]
+                                                                  ],
+                                                                  shifts,
+                                                                  shiftFreezeTime
+                                                              )
+                                                            : [];
+
+                                                    let list =
+                                                        shifts.length > 0
+                                                            ? true
+                                                            : false;
+
+                                                    const isDateAvailable =
+                                                        !notAvailableDates.includes(
+                                                            element
+                                                        );
+
+                                                    return (
+                                                        <Td key={index}>
+                                                            <div>
+                                                                {shifts.map(
+                                                                    (s, i) => {
+                                                                        return (
+                                                                            <div
+                                                                                className="text-success p-2 bg-light border-bottom"
+                                                                                key={
+                                                                                    i
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    s
+                                                                                }
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                )}
+
+                                                                {isDateAvailable &&
+                                                                aval[element] &&
+                                                                aval[element] !=
+                                                                    "" ? (
+                                                                    filterShiftOptions(
+                                                                        shiftOptions[
+                                                                            aval[
+                                                                                element
+                                                                            ]
+                                                                        ],
+                                                                        shifts,
+                                                                        shiftFreezeTime
+                                                                    ).map(
+                                                                        (
+                                                                            shift,
+                                                                            _sIdx
+                                                                        ) => {
+                                                                            const isActive =
+                                                                                hasActive(
+                                                                                    w.id,
+                                                                                    element,
+                                                                                    shift
+                                                                                );
+
+                                                                            return (
+                                                                                <div
+                                                                                    className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
+                                                                                        isActive
+                                                                                            ? "bg-primary"
+                                                                                            : ""
+                                                                                    }`}
+                                                                                    key={
+                                                                                        _sIdx
+                                                                                    }
+                                                                                    onClick={() => {
+                                                                                        isActive
+                                                                                            ? removeShift(
+                                                                                                  w.id,
+                                                                                                  element,
+                                                                                                  shift
+                                                                                              )
+                                                                                            : changeShift(
+                                                                                                  w.id,
+                                                                                                  element,
+                                                                                                  shift
+                                                                                              );
+                                                                                    }}
+                                                                                >
+                                                                                    <div>
+                                                                                        {
+                                                                                            shift.label
+                                                                                        }
+                                                                                    </div>
+                                                                                    {isActive ? (
+                                                                                        <i className="fa-solid fa-minus"></i>
+                                                                                    ) : (
+                                                                                        <i className="fa-solid fa-plus"></i>
+                                                                                    )}
+                                                                                </div>
+                                                                            );
+                                                                        }
+                                                                    )
+                                                                ) : (
+                                                                    <div
+                                                                        className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
+                                                                    >
+                                                                        Not
+                                                                        Available
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </Td>
+                                                    );
+                                                }
+                                            )}
+                                        </Tr>
+                                    );
+                                })}
+                            </Tbody>
+                        </Table>
+                    </div>
+                </div>
+            </div>
+            <div className="form-group text-center mt-3">
+                <input
+                    type="button"
+                    value="View Job"
+                    className="btn btn-pink viewBtn"
+                    data-toggle="modal"
+                    data-target="#exampleModal"
                 />
             </div>
             <div
@@ -291,7 +900,7 @@ export default function CreateJobCalender() {
                                         <thead>
                                             <tr>
                                                 <th scope="col">Client</th>
-                                                <th scope="col">Services</th>
+                                                <th scope="col">Service</th>
                                                 <th scope="col">Frequency</th>
                                                 <th scope="col">
                                                     Time to Complete
@@ -305,80 +914,75 @@ export default function CreateJobCalender() {
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{clientName}</td>
+                                                <td>
+                                                    `${client.firstname} $
+                                                    {client.lastname}`
+                                                </td>
                                                 <td>
                                                     {" "}
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => {
-                                                                if (
-                                                                    item.service ==
-                                                                    "10"
-                                                                )
-                                                                    return (
-                                                                        <p
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                item.other_title
-                                                                            }
-                                                                        </p>
-                                                                    );
-                                                                else
-                                                                    return (
-                                                                        <p
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                item.name
-                                                                            }
-                                                                        </p>
-                                                                    );
-                                                            }
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => {
+                                                            if (
+                                                                item.service ==
+                                                                "10"
+                                                            )
+                                                                return (
+                                                                    <p
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            item.other_title
+                                                                        }
+                                                                    </p>
+                                                                );
+                                                            else
+                                                                return (
+                                                                    <p
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            item.name
+                                                                        }
+                                                                    </p>
+                                                                );
+                                                        }
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item.freq_name
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item.freq_name}
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item.jobHours
-                                                                    }{" "}
-                                                                    hours
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item.jobHours}{" "}
+                                                                hours
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item
-                                                                            ?.address
-                                                                            ?.address_name
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {
+                                                                    item
+                                                                        ?.address
+                                                                        ?.address_name
+                                                                }
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td
                                                     style={{
@@ -386,97 +990,70 @@ export default function CreateJobCalender() {
                                                             "capitalize",
                                                     }}
                                                 >
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {
-                                                                        item
-                                                                            ?.address
-                                                                            ?.prefer_type
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {
+                                                                    item
+                                                                        ?.address
+                                                                        ?.prefer_type
+                                                                }
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    {services &&
-                                                        services.map(
-                                                            (item, index) => (
-                                                                <p key={index}>
-                                                                    {item
-                                                                        ?.address
-                                                                        ?.is_cat_avail
-                                                                        ? "Cat ,"
-                                                                        : item
-                                                                              ?.address
-                                                                              ?.is_dog_avail
-                                                                        ? "Dog"
-                                                                        : !item
-                                                                              ?.address
-                                                                              ?.is_cat_avail &&
-                                                                          !item
-                                                                              ?.address
-                                                                              ?.is_dog_avail
-                                                                        ? "NA"
-                                                                        : ""}
-                                                                </p>
-                                                            )
-                                                        )}
+                                                    {services.map(
+                                                        (item, index) => (
+                                                            <p key={index}>
+                                                                {item?.address
+                                                                    ?.is_cat_avail
+                                                                    ? "Cat ,"
+                                                                    : item
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "Dog"
+                                                                    : !item
+                                                                          ?.address
+                                                                          ?.is_cat_avail &&
+                                                                      !item
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "NA"
+                                                                    : ""}
+                                                            </p>
+                                                        )
+                                                    )}
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="table-responsive">
-                                    {shiftFormValues.length > 0 && (
+                                    {data.length > 0 ? (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">Worker</th>
-                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Data</th>
                                                     <th scope="col">Shifts</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {shiftFormValues.map(
-                                                    (_shift, i) => {
-                                                        const _workerShifts =
-                                                            _shift.shifts
-                                                                .map(
-                                                                    (t) =>
-                                                                        `${t.start}-${t.end}`
-                                                                )
-                                                                .join(", ");
-
-                                                        const dateInString =
-                                                            moment(_shift.date)
-                                                                .toString()
-                                                                .slice(0, 15);
-
-                                                        return (
-                                                            <tr key={i}>
-                                                                <td>
-                                                                    {
-                                                                        _shift.worker_name
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    {
-                                                                        dateInString
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    {
-                                                                        _workerShifts
-                                                                    }
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    }
-                                                )}
+                                                {data &&
+                                                    data.map((d, i) => (
+                                                        <tr key={i}>
+                                                            <td>
+                                                                {d.worker_name}
+                                                            </td>
+                                                            <td>{d.date}</td>
+                                                            <td>{d.shifts}</td>
+                                                        </tr>
+                                                    ))}
                                             </tbody>
                                         </table>
+                                    ) : (
+                                        ""
                                     )}
                                 </div>
                             </div>
@@ -544,19 +1121,18 @@ export default function CreateJobCalender() {
                                         <option value="">
                                             --- Please Select Service ---
                                         </option>
-                                        {services &&
-                                            services.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={item.service}
-                                                        key={index}
-                                                    >
-                                                        {item.service != "10"
-                                                            ? item.name
-                                                            : item.other_title}
-                                                    </option>
-                                                );
-                                            })}
+                                        {services.map((item, index) => {
+                                            return (
+                                                <option
+                                                    value={item.service}
+                                                    key={index}
+                                                >
+                                                    {item.service != "10"
+                                                        ? item.name
+                                                        : item.other_title}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
                                 </div>
                             </div>

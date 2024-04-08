@@ -1,12 +1,13 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
-export default function Comment() {
+export default function Comment({ handleGetJob, jobStatus }) {
+    let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
     const [status, setStatus] = useState("");
     const [allComment, setAllComment] = useState([]);
@@ -16,23 +17,34 @@ export default function Comment() {
 
     const headers = {
         Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (comment == "") {
+        if (status === "" && jobStatus !== "completed") {
+            window.alert("Please select status");
+            return;
+        } else if (comment == "") {
             window.alert("Please Enter Comment");
             return;
         }
-        let data = {
-            job_id: param.id,
-            comment: comment,
-            status: status,
-            name: localStorage.getItem("worker-name"),
-        };
-
+        const data = new FormData();
+        data.append("job_id", param.id);
+        data.append("comment", comment);
+        data.append("status", status);
+        data.append("name", localStorage.getItem("worker-name"));
+        if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
+            for (
+                let index = 0;
+                index < cmtFileRef.current.files.length;
+                index++
+            ) {
+                const element = cmtFileRef.current.files[index];
+                data.append("files[]", element);
+            }
+        }
         axios.post(`/api/job-comments`, data, { headers }).then((res) => {
             if (res.data.error) {
                 for (let e in res.data.error) {
@@ -40,9 +52,15 @@ export default function Comment() {
                 }
             } else {
                 document.querySelector(".closeb").click();
-                alert.success(res.data.message);
-                getComments();
+                if (status === "completed") {
+                    alert.success("Job Mark as Completed.");
+                    handleGetJob();
+                } else {
+                    alert.success(res.data.message);
+                }
+                getComments([]);
                 setComment("");
+                setStatus("");
             }
         });
     };
@@ -86,6 +104,13 @@ export default function Comment() {
     useEffect(() => {
         getComments();
     }, []);
+    const handleToggle = () => {
+        if (cmtFileRef.current) {
+            cmtFileRef.current.value = "";
+            cmtFileRef.current.type = "text";
+            cmtFileRef.current.type = "file";
+        }
+    };
     return (
         <div
             className="tab-pane fade active show"
@@ -95,8 +120,9 @@ export default function Comment() {
         >
             <div className="text-right pb-3 mt-3">
                 <button
+                    onClick={() => handleToggle()}
                     type="button"
-                    className="btn btn-primary"
+                    className="btn btn-primary note-btn"
                     data-toggle="modal"
                     data-target="#exampleModal"
                 >
@@ -160,7 +186,42 @@ export default function Comment() {
                                             &nbsp;
                                         </div>
                                     </div>
-                                    <div className="col-sm-12">{c.comment}</div>
+                                    <div className="col-sm-12">
+                                        <p>{c.comment}</p>
+                                        {c.comments &&
+                                            c.comments.length > 0 &&
+                                            c.comments.map((cm, i) => {
+                                                return (
+                                                    <span
+                                                        className="badge badge-warning text-dark"
+                                                        key={i}
+                                                    >
+                                                        <a
+                                                            onClick={(e) => {
+                                                                let show =
+                                                                    document.querySelector(
+                                                                        ".showFile"
+                                                                    );
+
+                                                                show.setAttribute(
+                                                                    "src",
+                                                                    `/storage/uploads/comments/${cm.file}`
+                                                                );
+                                                                show.style.display =
+                                                                    "block";
+                                                            }}
+                                                            data-toggle="modal"
+                                                            data-target="#exampleModalFile"
+                                                            style={{
+                                                                cursor: "pointer",
+                                                            }}
+                                                        >
+                                                            {cm.file}
+                                                        </a>
+                                                    </span>
+                                                );
+                                            })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -209,6 +270,11 @@ export default function Comment() {
                                             <option value="">
                                                 --- Job Status ---
                                             </option>
+                                            {jobStatus !== "completed" && (
+                                                <option value="completed">
+                                                    Completed
+                                                </option>
+                                            )}
                                             <option value="unscheduled">
                                                 Unavailable
                                             </option>
@@ -237,6 +303,23 @@ export default function Comment() {
                                         ></textarea>
                                     </div>
                                 </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label
+                                            htmlFor="cmtFiles"
+                                            className="form-label"
+                                        >
+                                            {t("worker.jobs.view.file")}
+                                        </label>
+                                        <input
+                                            ref={cmtFileRef}
+                                            className="form-control"
+                                            type="file"
+                                            id="cmtFiles"
+                                            multiple
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="modal-footer">
@@ -254,6 +337,41 @@ export default function Comment() {
                             >
                                 {t("worker.jobs.view.save_cmt")}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                className="modal fade"
+                id="exampleModalFile"
+                tabIndex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content" style={{ width: "130%" }}>
+                        <div className="modal-header">
+                            <button
+                                type="button"
+                                className="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <img
+                                            src=""
+                                            className="showFile form-control"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

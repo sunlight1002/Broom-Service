@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
-import { useAlert } from "react-alert";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
+import Sidebar from "../../Layouts/Sidebar";
 import CreateJobCalender from "../../Components/Job/CreateJobCalender";
 
 export default function () {
-    const alert = useAlert();
-    const navigate = useNavigate();
     const params = useParams();
     const [services, setServices] = useState([]);
-    const [client, setClient] = useState("");
-    const [address, setAddress] = useState("");
+    const [client, setClient] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -25,9 +22,14 @@ export default function () {
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
                 const r = res.data.contract;
-                setClient(r.client.firstname + " " + r.client.lastname);
-                setAddress(r.job?.property_address?.address_name);
-                setServices(JSON.parse(r.offer.services));
+                setClient(r.client);
+                let _services = JSON.parse(r.offer.services);
+                _services = _services.map((n) => {
+                    n["contract_id"] = parseInt(params.id);
+                    return n;
+                });
+
+                setServices(_services);
             });
     };
 
@@ -52,128 +54,142 @@ export default function () {
                     <h1 className="page-title editJob">Add Job</h1>
                     <div id="calendar"></div>
                     <div className="card">
-                        <div className="card-body">
-                            <form>
-                                <div className="row">
-                                    <div className="col-sm-2">
-                                        <div className="form-group">
-                                            <label>Client</label>
-                                            <p>{client}</p>
+                        {client && (
+                            <div className="card-body">
+                                <form>
+                                    <div className="row">
+                                        <div className="col-sm-2">
+                                            <div className="form-group">
+                                                <label>Client</label>
+                                                <p>
+                                                    {client.firstname +
+                                                        " " +
+                                                        client.lastname}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-sm-2">
-                                        <div className="form-group">
-                                            <label>Services</label>
-                                            {services.map((item, index) => {
-                                                return (
+                                        <div className="col-sm-2">
+                                            <div className="form-group">
+                                                <label>Services</label>
+                                                {services.map((item, index) => {
+                                                    return (
+                                                        <p
+                                                            className={`services-${item.service}-${item.contract_id}`}
+                                                            key={index}
+                                                        >
+                                                            {item.service ==
+                                                            "10"
+                                                                ? item.other_title
+                                                                : item.name}
+                                                        </p>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-2">
+                                            <div className="form-group">
+                                                <label>Frequency</label>
+                                                {services.map((item, index) => (
                                                     <p
-                                                        className={`services-${item.service}`}
+                                                        className={`services-${item.service}-${item.contract_id}`}
                                                         key={index}
                                                     >
-                                                        {item.service == "10"
-                                                            ? item.other_title
-                                                            : item.name}
+                                                        {item.freq_name}
                                                     </p>
-                                                );
-                                            })}
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-2">
+                                            <div className="form-group">
+                                                <label>Time to Complete</label>
+                                                {services.map((item, index) => (
+                                                    <p
+                                                        className={`services-${item.service}-${item.contract_id}`}
+                                                        key={index}
+                                                    >
+                                                        {item.jobHours} hours
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            <div className="form-group">
+                                                <label>Property</label>
+                                                {services.map((item, index) => (
+                                                    <p
+                                                        className={`services-${item.service}-${item.contract_id}`}
+                                                        key={index}
+                                                    >
+                                                        {
+                                                            item?.address
+                                                                ?.address_name
+                                                        }
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            <div className="form-group">
+                                                <label>Pet animals</label>
+                                                {services.map((item, index) => (
+                                                    <p
+                                                        className={`services-${item.service}-${item.contract_id}`}
+                                                        key={index}
+                                                    >
+                                                        {item?.address
+                                                            ?.is_cat_avail
+                                                            ? "Cat ,"
+                                                            : item?.address
+                                                                  ?.is_dog_avail
+                                                            ? "Dog"
+                                                            : !item?.address
+                                                                  ?.is_cat_avail &&
+                                                              !item?.address
+                                                                  ?.is_dog_avail
+                                                            ? "NA"
+                                                            : ""}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            <div className="form-group">
+                                                <label>Gender preference</label>
+                                                {services.map((item, index) => (
+                                                    <p
+                                                        className={`services-${item.service}-${item.contract_id}`}
+                                                        key={index}
+                                                        style={{
+                                                            textTransform:
+                                                                "capitalize",
+                                                        }}
+                                                    >
+                                                        {
+                                                            item?.address
+                                                                ?.prefer_type
+                                                        }
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-12">
+                                            <div className="mt-3 mb-3">
+                                                <h3 className="text-center">
+                                                    Worker Availability
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-12">
+                                            <CreateJobCalender
+                                                services={services}
+                                                client={client}
+                                            />
+                                            <div className="mb-3">&nbsp;</div>
                                         </div>
                                     </div>
-                                    <div className="col-sm-2">
-                                        <div className="form-group">
-                                            <label>Frequency</label>
-                                            {services.map((item, index) => (
-                                                <p
-                                                    className={`services-${item.service}`}
-                                                    key={index}
-                                                >
-                                                    {item.freq_name}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-2">
-                                        <div className="form-group">
-                                            <label>Time to Complete</label>
-                                            {services.map((item, index) => (
-                                                <p
-                                                    className={`services-${item.service}`}
-                                                    key={index}
-                                                >
-                                                    {item.jobHours} hours
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <div className="form-group">
-                                            <label>Property</label>
-                                            {services.map((item, index) => (
-                                                <p
-                                                    className={`services-${item.service}`}
-                                                    key={index}
-                                                >
-                                                    {
-                                                        item?.address
-                                                            ?.address_name
-                                                    }
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <div className="form-group">
-                                            <label>Pet animals</label>
-                                            {services.map((item, index) => (
-                                                <p
-                                                    className={`services-${item.service}`}
-                                                    key={index}
-                                                >
-                                                    {item?.address?.is_cat_avail
-                                                        ? "Cat ,"
-                                                        : item?.address
-                                                              ?.is_dog_avail
-                                                        ? "Dog"
-                                                        : !item?.address
-                                                              ?.is_cat_avail &&
-                                                          !item?.address
-                                                              ?.is_dog_avail
-                                                        ? "NA"
-                                                        : ""}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <div className="form-group">
-                                            <label>Gender preference</label>
-                                            {services.map((item, index) => (
-                                                <p
-                                                    className={`services-${item.service}`}
-                                                    key={index}
-                                                    style={{
-                                                        textTransform:
-                                                            "capitalize",
-                                                    }}
-                                                >
-                                                    {item?.address?.prefer_type}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <div className="mt-3 mb-3">
-                                            <h3 className="text-center">
-                                                Worker Availability
-                                            </h3>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <CreateJobCalender />
-                                        <div className="mb-3">&nbsp;</div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -488,7 +488,8 @@
                 "confirm_cancel_btn": "Yes, Cancel Job",
                 "updated_msg": "Job has been updated.",
                 "updated": "Updated!",
-                "with_cancel": "with cancellation fees of"
+                "with_cancel": "with cancellation fees of",
+                "file": "Upload files"
             }
         },
         "settings": {
@@ -584,7 +585,8 @@
                 "cmt": "Comment",
                 "cmt_box": "Enter Comment",
                 "save_cmt": "Save Comment",
-                "close": "Close"
+                "close": "Close",
+                "file": "Upload files"
             }
         },
         "schedule": {

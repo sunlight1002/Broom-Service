@@ -153,7 +153,7 @@ class ClientController extends Controller
             'phone'     => ['required', 'unique:clients'],
             'status'    => ['required'],
             'passcode'  => ['required', 'string', 'min:6',],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients'],
+            'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
         ]);
 
         if ($validator->fails()) {

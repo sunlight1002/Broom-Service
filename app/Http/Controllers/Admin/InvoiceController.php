@@ -513,10 +513,7 @@ class InvoiceController extends Controller
         // $this->closeDoc($invoice->invoice_id, 'invoice');
         $invoice->update([
             'invoice_icount_status' => 'Closed',
-            'receipt_id' => $rcp->id
-        ]);
-
-        $invoice->update([
+            'receipt_id' => $rcp->id,
             'pay_method'  => $data['pay_method'],
             'txn_id'      => $txnID,
             'callback'    => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
@@ -533,8 +530,11 @@ class InvoiceController extends Controller
     {
         $jobs = Job::where('client_id', $request->cid)
             ->where('status', '!=', JobStatusEnum::COMPLETED)
-            ->where('isOrdered', 0)
-            ->orWhere('isOrdered', 'c')
+            ->where(function ($q) {
+                $q
+                    ->where('isOrdered', 0)
+                    ->orWhere('isOrdered', 'c');
+            })
             ->get();
 
         foreach ($jobs as $j => $job) {

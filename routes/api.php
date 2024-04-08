@@ -31,8 +31,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('dashboard', [DashboardController::class, 'dashboard']);
     Route::get('get-time', [DashboardController::class, 'getTime']);
     // not Available date
-    Route::post('get-not-available-dates', [DashboardController::class, 'getNotAvailableDates']);
-    Route::post('add-not-available-date', [DashboardController::class, 'addNotAvailableDates']);
+    Route::get('not-available-dates', [DashboardController::class, 'notAvailableDates']);
+    Route::post('not-available-date', [DashboardController::class, 'addNotAvailableDates']);
     Route::post('delete-not-available-date', [DashboardController::class, 'deleteNotAvailableDates']);
 
     Route::resource('jobs', JobController::class)->only(['index', 'show', 'update']);
@@ -41,8 +41,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
 
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
-    Route::get('worker_availability/{id}', [JobController::class, 'getWorkerAvailability']);
-    Route::post('update_availability/{id}', [JobController::class, 'updateAvailability']);
+    Route::get('availabilities', [JobController::class, 'getAvailability']);
+    Route::post('availabilities', [JobController::class, 'updateAvailability']);
 
     Route::post('upload/{id}', [AuthController::class, 'upload']);
     Route::post('logout', [AuthController::class, 'logout']);
