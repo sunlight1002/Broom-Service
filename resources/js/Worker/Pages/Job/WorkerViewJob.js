@@ -64,6 +64,23 @@ export default function WorkerViewJob() {
         cbtn.value = "please wait ...";
         document.querySelector(".note-btn").click();
     };
+    const handleOpeningTime = (e) => {
+        e.preventDefault();
+        e.target.setAttribute("disabled", true);
+        let data = {
+            job_id: params.id,
+        };
+        axios
+            .post(`/api/job-opening-timestamp`, data, { headers })
+            .then((res) => {
+                getJob();
+                alert.success(res.data.message);
+            })
+            .catch((err) => {
+                alert.success(res.data.message);
+            });
+        e.target.setAttribute("disabled", false);
+    };
     const getDateTime = () => {
         var now = new Date();
         var year = now.getFullYear();
@@ -208,72 +225,99 @@ export default function WorkerViewJob() {
                                                 )}
                                             </h2>
                                         </div>
-                                        <div className="col-sm-2 col-6">
-                                            {job_status != "completed" &&
-                                                job_status != "cancel" && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={
-                                                            HandleMarkComplete
-                                                        }
-                                                        className="btn btn-success cmbtn"
-                                                    >
-                                                        {t(
-                                                            "worker.jobs.view.completebtn"
-                                                        )}
-                                                    </button>
-                                                )}
-                                        </div>
-                                        {job_status != "completed" &&
-                                        job_status != "cancel" ? (
+
+                                        {job.job_opening_timestamp === null ? (
                                             <div className="col-sm-2 col-6">
-                                                {!isRunning && (
-                                                    <>
-                                                        <button
-                                                            onClick={startTimer}
-                                                            className="btn btn-primary"
-                                                        >
-                                                            {job_time.length > 0
-                                                                ? t(
-                                                                      "worker.jobs.view.resbtn"
-                                                                  )
-                                                                : t(
-                                                                      "worker.jobs.view.startbtn"
-                                                                  )}
-                                                        </button>
-                                                        <h4>
-                                                            {job_time.length > 0
-                                                                ? calculateTime(
-                                                                      total_time
-                                                                  )
-                                                                : ""}
-                                                        </h4>
-                                                    </>
-                                                )}
-                                                {isRunning && (
-                                                    <>
-                                                        <button
-                                                            onClick={stopTimer}
-                                                            className="btn btn-danger dangerous"
-                                                        >
-                                                            {t(
-                                                                "worker.jobs.view.stopbtn"
-                                                            )}
-                                                        </button>
-                                                        <h4>{counter}</h4>
-                                                    </>
-                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={handleOpeningTime}
+                                                    className="btn btn-success cmbtn"
+                                                >
+                                                    {t(
+                                                        "worker.jobs.view.going_to_start"
+                                                    )}
+                                                </button>
                                             </div>
                                         ) : (
-                                            <div className="col-sm-2">
-                                                {t(
-                                                    "worker.jobs.view.job_status"
-                                                )}{" "}
-                                                :{" "}
-                                                <h6 className="text-custom">
-                                                    {job.status}
-                                                </h6>
-                                            </div>
+                                            <>
+                                                <div className="col-sm-2 col-6">
+                                                    {job_status !=
+                                                        "completed" &&
+                                                        job_status !=
+                                                            "cancel" && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={
+                                                                    HandleMarkComplete
+                                                                }
+                                                                className="btn btn-success cmbtn"
+                                                            >
+                                                                {t(
+                                                                    "worker.jobs.view.completebtn"
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                </div>
+                                                {job_status != "completed" &&
+                                                job_status != "cancel" ? (
+                                                    <div className="col-sm-2 col-6">
+                                                        {!isRunning && (
+                                                            <>
+                                                                <button
+                                                                    onClick={
+                                                                        startTimer
+                                                                    }
+                                                                    className="btn btn-primary"
+                                                                >
+                                                                    {job_time.length >
+                                                                    0
+                                                                        ? t(
+                                                                              "worker.jobs.view.resbtn"
+                                                                          )
+                                                                        : t(
+                                                                              "worker.jobs.view.startbtn"
+                                                                          )}
+                                                                </button>
+                                                                <h4>
+                                                                    {job_time.length >
+                                                                    0
+                                                                        ? calculateTime(
+                                                                              total_time
+                                                                          )
+                                                                        : ""}
+                                                                </h4>
+                                                            </>
+                                                        )}
+                                                        {isRunning && (
+                                                            <>
+                                                                <button
+                                                                    onClick={
+                                                                        stopTimer
+                                                                    }
+                                                                    className="btn btn-danger dangerous"
+                                                                >
+                                                                    {t(
+                                                                        "worker.jobs.view.stopbtn"
+                                                                    )}
+                                                                </button>
+                                                                <h4>
+                                                                    {counter}
+                                                                </h4>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="col-sm-2">
+                                                        {t(
+                                                            "worker.jobs.view.job_status"
+                                                        )}{" "}
+                                                        :{" "}
+                                                        <h6 className="text-custom">
+                                                            {job.status}
+                                                        </h6>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
 

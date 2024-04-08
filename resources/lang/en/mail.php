@@ -98,6 +98,8 @@ return [
         'reason'      =>'Due to',
         'btn_txt'     =>'Check Contract',
         'thanks_text'   =>'Thanks',
+        'job'         => 'Job',
+        'started_by'  => 'has been started by',
     ],
     'worker_contract' =>[
         'subject'     =>'Contract with',

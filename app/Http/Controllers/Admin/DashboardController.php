@@ -164,6 +164,13 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> request for reschedule the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
             }
+          } else if ($notice->type == 'opening-job') {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-job/" . $job->id . "'> Job </a> has been started by  <a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+              "</a>";
+            }
           }
         }
       }

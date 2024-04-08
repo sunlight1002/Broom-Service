@@ -47,6 +47,7 @@ class Job extends Model
         'cancelled_at',
         'cancelled_for',
         'cancel_until_date',
+        'job_opening_timestamp'
     ];
 
     /**
@@ -67,6 +68,7 @@ class Job extends Model
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',
         'cancel_until_date' => 'date:Y-m-d',
+        'job_opening_timestamp' => 'datetime',
     ];
 
     public static function boot()
