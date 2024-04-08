@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import ClientDetails from "../../Components/Job/ClientDetails";
@@ -32,14 +33,23 @@ export default function WorkerViewJob() {
     };
 
     const getJob = () => {
-        axios.get(`/api/jobs/${params.id}`, { headers }).then((res) => {
-            const r = res.data.job;
-            setJob(r);
-            setJobStatus(r.status);
-            setClient(r.client);
-            setWorker(r.worker);
-            setAddress(r.property_address ? r.property_address : {});
-        });
+        axios
+            .get(`/api/jobs/${params.id}`, { headers })
+            .then((res) => {
+                const r = res.data.job;
+                setJob(r);
+                setJobStatus(r.status);
+                setClient(r.client);
+                setWorker(r.worker);
+                setAddress(r.property_address ? r.property_address : {});
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
     useEffect(() => {
         getJob();
@@ -192,187 +202,199 @@ export default function WorkerViewJob() {
             <div id="content">
                 <div className="view-applicant">
                     <div className="worker-profile worker-view-job">
-                        <div className="row">
-                            <div className="col-sm-12">
-                                <div className="row mb-3 mt-4">
-                                    <div className="col-sm-8 col-12">
-                                        <h2 className="text-custom">
-                                            {t("worker.jobs.view.c_details")}
-                                        </h2>
-                                    </div>
-                                    <div className="col-sm-2 col-6">
-                                        {job_status != "completed" &&
-                                            job_status != "cancel" && (
-                                                <button
-                                                    type="button"
-                                                    onClick={HandleMarkComplete}
-                                                    className="btn btn-success cmbtn"
-                                                >
-                                                    {t(
-                                                        "worker.jobs.view.completebtn"
-                                                    )}
-                                                </button>
-                                            )}
-                                    </div>
-                                    {job_status != "completed" &&
-                                    job_status != "cancel" ? (
+                        {job && (
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="row mb-3 mt-4">
+                                        <div className="col-sm-8 col-12">
+                                            <h2 className="text-custom">
+                                                {t(
+                                                    "worker.jobs.view.c_details"
+                                                )}
+                                            </h2>
+                                        </div>
                                         <div className="col-sm-2 col-6">
-                                            {!isRunning && (
-                                                <>
+                                            {job_status != "completed" &&
+                                                job_status != "cancel" && (
                                                     <button
-                                                        onClick={startTimer}
-                                                        className="btn btn-primary"
-                                                    >
-                                                        {job_time.length > 0
-                                                            ? t(
-                                                                  "worker.jobs.view.resbtn"
-                                                              )
-                                                            : t(
-                                                                  "worker.jobs.view.startbtn"
-                                                              )}
-                                                    </button>
-                                                    <h4>
-                                                        {job_time.length > 0
-                                                            ? calculateTime(
-                                                                  total_time
-                                                              )
-                                                            : ""}
-                                                    </h4>
-                                                </>
-                                            )}
-                                            {isRunning && (
-                                                <>
-                                                    <button
-                                                        onClick={stopTimer}
-                                                        className="btn btn-danger dangerous"
+                                                        type="button"
+                                                        onClick={
+                                                            HandleMarkComplete
+                                                        }
+                                                        className="btn btn-success cmbtn"
                                                     >
                                                         {t(
-                                                            "worker.jobs.view.stopbtn"
+                                                            "worker.jobs.view.completebtn"
                                                         )}
                                                     </button>
-                                                    <h4>{counter}</h4>
-                                                </>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="col-sm-2">
-                                            {t("worker.jobs.view.job_status")} :{" "}
-                                            <h6 className="text-custom">
-                                                {job.status}
-                                            </h6>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <ClientDetails
-                                    client={client}
-                                    address={address}
-                                />
-                            </div>
-                            <div className="col-sm-12">
-                                <Services job={job} />
-                            </div>
-                            <div className="col-sm-12">
-                                <h2 className="text-custom">
-                                    {t("worker.jobs.view.w_time")}
-                                </h2>
-                                <div className="dashBox p-4">
-                                    <div className="table-responsive">
-                                        {job_time.length > 0 ? (
-                                            <Table className="table table-bordered responsiveTable">
-                                                <Thead>
-                                                    <Tr>
-                                                        <Th scope="col">
-                                                            {t(
-                                                                "worker.jobs.view.start_time"
-                                                            )}
-                                                        </Th>
-                                                        <Th scope="col">
-                                                            {t(
-                                                                "worker.jobs.view.end_time"
-                                                            )}
-                                                        </Th>
-                                                        <Th scope="col">
-                                                            {t(
-                                                                "worker.jobs.view.time"
-                                                            )}
-                                                        </Th>
-                                                    </Tr>
-                                                </Thead>
-                                                <Tbody>
-                                                    {job_time &&
-                                                        job_time.map(
-                                                            (item, index) => {
-                                                                let w_t =
-                                                                    item.end_time
-                                                                        ? time_difference(
-                                                                              item.start_time,
-                                                                              item.end_time
-                                                                          )
-                                                                        : "";
-                                                                return (
-                                                                    <Tr
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        <Td>
-                                                                            {
-                                                                                item.start_time
-                                                                            }
-                                                                        </Td>
-                                                                        <Td>
-                                                                            {
-                                                                                item.end_time
-                                                                            }
-                                                                        </Td>
-                                                                        <Td>
-                                                                            {
-                                                                                w_t
-                                                                            }
-                                                                        </Td>
-                                                                    </Tr>
-                                                                );
-                                                            }
-                                                        )}
-                                                    <Tr>
-                                                        <Td colSpan="2">
-                                                            {t(
-                                                                "worker.jobs.view.total_time"
-                                                            )}
-                                                        </Td>
-                                                        <Td>
-                                                            {calculateTime(
-                                                                total_time
-                                                            )}
-                                                        </Td>
-                                                    </Tr>
-                                                </Tbody>
-                                            </Table>
-                                        ) : (
-                                            <p className="text-center mt-5">
-                                                {t(
-                                                    "worker.jobs.view.timing_not"
                                                 )}
-                                            </p>
+                                        </div>
+                                        {job_status != "completed" &&
+                                        job_status != "cancel" ? (
+                                            <div className="col-sm-2 col-6">
+                                                {!isRunning && (
+                                                    <>
+                                                        <button
+                                                            onClick={startTimer}
+                                                            className="btn btn-primary"
+                                                        >
+                                                            {job_time.length > 0
+                                                                ? t(
+                                                                      "worker.jobs.view.resbtn"
+                                                                  )
+                                                                : t(
+                                                                      "worker.jobs.view.startbtn"
+                                                                  )}
+                                                        </button>
+                                                        <h4>
+                                                            {job_time.length > 0
+                                                                ? calculateTime(
+                                                                      total_time
+                                                                  )
+                                                                : ""}
+                                                        </h4>
+                                                    </>
+                                                )}
+                                                {isRunning && (
+                                                    <>
+                                                        <button
+                                                            onClick={stopTimer}
+                                                            className="btn btn-danger dangerous"
+                                                        >
+                                                            {t(
+                                                                "worker.jobs.view.stopbtn"
+                                                            )}
+                                                        </button>
+                                                        <h4>{counter}</h4>
+                                                    </>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="col-sm-2">
+                                                {t(
+                                                    "worker.jobs.view.job_status"
+                                                )}{" "}
+                                                :{" "}
+                                                <h6 className="text-custom">
+                                                    {job.status}
+                                                </h6>
+                                            </div>
                                         )}
                                     </div>
+
+                                    <ClientDetails
+                                        client={client}
+                                        address={address}
+                                    />
                                 </div>
-                                <Comment
-                                    handleGetJob={getJob}
-                                    jobStatus={job_status}
-                                />
+                                <div className="col-sm-12">
+                                    <Services job={job} />
+                                </div>
+                                <div className="col-sm-12">
+                                    <h2 className="text-custom">
+                                        {t("worker.jobs.view.w_time")}
+                                    </h2>
+                                    <div className="dashBox p-4">
+                                        <div className="table-responsive">
+                                            {job_time.length > 0 ? (
+                                                <Table className="table table-bordered responsiveTable">
+                                                    <Thead>
+                                                        <Tr>
+                                                            <Th scope="col">
+                                                                {t(
+                                                                    "worker.jobs.view.start_time"
+                                                                )}
+                                                            </Th>
+                                                            <Th scope="col">
+                                                                {t(
+                                                                    "worker.jobs.view.end_time"
+                                                                )}
+                                                            </Th>
+                                                            <Th scope="col">
+                                                                {t(
+                                                                    "worker.jobs.view.time"
+                                                                )}
+                                                            </Th>
+                                                        </Tr>
+                                                    </Thead>
+                                                    <Tbody>
+                                                        {job_time &&
+                                                            job_time.map(
+                                                                (
+                                                                    item,
+                                                                    index
+                                                                ) => {
+                                                                    let w_t =
+                                                                        item.end_time
+                                                                            ? time_difference(
+                                                                                  item.start_time,
+                                                                                  item.end_time
+                                                                              )
+                                                                            : "";
+                                                                    return (
+                                                                        <Tr
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                        >
+                                                                            <Td>
+                                                                                {
+                                                                                    item.start_time
+                                                                                }
+                                                                            </Td>
+                                                                            <Td>
+                                                                                {
+                                                                                    item.end_time
+                                                                                }
+                                                                            </Td>
+                                                                            <Td>
+                                                                                {
+                                                                                    w_t
+                                                                                }
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    );
+                                                                }
+                                                            )}
+                                                        <Tr>
+                                                            <Td colSpan="2">
+                                                                {t(
+                                                                    "worker.jobs.view.total_time"
+                                                                )}
+                                                            </Td>
+                                                            <Td>
+                                                                {calculateTime(
+                                                                    total_time
+                                                                )}
+                                                            </Td>
+                                                        </Tr>
+                                                    </Tbody>
+                                                </Table>
+                                            ) : (
+                                                <p className="text-center mt-5">
+                                                    {t(
+                                                        "worker.jobs.view.timing_not"
+                                                    )}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <Comment
+                                        handleGetJob={getJob}
+                                        jobStatus={job_status}
+                                    />
+                                </div>
+                                <div className="col-sm-12 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={handleClick}
+                                        className="btn btn-pink addButton"
+                                    >
+                                        {t("worker.jobs.view.back")}
+                                    </button>
+                                </div>
                             </div>
-                            <div className="col-sm-12 text-center">
-                                <button
-                                    type="button"
-                                    onClick={handleClick}
-                                    className="btn btn-pink addButton"
-                                >
-                                    {t("worker.jobs.view.back")}
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

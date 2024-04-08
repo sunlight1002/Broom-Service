@@ -13,7 +13,6 @@ export default function ClientDashboard() {
     const [latestJobs, setlatestJobs] = useState([]);
     const [contracts, setContract] = useState([]);
     const [loading, setLoading] = useState("Loading...");
-    const id = localStorage.getItem("client-id");
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
     const headers = {
@@ -24,7 +23,7 @@ export default function ClientDashboard() {
 
     const GetDashboardData = () => {
         axios
-            .post("/api/client/dashboard", { id: id }, { headers })
+            .post("/api/client/dashboard", {}, { headers })
             .then((response) => {
                 setTotalJobs(response.data.total_jobs);
                 setTotalOffers(response.data.total_offers);

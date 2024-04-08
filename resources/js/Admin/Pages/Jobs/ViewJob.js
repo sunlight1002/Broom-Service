@@ -66,57 +66,61 @@ export default function ViewJob() {
             <div id="content">
                 <div className="view-applicant">
                     <div className="worker-profile">
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <ClientDetails
-                                    client={client}
-                                    address={address}
-                                />
-                            </div>
-                            <div className="col-sm-6">
-                                <div
-                                    className="cdiv"
-                                    style={{ display: "none" }}
-                                >
-                                    {job.status != "completed" ? (
-                                        job.status == "cancel" ? (
-                                            <h4 className="text-danger float-right font-weight-bold mt-2">
-                                                {" "}
-                                                Cancelled{" "}
-                                            </h4>
-                                        ) : (
-                                            <button
-                                                className="btn btn-danger float-right mt-2"
-                                                onClick={(e) => handleCancel(e)}
-                                            >
-                                                Cancel
-                                            </button>
-                                        )
-                                    ) : (
-                                        <h4 className="text-success float-right font-weight-bold mt-2">
-                                            {" "}
-                                            Completed{" "}
-                                        </h4>
-                                    )}
+                        {job && (
+                            <div className="row">
+                                <div className="col-sm-6">
+                                    <ClientDetails
+                                        client={client}
+                                        address={address}
+                                    />
                                 </div>
+                                <div className="col-sm-6">
+                                    <div
+                                        className="cdiv"
+                                        style={{ display: "none" }}
+                                    >
+                                        {job.status != "completed" ? (
+                                            job.status == "cancel" ? (
+                                                <h4 className="text-danger float-right font-weight-bold mt-2">
+                                                    {" "}
+                                                    Cancelled{" "}
+                                                </h4>
+                                            ) : (
+                                                <button
+                                                    className="btn btn-danger float-right mt-2"
+                                                    onClick={(e) =>
+                                                        handleCancel(e)
+                                                    }
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )
+                                        ) : (
+                                            <h4 className="text-success float-right font-weight-bold mt-2">
+                                                {" "}
+                                                Completed{" "}
+                                            </h4>
+                                        )}
+                                    </div>
 
-                                <WorkerDetails worker={worker} job={job} />
+                                    <WorkerDetails worker={worker} job={job} />
+                                </div>
+                                <div className="col-sm-12">
+                                    <Services job={job} />
+                                    <WorkerTiming job={job} />
+                                    <Comment />
+                                </div>
+                                <div className="col-sm-12 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={handleClick}
+                                        className="btn btn-pink addButton"
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </div>
-                            <div className="col-sm-12">
-                                <Services job={job} />
-                                <WorkerTiming job={job} />
-                                <Comment />
-                            </div>
-                            <div className="col-sm-12 text-center">
-                                <button
-                                    type="button"
-                                    onClick={handleClick}
-                                    className="btn btn-pink addButton"
-                                >
-                                    Back
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -96,13 +96,13 @@ class AuthController extends Controller
         return response()->json(['success' => 'Logged Out Successfully!']);
     }
 
-    public function updateWorker(Request $request, $id)
+    public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
-            'worker_id' => ['required', 'unique:users,worker_id,' . $id],
+            'worker_id' => ['required', 'unique:users,worker_id,' . Auth::user()->id],
             'status'    => ['required'],
         ]);
 
@@ -110,7 +110,7 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $worker                = User::find($id);
+        $worker                = User::find(Auth::user()->id);
         $worker->firstname     = $request->firstname;
         $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;

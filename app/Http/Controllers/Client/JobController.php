@@ -24,7 +24,7 @@ class JobController extends Controller
     {
         $jobs = Job::query()
             ->with(['offer', 'client', 'worker', 'jobservice', 'propertyAddress'])
-            ->where('client_id', $request->cid)
+            ->where('client_id', Auth::user()->id)
             ->orderBy('start_date')
             ->get();
 
@@ -37,6 +37,7 @@ class JobController extends Controller
     {
         $job = Job::query()
             ->with(['client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress'])
+            ->where('client_id', Auth::user()->id)
             ->find($request->id);
 
         return response()->json([
@@ -47,6 +48,7 @@ class JobController extends Controller
     public function cancel(Request $request, $id)
     {
         $job = Job::with(['client', 'offer', 'worker', 'jobservice'])
+            ->where('client_id', Auth::user()->id)
             ->find($id);
 
         $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;

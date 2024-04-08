@@ -12,7 +12,6 @@ export default function Contract() {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
-    const id = localStorage.getItem("client-id");
     const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -23,11 +22,7 @@ export default function Contract() {
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .post(
-                "/api/client/contracts?page=" + currentPage,
-                { id: id },
-                { headers }
-            )
+            .post("/api/client/contracts?page=" + currentPage, {}, { headers })
             .then((response) => {
                 if (response.data.contracts.data.length > 0) {
                     setContracts(response.data.contracts.data);
@@ -40,11 +35,7 @@ export default function Contract() {
 
     const filterContracts = (e) => {
         axios
-            .post(
-                `/api/client/contracts?q=${e.target.value}`,
-                { id: id },
-                { headers }
-            )
+            .post(`/api/client/contracts?q=${e.target.value}`, {}, { headers })
             .then((response) => {
                 if (response.data.contracts.data.length > 0) {
                     setContracts(response.data.contracts.data);
@@ -59,7 +50,7 @@ export default function Contract() {
 
     const getContract = () => {
         axios
-            .post(`/api/client/contracts`, { id: id }, { headers })
+            .post(`/api/client/contracts`, {}, { headers })
             .then((response) => {
                 if (response.data.contracts.data.length > 0) {
                     setContracts(response.data.contracts.data);
@@ -163,7 +154,10 @@ export default function Contract() {
                                                             </Td>
                                                             <Td>{c.status}</Td>
                                                             <Td>
-                                                                {c.offer.subtotal}{" "}
+                                                                {
+                                                                    c.offer
+                                                                        .subtotal
+                                                                }{" "}
                                                                 {t(
                                                                     "global.currency"
                                                                 ) +

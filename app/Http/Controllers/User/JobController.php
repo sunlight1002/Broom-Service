@@ -71,7 +71,23 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = Job::with('client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress')->find($id);
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'service',
+                'offer',
+                'jobservice',
+                'propertyAddress'
+            ])
+            ->where('worker_id', Auth::user()->id)
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
 
         return response()->json([
             'job' => $job,
@@ -160,6 +176,7 @@ class JobController extends Controller
             'message' => 'Updated Successfully',
         ]);
     }
+
     public function JobStartTime(Request $request)
     {
         $job = Job::find($request->job_id);

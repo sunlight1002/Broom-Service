@@ -16,7 +16,6 @@ export default function TotalJobs() {
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
     const alert = useAlert();
-    const cid = localStorage.getItem("client-id");
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
     const headers = {
@@ -26,17 +25,15 @@ export default function TotalJobs() {
     };
 
     const getJobs = () => {
-        axios
-            .post("/api/client/jobs", { cid }, { headers })
-            .then((response) => {
-                if (response.data.jobs.length > 0) {
-                    setTotalJobs(response.data.jobs);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setLoading("No Job found");
-                }
-            });
+        axios.post("/api/client/jobs", {}, { headers }).then((response) => {
+            if (response.data.jobs.length > 0) {
+                setTotalJobs(response.data.jobs);
+                setPageCount(response.data.jobs.last_page);
+            } else {
+                setTotalJobs([]);
+                setLoading("No Job found");
+            }
+        });
     };
 
     useEffect(() => {

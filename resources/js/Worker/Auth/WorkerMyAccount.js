@@ -39,7 +39,6 @@ export default function WorkerMyAccount() {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
-    const id = localStorage.getItem("worker-id");
     const { t } = useTranslation();
     const handleSkills = (e) => {
         const value = e.target.value;
@@ -77,15 +76,13 @@ export default function WorkerMyAccount() {
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
         );
-        axios
-            .post(`/api/update_details/${id}`, data, { headers })
-            .then((response) => {
-                if (response.data.errors) {
-                    setErrors(response.data.errors);
-                } else {
-                    alert.success("Profile has been updated successfully");
-                }
-            });
+        axios.post(`/api/profile`, data, { headers }).then((response) => {
+            if (response.data.errors) {
+                setErrors(response.data.errors);
+            } else {
+                alert.success("Profile has been updated successfully");
+            }
+        });
     };
 
     const getWorker = () => {
