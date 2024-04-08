@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import LeadDetails from "../../Components/Leads/LeadDetails";
-import ClientHistoryLead from "../../Components/Leads/ClientHistoryLead";
+import LeadHistory from "../../Components/Leads/LeadHistory";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -53,7 +53,7 @@ export default function ViewLead() {
                     <LeadDetails lead={lead} />
                     <div className="card mt-3">
                         <div className="card-body">
-                            <ClientHistoryLead client={lead} />
+                            <LeadHistory client={lead} />
                         </div>
                     </div>
                 </div>

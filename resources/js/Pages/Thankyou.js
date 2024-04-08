@@ -43,11 +43,10 @@ export default function Thankyou() {
                 if (stat == "pending" || instat != stat) {
                     updateMeeting();
                 }
-                setTimeout(() => {
-                    if (param.response === "accept") {
-                        navigate(`/meetings/${param.id}/choose-slot`);
-                    }
-                }, 500);
+
+                if (param.response === "accept") {
+                    navigate(`/meetings/${param.id}/choose-slot`);
+                }
                 const lng = res.data.schedule.client.lng;
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {
