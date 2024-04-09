@@ -650,10 +650,15 @@ export default function TotalJobs() {
                                                         &darr;{" "}
                                                     </span>
                                                 </th>
+                                                <th scope="col">Client Reviews</th>
+                                                <th scope="col">If Job Was Done</th>
                                                 <th scope="col">Client</th>
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
+                                                <th scope="col">Time For Job</th>
+                                                <th scope="col">Time Worker Actually</th>
+                                                <th scope="col">Comments</th>
                                                 <th
                                                     className="text-center"
                                                     scope="col"
@@ -739,18 +744,30 @@ export default function TotalJobs() {
                                                                 )}
                                                             </span>
                                                         </td>
-                                                        <td
-                                                            style={
-                                                                item.client
-                                                                    ? {
-                                                                          background:
-                                                                              item
-                                                                                  .client
-                                                                                  .color,
-                                                                      }
-                                                                    : {}
-                                                            }
-                                                        >
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">Review</div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+
+                                                            <input
+                                                                type="checkbox"
+                                                                name="job-compeleted"
+                                                                checked={item.status === "completed"}
+                                                                onChange={(
+                                                                    e
+                                                                ) => {
+                                                                    console.log(
+                                                                        "clicked"
+                                                                    );
+                                                                }}
+                                                                style={{height: '15px', width: '15px'}}
+                                                                className="form-control"
+                                                            />
+                                                            </div>
+
+                                                        </td>
+                                                        <td>
                                                             <Link
                                                                 to={
                                                                     item.client
@@ -758,9 +775,36 @@ export default function TotalJobs() {
                                                                         : "#"
                                                                 }
                                                                 style={{
-                                                                    color: "#000000",
+                                                                    color: item
+                                                                        .client
+                                                                        .color
+                                                                        ? "#FFFFFF"
+                                                                        : "#000000",
+                                                                    background:
+                                                                        item
+                                                                            .client
+                                                                            .color ||
+                                                                        "#FFFFFF",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
                                                                 }}
                                                             >
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
                                                                 {item.client
                                                                     ? item
                                                                           .client
@@ -915,6 +959,21 @@ export default function TotalJobs() {
                                                                           .jobservice
                                                                           .heb_name)}
                                                         </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.jobservice && item.client && <span>{minutesToHours(item.jobservice.duration_minutes)}</span>}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                + /// -
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.comment || "-"}
+                                                            </div>
+                                                        </td>
                                                         <td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
                                                                 <button
@@ -953,6 +1012,12 @@ export default function TotalJobs() {
                                                                         >
                                                                             View
                                                                         </Link>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>{console.log(`edit item - ${item.id}`)}}
+                                                                        >
+                                                                            Edit
+                                                                        </button>
                                                                         <button
                                                                             className="dropdown-item"
                                                                             onClick={() => {
@@ -1510,4 +1575,9 @@ export default function TotalJobs() {
             )}
         </div>
     );
+}
+
+const minutesToHours = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hours`;
 }
