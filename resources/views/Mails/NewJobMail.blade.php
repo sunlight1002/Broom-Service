@@ -23,7 +23,7 @@
 			 <thead>
 			 <tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.date')}}</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.worker')}}</th>
+					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.client')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.service')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.property_address_txt')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.shift')}}</th>

@@ -989,27 +989,45 @@ export default function TotalJobs() {
                                                                             Change
                                                                             Shift
                                                                         </button>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleSwitchWorker(
-                                                                                    item.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Switch
-                                                                            Worker
-                                                                        </button>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleDelete(
-                                                                                    item.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Delete
-                                                                        </button>
+                                                                        {[
+                                                                            "not-started",
+                                                                            "scheduled",
+                                                                            "unscheduled",
+                                                                            "re-scheduled",
+                                                                        ].includes(
+                                                                            item.status
+                                                                        ) && (
+                                                                            <>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() =>
+                                                                                        handleSwitchWorker(
+                                                                                            item.id
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Switch
+                                                                                    Worker
+                                                                                </button>
+                                                                                <Link
+                                                                                    to={`/admin/jobs/${item.id}/change-worker`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Change
+                                                                                    Worker
+                                                                                </Link>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() =>
+                                                                                        handleDelete(
+                                                                                            item.id
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </>
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                             </div>

@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import CreateJobCalender from "../../Components/Job/CreateJobCalender";
 
-export default function () {
+export default function CreateJob() {
     const params = useParams();
     const [services, setServices] = useState([]);
     const [client, setClient] = useState(null);
