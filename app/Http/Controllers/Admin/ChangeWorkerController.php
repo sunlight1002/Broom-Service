@@ -165,6 +165,14 @@ class ChangeWorkerController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
+        if (!$job->original_worker_id) {
+            $jobData['original_worker_id'] = $job->worker_id;
+        }
+
+        if (!$job->original_shifts) {
+            $jobData['original_shifts'] = $job->shifts;
+        }
+
         $job->update($jobData);
 
         $job->jobservice()->update([

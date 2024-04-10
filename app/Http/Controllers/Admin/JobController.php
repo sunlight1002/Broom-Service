@@ -459,6 +459,8 @@ class JobController extends Controller
                     'next_start_date'   => $next_job_date,
                     'address_id'        => $selectedService['address']['id'],
                     'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+                    'original_worker_id'     => $workerDate['worker_id'],
+                    'original_shifts'        => $workerDate['shifts'],
                 ]);
 
                 JobService::create([
@@ -640,6 +642,14 @@ class JobController extends Controller
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = NULL;
             $jobData['previous_shifts_after'] = NULL;
+        }
+
+        if (!$job->original_worker_id) {
+            $jobData['original_worker_id'] = $job->worker_id;
+        }
+
+        if (!$job->original_shifts) {
+            $jobData['original_shifts'] = $job->shifts;
         }
 
         $job->update($jobData);
@@ -1039,6 +1049,22 @@ class JobController extends Controller
             $jobData['previous_worker_after'] = NULL;
             $otherJobData['previous_worker_id'] = NULL;
             $otherJobData['previous_worker_after'] = NULL;
+        }
+
+        if (!$job->original_worker_id) {
+            $jobData['original_worker_id'] = $job->worker_id;
+        }
+
+        if (!$job->original_shifts) {
+            $jobData['original_shifts'] = $job->shifts;
+        }
+
+        if (!$otherWorkerJob->original_worker_id) {
+            $otherJobData['original_worker_id'] = $otherWorkerJob->worker_id;
+        }
+
+        if (!$otherWorkerJob->original_shifts) {
+            $otherJobData['original_shifts'] = $otherWorkerJob->shifts;
         }
 
         $job->update($jobData);
