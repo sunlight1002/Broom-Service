@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('job-start-time', [JobController::class, 'JobStartTime']);
     Route::post('job-end-time', [JobController::class, 'JobEndTime']);
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
+    Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
 
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
     Route::get('availabilities', [JobController::class, 'getAvailability']);
@@ -47,5 +48,5 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('upload/{id}', [AuthController::class, 'upload']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('details', [AuthController::class, 'details']);
-    Route::post('update_details/{id}', [AuthController::class, 'updateWorker']);
+    Route::post('profile', [AuthController::class, 'updateProfile']);
 });

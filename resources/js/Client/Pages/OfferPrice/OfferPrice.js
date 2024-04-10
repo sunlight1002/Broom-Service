@@ -12,7 +12,6 @@ export default function ClientOfferPrice() {
     const [totalOffers, setTotalOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
-    const id = localStorage.getItem("client-id");
     const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -21,27 +20,21 @@ export default function ClientOfferPrice() {
     };
 
     const getOffers = () => {
-        axios
-            .post("/api/client/offers", { id: id }, { headers })
-            .then((response) => {
-                if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
-                    setOffers(response.data.offers.data);
-                    setPageCount(response.data.offers.last_page);
-                } else {
-                    setLoading("No offer found");
-                }
-            });
+        axios.post("/api/client/offers", {}, { headers }).then((response) => {
+            if (response.data.offers.data.length > 0) {
+                setTotalOffers(response.data.offers.data);
+                setOffers(response.data.offers.data);
+                setPageCount(response.data.offers.last_page);
+            } else {
+                setLoading("No offer found");
+            }
+        });
     };
 
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .post(
-                "/api/client/offers?page=" + currentPage,
-                { id: id },
-                { headers }
-            )
+            .post("/api/client/offers?page=" + currentPage, {}, { headers })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
                     setTotalOffers(response.data.offers.data);
@@ -55,11 +48,7 @@ export default function ClientOfferPrice() {
 
     const filterOffers = (e) => {
         axios
-            .post(
-                `/api/client/offers?q=${e.target.value}`,
-                { id: id },
-                { headers }
-            )
+            .post(`/api/client/offers?q=${e.target.value}`, {}, { headers })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
                     setTotalOffers(response.data.offers.data);

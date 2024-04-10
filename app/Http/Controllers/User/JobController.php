@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Notification;
 
 class JobController extends Controller
 {
@@ -71,7 +72,23 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = Job::with('client', 'worker', 'service', 'offer', 'jobservice', 'propertyAddress')->find($id);
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'service',
+                'offer',
+                'jobservice',
+                'propertyAddress'
+            ])
+            ->where('worker_id', Auth::user()->id)
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
 
         return response()->json([
             'job' => $job,
@@ -160,6 +177,7 @@ class JobController extends Controller
             'message' => 'Updated Successfully',
         ]);
     }
+
     public function JobStartTime(Request $request)
     {
         $job = Job::find($request->job_id);
@@ -211,5 +229,43 @@ class JobController extends Controller
             'time' => $time,
             'total' => $total
         ]);
+    }
+
+    public function setJobOpeningTimestamp(Request $request) {
+        $rData = $request->all();
+        try {
+            $job = Job::updateOrCreate([
+                'id' => $rData['job_id'],
+            ], [
+                'job_opening_timestamp' => now()
+            ]);
+            Notification::create([
+                'user_id' => $job->client->id,
+                'type' => 'opening-job',
+                'job_id' => $job->id,
+                'status' => 'going to start'
+            ]);
+
+            $admin = Admin::first();
+            App::setLocale('en');
+            $data = array(
+                'email'      => $admin->email,
+                'admin'      => $admin->toArray(),
+                'worker'     => $job->worker,
+                'job'        => $job->toArray(),
+            );
+            Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
+                $messages->to($data['email']);
+                $sub = __('mail.job_status.subject');
+                $messages->subject($sub);
+            });
+            return response()->json([
+                'message' => 'Job opening time has been updated!'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ]);
+        }
     }
 }

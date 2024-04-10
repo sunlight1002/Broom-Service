@@ -168,10 +168,17 @@ export default function ScheduledMeeting() {
                                                 {Moment(item.start_date).format(
                                                     "dddd"
                                                 )}
-                                                <br />
-                                                {"Start : " + item.start_time}
-                                                <br />
-                                                {"End : " + item.end_time}
+                                                {item.start_time &&
+                                                    item.end_time && (
+                                                        <>
+                                                            <br />
+                                                            {"Start : " +
+                                                                item.start_time}
+                                                            <br />
+                                                            {"End : " +
+                                                                item.end_time}
+                                                        </>
+                                                    )}
                                             </td>
                                             <td style={{ color }}>
                                                 {item.booking_status}

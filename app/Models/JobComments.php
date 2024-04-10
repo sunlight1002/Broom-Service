@@ -10,8 +10,8 @@ class JobComments extends Model
 
     protected $fillable = ['job_id', 'comment', 'name', 'role'];
 
-    public function comments()
+    public function attachments()
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 }

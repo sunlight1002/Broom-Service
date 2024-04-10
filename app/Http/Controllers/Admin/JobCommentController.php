@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Comment;
 
 class JobCommentController extends Controller
 {
@@ -18,8 +17,8 @@ class JobCommentController extends Controller
      */
     public function index(request $request)
     {
-        $client_comments = JobComments::with(['comments'])->where('job_id', $request->id)->where('role', 'client')->orderBy('id', 'desc')->get();
-        $worker_comments = JobComments::with(['comments'])->where('job_id', $request->id)->where('role', 'worker')->orderBy('id', 'desc')->get();
+        $client_comments = JobComments::with(['attachments'])->where('job_id', $request->id)->where('role', 'client')->orderBy('id', 'desc')->get();
+        $worker_comments = JobComments::with(['attachments'])->where('job_id', $request->id)->where('role', 'worker')->orderBy('id', 'desc')->get();
 
         return response()->json([
             'client_comments' => $client_comments,
@@ -55,18 +54,18 @@ class JobCommentController extends Controller
             'comment' => $data['comment'],
         ]);
         $filesArr = $request->file('files');
-        if($request->hasFile('files') && count($filesArr) > 0){
-            if (!Storage::disk('public')->exists('uploads/comments')) {
-                Storage::disk('public')->makeDirectory('uploads/comments');
+        if ($request->hasFile('files') && count($filesArr) > 0) {
+            if (!Storage::disk('public')->exists('uploads/attachments')) {
+                Storage::disk('public')->makeDirectory('uploads/attachments');
             }
             $resultArr = [];
             foreach ($filesArr as $key => $file) {
-                $file_name = $file->getClientOriginalName();
-                if (Storage::disk('public')->putFileAs("uploads/comments", $file, $file_name)) {
-                    array_push($resultArr,['file' => $file_name]);
+                $file_name = $data['job_id'] . "_" . date('s') . "_" . $file->getClientOriginalName();
+                if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
+                    array_push($resultArr, ['file' => $file_name]);
                 }
             }
-            $comment->comments()->createMany($resultArr);
+            $comment->attachments()->createMany($resultArr);
         }
         return response()->json([
             'message' => 'Comments has been created successfully'
@@ -82,12 +81,11 @@ class JobCommentController extends Controller
     public function destroy($id)
     {
         $commentObj = JobComments::find($id);
-        foreach($commentObj->comments as $comment)
-        {
-            if (Storage::drive('public')->exists('uploads/comments/' . $comment->file)) {
-                Storage::drive('public')->delete('uploads/comments/' . $comment->file);
+        foreach ($commentObj->attachments()->get() as $attachment) {
+            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file)) {
+                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file);
             }
-            $comment->delete();
+            $attachment->delete();
         }
         $commentObj->delete();
 

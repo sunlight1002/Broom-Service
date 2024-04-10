@@ -341,12 +341,6 @@ export default function ViewSchedule() {
                                     <i className="fas fa-envelope"></i>{" "}
                                     {client.email}
                                 </li>
-                                {/* <li>
-                                    <i className="fas fa-map-marker"></i>{" "}
-                                    {client.geo_address
-                                        ? client.geo_address
-                                        : ""}
-                                </li> */}
                             </ul>
                         </div>
                         <div className="col-sm-4">
@@ -500,59 +494,11 @@ export default function ViewSchedule() {
                                 </div>
                             </div>
                             <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>Start Time</label>
-                                    <select
-                                        name="start_time"
-                                        id="start_time"
-                                        value={startTime}
-                                        onChange={(e) => {
-                                            setStartTime(e.target.value);
-                                            handleUpdate(e);
-                                            matchTime(e.target.value);
-                                        }}
-                                        className="form-control"
-                                    >
-                                        <option value="">
-                                            --- Choose start time ---
-                                        </option>
-                                        {time &&
-                                            time.map((t, i) => {
-                                                return (
-                                                    <option value={t} key={i}>
-                                                        {t}
-                                                    </option>
-                                                );
-                                            })}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>End Time</label>
-                                    <select
-                                        name="end_time"
-                                        id="end_time"
-                                        value={endTime}
-                                        onChange={(e) => {
-                                            setEndTime(e.target.value);
-                                            handleUpdate(e);
-                                        }}
-                                        className="form-control"
-                                    >
-                                        <option value="">
-                                            --- Choose end time ---
-                                        </option>
-                                        {time &&
-                                            time.map((t, i) => {
-                                                return (
-                                                    <option value={t} key={i}>
-                                                        {t}
-                                                    </option>
-                                                );
-                                            })}
-                                    </select>
-                                </div>
+                                {startTime && endTime && (
+                                    <p className="mt-sm-4">
+                                        between {`${startTime} - ${endTime}`}
+                                    </p>
+                                )}
                             </div>
                         </div>
 

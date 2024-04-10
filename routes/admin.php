@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
+use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
@@ -63,10 +64,15 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('pending-data/{for}', [DashboardController::class, 'pendingData']);
     Route::get('latest-clients', [ClientController::class, 'latestClients']);
 
+    Route::get('jobs/change-worker-requests', [ChangeWorkerController::class, 'index']);
+    Route::post('jobs/change-worker-requests/{id}/accept', [ChangeWorkerController::class, 'accept']);
+    Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
+
     // Jobs Api
     Route::resource('jobs', JobController::class)->except(['create', 'edit']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
-    Route::post('create-job/{id}', [JobController::class, 'createJob']);
+    Route::post('create-job', [JobController::class, 'createJob']);
+    Route::post('jobs/{id}/change-worker', [JobController::class, 'changeJobWorker']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancelJob']);

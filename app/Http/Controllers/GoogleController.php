@@ -28,20 +28,20 @@ class GoogleController extends Controller
             }
 
             // Initializes Google Client object
-            $client = $this->getClient();
+            $googleClient = $this->getClient();
 
             /**
              * Exchange auth code for access token
              * Note: if we set 'access type' to 'force' and our access is 'offline', we get a refresh token. we want that.
              */
-            $response = $client->fetchAccessTokenWithAuthCode($code);
+            $response = $googleClient->fetchAccessTokenWithAuthCode($code);
             $googleAccessToken = $response['access_token'];
 
             if (!$googleAccessToken) {
                 throw new Exception('Error: Google access token not found.');
             }
 
-            $refreshToken = $client->getRefreshToken();
+            $refreshToken = $googleClient->getRefreshToken();
 
             Setting::updateOrCreate(
                 ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],

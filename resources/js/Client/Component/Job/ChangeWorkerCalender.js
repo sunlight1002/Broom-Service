@@ -4,38 +4,39 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
+import { Base64 } from "js-base64";
 
 import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
-export default function CreateJobCalender({
-    services: clientServices,
-    client,
-}) {
+export default function ChangeWorkerCalender({ job }) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerData, setWorkerData] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [interval, setTimeInterval] = useState([]);
-    const [selectedService, setSelectedService] = useState(0);
     const [data, setData] = useState([]);
-    const [c_time, setCTime] = useState(0);
+    const [formValues, setFormValues] = useState({
+        repeatancy: "one_time",
+        until_date: null,
+    });
+    const [minUntilDate, setMinUntilDate] = useState(null);
+
+    const jobId = Base64.decode(params.id);
+
+    const flatpickrRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+        Authorization: `Bearer ` + localStorage.getItem("client-token"),
     };
-    let isPrevWorker = useRef();
-    const [services, setServices] = useState(clientServices);
-
-    useEffect(() => {
-        setServices(clientServices);
-    }, [clientServices]);
 
     const getTime = () => {
-        axios.get(`/api/admin/get-time`, { headers }).then((res) => {
+        axios.get(`/api/client/get-time`, { headers }).then((res) => {
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
                 let ai = [];
@@ -47,40 +48,18 @@ export default function CreateJobCalender({
             }
         });
     };
-    useEffect(() => {
-        getTime();
-    }, []);
 
-    const handleServices = (value) => {
-        services.forEach((_s) => {
-            if (_s.service != value) {
-                $(".services-" + _s.service + "-" + _s.contract_id).css(
-                    "display",
-                    "none"
-                );
-            }
-        });
-
-        const _service = services.find((_s, _index) => _s.service == value);
-
-        setCTime(parseFloat(_service.jobHours));
-        setServices([_service]);
-        setSelectedService(_service);
-        getWorkers(_service);
-        $("#edit-work-time").modal("hide");
-    };
-
-    const getWorkers = (_service) => {
+    const getWorkers = () => {
         axios
-            .get(`/api/admin/all-workers`, {
+            .get(`/api/client/workers`, {
                 headers,
                 params: {
                     filter: true,
-                    service_id: _service.service,
-                    has_cat: _service.address.is_cat_avail,
-                    has_dog: _service.address.is_dog_avail,
-                    prefer_type: _service.address.prefer_type,
-                    ignore_worker_ids: _service.address.not_allowed_worker_ids,
+                    service_id: job.jobservice.service_id,
+                    has_cat: job.property_address.is_cat_avail,
+                    has_dog: job.property_address.is_dog_avail,
+                    prefer_type: job.property_address.prefer_type,
+                    ignore_worker_ids: job.worker_id,
                 },
             })
             .then((res) => {
@@ -88,12 +67,34 @@ export default function CreateJobCalender({
             });
     };
 
+    useEffect(() => {
+        getTime();
+        getWorkers();
+    }, []);
+
+    useEffect(() => {
+        setMinUntilDate(
+            moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
+        );
+
+        return () => setMinUntilDate(null);
+    }, []);
+
     const handleSubmit = () => {
+        if (!formValues.repeatancy) {
+            alert.error("The Repeatancy is missing");
+            return false;
+        }
+
+        if (formValues.repeatancy == "until_date" && !formValues.until_date) {
+            alert.error("The Until Date is missing");
+            return false;
+        }
+
         let formdata = {
-            workers: data,
-            service_id: selectedService.service,
-            contract_id: selectedService.contract_id,
-            prevWorker: isPrevWorker.current.checked,
+            worker: data[0],
+            repeatancy: formValues.repeatancy,
+            until_date: formValues.until_date,
         };
         let viewbtn = document.querySelectorAll(".viewBtn");
         if (data.length > 0) {
@@ -101,13 +102,17 @@ export default function CreateJobCalender({
             viewbtn[0].value = "please wait ...";
 
             axios
-                .post(`/api/admin/create-job`, formdata, {
-                    headers,
-                })
+                .post(
+                    `/api/client/jobs/${jobId}/change-worker-request`,
+                    formdata,
+                    {
+                        headers,
+                    }
+                )
                 .then((res) => {
                     alert.success(res.data.message);
                     setTimeout(() => {
-                        navigate("/admin/jobs");
+                        navigate("/client/jobs");
                     }, 1000);
                 })
                 .catch((e) => {
@@ -180,7 +185,7 @@ export default function CreateJobCalender({
             if (shifts == "") {
                 shifts = v.label;
             } else {
-                shifts = shifts + "," + v.label;
+                shifts += "," + v.label;
             }
         });
 
@@ -873,7 +878,6 @@ export default function CreateJobCalender({
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col">Client</th>
                                                 <th scope="col">Service</th>
                                                 <th scope="col">Frequency</th>
                                                 <th scope="col">
@@ -889,73 +893,33 @@ export default function CreateJobCalender({
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    {`${client.firstname} ${client.lastname}`}
-                                                </td>
-                                                <td>
                                                     {" "}
-                                                    {services.map(
-                                                        (item, index) => {
-                                                            if (
-                                                                item.service ==
-                                                                "10"
-                                                            )
-                                                                return (
-                                                                    <p
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            item.other_title
-                                                                        }
-                                                                    </p>
-                                                                );
-                                                            else
-                                                                return (
-                                                                    <p
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </p>
-                                                                );
+                                                    <p>{job.jobservice.name}</p>
+                                                </td>
+                                                <td>
+                                                    <p>
+                                                        {
+                                                            job.jobservice
+                                                                .freq_name
                                                         }
-                                                    )}
+                                                    </p>
                                                 </td>
                                                 <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item.freq_name}
-                                                            </p>
-                                                        )
-                                                    )}
+                                                    <p>
+                                                        {
+                                                            job.jobservice
+                                                                .jobHours
+                                                        }{" "}
+                                                        hours
+                                                    </p>
                                                 </td>
                                                 <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item.jobHours}{" "}
-                                                                hours
-                                                            </p>
-                                                        )
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {
-                                                                    item
-                                                                        ?.address
-                                                                        ?.address_name
-                                                                }
-                                                            </p>
-                                                        )
-                                                    )}
+                                                    <p>
+                                                        {
+                                                            job.property_address
+                                                                .address_name
+                                                        }
+                                                    </p>
                                                 </td>
                                                 <td
                                                     style={{
@@ -963,47 +927,38 @@ export default function CreateJobCalender({
                                                             "capitalize",
                                                     }}
                                                 >
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {
-                                                                    item
-                                                                        ?.address
-                                                                        ?.prefer_type
-                                                                }
-                                                            </p>
-                                                        )
-                                                    )}
+                                                    <p>
+                                                        {
+                                                            job.property_address
+                                                                .prefer_type
+                                                        }
+                                                    </p>
                                                 </td>
                                                 <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item?.address
-                                                                    ?.is_cat_avail
-                                                                    ? "Cat ,"
-                                                                    : item
-                                                                          ?.address
-                                                                          ?.is_dog_avail
-                                                                    ? "Dog"
-                                                                    : !item
-                                                                          ?.address
-                                                                          ?.is_cat_avail &&
-                                                                      !item
-                                                                          ?.address
-                                                                          ?.is_dog_avail
-                                                                    ? "NA"
-                                                                    : ""}
-                                                            </p>
-                                                        )
-                                                    )}
+                                                    <p>
+                                                        {job.property_address
+                                                            .is_cat_avail
+                                                            ? "Cat ,"
+                                                            : job
+                                                                  .property_address
+                                                                  .is_dog_avail
+                                                            ? "Dog"
+                                                            : !job
+                                                                  .property_address
+                                                                  .is_cat_avail &&
+                                                              !job
+                                                                  .property_address
+                                                                  .is_dog_avail
+                                                            ? "NA"
+                                                            : ""}
+                                                    </p>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="table-responsive">
-                                    {data.length > 0 ? (
+                                    {data.length > 0 && (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
@@ -1025,10 +980,70 @@ export default function CreateJobCalender({
                                                     ))}
                                             </tbody>
                                         </table>
-                                    ) : (
-                                        ""
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="offset-sm-4 col-sm-4">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Repeatancy
+                                        </label>
+
+                                        <select
+                                            name="repeatancy"
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    repeatancy: e.target.value,
+                                                });
+                                            }}
+                                            value={formValues.repeatancy}
+                                            className="form-control mb-3"
+                                        >
+                                            <option value="one_time">
+                                                One Time ( for single job )
+                                            </option>
+                                            <option value="until_date">
+                                                Until Date
+                                            </option>
+                                            <option value="forever">
+                                                Forever
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {formValues.repeatancy == "until_date" && (
+                                    <div className="offset-sm-4 col-sm-4">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Until Date
+                                            </label>
+                                            <Flatpickr
+                                                name="date"
+                                                className="form-control"
+                                                onChange={(
+                                                    selectedDates,
+                                                    dateStr,
+                                                    instance
+                                                ) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        until_date: dateStr,
+                                                    });
+                                                }}
+                                                options={{
+                                                    disableMobile: true,
+                                                    minDate: minUntilDate,
+                                                }}
+                                                value={formValues.until_date}
+                                                ref={flatpickrRef}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="modal-footer">
@@ -1047,68 +1062,6 @@ export default function CreateJobCalender({
                             >
                                 Save and Send
                             </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div
-                className="modal fade"
-                id="edit-work-time"
-                tabIndex="-1"
-                role="dialog"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true"
-            >
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">
-                                Select Service
-                            </h5>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col-sm-12 mb-4">
-                                    <div className="form-check">
-                                        <label className="form-check-label">
-                                            <input
-                                                ref={isPrevWorker}
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                name={"is_keep_prev_worker"}
-                                            />
-                                            Keep previous worker
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="col-sm-12">
-                                    <label className="control-label">
-                                        Services
-                                    </label>
-                                    <select
-                                        onChange={(e) =>
-                                            handleServices(e.target.value)
-                                        }
-                                        className="form-control"
-                                    >
-                                        <option value="">
-                                            --- Please Select Service ---
-                                        </option>
-                                        {services.map((item, index) => {
-                                            return (
-                                                <option
-                                                    value={item.service}
-                                                    key={index}
-                                                >
-                                                    {item.service != "10"
-                                                        ? item.name
-                                                        : item.other_title}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

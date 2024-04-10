@@ -10,6 +10,7 @@ use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
+use App\Models\ManageTime;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,13 +26,12 @@ class DashboardController extends Controller
 
     public function dashboard(Request $request)
     {
-        $id              = $request->id;
-        $total_jobs      = Job::where('client_id', $id)->count();
-        $total_offers    = Offer::where('client_id', $id)->count();
-        $total_schedules = Schedule::where('client_id', $id)->count();
-        $total_contracts = Contract::where('client_id', $id)->count();
+        $total_jobs      = Job::where('client_id', Auth::user()->id)->count();
+        $total_offers    = Offer::where('client_id', Auth::user()->id)->count();
+        $total_schedules = Schedule::where('client_id', Auth::user()->id)->count();
+        $total_contracts = Contract::where('client_id', Auth::user()->id)->count();
         $latest_jobs     = Job::query()
-            ->where('client_id', $id)
+            ->where('client_id', Auth::user()->id)
             ->with(['client', 'service', 'worker', 'jobservice'])
             ->orderBy('id', 'desc')
             ->take(10)
@@ -49,29 +49,24 @@ class DashboardController extends Controller
     //Schedules
     public function meetings(Request $request)
     {
-        $id = $request->id;
         $result = Schedule::with(['team', 'propertyAddress']);
 
         if (isset($request->q)) {
             $q = $request->q;
 
-            $result = $result->orWhereHas('team', function ($qr) use ($q, $id) {
-                $qr->where(function ($qr) use ($q, $id) {
-                    $qr->where('name', 'like', '%' . $q . '%')
-                        ->where('client_id', $id);
-                });
+            $result = $result->orWhereHas('team', function ($qr) use ($q) {
+                $qr->where('name', 'like', '%' . $q . '%');
             });
 
-            $result->orWhere(function ($qry) use ($q, $id) {
+            $result->orWhere(function ($qry) use ($q) {
                 $qry->where('booking_status', 'like', '%' . $q . '%')
                     ->orWhere('end_time',   'like', '%' . $q . '%')
                     ->orWhere('start_date', 'like', '%' . $q . '%')
-                    ->orWhere('start_time', 'like', '%' . $q . '%')
-                    ->where('client_id', $id);
+                    ->orWhere('start_time', 'like', '%' . $q . '%');
             });
         }
 
-        $result = $result->where('client_id', $id)->paginate(20);
+        $result = $result->where('client_id', Auth::user()->id)->paginate(20);
 
         return response()->json([
             'schedules' => $result
@@ -80,7 +75,11 @@ class DashboardController extends Controller
 
     public function showMeetings($id)
     {
-        $schedule = Schedule::where('id', $id)->with('client', 'team')->get()->first();
+        $schedule = Schedule::query()
+            ->with('client', 'team')
+            ->where('client_id', Auth::user()->id)
+            ->find($id);
+
         return response()->json([
             'schedule' => $schedule
         ]);
@@ -89,19 +88,17 @@ class DashboardController extends Controller
     //Offers
     public function offers(Request $request)
     {
-        $id = $request->id;
         $result = Offer::query();
 
         if (isset($request->q)) {
             $q = $request->q;
-            $result->orWhere(function ($qry) use ($q, $id) {
+            $result->orWhere(function ($qry) use ($q) {
                 $qry->where('status', 'like', '%' . $q . '%')
-                    ->orWhere('total',   'like', '%' . $q . '%')
-                    ->where('client_id', $id);
+                    ->orWhere('total',   'like', '%' . $q . '%');
             });
         }
 
-        $result = $result->orderBy('id', 'desc')->where('client_id', $id)->paginate(20);
+        $result = $result->orderBy('id', 'desc')->where('client_id', Auth::user()->id)->paginate(20);
 
         return response()->json([
             'offers' => $result
@@ -110,7 +107,11 @@ class DashboardController extends Controller
 
     public function viewOffer(Request $request)
     {
-        $offer = Offer::query()->with('client')->find($request->id);
+        $offer = Offer::query()
+            ->with('client')
+            ->where('client_id', Auth::user()->id)
+            ->find($request->id);
+
         if (isset($offer)) {
             $perhour = false;
             $services = json_decode($offer->services);
@@ -133,11 +134,10 @@ class DashboardController extends Controller
     public function contracts(Request $request)
     {
         $q = $request->q;
-        $id = $request->id;
         $result = Contract::with('client', 'offer');
         if (!is_null($q)) {
-            $result = $result->orWhereHas('client', function ($qr) use ($q, $id) {
-                $qr->where(function ($qr) use ($q, $id) {
+            $result = $result->orWhereHas('client', function ($qr) use ($q) {
+                $qr->where(function ($qr) use ($q) {
                     $qr->where('firstname', 'like', '%' . $q . '%');
                     $qr->orWhere('lastname', 'like', '%' . $q . '%');
                     $qr->orWhere('email', 'like', '%' . $q . '%');
@@ -145,17 +145,15 @@ class DashboardController extends Controller
                     $qr->orWhere('street_n_no', 'like', '%' . $q . '%');
                     $qr->orWhere('zipcode', 'like', '%' . $q . '%');
                     $qr->orWhere('phone', 'like', '%' . $q . '%');
-                    $qr->where('client_id', $id);
                 });
             });
 
-            $result->orWhere(function ($qry) use ($q, $id) {
-                $qry->where('status', 'like', '%' . $q . '%')
-                    ->where('client_id', $id);
+            $result->orWhere(function ($qry) use ($q) {
+                $qry->where('status', 'like', '%' . $q . '%');
             });
         }
 
-        $result = $result->orderBy('id', 'desc')->where('client_id', $id)->paginate(20);
+        $result = $result->orderBy('id', 'desc')->where('client_id', Auth::user()->id)->paginate(20);
 
         return response()->json([
             'contracts' => $result
@@ -164,7 +162,10 @@ class DashboardController extends Controller
 
     public function getContract($id)
     {
-        $contract = Contract::query()->with('client')->find($id);
+        $contract = Contract::query()
+            ->with('client')
+            ->where('client_id', Auth::user()->id)
+            ->find($id);
 
         return response()->json([
             'contract' => $contract
@@ -335,6 +336,13 @@ class DashboardController extends Controller
 
         return response()->json([
             'message' => 'Password changed successfully',
+        ]);
+    }
+
+    public function getTime()
+    {
+        return response()->json([
+            'data' => ManageTime::where('id', 1)->first()
         ]);
     }
 }

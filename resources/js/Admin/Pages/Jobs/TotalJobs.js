@@ -539,6 +539,12 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                             <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
@@ -989,27 +995,45 @@ export default function TotalJobs() {
                                                                             Change
                                                                             Shift
                                                                         </button>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleSwitchWorker(
-                                                                                    item.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Switch
-                                                                            Worker
-                                                                        </button>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleDelete(
-                                                                                    item.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Delete
-                                                                        </button>
+                                                                        {[
+                                                                            "not-started",
+                                                                            "scheduled",
+                                                                            "unscheduled",
+                                                                            "re-scheduled",
+                                                                        ].includes(
+                                                                            item.status
+                                                                        ) && (
+                                                                            <>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() =>
+                                                                                        handleSwitchWorker(
+                                                                                            item.id
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Switch
+                                                                                    Worker
+                                                                                </button>
+                                                                                <Link
+                                                                                    to={`/admin/jobs/${item.id}/change-worker`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Change
+                                                                                    Worker
+                                                                                </Link>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() =>
+                                                                                        handleDelete(
+                                                                                            item.id
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </>
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                             </div>

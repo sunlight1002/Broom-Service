@@ -586,7 +586,8 @@
                 "cmt_box": "Enter Comment",
                 "save_cmt": "Save Comment",
                 "close": "Close",
-                "file": "Upload files"
+                "file": "Upload files",
+                "going_to_start": "I'm going to start my work"
             }
         },
         "schedule": {

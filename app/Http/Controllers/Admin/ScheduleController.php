@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\LeadStatus;
 use App\Models\Schedule;
 use App\Models\Notification;
@@ -92,6 +93,20 @@ class ScheduleController extends Controller
         }
 
         $input = $request->input();
+
+        $client = Client::find($input['client_id']);
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found',
+            ], 404);
+        }
+
+        if (empty($client->phone)) {
+            return response()->json([
+                'message' => "Client's phone is required",
+            ], 403);
+        }
+
         $schedule = Schedule::create($input);
 
         LeadStatus::updateOrCreate(
@@ -106,12 +121,12 @@ class ScheduleController extends Controller
             ->value('value');
 
         // Initializes Google Client object
-        $client = $this->getClient();
+        $googleClient = $this->getClient();
         if (!$googleAccessToken) {
             /**
              * Generate the url at google we redirect to
              */
-            $authUrl = $client->createAuthUrl(null, ['state' => 'SCH-' . $schedule->id]);
+            $authUrl = $googleClient->createAuthUrl(null, ['state' => 'SCH-' . $schedule->id]);
 
             return response()->json([
                 'action' => 'redirect',
@@ -157,7 +172,7 @@ class ScheduleController extends Controller
             $schedule->load(['client', 'team', 'propertyAddress']);
             if (!$schedule->is_calendar_event_created) {
                 // Initializes Google Client object
-                $client = $this->getClient();
+                $googleClient = $this->getClient();
 
                 $this->saveGoogleCalendarEvent($schedule);
 

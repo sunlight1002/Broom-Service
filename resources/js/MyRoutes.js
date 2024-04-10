@@ -42,8 +42,10 @@ import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
 import Admin from "./Admin/Admin";
 import AdminDashboard from "./Admin/Dashboard";
 import TotalJobs from "./Admin/Pages/Jobs/TotalJobs";
+import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/ChangeWorkerRequestList";
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
+import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
 import AddJob from "./Admin/Pages/Jobs/AddJob";
 import ViewJob from "./Admin/Pages/Jobs/ViewJob";
 import EditJob from "./Admin/Pages/Jobs/EditJob";
@@ -123,6 +125,7 @@ import Messenger from "./Admin/Pages/Chat/messenger";
 import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
+import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -254,7 +257,11 @@ export default function MyRoutes() {
                                 path="/client/view-job/:id"
                                 element={<ClientJobView />}
                             />
-
+                            <Route
+                                exact
+                                path="/client/jobs/:id/change-worker-request"
+                                element={<ChangeWorkerRequest />}
+                            />
                             <Route
                                 exact
                                 path="/client/settings"
@@ -325,6 +332,11 @@ export default function MyRoutes() {
                             <Route exact path="jobs" element={<TotalJobs />} />
                             <Route
                                 exact
+                                path="jobs/change-worker-requests"
+                                element={<ChangeWorkerRequestList />}
+                            />
+                            <Route
+                                exact
                                 path="create-job/:id"
                                 element={<CreateJob />}
                             />
@@ -332,6 +344,11 @@ export default function MyRoutes() {
                                 exact
                                 path="create-client-job/:id"
                                 element={<CreateClientJob />}
+                            />
+                            <Route
+                                exact
+                                path="jobs/:id/change-worker"
+                                element={<ChangeWorker />}
                             />
                             <Route exact path="add-job" element={<AddJob />} />
                             <Route

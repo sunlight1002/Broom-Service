@@ -348,7 +348,7 @@ export default function Clients() {
                             >
                                 <option value="">-- Sort By--</option>
                                 <option value="id">ID</option>
-                                <option value="firstname">Client Name</option>
+                                <option value="firstname">Name</option>
                                 {/* <option value="address">Address</option> */}
                                 <option value="email">Email</option>
                                 <option value="phone">Phone</option>
@@ -380,7 +380,7 @@ export default function Clients() {
                                                     sortTable(e, "firstname");
                                                 }}
                                             >
-                                                Client Name{" "}
+                                                Name{" "}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}

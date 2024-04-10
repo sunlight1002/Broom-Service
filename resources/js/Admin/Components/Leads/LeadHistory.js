@@ -3,7 +3,7 @@ import Contract from "./Contract";
 import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
 
-export default function ClientHistory({ client }) {
+export default function LeadHistory({ client }) {
     return (
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
