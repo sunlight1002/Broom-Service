@@ -38,6 +38,7 @@
         "ace-builds": "^1.22.1",
         "filepond": "^4.30.4",
         "filepond-plugin-file-validate-type": "^1.2.8",
+        "formik": "^2.4.5",
         "fullcalendar": "^6.1.4",
         "google-map-react": "^2.2.0",
         "i-am-not-a-robot": "^0.7.2",
@@ -77,6 +78,7 @@
         "reactstrap": "^9.1.5",
         "rsuite": "^5.25.0",
         "sweetalert": "^2.1.2",
-        "sweetalert2": "^11.7.1"
+        "sweetalert2": "^11.7.1",
+        "yup": "^1.4.0"
     }
 }

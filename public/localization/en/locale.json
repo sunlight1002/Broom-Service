@@ -830,7 +830,7 @@
         "exm10": "10. Regarding my children who are not in my possession listed in part C and I participate in their finances (To be filled out by a parent who lives separately, who is not entitled to credit points for his children, who created a PSA requiring him to pay child support)",
         "exm11": "11. I am a parent of children with disabilities who have not yet turned 19, for whom I receive a disabled child benefit from the National Insurance Institute (My partner does not receive these credit points. My children, for whom I am requesting the credit points, have no income this year)",
         "exm12": "12. In respect of alimony for my former spouse (To be filled in by the person who remarries)",
-        "exm13": "I or my partner have turned 16 and have not yet turned 18 in the tax year",
+        "exm13": "13. I or my partner have turned 16 and have not yet turned 18 in the tax year",
         "exm14": "14. I am a discharged soldier / served in national service",
         "exm15": "15. In respect of graduation for an academic degree, graduation from an internship or graduation from professional studies",
         "coordination_number": "H. Coordination number",
@@ -857,7 +857,12 @@
         "disclaimer_details1": "I declare that the details I provided in this form are complete and correct. I know that omitting or providing incorrect information is a violation of the Income Tax Ordinance.",
         "disclaimer_details2": "I undertake to inform the employer of any change that will apply to my personal details and the details above within a week from the date of the change.",
         "button_clear": "Clear",
-        "button_submit": "Submit"
+        "button_submit": "Submit",
+        "Date": "Date",
+        "sendTOYouAndEmployer": "Send the form to you and the employer",
+        "employerEmail": "Employer's email address",
+        "employesEmail": "Employee's email address",
+        "DetailsOfSpouse": "Details of spouse"
     },
     "credit-card": {
         "added-card": "Added Card"
