@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\JobStatusEnum;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Models\Job;
 use App\Models\JobWorkerShift;
 use App\Traits\JobSchedule;
+use Exception;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class RecurringJob extends Command
@@ -44,78 +47,190 @@ class RecurringJob extends Command
      */
     public function handle()
     {
-        $dateTomorrow = Carbon::now()->addDay()->format('Y-m-d');
-        $dateAfterTomorrow = Carbon::now()->addDays(2)->format('Y-m-d');
+        $dateTomorrow = Carbon::today()->addDay()->format('Y-m-d');
+        $dateAfterTomorrow = Carbon::today()->addDays(2)->format('Y-m-d');
+
         $jobs = Job::query()
             ->whereDate('next_start_date', '>=', $dateTomorrow)
             ->whereDate('next_start_date', '<=', $dateAfterTomorrow)
+            ->where('is_one_time_job', false)
+            ->where('is_next_job_created', false)
+            ->where(function ($q) {
+                $q->whereNull('cancelled_for')
+                    ->orWhere('cancelled_for', '!=', 'forever');
+            })
             ->orderBy('start_date', 'asc')
             ->get();
 
         try {
             foreach ($jobs as $key => $job) {
-
-                $jobAddedThroughCrons = Job::where(['client_id' => $job->client_id, 'contract_id' => $job->contract_id, 'start_date' => $job->next_start_date, 'shifts' => $job->shifts, 'status' => 'status'])->get()->count();
-
-                if($jobAddedThroughCrons > 0)
-                    continue;
-
                 $job_date = Carbon::parse($job->next_start_date);
-                $preferredWeekDay = strtolower($job_date->format('l'));
+                $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
                 $next_job_date = $this->scheduleNextJobDate($job_date, $job->schedule, $preferredWeekDay);
 
-                $nextJob = $job->replicate()->fill([
-                    'start_date' => $job_date,
-                    'next_start_date' => $next_job_date,
-                    'worker_id'  => $job->keep_prev_worker ? $job->worker_id : Null,
+                if (
+                    $job->cancelled_for == 'until_date' &&
+                    (Carbon::parse($job->cancel_until_date)->isToday() ||
+                        Carbon::parse($job->cancel_until_date)->isFuture())
+                ) {
+                    $job->update([
+                        'next_start_date'   => $next_job_date,
+                    ]);
+
+                    continue;
+                }
+
+                $job_date = $job_date->toDateString();
+
+                $previous_worker_id = $job->previous_worker_id;
+                $previous_worker_after = $job->previous_worker_after;
+                if ($job->previous_worker_id) {
+
+                    if ($job->previous_worker_after) {
+
+                        if (Carbon::parse($job->previous_worker_after)->isFuture()) {
+                            $workerId = $job->worker_id;
+                        } else {
+                            $workerId = $job->previous_worker_id;
+                            $previous_worker_id = NULL;
+                            $previous_worker_after = NULL;
+                        }
+                    } else {
+                        $workerId = $job->worker_id;
+                        $previous_worker_id = NULL;
+                        $previous_worker_after = NULL;
+                    }
+                } else {
+                    $workerId = $job->worker_id;
+                }
+
+                $workerId = $job->keep_prev_worker ? $workerId : NULL;
+
+                if ($workerId) {
+                    $status = JobStatusEnum::SCHEDULED;
+                    if (
+                        Job::where('start_date', $job_date)
+                        ->where('worker_id', $workerId)
+                        ->exists()
+                    ) {
+                        $status = JobStatusEnum::UNSCHEDULED;
+                    }
+                } else {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
+
+                $previous_shifts = $job->previous_shifts;
+                $previous_shifts_after = $job->previous_shifts_after;
+                if ($job->previous_shifts) {
+
+                    if ($job->previous_shifts_after) {
+
+                        if (Carbon::parse($job->previous_shifts_after)->isFuture()) {
+                            $job_shifts = $job->shifts;
+                        } else {
+                            $job_shifts = $job->previous_shifts;
+                            $previous_shifts = NULL;
+                            $previous_shifts_after = NULL;
+                        }
+                    } else {
+                        $job_shifts = $job->shifts;
+                        $previous_shifts = NULL;
+                        $previous_shifts_after = NULL;
+                    }
+                } else {
+                    $job_shifts = $job->shifts;
+                }
+
+                $shifts = explode(',', $job_shifts);
+                $shiftsInHour = [];
+                foreach ($shifts as $key => $shift) {
+                    $timing = explode('-', $shift);
+                    $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
+                    $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+
+                    $shiftsInHour[] = [
+                        'start' => $timing[0],
+                        'end' => $timing[1]
+                    ];
+                }
+
+                $minutes = 0;
+                foreach ($shiftsInHour as $key => $value) {
+                    $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
+                }
+
+                $nextJob = Job::create([
+                    'worker_id'     => $workerId,
+                    'client_id'     => $job->client_id,
+                    'contract_id'   => $job->contract_id,
+                    'offer_id'      => $job->offer_id,
+                    'start_date'    => $job_date,
+                    'shifts'        => $job_shifts,
+                    'schedule'      => $job->schedule,
+                    'schedule_id'   => $job->schedule_id,
+                    'status'        => $status,
+                    'total_amount'  => $job->total_amount,
+                    'next_start_date'   => $next_job_date,
+                    'address_id'        => $job->address_id,
+                    'keep_prev_worker'  => $job->keep_prev_worker,
+                    'is_one_time_job'   => $job->is_one_time_job,
+                    'original_worker_id'    => $job->original_worker_id,
+                    'original_shifts'       => $job->original_shifts,
+                    'previous_worker_id'    => $previous_worker_id,
+                    'previous_worker_after' => $previous_worker_after,
+                    'previous_shifts'       => $previous_shifts,
+                    'previous_shifts_after' => $previous_shifts_after,
                 ]);
-                $nextJob->save();
 
                 $nextJobService = $job->jobservice->replicate()->fill([
                     'job_id' => $nextJob->id,
+                    'duration_minutes'  => $minutes,
                 ]);
                 $nextJobService->save();
 
-                if($job->workerShifts()->exists())
-                {
-                    foreach ($job->workerShifts as $key => $workerShift) {
+                $shiftFormattedArr = [];
+                $shiftStart = NULL;
+                foreach ($shiftsInHour as $key => $time) {
+                    $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
 
-                        $timeStart = explode(" ", $workerShift->starting_at)[1];
-                        $timeEnd = explode(" ", $workerShift->ending_at)[1];
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    ];
 
-                        if($key == 0) {
-                            $shiftStart = Carbon::parse($workerShift->starting_at)->format('H:i');
-                        }
+                    $shiftStart = Carbon::parse($job_date . ' ' . $start_time)->format('H:i');
+                }
 
-                        $jobWorkerShift = JobWorkerShift::create([
-                            'job_id' => $nextJob->id,
-                            'starting_at' => $job_date->format('Y-m-d') . " " . $timeStart,
-                            'ending_at' => $job_date->format('Y-m-d') . " " . $timeEnd
-                        ]);
-                    }
+                foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+                    $nextJob->workerShifts()->create($shift);
+                }
 
-                    $nextJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $job->update([
+                    'is_next_job_created' => true
+                ]);
 
-                    if ($nextJob->worker_id && !empty($nextJob['worker']['email'])) {
-                        App::setLocale($nextJob->worker->lng);
+                $nextJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-                        $emailData = array(
-                            'email' => $nextJob['worker']['email'],
-                            'job' => $nextJob->toArray(),
-                            'start_time' => $shiftStart ?? "",
-                            'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                        );
+                if ($nextJob->worker_id && !empty($nextJob['worker']['email'])) {
+                    App::setLocale($nextJob->worker->lng);
 
-                        Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                            $messages->to($emailData['email']);
-                            $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                            $messages->subject($sub);
-                        });
-                    }
+                    $emailData = array(
+                        'email' => $nextJob['worker']['email'],
+                        'job' => $nextJob->toArray(),
+                        'start_time' => $shiftStart,
+                        'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                    );
+
+                    Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                        $messages->to($emailData['email']);
+                        $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                        $messages->subject($sub);
+                    });
                 }
             }
         } catch (Exception $e) {
-            \Log::error($e);
+            Log::error($e);
         }
     }
 }

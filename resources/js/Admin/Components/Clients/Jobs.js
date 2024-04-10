@@ -526,8 +526,8 @@ export default function Jobs({ contracts, client }) {
                                 >
                                     ID <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Service Name</th>
-                                <th>Worker Name</th>
+                                <th>Service</th>
+                                <th>Worker</th>
                                 <th>Total Price</th>
                                 <th
                                     onClick={(e) => sortTable(e, "created_at")}
@@ -649,14 +649,14 @@ export default function Jobs({ contracts, client }) {
                                                     </button>
 
                                                     <div className="dropdown-menu">
-                                                        {!j.worker && (
+                                                        {/* {!j.worker && (
                                                             <Link
                                                                 to={`/admin/create-job/${j.contract_id}`}
                                                                 className="dropdown-item"
                                                             >
                                                                 Create Job
                                                             </Link>
-                                                        )}
+                                                        )} */}
                                                         <Link
                                                             to={`/admin/view-job/${j.id}`}
                                                             className="dropdown-item"

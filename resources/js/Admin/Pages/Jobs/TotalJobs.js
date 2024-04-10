@@ -959,42 +959,6 @@ export default function TotalJobs() {
                                                                         >
                                                                             View
                                                                         </Link>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                setCshift(
-                                                                                    {
-                                                                                        contract:
-                                                                                            item.contract_id,
-                                                                                        client: item.client_id,
-                                                                                        repetency:
-                                                                                            "",
-                                                                                        job: item.id,
-                                                                                        from: "",
-                                                                                        to: "",
-                                                                                        worker: "",
-                                                                                        service:
-                                                                                            item.schedule_id,
-                                                                                        shift_date:
-                                                                                            "",
-                                                                                        frequency:
-                                                                                            "",
-                                                                                        cycle: "",
-                                                                                        period: "",
-                                                                                        shift_time:
-                                                                                            "",
-                                                                                    }
-                                                                                );
-                                                                                $(
-                                                                                    "#edit-shift"
-                                                                                ).modal(
-                                                                                    "show"
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            Change
-                                                                            Shift
-                                                                        </button>
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",
@@ -1004,6 +968,42 @@ export default function TotalJobs() {
                                                                             item.status
                                                                         ) && (
                                                                             <>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => {
+                                                                                        setCshift(
+                                                                                            {
+                                                                                                contract:
+                                                                                                    item.contract_id,
+                                                                                                client: item.client_id,
+                                                                                                repetency:
+                                                                                                    "",
+                                                                                                job: item.id,
+                                                                                                from: "",
+                                                                                                to: "",
+                                                                                                worker: "",
+                                                                                                service:
+                                                                                                    item.schedule_id,
+                                                                                                shift_date:
+                                                                                                    "",
+                                                                                                frequency:
+                                                                                                    "",
+                                                                                                cycle: "",
+                                                                                                period: "",
+                                                                                                shift_time:
+                                                                                                    "",
+                                                                                            }
+                                                                                        );
+                                                                                        $(
+                                                                                            "#edit-shift"
+                                                                                        ).modal(
+                                                                                            "show"
+                                                                                        );
+                                                                                    }}
+                                                                                >
+                                                                                    Change
+                                                                                    Shift
+                                                                                </button>
                                                                                 <button
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>

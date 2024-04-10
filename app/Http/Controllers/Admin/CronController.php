@@ -81,7 +81,6 @@ class CronController extends Controller
                 JobService::create($jobSer);
             }
         }
-        // $this->sendUnscheduledMail();
         echo "Job Updated Successfully.";
     }
 
@@ -115,62 +114,5 @@ class CronController extends Controller
             }
         }
         return  $availabiltities;
-    }
-
-    public function sendUnscheduledMail()
-    {
-        $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6);
-        $endDate = $startDate->addDays(6);
-        $jobs = Job::query()
-            ->with(['offer', 'contract'])
-            ->where('status', 'unscheduled')
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->whereHas('contract', function ($query) {
-                $query->where('job_status', '=', 1);
-            })
-            ->get();
-
-        $new_job = array('1');
-        foreach ($jobs as $job) {
-        }
-        $subject = 'Unscheduled Jobs of Week(' . $startDate . ' to ' . $endDate . ').';
-        Mail::send('/Mails/UnscheduledJobMail', $new_job, function ($messages) use ($new_job) {
-            $messages->to('kulwindern2r@gmail.com');
-            $messages->subject('Unscheduled Jobs of Next Week');
-        });
-    }
-
-    public function WorkerUpdate()
-    {
-        $workers = User::get();
-        foreach ($workers as $worker) {
-            $i = 1;
-            $j = 0;
-            $check_friday = 1;
-            while ($i == 1) {
-                $current = Carbon::now();
-                $day = $current->addDays($j);
-                if ($this->isWeekend($day->toDateString())) {
-                    $check_friday++;
-                } else {
-                    $w_a = new WorkerAvailability;
-                    $w_a->user_id = $worker->id;
-                    $w_a->date = $day->toDateString();
-                    $w_a->working = array('8am-16pm');
-                    $w_a->status = 1;
-                    $w_a->save();
-                }
-                $j++;
-                if ($check_friday == 6) {
-                    $i = 2;
-                }
-            }
-        }
-    }
-
-    public function isWeekend($date)
-    {
-        $weekDay = date('w', strtotime($date));
-        return ($weekDay == 5 || $weekDay == 6);
     }
 }

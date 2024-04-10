@@ -133,11 +133,15 @@ export default function ChangeWorker() {
                                         <div className="col-sm-2">
                                             <div className="form-group">
                                                 <label>Worker</label>
-                                                <p>
-                                                    {job.worker.firstname +
-                                                        " " +
-                                                        job.worker.lastname}
-                                                </p>
+                                                {job.worker ? (
+                                                    <p>
+                                                        {job.worker.firstname +
+                                                            " " +
+                                                            job.worker.lastname}
+                                                    </p>
+                                                ) : (
+                                                    <p>NA</p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-sm-2">

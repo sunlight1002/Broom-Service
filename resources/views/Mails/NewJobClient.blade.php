@@ -48,7 +48,7 @@
 				@foreach($jobs as $job)
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['job']['start_date'])->format('M d Y') }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job["job"]['worker']['firstname'] }} {{ $job["job"]['worker']['lastname'] }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ @if($job["job"]['worker']) $job["job"]['worker']['firstname'] }} {{ $job["job"]['worker']['lastname'] }} @else NA @endif</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 					
 					@if($lng == 'heb')

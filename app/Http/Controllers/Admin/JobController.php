@@ -877,8 +877,8 @@ class JobController extends Controller
 
         $report = [];
         foreach ($jobs as $job) {
-            $row['worker_name']      = $job->worker->firstname . " " . $job->worker->lastname;
-            $row['worker_id']        = $job->worker->worker_id;
+            $row['worker_name']      = $job->worker ? $job->worker->firstname . " " . $job->worker->lastname : 'NA';
+            $row['worker_id']        = $job->worker ? $job->worker->worker_id : 'NA';
             $row['start_time']       = $job->start_time;
             $row['end_time']         = $job->end_time;
             $row['time_diffrence']   = $job->time_diff;
