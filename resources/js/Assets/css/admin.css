@@ -509,6 +509,10 @@ table tr td .dropdown-item {
   font-weight: 700;
 }
 
+.boxPanel-th-border-none table tr th {
+  border: none;
+}
+
 .boxPanel table {
   background: #fff;
 }

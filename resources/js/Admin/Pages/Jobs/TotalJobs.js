@@ -486,7 +486,7 @@ export default function TotalJobs() {
                         <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
                         </div>
-
+                        {/* Desktop */}
                         <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
                                 <input type="hidden" id="filter-week" />
@@ -546,6 +546,46 @@ export default function TotalJobs() {
                                 </CSVLink>
                             </div>
                         </div>
+                        <div className="col-sm-2 hidden-xs">
+                            <div className="search-data">
+                                <input
+                                    type="text"
+                                    id="search-field"
+                                    className="form-control"
+                                    placeholder="Search"
+                                    onChange={filterJobs}
+                                    style={{ marginRight: "0" }}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-md-12 hidden-xs d-flex justify-content-between mb-2">
+                            <div className="d-flex align-items-center">
+                                <div style={{fontWeight: 'bold'}}>Filter</div>
+                                <div className="mx-3 d-flex align-items-center border rounded">
+                                    <div className="mx-2 text-nowrap">By Payment</div>
+                                    <select
+                                        className="form-control"
+                                        onChange={(e) => {
+                                            console.log(e);
+                                        }}
+                                    >
+                                        <option value="paid" selected>
+                                            Only Paid
+                                        </option>
+                                        <option value="unpaid">
+                                            Only Unpaid
+                                        </option>
+                                    </select>
+                                </div>
+                                <div style={{fontWeight: 'bold'}} className="mr-2">Date Period</div>
+                                <button className="btn px-4 border rounded mr-1" style={{background: 'white'}}>Day</button>
+                                <button className="btn px-4 border rounded mr-3" style={{background: '#2c3f51', color: 'white'}}>Week</button>
+                                <button className="btn px-3 border rounded mr-1" style={{background: '#2c3f51', color: 'white'}}>Previous Week</button>
+                                <button className="btn px-3 border rounded" style={{background: '#2c3f51', color: 'white'}}>Next Week</button>
+                            </div>
+                            <button className="btn px-3 border rounded" style={{background: '#2c3f51', color: 'white'}}>Add Job</button>
+                        </div>
+                        {/* Mobile */}
                         <div className="col-12 hidden-xl">
                             <div className="job-buttons">
                                 <input type="hidden" id="filter-week" />
@@ -599,19 +639,6 @@ export default function TotalJobs() {
                                 </button>
                             </div>
                         </div>
-                        <div className="col-sm-2 hidden-xs">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    id="search-field"
-                                    className="form-control"
-                                    placeholder="Search"
-                                    onChange={filterJobs}
-                                    style={{ marginRight: "0" }}
-                                />
-                            </div>
-                        </div>
-
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -626,10 +653,10 @@ export default function TotalJobs() {
                 </div>
                 <div className="card">
                     <div className="card-body getjobslist">
-                        <div className="boxPanel">
+                        <div className="boxPanel-th-border-none">
                             <div className="table-responsive">
                                 {totalJobs.length > 0 ? (
-                                    <table className="table table-bordered">
+                                    <table className="table">
                                         <thead>
                                             <tr>
                                                 <th
@@ -650,14 +677,22 @@ export default function TotalJobs() {
                                                         &darr;{" "}
                                                     </span>
                                                 </th>
-                                                <th scope="col">Client Reviews</th>
-                                                <th scope="col">If Job Was Done</th>
+                                                <th scope="col">
+                                                    Client Reviews
+                                                </th>
+                                                <th scope="col">
+                                                    If Job Was Done
+                                                </th>
                                                 <th scope="col">Client</th>
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
-                                                <th scope="col">Time For Job</th>
-                                                <th scope="col">Time Worker Actually</th>
+                                                <th scope="col">
+                                                    Time For Job
+                                                </th>
+                                                <th scope="col">
+                                                    Time Worker Actually
+                                                </th>
                                                 <th scope="col">Comments</th>
                                                 <th
                                                     className="text-center"
@@ -736,36 +771,64 @@ export default function TotalJobs() {
                                                                 )
                                                             }
                                                         >
-                                                            <span className="d-block mb-1">
+                                                            <span className="d-block text-nowrap mb-1">
                                                                 {Moment(
                                                                     item.start_date
                                                                 ).format(
-                                                                    "DD-MM-YYYY"
+                                                                    "DD/MM/YYYY"
                                                                 )}
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <div className="d-flex justify-content-center">Review</div>
+                                                            <div className="d-flex justify-content-center">
+                                                                <div
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        padding:
+                                                                            "2px 10px",
+                                                                        backgroundColor:
+                                                                            "#f4f4f4",
+                                                                        border: "1px solid #ebebeb",
+                                                                    }}
+                                                                >
+                                                                    Reviews
+                                                                </div>
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">
-
-                                                            <input
-                                                                type="checkbox"
-                                                                name="job-compeleted"
-                                                                checked={item.status === "completed"}
-                                                                onChange={(
-                                                                    e
-                                                                ) => {
-                                                                    console.log(
-                                                                        "clicked"
-                                                                    );
-                                                                }}
-                                                                style={{height: '15px', width: '15px'}}
-                                                                className="form-control"
-                                                            />
+                                                                <span
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        border: "1px solid #ebebeb",
+                                                                        overflow:
+                                                                            "hidden",
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="job-compeleted"
+                                                                        checked={
+                                                                            item.status ===
+                                                                            "completed"
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
+                                                                            console.log(
+                                                                                "clicked"
+                                                                            );
+                                                                        }}
+                                                                        style={{
+                                                                            height: "20px",
+                                                                            width: "20px",
+                                                                            accentColor:
+                                                                                "#f4f4f4",
+                                                                        }}
+                                                                        className="form-control"
+                                                                    />
+                                                                </span>
                                                             </div>
-
                                                         </td>
                                                         <td>
                                                             <Link
@@ -817,90 +880,49 @@ export default function TotalJobs() {
                                                             </Link>
                                                         </td>
                                                         <td>
-                                                            <Link
-                                                                to={
-                                                                    item.worker
-                                                                        ? `/admin/view-worker/${item.worker.id}`
-                                                                        : "#"
-                                                                }
+                                                            <div
+                                                                onClick={() => {
+                                                                    $(
+                                                                        "#available-workers"
+                                                                    ).modal(
+                                                                        "show"
+                                                                    );
+                                                                }}
+                                                                style={{
+                                                                    color: "black",
+                                                                    background:
+                                                                        "#f4f4f4",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    border: "1px solid #ebebeb",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
+                                                                }}
                                                             >
-                                                                <h6>
-                                                                    {item.worker
-                                                                        ? item
-                                                                              .worker
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .worker
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </h6>
-                                                            </Link>
-                                                            <select
-                                                                name={item.id}
-                                                                className="form-control mb-3 mt-1"
-                                                                value={
-                                                                    workers[
-                                                                        `${item.id}`
-                                                                    ]
-                                                                        ? workers[
-                                                                              `${item.id}`
-                                                                          ]
-                                                                        : ""
-                                                                }
-                                                                onFocus={(e) =>
-                                                                    handleChange(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                                onChange={(e) =>
-                                                                    upWorker(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    --- Select
-                                                                    ---
-                                                                </option>
-                                                                {Aworker.length >
-                                                                0 ? (
-                                                                    Aworker &&
-                                                                    Aworker.map(
-                                                                        (
-                                                                            w,
-                                                                            i
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    value={
-                                                                                        w.id
-                                                                                    }
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        w.firstname
-                                                                                    }{" "}
-                                                                                    {
-                                                                                        w.lastname
-                                                                                    }
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )
-                                                                ) : (
-                                                                    <option value="">
-                                                                        No
-                                                                        worker
-                                                                        Match
-                                                                    </option>
-                                                                )}
-                                                            </select>
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
+                                                                {item.worker
+                                                                    ? item
+                                                                          .worker
+                                                                          .firstname +
+                                                                      " " +
+                                                                      item
+                                                                          .worker
+                                                                          .lastname
+                                                                    : "NA"}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -909,23 +931,12 @@ export default function TotalJobs() {
                                                                     item.id
                                                                 )
                                                             }
-                                                            style={
-                                                                ix != undefined
-                                                                    ? {
-                                                                          background:
-                                                                              ix.bg,
-                                                                          color: ix.tc,
-                                                                      }
-                                                                    : {
-                                                                          background:
-                                                                              "#d3d3d3",
-                                                                          color: "#444",
-                                                                      }
-                                                            }
                                                         >
-                                                            <span className="mBlue">
-                                                                {item.shifts}
-                                                            </span>
+                                                            <div className="d-flex flex-column justify-content-center">
+                                                                {shiftHelperFn(
+                                                                    item.shifts
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -961,17 +972,27 @@ export default function TotalJobs() {
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">
-                                                                {item.jobservice && item.client && <span>{minutesToHours(item.jobservice.duration_minutes)}</span>}
+                                                                {item.jobservice &&
+                                                                    item.client && (
+                                                                        <span className="text-nowrap">
+                                                                            {minutesToHours(
+                                                                                item
+                                                                                    .jobservice
+                                                                                    .duration_minutes
+                                                                            )}
+                                                                        </span>
+                                                                    )}
                                                             </div>
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">
-                                                                + /// -
+                                                                <ActuallyTimeWorker />
                                                             </div>
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">
-                                                                {item.comment || "-"}
+                                                                {item.comment ||
+                                                                    "-"}
                                                             </div>
                                                         </td>
                                                         <td className="text-center">
@@ -1014,7 +1035,16 @@ export default function TotalJobs() {
                                                                         </Link>
                                                                         <button
                                                                             className="dropdown-item"
-                                                                            onClick={() =>{console.log(`edit item - ${item.id}`)}}
+                                                                            onClick={() => {
+                                                                                console.log(
+                                                                                    `edit item - ${item.id}`
+                                                                                );
+                                                                                $(
+                                                                                    "#edit-job"
+                                                                                ).modal(
+                                                                                    "show"
+                                                                                );
+                                                                            }}
                                                                         >
                                                                             Edit
                                                                         </button>
@@ -1561,6 +1591,219 @@ export default function TotalJobs() {
                                 </div>
                             </div>
                         </div>
+
+                        <div
+                            className="modal fade"
+                            id="edit-job"
+                            tabIndex="-1"
+                            role="dialog"
+                            aria-labelledby="exampleModalLabel"
+                            aria-hidden="true"
+                        >
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5
+                                            className="modal-title"
+                                            id="exampleModalLabel"
+                                        >
+                                            Edit Job
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                            onClick={(e) => resetShift()}
+                                        >
+                                            <span aria-hidden="true">
+                                                &times;
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Date
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift_date"
+                                                        type="date"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Client
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="client"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Worker
+                                                    </label>
+
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="William"
+                                                            selected
+                                                        >
+                                                            William
+                                                        </option>
+                                                        <option value="Adam">
+                                                            Adam
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Shift
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Service
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="service"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Comments
+                                                    </label>
+
+                                                    <textarea
+                                                        className="form-control"
+                                                        name="comments"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="modal fade"
+                            id="available-workers"
+                            tabIndex="-1"
+                            role="dialog"
+                            aria-labelledby="exampleModalLabel"
+                            aria-hidden="true"
+                        >
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5
+                                            className="modal-title"
+                                            id="exampleModalLabel"
+                                        >
+                                            Available Workers
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                            onClick={(e) => resetShift()}
+                                        >
+                                            <span aria-hidden="true">
+                                                &times;
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-1">
+                                                        Worker Gender
+                                                    </label>
+
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="male"
+                                                            selected
+                                                        >
+                                                            Only Male
+                                                        </option>
+                                                        <option value="female">
+                                                            Only Female
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1580,4 +1823,49 @@ export default function TotalJobs() {
 const minutesToHours = (minutes) => {
     const hours = Math.floor(minutes / 60);
     return `${hours} hours`;
-}
+};
+
+const shiftHelperFn = (timeString) => {
+    if (timeString) {
+        const arrOfStr = timeString.split(",");
+        return arrOfStr.map((s) => (
+            <div
+                className="rounded mb-1"
+                style={{
+                    whiteSpace: "nowrap",
+                    background: "#e7a917",
+                    color: "white",
+                    padding: "3px 8px",
+                }}
+            >
+                {s}
+            </div>
+        ));
+    } else {
+        return "-";
+    }
+};
+
+const divStyle = {
+    background: "#f4f4f4",
+    color: "black",
+    padding: "3px 8px",
+    border: "1px solid #ebebeb",
+};
+
+const ActuallyTimeWorker = () => {
+    const [count, setCount] = useState(0);
+    return (
+        <div className="d-flex align-items-center">
+            <div onClick={() => setCount(count - 1)} style={divStyle}>
+                -
+            </div>
+            <span className="mx-1" style={{ ...divStyle, background: "white" }}>
+                {count}
+            </span>
+            <button onClick={() => setCount(count + 1)} style={divStyle}>
+                +
+            </button>
+        </div>
+    );
+};
