@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Job;
@@ -627,12 +628,18 @@ class JobController extends Controller
         if ($data['repeatancy'] == 'one_time') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = NULL;
         } else if ($data['repeatancy'] == 'until_date') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = $data['until_date'];
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = $data['until_date'];
         } else if ($data['repeatancy'] == 'forever') {
             $jobData['previous_worker_id'] = NULL;
             $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = NULL;
+            $jobData['previous_shifts_after'] = NULL;
         }
 
         $job->update($jobData);
@@ -664,42 +671,7 @@ class JobController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
-            App::setLocale($job->worker->lng);
-
-            $emailData = array(
-                'email' => $job['worker']['email'],
-                'job' => $job->toArray(),
-                'start_time' => $shiftsInHour[0]['start'],
-                'content' => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-            );
-
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
-        }
-
-        if (
-            isset($oldWorker['email']) &&
-            $oldWorker['email']
-        ) {
-            App::setLocale($oldWorker['lng']);
-
-            $emailData = array(
-                'email' => $oldWorker['email'],
-                'job' => $job->toArray(),
-                'old_worker' => $oldWorker,
-                'old_job' => $old_job_data
-            );
-
-            Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
-                $messages->subject($sub);
-            });
-        }
+        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
 
         return response()->json([
             'message' => 'Job has been updated successfully'

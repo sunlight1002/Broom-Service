@@ -8,6 +8,7 @@ use App\Http\Controllers\Client\ClientEmailController;
 use App\Http\Controllers\Client\DashboardController;
 use App\Http\Controllers\Client\JobCommentController;
 use App\Http\Controllers\Client\JobController;
+use App\Http\Controllers\Client\WorkerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,8 @@ use App\Http\Controllers\Client\JobController;
 Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
+    Route::get('get-time', [DashboardController::class, 'getTime']);
+
     // Dashboard Routes
     Route::post('dashboard', [DashboardController::class, 'dashboard']);
     Route::post('schedule', [DashboardController::class, 'meetings'])->name('schedule');
@@ -34,8 +37,9 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 
     //job APis
     Route::post('jobs', [JobController::class, 'index']);
-    Route::post('view-job', [JobController::class, 'show']);
+    Route::get('jobs/{id}', [JobController::class, 'show']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
+    Route::post('jobs/{id}/change-worker-request', [JobController::class, 'changeWorkerRequest']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
@@ -50,6 +54,8 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);
     Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);
     Route::put('cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
+
+    Route::get('workers', [WorkerController::class, 'index']);
 });
 
 Route::post('login', [AuthController::class, 'login']);

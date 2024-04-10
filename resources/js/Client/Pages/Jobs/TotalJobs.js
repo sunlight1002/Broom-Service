@@ -121,17 +121,8 @@ export default function TotalJobs() {
                                                 <Th scope="col">
                                                     {t("client.jobs.date")}
                                                 </Th>
-                                                <Th
-                                                    scope="col"
-                                                    style={{ display: "none" }}
-                                                >
+                                                <Th scope="col">
                                                     {t("client.jobs.worker")}
-                                                </Th>
-                                                <Th
-                                                    scope="col"
-                                                    style={{ display: "none" }}
-                                                >
-                                                    {t("client.jobs.client")}
                                                 </Th>
                                                 <Th scope="col">
                                                     {t("client.jobs.service")}
@@ -158,25 +149,6 @@ export default function TotalJobs() {
                                         </Thead>
                                         <Tbody>
                                             {totalJobs.map((item, index) => {
-                                                //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
-                                                // let address = item.client
-                                                //     .geo_address
-                                                //     ? item.client
-                                                //           .geo_address
-                                                //     : 0;
-                                                // let Ad = [];
-                                                // if (address) {
-                                                //     let ar =
-                                                //         address.split("\n");
-                                                //     for (let a in ar) {
-                                                //         Ad.push(
-                                                //             <span>
-                                                //                 {ar[a]}
-                                                //                 <br />
-                                                //             </span>
-                                                //         );
-                                                //     }
-                                                // }
                                                 let address =
                                                     item.property_address;
 
@@ -234,11 +206,7 @@ export default function TotalJobs() {
                                                                 "DD MMM, Y"
                                                             )}
                                                         </Td>
-                                                        <Td
-                                                            style={{
-                                                                display: "none",
-                                                            }}
-                                                        >
+                                                        <Td>
                                                             <h6>
                                                                 {item.worker
                                                                     ? item
@@ -250,19 +218,6 @@ export default function TotalJobs() {
                                                                           .lastname
                                                                     : "NA"}
                                                             </h6>
-                                                        </Td>
-                                                        <Td
-                                                            style={{
-                                                                display: "none",
-                                                            }}
-                                                        >
-                                                            {item.client
-                                                                ? item.client
-                                                                      .firstname +
-                                                                  " " +
-                                                                  item.client
-                                                                      .lastname
-                                                                : "NA"}
                                                         </Td>
                                                         <Td>
                                                             {item.jobservice &&
@@ -329,16 +284,37 @@ export default function TotalJobs() {
                                                                     )}
                                                         </Td>
                                                         <Td>
-                                                            <Link
-                                                                to={`/client/view-job/${Base64.encode(
-                                                                    item.id.toString()
-                                                                )}`}
-                                                                className="btn btn-primary"
-                                                            >
-                                                                {t(
-                                                                    "client.jobs.view_btn"
-                                                                )}
-                                                            </Link>
+                                                            <div className="action-dropdown dropdown pb-2">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                >
+                                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                                </button>
+                                                                <div className="dropdown-menu">
+                                                                    <Link
+                                                                        to={`/client/view-job/${Base64.encode(
+                                                                            item.id.toString()
+                                                                        )}`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        {t(
+                                                                            "client.jobs.view_btn"
+                                                                        )}
+                                                                    </Link>
+                                                                    <Link
+                                                                        to={`/client/jobs/${Base64.encode(
+                                                                            item.id.toString()
+                                                                        )}/change-worker-request`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        Change
+                                                                        Worker
+                                                                        Request
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
                                                         </Td>
                                                     </Tr>
                                                 );

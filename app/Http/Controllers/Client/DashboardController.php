@@ -10,6 +10,7 @@ use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
+use App\Models\ManageTime;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -335,6 +336,13 @@ class DashboardController extends Controller
 
         return response()->json([
             'message' => 'Password changed successfully',
+        ]);
+    }
+
+    public function getTime()
+    {
+        return response()->json([
+            'data' => ManageTime::where('id', 1)->first()
         ]);
     }
 }

@@ -539,6 +539,12 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                             <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
