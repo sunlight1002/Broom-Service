@@ -98,7 +98,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-workers/availability', [WorkerController::class, 'getALLWorkerAvailability']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
-    Route::post('upload/{id}', [WorkerController::class, 'upload']);
+    // Route::post('upload/{id}', [WorkerController::class, 'upload']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
 
     // not Available date

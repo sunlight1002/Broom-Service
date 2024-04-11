@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class WorkerController extends Controller
 {
@@ -457,18 +458,25 @@ class WorkerController extends Controller
         }
     }
 
-    public function upload(Request $request, $id)
-    {
-        $worker = User::find($id);
+    // public function upload(Request $request, $id)
+    // {
+    //     $worker = User::find($id);
 
-        $pdf = $request->file('pdf');
-        $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
-        $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
-        $pdf->move($path, $filename);
-        $worker->form_101 = $filename;
-        $worker->save();
-        return response()->json(['success' => true]);
-    }
+    //     $pdf = $request->file('pdf');
+    //     $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $pdf->getClientOriginalExtension();
+
+    //     if (!Storage::disk('public')->exists('uploads/worker/form101')) {
+    //         Storage::disk('public')->makeDirectory('uploads/worker/form101');
+    //     }
+
+    //     if (Storage::disk('public')->putFileAs("uploads/worker/form101", $pdf, $filename)) {
+    //         $worker->update([
+    //             'form_101' => $filename
+    //         ]);
+    //     }
+
+    //     return response()->json(['success' => true]);
+    // }
 
     public function addNotAvailableDates(Request $request)
     {
