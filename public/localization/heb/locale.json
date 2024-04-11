@@ -736,7 +736,29 @@
             },
             "EditLead": "עריכת ליד",
             "viewLead": {
-                "viewLead": "צפה בליד"
+                "viewLead": "הצגת ליד",
+                "ScheduledMeeting": "פגישות מתוזמנות",
+                "Offers": "הצעות",
+                "ID": "מזהה",
+                "MeetingAttende": "משתתפי פגישה",
+                "Scheduled": "מתוזמן",
+                "Status": "סטטוס",
+                "Action": "פעולה",
+                "Client": "לקוח",
+                "Phone": "טלפון",
+                "Total": "סה''כ",
+                "ClientHistoryLead": {
+                    "ScheduledMeeting": "פגישות מתוזמנות",
+                    "Offers": "הצעות",
+                    "ID": "מזהה",
+                    "MeetingAttende": "משתתפי פגישה",
+                    "Scheduled": "מתוזמן",
+                    "Status": "סטטוס",
+                    "Action": "פעולה",
+                    "Client": "לקוח",
+                    "Phone": "טלפון",
+                    "Total": "סה''כ"
+                }
             },
             "leadDetails": {
                 "LeadInfo": "מידע על הליד",
