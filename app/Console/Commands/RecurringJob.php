@@ -47,12 +47,12 @@ class RecurringJob extends Command
      */
     public function handle()
     {
-        $dateTomorrow = Carbon::today()->addDay()->format('Y-m-d');
-        $dateAfterTomorrow = Carbon::today()->addDays(2)->format('Y-m-d');
+        $startDate = Carbon::today()->addDays(2)->format('Y-m-d');
+        $endDate = Carbon::today()->addDays(3)->format('Y-m-d');
 
         $jobs = Job::query()
-            ->whereDate('next_start_date', '>=', $dateTomorrow)
-            ->whereDate('next_start_date', '<=', $dateAfterTomorrow)
+            ->whereDate('next_start_date', '>=', $startDate)
+            ->whereDate('next_start_date', '<=', $endDate)
             ->where('is_one_time_job', false)
             ->where('is_next_job_created', false)
             ->where(function ($q) {
