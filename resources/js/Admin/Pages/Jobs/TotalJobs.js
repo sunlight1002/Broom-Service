@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 
@@ -16,12 +15,8 @@ export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
-    const alert = useAlert();
-    const navigate = useNavigate();
-
     const [lw, setLw] = useState("Change shift");
     const [AllFreq, setAllFreq] = useState([]);
     const [sworkers, setSworkers] = useState([]);
@@ -43,6 +38,16 @@ export default function TotalJobs() {
     });
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
     const [selectedJobId, setSelectedJobId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: "2024-04-09",
+        end_date: "2024-04-19",
+    });
+    const [paymentFilter, setPaymentFilter] = useState("paid");
+    const [searchVal, setSearchVal] = useState("");
+
+    const alert = useAlert();
+    const navigate = useNavigate();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -51,39 +56,68 @@ export default function TotalJobs() {
     };
 
     const getJobs = () => {
-        axios.get(`/api/admin/jobs`, { headers }).then((response) => {
-            if (response.data.jobs.data.length > 0) {
-                setTotalJobs(response.data.jobs.data);
-                setPageCount(response.data.jobs.last_page);
-            } else {
-                setTotalJobs([]);
-                setLoading("No Job found");
-            }
-        });
-    };
+        let _filters = {};
 
-    useEffect(() => {
-        getJobs();
-    }, []);
+        if (searchVal) {
+            _filters.keyword = searchVal;
+        }
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
+        if (paymentFilter) {
+            _filters.payment_filter = paymentFilter;
+        }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
         axios
-            .get(
-                "/api/admin/jobs?page=" +
-                    currentPage +
-                    "&filter_week=all&q=" +
-                    filter,
-                { headers }
-            )
+            .get(`/api/admin/jobs`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
-                    setLoading("No Job found");
                     setTotalJobs([]);
+                    setPageCount(0);
+                    setLoading("No Job found");
                 }
+            });
+    };
+
+    // useEffect(() => {
+    //     getJobs();
+    // }, []);
+
+    useEffect(() => {
+        getJobs();
+    }, [currentPage, paymentFilter, dateRange, searchVal]);
+
+    const handleJobDone = (_jobID, _checked) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-job-done`,
+                { checked: _checked },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
+            });
+    };
+
+    const handleWorkerActualTime = (_jobID, _value) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-worker-actual-time`,
+                { value: _value },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
             });
     };
 
@@ -221,39 +255,6 @@ export default function TotalJobs() {
             setTotalJobs(sortData);
             setOrder("ASC");
         }
-    };
-
-    const filterJobs = (e) => {
-        filterJobs1();
-    };
-
-    const filterJobDate = (w) => {
-        $("#filter-week").val(w);
-        filterJobs1();
-    };
-
-    const filterJobs1 = () => {
-        let filter_value = $("#search-field").val();
-        let filter_week = $("#filter-week").val();
-
-        axios
-            .get(`/api/admin/jobs`, {
-                headers,
-                params: {
-                    filter_week,
-                    q: filter_value,
-                },
-            })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setPageCount(response.data.jobs.last_page);
-                    setLoading("No Jobs found");
-                }
-            });
     };
 
     const shiftColors = [
@@ -485,10 +486,12 @@ export default function TotalJobs() {
                             <div className="search-data">
                                 <input
                                     type="text"
-                                    id="search-field"
+                                    value={searchVal}
                                     className="form-control"
                                     placeholder="Search"
-                                    onChange={filterJobs}
+                                    onChange={(e) => {
+                                        setSearchVal(e.target.value);
+                                    }}
                                     style={{ marginRight: "0" }}
                                 />
                             </div>
@@ -503,12 +506,13 @@ export default function TotalJobs() {
                                     <select
                                         className="form-control"
                                         onChange={(e) => {
-                                            console.log(e);
+                                            setPaymentFilter(e.target.value);
                                         }}
                                     >
-                                        <option value="paid" selected>
-                                            Only Paid
+                                        <option value="" selected>
+                                            All
                                         </option>
+                                        <option value="paid">Only Paid</option>
                                         <option value="unpaid">
                                             Only Unpaid
                                         </option>
@@ -743,14 +747,16 @@ export default function TotalJobs() {
                                                                         type="checkbox"
                                                                         name="job-compeleted"
                                                                         checked={
-                                                                            item.status ===
-                                                                            "completed"
+                                                                            item.is_job_done
                                                                         }
                                                                         onChange={(
                                                                             e
                                                                         ) => {
-                                                                            console.log(
-                                                                                "clicked"
+                                                                            handleJobDone(
+                                                                                item.id,
+                                                                                e
+                                                                                    .target
+                                                                                    .checked
                                                                             );
                                                                         }}
                                                                         style={{
@@ -1079,7 +1085,9 @@ export default function TotalJobs() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={() => {
+                                            setCurrentPage(currentPage + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }
