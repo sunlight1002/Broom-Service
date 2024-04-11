@@ -24,7 +24,6 @@ export default function TotalJobs() {
 
     const [lw, setLw] = useState("Change shift");
     const [AllFreq, setAllFreq] = useState([]);
-    const [service, setService] = useState([]);
     const [sworkers, setSworkers] = useState([]);
     const [lng, setLng] = useState(null);
     const [cshift, setCshift] = useState({
@@ -113,29 +112,6 @@ export default function TotalJobs() {
                     });
             }
         });
-    };
-
-    const [workers, setWorkers] = useState([]);
-    const [Aworker, setAworker] = useState([]);
-    const handleChange = (e, index) => {
-        const id = e.target.name;
-        axios.get(`/api/admin/job-worker/${id}`, { headers }).then((res) => {
-            if (res.data.aworker.length > 0) {
-                setAworker(res.data.aworker);
-            } else {
-                setAworker([]);
-            }
-        });
-    };
-
-    const upWorker = (e, index) => {
-        let newWorkers = [...workers];
-        newWorkers[e.target.name] = e.target.value;
-        setWorkers(newWorkers);
-        let up = e.target.parentNode.parentNode.lastChild.lastChild;
-        setTimeout(() => {
-            up.click();
-        }, 500);
     };
 
     const handleNavigate = (e, id) => {
@@ -388,10 +364,6 @@ export default function TotalJobs() {
             getWorker(cshift.service, e.target.value);
         }
 
-        // if (e.target.name == 'contract' && e.target.value) {
-
-        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
-        // }
         if (e.target.name == "repetency" && e.target.value != "one_time") {
             getFrequency(lng);
         }
@@ -489,49 +461,6 @@ export default function TotalJobs() {
                         {/* Desktop */}
                         <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                        setFilter(e.target.value);
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 btn btn-warning addButton"
                                     data-toggle="modal"
@@ -539,6 +468,12 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                             <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
@@ -558,11 +493,13 @@ export default function TotalJobs() {
                                 />
                             </div>
                         </div>
-                        <div className="col-md-12 hidden-xs d-flex justify-content-between mb-2">
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mb-2">
                             <div className="d-flex align-items-center">
-                                <div style={{fontWeight: 'bold'}}>Filter</div>
+                                <div style={{ fontWeight: "bold" }}>Filter</div>
                                 <div className="mx-3 d-flex align-items-center border rounded">
-                                    <div className="mx-2 text-nowrap">By Payment</div>
+                                    <div className="mx-2 text-nowrap">
+                                        By Payment
+                                    </div>
                                     <select
                                         className="form-control"
                                         onChange={(e) => {
@@ -577,59 +514,50 @@ export default function TotalJobs() {
                                         </option>
                                     </select>
                                 </div>
-                                <div style={{fontWeight: 'bold'}} className="mr-2">Date Period</div>
-                                <button className="btn px-4 border rounded mr-1" style={{background: 'white'}}>Day</button>
-                                <button className="btn px-4 border rounded mr-3" style={{background: '#2c3f51', color: 'white'}}>Week</button>
-                                <button className="btn px-3 border rounded mr-1" style={{background: '#2c3f51', color: 'white'}}>Previous Week</button>
-                                <button className="btn px-3 border rounded" style={{background: '#2c3f51', color: 'white'}}>Next Week</button>
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2"
+                                >
+                                    Date Period
+                                </div>
+                                <button
+                                    className="btn px-4 border rounded mr-1"
+                                    style={{ background: "white" }}
+                                >
+                                    Day
+                                </button>
+                                <button
+                                    className="btn px-4 border rounded mr-3"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Week
+                                </button>
+                                <button
+                                    className="btn px-3 border rounded mr-1"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Previous Week
+                                </button>
+                                <button
+                                    className="btn px-3 border rounded"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Next Week
+                                </button>
                             </div>
-                            <button className="btn px-3 border rounded" style={{background: '#2c3f51', color: 'white'}}>Add Job</button>
                         </div>
                         {/* Mobile */}
                         <div className="col-12 hidden-xl">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 reportModal btn btn-warning"
                                     data-toggle="modal"
@@ -637,6 +565,12 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
@@ -1033,7 +967,7 @@ export default function TotalJobs() {
                                                                         >
                                                                             View
                                                                         </Link>
-                                                                        <button
+                                                                        {/* <button
                                                                             className="dropdown-item"
                                                                             onClick={() => {
                                                                                 console.log(
@@ -1047,43 +981,7 @@ export default function TotalJobs() {
                                                                             }}
                                                                         >
                                                                             Edit
-                                                                        </button>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                setCshift(
-                                                                                    {
-                                                                                        contract:
-                                                                                            item.contract_id,
-                                                                                        client: item.client_id,
-                                                                                        repetency:
-                                                                                            "",
-                                                                                        job: item.id,
-                                                                                        from: "",
-                                                                                        to: "",
-                                                                                        worker: "",
-                                                                                        service:
-                                                                                            item.schedule_id,
-                                                                                        shift_date:
-                                                                                            "",
-                                                                                        frequency:
-                                                                                            "",
-                                                                                        cycle: "",
-                                                                                        period: "",
-                                                                                        shift_time:
-                                                                                            "",
-                                                                                    }
-                                                                                );
-                                                                                $(
-                                                                                    "#edit-shift"
-                                                                                ).modal(
-                                                                                    "show"
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            Change
-                                                                            Shift
-                                                                        </button>
+                                                                        </button> */}
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",
@@ -1093,6 +991,42 @@ export default function TotalJobs() {
                                                                             item.status
                                                                         ) && (
                                                                             <>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => {
+                                                                                        setCshift(
+                                                                                            {
+                                                                                                contract:
+                                                                                                    item.contract_id,
+                                                                                                client: item.client_id,
+                                                                                                repetency:
+                                                                                                    "",
+                                                                                                job: item.id,
+                                                                                                from: "",
+                                                                                                to: "",
+                                                                                                worker: "",
+                                                                                                service:
+                                                                                                    item.schedule_id,
+                                                                                                shift_date:
+                                                                                                    "",
+                                                                                                frequency:
+                                                                                                    "",
+                                                                                                cycle: "",
+                                                                                                period: "",
+                                                                                                shift_time:
+                                                                                                    "",
+                                                                                            }
+                                                                                        );
+                                                                                        $(
+                                                                                            "#edit-shift"
+                                                                                        ).modal(
+                                                                                            "show"
+                                                                                        );
+                                                                                    }}
+                                                                                >
+                                                                                    Change
+                                                                                    Shift
+                                                                                </button>
                                                                                 <button
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>
@@ -1592,7 +1526,7 @@ export default function TotalJobs() {
                             </div>
                         </div>
 
-                        <div
+                        {/* <div
                             className="modal fade"
                             id="edit-job"
                             tabIndex="-1"
@@ -1724,7 +1658,7 @@ export default function TotalJobs() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div
                             className="modal fade"

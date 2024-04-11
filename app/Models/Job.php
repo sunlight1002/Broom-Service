@@ -36,6 +36,8 @@ class Job extends Model
         'is_next_job_created',
         'keep_prev_worker',
         'is_one_time_job',
+        'original_worker_id',
+        'original_shifts',
         'previous_worker_id',
         'previous_worker_after',
         'previous_shifts',
@@ -134,5 +136,10 @@ class Job extends Model
     public function workerShifts()
     {
         return $this->hasMany(JobWorkerShift::class, 'job_id');
+    }
+
+    public function changeWorkerRequests()
+    {
+        return $this->hasMany(ChangeJobWorkerRequest::class, 'job_id');
     }
 }

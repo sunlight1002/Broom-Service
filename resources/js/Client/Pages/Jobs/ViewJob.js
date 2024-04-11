@@ -15,7 +15,6 @@ export default function ViewJob() {
     const navigate = useNavigate();
     const [job, setJob] = useState([]);
     const [job_status, setJobStatus] = useState("completed");
-    const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
     const [total, setTotal] = useState(0);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
@@ -29,20 +28,22 @@ export default function ViewJob() {
 
     const getJob = () => {
         axios
-            .post(
-                `/api/client/view-job`,
-                { id: Base64.decode(params.id) },
-                { headers }
-            )
+            .get(`/api/client/jobs/${Base64.decode(params.id)}`, { headers })
             .then((res) => {
                 const r = res.data.job;
                 if (r) {
                     setJob(r);
                     setJobStatus(r.status);
-                    setClient(r.client);
                     setWorker(r.worker);
                     setTotal(r.jobservice ? r.jobservice.total : 0);
                 }
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
             });
     };
 
@@ -68,14 +69,12 @@ export default function ViewJob() {
                             <div className="col-sm-12">
                                 <div className="row">
                                     <div className="col-sm-8 ">
-                                        <h2
-                                            className="text-custom"
-                                            style={{ display: "none" }}
-                                        >
+                                        <h2 className="text-custom">
                                             {t(
                                                 "client.jobs.view.worker_details"
                                             )}
                                         </h2>
+                                        <WorkerDetails worker={worker} />
                                     </div>
                                     <div className="col-sm-2 text-right">
                                         {t("client.jobs.view.job_status")} :{" "}

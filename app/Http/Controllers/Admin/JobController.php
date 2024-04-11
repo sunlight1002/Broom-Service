@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Job;
@@ -458,6 +459,8 @@ class JobController extends Controller
                     'next_start_date'   => $next_job_date,
                     'address_id'        => $selectedService['address']['id'],
                     'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+                    'original_worker_id'     => $workerDate['worker_id'],
+                    'original_shifts'        => $workerDate['shifts'],
                 ]);
 
                 JobService::create([
@@ -627,12 +630,26 @@ class JobController extends Controller
         if ($data['repeatancy'] == 'one_time') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = NULL;
         } else if ($data['repeatancy'] == 'until_date') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = $data['until_date'];
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = $data['until_date'];
         } else if ($data['repeatancy'] == 'forever') {
             $jobData['previous_worker_id'] = NULL;
             $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = NULL;
+            $jobData['previous_shifts_after'] = NULL;
+        }
+
+        if (!$job->original_worker_id) {
+            $jobData['original_worker_id'] = $job->worker_id;
+        }
+
+        if (!$job->original_shifts) {
+            $jobData['original_shifts'] = $job->shifts;
         }
 
         $job->update($jobData);
@@ -664,42 +681,7 @@ class JobController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
-            App::setLocale($job->worker->lng);
-
-            $emailData = array(
-                'email' => $job['worker']['email'],
-                'job' => $job->toArray(),
-                'start_time' => $shiftsInHour[0]['start'],
-                'content' => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-            );
-
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
-        }
-
-        if (
-            isset($oldWorker['email']) &&
-            $oldWorker['email']
-        ) {
-            App::setLocale($oldWorker['lng']);
-
-            $emailData = array(
-                'email' => $oldWorker['email'],
-                'job' => $job->toArray(),
-                'old_worker' => $oldWorker,
-                'old_job' => $old_job_data
-            );
-
-            Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
-                $messages->subject($sub);
-            });
-        }
+        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
 
         return response()->json([
             'message' => 'Job has been updated successfully'
@@ -895,8 +877,8 @@ class JobController extends Controller
 
         $report = [];
         foreach ($jobs as $job) {
-            $row['worker_name']      = $job->worker->firstname . " " . $job->worker->lastname;
-            $row['worker_id']        = $job->worker->worker_id;
+            $row['worker_name']      = $job->worker ? $job->worker->firstname . " " . $job->worker->lastname : 'NA';
+            $row['worker_id']        = $job->worker ? $job->worker->worker_id : 'NA';
             $row['start_time']       = $job->start_time;
             $row['end_time']         = $job->end_time;
             $row['time_diffrence']   = $job->time_diff;
@@ -1067,6 +1049,22 @@ class JobController extends Controller
             $jobData['previous_worker_after'] = NULL;
             $otherJobData['previous_worker_id'] = NULL;
             $otherJobData['previous_worker_after'] = NULL;
+        }
+
+        if (!$job->original_worker_id) {
+            $jobData['original_worker_id'] = $job->worker_id;
+        }
+
+        if (!$job->original_shifts) {
+            $jobData['original_shifts'] = $job->shifts;
+        }
+
+        if (!$otherWorkerJob->original_worker_id) {
+            $otherJobData['original_worker_id'] = $otherWorkerJob->worker_id;
+        }
+
+        if (!$otherWorkerJob->original_shifts) {
+            $otherJobData['original_shifts'] = $otherWorkerJob->shifts;
         }
 
         $job->update($jobData);

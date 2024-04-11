@@ -1,12 +1,16 @@
-import React from "react";
-import { Base64 } from "js-base64";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 export default function WorkerDetails({ worker }) {
-    var cords =
-        worker.latitude && worker.longitude
+    const cords = useMemo(() => {
+        if (!worker) {
+            return "NA";
+        }
+
+        return worker.latitude && worker.longitude
             ? worker.latitude + "," + worker.longitude
             : "NA";
+    }, [worker]);
 
     return (
         <>
@@ -17,30 +21,38 @@ export default function WorkerDetails({ worker }) {
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">Name</label>
-                                <p>
-                                    <Link
-                                        to={`/admin/view-worker/${worker.id}`}
-                                    >
-                                        {" "}
-                                        {worker.firstname}{" "}
-                                    </Link>{" "}
-                                    {worker.lastname}
-                                </p>
+                                {worker ? (
+                                    <p>
+                                        <Link
+                                            to={`/admin/view-worker/${worker.id}`}
+                                        >
+                                            {" "}
+                                            {worker.firstname}{" "}
+                                        </Link>{" "}
+                                        {worker.lastname}
+                                    </p>
+                                ) : (
+                                    <p>NA</p>
+                                )}
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">Email</label>
-                                <p>{worker.email}</p>
+                                <p>{worker ? worker.email : "NA"}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">Phone</label>
                                 <p>
-                                    <a href={`tel:${worker.phone}`}>
-                                        {worker.phone}
-                                    </a>
+                                    {worker ? (
+                                        <a href={`tel:${worker.phone}`}>
+                                            {worker.phone}
+                                        </a>
+                                    ) : (
+                                        "NA"
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -48,12 +60,16 @@ export default function WorkerDetails({ worker }) {
                             <div className="form-group">
                                 <label className="control-label">Address</label>
                                 <p>
-                                    <Link
-                                        target="_blank"
-                                        to={`https://maps.google.com?q=${cords}`}
-                                    >
-                                        {worker.address}
-                                    </Link>
+                                    {worker ? (
+                                        <Link
+                                            target="_blank"
+                                            to={`https://maps.google.com?q=${cords}`}
+                                        >
+                                            {worker.address}
+                                        </Link>
+                                    ) : (
+                                        "NA"
+                                    )}
                                 </p>
                             </div>
                         </div>

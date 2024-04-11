@@ -175,5 +175,23 @@ return [
         'subject'     => 'Job Unassigned with',
         'company'     => 'Broom Service',
         'you_unassigned_from_job' => 'You have been unassigned from a job.'
+    ],
+    'change_worker_request' => [
+        'subject'     => 'Request to Change Worker | Broom Service',
+        'hi'          => 'Hi',
+        'greetings'   => 'Greetings',
+        'from'        => 'from',
+        'company'     => 'Broom Service',
+        'content' => 'There is request from client to change worker of a job.',
+        'please_check' => 'Please check the details.',
+        'date'        => 'Date',
+        'worker'      => 'Worker',
+        'client'      => 'Client',
+        'service'     => 'Service',
+        'shift'       => 'Shift',
+        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'regards'     => 'Best Regards',
+        'tel'         => 'Telephone',
+        'property'    => 'Property'
     ]
 ];

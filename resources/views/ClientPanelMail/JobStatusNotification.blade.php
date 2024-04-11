@@ -48,7 +48,7 @@
 			<tbody>
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['start_date'])->format('M d Y') }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">@if($job['worker']) {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }} @else NA @endif</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['client']['firstname'] }} {{ $job['client']['lastname'] }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['jobservice']['name'] }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['start_time'] }} to {{ $job['end_time'] }}</td>
