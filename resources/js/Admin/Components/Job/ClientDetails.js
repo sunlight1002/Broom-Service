@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 export default function ClientDetails({ client, address }) {
+    const { t } = useTranslation();
     var cords =
         address.latitude && address.longitude
             ? address.latitude + "," + address.longitude
@@ -8,13 +10,19 @@ export default function ClientDetails({ client, address }) {
 
     return (
         <>
-            <h2 className="text-custom">Client Details</h2>
+            <h2 className="text-custom">
+                {" "}
+                {t("admin.schedule.jobs.clientDetails")}
+            </h2>
             <div className="dashBox p-4 mb-3">
                 <form>
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">Name</label>
+                                <label className="control-label">
+                                    {" "}
+                                    {t("admin.schedule.jobs.Name")}
+                                </label>
                                 <p>
                                     {" "}
                                     <Link
@@ -31,13 +39,19 @@ export default function ClientDetails({ client, address }) {
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">Email</label>
+                                <label className="control-label">
+                                    {" "}
+                                    {t("admin.schedule.jobs.Email")}
+                                </label>
                                 <p>{client.email}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
-                                <label className="control-label">Phone</label>
+                                <label className="control-label">
+                                    {" "}
+                                    {t("admin.schedule.jobs.Phone")}
+                                </label>
                                 <p>
                                     <a href={`tel:${client.phone}`}>
                                         {client.phone}
@@ -47,13 +61,19 @@ export default function ClientDetails({ client, address }) {
                         </div>
                         <div className="col-sm-4">
                             <div className="form-group">
-                                <label className="control-label">City</label>
+                                <label className="control-label">
+                                    {" "}
+                                    {t("admin.schedule.jobs.City")}
+                                </label>
                                 <p>{address.city}</p>
                             </div>{" "}
                         </div>
                         <div className="col-sm-8">
                             <div className="form-group">
-                                <label className="control-label">Address</label>
+                                <label className="control-label">
+                                    {" "}
+                                    {t("admin.schedule.jobs.Address")}
+                                </label>
                                 <p>
                                     <Link
                                         target="_blank"

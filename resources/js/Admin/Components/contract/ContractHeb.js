@@ -65,7 +65,7 @@ export default function ContractHeb() {
 
     useEffect(() => {
         getContract();
-        i18next.changeLanguage("heb");
+        // i18next.changeLanguage("heb");
     }, []);
 
     return (

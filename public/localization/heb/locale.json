@@ -511,6 +511,414 @@
             "save": "שמור"
         }
     },
+
+    "admin": {
+        "global": {
+            "status": "סטָטוּס",
+            "action": "פעולה",
+            "view": "צפייה",
+            "Edit": "עריכה",
+            "Delete": "מחק",
+            "Name": "שם",
+            "Email": "אימייל",
+            "Status": "סטָטוּס",
+            "Phone": "טלפון",
+            "Export": "ייצוא ל־CSV",
+            "Import": "יְבוֹא",
+            "All": "הכל",
+            "AddNew": "הוסף חדש",
+            "location": "הזן מיקום",
+            "locationPlaceholder": "חפש את כתובתך"
+        },
+        "dashboard": {
+            "jobPosted": "פוסט עבודה",
+            "clients": "לקוחות",
+            "workers": "עובדים",
+            "meetings": "פגישות",
+            "offeredPrice": "מחיר הצעה",
+            "contracts": "חוזים",
+            "jobsSchedule": "לוח עבודות",
+            "income": "הכנסה",
+            "outcome": "הוצאה",
+            "recentUser": "משתמשים אחרונים",
+            "jobs": {
+                "today": "היום",
+                "thisWeek": "השבוע",
+                "completed": "הושלם",
+                "jobDate": "תאריך עבודה",
+                "worker": "עובד",
+                "client": "לקוח",
+                "service": "שירות",
+                "status": "סטָטוּס",
+                "action": "פעולה",
+                "view": "צפייה",
+                "clientName": "שם לקוח",
+                "serviceName": "שם השירות",
+                "date": "תאריך",
+                "shift": "משמרת",
+                "assignedWorker": "עובד מוקצה",
+                "total": "סך הכל"
+            },
+            "pending": {
+                "id": "מספר זיהוי",
+                "contact": "קשר",
+                "address": "כתובת",
+                "email": "אימייל",
+                "meetingAttender": "משתתף בפגישה",
+                "scheduled": "מתוכנן",
+                "meetings": "פגישות ממתינות",
+                "contracts": "חוזים ממתינים",
+                "offers": "הצעות מחיר ממתינות",
+                "notifications": "התראות",
+                "service": "שירות",
+                "phone": "טלפון"
+            }
+        },
+        "leads": {
+            "All": "הכל",
+            "PotentialCustomer": "לקוח פוטנציאלי",
+            "Pending": "ממתין",
+            "Uninterested": "לא מעוניין",
+            "MeetingSet": "פגישה מתוכננת",
+            "PriceOfferSent": "הצעת מחיר נשלחה",
+            "DeclinedPriceOffer": "דחיה של הצעת מחיר",
+            "AddNew": "הוסף חדש",
+            "Options": {
+                "sortBy": "-- מיין לפי --",
+                "ID": "מספר זיהוי",
+                "Name": "שם",
+                "Email": "אימייל",
+                "Phone": "טלפון",
+                "Status": "סטָטוּס"
+            },
+            "Action": "פעולה",
+            "Edit": "עריכה",
+            "view": "צפייה",
+            "Delete": "מחק",
+            "AddLead": {
+                "AddLead": "הוסף ליד",
+                "FirstName": "שם פרטי",
+                "LastName": "שם משפחה",
+                "InvoiceName": "שם חשבונית",
+                "PrimaryEmail": "אימייל ראשי",
+                "Password": "סיסמה",
+                "PrimaryPhone": "טלפון ראשי",
+                "AlternateEmail": "אימייל חלופי",
+                "PersonName": "שם האדם",
+                "AlternatePhone": "טלפון חלופי",
+                "DOB": "תאריך לידה",
+                "PaymentMethod": "אמצעי תשלום",
+                "Options": {
+                    "PaymentMethod": {
+                        "CreditCard": "כרטיס אשראי",
+                        "MoneyTransfer": "העברת כספים",
+                        "ByCheque": "באמצעות צ'ק",
+                        "ByCash": "במזומן"
+                    },
+                    "Status": {
+                        "Lead": "ליד",
+                        "PotentialCustomer": "לקוח מתממשק",
+                        "Customer": "לקוח"
+                    },
+                    "CreateJob": {
+                        "No": "לא",
+                        "Yes": "כן"
+                    },
+                    "Type": {
+                        "Fixed": "קבוע",
+                        "Hourly": "לפי שעה"
+                    }
+                },
+                "Language": "שפה",
+                "Color": "צבע",
+                "white": "לבן",
+                "Green": "ירוק",
+                "Blue": "כחול",
+                "Voilet": "סגול",
+                "Red": "אדום",
+                "Orange": "כתום",
+                "Yellow": "צהוב",
+                "propertyAddress": "כתובת הנכס",
+                "addAddress": {
+                    "Add": "הוסף",
+                    "AddPropertyAddress": "הוסף כתובת נכס",
+                    "EditPropertyAddress": "ערוך כתובת נכס",
+                    "FullAddress": "כתובת מלאה",
+                    "autocomplete": "השלמה אוטומטית מכתובת גוגל",
+                    "Name": "שם",
+                    "Floor": "קומה",
+                    "AptNumberAndAptName": "מספר דירה ושם דירה",
+                    "EnteranceCode": "קוד כניסה",
+                    "ZipCode": "מיקוד",
+                    "PreferedType": "סוג מועדף",
+                    "Options": {
+                        "pleaseSelect": "--- בחר ---",
+                        "PreferedType": {
+                            "Default": "ברירת מחדל",
+                            "Female": "נקבה",
+                            "Male": "זכר",
+                            "Both": "שניהם"
+                        }
+                    },
+                    "IsDOG": "האם יש כלב בנכס?",
+                    "IsCat": "האם יש חתול בנכס?",
+                    "NotAllowedWorkers": "עובדים לא מורשים",
+                    "Close": "סגור",
+                    "Save": "שמור",
+                    "Address": "כתובת",
+                    "Zipcode": "מיקוד",
+                    "Action": "פעולה",
+                    "AddressNotFound": "כתובת לא נמצאה!",
+                    "placeHolder": {
+                        "fullAddress": "כתובת מלאה",
+                        "addressName": "שם הכתובת",
+                        "floor": "הזן קומה",
+                        "AptNumberAndAptName": "הזן מספר דירה ושם דירה",
+                        "EnteranceCode": "הזן קוד כניסה",
+                        "ZipCode": "הזן מיקוד"
+                    }
+                },
+                "placeHolder": {
+                    "FirstName": "הזן שם פרטי",
+                    "LastName": "הזן שם משפחה",
+                    "InvoiceName": "הזן שם חשבונית",
+                    "PrimaryEmail": "הזן אימייל ראשי",
+                    "Password": "הזן סיסמה",
+                    "PrimaryPhone": "הזן טלפון ראשי",
+                    "AlternateEmail": "הזן אימייל חלופי",
+                    "PersonName": "הזן שם האדם",
+                    "AlternatePhone": "הזן טלפון חלופי"
+                },
+                "AddLeadClient": {
+                    "AddClient": "הוסף לקוח",
+                    "Status": "סטטוס",
+                    "CreateJob": "צור עבודה",
+                    "jobMenu": {
+                        "AddJob": "הוסף עבודה",
+                        "Address": "כתובת",
+                        "WorkerName": "שם העובד",
+                        "WorkerAvailability": "זמינות העובד",
+                        "Service": "שירות",
+                        "Type": "סוג",
+                        "Job Hours": "שעות עבודה",
+                        "Price": "מחיר",
+                        "Frequency": "תדירות",
+                        "Actions": "פעולות",
+                        "jonNotFound": "עבודות לא נמצאו!"
+                    },
+                    "JobModal": {
+                        "AddJob": "הוסף עבודה",
+                        "EditJob": "ערוך עבודה",
+                        "PropertyAddress": "כתובת הנכס",
+                        "pleaseSelect": "--בחר--",
+                        "Service": "שירות",
+                        "Type": "סוג",
+                        "JobHours": "שעות עבודה",
+                        "Price": "מחיר",
+                        "Frequency": "תדירות",
+                        "StartFrom": "התחל מתאריך",
+                        "On": "ב",
+                        "Day": "יום",
+                        "of": "של",
+                        "month": "חודש",
+                        "The": "ה",
+                        "Worker": "עובד",
+                        "Close": "סגור",
+                        "Save": "שמור",
+                        "placeHolder": {
+                            "serviceTiitle": "כותרת השירות",
+                            "JobHours": "הזן שעות עבודה",
+                            "Price": "הזן מחיר לעבודה",
+                            "rateperhour": "הזן תעריף לשעה"
+                        }
+                    }
+                }
+            },
+            "EditLead": "עריכת ליד",
+            "viewLead": {
+                "viewLead": "צפה בליד"
+            },
+            "leadDetails": {
+                "LeadInfo": "מידע על הליד",
+                "Comments": "הערות",
+                "Files": "קבצים",
+                "IntrestedIn": "מעוניין ב",
+                "GeneratedOn": "נוצר בתאריך",
+                "Meta": "מטא",
+                "EditLead": "ערוך ליד",
+                "Option": "אפשרות",
+                "Message": "הודעה",
+                "dataNotAvailable": "מידע אינו זמין.",
+                "convertToClient": "המר ללקוח",
+                "Convert": "המרה",
+                "MeetingStatus": "סטָטוּס פגישה",
+                "NotSend": "לא נשלח",
+                "PriceOffer": "הצעת מחיר",
+                "ScheduleMeeting": "קבע פגישה",
+                "ReScheduleMeeting": "קבע מחדש פגישה",
+                "SendOffer": "שלח הצעה",
+                "ReSendOffer": "שלח מחדש הצעה",
+                "BookClient": "קבע לקוח",
+                "Note": {
+                    "AddComment": "הוסף הערה",
+                    "Comment": "הערה",
+                    "markImp": "סמן אם חשוב",
+                    "Close": "סגור",
+                    "saveComment": "שמור הערה",
+                    "placeHolder": {
+                        "comment": "הזן הערה"
+                    }
+                },
+                "File": {
+                    "AddFile": "הוסף קובץ",
+                    "Meeting": "פגישה",
+                    "selectDefault": "--- בחר פגישה ---",
+                    "Note": "הערה",
+                    "Type": "סוג",
+                    "File": "קובץ",
+                    "Close": "סגור",
+                    "SaveFile": "שמור קובץ",
+                    "options": {
+                        "Image": "תמונה",
+                        "Video": "וידאו"
+                    },
+                    "placeHolder": {
+                        "Note": "הזן הערה"
+                    }
+                }
+            }
+        },
+        "client": {
+            "clientName": "שם לקוח",
+            "BookedCustomer": "לקוח מזמין",
+            "NotBookedCustomer": "לקוח לא מזמין",
+            "Export": "ייצוא",
+            "Options": {
+                "sortBy": "-- מיין לפי --",
+                "ID": "מספר זיהוי",
+                "Name": "שם",
+                "Email": "אימייל",
+                "Phone": "טלפון",
+                "Status": "סטָטוּס"
+            },
+            "createJob": "צור עבודה"
+        },
+        "schedule": {
+            "scheduleMetting": "קבע פגישה",
+            "joinedOn": "הצטרף בתאריך",
+            "meetingStatus": "סטָטוּס פגישה",
+            "meetingAttender": "משתתף בפגישה",
+            "meetingPurpose": "מטרת הפגישה",
+            "meetingTimeAndDate": "זמן ותאריך פגישה",
+            "startTime": "שעת התחלה",
+            "endTime": "שעת סיום",
+            "meetVia": "נפגש דרך",
+            "meetLink": "קישור פגישה",
+            "selectAddress": "בחר כתובת",
+            "btnSend": "שלח פגישה",
+            "workerAvailability": "זמינות עובד",
+            "date": "תאריך",
+            "Property": "נכס",
+            "options": {
+                "pleaseSelect": "--- בחר ---",
+                "meetingStatus": {
+                    "Pending": "ממתין",
+                    "Confirmed": "מאושר",
+                    "Declined": "נדחה",
+                    "Completed": "הושלם"
+                },
+                "meetingPurpose": {
+                    "priceOffer": "הצעת מחיר",
+                    "qualityCheck": "בדיקת איכות",
+                    "other": "אחר"
+                },
+                "startTime": {
+                    "defaultOpt": " --- בחר זמן התחלה ---"
+                },
+                "endTime": {
+                    "defaultOpt": " --- בחר זמן סיום ---"
+                },
+                "meetVia": {
+                    "onSite": "באתר",
+                    "offSite": "לא באתר"
+                }
+            },
+            "jobs": {
+                "Cancelled": "בוטל",
+                "Cancel": "בטל",
+                "Completed": "הושלם",
+                "Back": "חזור",
+                "Name": "שם",
+                "Email": "אימייל",
+                "Phone": "טלפון",
+                "City": "עיר",
+                "Address": "כתובת",
+                "clientDetails": "פרטי לקוח",
+                "workerDetails": "פרטי עובד",
+                "serviceDetailslabel": "פרטי השירות",
+                "WorkTime": "זמן עבודה",
+                "serviceDetails": {
+                    "Service": "שירות",
+                    "Frequency": "תדירות",
+                    "CompleteTime": "זמן השלמה",
+                    "hours": "שעות",
+                    "Shift": "משמרת",
+                    "JobStatus": "סטָטוּס עבודה",
+                    "Order": "הזמנה",
+                    "Invoice": "חשבונית"
+                },
+                "workerTiming": {
+                    "ExportToCSV": "ייצוא ל־CSV",
+                    "ExportReport": "דווח ייצוא",
+                    "AddTiming": "הוסף זמן",
+                    "StartTime": "שעת התחלה",
+                    "EndTime": "שעת סיום",
+                    "Time": "זמן",
+                    "Action": "פעולה",
+                    "TotalTime": "סך הכל זמן",
+                    "AddWorkerTiming": "הוסף זמן עבודה",
+                    "TimingStartsAt": "הזמן מתחיל ב־",
+                    "TimingEndsAt": "הזמן מסתיים ב־",
+                    "Close": "סגור",
+                    "SaveTiming": "שמור זמן",
+                    "EditWorkerTiming": "ערוך זמן עבודה"
+                },
+                "comment": {
+                    "AddComment": "הוסף הערה",
+                    "ClientComment": "הערת לקוח",
+                    "WorkerComment": "הערת עובד",
+                    "CommentFor": "הערה לפי",
+                    "PleaseChooseCommentFor": "--- בחר הערה לפי ---",
+                    "Client": "לקוח",
+                    "Worker": "עובד",
+                    "Comment": "הערה",
+                    "Close": "סגור",
+                    "SaveComment": "שמור הערה"
+                },
+                "CancelModal": {
+                    "CancellationFee": "דמי ביטול",
+                    "NoCharge": "ללא תשלום.",
+                    "Repeatancy": "חזרה",
+                    "options": {
+                        "PleaseSelect": " בחר ---",
+                        "oneTime": "פעם אחת ( לעבודה יחידה )",
+                        "Forever": "לתמיד",
+                        "UntilDate": "עד תאריך"
+                    },
+                    "Close": "סגור",
+                    "Cancel": "בטל"
+                }
+            }
+        },
+        "sidebar": {
+            "dashboard": "לוח בקרה",
+            "leads": "לידים",
+            "jobs": "עבודות",
+            "Clients": "לקוחות",
+            "schedule": "לוח זמנים",
+            "not_available": "תאריכים לא זמינים"
+        }
+    },
     "worker": {
         "welcome": "ברוך הבא",
         "logout": "להתנתק",

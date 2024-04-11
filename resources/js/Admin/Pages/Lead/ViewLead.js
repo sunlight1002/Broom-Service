@@ -5,11 +5,13 @@ import LeadHistory from "../../Components/Leads/LeadHistory";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ViewLead() {
     const [lead, setLead] = useState([]);
 
     const param = useParams();
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -34,7 +36,9 @@ export default function ViewLead() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">View Lead</h1>
+                            <h1 className="page-title">
+                                {t("admin.leads.viewLead.viewLead")}
+                            </h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
@@ -43,7 +47,7 @@ export default function ViewLead() {
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-pencil"></i>
-                                    Edit
+                                    {t("admin.global.Edit")}
                                 </Link>
                             </div>
                         </div>
