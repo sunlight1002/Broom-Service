@@ -7,11 +7,37 @@ import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
-
+import useDebounce from "./hooks/useDebounce";
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 
 export default function TotalJobs() {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
@@ -40,11 +66,12 @@ export default function TotalJobs() {
     const [selectedJobId, setSelectedJobId] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
-        start_date: "2024-04-09",
-        end_date: "2024-04-19",
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
     });
-    const [paymentFilter, setPaymentFilter] = useState("paid");
+    const [paymentFilter, setPaymentFilter] = useState("");
     const [searchVal, setSearchVal] = useState("");
+    const [selectedFilter, setselectedFilter] = useState("Week");
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -456,11 +483,11 @@ export default function TotalJobs() {
             <div id="content" className="job-listing-page">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-2 col-4">
+                        {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
-                        </div>
+                        </div> */}
                         {/* Desktop */}
-                        <div className="col-sm-8 hidden-xs">
+                        {/* <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
                                 <button
                                     className="ml-2 btn btn-warning addButton"
@@ -481,8 +508,8 @@ export default function TotalJobs() {
                                     Export to CSV
                                 </CSVLink>
                             </div>
-                        </div>
-                        <div className="col-sm-2 hidden-xs">
+                        </div> */}
+                        {/* <div className="col-sm-2 hidden-xs">
                             <div className="search-data">
                                 <input
                                     type="text"
@@ -495,8 +522,9 @@ export default function TotalJobs() {
                                     style={{ marginRight: "0" }}
                                 />
                             </div>
-                        </div>
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mb-2">
+                        </div> */}
+
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                             <div className="d-flex align-items-center">
                                 <div style={{ fontWeight: "bold" }}>Filter</div>
                                 <div className="mx-3 d-flex align-items-center border rounded">
@@ -524,38 +552,111 @@ export default function TotalJobs() {
                                 >
                                     Date Period
                                 </div>
-                                <button
-                                    className="btn px-4 border rounded mr-1"
-                                    style={{ background: "white" }}
+                                <FilterButtons
+                                    text="Day"
+                                    className="px-4 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date: todayFilter.start_date,
+                                            end_date: todayFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Week"
+                                    className="px-4 mr-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                currentWeekFilter.start_date,
+                                            end_date:
+                                                currentWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Previous Week"
+                                    className="px-3 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                previousWeekFilter.start_date,
+                                            end_date:
+                                                previousWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Next Week"
+                                    className="px-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                nextWeekFilter.start_date,
+                                            end_date: nextWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
                                 >
-                                    Day
-                                </button>
+                                    Custom Date Range
+                                </div>
+
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">to</div>
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
                                 <button
-                                    className="btn px-4 border rounded mr-3"
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    data-toggle="modal"
                                     style={{
                                         background: "#2c3f51",
                                         color: "white",
                                     }}
+                                    data-target="#exampleModal"
                                 >
-                                    Week
-                                </button>
-                                <button
-                                    className="btn px-3 border rounded mr-1"
-                                    style={{
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }}
-                                >
-                                    Previous Week
-                                </button>
-                                <button
-                                    className="btn px-3 border rounded"
-                                    style={{
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }}
-                                >
-                                    Next Week
+                                    Export Time Reports
                                 </button>
                             </div>
                         </div>
@@ -822,11 +923,14 @@ export default function TotalJobs() {
                                                         <td>
                                                             <div
                                                                 onClick={() => {
-                                                                    $(
-                                                                        "#available-workers"
-                                                                    ).modal(
-                                                                        "show"
+                                                                    handleSwitchWorker(
+                                                                        item.id
                                                                     );
+                                                                    // $(
+                                                                    //     "#available-workers"
+                                                                    // ).modal(
+                                                                    //     "show"
+                                                                    // );
                                                                 }}
                                                                 style={{
                                                                     color: "black",
@@ -926,7 +1030,21 @@ export default function TotalJobs() {
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">
-                                                                <ActuallyTimeWorker />
+                                                                {item && (
+                                                                    <ActuallyTimeWorker
+                                                                        data={
+                                                                            item
+                                                                        }
+                                                                        emitValue={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleWorkerActualTime(
+                                                                                item.id,
+                                                                                e * 60
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td>
@@ -1668,7 +1786,7 @@ export default function TotalJobs() {
                             </div>
                         </div> */}
 
-                        <div
+                        {/* <div
                             className="modal fade"
                             id="available-workers"
                             tabIndex="-1"
@@ -1745,7 +1863,7 @@ export default function TotalJobs() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -1795,19 +1913,62 @@ const divStyle = {
     border: "1px solid #ebebeb",
 };
 
-const ActuallyTimeWorker = () => {
-    const [count, setCount] = useState(0);
+const ActuallyTimeWorker = ({ data, emitValue }) => {
+    const [count, setCount] = useState(data?.actual_time_taken_minutes ? data?.actual_time_taken_minutes/60 : 0);
+    const debouncedValue = useDebounce(count, 500);
+    const [isChanged, setisChanged] = useState(false);
+    useEffect(() => {
+        isChanged && emitValue(debouncedValue);
+    }, [debouncedValue]);
     return (
         <div className="d-flex align-items-center">
-            <div onClick={() => setCount(count - 1)} style={divStyle}>
+            <div
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count - 1);
+                }}
+                style={{...divStyle, pointerEvents: count === 0 ? "none" : "auto", opacity: count === 0 ? 0.5 : 1}}
+            >
                 -
             </div>
             <span className="mx-1" style={{ ...divStyle, background: "white" }}>
                 {count}
             </span>
-            <button onClick={() => setCount(count + 1)} style={divStyle}>
+            <button
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count + 1);
+                }}
+                style={divStyle}
+            >
                 +
             </button>
         </div>
     );
 };
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn border rounded ${className}`}
+        style={
+            selectedFilter === text
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);
