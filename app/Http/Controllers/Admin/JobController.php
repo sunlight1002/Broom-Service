@@ -80,6 +80,9 @@ class JobController extends Controller
             ->when($end_date, function ($q) use ($end_date) {
                 return $q->whereDate('start_date', '<=', $end_date);
             })
+            ->when(isset($payment_filter), function ($q) use ($payment_filter) {
+                return $q->where('is_paid', $payment_filter);
+            })
             ->orderBy('start_date')
             ->orderBy('client_id')
             ->groupBy('jobs.id')
