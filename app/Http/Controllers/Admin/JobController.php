@@ -36,8 +36,11 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
-        $w = $request->filter_week;
+        $keyword = $request->get('keyword');
+        $payment_filter = $request->get('payment_filter');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
         $jobs = Job::query()
             ->with([
                 'worker',
@@ -48,67 +51,39 @@ class JobController extends Controller
                 'invoice',
                 'jobservice.service',
                 'propertyAddress'
-            ]);
-
-        if ($q != '') {
-            $jobs = $jobs->orWhereHas('worker', function ($qr) use ($q) {
-                $qr->where(function ($qr) use ($q) {
-                    $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                    $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                });
+            ])
+            ->when($keyword, function ($q) use ($keyword) {
+                return $q
+                    ->whereHas('worker', function ($sq) use ($keyword) {
+                        $sq->where(function ($sq) use ($keyword) {
+                            $sq->where(DB::raw('firstname'), 'like', '%' . $keyword . '%');
+                            $sq->orWhere(DB::raw('lastname'), 'like', '%' . $keyword . '%');
+                        });
+                    })
+                    ->orWhereHas('client', function ($sq) use ($keyword) {
+                        $sq->where(function ($sq) use ($keyword) {
+                            $sq->where(DB::raw('firstname'), 'like', '%' . $keyword . '%');
+                            $sq->orWhere(DB::raw('lastname'), 'like', '%' . $keyword . '%');
+                        });
+                    })
+                    ->orWhereHas('jobservice', function ($sq) use ($keyword) {
+                        $sq->where(function ($sq) use ($keyword) {
+                            $sq->where(DB::raw('name'), 'like', '%' . $keyword . '%');
+                            $sq->orWhere(DB::raw('heb_name'), 'like', '%' . $keyword . '%');
+                        });
+                    })
+                    ->orWhere('status', 'like', '%' . $keyword . '%');
             })
-                ->orWhereHas('client', function ($qr) use ($q) {
-                    $qr->where(function ($qr) use ($q) {
-                        $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                        $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                    });
-                })
-                ->orWhereHas('jobservice', function ($qr) use ($q) {
-                    $qr->where(function ($qr) use ($q) {
-                        $qr->where(DB::raw('name'), 'like', '%' . $q . '%');
-                        $qr->orWhere(DB::raw('heb_name'), 'like', '%' . $q . '%');
-                    });
-                })
-                ->orWhere('status', 'like', '%' . $q . '%');
-        }
-
-        // if($w != ''){
-        if ((is_null($w) || $w == 'current') && $w != 'all') {
-            $startDate = Carbon::now()->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5)->toDateString();
-        }
-
-        if ($w == 'next') {
-            $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6)->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(12)->toDateString();
-        } else if ($w == 'nextnext') {
-            $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(13)->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(19)->toDateString();
-        } else if ($w == 'today') {
-            $startDate = Carbon::today()->toDateString();
-            $endDate = Carbon::today()->toDateString();
-        }
-
-        $jobs = $jobs
-            ->select('jobs.*')
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
             ->orderBy('start_date')
             ->orderBy('client_id')
-            ->groupBy('jobs.id');
-
-        if ($w == 'all') {
-            $jobs = $jobs
-                ->paginate(20);
-        } else if ($request->p == 1) {
-            $jobs = $jobs->whereDate('start_date', '>=', $startDate)
-                ->whereDate('start_date', '<=', $endDate)
-                ->paginate(5);
-        } else {
-            $pcount = Job::count();
-
-            $jobs = $jobs->whereDate('start_date', '>=', $startDate)
-                ->whereDate('start_date', '<=', $endDate)
-                ->paginate($pcount);
-        }
+            ->groupBy('jobs.id')
+            ->paginate(20);
 
         return response()->json([
             'jobs' => $jobs,
@@ -750,21 +725,23 @@ class JobController extends Controller
     public function addJobTime(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'start_time' => ['required'],
-            'end_time'  => ['required']
+            'start_time' => ['required', 'date_format:Y-m-d H:i:s'],
+            'end_time'  => ['required', 'date_format:Y-m-d H:i:s']
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
 
-        $time = new JobHours();
-        $time->job_id = $request->job_id;
-        $time->worker_id = $request->worker_id;
-        $time->start_time = $request->start_time;
-        $time->end_time = $request->end_time;
-        $time->time_diff = $request->timeDiff;
-        $time->save();
+        $time = JobHours::create([
+            'job_id' => $request->job_id,
+            'worker_id' => $request->worker_id,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'time_diff' => $request->timeDiff,
+        ]);
+
+        $this->updateJobWorkerMinutes($request->job_id);
 
         return response()->json([
             'time' => $time,
@@ -774,8 +751,8 @@ class JobController extends Controller
     public function updateJobTime(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'start_time' => ['required'],
-            'end_time'  => ['required']
+            'start_time' => ['required', 'date_format:Y-m-d H:i:s'],
+            'end_time'  => ['required', 'date_format:Y-m-d H:i:s']
         ]);
 
         if ($validator->fails()) {
@@ -783,10 +760,14 @@ class JobController extends Controller
         }
 
         $time = JobHours::find($request->id);
-        $time->start_time = $request->start_time;
-        $time->end_time = $request->end_time;
-        $time->time_diff = $request->timeDiff;
-        $time->save();
+
+        $time->update([
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'time_diff' => $request->timeDiff,
+        ]);
+
+        $this->updateJobWorkerMinutes($request->job_id);
 
         return response()->json([
             'time' => $time,
@@ -924,9 +905,10 @@ class JobController extends Controller
         return true;
     }
 
-    public function workersToSwitch($id)
+    public function workersToSwitch(Request $request, $id)
     {
         $job = Job::find($id);
+        $prefer_type = $request->get('prefer_type');
 
         if (!$job) {
             return response()->json([
@@ -957,6 +939,9 @@ class JobController extends Controller
                     ->where('start_date', $job->start_date)
                     ->where('shifts', $job->shifts)
                     ->select('worker_id');
+            })
+            ->when(in_array($prefer_type, ['male', 'female']), function ($q) use ($prefer_type) {
+                return $q->where('gender', $prefer_type);
             })
             ->get(['id', 'firstname', 'lastname']);
 
@@ -1116,6 +1101,36 @@ class JobController extends Controller
 
         return response()->json([
             'message' => "Worker switched successfully",
+        ]);
+    }
+
+    public function updateJobDone(Request $request, $id)
+    {
+        $job = Job::find($id);
+
+        if ($job) {
+            $job->update([
+                'is_job_done' => $request->checked
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Job has been updated',
+        ]);
+    }
+
+    public function updateWorkerActualTime(Request $request, $id)
+    {
+        $job = Job::find($id);
+
+        if ($job) {
+            $job->update([
+                'actual_time_taken_minutes' => $request->value
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Job has been updated',
         ]);
     }
 }

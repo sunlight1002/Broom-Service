@@ -7,24 +7,44 @@ import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
-
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import useDebounce from "./hooks/useDebounce";
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 
 export default function TotalJobs() {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
-    const alert = useAlert();
-    const navigate = useNavigate();
-
     const [lw, setLw] = useState("Change shift");
     const [AllFreq, setAllFreq] = useState([]);
-    const [service, setService] = useState([]);
     const [sworkers, setSworkers] = useState([]);
     const [lng, setLng] = useState(null);
     const [cshift, setCshift] = useState({
@@ -44,6 +64,17 @@ export default function TotalJobs() {
     });
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
     const [selectedJobId, setSelectedJobId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
+    });
+    const [paymentFilter, setPaymentFilter] = useState("");
+    const [searchVal, setSearchVal] = useState("");
+    const [selectedFilter, setselectedFilter] = useState("Week");
+
+    const alert = useAlert();
+    const navigate = useNavigate();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -52,39 +83,68 @@ export default function TotalJobs() {
     };
 
     const getJobs = () => {
-        axios.get(`/api/admin/jobs`, { headers }).then((response) => {
-            if (response.data.jobs.data.length > 0) {
-                setTotalJobs(response.data.jobs.data);
-                setPageCount(response.data.jobs.last_page);
-            } else {
-                setTotalJobs([]);
-                setLoading("No Job found");
-            }
-        });
-    };
+        let _filters = {};
 
-    useEffect(() => {
-        getJobs();
-    }, []);
+        if (searchVal) {
+            _filters.keyword = searchVal;
+        }
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
+        if (paymentFilter) {
+            _filters.payment_filter = paymentFilter;
+        }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
         axios
-            .get(
-                "/api/admin/jobs?page=" +
-                    currentPage +
-                    "&filter_week=all&q=" +
-                    filter,
-                { headers }
-            )
+            .get(`/api/admin/jobs`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
-                    setLoading("No Job found");
                     setTotalJobs([]);
+                    setPageCount(0);
+                    setLoading("No Job found");
                 }
+            });
+    };
+
+    // useEffect(() => {
+    //     getJobs();
+    // }, []);
+
+    useEffect(() => {
+        getJobs();
+    }, [currentPage, paymentFilter, dateRange, searchVal]);
+
+    const handleJobDone = (_jobID, _checked) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-job-done`,
+                { checked: _checked },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
+            });
+    };
+
+    const handleWorkerActualTime = (_jobID, _value) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-worker-actual-time`,
+                { value: _value },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
             });
     };
 
@@ -113,29 +173,6 @@ export default function TotalJobs() {
                     });
             }
         });
-    };
-
-    const [workers, setWorkers] = useState([]);
-    const [Aworker, setAworker] = useState([]);
-    const handleChange = (e, index) => {
-        const id = e.target.name;
-        axios.get(`/api/admin/job-worker/${id}`, { headers }).then((res) => {
-            if (res.data.aworker.length > 0) {
-                setAworker(res.data.aworker);
-            } else {
-                setAworker([]);
-            }
-        });
-    };
-
-    const upWorker = (e, index) => {
-        let newWorkers = [...workers];
-        newWorkers[e.target.name] = e.target.value;
-        setWorkers(newWorkers);
-        let up = e.target.parentNode.parentNode.lastChild.lastChild;
-        setTimeout(() => {
-            up.click();
-        }, 500);
     };
 
     const handleNavigate = (e, id) => {
@@ -247,39 +284,6 @@ export default function TotalJobs() {
         }
     };
 
-    const filterJobs = (e) => {
-        filterJobs1();
-    };
-
-    const filterJobDate = (w) => {
-        $("#filter-week").val(w);
-        filterJobs1();
-    };
-
-    const filterJobs1 = () => {
-        let filter_value = $("#search-field").val();
-        let filter_week = $("#filter-week").val();
-
-        axios
-            .get(`/api/admin/jobs`, {
-                headers,
-                params: {
-                    filter_week,
-                    q: filter_value,
-                },
-            })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setPageCount(response.data.jobs.last_page);
-                    setLoading("No Jobs found");
-                }
-            });
-    };
-
     const shiftColors = [
         {
             bg: "yellow",
@@ -388,10 +392,6 @@ export default function TotalJobs() {
             getWorker(cshift.service, e.target.value);
         }
 
-        // if (e.target.name == 'contract' && e.target.value) {
-
-        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
-        // }
         if (e.target.name == "repetency" && e.target.value != "one_time") {
             getFrequency(lng);
         }
@@ -483,55 +483,12 @@ export default function TotalJobs() {
             <div id="content" className="job-listing-page">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-2 col-4">
+                        {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
-                        </div>
-
-                        <div className="col-sm-8 hidden-xs">
+                        </div> */}
+                        {/* Desktop */}
+                        {/* <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                        setFilter(e.target.value);
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 btn btn-warning addButton"
                                     data-toggle="modal"
@@ -551,51 +508,170 @@ export default function TotalJobs() {
                                     Export to CSV
                                 </CSVLink>
                             </div>
+                        </div> */}
+                        {/* <div className="col-sm-2 hidden-xs">
+                            <div className="search-data">
+                                <input
+                                    type="text"
+                                    value={searchVal}
+                                    className="form-control"
+                                    placeholder="Search"
+                                    onChange={(e) => {
+                                        setSearchVal(e.target.value);
+                                    }}
+                                    style={{ marginRight: "0" }}
+                                />
+                            </div>
+                        </div> */}
+
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                            <div className="d-flex align-items-center">
+                                <div style={{ fontWeight: "bold" }}>Filter</div>
+                                <div className="mx-3 d-flex align-items-center border rounded">
+                                    <div className="mx-2 text-nowrap">
+                                        By Payment
+                                    </div>
+                                    <select
+                                        className="form-control"
+                                        value={paymentFilter}
+                                        onChange={(e) => {
+                                            setPaymentFilter(e.target.value);
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        <option value="paid">Only Paid</option>
+                                        <option value="unpaid">
+                                            Only Unpaid
+                                        </option>
+                                    </select>
+                                </div>
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2"
+                                >
+                                    Date Period
+                                </div>
+                                <FilterButtons
+                                    text="Day"
+                                    className="px-4 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date: todayFilter.start_date,
+                                            end_date: todayFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Week"
+                                    className="px-4 mr-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                currentWeekFilter.start_date,
+                                            end_date:
+                                                currentWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Previous Week"
+                                    className="px-3 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                previousWeekFilter.start_date,
+                                            end_date:
+                                                previousWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Next Week"
+                                    className="px-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                nextWeekFilter.start_date,
+                                            end_date: nextWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                            </div>
                         </div>
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Custom Date Range
+                                </div>
+
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">to</div>
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    data-toggle="modal"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                    data-target="#exampleModal"
+                                >
+                                    Export Time Reports
+                                </button>
+                                <Link
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Change Worker Requests
+                                </Link>
+                            </div>
+                        </div>
+                        {/* Mobile */}
                         <div className="col-12 hidden-xl">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 reportModal btn btn-warning"
                                     data-toggle="modal"
@@ -603,21 +679,14 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                         </div>
-                        <div className="col-sm-2 hidden-xs">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    id="search-field"
-                                    className="form-control"
-                                    placeholder="Search"
-                                    onChange={filterJobs}
-                                    style={{ marginRight: "0" }}
-                                />
-                            </div>
-                        </div>
-
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -632,10 +701,10 @@ export default function TotalJobs() {
                 </div>
                 <div className="card">
                     <div className="card-body getjobslist">
-                        <div className="boxPanel">
+                        <div className="boxPanel-th-border-none">
                             <div className="table-responsive">
                                 {totalJobs.length > 0 ? (
-                                    <table className="table table-bordered">
+                                    <table className="table">
                                         <thead>
                                             <tr>
                                                 <th
@@ -656,10 +725,23 @@ export default function TotalJobs() {
                                                         &darr;{" "}
                                                     </span>
                                                 </th>
+                                                <th scope="col">
+                                                    Client Reviews
+                                                </th>
+                                                <th scope="col">
+                                                    If Job Was Done
+                                                </th>
                                                 <th scope="col">Client</th>
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
+                                                <th scope="col">
+                                                    Time For Job
+                                                </th>
+                                                <th scope="col">
+                                                    Time Worker Actually
+                                                </th>
+                                                <th scope="col">Comments</th>
                                                 <th
                                                     className="text-center"
                                                     scope="col"
@@ -737,26 +819,68 @@ export default function TotalJobs() {
                                                                 )
                                                             }
                                                         >
-                                                            <span className="d-block mb-1">
+                                                            <span className="d-block text-nowrap mb-1">
                                                                 {Moment(
                                                                     item.start_date
                                                                 ).format(
-                                                                    "DD-MM-YYYY"
+                                                                    "DD/MM/YYYY"
                                                                 )}
                                                             </span>
                                                         </td>
-                                                        <td
-                                                            style={
-                                                                item.client
-                                                                    ? {
-                                                                          background:
-                                                                              item
-                                                                                  .client
-                                                                                  .color,
-                                                                      }
-                                                                    : {}
-                                                            }
-                                                        >
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                <div
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        padding:
+                                                                            "2px 10px",
+                                                                        backgroundColor:
+                                                                            "#f4f4f4",
+                                                                        border: "1px solid #ebebeb",
+                                                                    }}
+                                                                >
+                                                                    Reviews
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                <span
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        border: "1px solid #ebebeb",
+                                                                        overflow:
+                                                                            "hidden",
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="job-compeleted"
+                                                                        checked={
+                                                                            item.is_job_done
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleJobDone(
+                                                                                item.id,
+                                                                                e
+                                                                                    .target
+                                                                                    .checked
+                                                                            );
+                                                                        }}
+                                                                        style={{
+                                                                            height: "20px",
+                                                                            width: "20px",
+                                                                            accentColor:
+                                                                                "#f4f4f4",
+                                                                        }}
+                                                                        className="form-control"
+                                                                    />
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
                                                             <Link
                                                                 to={
                                                                     item.client
@@ -764,9 +888,36 @@ export default function TotalJobs() {
                                                                         : "#"
                                                                 }
                                                                 style={{
-                                                                    color: "#000000",
+                                                                    color: item
+                                                                        .client
+                                                                        .color
+                                                                        ? "#FFFFFF"
+                                                                        : "#000000",
+                                                                    background:
+                                                                        item
+                                                                            .client
+                                                                            .color ||
+                                                                        "#FFFFFF",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
                                                                 }}
                                                             >
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
                                                                 {item.client
                                                                     ? item
                                                                           .client
@@ -779,90 +930,52 @@ export default function TotalJobs() {
                                                             </Link>
                                                         </td>
                                                         <td>
-                                                            <Link
-                                                                to={
-                                                                    item.worker
-                                                                        ? `/admin/view-worker/${item.worker.id}`
-                                                                        : "#"
-                                                                }
+                                                            <div
+                                                                onClick={() => {
+                                                                    handleSwitchWorker(
+                                                                        item.id
+                                                                    );
+                                                                    // $(
+                                                                    //     "#available-workers"
+                                                                    // ).modal(
+                                                                    //     "show"
+                                                                    // );
+                                                                }}
+                                                                style={{
+                                                                    color: "black",
+                                                                    background:
+                                                                        "#f4f4f4",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    border: "1px solid #ebebeb",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
+                                                                }}
                                                             >
-                                                                <h6>
-                                                                    {item.worker
-                                                                        ? item
-                                                                              .worker
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .worker
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </h6>
-                                                            </Link>
-                                                            <select
-                                                                name={item.id}
-                                                                className="form-control mb-3 mt-1"
-                                                                value={
-                                                                    workers[
-                                                                        `${item.id}`
-                                                                    ]
-                                                                        ? workers[
-                                                                              `${item.id}`
-                                                                          ]
-                                                                        : ""
-                                                                }
-                                                                onFocus={(e) =>
-                                                                    handleChange(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                                onChange={(e) =>
-                                                                    upWorker(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    --- Select
-                                                                    ---
-                                                                </option>
-                                                                {Aworker.length >
-                                                                0 ? (
-                                                                    Aworker &&
-                                                                    Aworker.map(
-                                                                        (
-                                                                            w,
-                                                                            i
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    value={
-                                                                                        w.id
-                                                                                    }
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        w.firstname
-                                                                                    }{" "}
-                                                                                    {
-                                                                                        w.lastname
-                                                                                    }
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )
-                                                                ) : (
-                                                                    <option value="">
-                                                                        No
-                                                                        worker
-                                                                        Match
-                                                                    </option>
-                                                                )}
-                                                            </select>
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
+                                                                {item.worker
+                                                                    ? item
+                                                                          .worker
+                                                                          .firstname +
+                                                                      " " +
+                                                                      item
+                                                                          .worker
+                                                                          .lastname
+                                                                    : "NA"}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -871,23 +984,12 @@ export default function TotalJobs() {
                                                                     item.id
                                                                 )
                                                             }
-                                                            style={
-                                                                ix != undefined
-                                                                    ? {
-                                                                          background:
-                                                                              ix.bg,
-                                                                          color: ix.tc,
-                                                                      }
-                                                                    : {
-                                                                          background:
-                                                                              "#d3d3d3",
-                                                                          color: "#444",
-                                                                      }
-                                                            }
                                                         >
-                                                            <span className="mBlue">
-                                                                {item.shifts}
-                                                            </span>
+                                                            <div className="d-flex flex-column justify-content-center">
+                                                                {shiftHelperFn(
+                                                                    item.shifts
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -920,6 +1022,46 @@ export default function TotalJobs() {
                                                                     : item
                                                                           .jobservice
                                                                           .heb_name)}
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.jobservice &&
+                                                                    item.client && (
+                                                                        <span className="text-nowrap">
+                                                                            {minutesToHours(
+                                                                                item
+                                                                                    .jobservice
+                                                                                    .duration_minutes
+                                                                            )}
+                                                                        </span>
+                                                                    )}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item && (
+                                                                    <ActuallyTimeWorker
+                                                                        data={
+                                                                            item
+                                                                        }
+                                                                        emitValue={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleWorkerActualTime(
+                                                                                item.id,
+                                                                                e *
+                                                                                    60
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.comment ||
+                                                                    "-"}
+                                                            </div>
                                                         </td>
                                                         <td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
@@ -959,6 +1101,21 @@ export default function TotalJobs() {
                                                                         >
                                                                             View
                                                                         </Link>
+                                                                        {/* <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                console.log(
+                                                                                    `edit item - ${item.id}`
+                                                                                );
+                                                                                $(
+                                                                                    "#edit-job"
+                                                                                ).modal(
+                                                                                    "show"
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            Edit
+                                                                        </button> */}
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",
@@ -1056,7 +1213,9 @@ export default function TotalJobs() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={() => {
+                                            setCurrentPage(currentPage + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }
@@ -1502,6 +1661,219 @@ export default function TotalJobs() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* <div
+                            className="modal fade"
+                            id="edit-job"
+                            tabIndex="-1"
+                            role="dialog"
+                            aria-labelledby="exampleModalLabel"
+                            aria-hidden="true"
+                        >
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5
+                                            className="modal-title"
+                                            id="exampleModalLabel"
+                                        >
+                                            Edit Job
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                            onClick={(e) => resetShift()}
+                                        >
+                                            <span aria-hidden="true">
+                                                &times;
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Date
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift_date"
+                                                        type="date"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Client
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="client"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Worker
+                                                    </label>
+
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="William"
+                                                            selected
+                                                        >
+                                                            William
+                                                        </option>
+                                                        <option value="Adam">
+                                                            Adam
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Shift
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Service
+                                                    </label>
+
+                                                    <input
+                                                        className="form-control"
+                                                        name="service"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Comments
+                                                    </label>
+
+                                                    <textarea
+                                                        className="form-control"
+                                                        name="comments"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */}
+
+                        {/* <div
+                            className="modal fade"
+                            id="available-workers"
+                            tabIndex="-1"
+                            role="dialog"
+                            aria-labelledby="exampleModalLabel"
+                            aria-hidden="true"
+                        >
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5
+                                            className="modal-title"
+                                            id="exampleModalLabel"
+                                        >
+                                            Available Workers
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                            onClick={(e) => resetShift()}
+                                        >
+                                            <span aria-hidden="true">
+                                                &times;
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-1">
+                                                        Worker Gender
+                                                    </label>
+
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="male"
+                                                            selected
+                                                        >
+                                                            Only Male
+                                                        </option>
+                                                        <option value="female">
+                                                            Only Female
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -1517,3 +1889,111 @@ export default function TotalJobs() {
         </div>
     );
 }
+
+const minutesToHours = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hours`;
+};
+
+const shiftHelperFn = (timeString) => {
+    if (timeString) {
+        const arrOfStr = timeString.split(",");
+        return arrOfStr.map((s, index) => (
+            <div
+                className="rounded mb-1"
+                style={{
+                    whiteSpace: "nowrap",
+                    background: "#e7a917",
+                    color: "white",
+                    padding: "3px 8px",
+                }}
+                key={index}
+            >
+                {s}
+            </div>
+        ));
+    } else {
+        return "-";
+    }
+};
+
+const divStyle = {
+    background: "#f4f4f4",
+    color: "black",
+    padding: "3px 8px",
+    border: "1px solid #ebebeb",
+};
+
+const ActuallyTimeWorker = ({ data, emitValue }) => {
+    const [count, setCount] = useState(0);
+    const [isChanged, setisChanged] = useState(false);
+    const debouncedValue = useDebounce(count, 500);
+
+    useEffect(() => {
+        isChanged && emitValue(debouncedValue);
+    }, [debouncedValue]);
+
+    useEffect(() => {
+        setCount(
+            data.actual_time_taken_minutes
+                ? Math.floor(data.actual_time_taken_minutes / 60)
+                : 0
+        );
+    }, [data]);
+
+    return (
+        <div className="d-flex align-items-center">
+            <div
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count - 1);
+                }}
+                style={{
+                    ...divStyle,
+                    pointerEvents: count === 0 ? "none" : "auto",
+                    opacity: count === 0 ? 0.5 : 1,
+                }}
+            >
+                -
+            </div>
+            <span className="mx-1" style={{ ...divStyle, background: "white" }}>
+                {count}
+            </span>
+            <button
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count + 1);
+                }}
+                style={divStyle}
+            >
+                +
+            </button>
+        </div>
+    );
+};
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn border rounded ${className}`}
+        style={
+            selectedFilter === text
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);
