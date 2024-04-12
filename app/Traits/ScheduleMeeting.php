@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
 use App\Enums\MeetingStatusWithColorIDEnum;
-use App\Event\WhatsappNotificationEvent;
+use App\Events\WhatsappNotificationEvent;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Exception;

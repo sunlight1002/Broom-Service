@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Events\WorkerApprovedJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Admin;
@@ -233,7 +234,8 @@ class JobController extends Controller
         ]);
     }
 
-    public function setJobOpeningTimestamp(Request $request) {
+    public function setJobOpeningTimestamp(Request $request)
+    {
         $rData = $request->all();
         try {
             $job = Job::updateOrCreate([
@@ -269,5 +271,55 @@ class JobController extends Controller
                 'message' => 'Something went wrong!'
             ]);
         }
+    }
+
+    public function workerJob(Request $request, $wid, $jid)
+    {
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            ->where('worker_id', $wid)
+            ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+            ->find($jid);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $job
+        ]);
+    }
+
+    public function approveWorkerJob(Request $request, $wid, $jid)
+    {
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            ->where('worker_id', $wid)
+            ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+            ->find($jid);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 404);
+        }
+
+        if ($job->worker_approved_at) {
+            return response()->json([
+                'message' => 'Job already approved'
+            ], 403);
+        }
+
+        $job->update([
+            'worker_approved_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        event(new WorkerApprovedJob($job));
+
+        return response()->json([
+            'data' => 'Job approved successfully'
+        ]);
     }
 }

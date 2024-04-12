@@ -976,11 +976,13 @@
             "service": "Service",
             "shift": "Shift",
             "address": "Address",
+            "property": "Property",
             "c_time": "Complete Time",
             "status": "Status",
             "total": "Total",
             "action": "Action",
             "viewbtn": "View",
+            "job_details": "Job details",
             "view": {
                 "c_details": "Client Details",
                 "c_name": "Client Name",
@@ -1286,5 +1288,8 @@
     },
     "credit-card": {
         "added-card": "Added Card"
+    },
+    "job_approval": {
+        "success_msg": "Job approved sucessfully"
     }
 }
