@@ -204,6 +204,10 @@ class ClientEmailController extends Controller
 
     $client->update(['status' => 1]);
 
+    $schedule->load(['client', 'team', 'propertyAddress']);
+
+    $this->saveGoogleCalendarEvent($schedule);
+
     Notification::create([
       'user_id' => $schedule->client_id,
       'type' => 'accept-meeting',
@@ -242,6 +246,10 @@ class ClientEmailController extends Controller
     );
 
     $client->update(['status' => 0]);
+
+    $schedule->load(['client', 'team', 'propertyAddress']);
+
+    $this->saveGoogleCalendarEvent($schedule);
 
     Notification::create([
       'user_id' => $schedule->client_id,
@@ -405,7 +413,7 @@ class ClientEmailController extends Controller
 
   public function addMeet(Request $request)
   {
-    $sch = Schedule::create([
+    $schedule = Schedule::create([
       'booking_status' => 'pending',
       'start_date'     => $request['data']['startDate'],
       'start_time'     => $request['data']['startTime'],
@@ -413,8 +421,12 @@ class ClientEmailController extends Controller
       'client_id'      => $request['data']['client']['id'],
     ]);
 
+    $schedule->load(['client', 'team', 'propertyAddress']);
+
+    $this->saveGoogleCalendarEvent($schedule);
+
     return response()->json([
-      'schedule' => $sch
+      'schedule' => $schedule
     ]);
   }
 
