@@ -363,6 +363,7 @@ export default function ViewSchedule() {
                                 <select
                                     className="form-control"
                                     id="status"
+                                    name="booking_status"
                                     value={bstatus}
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
