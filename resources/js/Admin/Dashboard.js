@@ -8,6 +8,7 @@ import Sidebar from "./Layouts/Sidebar";
 import UserIcon from "../Assets/image/icons/user-client.jpeg";
 import Jobs from "./Components/Dashboard/jobs";
 import Pendings from "./Components/Dashboard/pendings";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
@@ -24,6 +25,7 @@ export default function Dashboard() {
     const [role, setRole] = useState("");
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -142,7 +144,9 @@ export default function Dashboard() {
             <div id="content">
                 <div className="adminDash">
                     <div className="titleBox">
-                        <h1 className="page-title">Dashboard</h1>
+                        <h1 className="page-title">
+                            {t("admin.sidebar.dashboard")}
+                        </h1>
                     </div>
                     <div className="row">
                         <div className="col-sm-4 col-xs-6">
@@ -153,7 +157,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalJobs}</h3>
-                                        <p>Jobs posted</p>
+                                        <p> {t("admin.dashboard.jobPosted")}</p>
                                     </div>
                                 </div>
                             </a>
@@ -166,7 +170,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalClients}</h3>
-                                        <p>Clients</p>
+                                        <p> {t("admin.dashboard.clients")}</p>
                                     </div>
                                 </div>
                             </a>
@@ -179,7 +183,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalWorkers}</h3>
-                                        <p>Workers</p>
+                                        <p> {t("admin.dashboard.workers")}</p>
                                     </div>
                                 </div>
                             </a>
@@ -192,7 +196,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalSchedules}</h3>
-                                        <p>Meetings</p>
+                                        <p> {t("admin.dashboard.meetings")}</p>
                                     </div>
                                 </div>
                             </a>
@@ -205,7 +209,10 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalOffers}</h3>
-                                        <p>Offered Prices</p>
+                                        <p>
+                                            {" "}
+                                            {t("admin.dashboard.offeredPrice")}
+                                        </p>
                                     </div>
                                 </div>
                             </a>
@@ -218,7 +225,6 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{contracts}</h3>
-                                        <p>Contracts</p>
                                     </div>
                                 </div>
                             </a>
@@ -227,7 +233,9 @@ export default function Dashboard() {
                     <div className="row">
                         <div className="col-sm-9">
                             <div className="view-applicant">
-                                <h2 className="page-title">Jobs Schedule</h2>
+                                <h2 className="page-title">
+                                    {t("admin.dashboard.jobsSchedule")}
+                                </h2>
                                 <div className="ClientHistory">
                                     <Jobs />
                                     <Pendings />
@@ -236,13 +244,16 @@ export default function Dashboard() {
                             {role && role == "superadmin" && (
                                 <>
                                     <h2 className="page-title">
-                                        Income/Outcome
+                                        {t("admin.dashboard.income")}/
+                                        {t("admin.dashboard.outcome")}
                                     </h2>
                                     <div className="inoutEarning boxPanel card p-3">
                                         <div className="row">
                                             <div className="col-sm-6">
                                                 <h4>
-                                                    Income{" "}
+                                                    {t(
+                                                        "admin.dashboard.income"
+                                                    )}
                                                     <span
                                                         style={{
                                                             color: "green",
@@ -252,7 +263,9 @@ export default function Dashboard() {
                                                     </span>
                                                 </h4>
                                                 <h4>
-                                                    Outcome{" "}
+                                                    {t(
+                                                        "admin.dashboard.outcome"
+                                                    )}
                                                     <span
                                                         style={{
                                                             color: "purple",
@@ -268,7 +281,9 @@ export default function Dashboard() {
                             )}
                         </div>
                         <div className="col-sm-3">
-                            <h2 className="page-title pt-0">Recent Users</h2>
+                            <h2 className="page-title pt-0">
+                                {t("admin.dashboard.recentUser")}
+                            </h2>
                             <div className="boxPanel card">
                                 {latestClient &&
                                     latestClient.map((c, i) => {
@@ -296,7 +311,9 @@ export default function Dashboard() {
                                                         </div>
                                                         <small className="text-muted">
                                                             {" "}
-                                                            Client
+                                                            {t(
+                                                                "admin.dashboard.jobs.client"
+                                                            )}
                                                         </small>
                                                     </div>
                                                     <div className="ml-auto">
@@ -305,14 +322,18 @@ export default function Dashboard() {
                                                                 to={`/admin/view-client/${c.id}`}
                                                                 className="btn btn-sm btn-warning"
                                                             >
-                                                                View
+                                                                {t(
+                                                                    "admin.dashboard.jobs.view"
+                                                                )}
                                                             </Link>
                                                         ) : (
                                                             <Link
                                                                 to={`#`}
                                                                 className="btn btn-sm btn-warning"
                                                             >
-                                                                View
+                                                                {t(
+                                                                    "admin.dashboard.jobs.view"
+                                                                )}
                                                             </Link>
                                                         )}
                                                     </div>

@@ -15,7 +15,7 @@ class JobOpeningTime extends Seeder
      */
     public function run()
     {
-        $jobs = Job::whereNotNull('start_time')->whereNotNull('start_date')->get();
+        $jobs = Job::whereNotNull('start_time')->whereNotNull('start_date')->whereNull('job_opening_timestamp')->get();
         foreach ($jobs as $key => $job) {
             $start_date = Carbon::parse($job['start_date'])->format('Y-m-d');
             $opening_time = $start_date . ' ' . $job['start_time'];

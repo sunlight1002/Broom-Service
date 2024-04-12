@@ -4,8 +4,10 @@ import { useParams } from "react-router-dom";
 import Moment from "moment";
 import Notes from "./Notes";
 import Files from "../Clients/Files";
+import { useTranslation } from "react-i18next";
 
 export default function LeadDetails({ lead }) {
+    const { t } = useTranslation();
     const generatedOn = useMemo(() => {
         return (
             Moment(lead.created_at).format("DD/MM/Y") +
@@ -36,7 +38,7 @@ export default function LeadDetails({ lead }) {
                                         aria-selected="true"
                                         role="tab"
                                     >
-                                        Lead info
+                                        {t("admin.leads.leadDetails.LeadInfo")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -48,7 +50,7 @@ export default function LeadDetails({ lead }) {
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Comments
+                                        {t("admin.leads.leadDetails.Comments")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -60,7 +62,7 @@ export default function LeadDetails({ lead }) {
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Files
+                                        {t("admin.leads.leadDetails.Files")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -72,7 +74,9 @@ export default function LeadDetails({ lead }) {
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Intrested In
+                                        {t(
+                                            "admin.leads.leadDetails.IntrestedIn"
+                                        )}
                                     </a>
                                 </li>
                                 {/* <li className="nav-item" role="presentation"><a id="contact-details" className="nav-link" data-toggle="tab" href="#tab-contact" aria-selected="false" role="tab">First Contacted</a></li> */}
@@ -87,13 +91,18 @@ export default function LeadDetails({ lead }) {
                                     <div className="row">
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label>Email</label>
+                                                <label>
+                                                    {t("admin.global.Email")}
+                                                </label>
                                                 <p>{lead.email}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label>Phone</label>
+                                                <label>
+                                                    {" "}
+                                                    {t("admin.global.Phone")}
+                                                </label>
                                                 <p>
                                                     <a
                                                         href={`tel:${lead.phone}`}
@@ -106,7 +115,11 @@ export default function LeadDetails({ lead }) {
                                         {lead.lead_status && (
                                             <div className="col-sm-6">
                                                 <div className="form-group">
-                                                    <label>Status</label>
+                                                    <label>
+                                                        {t(
+                                                            "admin.global.Status"
+                                                        )}
+                                                    </label>
                                                     <p>
                                                         {
                                                             lead.lead_status
@@ -118,13 +131,23 @@ export default function LeadDetails({ lead }) {
                                         )}
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label>Generated On</label>
+                                                <label>
+                                                    {" "}
+                                                    {t(
+                                                        "admin.leads.leadDetails.GeneratedOn"
+                                                    )}
+                                                </label>
                                                 <p>{generatedOn}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-12">
                                             <div className="form-group">
-                                                <label>Meta</label>
+                                                <label>
+                                                    {" "}
+                                                    {t(
+                                                        "admin.leads.leadDetails.Meta"
+                                                    )}
+                                                </label>
                                                 <p>{lead.meta}</p>
                                             </div>
                                         </div>
@@ -136,7 +159,9 @@ export default function LeadDetails({ lead }) {
                                                         className="btn btn-success"
                                                         to={`/admin/edit-lead/${param.id}`}
                                                     >
-                                                        Edit lead
+                                                        {t(
+                                                            "admin.leads.leadDetails.EditLead"
+                                                        )}
                                                     </Link>
                                                 </p>
                                             </div>
@@ -173,7 +198,12 @@ export default function LeadDetails({ lead }) {
                                         <div className="form-group">
                                             <div className="col-sm-6">
                                                 <div className="form-group">
-                                                    <label>Option</label>
+                                                    <label>
+                                                        {" "}
+                                                        {t(
+                                                            "admin.leads.leadDetails.Option"
+                                                        )}
+                                                    </label>
 
                                                     <p>
                                                         {lead.reply
@@ -188,14 +218,21 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                             <div className="col-sm-12">
                                                 <div className="form-group">
-                                                    <label>Message</label>
+                                                    <label>
+                                                        {" "}
+                                                        {t(
+                                                            "admin.leads.leadDetails.Message"
+                                                        )}
+                                                    </label>
                                                     <p>{lead.reply?.msg}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
                                         <p className="text-center form-control">
-                                            Data not availabe.
+                                            {t(
+                                                "admin.leads.leadDetails.dataNotAvailable"
+                                            )}
                                         </p>
                                     )}
                                 </div>
@@ -232,14 +269,16 @@ export default function LeadDetails({ lead }) {
                         <div className="dashBox p-4">
                             <div className="form-group">
                                 <label className="d-block">
-                                    Covert to Client
+                                    {t(
+                                        "admin.leads.leadDetails.convertToClient"
+                                    )}
                                 </label>
                                 <Link
                                     to={`/admin/add-lead-client/${param.id}`}
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Convert
+                                    {t("admin.leads.leadDetails.Convert")}
                                 </Link>
                             </div>
                         </div>
@@ -247,7 +286,7 @@ export default function LeadDetails({ lead }) {
                         <div className="dashBox p-4 mt-3">
                             <div className="form-group">
                                 <label className="d-block">
-                                    Meeting Status
+                                    {t("admin.leads.leadDetails.MeetingStatus")}
                                 </label>
                                 <span
                                     id="ms"
@@ -259,12 +298,15 @@ export default function LeadDetails({ lead }) {
                                 >
                                     {lead.latest_meeting
                                         ? lead.latest_meeting.booking_status
-                                        : "Not Send"}
+                                        : t("admin.leads.leadDetails.NotSend")}
                                 </span>
                             </div>
 
                             <div className="form-group">
-                                <label className="d-block">Price Offer</label>
+                                <label className="d-block">
+                                    {" "}
+                                    {t("admin.leads.leadDetails.PriceOffer")}
+                                </label>
                                 <span
                                     id="os"
                                     className="dashStatus"
@@ -275,7 +317,7 @@ export default function LeadDetails({ lead }) {
                                 >
                                     {lead.latest_offer
                                         ? lead.latest_offer.status
-                                        : "Not Send"}
+                                        : t("admin.leads.leadDetails.NotSend")}
                                 </span>
                             </div>
                         </div>
@@ -285,22 +327,26 @@ export default function LeadDetails({ lead }) {
                                 <i className="fas fa-hand-point-right"></i>
 
                                 {lead.meetings?.length == 0
-                                    ? "Schedule Meeting"
-                                    : "Re-schedule Meeting"}
+                                    ? t(
+                                          "admin.leads.leadDetails.ScheduleMeeting"
+                                      )
+                                    : t(
+                                          "admin.leads.leadDetails.ReScheduleMeeting"
+                                      )}
                             </Link>
                             <Link to={`/admin/offers/create?c=${param.id}`}>
                                 <i className="fas fa-hand-point-right"></i>
                                 {lead.offers?.length == 0
-                                    ? "Send Offer"
-                                    : "Re-send Offer"}
+                                    ? t("admin.leads.leadDetails.SendOffer")
+                                    : t("admin.leads.leadDetails.ReSendOffer")}
                             </Link>
                             <Link
                                 to={`/admin/create-client-job/${param.id}`}
                                 id="bookBtn"
                                 style={{ display: "none" }}
                             >
-                                <i className="fas fa-hand-point-right"></i> Book
-                                Client
+                                <i className="fas fa-hand-point-right"></i>
+                                {t("admin.leads.leadDetails.BookClient")}
                             </Link>
                         </div>
                     </div>

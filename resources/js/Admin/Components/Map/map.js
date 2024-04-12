@@ -7,6 +7,7 @@ import {
     Autocomplete,
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
+import { useTranslation } from "react-i18next";
 
 const containerStyle = {
     width: "100%",
@@ -24,6 +25,7 @@ const Map = memo(function Map({
     place,
 }) {
     let addressSearchRef = useRef();
+    const { t } = useTranslation();
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
 
     const center = {
@@ -40,7 +42,9 @@ const Map = memo(function Map({
 
     return (
         <div className="form-group">
-            <label className="control-label">Enter a location</label>
+            <label className="control-label">
+                {t("admin.global.location")}
+            </label>
             <LoadScript
                 googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
                 libraries={libraries}
@@ -86,7 +90,7 @@ const Map = memo(function Map({
                     <input
                         ref={addressSearchRef}
                         type="text"
-                        placeholder="Search your address"
+                        placeholder={t("admin.global.locationPlaceholder")}
                         className="form-control mt-1"
                     />
                 </Autocomplete>

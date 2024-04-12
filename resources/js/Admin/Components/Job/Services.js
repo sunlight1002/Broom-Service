@@ -2,13 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { useTranslation } from "react-i18next";
 
 export default function Services({ job }) {
+    const { t } = useTranslation();
     const service = job.jobservice;
 
     return (
         <>
-            <h2 className="text-custom">Service Details</h2>
+            <h2 className="text-custom">
+                {t("admin.schedule.jobs.serviceDetailslabel")}
+            </h2>
             <div className="dashBox p-4 mb-3">
                 {service && (
                     <form>
@@ -16,7 +20,9 @@ export default function Services({ job }) {
                             <div className="col-sm-3">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Service
+                                        {t(
+                                            "admin.schedule.jobs.serviceDetails.Service"
+                                        )}
                                     </label>
                                     <p>{service.name}</p>
                                 </div>
@@ -24,7 +30,9 @@ export default function Services({ job }) {
                             <div className="col-sm-2">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Frequency
+                                        {t(
+                                            "admin.schedule.jobs.serviceDetails.Frequency"
+                                        )}
                                     </label>
                                     <p>{service.freq_name}</p>
                                 </div>
@@ -32,7 +40,9 @@ export default function Services({ job }) {
                             <div className="col-sm-2">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Complete Time
+                                        {t(
+                                            "admin.schedule.jobs.serviceDetails.CompleteTime"
+                                        )}
                                     </label>
 
                                     <p>
@@ -46,7 +56,9 @@ export default function Services({ job }) {
                             <div className="col-sm-2">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Shift
+                                        {t(
+                                            "admin.schedule.jobs.serviceDetails.Shift"
+                                        )}
                                     </label>
                                     <p>{job.shifts}</p>
                                 </div>
@@ -54,7 +66,9 @@ export default function Services({ job }) {
                             <div className="col-sm-2">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Job Status
+                                        {t(
+                                            "admin.schedule.jobs.serviceDetails.JobStatus"
+                                        )}
                                     </label>
                                     <p>{job.status}</p>
 
@@ -66,7 +80,10 @@ export default function Services({ job }) {
                                                 to={job.order.doc_url}
                                                 className="jorder"
                                             >
-                                                Order - {job.order.order_id}
+                                                {t(
+                                                    "admin.schedule.jobs.serviceDetails.Order"
+                                                )}
+                                                - {job.order.order_id}
                                             </Link>
                                         </React.Fragment>
                                     )}
@@ -79,8 +96,10 @@ export default function Services({ job }) {
                                                 to={job.invoice.doc_url}
                                                 className="jinv"
                                             >
-                                                Invoice -{" "}
-                                                {job.invoice.invoice_id}
+                                                {t(
+                                                    "admin.schedule.jobs.serviceDetails.Invoice"
+                                                )}
+                                                - {job.invoice.invoice_id}
                                             </Link>
                                             <br />
                                             <span className="jorder">

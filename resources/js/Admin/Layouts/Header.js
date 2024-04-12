@@ -5,6 +5,7 @@ import { useAlert } from "react-alert";
 import MobileHeader from "./MobileHeader";
 import Moment from "moment";
 import axios from "axios";
+import i18next from "i18next";
 
 export default function AdminHeader() {
     const alert = useAlert();
@@ -41,6 +42,9 @@ export default function AdminHeader() {
             response.data.account.avatar
                 ? setFile(response.data.account.avatar)
                 : setFile(User);
+            i18next.changeLanguage(
+                response.data.account.lng ? response.data.account.lng : "en"
+            );
         });
     };
 
