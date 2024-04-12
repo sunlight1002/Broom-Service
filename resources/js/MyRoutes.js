@@ -126,6 +126,7 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
+import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -256,6 +257,11 @@ export default function MyRoutes() {
                                 exact
                                 path="/client/view-job/:id"
                                 element={<ClientJobView />}
+                            />
+                            <Route
+                                exact
+                                path="/client/jobs/:id/review"
+                                element={<ReviewJob />}
                             />
                             <Route
                                 exact

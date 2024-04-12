@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
@@ -11,6 +11,7 @@ export default function Comment({ handleGetJob, jobStatus }) {
     const [comment, setComment] = useState("");
     const [status, setStatus] = useState("");
     const [allComment, setAllComment] = useState([]);
+    const [allCommentsChecked, setAllCommentsChecked] = useState(false);
     const param = useParams();
     const alert = useAlert();
     const { t } = useTranslation();
@@ -28,6 +29,10 @@ export default function Comment({ handleGetJob, jobStatus }) {
             return;
         } else if (comment == "") {
             window.alert("Please Enter Comment");
+            return;
+        }
+        if (allComment.length > 0 && !allCommentsChecked) {
+            window.alert("Please select all comments");
             return;
         }
         const data = new FormData();
@@ -255,6 +260,14 @@ export default function Comment({ handleGetJob, jobStatus }) {
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
+                                        {allComment.length > 0 && (
+                                            <AllCommentsWithCheckBox
+                                                allComment={allComment}
+                                                setAllCommentChecked={
+                                                    setAllCommentsChecked
+                                                }
+                                            />
+                                        )}
                                         <label className="control-label">
                                             {t(
                                                 "worker.jobs.view.status_warning"
@@ -379,3 +392,109 @@ export default function Comment({ handleGetJob, jobStatus }) {
         </div>
     );
 }
+
+const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
+    const [modifiedComments, setModifiedComments] = useState([]);
+    useEffect(() => {
+        const addCheckProperty = allComment.map((c) => ({
+            ...c,
+            checked: false,
+        }));
+        setModifiedComments(addCheckProperty);
+    }, [allComment]);
+    useEffect(() => {
+        setAllCommentChecked(modifiedComments.every((c) => c.checked));
+    }, [modifiedComments, setAllCommentChecked]);
+    return modifiedComments.map((c, i) => {
+        return (
+            <div
+                className="card card-widget widget-user-2"
+                style={{ boxShadow: "none" }}
+                key={i}
+            >
+                <div className="card-comments cardforResponsive"></div>
+                <div
+                    className="card-comment p-3"
+                    style={{
+                        backgroundColor: "rgba(0,0,0,.05)",
+                        borderRadius: "5px",
+                    }}
+                >
+                    <div className="row">
+                        <div className="col-sm-10 col-10 d-flex align-items-center">
+                            <input
+                                type="checkbox"
+                                name="cb"
+                                checked={c.checked}
+                                onChange={(e) =>
+                                    setModifiedComments((prev) => {
+                                        const updatedComments = [...prev];
+                                        updatedComments[i].checked =
+                                            e.target.checked;
+                                        return updatedComments;
+                                    })
+                                }
+                                style={{ width: "15px", height: "15px" }}
+                                className="form-control cb mr-2"
+                            />
+                            <p
+                                className="noteby"
+                                style={{
+                                    fontSize: "16px",
+                                }}
+                            >
+                                {c.name} -
+                                <span
+                                    className="noteDate"
+                                    style={{ fontWeight: "600" }}
+                                >
+                                    {" " +
+                                        Moment(c.created_at).format(
+                                            "DD-MM-Y h:sa"
+                                        )}{" "}
+                                    <br />
+                                </span>
+                            </p>
+                        </div>
+                        <div className="col-sm-12">
+                            <p>{c.comment}</p>
+                            {c.attachments &&
+                                c.attachments.length > 0 &&
+                                c.attachments.map((cm, i) => {
+                                    return (
+                                        <span
+                                            className="badge badge-warning text-dark"
+                                            key={i}
+                                        >
+                                            <a
+                                                onClick={(e) => {
+                                                    let show =
+                                                        document.querySelector(
+                                                            ".showFile"
+                                                        );
+
+                                                    show.setAttribute(
+                                                        "src",
+                                                        `/storage/uploads/attachments/${cm.file}`
+                                                    );
+                                                    show.style.display =
+                                                        "block";
+                                                }}
+                                                data-toggle="modal"
+                                                data-target="#exampleModalFile"
+                                                style={{
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                {cm.file}
+                                            </a>
+                                        </span>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    });
+});
