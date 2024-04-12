@@ -533,13 +533,12 @@ export default function TotalJobs() {
                                     </div>
                                     <select
                                         className="form-control"
+                                        value={paymentFilter}
                                         onChange={(e) => {
                                             setPaymentFilter(e.target.value);
                                         }}
                                     >
-                                        <option value="" selected>
-                                            All
-                                        </option>
+                                        <option value="">All</option>
                                         <option value="paid">Only Paid</option>
                                         <option value="unpaid">
                                             Only Unpaid
@@ -658,6 +657,16 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                         </div>
                         {/* Mobile */}
@@ -1040,7 +1049,8 @@ export default function TotalJobs() {
                                                                         ) => {
                                                                             handleWorkerActualTime(
                                                                                 item.id,
-                                                                                e * 60
+                                                                                e *
+                                                                                    60
                                                                             );
                                                                         }}
                                                                     />
@@ -1888,7 +1898,7 @@ const minutesToHours = (minutes) => {
 const shiftHelperFn = (timeString) => {
     if (timeString) {
         const arrOfStr = timeString.split(",");
-        return arrOfStr.map((s) => (
+        return arrOfStr.map((s, index) => (
             <div
                 className="rounded mb-1"
                 style={{
@@ -1897,6 +1907,7 @@ const shiftHelperFn = (timeString) => {
                     color: "white",
                     padding: "3px 8px",
                 }}
+                key={index}
             >
                 {s}
             </div>
@@ -1914,12 +1925,22 @@ const divStyle = {
 };
 
 const ActuallyTimeWorker = ({ data, emitValue }) => {
-    const [count, setCount] = useState(data?.actual_time_taken_minutes ? data?.actual_time_taken_minutes/60 : 0);
-    const debouncedValue = useDebounce(count, 500);
+    const [count, setCount] = useState(0);
     const [isChanged, setisChanged] = useState(false);
+    const debouncedValue = useDebounce(count, 500);
+
     useEffect(() => {
         isChanged && emitValue(debouncedValue);
     }, [debouncedValue]);
+
+    useEffect(() => {
+        setCount(
+            data.actual_time_taken_minutes
+                ? Math.floor(data.actual_time_taken_minutes / 60)
+                : 0
+        );
+    }, [data]);
+
     return (
         <div className="d-flex align-items-center">
             <div
@@ -1927,7 +1948,11 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
                     setisChanged(true);
                     setCount(count - 1);
                 }}
-                style={{...divStyle, pointerEvents: count === 0 ? "none" : "auto", opacity: count === 0 ? 0.5 : 1}}
+                style={{
+                    ...divStyle,
+                    pointerEvents: count === 0 ? "none" : "auto",
+                    opacity: count === 0 ? 0.5 : 1,
+                }}
             >
                 -
             </div>

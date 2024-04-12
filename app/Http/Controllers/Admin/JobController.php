@@ -733,13 +733,15 @@ class JobController extends Controller
             return response()->json(['error' => $validator->messages()]);
         }
 
-        $time = new JobHours();
-        $time->job_id = $request->job_id;
-        $time->worker_id = $request->worker_id;
-        $time->start_time = $request->start_time;
-        $time->end_time = $request->end_time;
-        $time->time_diff = $request->timeDiff;
-        $time->save();
+        $time = JobHours::create([
+            'job_id' => $request->job_id,
+            'worker_id' => $request->worker_id,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'time_diff' => $request->timeDiff,
+        ]);
+
+        $this->updateJobWorkerMinutes($request->job_id);
 
         return response()->json([
             'time' => $time,
@@ -758,10 +760,14 @@ class JobController extends Controller
         }
 
         $time = JobHours::find($request->id);
-        $time->start_time = $request->start_time;
-        $time->end_time = $request->end_time;
-        $time->time_diff = $request->timeDiff;
-        $time->save();
+
+        $time->update([
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'time_diff' => $request->timeDiff,
+        ]);
+
+        $this->updateJobWorkerMinutes($request->job_id);
 
         return response()->json([
             'time' => $time,
