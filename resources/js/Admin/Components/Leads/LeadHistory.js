@@ -2,8 +2,10 @@ import React from "react";
 import Contract from "./Contract";
 import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
+import { useTranslation } from "react-i18next";
 
 export default function LeadHistory({ client }) {
+    const { t } = useTranslation();
     return (
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
@@ -16,7 +18,7 @@ export default function LeadHistory({ client }) {
                         aria-selected="true"
                         role="tab"
                     >
-                        Scheduled Meeting
+                        {t("admin.leads.viewLead.ScheduledMeeting")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -28,7 +30,7 @@ export default function LeadHistory({ client }) {
                         aria-selected="true"
                         role="tab"
                     >
-                        Offers
+                        {t("admin.leads.viewLead.Offers")}
                     </a>
                 </li>
             </ul>

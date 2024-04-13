@@ -9,8 +9,8 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
-
 import Sidebar from "../../Layouts/Sidebar";
+import { useTranslation } from "react-i18next";
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
@@ -22,6 +22,7 @@ export default function Clients() {
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const alert = useAlert();
+    const { t } = useTranslation();
 
     const handleClose = () => {
         setImportFile("");
@@ -254,7 +255,9 @@ export default function Clients() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Clients</h1>
+                            <h1 className="page-title">
+                                {t("admin.sidebar.Clients")}
+                            </h1>
                         </div>
 
                         <div className="col-sm-6">
@@ -264,7 +267,7 @@ export default function Clients() {
                                     style={{ display: "none" }}
                                 >
                                     <CSVLink {...csvReport} id="csv">
-                                        Export to CSV
+                                        {t("admin.global.Export")}
                                     </CSVLink>
                                 </div>
                                 <div className="action-dropdown dropdown mt-4 mr-2">
@@ -272,7 +275,7 @@ export default function Clients() {
                                         className="btn btn-pink"
                                         onClick={handleShow}
                                     >
-                                        Import
+                                        {t("admin.global.Import")}
                                     </button>
                                 </div>
                                 <div className="action-dropdown dropdown mt-4 mr-2">
@@ -291,7 +294,7 @@ export default function Clients() {
                                                 getclients();
                                             }}
                                         >
-                                            All
+                                            {t("admin.global.All")}
                                         </button>
                                         {/* <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button>
                                     <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
@@ -303,7 +306,7 @@ export default function Clients() {
                                                 booknun("booked");
                                             }}
                                         >
-                                            Booked Customer
+                                            {t("admin.client.BookedCustomer")}
                                         </button>
                                         <button
                                             className="dropdown-item"
@@ -312,13 +315,15 @@ export default function Clients() {
                                                 booknun("notbooked");
                                             }}
                                         >
-                                            Not Booked Customer
+                                            {t(
+                                                "admin.client.NotBookedCustomer"
+                                            )}
                                         </button>
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => handleReport(e)}
                                         >
-                                            Export
+                                            {t("admin.client.Export")}
                                         </button>
                                     </div>
                                 </div>

@@ -10,6 +10,7 @@ import Services from "../../Components/Job/Services";
 import Comment from "../../Components/Job/Comment";
 import WorkerTiming from "../../Components/Job/WorkerTiming";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
+import { useTranslation } from "react-i18next";
 
 export default function ViewJob() {
     const params = useParams();
@@ -23,7 +24,7 @@ export default function ViewJob() {
     const handleCancel = () => {
         setIsOpenCancelModal(true);
     };
-
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -83,7 +84,9 @@ export default function ViewJob() {
                                             job.status == "cancel" ? (
                                                 <h4 className="text-danger float-right font-weight-bold mt-2">
                                                     {" "}
-                                                    Cancelled{" "}
+                                                    {t(
+                                                        "admin.schedule.jobs.Cancelled"
+                                                    )}
                                                 </h4>
                                             ) : (
                                                 <button
@@ -92,13 +95,17 @@ export default function ViewJob() {
                                                         handleCancel(e)
                                                     }
                                                 >
-                                                    Cancel
+                                                    {t(
+                                                        "admin.schedule.jobs.Cancel"
+                                                    )}
                                                 </button>
                                             )
                                         ) : (
                                             <h4 className="text-success float-right font-weight-bold mt-2">
                                                 {" "}
-                                                Completed{" "}
+                                                {t(
+                                                    "admin.schedule.jobs.Completed"
+                                                )}
                                             </h4>
                                         )}
                                     </div>
@@ -116,7 +123,7 @@ export default function ViewJob() {
                                         onClick={handleClick}
                                         className="btn btn-pink addButton"
                                     >
-                                        Back
+                                        {t("admin.schedule.jobs.Back")}
                                     </button>
                                 </div>
                             </div>

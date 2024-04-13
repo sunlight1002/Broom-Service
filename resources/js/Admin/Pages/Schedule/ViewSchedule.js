@@ -11,6 +11,7 @@ import axios from "axios";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 export default function ViewSchedule() {
     const [startDate, setStartDate] = useState(new Date());
@@ -35,6 +36,7 @@ export default function ViewSchedule() {
     const param = useParams();
     const alert = useAlert();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const queryParams = new URLSearchParams(window.location.search);
     const sid = queryParams.get("sid");
     const urlParamAction = queryParams.get("action");
@@ -323,7 +325,9 @@ export default function ViewSchedule() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <h1 className="page-title">Schedule Meeting</h1>
+                <h1 className="page-title">
+                    {t("admin.schedule.scheduleMetting")}
+                </h1>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row">
                         <div className="col-sm-8">
@@ -345,7 +349,9 @@ export default function ViewSchedule() {
                         </div>
                         <div className="col-sm-4">
                             <div className="form-group float-right xs-float-none">
-                                <label>Joined On</label>
+                                <label>
+                                    {t("admin.schedule.scheduleMetting")}
+                                </label>
                                 <p>
                                     {Moment(client.created_at).format(
                                         "DD/MM/Y"
@@ -358,28 +364,45 @@ export default function ViewSchedule() {
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Meeting Status
+                                    {t("admin.schedule.meetingStatus")}
                                 </label>
                                 <select
                                     className="form-control"
                                     id="status"
+                                    name="booking_status"
                                     value={bstatus}
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
                                         handleUpdate(e);
                                     }}
                                 >
-                                    <option value="pending">Pending</option>
-                                    <option value="confirmed">Confirmed</option>
-                                    <option value="declined">Declined</option>
-                                    <option value="completed">Completed</option>
+                                    <option value="pending">
+                                        {t(
+                                            "admin.schedule.options.meetingStatus.Pending"
+                                        )}
+                                    </option>
+                                    <option value="confirmed">
+                                        {t(
+                                            "admin.schedule.options.meetingStatus.Confirmed"
+                                        )}
+                                    </option>
+                                    <option value="declined">
+                                        {t(
+                                            "admin.schedule.options.meetingStatus.Declined"
+                                        )}
+                                    </option>
+                                    <option value="completed">
+                                        {t(
+                                            "admin.schedule.options.meetingStatus.Completed"
+                                        )}
+                                    </option>
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Meeting Attender
+                                    {t("admin.schedule.meetingAttender")}
                                 </label>
                                 <select
                                     className="form-control"
@@ -393,7 +416,9 @@ export default function ViewSchedule() {
                                     }}
                                 >
                                     <option value="0">
-                                        --- Please Select ---
+                                        {t(
+                                            "admin.schedule.options.pleaseSelect"
+                                        )}
                                     </option>
                                     {totalTeam &&
                                         totalTeam.map((t, i) => {
@@ -412,7 +437,7 @@ export default function ViewSchedule() {
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Meeting Purpose
+                                    {t("admin.schedule.meetingPurpose")}
                                 </label>
                                 <select
                                     className="form-control"
@@ -428,13 +453,17 @@ export default function ViewSchedule() {
                                         value="Price offer"
                                         selected={purpose == "Price offer"}
                                     >
-                                        Price offer
+                                        {t(
+                                            "admin.schedule.options.meetingPurpose.priceOffer"
+                                        )}
                                     </option>
                                     <option
                                         value="Quality check"
                                         selected={purpose == "Quality check"}
                                     >
-                                        Quality check
+                                        {t(
+                                            "admin.schedule.options.meetingPurpose.qualityCheck"
+                                        )}
                                     </option>
                                     <option
                                         value="Other"
@@ -444,7 +473,9 @@ export default function ViewSchedule() {
                                             purpose != null
                                         }
                                     >
-                                        Other
+                                        {t(
+                                            "admin.schedule.options.meetingPurpose.other"
+                                        )}
                                     </option>
                                 </select>
                             </div>
@@ -477,11 +508,11 @@ export default function ViewSchedule() {
                         </div>
                     </div>
                     <div className="mSchedule">
-                        <h4>Meeting date and time</h4>
+                        <h4>{t("admin.schedule.meetingTimeAndDate")}</h4>
                         <div className="row">
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Date</label>
+                                    <label> {t("admin.schedule.date")}</label>
                                     <DatePicker
                                         dateFormat="dd/MM/Y"
                                         selected={startDate}
@@ -505,7 +536,7 @@ export default function ViewSchedule() {
                         <div className="row">
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Meet Via</label>
+                                    <label>{t("admin.schedule.meetVia")}</label>
                                     <select
                                         name="meet_via"
                                         id="meet_via"
@@ -516,16 +547,24 @@ export default function ViewSchedule() {
                                         }}
                                         className="form-control"
                                     >
-                                        <option value="on-site">On site</option>
+                                        <option value="on-site">
+                                            {t(
+                                                "admin.schedule.options.meetVia.onSite"
+                                            )}
+                                        </option>
                                         <option value="off-site">
-                                            Off site
+                                            {t(
+                                                "admin.schedule.options.meetVia.offSite"
+                                            )}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Meet Link</label>
+                                    <label>
+                                        {t("admin.schedule.meetLink")}
+                                    </label>
                                     <input
                                         type="text"
                                         id="meet_link"
@@ -544,7 +583,9 @@ export default function ViewSchedule() {
                         <div className="row">
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Property</label>
+                                    <label>
+                                        {t("admin.schedule.Property")}
+                                    </label>
                                     <select
                                         name="address_id"
                                         id="address_id"
@@ -556,7 +597,9 @@ export default function ViewSchedule() {
                                         className="form-control"
                                     >
                                         <option value="null">
-                                            --- Please Select ---
+                                            {t(
+                                                "admin.schedule.options.pleaseSelect"
+                                            )}
                                         </option>
                                         {addresses.map((address, i) => (
                                             <option
@@ -575,13 +618,13 @@ export default function ViewSchedule() {
                                 className="btn btn-pink sendBtn"
                                 onClick={sendMeeting}
                             >
-                                Send meeting
+                                {t("admin.schedule.btnSend")}
                             </button>
                         </div>
 
                         <div className="worker-avail1">
                             <h4 className="text-center">
-                                Attender Availability
+                                {t("admin.schedule.workerAvailability")}
                             </h4>
                             <FullCalendar
                                 initialView="timeGridWeek"

@@ -4,11 +4,13 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function ScheduledMeeting() {
     const [schedules, setSchedules] = useState([]);
     const [loading, setLoading] = useState("Loading..");
     const param = useParams();
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -114,16 +116,20 @@ export default function ScheduledMeeting() {
                                     }}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    ID <span className="arr"> &darr; </span>
+                                    {t("admin.leads.viewLead.ID")}{" "}
+                                    <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Meeting Attender</th>
+                                <th>
+                                    {" "}
+                                    {t("admin.leads.viewLead.MeetingAttende")}
+                                </th>
                                 <th
                                     onClick={(e) => {
                                         sortTable(e, "start_date");
                                     }}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    Scheduled{" "}
+                                    {t("admin.leads.viewLead.Scheduled")}
                                     <span className="arr"> &darr; </span>
                                 </th>
                                 <th
@@ -132,9 +138,10 @@ export default function ScheduledMeeting() {
                                     }}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    Status <span className="arr"> &darr; </span>
+                                    {t("admin.leads.viewLead.Status")}{" "}
+                                    <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Action</th>
+                                <th>{t("admin.leads.viewLead.Action")}</th>
                             </tr>
                         </thead>
                         <tbody>

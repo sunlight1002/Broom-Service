@@ -8,18 +8,7 @@ import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
-
-const leadStatuses = [
-    "pending lead",
-    "potential lead",
-    "irrelevant",
-    "uninterested",
-    "unanswered",
-    "potential client",
-    "pending client",
-    "freeze client",
-    "active client",
-];
+import { useTranslation } from "react-i18next";
 
 export default function Lead() {
     const [leads, setLeads] = useState([]);
@@ -29,6 +18,18 @@ export default function Lead() {
     const [loading, setLoading] = useState("Loading...");
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
+    const leadStatuses = [
+        "pending lead",
+        "potential lead",
+        "irrelevant",
+        "uninterested",
+        "unanswered",
+        "potential client",
+        "pending client",
+        "freeze client",
+        "active client",
+    ];
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -211,7 +212,10 @@ export default function Lead() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Leads</h1>
+                            <h1 className="page-title">
+                                {" "}
+                                {t("admin.sidebar.leads")}
+                            </h1>
                         </div>
 
                         <div className="col-sm-6">
@@ -233,7 +237,7 @@ export default function Lead() {
                                                 getleads();
                                             }}
                                         >
-                                            All
+                                            {t("admin.leads.All")}
                                         </button>
                                         {leadStatuses.map((_status, _index) => {
                                             return (
@@ -266,7 +270,7 @@ export default function Lead() {
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
+                                    {t("admin.leads.AddNew")}
                                 </Link>
                             </div>
                         </div>
@@ -275,12 +279,24 @@ export default function Lead() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="id">ID</option>
-                                <option value="name">Name</option>
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                                <option value="status">Status</option>
+                                <option value="">
+                                    {t("admin.leads.Options.sortBy")}
+                                </option>
+                                <option value="id">
+                                    {t("admin.leads.Options.ID")}
+                                </option>
+                                <option value="name">
+                                    {t("admin.leads.Options.Name")}
+                                </option>
+                                <option value="email">
+                                    {t("admin.leads.Options.Email")}
+                                </option>
+                                <option value="phone">
+                                    {t("admin.leads.Options.Phone")}
+                                </option>
+                                <option value="status">
+                                    {t("admin.leads.Options.Status")}
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -297,7 +313,8 @@ export default function Lead() {
                                                     sortTable(e, "id");
                                                 }}
                                             >
-                                                ID{" "}
+                                                {t("admin.leads.Options.ID")}
+
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -308,7 +325,7 @@ export default function Lead() {
                                                     sortTable(e, "name");
                                                 }}
                                             >
-                                                Name{" "}
+                                                {t("admin.leads.Options.Name")}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -319,7 +336,7 @@ export default function Lead() {
                                                     sortTable(e, "email");
                                                 }}
                                             >
-                                                Email{" "}
+                                                {t("admin.leads.Options.Email")}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -330,7 +347,7 @@ export default function Lead() {
                                                     sortTable(e, "phone");
                                                 }}
                                             >
-                                                Phone{" "}
+                                                {t("admin.leads.Options.Phone")}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -341,13 +358,15 @@ export default function Lead() {
                                                     sortTable(e, "status");
                                                 }}
                                             >
-                                                Status{" "}
+                                                {t(
+                                                    "admin.leads.Options.Status"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>
                                             </Th>
-                                            <Th>Action</Th>
+                                            <Th>{t("admin.leads.Action")}</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -410,13 +429,17 @@ export default function Lead() {
                                                                         to={`/admin/leads/${item.id}/edit`}
                                                                         className="dropdown-item"
                                                                     >
-                                                                        Edit
+                                                                        {t(
+                                                                            "admin.leads.Edit"
+                                                                        )}
                                                                     </Link>
                                                                     <Link
                                                                         to={`/admin/view-lead/${item.id}`}
                                                                         className="dropdown-item"
                                                                     >
-                                                                        View
+                                                                        {t(
+                                                                            "admin.leads.view"
+                                                                        )}
                                                                     </Link>
                                                                     <button
                                                                         className="dropdown-item"
@@ -426,7 +449,9 @@ export default function Lead() {
                                                                             )
                                                                         }
                                                                     >
-                                                                        Delete
+                                                                        {t(
+                                                                            "admin.leads.Delete"
+                                                                        )}
                                                                     </button>
                                                                 </div>
                                                             </div>

@@ -7,6 +7,7 @@ import Select from "react-select";
 import Swal from "sweetalert2";
 
 import Map from "../Map/map";
+import { useTranslation } from "react-i18next";
 
 const addressMenu = [
     {
@@ -27,6 +28,7 @@ const PropertyAddress = memo(function PropertyAddress({
     setErrors,
 }) {
     const params = useParams();
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -333,7 +335,7 @@ const PropertyAddress = memo(function PropertyAddress({
                         className="btn btn-success"
                     >
                         {" "}
-                        + Add
+                        + {t("admin.leads.AddLead.addAddress.Add")}
                     </button>
                 </div>
             </div>
@@ -352,8 +354,12 @@ const PropertyAddress = memo(function PropertyAddress({
                         <Modal.Header closeButton>
                             <Modal.Title>
                                 {isAdd.current
-                                    ? "Add Property Address"
-                                    : "Edit Property Address"}
+                                    ? t(
+                                          "admin.leads.AddLead.addAddress.AddPropertyAddress"
+                                      )
+                                    : t(
+                                          "admin.leads.AddLead.addAddress.EditPropertyAddress"
+                                      )}
                             </Modal.Title>
                         </Modal.Header>
 
@@ -377,17 +383,24 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Full address
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.FullAddress"
+                                            )}
                                             <small className="text-pink mb-1">
-                                                &nbsp; (auto complete from
-                                                google address)
+                                                &nbsp; (
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.autocomplete"
+                                                )}
+                                                )
                                             </small>
                                         </label>
                                         <input
                                             ref={fullAddress}
                                             type="text"
                                             className="form-control"
-                                            placeholder="Full address"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.fullAddress"
+                                            )}
                                             // readOnly
                                         />
                                         {errors.address ? (
@@ -404,14 +417,18 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Name
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Name"
+                                            )}
                                         </label>
                                         <input
                                             name="address_name"
                                             ref={addressName}
                                             type="text"
                                             className="form-control"
-                                            placeholder="Address name"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.addressName"
+                                            )}
                                         />
                                         {errors.address_name ? (
                                             <small className="text-danger mb-1">
@@ -427,13 +444,17 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Floor
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Floor"
+                                            )}
                                         </label>
                                         <input
                                             type="text"
                                             ref={floor}
                                             className="form-control"
-                                            placeholder="Enter floor"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.floor"
+                                            )}
                                         />
                                         {errors.floor ? (
                                             <small className="text-danger mb-1">
@@ -449,13 +470,17 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Apt number and Apt name
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.AptNumberAndAptName"
+                                            )}
                                         </label>
                                         <input
                                             type="text"
                                             ref={Apt}
                                             className="form-control"
-                                            placeholder="Enter Apt number and Apt name"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.AptNumberAndAptName"
+                                            )}
                                         />
                                         {errors.Apt ? (
                                             <small className="text-danger mb-1">
@@ -471,13 +496,17 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Enterance code
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.EnteranceCode"
+                                            )}
                                         </label>
                                         <input
                                             type="text"
                                             ref={enterance}
                                             className="form-control"
-                                            placeholder="Enter enterance code"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.EnteranceCode"
+                                            )}
                                         />
                                         {errors.enterance ? (
                                             <small className="text-danger mb-1">
@@ -493,13 +522,17 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Zip code
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.ZipCode"
+                                            )}
                                         </label>
                                         <input
                                             type="text"
                                             ref={zip}
                                             className="form-control"
-                                            placeholder="Enter zip code"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.ZipCode"
+                                            )}
                                         />
                                         {errors.zip ? (
                                             <small className="text-danger mb-1">
@@ -515,7 +548,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Prefered Type
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.PreferedType"
+                                            )}
                                         </label>
                                         <select
                                             ref={prefer_type}
@@ -524,13 +559,27 @@ const PropertyAddress = memo(function PropertyAddress({
                                             defaultValue="default"
                                         >
                                             <option value="default">
-                                                Default
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.Options.PreferedType.Default"
+                                                )}
                                             </option>
                                             <option value="female">
-                                                Female
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.Options.PreferedType.Female"
+                                                )}
                                             </option>
-                                            <option value="male">Male</option>
-                                            <option value="both">Both</option>
+                                            <option value="male">
+                                                {" "}
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.Options.PreferedType.Male"
+                                                )}
+                                            </option>
+                                            <option value="both">
+                                                {" "}
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.Options.PreferedType.Both"
+                                                )}
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -550,7 +599,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 className="form-check-label"
                                                 htmlFor="isDogAvail"
                                             >
-                                                Is there Dog in the property ?
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.IsDOG"
+                                                )}
                                             </label>
                                         </div>
                                     </div>
@@ -571,7 +622,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 className="form-check-label"
                                                 htmlFor="isCatAvail"
                                             >
-                                                Is there Cat in the property ?
+                                                {t(
+                                                    "admin.leads.AddLead.addAddress.IsCat"
+                                                )}
                                             </label>
                                         </div>
                                     </div>
@@ -581,7 +634,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Not allowed workers
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.NotAllowedWorkers"
+                                            )}
                                         </label>
                                         <Select
                                             value={workers}
@@ -590,7 +645,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                             options={allWorkers}
                                             className="basic-multi-single "
                                             isClearable={true}
-                                            placeholder="--Please select--"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                            )}
                                             classNamePrefix="select"
                                             onChange={(newValue) =>
                                                 setWorkers(newValue)
@@ -625,14 +682,14 @@ const PropertyAddress = memo(function PropertyAddress({
                                     setModalStatus(false);
                                 }}
                             >
-                                Close
+                                {t("admin.leads.AddLead.addAddress.Close")}
                             </Button>
                             <Button
                                 type="button"
                                 onClick={(e) => handleAddress(e)}
                                 className="btn btn-primary"
                             >
-                                Save
+                                {t("admin.leads.AddLead.addAddress.Save")}
                             </Button>
                         </Modal.Footer>
                     </Modal>
@@ -645,10 +702,27 @@ const PropertyAddress = memo(function PropertyAddress({
                             <Table className="table table-bordered">
                                 <Thead>
                                     <Tr>
-                                        <Th>Name</Th>
-                                        <Th>Address</Th>
-                                        <Th>Zipcode</Th>
-                                        <Th>Action</Th>
+                                        <Th>
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Name"
+                                            )}
+                                        </Th>
+                                        <Th>
+                                            {" "}
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Address"
+                                            )}
+                                        </Th>
+                                        <Th>
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Zipcode"
+                                            )}
+                                        </Th>
+                                        <Th>
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Action"
+                                            )}
+                                        </Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -728,7 +802,9 @@ const PropertyAddress = memo(function PropertyAddress({
                             </Table>
                         ) : (
                             <p className="text-center mt-5">
-                                {"Address not found!"}
+                                {t(
+                                    "admin.leads.AddLead.addAddress.AddressNotFound"
+                                )}
                             </p>
                         )}
                     </div>

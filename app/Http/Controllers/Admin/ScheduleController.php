@@ -274,9 +274,17 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $schedule = Schedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Meeting not found',
+            ], 404);
+        }
+
         $change = '';
         if ($request->name == 'start_date') {
-            Schedule::where('id', $id)->update([
+            $schedule->update([
                 'booking_status' => 'pending',
                 'start_date'     => $request->value,
                 'start_time'     => '',
@@ -284,11 +292,15 @@ class ScheduleController extends Controller
             ]);
             $change = 'date';
         } else {
-            Schedule::where('id', $id)->update([
+            $schedule->update([
                 $request->name => $request->value
             ]);
             $change = "other";
         }
+
+        $schedule->load(['client', 'team', 'propertyAddress']);
+
+        $this->saveGoogleCalendarEvent($schedule);
 
         return response()->json([
             'message' => str_replace('_', ' ', $request->name) . " has been updated",

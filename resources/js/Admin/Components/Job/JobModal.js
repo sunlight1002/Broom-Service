@@ -2,6 +2,7 @@ import { useEffect, memo, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 const slot = [
     { value: "fullday-8am-16pm", label: "fullday-8am-16pm" },
@@ -60,6 +61,7 @@ const JobModal = memo(function JobModal({
     const [workers, setWorkers] = useState([]);
     const [toggleOtherService, setToggleOtherService] = useState(false);
     const alert = useAlert();
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -427,7 +429,11 @@ const JobModal = memo(function JobModal({
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>{isAdd ? "Add Job" : "Edit Job"}</Modal.Title>
+                <Modal.Title>
+                    {isAdd
+                        ? t("admin.leads.AddLead.JobModal.AddJob")
+                        : t("admin.leads.AddLead.JobModal.EditJob")}
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -435,7 +441,9 @@ const JobModal = memo(function JobModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Property address
+                                {t(
+                                    "admin.leads.AddLead.JobModal.PropertyAddress"
+                                )}
                             </label>
                             <select
                                 className="form-control"
@@ -445,7 +453,11 @@ const JobModal = memo(function JobModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="">--Please select--</option>
+                                <option value="">
+                                    {t(
+                                        "admin.leads.AddLead.JobModal.pleaseSelect"
+                                    )}
+                                </option>
                                 {addresses.map((address, i) => (
                                     <option value={address.id} key={i}>
                                         {address.address_name}
@@ -458,7 +470,10 @@ const JobModal = memo(function JobModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Service</label>
+                            <label className="control-label">
+                                {" "}
+                                {t("admin.leads.AddLead.JobModal.Service")}
+                            </label>
                             <select
                                 name="service"
                                 className="form-control"
@@ -472,7 +487,12 @@ const JobModal = memo(function JobModal({
                                     }
                                 }}
                             >
-                                <option value={0}> -- Please select --</option>
+                                <option value={0}>
+                                    {" "}
+                                    {t(
+                                        "admin.leads.AddLead.JobModal.pleaseSelect"
+                                    )}
+                                </option>
                                 {AllServices &&
                                     AllServices.map((s, i) => {
                                         return (
@@ -495,7 +515,9 @@ const JobModal = memo(function JobModal({
                                     type="text"
                                     name="other_title"
                                     id={`other_title`}
-                                    placeholder="Service Title"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.JobModal.placeHolder.serviceTiitle"
+                                    )}
                                     className="form-control"
                                     value={tmpFormValues.other_title || ""}
                                     onChange={(e) => handleInputChange(e)}
@@ -507,7 +529,10 @@ const JobModal = memo(function JobModal({
                 <div className="row">
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">Type</label>
+                            <label className="control-label">
+                                {" "}
+                                {t("admin.leads.AddLead.JobModal.Type")}
+                            </label>
                             <select
                                 name="type"
                                 className="form-control"
@@ -516,14 +541,25 @@ const JobModal = memo(function JobModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="fixed">Fixed</option>
-                                <option value="hourly">Hourly</option>
+                                <option value="fixed">
+                                    {t(
+                                        "admin.leads.AddLead.Options.Type.Fixed"
+                                    )}
+                                </option>
+                                <option value="hourly">
+                                    {t(
+                                        "admin.leads.AddLead.Options.Type.Hourly"
+                                    )}
+                                </option>
                             </select>
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">Job Hours</label>
+                            <label className="control-label">
+                                {" "}
+                                {t("admin.leads.AddLead.JobModal.JobHours")}
+                            </label>
                             <input
                                 type="number"
                                 name="jobHours"
@@ -531,13 +567,17 @@ const JobModal = memo(function JobModal({
                                 onChange={(e) => handleInputChange(e)}
                                 className="form-control jobhr"
                                 required
-                                placeholder="Enter job Hrs"
+                                placeholder={t(
+                                    "admin.leads.AddLead.JobModal.placeHolder.JobHours"
+                                )}
                             />
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">Price</label>
+                            <label className="control-label">
+                                {t("admin.leads.AddLead.JobModal.Price")}
+                            </label>
                             {tmpFormValues.type !== "hourly" && (
                                 <input
                                     type="number"
@@ -546,7 +586,9 @@ const JobModal = memo(function JobModal({
                                     onChange={(e) => handleInputChange(e)}
                                     className="form-control jobprice"
                                     required
-                                    placeholder="Enter job price"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.JobModal.placeHolder.Price"
+                                    )}
                                 />
                             )}
                             {tmpFormValues.type === "hourly" && (
@@ -557,7 +599,9 @@ const JobModal = memo(function JobModal({
                                     onChange={(e) => handleInputChange(e)}
                                     className="form-control jobrate"
                                     required
-                                    placeholder="Enter rate P/Hr"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.JobModal.placeHolder.rateperhour"
+                                    )}
                                 />
                             )}
                         </div>
@@ -566,14 +610,22 @@ const JobModal = memo(function JobModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Frequency</label>
+                            <label className="control-label">
+                                {" "}
+                                {t("admin.leads.AddLead.JobModal.Frequency")}
+                            </label>
                             <select
                                 name="frequency"
                                 className="form-control mb-2"
                                 value={tmpFormValues.frequency || 0}
                                 onChange={(e) => handleInputChange(e)}
                             >
-                                <option value={0}> -- Please select --</option>
+                                <option value={0}>
+                                    {" "}
+                                    {t(
+                                        "admin.leads.AddLead.JobModal.pleaseSelect"
+                                    )}
+                                </option>
                                 {AllFreq &&
                                     AllFreq.map((s, i) => {
                                         return (
@@ -599,7 +651,9 @@ const JobModal = memo(function JobModal({
                                     : "none",
                             }}
                         >
-                            <label className="control-label">Start from</label>
+                            <label className="control-label">
+                                {t("admin.leads.AddLead.JobModal.StartFrom")}
+                            </label>
                             <input
                                 type="date"
                                 name="start_date"
@@ -618,7 +672,10 @@ const JobModal = memo(function JobModal({
                             }}
                         >
                             <div className="d-inline">
-                                <span> On </span>
+                                <span>
+                                    {" "}
+                                    {t("admin.leads.AddLead.JobModal.On")}{" "}
+                                </span>
 
                                 <select
                                     name="weekday"
@@ -661,7 +718,10 @@ const JobModal = memo(function JobModal({
                                     }
                                 />
 
-                                <span> Day </span>
+                                <span>
+                                    {" "}
+                                    {t("admin.leads.AddLead.JobModal.Day")}{" "}
+                                </span>
 
                                 <select
                                     name="month_date"
@@ -685,7 +745,12 @@ const JobModal = memo(function JobModal({
                                         showMonthOption ? "d-inline" : "d-none"
                                     }
                                 >
-                                    <span> of </span>
+                                    <span>
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.JobModal.of"
+                                        )}{" "}
+                                    </span>
 
                                     <select
                                         name="month_occurrence"
@@ -704,7 +769,12 @@ const JobModal = memo(function JobModal({
                                         })}
                                     </select>
 
-                                    <span> month</span>
+                                    <span>
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.JobModal.month"
+                                        )}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -731,7 +801,10 @@ const JobModal = memo(function JobModal({
                                     }
                                 />
 
-                                <span> The </span>
+                                <span>
+                                    {" "}
+                                    {t("admin.leads.AddLead.JobModal.The")}{" "}
+                                </span>
 
                                 <select
                                     name="weekday_occurrence"
@@ -772,7 +845,12 @@ const JobModal = memo(function JobModal({
                                         showMonthOption ? "d-inline" : "d-none"
                                     }
                                 >
-                                    <span> of </span>
+                                    <span>
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.JobModal.of"
+                                        )}{" "}
+                                    </span>
 
                                     <select
                                         name="month_occurrence"
@@ -791,7 +869,12 @@ const JobModal = memo(function JobModal({
                                         })}
                                     </select>
 
-                                    <span> month</span>
+                                    <span>
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.JobModal.month"
+                                        )}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -813,7 +896,9 @@ const JobModal = memo(function JobModal({
                                 options={frequencyDays}
                                 className="basic-multi-single "
                                 isClearable={true}
-                                placeholder="--Please select--"
+                                placeholder={t(
+                                    "admin.leads.AddLead.JobModal.pleaseSelect"
+                                )}
                                 classNamePrefix="select"
                                 onChange={(newValue, actionMeta) => {
                                     const e = {
@@ -837,7 +922,9 @@ const JobModal = memo(function JobModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Worker</label>
+                            <label className="control-label">
+                                {t("admin.leads.AddLead.JobModal.Worker")}
+                            </label>
                             <select
                                 name="worker"
                                 className="form-control  mb-2"
@@ -846,7 +933,11 @@ const JobModal = memo(function JobModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="">--Please select--</option>
+                                <option value="">
+                                    {t(
+                                        "admin.leads.AddLead.JobModal.pleaseSelect"
+                                    )}
+                                </option>
                                 {workers.map((w, i) => {
                                     return (
                                         <option
@@ -870,7 +961,9 @@ const JobModal = memo(function JobModal({
                                 options={slot}
                                 className="basic-multi-single "
                                 isClearable={true}
-                                placeholder="--Please select--"
+                                placeholder={t(
+                                    "admin.leads.AddLead.JobModal.pleaseSelect"
+                                )}
                                 classNamePrefix="select"
                                 onChange={(newValue, actionMeta) => {
                                     const e = {
@@ -895,14 +988,14 @@ const JobModal = memo(function JobModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("admin.leads.AddLead.JobModal.Close")}
                 </Button>
                 <Button
                     type="button"
                     onClick={handleOnSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("admin.leads.AddLead.JobModal.Save")}
                 </Button>
             </Modal.Footer>
         </Modal>

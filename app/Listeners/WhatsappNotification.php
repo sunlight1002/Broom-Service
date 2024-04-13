@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Event\WhatsappNotificationEvent;
+use App\Events\WhatsappNotificationEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -21,7 +21,7 @@ class WhatsappNotification
     /**
      * Handle the event.
      *
-     * @param  \App\Event\WhatsappNotificationEvent  $event
+     * @param  \App\Events\WhatsappNotificationEvent  $event
      * @return void
      */
     public function handle(WhatsappNotificationEvent $event)

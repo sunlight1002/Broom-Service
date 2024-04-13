@@ -25,6 +25,8 @@ Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
 Route::post('work-contract', [AuthController::class, 'WorkContract']);
 Route::post('form101', [AuthController::class, 'form101']);
 Route::get('get101/{id}', [AuthController::class, 'get101']);
+Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
+Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
