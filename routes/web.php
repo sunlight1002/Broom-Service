@@ -34,6 +34,7 @@ Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
 Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
+Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
 
 // Auth::routes();
 Route::any('/{path?}', function () {
