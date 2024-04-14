@@ -15,6 +15,7 @@ export default function Document() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
     const [isDocToggle, setIsDocToggle] = useState(false);
+    const [alldocumentTypes, setAllDocumentTypes] = useState([]);
     const [documentTypes, setDocumentTypes] = useState([]);
     const [user, setUser] = useState({});
 
@@ -61,27 +62,41 @@ export default function Document() {
     const getDocumentTypes = () => {
         axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
+                setAllDocumentTypes(res.data.documentTypes);
                 setDocumentTypes(res.data.documentTypes);
             }
         });
     };
+
     useEffect(() => {
         getDocuments();
-        if (!documentTypes.length) {
-            getDocumentTypes();
-        }
+        getDocumentTypes();
     }, []);
 
     const handleDocToggle = () => {
         if (!isDocToggle) {
             if (
-                !user.visa ||
-                !user.passport ||
-                user.visa === "" ||
-                user.passport === ""
+                user.country !== "Israel" &&
+                (!user.visa ||
+                    !user.passport ||
+                    user.visa === "" ||
+                    user.passport === "")
             ) {
                 alert.error("Please add required document : visa & passport");
                 return;
+            }
+
+            if (user.country !== "Israel") {
+                setDocumentTypes(
+                    alldocumentTypes.filter(
+                        (i) =>
+                            !["pension-form", "training-fund-form"].includes(
+                                i.slug
+                            )
+                    )
+                );
+            } else {
+                setDocumentTypes(alldocumentTypes);
             }
         }
         setIsDocToggle((prev) => !prev);
@@ -129,7 +144,7 @@ export default function Document() {
             aria-labelledby="customer-notes-tab"
         >
             <div className="text-right pb-3">
-                {user.country && user.country === "Israel" && (
+                {user.country !== "Israel" && (
                     <>
                         {user.visa === null && (
                             <>
@@ -144,6 +159,7 @@ export default function Document() {
                                     className="form-control d-none"
                                     id="visaSelect"
                                     type="file"
+                                    accept="application/pdf"
                                     onChange={(e) =>
                                         handleFileChange(e, "visa")
                                     }
@@ -163,6 +179,7 @@ export default function Document() {
                                     className="form-control d-none"
                                     id="passportSelect"
                                     type="file"
+                                    accept="application/pdf"
                                     onChange={(e) =>
                                         handleFileChange(e, "passport")
                                     }

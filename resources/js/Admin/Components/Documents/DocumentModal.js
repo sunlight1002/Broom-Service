@@ -75,6 +75,7 @@ const DocumentModal = ({
                                 ref={docFile}
                                 className="form-control"
                                 type="file"
+                                accept="application/pdf"
                                 id="cmtFiles"
                             />
                         </div>
