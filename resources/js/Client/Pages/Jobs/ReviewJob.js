@@ -217,8 +217,8 @@ export default function ReviewJob() {
                                                     onClick={(e) => {
                                                         console.log(e);
                                                         setFormValues({
-                                                            rating: e,
                                                             ...formValues,
+                                                            rating: e,
                                                         });
                                                     }}
                                                     allowFraction
