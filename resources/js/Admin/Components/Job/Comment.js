@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 export default function Comment() {
     let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
-    const [role, setRole] = useState("");
+    const [commentFor, setCommentFor] = useState("");
     const [allClientComment, setAllClientComment] = useState([]);
     const [allWorkerComment, setAllWorkerComment] = useState([]);
     const param = useParams();
@@ -23,7 +23,7 @@ export default function Comment() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (role == "") {
+        if (commentFor == "") {
             window.alert("Please Select Comment For.");
             return;
         }
@@ -34,7 +34,7 @@ export default function Comment() {
         const data = new FormData();
         data.append("job_id", param.id);
         data.append("comment", comment);
-        data.append("role", role);
+        data.append("comment_for", commentFor);
         data.append("name", localStorage.getItem("admin-name"));
         if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
             for (
@@ -57,7 +57,7 @@ export default function Comment() {
                 alert.success(res.data.message);
                 getComments();
                 setComment("");
-                setRole("");
+                setCommentFor("");
             }
         });
     };
@@ -402,9 +402,9 @@ export default function Comment() {
                                             )}
                                         </label>
                                         <select
-                                            value={role}
+                                            value={commentFor}
                                             onChange={(e) =>
-                                                setRole(e.target.value)
+                                                setCommentFor(e.target.value)
                                             }
                                             className="form-control"
                                         >
@@ -436,9 +436,9 @@ export default function Comment() {
                                         <textarea
                                             type="text"
                                             value={comment}
-                                            onChange={(e) =>
-                                                setComment(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setComment(e.target.value);
+                                            }}
                                             className="form-control"
                                             required
                                             placeholder="Enter Comment"

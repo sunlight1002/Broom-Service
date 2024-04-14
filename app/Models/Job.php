@@ -48,6 +48,9 @@ class Job extends Model
         'previous_worker_after',
         'previous_shifts',
         'previous_shifts_after',
+        'job_opening_timestamp',
+        'rating',
+        'review',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
@@ -55,7 +58,6 @@ class Job extends Model
         'cancelled_at',
         'cancelled_for',
         'cancel_until_date',
-        'job_opening_timestamp'
     ];
 
     /**

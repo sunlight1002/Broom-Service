@@ -11,7 +11,11 @@ import ClientSidebar from "../../Layouts/ClientSidebar";
 export default function ReviewJob() {
     const params = useParams();
     const [job, setJob] = useState(null);
-    const [rate, setRate] = useState(0);
+    const [formValues, setFormValues] = useState({
+        rating: 0,
+        review: "",
+    });
+
     const jobId = Base64.decode(params.id);
     const lng = localStorage.getItem("i18nextLng");
 
@@ -37,6 +41,30 @@ export default function ReviewJob() {
             });
     };
 
+    const handleSubmit = () => {
+        const _data = {
+            rating,
+        };
+
+        axios
+            .post(`/api/client/jobs/${jobId}/review`, {}, { headers })
+            .then((response) => {
+                const _job = response.data.job;
+                setJob(_job);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+
+    useEffect(() => {
+        console.log("formValues", formValues);
+    }, [formValues]);
+
     useEffect(() => {
         getJob();
     }, []);
@@ -47,7 +75,7 @@ export default function ReviewJob() {
             <div id="content">
                 <div className="view-applicant">
                     <h1 className="page-title editJob">
-                        Review And Rating Job
+                        Review and Rating Job
                     </h1>
                     <div id="calendar"></div>
                     <div className="card">
@@ -57,13 +85,17 @@ export default function ReviewJob() {
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Services</label>
+                                                <label className="control-label">
+                                                    Services
+                                                </label>
                                                 <p>{job.jobservice.name}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Frequency</label>
+                                                <label className="control-label">
+                                                    Frequency
+                                                </label>
                                                 <p>
                                                     {job.jobservice.freq_name}
                                                 </p>
@@ -71,7 +103,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Time to Complete</label>
+                                                <label className="control-label">
+                                                    Time to Complete
+                                                </label>
                                                 <p>
                                                     {job.jobservice.jobHours}{" "}
                                                     hours
@@ -80,7 +114,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label className="control-label">Property</label>
+                                                <label className="control-label">
+                                                    Property
+                                                </label>
                                                 <p>
                                                     {
                                                         job.property_address
@@ -91,7 +127,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label className="control-label">Pet animals</label>
+                                                <label className="control-label">
+                                                    Pet animals
+                                                </label>
                                                 <p>
                                                     {job.property_address
                                                         .is_cat_avail
@@ -110,7 +148,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label className="control-label">Gender preference</label>
+                                                <label className="control-label">
+                                                    Gender preference
+                                                </label>
                                                 <p
                                                     style={{
                                                         textTransform:
@@ -128,7 +168,9 @@ export default function ReviewJob() {
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Worker</label>
+                                                <label className="control-label">
+                                                    Worker
+                                                </label>
                                                 {job.worker ? (
                                                     <p>
                                                         {job.worker.firstname +
@@ -142,7 +184,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Date</label>
+                                                <label className="control-label">
+                                                    Date
+                                                </label>
                                                 <p>
                                                     {moment(job.start_date)
                                                         .toString()
@@ -152,7 +196,9 @@ export default function ReviewJob() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label className="control-label">Shift</label>
+                                                <label className="control-label">
+                                                    Shift
+                                                </label>
                                                 <p>{job.shifts}</p>
                                             </div>
                                         </div>
@@ -160,11 +206,21 @@ export default function ReviewJob() {
                                     <hr />
                                     <div className="row">
                                         <div className="form-group px-3">
-                                            <label className="control-label">Rating</label>
+                                            <label className="control-label">
+                                                Rating
+                                            </label>
                                             <div>
                                                 <Rating
-                                                    initialValue={rate}
-                                                    onClick={(e) => setRate(e)}
+                                                    initialValue={
+                                                        formValues.rating
+                                                    }
+                                                    onClick={(e) => {
+                                                        console.log(e);
+                                                        setFormValues({
+                                                            rating: e,
+                                                            ...formValues,
+                                                        });
+                                                    }}
                                                     allowFraction
                                                     transition
                                                     rtl={lng === "heb"}
@@ -175,11 +231,22 @@ export default function ReviewJob() {
                                     <div className="row">
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">Review</label>
+                                                <label className="control-label">
+                                                    Review
+                                                </label>
                                                 <textarea
                                                     className="form-control"
                                                     rows="5"
                                                     placeholder="Review"
+                                                    value={formValues.review}
+                                                    onChange={(e) => {
+                                                        console.log(e);
+                                                        setFormValues({
+                                                            review: e.target
+                                                                .value,
+                                                            ...formValues,
+                                                        });
+                                                    }}
                                                 ></textarea>
                                             </div>
                                         </div>
@@ -188,8 +255,9 @@ export default function ReviewJob() {
                                     <div className="row">
                                         <div className="col-sm-12">
                                             <button
-                                                type="submit"
+                                                type="button"
                                                 className="btn btn-primary"
+                                                onClick={handleSubmit}
                                             >
                                                 Submit
                                             </button>

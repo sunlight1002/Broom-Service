@@ -105,10 +105,26 @@ class JobController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $job = Job::with('client', 'worker', 'jobservice')->find($id);
+        $job = Job::with(['client', 'worker', 'jobservice'])
+            ->where('worker_id', Auth::id())
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        $job->update([
+            'status' => JobStatusEnum::COMPLETED
+        ]);
         //$this->invoice($id);
-        $job->status = JobStatusEnum::COMPLETED;
-        $job->save();
 
         $admin = Admin::find(1)->first();
         App::setLocale('en');

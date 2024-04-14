@@ -118,6 +118,10 @@ return [
         'cancellation_fee' => 'With Cancellation fees ',
         'btn_txt'     => 'Check Contract',
         'thanks_text'   => 'Thanks',
+        'job_completed' => 'Your job has been completed',
+        'review_request' => 'Please, rate us and send your review',
+        'review' => 'Review',
+        'job_completed_subject'     => 'Job Completed | Broom Service',
     ],
     'worker_new_job' => [
         'subject'     => 'Job Details with',

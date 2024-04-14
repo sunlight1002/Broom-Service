@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Client;
 
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +20,23 @@ class JobCommentController extends Controller
      */
     public function index(request $request)
     {
+        $jobID = base64_decode($request->id);
+
         $comments = JobComments::query()
             ->with(['attachments'])
-            ->where('job_id', base64_decode($request->id))
-            ->where('role', 'client')
-            ->orderBy('id', 'desc')
+            ->where('job_id', $jobID)
+            ->where(function ($q) {
+                $q
+                    ->where('comment_for', 'client')
+                    ->orWhereHasMorph(
+                        'commenter',
+                        [Client::class],
+                        function (Builder $query) {
+                            $query->where('commenter_id', Auth::id());
+                        }
+                    );
+            })
+            ->latest()
             ->get();
 
         return response()->json([
@@ -49,7 +64,7 @@ class JobCommentController extends Controller
         $comment = new JobComments();
         $comment->name = $request->name;
         $comment->job_id = base64_decode($request->job_id);
-        $comment->role = 'client';
+        $comment->comment_for = 'worker';
         $comment->comment = $request->comment;
         $comment->save();
         $filesArr = $request->file('files');
@@ -80,14 +95,30 @@ class JobCommentController extends Controller
      */
     public function destroy($id)
     {
-        $commentObj = JobComments::find($id);
-        foreach ($commentObj->attachments()->get() as $attachment) {
+        $comment = JobComments::query()
+            ->whereHasMorph(
+                'commenter',
+                [Client::class],
+                function (Builder $query) {
+                    $query->where('commenter_id', Auth::id());
+                }
+            )
+            ->find($id);
+
+        if (!$comment) {
+            return response()->json([
+                'message' => 'Comment not found'
+            ]);
+        }
+
+        foreach ($comment->attachments()->get() as $attachment) {
             if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file)) {
                 Storage::drive('public')->delete('uploads/attachments/' . $attachment->file);
             }
             $attachment->delete();
         }
-        $commentObj->delete();
+        $comment->delete();
+
         return response()->json([
             'message' => 'Comment has been deleted successfully'
         ]);
