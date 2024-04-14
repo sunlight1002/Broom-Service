@@ -539,10 +539,8 @@ export default function TotalJobs() {
                                         }}
                                     >
                                         <option value="">All</option>
-                                        <option value="paid">Only Paid</option>
-                                        <option value="unpaid">
-                                            Only Unpaid
-                                        </option>
+                                        <option value="1">Only Paid</option>
+                                        <option value="0">Only Unpaid</option>
                                     </select>
                                 </div>
                                 <div

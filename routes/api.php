@@ -6,6 +6,7 @@ use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
+use App\Http\Controllers\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -25,6 +26,8 @@ Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
 Route::post('work-contract', [AuthController::class, 'WorkContract']);
 Route::post('form101', [AuthController::class, 'form101']);
 Route::get('get101/{id}', [AuthController::class, 'get101']);
+Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
+Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
@@ -49,4 +52,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('details', [AuthController::class, 'details']);
     Route::post('profile', [AuthController::class, 'updateProfile']);
+
+    Route::get('document/{id}', [DocumentController::class, 'documents']);
 });

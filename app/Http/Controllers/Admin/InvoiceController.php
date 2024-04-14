@@ -521,6 +521,11 @@ class InvoiceController extends Controller
             'status'      => $data['status']
         ]);
 
+        Job::where('order_id', $order->id)
+            ->update([
+                'is_paid' => true
+            ]);
+
         return response()->json([
             'message' => 'Invoice updated successfully'
         ]);
@@ -844,6 +849,13 @@ class InvoiceController extends Controller
             'status' => 'Closed',
             'invoice_status' => 2
         ]);
+
+        if ($doctype == 'invrec') {
+            Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+        }
 
         return response()->json([
             'message' => 'Invoice generated successfully'

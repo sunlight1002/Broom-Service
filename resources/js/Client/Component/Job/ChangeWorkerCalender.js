@@ -167,43 +167,56 @@ export default function ChangeWorkerCalender({ job }) {
     }
 
     const changeShift = (w_id, date, e) => {
-        setWorkerData([...workerData, { ...e, w_id, date }]);
-        e = [
-            ...workerData.filter((d) => d.date == date && d.w_id == w_id),
-            { ...e, w_id, date },
-        ];
-        let w_n = $("#worker-" + w_id).html();
-        let filtered = data.filter((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return false;
-            } else {
-                return d;
-            }
-        });
-        let shifts = "";
-        e.forEach((v) => {
-            if (shifts == "") {
-                shifts = v.label;
-            } else {
-                shifts += "," + v.label;
-            }
-        });
-
-        var newdata;
-        if (shifts != "") {
-            newdata = [
-                ...filtered,
-                {
-                    worker_id: w_id,
-                    worker_name: w_n,
-                    date: date,
-                    shifts: shifts,
-                },
+        if (
+            data.length === 0 ||
+            (data.length > 0 &&
+                data[0].worker_id == w_id &&
+                data[0].date == date)
+        ) {
+            setWorkerData([...workerData, { ...e, w_id, date }]);
+            e = [
+                ...workerData.filter((d) => d.date == date && d.w_id == w_id),
+                { ...e, w_id, date },
             ];
+            let w_n = $("#worker-" + w_id).html();
+            let filtered = data.filter((d) => {
+                if (d.date == date && d.worker_id == w_id) {
+                    return false;
+                } else {
+                    return d;
+                }
+            });
+            let shifts = "";
+            e.forEach((v) => {
+                if (shifts == "") {
+                    shifts = v.label;
+                } else {
+                    shifts += "," + v.label;
+                }
+            });
+
+            var newdata;
+            if (shifts != "") {
+                newdata = [
+                    ...filtered,
+                    {
+                        worker_id: w_id,
+                        worker_name: w_n,
+                        date: date,
+                        shifts: shifts,
+                    },
+                ];
+            } else {
+                newdata = [...filtered];
+            }
+            setData(newdata);
         } else {
-            newdata = [...filtered];
+            Swal.fire({
+                title: "Error!",
+                text: "You can't select multiple workers and multiple date",
+                icon: "error",
+            });
         }
-        setData(newdata);
     };
     const removeShift = (w_id, date, e) => {
         let filtered = data.find((d) => {
@@ -230,13 +243,22 @@ export default function ChangeWorkerCalender({ job }) {
                     tmpworker.splice(indexWorker, 1);
                     setWorkerData(tmpworker);
                 }
-                setData(
-                    data.map((item) =>
-                        item.date === date && item.worker_id === w_id
-                            ? { ...item, shifts: shift.join(",") }
-                            : item
-                    )
-                );
+                if (shift.length > 0) {
+                    setData(
+                        data.map((item) =>
+                            item.date === date && item.worker_id === w_id
+                                ? { ...item, shifts: shift.join(",") }
+                                : item
+                        )
+                    );
+                } else {
+                    setData(
+                        data.filter(
+                            (item) =>
+                                item.date !== date && item.worker_id !== w_id
+                        )
+                    );
+                }
             }
         }
     };

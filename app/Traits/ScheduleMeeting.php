@@ -3,7 +3,8 @@
 namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
-use App\Event\WhatsappNotificationEvent;
+use App\Enums\MeetingStatusWithColorIDEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Exception;
@@ -88,6 +89,7 @@ trait ScheduleMeeting
             'end' => [
                 'timeZone' => $userTimezone,
             ],
+            'colorId' => MeetingStatusWithColorIDEnum::status[$schedule->booking_status],
             // 'attendees' => array(
             //     array('email' => 'demo01@example.com'),
             //     array('email' => 'demo02@example.com'),

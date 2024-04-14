@@ -4,12 +4,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function notes() {
     const [note, setNote] = useState("");
     const [AllNotes, setAllNotes] = useState([]);
     const param = useParams();
     const alert = useAlert();
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -96,7 +98,7 @@ export default function notes() {
                     data-toggle="modal"
                     data-target="#exampleModalNote"
                 >
-                    Add Comment
+                    {t("admin.leads.leadDetails.Note.AddComment")}
                 </button>
             </div>
             {AllNotes &&
@@ -177,7 +179,7 @@ export default function notes() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalNote">
-                                Add Comment
+                                {t("admin.leads.leadDetails.Note.AddComment")}
                             </h5>
                             <button
                                 type="button"
@@ -193,7 +195,9 @@ export default function notes() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Comment
+                                            {t(
+                                                "admin.leads.leadDetails.Note.Comment"
+                                            )}
                                         </label>
                                         <textarea
                                             type="text"
@@ -203,7 +207,9 @@ export default function notes() {
                                             }
                                             className="form-control"
                                             required
-                                            placeholder="Enter Comment"
+                                            placeholder={t(
+                                                "admin.leads.leadDetails.Note.placeHolder.comment"
+                                            )}
                                         ></textarea>
                                     </div>
                                 </div>
@@ -213,7 +219,9 @@ export default function notes() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Mark if Important
+                                            {t(
+                                                "admin.leads.leadDetails.Note.markImp"
+                                            )}
                                         </label>
                                         <input
                                             type="checkbox"
@@ -233,14 +241,14 @@ export default function notes() {
                                 className="btn btn-secondary closeb1"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("admin.leads.leadDetails.Note.Close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleNote}
                                 className="btn btn-primary"
                             >
-                                Save Comment
+                                {t("admin.leads.leadDetails.Note.saveComment")}
                             </button>
                         </div>
                     </div>

@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Api\LeadWebhookController;
+use App\Http\Controllers\DocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -257,4 +258,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('settings', [SettingController::class, 'allSettings']);
     Route::post('settings', [SettingController::class, 'updateSettings']);
     Route::post('update-shift', [ClientController::class, 'updateShift']);
+
+    //documents
+    Route::get('documents/{id}', [DocumentController::class, 'documents']);
+    Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
+    Route::post('document/save', [DocumentController::class, 'save']);
+    Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
 });

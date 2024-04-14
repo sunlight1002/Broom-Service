@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Moment from "moment";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import { useTranslation } from "react-i18next";
 
 export default function () {
     const [data, setData] = useState([]);
@@ -10,6 +11,7 @@ export default function () {
     const [NpageCount, setNPageCount] = useState(0);
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState("Loading...");
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -164,7 +166,7 @@ export default function () {
                         aria-selected="true"
                         role="tab"
                     >
-                        Pending Meetings
+                        {t("admin.dashboard.pending.meetings")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -177,7 +179,7 @@ export default function () {
                         aria-selected="false"
                         role="tab"
                     >
-                        Pending Contracts
+                        {t("admin.dashboard.pending.contracts")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -190,7 +192,7 @@ export default function () {
                         aria-selected="false"
                         role="tab"
                     >
-                        Pending Offers
+                        {t("admin.dashboard.pending.offers")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -203,7 +205,7 @@ export default function () {
                         aria-selected="false"
                         role="tab"
                     >
-                        Notifications
+                        {t("admin.dashboard.pending.notifications")}
                     </a>
                 </li>
             </ul>
@@ -225,23 +227,39 @@ export default function () {
                                                 sortTable(e, "id");
                                             }}
                                         >
-                                            ID{" "}
+                                            {t("admin.dashboard.pending.id")}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>
                                         </th>
-                                        <th>Client</th>
-                                        <th>Contact</th>
-                                        <th>Address</th>
-                                        <th>Meeting Attender</th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.client")}
+                                        </th>
+                                        <th>
+                                            {t(
+                                                "admin.dashboard.pending.contact"
+                                            )}
+                                        </th>
+                                        <th>
+                                            {t(
+                                                "admin.dashboard.pending.address"
+                                            )}
+                                        </th>
+                                        <th>
+                                            {t(
+                                                "admin.dashboard.pending.meetingAttender"
+                                            )}
+                                        </th>
                                         <th
                                             style={{ cursor: "pointer" }}
                                             onClick={(e) => {
                                                 sortTable(e, "start_date");
                                             }}
                                         >
-                                            Scheduled{" "}
+                                            {t(
+                                                "admin.dashboard.pending.scheduled"
+                                            )}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
@@ -253,13 +271,16 @@ export default function () {
                                                 sortTable(e, "booking_status");
                                             }}
                                         >
-                                            Status{" "}
+                                            {t("admin.dashboard.jobs.status")}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>
                                         </th>
-                                        <th>Action</th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.jobs.action")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -391,7 +412,9 @@ export default function () {
                                                             to={`/admin/view-schedule/${d.client.id}?sid=${d.id}`}
                                                             className="btn btn-primary"
                                                         >
-                                                            View
+                                                            {t(
+                                                                "admin.dashboard.jobs.view"
+                                                            )}
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -438,25 +461,50 @@ export default function () {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Client</th>
-                                        <th>Email</th>
-                                        <th>Address</th>
-                                        <th>Contact</th>
-                                        <th>Service</th>
-                                        <th>Total</th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.client")}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.pending.email")}
+                                        </th>
+                                        <th>
+                                            {t(
+                                                "admin.dashboard.pending.address"
+                                            )}
+                                        </th>
+
+                                        <th>
+                                            {t(
+                                                "admin.dashboard.pending.contact"
+                                            )}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t(
+                                                "admin.dashboard.pending.service"
+                                            )}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.jobs.total")}
+                                        </th>
                                         <th
                                             style={{ cursor: "pointer" }}
                                             onClick={(e) => {
                                                 sortTable(e, "status");
                                             }}
                                         >
-                                            Status{" "}
+                                            {t("admin.dashboard.jobs.status")}{" "}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>
                                         </th>
-                                        <th>Action</th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.jobs.action")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -598,7 +646,9 @@ export default function () {
                                                             to={`/admin/view-contract/${d.id}`}
                                                             className="btn btn-primary"
                                                         >
-                                                            View
+                                                            {t(
+                                                                "admin.dashboard.jobs.view"
+                                                            )}
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -645,17 +695,31 @@ export default function () {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Client</th>
-                                        <th>Email</th>
-                                        <th>Address</th>
-                                        <th>Phone</th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.jobs.client")}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.pending.email")}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t(
+                                                "admin.dashboard.pending.address"
+                                            )}
+                                        </th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.pending.phone")}
+                                        </th>
                                         <th
                                             style={{ cursor: "pointer" }}
                                             onClick={(e) => {
                                                 sortTable(e, "status");
                                             }}
                                         >
-                                            Status{" "}
+                                            {t("admin.dashboard.jobs.status")}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
@@ -667,13 +731,16 @@ export default function () {
                                                 sortTable(e, "total");
                                             }}
                                         >
-                                            Total{" "}
+                                            {t("admin.dashboard.jobs.total")}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>
                                         </th>
-                                        <th>Action</th>
+                                        <th>
+                                            {" "}
+                                            {t("admin.dashboard.jobs.action")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -794,7 +861,9 @@ export default function () {
                                                             to={`/admin/view-offer/${d.id}`}
                                                             className="btn btn-primary"
                                                         >
-                                                            View
+                                                            {t(
+                                                                "admin.dashboard.jobs.view"
+                                                            )}
                                                         </Link>
                                                     </td>
                                                 </tr>

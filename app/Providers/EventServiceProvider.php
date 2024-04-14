@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Events\JobWorkerChanged;
+use App\Events\WorkerApprovedJob;
+use App\Events\WorkerNotApprovedJob;
+use App\Listeners\SendJobApprovedNotification;
+use App\Listeners\SendJobNotApprovedNotification;
 use App\Listeners\SendWorkerChangedNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -20,11 +24,17 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        'App\Event\WhatsappNotificationEvent' => [
+        'App\Events\WhatsappNotificationEvent' => [
             'App\Listeners\WhatsappNotification'
         ],
         JobWorkerChanged::class => [
             SendWorkerChangedNotification::class,
+        ],
+        WorkerApprovedJob::class => [
+            SendJobApprovedNotification::class,
+        ],
+        WorkerNotApprovedJob::class => [
+            SendJobNotApprovedNotification::class,
         ],
     ];
 

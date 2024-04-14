@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 
@@ -9,6 +10,7 @@ export default function Acc() {
     const [color, setColor] = useState("");
     const [phone, setPhone] = useState("");
     const [avatar, setAvatar] = useState("");
+    const [lng, setLng] = useState("");
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
 
@@ -32,6 +34,8 @@ export default function Acc() {
         formData.append("color", color);
         formData.append("avatar", avatar);
         formData.append("phone", phone);
+        formData.append("lng", lng == 0 ? "heb" : lng);
+        i18next.changeLanguage(lng);
         axios
             .post(`/api/admin/my-account`, formData, { headers })
             .then((response) => {
@@ -44,13 +48,13 @@ export default function Acc() {
                 }
             });
     };
-
     const getSetting = () => {
         axios.get("/api/admin/my-account", { headers }).then((response) => {
             setName(response.data.account.name);
             setColor(response.data.account.color);
             setEmail(response.data.account.email);
             setPhone(response.data.account.phone);
+            setLng(response.data.account.lng);
             setAddress(response.data.account.address);
             setFile(response.data.account.avatar);
         });
@@ -121,6 +125,18 @@ export default function Acc() {
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="My phone"
                         />
+                    </div>
+                    <div className="form-group">
+                        <label className="control-label">Language</label>
+                        <select
+                            className="form-control"
+                            value={lng}
+                            onChange={(e) => setLng(e.target.value)}
+                        >
+                            <option value="">--- Select language ---</option>
+                            <option value="heb">Hebrew</option>
+                            <option value="en">English</option>
+                        </select>
                     </div>
                     <div className="form-group">
                         <label

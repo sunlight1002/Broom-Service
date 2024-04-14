@@ -95,6 +95,7 @@ import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
 import WorkContract from "./Pages/WorkContract";
 import MeetingStatus from "./Pages/MeetingStatus";
 import ChooseMeetingSlot from "./Pages/ChooseMeetingSlot";
+import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
@@ -207,6 +208,11 @@ export default function MyRoutes() {
                         exact
                         path="schedule-meet/:id"
                         element={<ScheduleMeet />}
+                    />
+                    <Route
+                        exact
+                        path="worker/:wid/jobs/:jid/approve"
+                        element={<WorkerJobDetails />}
                     />
 
                     {/* Client Routes Start  */}

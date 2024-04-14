@@ -4,6 +4,7 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { CSVLink } from "react-csv";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerTiming({ job }) {
     const [job_time, setJobTime] = useState([]);
@@ -11,6 +12,7 @@ export default function WorkerTiming({ job }) {
     const alert = useAlert();
     const params = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -199,13 +201,18 @@ export default function WorkerTiming({ job }) {
             <div className="col-sm-12">
                 <div className="row">
                     <div className="col-sm-6">
-                        <h2 className="text-custom">Work Time</h2>
+                        <h2 className="text-custom">
+                            {t("admin.schedule.jobs.WorkTime")}
+                        </h2>
                     </div>
                     <div className="col-sm-6">
                         <div className="inline-buttons">
                             <div className="App" style={{ display: "none" }}>
                                 <CSVLink {...csvReport} id="csv">
                                     Export to CSV
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.ExportToCSV"
+                                    )}
                                 </CSVLink>
                             </div>
                             <div className="ml-2">
@@ -215,7 +222,9 @@ export default function WorkerTiming({ job }) {
                                     onClick={(e) => handleReport(e)}
                                     style={{ height: "38px" }}
                                 >
-                                    Export Report
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.ExportReport"
+                                    )}
                                 </button>
                             </div>
                             <div className="ml-2">
@@ -225,7 +234,9 @@ export default function WorkerTiming({ job }) {
                                     data-toggle="modal"
                                     data-target="#add-work-time"
                                 >
-                                    Add Timing
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.AddTiming"
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -238,10 +249,24 @@ export default function WorkerTiming({ job }) {
                     >
                         <Thead>
                             <Tr>
-                                <Th scope="col">Start Time</Th>
-                                <Th scope="col">End Time</Th>
-                                <Th scope="col">Time</Th>
-                                <Th scope="col">Action</Th>
+                                <Th scope="col">
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.StartTime"
+                                    )}
+                                </Th>
+                                <Th scope="col">
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.EndTime"
+                                    )}
+                                </Th>
+                                <Th scope="col">
+                                    {t("admin.schedule.jobs.workerTiming.Time")}
+                                </Th>
+                                <Th scope="col">
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.Action"
+                                    )}
+                                </Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -292,7 +317,12 @@ export default function WorkerTiming({ job }) {
                                     );
                                 })}
                             <Tr>
-                                <Td colSpan="2">Total Time</Td>
+                                <Td colSpan="2">
+                                    {" "}
+                                    {t(
+                                        "admin.schedule.jobs.workerTiming.TotalTime"
+                                    )}
+                                </Td>
                                 <Td>{calculateTime(total_time)}</Td>
                             </Tr>
                         </Tbody>
@@ -314,7 +344,9 @@ export default function WorkerTiming({ job }) {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Add Worker Timing
+                                {t(
+                                    "admin.schedule.jobs.workerTiming.AddWorkerTiming"
+                                )}
                             </h5>
                             <button
                                 type="button"
@@ -330,7 +362,9 @@ export default function WorkerTiming({ job }) {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label htmlFor="timing_starts">
-                                            Timing Starts at
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.TimingStartsAt"
+                                            )}
                                         </label>
                                         <input
                                             type="datetime-local"
@@ -344,7 +378,9 @@ export default function WorkerTiming({ job }) {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label htmlFor="timing_starts">
-                                            Timing Ends at
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.TimingEndsAt"
+                                            )}
                                         </label>
                                         <input
                                             type="datetime-local"
@@ -363,14 +399,16 @@ export default function WorkerTiming({ job }) {
                                 className="btn btn-secondary closeb"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("admin.schedule.jobs.workerTiming.Close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleSubmit}
                                 className="btn btn-primary"
                             >
-                                Save Timing
+                                {t(
+                                    "admin.schedule.jobs.workerTiming.SaveTiming"
+                                )}
                             </button>
                         </div>
                     </div>
@@ -389,7 +427,9 @@ export default function WorkerTiming({ job }) {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Edit Worker Timing
+                                {t(
+                                    "admin.schedule.jobs.workerTiming.EditWorkerTiming"
+                                )}
                             </h5>
                             <button
                                 type="button"
@@ -410,7 +450,9 @@ export default function WorkerTiming({ job }) {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label htmlFor="timing_starts">
-                                            Timing Starts at
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.TimingStartsAt"
+                                            )}
                                         </label>
                                         <input
                                             type="datetime-local"
@@ -424,7 +466,9 @@ export default function WorkerTiming({ job }) {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label htmlFor="timing_starts">
-                                            Timing Ends at
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.TimingEndsAt"
+                                            )}
                                         </label>
                                         <input
                                             type="datetime-local"
@@ -443,14 +487,16 @@ export default function WorkerTiming({ job }) {
                                 className="btn btn-secondary closee"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("admin.schedule.jobs.workerTiming.Close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdate}
                                 className="btn btn-primary"
                             >
-                                Save Timing
+                                {t(
+                                    "admin.schedule.jobs.workerTiming.SaveTiming"
+                                )}
                             </button>
                         </div>
                     </div>
