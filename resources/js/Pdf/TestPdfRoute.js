@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
-import TestPdf from "./test.pdf";
+import TestPdf from "./testPdf.pdf";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
 import Modal from "react-bootstrap/Modal";
@@ -37,6 +37,30 @@ const TestPdfRoute = () => {
     const [Email, setEmail] = useState("");
     const [CellphoneNo, setCellphoneNo] = useState("");
     const [TelephoneNo, setTelephoneNo] = useState("");
+    const [canFirstName, setCanFirstName] = useState("");
+    const [canLastName, setCanLastName] = useState("");
+    const [canPassport, setCanPassport] = useState("");
+    const [canOrigin, setCanOrigin] = useState("");
+    const [canDOB, setCanDOB] = useState("");
+    const [canFirstDateOfIns, setCanFirstDateOfIns] = useState("");
+    const [canZipcode, setCanZipcode] = useState("");
+    const [canTown, setCanTown] = useState("");
+    const [canHouseNo, setCanHouseNo] = useState("");
+    const [canStreet, setCanStreet] = useState("");
+    const [canTelephone, setCanTelephone] = useState("");
+    const [canCellPhone, setCanCellPhone] = useState("");
+    const [canEmail, setCanEmail] = useState("");
+    const [periodTo, setPeriodTo] = useState("");
+    const [periodFrom, setPeriodFrom] = useState("");
+    const [prevTo, setPrevTo] = useState("");
+    const [prevFrom, setPrevFrom] = useState("");
+    const [prevCompanyname, setPrevCompanyname] = useState("");
+    const [prevPolicy, setPrevPolicy] = useState("");
+    const [prevMemberShip, setPrevMemberShip] = useState("");
+
+    const [prevInsurance, setPrevInsurance] = useState("");
+    const [occupasion, setOccupasion] = useState("");
+    const [gender, setGender] = useState("");
 
     useEffect(() => {
         const fetchPdf = async () => {
@@ -47,11 +71,11 @@ const TestPdfRoute = () => {
             setPdfDoc(PdfDoc);
             const form = PdfDoc.getForm();
             setPdfForm(form);
-            // const allFields = form.getFields();
-            // for (let index = 0; index < allFields.length; index++) {
-            //     const element = allFields[index];
-            //     console.log(element.getName()); // [];
-            // }
+            const allFields = form.getFields();
+            for (let index = 0; index < allFields.length; index++) {
+                const element = allFields[index];
+                console.log(element.getName());
+            }
         };
         fetchPdf();
     }, []);
@@ -73,6 +97,27 @@ const TestPdfRoute = () => {
         pdfForm.getTextField("Email").setText(Email);
         pdfForm.getTextField("CellphoneNo").setText(CellphoneNo);
         pdfForm.getTextField("TelephoneNo").setText(TelephoneNo);
+        pdfForm.getTextField("canFirstName").setText(canFirstName);
+        pdfForm.getTextField("canLastName").setText(canLastName);
+        pdfForm.getTextField("canPassport").setText(canPassport);
+        pdfForm.getTextField("canOrigin").setText(canOrigin);
+        pdfForm.getTextField("canDOB").setText(canDOB);
+        pdfForm.getTextField("canFirstDateOfIns").setText(canFirstDateOfIns);
+        pdfForm.getTextField("canZipcode").setText(canZipcode);
+        pdfForm.getTextField("canTown").setText(canTown);
+        pdfForm.getTextField("canHouseNo").setText(canHouseNo);
+        pdfForm.getTextField("canStreet").setText(canStreet);
+        pdfForm.getTextField("canTelephone").setText(canTelephone);
+        pdfForm.getTextField("canCellPhone").setText(canCellPhone);
+        pdfForm.getTextField("canEmail").setText(canEmail);
+        pdfForm.getTextField("periodTo").setText(periodTo);
+        pdfForm.getTextField("periodFrom").setText(periodFrom);
+        pdfForm.getTextField("prevTo").setText(prevTo);
+        pdfForm.getTextField("prevFrom").setText(prevFrom);
+        pdfForm.getTextField("prevCompanyname").setText(prevCompanyname);
+        pdfForm.getTextField("prevPolicy").setText(prevPolicy);
+        pdfForm.getTextField("prevMemberShip").setText(prevMemberShip);
+
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
@@ -309,6 +354,373 @@ const TestPdfRoute = () => {
                             className="form-control"
                             value={TelephoneNo}
                             onChange={(e) => setTelephoneNo(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Insurance Candidate details
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">First Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canFirstName}
+                            onChange={(e) => setCanFirstName(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Last Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canLastName}
+                            onChange={(e) => setCanLastName(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Passport</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canPassport}
+                            onChange={(e) => setCanPassport(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Origin</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canOrigin}
+                            onChange={(e) => setCanOrigin(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Date of Birth</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={canDOB}
+                            onChange={(e) => setCanDOB(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">
+                            First Date of Insurance
+                        </label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={canFirstDateOfIns}
+                            onChange={(e) =>
+                                setCanFirstDateOfIns(e.target.value)
+                            }
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Zip Code</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canZipcode}
+                            onChange={(e) => setCanZipcode(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Town</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canTown}
+                            onChange={(e) => setCanTown(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">House Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canHouseNo}
+                            onChange={(e) => setCanHouseNo(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Street</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canStreet}
+                            onChange={(e) => setCanStreet(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Telephone</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canTelephone}
+                            onChange={(e) => setCanTelephone(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Cellphone</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canCellPhone}
+                            onChange={(e) => setCanCellPhone(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Email</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canEmail}
+                            onChange={(e) => setCanEmail(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <label className="control-label">Gender</label>
+                    <Form.Check
+                        label="Male"
+                        name="Male"
+                        checked={gender === "Male"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setGender("Male")}
+                    />
+                    <Form.Check
+                        label="Female"
+                        name="Female"
+                        checked={gender === "Female"}
+                        type="radio"
+                        onClick={() => setGender("Female")}
+                        id={`inline-2`}
+                    />
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Insurance Candidate's requested
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Period To</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={periodTo}
+                            onChange={(e) => setPeriodTo(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Period From</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={periodFrom}
+                            onChange={(e) => setPeriodFrom(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Insurance Candidate's occupation
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-8">
+                    <Form.Check
+                        label="nursing"
+                        name="nursing"
+                        checked={occupasion === "nursing"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setOccupasion("nursing")}
+                    />
+                    <Form.Check
+                        label="agriculture"
+                        name="agriculture"
+                        checked={occupasion === "agriculture"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setOccupasion("agriculture")}
+                    />
+                    <Form.Check
+                        label="construction"
+                        name="construction"
+                        checked={occupasion === "construction"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setOccupasion("construction")}
+                    />
+                    <Form.Check
+                        label="other"
+                        name="other"
+                        checked={occupasion === "other"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setOccupasion("other")}
+                    />
+                    
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Details of previous insurance policies
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">
+                            Insurance Period To
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={prevTo}
+                            onChange={(e) => setPrevTo(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">
+                            Insurance Period From
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={prevFrom}
+                            onChange={(e) => setPrevFrom(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Company Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={prevCompanyname}
+                            onChange={(e) => setPrevCompanyname(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Policy Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={prevPolicy}
+                            onChange={(e) => setPrevPolicy(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                <label className="control-label">Have you ever insurance from previous Company?</label>
+                    <Form.Check
+                        label="Yes"
+                        name="Yes"
+                        checked={prevInsurance === "Yes"}
+                        type="radio"
+                        id={`inline-1`}
+                        onClick={() => setPrevInsurance("Yes")}
+                    />
+                    <Form.Check
+                        label="No"
+                        name="No"
+                        checked={prevInsurance === "No"}
+                        type="radio"
+                        onClick={() => setPrevInsurance("No")}
+                        id={`inline-2`}
+                    />
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">
+                            Membership Number
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={prevMemberShip}
+                            onChange={(e) => setPrevMemberShip(e.target.value)}
                         />
                     </div>
                 </div>
