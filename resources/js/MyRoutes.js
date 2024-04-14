@@ -128,6 +128,7 @@ import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
+import TestPdfRoute from "./Pdf/TestPdfRoute";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -140,6 +141,7 @@ export default function MyRoutes() {
         <Provider template={AlertTemplate} {...options}>
             <Router>
                 <Routes>
+                    <Route exact path="/pdf" element={<TestPdfRoute />} />
                     {/* Home route  */}
                     <Route exact path="/" element={<ClientLogin />} />
                     <Route

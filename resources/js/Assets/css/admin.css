@@ -2269,4 +2269,9 @@ h1 {
   overflow: auto;
 }
 
+.pdf-dialog {
+  width: auto;
+  max-width: fit-content !important;
+}
+
 /*******End*************/
