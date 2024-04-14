@@ -826,20 +826,24 @@ export default function TotalJobs() {
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <div className="d-flex justify-content-center">
-                                                                <div
-                                                                    className="rounded"
-                                                                    style={{
-                                                                        padding:
-                                                                            "2px 10px",
-                                                                        backgroundColor:
-                                                                            "#f4f4f4",
-                                                                        border: "1px solid #ebebeb",
-                                                                    }}
-                                                                >
-                                                                    Reviews
+                                                            {item.review && (
+                                                                <div className="d-flex justify-content-center">
+                                                                    <div
+                                                                        className="rounded"
+                                                                        style={{
+                                                                            padding:
+                                                                                "2px 10px",
+                                                                            backgroundColor:
+                                                                                "#f4f4f4",
+                                                                            border: "1px solid #ebebeb",
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            item.review
+                                                                        }
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            )}
                                                         </td>
                                                         <td>
                                                             <div className="d-flex justify-content-center">

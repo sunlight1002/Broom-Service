@@ -77,6 +77,7 @@ class Job extends Model
         'is_worker_reminded' => 'boolean',
         'previous_worker_after' => 'date:Y-m-d',
         'previous_shifts_after' => 'date:Y-m-d',
+        'rating' => 'double',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',

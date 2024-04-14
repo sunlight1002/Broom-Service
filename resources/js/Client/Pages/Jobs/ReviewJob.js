@@ -6,15 +6,18 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
 import { Rating } from "react-simple-star-rating";
+import { useAlert } from "react-alert";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 
 export default function ReviewJob() {
     const params = useParams();
     const [job, setJob] = useState(null);
     const [formValues, setFormValues] = useState({
-        rating: 0,
-        review: "",
+        rating: job ? job.rating : 0,
+        review: job ? job.review : "",
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const alert = useAlert();
 
     const jobId = Base64.decode(params.id);
     const lng = localStorage.getItem("i18nextLng");
@@ -42,17 +45,25 @@ export default function ReviewJob() {
     };
 
     const handleSubmit = () => {
-        const _data = {
-            rating,
-        };
+        if (!formValues.rating) {
+            alert.error("The Rating is required");
+            return false;
+        }
 
+        if (!formValues.review) {
+            alert.error("The Review field is required");
+            return false;
+        }
+
+        setIsLoading(true);
         axios
-            .post(`/api/client/jobs/${jobId}/review`, {}, { headers })
+            .post(`/api/client/jobs/${jobId}/review`, formValues, { headers })
             .then((response) => {
-                const _job = response.data.job;
-                setJob(_job);
+                getJob();
+                setIsLoading(false);
             })
             .catch((e) => {
+                setIsLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -60,10 +71,6 @@ export default function ReviewJob() {
                 });
             });
     };
-
-    useEffect(() => {
-        console.log("formValues", formValues);
-    }, [formValues]);
 
     useEffect(() => {
         getJob();
@@ -215,7 +222,6 @@ export default function ReviewJob() {
                                                         formValues.rating
                                                     }
                                                     onClick={(e) => {
-                                                        console.log(e);
                                                         setFormValues({
                                                             ...formValues,
                                                             rating: e,
@@ -224,6 +230,7 @@ export default function ReviewJob() {
                                                     allowFraction
                                                     transition
                                                     rtl={lng === "heb"}
+                                                    disabled={job.rating}
                                                 />
                                             </div>
                                         </div>
@@ -246,22 +253,26 @@ export default function ReviewJob() {
                                                                 .value,
                                                         });
                                                     }}
+                                                    disabled={job.review}
                                                 ></textarea>
                                             </div>
                                         </div>
                                     </div>
                                     {/* submit button */}
-                                    <div className="row">
-                                        <div className="col-sm-12">
-                                            <button
-                                                type="button"
-                                                className="btn btn-primary"
-                                                onClick={handleSubmit}
-                                            >
-                                                Submit
-                                            </button>
+                                    {!job.rating && (
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary"
+                                                    onClick={handleSubmit}
+                                                    disabled={isLoading}
+                                                >
+                                                    Submit
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </form>
                             </div>
                         )}

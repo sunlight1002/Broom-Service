@@ -14,7 +14,7 @@ class AddRatingToJobsTable extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->integer('rating')->nullable()->after('job_opening_timestamp');
+            $table->double('rating', 8, 2)->nullable()->after('job_opening_timestamp');
             $table->text('review')->nullable()->after('rating');
         });
     }
