@@ -240,11 +240,10 @@ export default function ReviewJob() {
                                                     placeholder="Review"
                                                     value={formValues.review}
                                                     onChange={(e) => {
-                                                        console.log(e);
                                                         setFormValues({
+                                                            ...formValues,
                                                             review: e.target
                                                                 .value,
-                                                            ...formValues,
                                                         });
                                                     }}
                                                 ></textarea>
