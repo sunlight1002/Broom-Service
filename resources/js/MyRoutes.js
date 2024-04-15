@@ -129,6 +129,7 @@ import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { IsrailContact } from "./Admin/Pages/Contract/IsrailContact";
 import { NonIsraeliContract } from "./Admin/Pages/Contract/NonIsraeliContract";
+import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -347,6 +348,11 @@ export default function MyRoutes() {
                                 exact
                                 path="contract/israil"
                                 element={<IsrailContact />}
+                            />
+                            <Route
+                                exact
+                                path="safe-gear"
+                                element={<SafeAndGear />}
                             />
                             <Route
                                 exact
