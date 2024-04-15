@@ -218,5 +218,9 @@ return [
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone',
+    ],
+    'worker_job' => [
+        'shift_changed' => 'Job shift changed.',
+        'shift_changed_subject' => 'Job shift changed | Broom Service',
     ]
 ];

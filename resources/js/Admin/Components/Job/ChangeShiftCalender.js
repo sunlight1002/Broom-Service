@@ -10,7 +10,7 @@ import "flatpickr/dist/flatpickr.css";
 import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
-export default function ChangeWorkerCalender({ job }) {
+export default function ChangeShiftCalender({ job }) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
@@ -56,7 +56,7 @@ export default function ChangeWorkerCalender({ job }) {
                     has_cat: job.property_address.is_cat_avail,
                     has_dog: job.property_address.is_dog_avail,
                     prefer_type: job.property_address.prefer_type,
-                    ignore_worker_ids: job.worker_id,
+                    only_worker_ids: job.worker_id,
                 },
             })
             .then((res) => {
@@ -97,7 +97,7 @@ export default function ChangeWorkerCalender({ job }) {
             viewbtn[0].value = "please wait ...";
 
             axios
-                .post(`/api/admin/jobs/${params.id}/change-worker`, formdata, {
+                .post(`/api/admin/jobs/${params.id}/change-shift`, formdata, {
                     headers,
                 })
                 .then((res) => {
@@ -204,7 +204,7 @@ export default function ChangeWorkerCalender({ job }) {
         } else {
             Swal.fire({
                 title: "Error!",
-                text: "You can't select multiple workers and multiple date",
+                text: "You can't select multiple date",
                 icon: "error",
             });
         }
@@ -361,6 +361,21 @@ export default function ChangeWorkerCalender({ job }) {
                                                 let shifts = wjobs[element]
                                                     ? wjobs[element].split(",")
                                                     : [];
+
+                                                if (
+                                                    element === job.start_date
+                                                ) {
+                                                    const jobShifts =
+                                                        job.shifts.split(",");
+
+                                                    shifts = shifts.filter(
+                                                        (x) =>
+                                                            !jobShifts.includes(
+                                                                x
+                                                            )
+                                                    );
+                                                }
+
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
@@ -542,6 +557,21 @@ export default function ChangeWorkerCalender({ job }) {
                                                 let shifts = wjobs[element]
                                                     ? wjobs[element].split(",")
                                                     : [];
+
+                                                if (
+                                                    element === job.start_date
+                                                ) {
+                                                    const jobShifts =
+                                                        job.shifts.split(",");
+
+                                                    shifts = shifts.filter(
+                                                        (x) =>
+                                                            !jobShifts.includes(
+                                                                x
+                                                            )
+                                                    );
+                                                }
+
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
@@ -727,6 +757,24 @@ export default function ChangeWorkerCalender({ job }) {
                                                               ","
                                                           )
                                                         : [];
+
+                                                    if (
+                                                        element ===
+                                                        job.start_date
+                                                    ) {
+                                                        const jobShifts =
+                                                            job.shifts.split(
+                                                                ","
+                                                            );
+
+                                                        shifts = shifts.filter(
+                                                            (x) =>
+                                                                !jobShifts.includes(
+                                                                    x
+                                                                )
+                                                        );
+                                                    }
+
                                                     let sav =
                                                         shifts.length > 0
                                                             ? filterShiftOptions(
