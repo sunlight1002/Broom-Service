@@ -623,14 +623,6 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
-        }
-
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
-        }
-
         $job->update($jobData);
 
         $job->jobservice()->update([
@@ -1177,22 +1169,6 @@ class JobController extends Controller
             $jobData['previous_worker_after'] = NULL;
             $otherJobData['previous_worker_id'] = NULL;
             $otherJobData['previous_worker_after'] = NULL;
-        }
-
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
-        }
-
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
-        }
-
-        if (!$otherWorkerJob->original_worker_id) {
-            $otherJobData['original_worker_id'] = $otherWorkerJob->worker_id;
-        }
-
-        if (!$otherWorkerJob->original_shifts) {
-            $otherJobData['original_shifts'] = $otherWorkerJob->shifts;
         }
 
         $job->update($jobData);
