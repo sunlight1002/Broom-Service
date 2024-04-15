@@ -167,11 +167,6 @@ export default function ChangeShift() {
                                                 <h3 className="text-center">
                                                     Worker Availability
                                                 </h3>
-                                                <p className="text-center text-danger">
-                                                    Assign a specific worker
-                                                    only and choose a shift for
-                                                    a single date.
-                                                </p>
                                             </div>
                                         </div>
                                         <div className="col-sm-12">
