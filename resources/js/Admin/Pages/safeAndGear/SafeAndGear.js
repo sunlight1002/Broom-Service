@@ -224,6 +224,15 @@ const SafeAndGear = () => {
                                         />
                                     </div>
                                     <div className="col-6">
+                                        <p>
+                                            <strong>
+                                                The worke signature:*
+                                            </strong>
+                                            <span className="text-danger">
+                                                {touched.signature &&
+                                                    errors.signature}
+                                            </span>
+                                        </p>
                                         <ReactSignatureCanvas
                                             penColor="black"
                                             canvasProps={{
