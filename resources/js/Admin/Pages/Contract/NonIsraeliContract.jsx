@@ -13,13 +13,13 @@ const formSchema = yup.object({
     IdNumber: yup
         .number()
         .typeError("invalid number")
-        .required("Id Number is required"),
-    Address: yup.string().trim().required("Address  is required"),
+        .required("ID Number is required"),
+    Address: yup.string().trim().required("Address is required"),
     startDate: yup.date().required("Start date of job is required"),
-    signatureDate1: yup.date().required("Date  is required"),
-    signatureDate2: yup.date().required("Date  is required"),
-    signatureDate3: yup.date().required("Date  is required"),
-    signatureDate4: yup.date().required("Date  is required"),
+    signatureDate1: yup.date().required("Date is required"),
+    signatureDate2: yup.date().required("Date is required"),
+    signatureDate3: yup.date().required("Date is required"),
+    signatureDate4: yup.date().required("Date is required"),
     signature1: yup.mixed().required("Signature is required"),
     signature2: yup.mixed().required("Signature is required"),
     signature3: yup.mixed().required("Signature is required"),
@@ -185,19 +185,19 @@ export function NonIsraeliContract() {
                                     />
                                 </li>
                                 <li>
+                                    <DateField
+                                        name={"startDate"}
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        label={"The date of the start of"}
+                                        value={values.startDate}
+                                        required={true}
+                                        error={
+                                            touched.startDate &&
+                                            errors.startDate
+                                        }
+                                    />
                                     <p>
-                                        <DateField
-                                            name={"startDate"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={"The date of the start of"}
-                                            value={values.startDate}
-                                            required={true}
-                                            error={
-                                                touched.startDate &&
-                                                errors.startDate
-                                            }
-                                        />
                                         The contract period is not fixed. The
                                         employee is hired as a new employee for
                                         all intents and purposes.
@@ -261,10 +261,6 @@ export function NonIsraeliContract() {
                                                             The worker's
                                                             signature:*
                                                         </strong>
-                                                        <span className="text-danger">
-                                                            {touched.signature1 &&
-                                                                errors.signature1}
-                                                        </span>
                                                     </p>
                                                     <SignatureCanvas
                                                         penColor="black"
@@ -277,6 +273,13 @@ export function NonIsraeliContract() {
                                                             handleSignatureEnd1
                                                         }
                                                     />
+                                                    {touched.signature1 &&
+                                                        errors.signature1 && (
+                                                            <p className="text-danger">
+                                                                {touched.signature1 &&
+                                                                    errors.signature1}
+                                                            </p>
+                                                        )}
 
                                                     <div className="d-block">
                                                         <button
@@ -387,10 +390,6 @@ export function NonIsraeliContract() {
                                                 <strong>
                                                     The worker's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.signature2 &&
-                                                        errors.signature2}
-                                                </span>
                                             </p>
                                             <SignatureCanvas
                                                 penColor="black"
@@ -401,6 +400,13 @@ export function NonIsraeliContract() {
                                                 ref={sigRef2}
                                                 onEnd={handleSignatureEnd2}
                                             />
+                                            {touched.signature2 &&
+                                                errors.signature2 && (
+                                                    <p className="text-danger">
+                                                        {touched.signature2 &&
+                                                            errors.signature2}
+                                                    </p>
+                                                )}
 
                                             <div className="d-block">
                                                 <button
@@ -530,10 +536,6 @@ export function NonIsraeliContract() {
                                                 <strong>
                                                     The worker's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.signature3 &&
-                                                        errors.signature3}
-                                                </span>
                                             </p>
                                             <SignatureCanvas
                                                 penColor="black"
@@ -544,6 +546,13 @@ export function NonIsraeliContract() {
                                                 ref={sigRef3}
                                                 onEnd={handleSignatureEnd3}
                                             />
+                                            {touched.signature3 &&
+                                                errors.signature3 && (
+                                                    <p className="text-danger">
+                                                        {touched.signature3 &&
+                                                            errors.signature3}
+                                                    </p>
+                                                )}
 
                                             <div className="d-block">
                                                 <button
@@ -560,10 +569,6 @@ export function NonIsraeliContract() {
                                                 <strong>
                                                     The Company's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.companySignature1 &&
-                                                        errors.companySignature1}
-                                                </span>
                                             </p>
                                             <SignatureCanvas
                                                 penColor="black"
@@ -576,6 +581,13 @@ export function NonIsraeliContract() {
                                                     handleCompanySignatureEnd1
                                                 }
                                             />
+                                            {touched.companySignature1 &&
+                                                errors.companySignature1 && (
+                                                    <p className="text-danger">
+                                                        {touched.companySignature1 &&
+                                                            errors.companySignature1}
+                                                    </p>
+                                                )}
 
                                             <div className="d-block">
                                                 <button
@@ -670,10 +682,6 @@ export function NonIsraeliContract() {
                                         <strong>
                                             The worker's signature:*
                                         </strong>
-                                        <span className="text-danger">
-                                            {touched.signature4 &&
-                                                errors.signature4}
-                                        </span>
                                     </p>
                                     <SignatureCanvas
                                         penColor="black"
@@ -683,6 +691,13 @@ export function NonIsraeliContract() {
                                         ref={sigRef4}
                                         onEnd={handleSignatureEnd4}
                                     />
+                                    {touched.signature4 &&
+                                        errors.signature4 && (
+                                            <p className="text-danger">
+                                                {touched.signature4 &&
+                                                    errors.signature4}
+                                            </p>
+                                        )}
 
                                     <div className="d-block">
                                         <button
@@ -699,10 +714,6 @@ export function NonIsraeliContract() {
                                         <strong>
                                             The Company's signature:*
                                         </strong>
-                                        <span className="text-danger">
-                                            {touched.companySignature2 &&
-                                                errors.companySignature2}
-                                        </span>
                                     </p>
                                     <SignatureCanvas
                                         penColor="black"
@@ -712,6 +723,13 @@ export function NonIsraeliContract() {
                                         ref={companySigRef2}
                                         onEnd={handleCompanySignatureEnd2}
                                     />
+                                    {touched.companySignature2 &&
+                                        errors.companySignature2 && (
+                                            <p className="text-danger">
+                                                {touched.companySignature2 &&
+                                                    errors.companySignature2}
+                                            </p>
+                                        )}
 
                                     <div className="d-block">
                                         <button
