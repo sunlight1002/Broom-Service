@@ -21,7 +21,8 @@ const TestPdfRoute = () => {
     const [pdfDoc, setPdfDoc] = useState(null);
     const [pdfData, setPdfData] = useState(null);
 
-    const [type, setType] = useState("");
+    // page 1
+    const [type, setType] = useState("New");
     const [AgentName, setAgentName] = useState("");
     const [AgentNo, setAgentNo] = useState("");
     const [CompanyName, setCompanyName] = useState("");
@@ -57,10 +58,45 @@ const TestPdfRoute = () => {
     const [prevCompanyname, setPrevCompanyname] = useState("");
     const [prevPolicy, setPrevPolicy] = useState("");
     const [prevMemberShip, setPrevMemberShip] = useState("");
+    const [prevInsurance, setPrevInsurance] = useState("Yes");
+    const [occupasion, setOccupasion] = useState("other");
+    const [gender, setGender] = useState("Male");
 
-    const [prevInsurance, setPrevInsurance] = useState("");
-    const [occupasion, setOccupasion] = useState("");
-    const [gender, setGender] = useState("");
+    // page 2
+    const [FFirstName, setFFirstName] = useState("");
+    const [FLastName, setFLastName] = useState("");
+    const [FPasswordno, setFPasswordno] = useState("");
+    const [FPId, setFPId] = useState("");
+    const [FPFirstName, setFPFirstName] = useState("");
+    const [FPLastName, setFPLastName] = useState("");
+    const [FPZipCode, setFPZipCode] = useState("");
+    const [FPtown, setFPtown] = useState("");
+    const [FPhouseNo, setFPhouseNo] = useState("");
+    const [FPstreet, setFPstreet] = useState("");
+    const [FPexpDate, setFPexpDate] = useState("");
+    const [FPcardNo, setFPcardNo] = useState("");
+    const [FPcellphone, setFPcellphone] = useState("");
+    const [FPemail, setFPemail] = useState("");
+    const [FPdate, setFPdate] = useState("");
+    const [employerdate, setEmployerdate] = useState("");
+    const [employername, setEmployername] = useState("");
+    const [Months, setMonths] = useState("6Months");
+    const [sixMonthPayment, setSixMonthPayment] = useState("");
+    const [twelveMonthsPayment, setTwelveMonthsPayment] = useState("");
+
+    // page 3
+    const [GFirstname, setGFirstname] = useState("");
+    const [GLastname, setGLastname] = useState("");
+    const [GPassportno, setGPassportno] = useState("");
+    const [GDetails, setGDetails] = useState("");
+    const [GCandidatename, setGCandidatename] = useState("");
+    const [GDate, setGDate] = useState("");
+
+    // page 4
+    const [Hname, setHname] = useState("");
+    const [canPassportNo, setCanPassportNo] = useState("");
+    const [canName, setCanName] = useState("");
+    const [canDate, setCanDate] = useState("");
 
     useEffect(() => {
         const fetchPdf = async () => {
@@ -81,7 +117,7 @@ const TestPdfRoute = () => {
     }, []);
 
     const saveFormData = async () => {
-        pdfForm.getCheckBox("Type").check(type);
+        pdfForm.getRadioGroup("Type").select(type);
         pdfForm.getTextField("AgentName").setText(AgentName);
         pdfForm.getTextField("AgentNo").setText(AgentNo);
         pdfForm.getTextField("CompanyName").setText(CompanyName);
@@ -117,6 +153,43 @@ const TestPdfRoute = () => {
         pdfForm.getTextField("prevCompanyname").setText(prevCompanyname);
         pdfForm.getTextField("prevPolicy").setText(prevPolicy);
         pdfForm.getTextField("prevMemberShip").setText(prevMemberShip);
+        pdfForm.getRadioGroup("prevInsurance").select(prevInsurance);
+        pdfForm.getRadioGroup("occupasion").select(occupasion);
+        pdfForm.getRadioGroup("gender").select(gender);
+
+        pdfForm.getRadioGroup("Months").select(Months);
+        pdfForm.getTextField("sixMonthPayment").setText(sixMonthPayment);
+        pdfForm
+            .getTextField("twelveMonthsPayment")
+            .setText(twelveMonthsPayment);
+        pdfForm.getTextField("F-FirstName").setText(FFirstName);
+        pdfForm.getTextField("F-LastName").setText(FLastName);
+        pdfForm.getTextField("F-Passwordno").setText(FPasswordno);
+        pdfForm.getTextField("F-P-Id").setText(FPId);
+        pdfForm.getTextField("F-P-FirstName").setText(FPFirstName);
+        pdfForm.getTextField("F-P-LastName").setText(FPLastName);
+        pdfForm.getTextField("F-P-ZipCode").setText(FPZipCode);
+        pdfForm.getTextField("F-P-town").setText(FPtown);
+        pdfForm.getTextField("F-P-houseNo").setText(FPhouseNo);
+        pdfForm.getTextField("F-P-street").setText(FPstreet);
+        pdfForm.getTextField("F-P-expDate").setText(FPexpDate);
+        pdfForm.getTextField("F-P-cardNo").setText(FPcardNo);
+        pdfForm.getTextField("F-P-cellphone").setText(FPcellphone);
+        pdfForm.getTextField("F-P-email").setText(FPemail);
+        pdfForm.getTextField("F-P-date").setText(FPdate);
+        pdfForm.getTextField("employer-name").setText(employername);
+        pdfForm.getTextField("employer-date").setText(employerdate);
+
+        pdfForm.getTextField("G-firstname").setText(GFirstname);
+        pdfForm.getTextField("G-lastname").setText(GLastname);
+        pdfForm.getTextField("G-passportno").setText(GPassportno);
+        pdfForm.getTextField("G-details").setText(GDetails);
+        pdfForm.getTextField("G-candidatename").setText(GCandidatename);
+        pdfForm.getTextField("G-date").setText(GDate);
+        pdfForm.getTextField("H-name").setText(Hname);
+        pdfForm.getTextField("candidate-passport-no").setText(canPassportNo);
+        pdfForm.getTextField("candidate-name").setText(canName);
+        pdfForm.getTextField("candidate-date").setText(canDate);
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
@@ -145,17 +218,17 @@ const TestPdfRoute = () => {
                     <Form.Check
                         label="a new candidate"
                         name="group1"
-                        checked={type === "a new candidate"}
+                        checked={type === "New"}
                         type="radio"
                         id={`inline-1`}
-                        onClick={() => setType("a new candidate")}
+                        onClick={() => setType("New")}
                     />
                     <Form.Check
                         label="reneaewal/extention"
                         name="group1"
-                        checked={type === "reneaewal/extention"}
+                        checked={type === "Renewal"}
                         type="radio"
-                        onClick={() => setType("reneaewal/extention")}
+                        onClick={() => setType("Renewal")}
                         id={`inline-2`}
                     />
                 </div>
@@ -626,7 +699,6 @@ const TestPdfRoute = () => {
                         id={`inline-1`}
                         onClick={() => setOccupasion("other")}
                     />
-                    
                 </div>
             </div>
 
@@ -693,7 +765,9 @@ const TestPdfRoute = () => {
 
             <div className="row justify-content-center">
                 <div className="col-md-4">
-                <label className="control-label">Have you ever insurance from previous Company?</label>
+                    <label className="control-label">
+                        Have you ever insurance from previous Company?
+                    </label>
                     <Form.Check
                         label="Yes"
                         name="Yes"
@@ -721,6 +795,452 @@ const TestPdfRoute = () => {
                             className="form-control"
                             value={prevMemberShip}
                             onChange={(e) => setPrevMemberShip(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Payment By Credit Card
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <Form.Check
+                        label="6 Months"
+                        name="installment"
+                        checked={Months === "6Months"}
+                        type="radio"
+                        id={`inline-12`}
+                        onClick={() => {
+                            setMonths("6Months");
+                            setTwelveMonthsPayment("");
+                        }}
+                    />
+                </div>
+                <div
+                    className="col-md-4"
+                    style={
+                        Months === "12Months"
+                            ? { pointerEvents: "none", opacity: 0.5 }
+                            : {}
+                    }
+                >
+                    <div className="form-group">
+                        <label className="control-label">
+                            Six Month Payment No.
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={sixMonthPayment}
+                            onChange={(e) => setSixMonthPayment(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <Form.Check
+                        label="12 Months"
+                        name="installment"
+                        checked={Months === "12Months"}
+                        type="radio"
+                        id={`inline-12`}
+                        onClick={() => {
+                            setMonths("12Months");
+                            setSixMonthPayment("");
+                        }}
+                    />
+                </div>
+                <div
+                    className="col-md-4"
+                    style={
+                        Months === "6Months"
+                            ? { pointerEvents: "none", opacity: 0.5 }
+                            : {}
+                    }
+                >
+                    <div className="form-group">
+                        <label className="control-label">
+                            Twelve Month Payment No.
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={twelveMonthsPayment}
+                            onChange={(e) =>
+                                setTwelveMonthsPayment(e.target.value)
+                            }
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">First Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FFirstName}
+                            onChange={(e) => setFFirstName(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Last Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FLastName}
+                            onChange={(e) => setFLastName(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-8">
+                    <div className="form-group">
+                        <label className="control-label">Passport Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPasswordno}
+                            onChange={(e) => setFPasswordno(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">ID Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPId}
+                            onChange={(e) => setFPId(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">First Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPFirstName}
+                            onChange={(e) => setFPFirstName(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Last Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPLastName}
+                            onChange={(e) => setFPLastName(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Zip Code</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPZipCode}
+                            onChange={(e) => setFPZipCode(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Town</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPtown}
+                            onChange={(e) => setFPtown(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">House Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPhouseNo}
+                            onChange={(e) => setFPhouseNo(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Street</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPstreet}
+                            onChange={(e) => setFPstreet(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Expiry Date</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={FPexpDate}
+                            onChange={(e) => setFPexpDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Card Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPcardNo}
+                            onChange={(e) => setFPcardNo(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Cellphone</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPcellphone}
+                            onChange={(e) => setFPcellphone(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Email</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={FPemail}
+                            onChange={(e) => setFPemail(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Date</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={FPdate}
+                            onChange={(e) => setFPdate(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Employer Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={employername}
+                            onChange={(e) => setEmployername(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Date</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={employerdate}
+                            onChange={(e) => setEmployerdate(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Health Delclaration
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">First Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={GFirstname}
+                            onChange={(e) => setGFirstname(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Last Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={GLastname}
+                            onChange={(e) => setGLastname(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Passport Number</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={GPassportno}
+                            onChange={(e) => setGPassportno(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Details</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={GDetails}
+                            onChange={(e) => setGDetails(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Candidate Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={GCandidatename}
+                            onChange={(e) => setGCandidatename(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Date</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={GDate}
+                            onChange={(e) => setGDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Reciept of all the information in the policy
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-8">
+                    <div className="form-group">
+                        <label className="control-label">Date</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={Hname}
+                            onChange={(e) => setHname(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+                Signature for the Insurance Candidate
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">Passport No.</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canPassportNo}
+                            onChange={(e) => setCanPassportNo(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label className="control-label">
+                            Insurance Candidate Name
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={canName}
+                            onChange={(e) => setCanName(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="row justify-content-center">
+                <div className="col-md-8">
+                    <div className="form-group">
+                        <label className="control-label">Date</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={canDate}
+                            onChange={(e) => setCanDate(e.target.value)}
                         />
                     </div>
                 </div>
