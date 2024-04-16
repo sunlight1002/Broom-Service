@@ -96,4 +96,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(Document::class, 'userable')->orderBy('created_at','DESC');
     }
+
+    public function forms()
+    {
+        return $this->morphMany(Form::class, 'user');
+    }
 }

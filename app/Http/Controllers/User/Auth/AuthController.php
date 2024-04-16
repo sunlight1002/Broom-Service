@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User\Auth;
 
+use App\Enums\WorkerFormTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -152,8 +153,10 @@ class AuthController extends Controller
         $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
         $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
         $pdf->move($path, $filename);
-        $worker->form_101 = $filename;
-        $worker->save();
+
+        $worker->update([
+            'form_101' => $filename
+        ]);
 
         return response()->json(['success' => true]);
     }
@@ -184,36 +187,63 @@ class AuthController extends Controller
 
     public function form101(Request $request)
     {
-        $data = json_encode($request->all());
+        $worker = User::find($request->id);
 
-        User::where('id', $request->id)->update(['form_101' => $data]);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Form 101 already submitted for current year.'
+            ], 403);
+        }
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::FORM101,
+            'data' => $data['data']
+        ]);
+
         return response()->json([
-            'success_code' => 200,
-            'msg' => 'Form 101 signed successfully.'
+            'message' => 'Form 101 signed successfully.'
         ]);
     }
 
     public function get101($id)
     {
-        $form = User::where('id', $id)->first();
+        $worker = User::find($id);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereYear('created_at', now()->year)
+            ->first();
 
         return response()->json([
             'success_code' => 200,
-            'lng' => $form->lng,
-            'form' => [["form_101" => $form->form_101]]
+            'lng' => $worker->lng,
+            'form' => $form ? $form->data : NULL
         ]);
     }
 
-    public function pdf101($id)
-    {
-        $user = User::where('id', base64_decode($id))->first()->toarray();
-        $form = json_decode($user['form_101'], true);
-        $form['data']['signed_on'] = $user['created_at'];
-        $f = $form['data'];
-        $pdf = Pdf::loadView('pdf101', compact('f'));
-        $paper_size = array(0, 0, 800, 1000);
-        $pdf->set_paper($paper_size);
+    // public function pdf101($id)
+    // {
+    //     $user = User::find(base64_decode($id))->toArray();
+    //     $form = json_decode($user['form_101'], true);
+    //     $form['data']['signed_on'] = $user['created_at'];
+    //     $f = $form['data'];
+    //     $pdf = Pdf::loadView('pdf101', compact('f'));
+    //     $paper_size = array(0, 0, 800, 1000);
+    //     $pdf->set_paper($paper_size);
 
-        return $pdf->stream('form101_' . $user['id'] . '.pdf');
-    }
+    //     return $pdf->stream('form101_' . $user['id'] . '.pdf');
+    // }
 }
