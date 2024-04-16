@@ -6,6 +6,7 @@ import moment from "moment";
 import axios from "axios";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const alert = useAlert();
@@ -18,6 +19,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const flatpickrRef = useRef(null);
 
     const headers = {
@@ -81,7 +83,9 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Cancellation fee
+                                {t(
+                                    "admin.schedule.jobs.CancelModal.CancellationFee"
+                                )}
                             </label>
                             <div className="form-check">
                                 <input
@@ -153,12 +157,20 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                             {feeInAmount > 0 ? (
                                 <p>{feeInAmount} ILS will be charged.</p>
                             ) : (
-                                <p>No charge.</p>
+                                <p>
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.NoCharge"
+                                    )}
+                                </p>
                             )}
                         </div>
 
                         <div className="form-group">
-                            <label className="control-label">Repeatancy</label>
+                            <label className="control-label">
+                                {t(
+                                    "admin.schedule.jobs.CancelModal.Repeatancy"
+                                )}
+                            </label>
 
                             <select
                                 name="repeatancy"
@@ -171,19 +183,35 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                 value={formValues.repeatancy}
                                 className="form-control mb-3"
                             >
-                                <option value=""> --- Please select ---</option>
-                                <option value="one_time">
-                                    One Time ( for single job )
+                                <option value="">
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.options.PleaseSelect"
+                                    )}
                                 </option>
-                                <option value="forever">Forever</option>
-                                <option value="until_date">Until Date</option>
+                                <option value="one_time">
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.options.oneTime"
+                                    )}
+                                </option>
+                                <option value="forever">
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.options.Forever"
+                                    )}
+                                </option>
+                                <option value="until_date">
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.options.UntilDate"
+                                    )}
+                                </option>
                             </select>
                         </div>
 
                         {formValues.repeatancy == "until_date" && (
                             <div className="form-group">
                                 <label className="control-label">
-                                    Until Date
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.options.UntilDate"
+                                    )}
                                 </label>
                                 <Flatpickr
                                     name="date"
@@ -225,7 +253,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("admin.schedule.jobs.CancelModal.Close")}
                 </Button>
                 <Button
                     type="button"
@@ -233,7 +261,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                     className="btn btn-danger"
                     disabled={loading}
                 >
-                    Cancel
+                    {t("admin.schedule.jobs.CancelModal.Cancel")}
                 </Button>
             </Modal.Footer>
         </Modal>

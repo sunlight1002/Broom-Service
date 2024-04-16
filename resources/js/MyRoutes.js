@@ -95,6 +95,7 @@ import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
 import WorkContract from "./Pages/WorkContract";
 import MeetingStatus from "./Pages/MeetingStatus";
 import ChooseMeetingSlot from "./Pages/ChooseMeetingSlot";
+import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
@@ -126,6 +127,8 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
+import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
+import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -207,6 +210,11 @@ export default function MyRoutes() {
                         path="schedule-meet/:id"
                         element={<ScheduleMeet />}
                     />
+                    <Route
+                        exact
+                        path="worker/:wid/jobs/:jid/approve"
+                        element={<WorkerJobDetails />}
+                    />
 
                     {/* Client Routes Start  */}
 
@@ -256,6 +264,11 @@ export default function MyRoutes() {
                                 exact
                                 path="/client/view-job/:id"
                                 element={<ClientJobView />}
+                            />
+                            <Route
+                                exact
+                                path="/client/jobs/:id/review"
+                                element={<ReviewJob />}
                             />
                             <Route
                                 exact
@@ -349,6 +362,11 @@ export default function MyRoutes() {
                                 exact
                                 path="jobs/:id/change-worker"
                                 element={<ChangeWorker />}
+                            />
+                            <Route
+                                exact
+                                path="jobs/:id/change-shift"
+                                element={<ChangeShift />}
                             />
                             <Route exact path="add-job" element={<AddJob />} />
                             <Route

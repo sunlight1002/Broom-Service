@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JobStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,12 +37,20 @@ class Job extends Model
         'is_next_job_created',
         'keep_prev_worker',
         'is_one_time_job',
+        'is_job_done',
+        'is_paid',
+        'is_worker_reminded',
+        'worker_approved_at',
+        'actual_time_taken_minutes',
         'original_worker_id',
         'original_shifts',
         'previous_worker_id',
         'previous_worker_after',
         'previous_shifts',
         'previous_shifts_after',
+        'job_opening_timestamp',
+        'rating',
+        'review',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
@@ -49,7 +58,6 @@ class Job extends Model
         'cancelled_at',
         'cancelled_for',
         'cancel_until_date',
-        'job_opening_timestamp'
     ];
 
     /**
@@ -64,8 +72,12 @@ class Job extends Model
         'next_start_date' => 'datetime',
         'is_next_job_created' => 'boolean',
         'is_one_time_job' => 'boolean',
+        'is_job_done' => 'boolean',
+        'is_paid' => 'boolean',
+        'is_worker_reminded' => 'boolean',
         'previous_worker_after' => 'date:Y-m-d',
         'previous_shifts_after' => 'date:Y-m-d',
+        'rating' => 'double',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',
@@ -76,6 +88,16 @@ class Job extends Model
     public static function boot()
     {
         parent::boot();
+
+        static::updating(function ($model) {
+            if (
+                $model->status == JobStatusEnum::COMPLETED &&
+                $model->getOriginal('status') != $model->status
+            ) {
+                $model->is_job_done = true;
+            }
+        });
+
         static::deleting(function ($job) {
             JobService::where('job_id', $job->id)->delete();
             JobHours::where('job_id', $job->id)->delete();

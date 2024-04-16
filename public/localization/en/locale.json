@@ -519,6 +519,434 @@
             "save": "Save"
         }
     },
+    "admin": {
+        "global": {
+            "status": "Status",
+            "action": "Action",
+            "view": "View",
+            "Edit": "Edit",
+            "Delete": "Delete",
+            "Name": "Name",
+            "Email": "Email",
+            "Status": "Status",
+            "Phone": "Phone",
+            "Export": "Export to CSV",
+            "Import": "Import",
+            "All": "All",
+            "AddNew": "Add New",
+            "location": "Enter a location",
+            "locationPlaceholder": "Search your address"
+        },
+        "dashboard": {
+            "jobPosted": "Job Posted",
+            "clients": "Clients",
+            "workers": "Workers",
+            "meetings": "Meetings",
+            "offeredPrice": "offered Price",
+            "contracts": "Contracts",
+            "jobsSchedule": "Jobs Schedule",
+            "income": "Income",
+            "outcome": "Outcome",
+            "recentUser": "Recent Users",
+            "jobs": {
+                "today": "Today",
+                "thisWeek": "This Week",
+                "completed": "Completed",
+                "jobDate": "Job Date",
+                "worker": "Worker",
+                "client": "Client",
+                "service": "Service",
+                "status": "Status",
+                "action": "Action",
+                "view": "View",
+                "clientName": "Client Name",
+                "serviceName": "Service Name",
+                "date": "Date",
+                "shift": "Shift",
+                "assignedWorker": "Assigned Worker",
+                "total": "Total"
+            },
+            "pending": {
+                "id": "ID",
+                "contact": "Contact",
+                "address": "Address",
+                "email": "Email",
+                "meetingAttender": "Meeting Attender",
+                "scheduled": "Scheduled",
+                "meetings": "Pending Meetings",
+                "contracts": "Pending Contracts",
+                "offers": "Pending Offers",
+                "notifications": "Notifications",
+                "service": "Service",
+                "phone": "Phone"
+            }
+        },
+        "leads": {
+            "All": "All",
+            "PotentialCustomer": "Potential Customer",
+            "Pending": "Pending",
+            "Uninterested": "Uninterested",
+            "MeetingSet": "Meeting set",
+            "PriceOfferSent": "Price offer sent",
+            "DeclinedPriceOffer": "Declined price offer",
+            "AddNew": "Add New",
+            "Options": {
+                "sortBy": "-- Sort By--",
+                "ID": "ID",
+                "Name": "Name",
+                "Email": "Email",
+                "Phone": "Phone",
+                "Status": "Status"
+            },
+            "Action": "Action",
+            "Edit": "Edit",
+            "view": "View",
+            "Delete": "Delete",
+            "AddLead": {
+                "AddLead": "Add Lead",
+                "FirstName": "First name",
+                "LastName": "Last name",
+                "InvoiceName": "Invoice name",
+                "PrimaryEmail": "Primary email",
+                "Password": "Password",
+                "PrimaryPhone": "Primary phone",
+                "AlternateEmail": "Alternate email",
+                "PersonName": "Person name",
+                "AlternatePhone": "Alternate phone",
+                "DOB": "Date of birth",
+                "PaymentMethod": "Payment method",
+                "Options": {
+                    "PaymentMethod": {
+                        "CreditCard": "Credit Card",
+                        "MoneyTransfer": "Money Transfer",
+                        "ByCheque": "By Cheque",
+                        "ByCash": "By Cash"
+                    },
+                    "Status": {
+                        "Lead": "Lead",
+                        "PotentialCustomer": "Potential Customer",
+                        "Customer": "Customer"
+                    },
+                    "CreateJob": {
+                        "No": "No",
+                        "Yes": "Yes"
+                    },
+                    "Type": {
+                        "Fixed": "Fixed",
+                        "Hourly": "Hourly"
+                    }
+                },
+                "Language": "Language",
+                "Color": "Color",
+                "white": "white",
+                "Green": "Green",
+                "Blue": "Blue",
+                "Voilet": "Voilet",
+                "Red": "Red",
+                "Orange": "Orange",
+                "Yellow": "Yellow",
+                "propertyAddress": "Property Address",
+                "addAddress": {
+                    "Add": "Add",
+                    "AddPropertyAddress": "Add Property Address",
+                    "EditPropertyAddress": "Edit Property Address",
+                    "FullAddress": "Full address",
+                    "autocomplete": "auto complete from google address",
+                    "Name": "Name",
+                    "Floor": "Floor",
+                    "AptNumberAndAptName": "Apt number and Apt name",
+                    "EnteranceCode": "Enterance code",
+                    "ZipCode": "Zip code",
+                    "PreferedType": "Prefered Type",
+                    "Options": {
+                        "pleaseSelect": "--- Please Select ---",
+                        "PreferedType": {
+                            "Default": "Default",
+                            "Female": "Female",
+                            "Male": "Male",
+                            "Both": "Both"
+                        }
+                    },
+                    "IsDOG": "Is there Dog in the property ?",
+                    "IsCat": "Is there Cat in the property ?",
+                    "NotAllowedWorkers": "Not allowed workers",
+                    "Close": "Close",
+                    "Save": "Save",
+                    "Address": "Address",
+                    "Zipcode": "Zipcode",
+                    "Action": "Action",
+                    "AddressNotFound": "Address not found!",
+                    "placeHolder": {
+                        "fullAddress": "Full address",
+                        "addressName": "Address name",
+                        "floor": "Enter floor",
+                        "AptNumberAndAptName": "Enter Apt number and Apt name",
+                        "EnteranceCode": "Enter enterance code",
+                        "ZipCode": "Enter zip code",
+                        "parking": "Enter parking"
+                    },
+                    "parking": "Parking"
+                },
+                "placeHolder": {
+                    "FirstName": "Enter first name",
+                    "LastName": "Enter last name",
+                    "InvoiceName": "Enter invoice name",
+                    "PrimaryEmail": "Enter primary email",
+                    "Password": "Enter password",
+                    "PrimaryPhone": "Enter primary phone",
+                    "AlternateEmail": "Enter alternate email",
+                    "PersonName": "Enter person name",
+                    "AlternatePhone": "Enter alternate phone"
+                },
+                "AddLeadClient": {
+                    "AddClient": "Add Client",
+                    "Status": "Status",
+                    "CreateJob": "Create Job",
+                    "jobMenu": {
+                        "AddJob": "Add Job",
+                        "Address": "Address",
+                        "WorkerName": "Worker Name",
+                        "WorkerAvailability": "Worker Availability",
+                        "Service": "Service",
+                        "Type": "Type",
+                        "Job Hours": "Job Hours",
+                        "Price": "Price",
+                        "Frequency": "Frequency",
+                        "Actions": "Actions",
+                        "jonNotFound": "Jobs not found!"
+                    },
+                    "JobModal": {
+                        "AddJob": "Add Job",
+                        "EditJob": "Edit Job",
+                        "PropertyAddress": "Property address",
+                        "pleaseSelect": "--Please select--",
+                        "Service": "Service",
+                        "Type": "Type",
+                        "JobHours": "Job Hours",
+                        "Price": "Price",
+                        "Frequency": "Frequency",
+                        "StartFrom": "Start from",
+                        "On": "On",
+                        "Day": "Day",
+                        "of": "of",
+                        "month": "month",
+                        "The": "The",
+                        "Worker": "Worker",
+                        "Close": "Close",
+                        "Save": "Save",
+                        "placeHolder": {
+                            "serviceTiitle": "Service Title",
+                            "JobHours": "Enter job Hrs",
+                            "Price": "Enter job price",
+                            "rateperhour": "Enter rate P/Hr"
+                        }
+                    }
+                }
+            },
+            "EditLead": "Edit Lead",
+            "viewLead": {
+                "viewLead": "View Lead",
+                "ScheduledMeeting": "Schedule Meeting",
+                "Offers": "Offers",
+                "ID": "ID",
+                "MeetingAttende": "Meeting Attender",
+                "Scheduled": "Schedule",
+                "Status": "Status",
+                "Action": "Action",
+                "Client": "Client",
+                "Phone": "Phone",
+                "Total": "Total",
+                "ClientHistoryLead": {
+                    "ScheduledMeeting": "Schedule Meeting",
+                    "Offers": "Offers",
+                    "ID": "ID",
+                    "MeetingAttende": "Meeting Attender",
+                    "Scheduled": "Schedule",
+                    "Status": "Status",
+                    "Action": "Action",
+                    "Client": "Client",
+                    "Phone": "Phone",
+                    "Total": "Total"
+                }
+            },
+            "leadDetails": {
+                "LeadInfo": "Lead info",
+                "Comments": "Comments",
+                "Files": "Files",
+                "IntrestedIn": "Intrested In",
+                "GeneratedOn": "Generated On",
+                "Meta": "Meta",
+                "EditLead": "Edit lead",
+                "Option": "Option",
+                "Message": "Message",
+                "dataNotAvailable": "Data not availabe.",
+                "convertToClient": "Covert to Client",
+                "Convert": "Convert",
+                "MeetingStatus": "Meeting Status",
+                "NotSend": "Not Send",
+                "PriceOffer": "Price Offer",
+                "ScheduleMeeting": "Schedule Meeting",
+                "ReScheduleMeeting": "Re-schedule Meeting",
+                "SendOffer": "Send Offer",
+                "ReSendOffer": "Re-Send Offer",
+                "BookClient": "Book Client",
+                "Note": {
+                    "AddComment": "Add Comment",
+                    "Comment": "Comment",
+                    "markImp": "Mark if Important",
+                    "Close": "Close",
+                    "saveComment": "Save Comment",
+                    "placeHolder": {
+                        "comment": "Enter Comment"
+                    }
+                },
+                "File": {
+                    "AddFile": "Add File",
+                    "Meeting": "Meeting",
+                    "selectDefault": "--- Select meeting ---",
+                    "Note": "Note",
+                    "Type": "Type",
+                    "File": "File",
+                    "Close": "Close",
+                    "SaveFile": "Save File",
+                    "options": {
+                        "Image": "Image",
+                        "Video": "Video"
+                    },
+                    "placeHolder": {
+                        "Note": "Enter Note"
+                    }
+                }
+            }
+        },
+        "client": {
+            "clientName": "Client Name",
+            "BookedCustomer": "Booked Customer",
+            "NotBookedCustomer": "Not Booked Customer",
+            "Export": "Export",
+            "Options": {
+                "sortBy": "-- Sort By--",
+                "ID": "ID",
+                "Name": "Name",
+                "Email": "Email",
+                "Phone": "Phone",
+                "Status": "Status"
+            },
+            "createJob": "Create Job"
+        },
+        "schedule": {
+            "scheduleMetting": "Schedule Meeting",
+            "joinedOn": "Joined On",
+            "meetingStatus": " Meeting Status",
+            "meetingAttender": "Meeting Attender",
+            "meetingPurpose": "Meeting Purpose",
+            "meetingTimeAndDate": "Meeting time and date",
+            "startTime": "Start Time",
+            "endTime": "End Time",
+            "meetVia": "Meet Via",
+            "meetLink": "Meet Link",
+            "selectAddress": "Select Address",
+            "btnSend": "Send meeting",
+            "workerAvailability": "Worker Availability",
+            "date": "Date",
+            "Property": "Property",
+            "options": {
+                "pleaseSelect": "--- Please Select ---",
+                "meetingStatus": {
+                    "Pending": "Pending",
+                    "Confirmed": "Confirmed",
+                    "Declined": "Declined",
+                    "Completed": "Completed"
+                },
+                "meetingPurpose": {
+                    "priceOffer": "Price offer",
+                    "qualityCheck": "Quality check",
+                    "other": "Other"
+                },
+                "startTime": { "defaultOpt": " --- Choose start time ---" },
+                "endTime": { "defaultOpt": " --- Choose end time ---" },
+                "meetVia": {
+                    "onSite": "On site",
+                    "offSite": "Off site"
+                }
+            },
+            "jobs": {
+                "Cancelled": "Cancelled",
+                "Cancel": "Cancel",
+                "Completed": "Completed",
+                "Back": "Back",
+                "Name": "Name",
+                "Email": "Email",
+                "Phone": "Phone",
+                "City": "City",
+                "Address": "Address",
+                "parking": "Parking",
+                "clientDetails": "client Details",
+                "workerDetails": "Worker Details",
+                "serviceDetailslabel": "Service Details",
+                "WorkTime": "Work Time",
+                "serviceDetails": {
+                    "Service": "Service",
+                    "Frequency": "Frequency",
+                    "CompleteTime": "Complete Time",
+                    "hours": "hours",
+                    "Shift": "Shift",
+                    "JobStatus": "Job Status",
+                    "Order": "Order",
+                    "Invoice": "Invoice"
+                },
+                "workerTiming": {
+                    "ExportToCSV": "Export to CSV",
+                    "ExportReport": " Export Report",
+                    "AddTiming": "Add Timing",
+                    "StartTime": "Start Time",
+                    "EndTime": "End Time",
+                    "Time": "Time",
+                    "Action": "Action",
+                    "TotalTime": "Total Time",
+                    "AddWorkerTiming": "Add Worker Timing",
+                    "TimingStartsAt": "Timing Starts at",
+                    "TimingEndsAt": "Timing Ends at",
+                    "Close": "Close",
+                    "SaveTiming": "Save Timing",
+                    "EditWorkerTiming": "Edit Worker Timing"
+                },
+                "comment": {
+                    "AddComment": "Add Comment",
+                    "ClientComment": "Client Comment",
+                    "WorkerComment": "Worker Comment",
+                    "CommentFor": "Comment For",
+                    "PleaseChooseCommentFor": "---Please Choose Comment For---",
+                    "Client": "Client",
+                    "Worker": "Worker",
+                    "Comment": "Comment",
+                    "Close": "Close",
+                    "SaveComment": "SaveComment"
+                },
+                "CancelModal": {
+                    "CancellationFee": "Cancellation fee",
+                    "NoCharge": "No charge.",
+                    "Repeatancy": "Repeatancy",
+                    "options": {
+                        "PleaseSelect": " Please select ---",
+                        "oneTime": "One Time ( for single job )",
+                        "Forever": "Forever",
+                        "UntilDate": "Until Date"
+                    },
+                    "Close": "Close",
+                    "Cancel": "Cancel"
+                }
+            }
+        },
+        "sidebar": {
+            "dashboard": "Dashboard",
+            "leads": "Leads",
+            "jobs": "Jobs",
+            "Clients": "Clients",
+            "schedule": "Schedule",
+            "not_available": "Not Available Dates"
+        }
+    },
     "worker": {
         "welcome": "welcome",
         "logout": "Logout",
@@ -551,17 +979,20 @@
             "service": "Service",
             "shift": "Shift",
             "address": "Address",
+            "property": "Property",
             "c_time": "Complete Time",
             "status": "Status",
             "total": "Total",
             "action": "Action",
             "viewbtn": "View",
+            "job_details": "Job details",
             "view": {
                 "c_details": "Client Details",
-                "c_name": "Client Name",
-                "c_email": "Client Email",
-                "c_phone": "Client Phone",
+                "c_name": "Name",
+                "c_email": "Email",
+                "c_phone": "Phone",
                 "geo_adr": "Google address",
+                "parking": "Parking",
                 "s_details": "Service Details",
                 "services": "Services",
                 "job_status": "Job Status",
@@ -587,7 +1018,7 @@
                 "save_cmt": "Save Comment",
                 "close": "Close",
                 "file": "Upload files",
-                "going_to_start": "I'm going to start my work"
+                "going_to_start": "I'm leaving for work now"
             }
         },
         "schedule": {
@@ -866,5 +1297,8 @@
     },
     "credit-card": {
         "added-card": "Added Card"
+    },
+    "job_approval": {
+        "success_msg": "Job approved sucessfully"
     }
 }

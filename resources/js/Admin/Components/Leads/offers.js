@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function OfferedPrice() {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState("Loading..");
     const param = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -103,17 +105,18 @@ export default function OfferedPrice() {
                     <table className="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Client</th>
+                                <th>{t("admin.leads.viewLead.Client")}</th>
                                 {/* <th>Address</th> */}
-                                <th>Phone</th>
+                                <th>{t("admin.leads.viewLead.Phone")}</th>
                                 <th
                                     onClick={(e) => sortTable(e, "status")}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    Status <span className="arr"> &darr; </span>
+                                    {t("admin.leads.viewLead.Status")}{" "}
+                                    <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Total</th>
-                                <th>Action</th>
+                                <th>{t("admin.leads.viewLead.Total")}</th>
+                                <th>{t("admin.leads.viewLead.Action")}</th>
                             </tr>
                         </thead>
                         <tbody>

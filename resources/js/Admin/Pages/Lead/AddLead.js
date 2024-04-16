@@ -7,6 +7,7 @@ import { MultiSelect } from "react-multi-select-component";
 import Select from "react-select";
 import { create } from "lodash";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
+import { useTranslation } from "react-i18next";
 
 export default function AddLead() {
     const [firstname, setFirstName] = useState("");
@@ -24,6 +25,7 @@ export default function AddLead() {
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [paymentMethod, setPaymentMethod] = useState("cc");
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [addresses, setAddresses] = useState([]);
 
     const headers = {
@@ -105,7 +107,9 @@ export default function AddLead() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Add Lead</h1>
+                    <h1 className="page-title addEmployer">
+                        {t("admin.leads.AddLead.AddLead")}
+                    </h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -113,7 +117,10 @@ export default function AddLead() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                First name *
+                                                {t(
+                                                    "admin.leads.AddLead.FirstName"
+                                                )}{" "}
+                                                *
                                             </label>
                                             <input
                                                 type="text"
@@ -123,7 +130,9 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter first name"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.FirstName"
+                                                )}
                                             />
                                             {errors.firstname ? (
                                                 <small className="text-danger mb-1">
@@ -137,7 +146,9 @@ export default function AddLead() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Last name
+                                                {t(
+                                                    "admin.leads.AddLead.LastName"
+                                                )}
                                             </label>
                                             <input
                                                 type="text"
@@ -147,14 +158,18 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter last name"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.LastName"
+                                                )}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Invoice name
+                                                {t(
+                                                    "admin.leads.AddLead.InvoiceName"
+                                                )}
                                             </label>
                                             <input
                                                 type="text"
@@ -166,14 +181,19 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter invoice name"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.InvoiceName"
+                                                )}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Primary email *
+                                                {t(
+                                                    "admin.leads.AddLead.PrimaryEmail"
+                                                )}{" "}
+                                                *
                                             </label>
                                             <input
                                                 type="email"
@@ -183,7 +203,9 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter primary email"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.PrimaryEmail"
+                                                )}
                                             />
                                             {errors.email ? (
                                                 <small className="text-danger mb-1">
@@ -198,7 +220,9 @@ export default function AddLead() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Password
+                                                {t(
+                                                    "admin.leads.AddLead.Password"
+                                                )}
                                             </label>
                                             <input
                                                 type="password"
@@ -208,7 +232,9 @@ export default function AddLead() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter password"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.Password"
+                                                )}
                                                 autoComplete="new-password"
                                             />
                                             {errors.passcode ? (
@@ -224,7 +250,9 @@ export default function AddLead() {
                                     <div className="col-sm-6 phone">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Primary phone
+                                                {t(
+                                                    "admin.leads.AddLead.PrimaryPhone"
+                                                )}
                                             </label>
                                             <input
                                                 type="tel"
@@ -234,7 +262,9 @@ export default function AddLead() {
                                                     setPhone(e.target.value)
                                                 }
                                                 className="form-control pphone"
-                                                placeholder="Enter primary phone"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.PrimaryPhone"
+                                                )}
                                             />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
@@ -253,7 +283,9 @@ export default function AddLead() {
                                                     <div className="col-sm-4">
                                                         <div className="form-group">
                                                             <label className="control-label">
-                                                                Alternate email
+                                                                {t(
+                                                                    "admin.leads.AddLead.AlternateEmail"
+                                                                )}
                                                             </label>
                                                             <input
                                                                 type="tel"
@@ -269,7 +301,9 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="Enter alternate email"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.AlternateEmail"
+                                                                )}
                                                             />
                                                         </div>
                                                     </div>
@@ -277,7 +311,9 @@ export default function AddLead() {
                                                     <div className="col-sm-4">
                                                         <div className="form-group">
                                                             <label className="control-label">
-                                                                Person name
+                                                                {t(
+                                                                    "admin.leads.AddLead.PersonName"
+                                                                )}
                                                             </label>
                                                             <input
                                                                 type="tel"
@@ -293,7 +329,9 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="Enter person name"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.PersonName"
+                                                                )}
                                                             />
                                                         </div>
                                                     </div>
@@ -301,7 +339,9 @@ export default function AddLead() {
                                                     <div className="col-sm-3">
                                                         <div className="form-group">
                                                             <label className="control-label">
-                                                                Alternate phone
+                                                                {t(
+                                                                    "admin.leads.AddLead.AlternatePhone"
+                                                                )}
                                                             </label>
                                                             <input
                                                                 type="tel"
@@ -317,7 +357,9 @@ export default function AddLead() {
                                                                     )
                                                                 }
                                                                 className="form-control"
-                                                                placeholder="Enter alternate phone"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.AlternatePhone"
+                                                                )}
                                                             />
                                                         </div>
                                                     </div>
@@ -363,7 +405,9 @@ export default function AddLead() {
                                 </div>
 
                                 <PropertyAddress
-                                    heading={"Property Address"}
+                                    heading={t(
+                                        "admin.leads.AddLead.propertyAddress"
+                                    )}
                                     errors={errors}
                                     setErrors={setErrors}
                                     addresses={addresses}
@@ -372,7 +416,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Date of birth
+                                        {t("admin.leads.AddLead.DOB")}
                                     </label>
                                     <input
                                         type="date"
@@ -391,7 +435,7 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Payment method
+                                        {t("admin.leads.AddLead.PaymentMethod")}
                                     </label>
 
                                     <select
@@ -401,20 +445,32 @@ export default function AddLead() {
                                             setPaymentMethod(e.target.value);
                                         }}
                                     >
-                                        <option value="cc">Credit Card</option>
+                                        <option value="cc">
+                                            {t(
+                                                "admin.leads.AddLead.Options.PaymentMethod.CreditCard"
+                                            )}
+                                        </option>
                                         <option value="mt">
-                                            Money Transfer
+                                            {t(
+                                                "admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer"
+                                            )}
                                         </option>
                                         <option value="cheque">
-                                            By Cheque
+                                            {t(
+                                                "admin.leads.AddLead.Options.PaymentMethod.ByCheque"
+                                            )}
                                         </option>
-                                        <option value="cash">By Cash</option>
+                                        <option value="cash">
+                                            {t(
+                                                "admin.leads.AddLead.Options.PaymentMethod.ByCash"
+                                            )}
+                                        </option>
                                     </select>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Language
+                                        {t("admin.leads.AddLead.Language")}
                                     </label>
 
                                     <select
@@ -437,7 +493,7 @@ export default function AddLead() {
                                             className="form-check-label"
                                             htmlFor="title"
                                         >
-                                            Color
+                                            {t("admin.leads.AddLead.Color")}
                                         </label>
                                     </div>
                                     <div className="swatch white">
@@ -452,7 +508,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>white</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.white")}
+                                        </span>
                                     </div>
                                     <div className="swatch green">
                                         <input
@@ -468,7 +526,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Green</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Green")}
+                                        </span>
                                     </div>
                                     <div className="swatch blue">
                                         <input
@@ -484,7 +544,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Blue</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Blue")}
+                                        </span>
                                     </div>
                                     <div className="swatch purple">
                                         <input
@@ -500,7 +562,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Voilet</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Voilet")}
+                                        </span>
                                     </div>
                                     <div className="swatch red">
                                         <input
@@ -516,7 +580,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Red</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Red")}
+                                        </span>
                                     </div>
                                     <div className="swatch orange">
                                         <input
@@ -532,7 +598,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Orange</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Orange")}
+                                        </span>
                                     </div>
                                     <div className="swatch yellow">
                                         <input
@@ -548,7 +616,9 @@ export default function AddLead() {
                                         <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Yellow</span>
+                                        <span>
+                                            {t("admin.leads.AddLead.Yellow")}
+                                        </span>
                                     </div>
 
                                     {errors.color ? (

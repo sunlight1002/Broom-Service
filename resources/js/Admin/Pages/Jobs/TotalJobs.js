@@ -7,26 +7,42 @@ import Moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
-
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import useDebounce from "./hooks/useDebounce";
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 
 export default function TotalJobs() {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
-    const alert = useAlert();
-    const navigate = useNavigate();
-
-    const [lw, setLw] = useState("Change shift");
-    const [AllFreq, setAllFreq] = useState([]);
-    const [service, setService] = useState([]);
-    const [sworkers, setSworkers] = useState([]);
-    const [lng, setLng] = useState(null);
     const [cshift, setCshift] = useState({
         contract: "",
         client: "",
@@ -44,6 +60,17 @@ export default function TotalJobs() {
     });
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
     const [selectedJobId, setSelectedJobId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
+    });
+    const [paymentFilter, setPaymentFilter] = useState("");
+    const [searchVal, setSearchVal] = useState("");
+    const [selectedFilter, setselectedFilter] = useState("Week");
+
+    const alert = useAlert();
+    const navigate = useNavigate();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -52,39 +79,68 @@ export default function TotalJobs() {
     };
 
     const getJobs = () => {
-        axios.get(`/api/admin/jobs`, { headers }).then((response) => {
-            if (response.data.jobs.data.length > 0) {
-                setTotalJobs(response.data.jobs.data);
-                setPageCount(response.data.jobs.last_page);
-            } else {
-                setTotalJobs([]);
-                setLoading("No Job found");
-            }
-        });
-    };
+        let _filters = {};
 
-    useEffect(() => {
-        getJobs();
-    }, []);
+        if (searchVal) {
+            _filters.keyword = searchVal;
+        }
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
+        if (paymentFilter) {
+            _filters.payment_filter = paymentFilter;
+        }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
         axios
-            .get(
-                "/api/admin/jobs?page=" +
-                    currentPage +
-                    "&filter_week=all&q=" +
-                    filter,
-                { headers }
-            )
+            .get(`/api/admin/jobs`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((response) => {
                 if (response.data.jobs.data.length > 0) {
                     setTotalJobs(response.data.jobs.data);
                     setPageCount(response.data.jobs.last_page);
                 } else {
-                    setLoading("No Job found");
                     setTotalJobs([]);
+                    setPageCount(0);
+                    setLoading("No Job found");
                 }
+            });
+    };
+
+    // useEffect(() => {
+    //     getJobs();
+    // }, []);
+
+    useEffect(() => {
+        getJobs();
+    }, [currentPage, paymentFilter, dateRange, searchVal]);
+
+    const handleJobDone = (_jobID, _checked) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-job-done`,
+                { checked: _checked },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
+            });
+    };
+
+    const handleWorkerActualTime = (_jobID, _value) => {
+        axios
+            .post(
+                `/api/admin/jobs/${_jobID}/update-worker-actual-time`,
+                { value: _value },
+                { headers }
+            )
+            .then((response) => {
+                getJobs();
             });
     };
 
@@ -113,29 +169,6 @@ export default function TotalJobs() {
                     });
             }
         });
-    };
-
-    const [workers, setWorkers] = useState([]);
-    const [Aworker, setAworker] = useState([]);
-    const handleChange = (e, index) => {
-        const id = e.target.name;
-        axios.get(`/api/admin/job-worker/${id}`, { headers }).then((res) => {
-            if (res.data.aworker.length > 0) {
-                setAworker(res.data.aworker);
-            } else {
-                setAworker([]);
-            }
-        });
-    };
-
-    const upWorker = (e, index) => {
-        let newWorkers = [...workers];
-        newWorkers[e.target.name] = e.target.value;
-        setWorkers(newWorkers);
-        let up = e.target.parentNode.parentNode.lastChild.lastChild;
-        setTimeout(() => {
-            up.click();
-        }, 500);
     };
 
     const handleNavigate = (e, id) => {
@@ -247,39 +280,6 @@ export default function TotalJobs() {
         }
     };
 
-    const filterJobs = (e) => {
-        filterJobs1();
-    };
-
-    const filterJobDate = (w) => {
-        $("#filter-week").val(w);
-        filterJobs1();
-    };
-
-    const filterJobs1 = () => {
-        let filter_value = $("#search-field").val();
-        let filter_week = $("#filter-week").val();
-
-        axios
-            .get(`/api/admin/jobs`, {
-                headers,
-                params: {
-                    filter_week,
-                    q: filter_value,
-                },
-            })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setPageCount(response.data.jobs.last_page);
-                    setLoading("No Jobs found");
-                }
-            });
-    };
-
     const shiftColors = [
         {
             bg: "yellow",
@@ -318,42 +318,6 @@ export default function TotalJobs() {
         },
     ];
 
-    const slot = [
-        ["fullday-8am-16pm"],
-        ["morning1-8am-9am"],
-        ["morning2-9am-10am"],
-        ["morning3-10am-11am"],
-        ["morning4-11am-12pm"],
-        ["morning-8am-12pm"],
-        ["afternoon1-12pm-13pm"],
-        ["afternoon2-13pm-14pm"],
-        ["afternoon3-14pm-15pm"],
-        ["afternoon4-15pm-16pm"],
-        ["afternoon-12pm-16pm"],
-        ["evening1-16pm-17pm"],
-        ["evening2-17pm-18pm"],
-        ["evening3-18pm-19pm"],
-        ["evening4-19pm-20pm"],
-        ["evening-16pm-20pm"],
-        ["night1-20pm-21pm"],
-        ["night2-21pm-22pm"],
-        ["night3-22pm-23pm"],
-        ["night4-23pm-24am"],
-        ["night-20pm-24am"],
-    ];
-
-    const getFrequency = (lng) => {
-        axios
-            .post("/api/admin/all-service-schedule", { lng }, { headers })
-            .then((res) => {
-                setAllFreq(res.data.schedules);
-            });
-    };
-
-    const shiftChange = (e) => {
-        $("#edit-shift").modal("show");
-    };
-
     const resetShift = () => {
         setCshift({
             contract: "",
@@ -372,106 +336,6 @@ export default function TotalJobs() {
         });
     };
 
-    const handleShift = (e) => {
-        let newvalues = { ...cshift };
-
-        if (e.target.name == "job" && e.target.value) {
-            let j = e.target.options[e.target.selectedIndex];
-
-            newvalues["contract"] = j.getAttribute("contract");
-            newvalues["service"] = j.getAttribute("schedule_id");
-            newvalues["client"] = j.getAttribute("client");
-            setLng(j.getAttribute("lng"));
-        }
-
-        if (e.target.name == "shift_date") {
-            getWorker(cshift.service, e.target.value);
-        }
-
-        // if (e.target.name == 'contract' && e.target.value) {
-
-        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
-        // }
-        if (e.target.name == "repetency" && e.target.value != "one_time") {
-            getFrequency(lng);
-        }
-
-        if (e.target.name == "frequency") {
-            newvalues["cycle"] =
-                e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newvalues["period"] =
-                e.target.options[e.target.selectedIndex].getAttribute("period");
-        }
-        newvalues[e.target.name] = e.target.value;
-        console.log(newvalues);
-        setCshift(newvalues);
-    };
-
-    const getWorker = (sid, d) => {
-        setLw("Loading data..");
-        axios
-            .get(`/api/admin/shift-change-worker/${sid}/${d}`, { headers })
-            .then((res) => {
-                setSworkers(res.data.data);
-                setLw("Change shift");
-            });
-    };
-
-    const isEmptyOrSpaces = (str) => {
-        return str === null || str === "";
-    };
-
-    const changeShift = (e) => {
-        e.preventDefault();
-
-        // if (isEmptyOrSpaces(cshift.job)) {
-        //     window.alert('Please select job');
-        //     return;
-        // }
-
-        if (isEmptyOrSpaces(cshift.shift_date)) {
-            window.alert("Please choose new shift date");
-            return;
-        }
-        if (isEmptyOrSpaces(cshift.shift_time)) {
-            window.alert("Please choose new shift time");
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.repetency)) {
-            window.alert("Please select repetency");
-            return;
-        }
-
-        if (
-            cshift.repetency == "untill_date" &&
-            (isEmptyOrSpaces(cshift.from) || isEmptyOrSpaces(cshift.to))
-        ) {
-            window.alert("Please select From and To date");
-            return;
-        }
-        if (cshift.repetency == "one_time" && isEmptyOrSpaces(cshift.job)) {
-            window.alert("Please select job");
-            return;
-        }
-        if (
-            cshift.repetency == "forever" &&
-            isEmptyOrSpaces(cshift.frequency)
-        ) {
-            window.alert("Please select frequency");
-            return;
-        }
-
-        axios
-            .post(`/api/admin/update-shift`, { cshift }, { headers })
-            .then((res) => {
-                getJobs();
-                resetShift();
-                $("#edit-shift").modal("hide");
-                alert.success(res.data.success);
-            });
-    };
-
     const handleSwitchWorker = (_jobID) => {
         setSelectedJobId(_jobID);
         setIsOpenSwitchWorker(true);
@@ -483,55 +347,12 @@ export default function TotalJobs() {
             <div id="content" className="job-listing-page">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-2 col-4">
+                        {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
-                        </div>
-
-                        <div className="col-sm-8 hidden-xs">
+                        </div> */}
+                        {/* Desktop */}
+                        {/* <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                        setFilter(e.target.value);
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="ml-1 btn btn-info" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 btn btn-warning addButton"
                                     data-toggle="modal"
@@ -551,51 +372,168 @@ export default function TotalJobs() {
                                     Export to CSV
                                 </CSVLink>
                             </div>
+                        </div> */}
+                        {/* <div className="col-sm-2 hidden-xs">
+                            <div className="search-data">
+                                <input
+                                    type="text"
+                                    value={searchVal}
+                                    className="form-control"
+                                    placeholder="Search"
+                                    onChange={(e) => {
+                                        setSearchVal(e.target.value);
+                                    }}
+                                    style={{ marginRight: "0" }}
+                                />
+                            </div>
+                        </div> */}
+
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                            <div className="d-flex align-items-center">
+                                <div style={{ fontWeight: "bold" }}>Filter</div>
+                                <div className="mx-3 d-flex align-items-center border rounded">
+                                    <div className="mx-2 text-nowrap">
+                                        By Payment
+                                    </div>
+                                    <select
+                                        className="form-control"
+                                        value={paymentFilter}
+                                        onChange={(e) => {
+                                            setPaymentFilter(e.target.value);
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        <option value="1">Only Paid</option>
+                                        <option value="0">Only Unpaid</option>
+                                    </select>
+                                </div>
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2"
+                                >
+                                    Date Period
+                                </div>
+                                <FilterButtons
+                                    text="Day"
+                                    className="px-4 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date: todayFilter.start_date,
+                                            end_date: todayFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Week"
+                                    className="px-4 mr-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                currentWeekFilter.start_date,
+                                            end_date:
+                                                currentWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Previous Week"
+                                    className="px-3 mr-1"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                previousWeekFilter.start_date,
+                                            end_date:
+                                                previousWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                                <FilterButtons
+                                    text="Next Week"
+                                    className="px-3"
+                                    onClick={() =>
+                                        setDateRange({
+                                            start_date:
+                                                nextWeekFilter.start_date,
+                                            end_date: nextWeekFilter.end_date,
+                                        })
+                                    }
+                                    selectedFilter={selectedFilter}
+                                    setselectedFilter={setselectedFilter}
+                                />
+                            </div>
                         </div>
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Custom Date Range
+                                </div>
+
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">to</div>
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    data-toggle="modal"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                    data-target="#exampleModal"
+                                >
+                                    Export Time Reports
+                                </button>
+                                <Link
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                >
+                                    Change Worker Requests
+                                </Link>
+                            </div>
+                        </div>
+                        {/* Mobile */}
                         <div className="col-12 hidden-xl">
                             <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
-                                {/* <button className="btn btn-info mr-3" onClick={e => shiftChange(e)} >Shift Change</button> */}
                                 <button
                                     className="ml-2 reportModal btn btn-warning"
                                     data-toggle="modal"
@@ -603,21 +541,14 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+                                <Link
+                                    className="ml-2 btn btn-warning addButton"
+                                    to={`/admin/jobs/change-worker-requests`}
+                                >
+                                    Change Worker Requests
+                                </Link>
                             </div>
                         </div>
-                        <div className="col-sm-2 hidden-xs">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    id="search-field"
-                                    className="form-control"
-                                    placeholder="Search"
-                                    onChange={filterJobs}
-                                    style={{ marginRight: "0" }}
-                                />
-                            </div>
-                        </div>
-
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -632,10 +563,10 @@ export default function TotalJobs() {
                 </div>
                 <div className="card">
                     <div className="card-body getjobslist">
-                        <div className="boxPanel">
+                        <div className="boxPanel-th-border-none">
                             <div className="table-responsive">
                                 {totalJobs.length > 0 ? (
-                                    <table className="table table-bordered">
+                                    <table className="table">
                                         <thead>
                                             <tr>
                                                 <th
@@ -656,10 +587,23 @@ export default function TotalJobs() {
                                                         &darr;{" "}
                                                     </span>
                                                 </th>
+                                                <th scope="col">
+                                                    Client Reviews
+                                                </th>
+                                                <th scope="col">
+                                                    If Job Was Done
+                                                </th>
                                                 <th scope="col">Client</th>
                                                 <th scope="col">Worker</th>
                                                 <th scope="col">Shift</th>
                                                 <th scope="col">Service</th>
+                                                <th scope="col">
+                                                    Time For Job
+                                                </th>
+                                                <th scope="col">
+                                                    Time Worker Actually
+                                                </th>
+                                                <th scope="col">Comments</th>
                                                 <th
                                                     className="text-center"
                                                     scope="col"
@@ -737,26 +681,72 @@ export default function TotalJobs() {
                                                                 )
                                                             }
                                                         >
-                                                            <span className="d-block mb-1">
+                                                            <span className="d-block text-nowrap mb-1">
                                                                 {Moment(
                                                                     item.start_date
                                                                 ).format(
-                                                                    "DD-MM-YYYY"
+                                                                    "DD/MM/YYYY"
                                                                 )}
                                                             </span>
                                                         </td>
-                                                        <td
-                                                            style={
-                                                                item.client
-                                                                    ? {
-                                                                          background:
-                                                                              item
-                                                                                  .client
-                                                                                  .color,
-                                                                      }
-                                                                    : {}
-                                                            }
-                                                        >
+                                                        <td>
+                                                            {item.review && (
+                                                                <div className="d-flex justify-content-center">
+                                                                    <div
+                                                                        className="rounded"
+                                                                        style={{
+                                                                            padding:
+                                                                                "2px 10px",
+                                                                            backgroundColor:
+                                                                                "#f4f4f4",
+                                                                            border: "1px solid #ebebeb",
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            item.review
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                <span
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        border: "1px solid #ebebeb",
+                                                                        overflow:
+                                                                            "hidden",
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="job-compeleted"
+                                                                        checked={
+                                                                            item.is_job_done
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleJobDone(
+                                                                                item.id,
+                                                                                e
+                                                                                    .target
+                                                                                    .checked
+                                                                            );
+                                                                        }}
+                                                                        style={{
+                                                                            height: "20px",
+                                                                            width: "20px",
+                                                                            accentColor:
+                                                                                "#f4f4f4",
+                                                                        }}
+                                                                        className="form-control"
+                                                                    />
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
                                                             <Link
                                                                 to={
                                                                     item.client
@@ -764,9 +754,36 @@ export default function TotalJobs() {
                                                                         : "#"
                                                                 }
                                                                 style={{
-                                                                    color: "#000000",
+                                                                    color: item
+                                                                        .client
+                                                                        .color
+                                                                        ? "#FFFFFF"
+                                                                        : "#000000",
+                                                                    background:
+                                                                        item
+                                                                            .client
+                                                                            .color ||
+                                                                        "#FFFFFF",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
                                                                 }}
                                                             >
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
                                                                 {item.client
                                                                     ? item
                                                                           .client
@@ -779,90 +796,52 @@ export default function TotalJobs() {
                                                             </Link>
                                                         </td>
                                                         <td>
-                                                            <Link
-                                                                to={
-                                                                    item.worker
-                                                                        ? `/admin/view-worker/${item.worker.id}`
-                                                                        : "#"
-                                                                }
+                                                            <div
+                                                                onClick={() => {
+                                                                    handleSwitchWorker(
+                                                                        item.id
+                                                                    );
+                                                                    // $(
+                                                                    //     "#available-workers"
+                                                                    // ).modal(
+                                                                    //     "show"
+                                                                    // );
+                                                                }}
+                                                                style={{
+                                                                    color: "black",
+                                                                    background:
+                                                                        "#f4f4f4",
+                                                                    padding:
+                                                                        "3px 8px",
+                                                                    border: "1px solid #ebebeb",
+                                                                    borderRadius:
+                                                                        "5px",
+                                                                    display:
+                                                                        "flex",
+                                                                    alignItems:
+                                                                        "center",
+                                                                    width: "max-content",
+                                                                }}
                                                             >
-                                                                <h6>
-                                                                    {item.worker
-                                                                        ? item
-                                                                              .worker
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .worker
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </h6>
-                                                            </Link>
-                                                            <select
-                                                                name={item.id}
-                                                                className="form-control mb-3 mt-1"
-                                                                value={
-                                                                    workers[
-                                                                        `${item.id}`
-                                                                    ]
-                                                                        ? workers[
-                                                                              `${item.id}`
-                                                                          ]
-                                                                        : ""
-                                                                }
-                                                                onFocus={(e) =>
-                                                                    handleChange(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                                onChange={(e) =>
-                                                                    upWorker(
-                                                                        e,
-                                                                        index
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    --- Select
-                                                                    ---
-                                                                </option>
-                                                                {Aworker.length >
-                                                                0 ? (
-                                                                    Aworker &&
-                                                                    Aworker.map(
-                                                                        (
-                                                                            w,
-                                                                            i
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    value={
-                                                                                        w.id
-                                                                                    }
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        w.firstname
-                                                                                    }{" "}
-                                                                                    {
-                                                                                        w.lastname
-                                                                                    }
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )
-                                                                ) : (
-                                                                    <option value="">
-                                                                        No
-                                                                        worker
-                                                                        Match
-                                                                    </option>
-                                                                )}
-                                                            </select>
+                                                                <i
+                                                                    className="fa-solid fa-user"
+                                                                    style={{
+                                                                        fontSize:
+                                                                            "12px",
+                                                                        marginRight:
+                                                                            "5px",
+                                                                    }}
+                                                                ></i>
+                                                                {item.worker
+                                                                    ? item
+                                                                          .worker
+                                                                          .firstname +
+                                                                      " " +
+                                                                      item
+                                                                          .worker
+                                                                          .lastname
+                                                                    : "NA"}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -871,23 +850,12 @@ export default function TotalJobs() {
                                                                     item.id
                                                                 )
                                                             }
-                                                            style={
-                                                                ix != undefined
-                                                                    ? {
-                                                                          background:
-                                                                              ix.bg,
-                                                                          color: ix.tc,
-                                                                      }
-                                                                    : {
-                                                                          background:
-                                                                              "#d3d3d3",
-                                                                          color: "#444",
-                                                                      }
-                                                            }
                                                         >
-                                                            <span className="mBlue">
-                                                                {item.shifts}
-                                                            </span>
+                                                            <div className="d-flex flex-column justify-content-center">
+                                                                {shiftHelperFn(
+                                                                    item.shifts
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td
                                                             onClick={(e) =>
@@ -920,6 +888,46 @@ export default function TotalJobs() {
                                                                     : item
                                                                           .jobservice
                                                                           .heb_name)}
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.jobservice &&
+                                                                    item.client && (
+                                                                        <span className="text-nowrap">
+                                                                            {minutesToHours(
+                                                                                item
+                                                                                    .jobservice
+                                                                                    .duration_minutes
+                                                                            )}
+                                                                        </span>
+                                                                    )}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item && (
+                                                                    <ActuallyTimeWorker
+                                                                        data={
+                                                                            item
+                                                                        }
+                                                                        emitValue={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleWorkerActualTime(
+                                                                                item.id,
+                                                                                e *
+                                                                                    60
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex justify-content-center">
+                                                                {item.comment ||
+                                                                    "-"}
+                                                            </div>
                                                         </td>
                                                         <td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
@@ -959,6 +967,21 @@ export default function TotalJobs() {
                                                                         >
                                                                             View
                                                                         </Link>
+                                                                        {/* <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                console.log(
+                                                                                    `edit item - ${item.id}`
+                                                                                );
+                                                                                $(
+                                                                                    "#edit-job"
+                                                                                ).modal(
+                                                                                    "show"
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            Edit
+                                                                        </button> */}
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",
@@ -968,42 +991,6 @@ export default function TotalJobs() {
                                                                             item.status
                                                                         ) && (
                                                                             <>
-                                                                                <button
-                                                                                    className="dropdown-item"
-                                                                                    onClick={() => {
-                                                                                        setCshift(
-                                                                                            {
-                                                                                                contract:
-                                                                                                    item.contract_id,
-                                                                                                client: item.client_id,
-                                                                                                repetency:
-                                                                                                    "",
-                                                                                                job: item.id,
-                                                                                                from: "",
-                                                                                                to: "",
-                                                                                                worker: "",
-                                                                                                service:
-                                                                                                    item.schedule_id,
-                                                                                                shift_date:
-                                                                                                    "",
-                                                                                                frequency:
-                                                                                                    "",
-                                                                                                cycle: "",
-                                                                                                period: "",
-                                                                                                shift_time:
-                                                                                                    "",
-                                                                                            }
-                                                                                        );
-                                                                                        $(
-                                                                                            "#edit-shift"
-                                                                                        ).modal(
-                                                                                            "show"
-                                                                                        );
-                                                                                    }}
-                                                                                >
-                                                                                    Change
-                                                                                    Shift
-                                                                                </button>
                                                                                 <button
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>
@@ -1021,6 +1008,13 @@ export default function TotalJobs() {
                                                                                 >
                                                                                     Change
                                                                                     Worker
+                                                                                </Link>
+                                                                                <Link
+                                                                                    to={`/admin/jobs/${item.id}/change-shift`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Change
+                                                                                    Shift
                                                                                 </Link>
                                                                                 <button
                                                                                     className="dropdown-item"
@@ -1056,7 +1050,9 @@ export default function TotalJobs() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={() => {
+                                            setCurrentPage(currentPage + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }
@@ -1161,9 +1157,9 @@ export default function TotalJobs() {
                             </div>
                         </div>
 
-                        <div
+                        {/* <div
                             className="modal fade"
-                            id="edit-shift"
+                            id="edit-job"
                             tabIndex="-1"
                             role="dialog"
                             aria-labelledby="exampleModalLabel"
@@ -1176,7 +1172,7 @@ export default function TotalJobs() {
                                             className="modal-title"
                                             id="exampleModalLabel"
                                         >
-                                            Change Shift
+                                            Edit Job
                                         </h5>
                                         <button
                                             type="button"
@@ -1193,315 +1189,186 @@ export default function TotalJobs() {
                                     <div className="modal-body">
                                         <div className="row">
                                             <div className="col-sm-12">
-                                                <label className="control-label">
-                                                    Job
-                                                </label>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Date
+                                                    </label>
 
-                                                <select
-                                                    disabled
-                                                    className="form-control mb-3"
-                                                    name="job"
-                                                    value={cshift.job}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        --- Please select Job
-                                                        ---
-                                                    </option>
-                                                    {totalJobs.map((j, i) => {
-                                                        return (
-                                                            <option
-                                                                contract={
-                                                                    j.contract_id
-                                                                }
-                                                                client={
-                                                                    j.client_id
-                                                                }
-                                                                value={j.id}
-                                                                lng={
-                                                                    j.client
-                                                                        ? j
-                                                                              .client
-                                                                              .lng
-                                                                        : "heb"
-                                                                }
-                                                                schedule_id={
-                                                                    j.schedule_id
-                                                                }
-                                                                key={i}
-                                                            >
-                                                                {j.client
-                                                                    ? j.client
-                                                                          .firstname +
-                                                                      " " +
-                                                                      j.client
-                                                                          .lastname
-                                                                    : "NA"}{" "}
-                                                                | {j.shifts} |{" "}
-                                                                {Moment(
-                                                                    j.start_date
-                                                                ).format(
-                                                                    "DD MMM, Y"
-                                                                )}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift_date"
+                                                        type="date"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Client
+                                                    </label>
 
-                                                <label className="control-label">
-                                                    New Shift date
-                                                </label>
+                                                    <input
+                                                        className="form-control"
+                                                        name="client"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Worker
+                                                    </label>
 
-                                                <input
-                                                    className="form-control mb-3"
-                                                    name="shift_date"
-                                                    type="date"
-                                                    value={cshift.shift_date}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                />
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="William"
+                                                            selected
+                                                        >
+                                                            William
+                                                        </option>
+                                                        <option value="Adam">
+                                                            Adam
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Shift
+                                                    </label>
 
-                                                <label className="control-label">
-                                                    New Shift time
-                                                </label>
+                                                    <input
+                                                        className="form-control"
+                                                        name="shift"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Service
+                                                    </label>
 
-                                                <select
-                                                    className="form-control mb-3"
-                                                    name="shift_time"
-                                                    value={cshift.shift_time}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        --- Please select new
-                                                        shift time ---
-                                                    </option>
-                                                    {slot?.map((s, i) => {
-                                                        return (
-                                                            <option
-                                                                value={s}
-                                                                key={i}
-                                                            >
-                                                                {s}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
+                                                    <input
+                                                        className="form-control"
+                                                        name="service"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-0">
+                                                        Comments
+                                                    </label>
 
-                                                {lw == "Change shift" &&
-                                                    cshift.shift_time != "" && (
-                                                        <>
-                                                            <label className="control-label">
-                                                                Worker
-                                                            </label>
-
-                                                            <select
-                                                                className="form-control mb-3"
-                                                                name="worker"
-                                                                value={
-                                                                    cshift.worker
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    --- Please
-                                                                    select
-                                                                    available
-                                                                    workers ---
-                                                                </option>
-                                                                {sworkers &&
-                                                                    sworkers.map(
-                                                                        (
-                                                                            item,
-                                                                            index
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    value={
-                                                                                        item.id
-                                                                                    }
-                                                                                    key={
-                                                                                        index
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        item.firstname
-                                                                                    }{" "}
-                                                                                    {
-                                                                                        item.lastname
-                                                                                    }{" "}
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )}
-                                                            </select>
-
-                                                            <label className="control-label">
-                                                                Repetnacy
-                                                            </label>
-
-                                                            <select
-                                                                name="repetency"
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                                value={
-                                                                    cshift.repetency
-                                                                }
-                                                                className="form-control mb-3"
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    --- Please
-                                                                    select
-                                                                    repetnacy
-                                                                    ---
-                                                                </option>
-                                                                <option value="one_time">
-                                                                    {" "}
-                                                                    One Time (
-                                                                    for single
-                                                                    job )
-                                                                </option>
-                                                                <option value="forever">
-                                                                    {" "}
-                                                                    Forever{" "}
-                                                                </option>
-                                                                <option value="untill_date">
-                                                                    {" "}
-                                                                    Until Date{" "}
-                                                                </option>
-                                                            </select>
-                                                        </>
-                                                    )}
-
-                                                {cshift.repetency &&
-                                                    cshift.repetency !=
-                                                        "one_time" && (
-                                                        <>
-                                                            <label className="control-label">
-                                                                New Frequency
-                                                            </label>
-
-                                                            <select
-                                                                name="frequency"
-                                                                className="form-control mb-3"
-                                                                value={
-                                                                    cshift.frequency ||
-                                                                    ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    -- Please
-                                                                    select
-                                                                    frequency --
-                                                                </option>
-                                                                {AllFreq &&
-                                                                    AllFreq.map(
-                                                                        (
-                                                                            s,
-                                                                            i
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    cycle={
-                                                                                        s.cycle
-                                                                                    }
-                                                                                    period={
-                                                                                        s.period
-                                                                                    }
-                                                                                    name={
-                                                                                        s.name
-                                                                                    }
-                                                                                    value={
-                                                                                        s.id
-                                                                                    }
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        s.name
-                                                                                    }{" "}
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )}
-                                                            </select>
-                                                        </>
-                                                    )}
-
-                                                {cshift.repetency ==
-                                                    "untill_date" && (
-                                                    <>
-                                                        <label className="control-label">
-                                                            From
-                                                        </label>
-
-                                                        <input
-                                                            className="form-control mb-3"
-                                                            type="date"
-                                                            placeholder="From date"
-                                                            name="from"
-                                                            value={cshift.from}
-                                                            onChange={(e) =>
-                                                                handleShift(e)
-                                                            }
-                                                        />
-
-                                                        <label className="control-label">
-                                                            To
-                                                        </label>
-
-                                                        <input
-                                                            className="form-control mb-3"
-                                                            type="date"
-                                                            placeholder="To date"
-                                                            name="to"
-                                                            value={cshift.to}
-                                                            onChange={(e) =>
-                                                                handleShift(e)
-                                                            }
-                                                        />
-                                                    </>
-                                                )}
-
-                                                <button
-                                                    className="btn btn-success form-control"
-                                                    onClick={(e) =>
-                                                        changeShift(e)
-                                                    }
-                                                >
-                                                    {" "}
-                                                    {lw}{" "}
-                                                </button>
+                                                    <textarea
+                                                        className="form-control"
+                                                        name="comments"
+                                                        type="text"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
+
+                        {/* <div
+                            className="modal fade"
+                            id="available-workers"
+                            tabIndex="-1"
+                            role="dialog"
+                            aria-labelledby="exampleModalLabel"
+                            aria-hidden="true"
+                        >
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5
+                                            className="modal-title"
+                                            id="exampleModalLabel"
+                                        >
+                                            Available Workers
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                            onClick={(e) => resetShift()}
+                                        >
+                                            <span aria-hidden="true">
+                                                &times;
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="mb-2">
+                                                    <label className="control-label mb-1">
+                                                        Worker Gender
+                                                    </label>
+
+                                                    <select
+                                                        className="form-control"
+                                                        onChange={(e) => {
+                                                            console.log(e);
+                                                        }}
+                                                    >
+                                                        <option
+                                                            value="male"
+                                                            selected
+                                                        >
+                                                            Only Male
+                                                        </option>
+                                                        <option value="female">
+                                                            Only Female
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary closeb"
+                                            data-dismiss="modal"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                console.log("submit");
+                                            }}
+                                            className="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -1517,3 +1384,111 @@ export default function TotalJobs() {
         </div>
     );
 }
+
+const minutesToHours = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hours`;
+};
+
+const shiftHelperFn = (timeString) => {
+    if (timeString) {
+        const arrOfStr = timeString.split(",");
+        return arrOfStr.map((s, index) => (
+            <div
+                className="rounded mb-1"
+                style={{
+                    whiteSpace: "nowrap",
+                    background: "#e7a917",
+                    color: "white",
+                    padding: "3px 8px",
+                }}
+                key={index}
+            >
+                {s}
+            </div>
+        ));
+    } else {
+        return "-";
+    }
+};
+
+const divStyle = {
+    background: "#f4f4f4",
+    color: "black",
+    padding: "3px 8px",
+    border: "1px solid #ebebeb",
+};
+
+const ActuallyTimeWorker = ({ data, emitValue }) => {
+    const [count, setCount] = useState(0);
+    const [isChanged, setisChanged] = useState(false);
+    const debouncedValue = useDebounce(count, 500);
+
+    useEffect(() => {
+        isChanged && emitValue(debouncedValue);
+    }, [debouncedValue]);
+
+    useEffect(() => {
+        setCount(
+            data.actual_time_taken_minutes
+                ? Math.floor(data.actual_time_taken_minutes / 60)
+                : 0
+        );
+    }, [data]);
+
+    return (
+        <div className="d-flex align-items-center">
+            <div
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count - 1);
+                }}
+                style={{
+                    ...divStyle,
+                    pointerEvents: count === 0 ? "none" : "auto",
+                    opacity: count === 0 ? 0.5 : 1,
+                }}
+            >
+                -
+            </div>
+            <span className="mx-1" style={{ ...divStyle, background: "white" }}>
+                {count}
+            </span>
+            <button
+                onClick={() => {
+                    setisChanged(true);
+                    setCount(count + 1);
+                }}
+                style={divStyle}
+            >
+                +
+            </button>
+        </div>
+    );
+};
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn border rounded ${className}`}
+        style={
+            selectedFilter === text
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);

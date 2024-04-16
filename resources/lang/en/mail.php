@@ -118,6 +118,10 @@ return [
         'cancellation_fee' => 'With Cancellation fees ',
         'btn_txt'     => 'Check Contract',
         'thanks_text'   => 'Thanks',
+        'job_completed' => 'Your job has been completed',
+        'review_request' => 'Please, rate us and send your review',
+        'review' => 'Review',
+        'job_completed_subject'     => 'Job Completed | Broom Service',
     ],
     'worker_new_job' => [
         'subject'     => 'Job Details with',
@@ -193,5 +197,30 @@ return [
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone',
         'property'    => 'Property'
+    ],
+    'worker_tomorrow_job' => [
+        'subject' => 'Tomorrow Job | Broom Service',
+        'hi'          => 'Hi',
+        'greetings'   => 'Greetings',
+        'from'        => 'from',
+        'company'     => 'Broom Service',
+        'message' => 'This is to inform you about your tomorrow job.',
+        'date'        => 'Date',
+        'worker'      => 'Worker',
+        'client'      => 'Client',
+        'service'     => 'Service',
+        'start_time'  => 'Start Time',
+        'property'  => 'Property',
+        'shift'       => 'Shift',
+        'status'      => 'Status',
+        'action'      => 'Action',
+        'approve'      => 'Approve',
+        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'regards'     => 'Best Regards',
+        'tel'         => 'Telephone',
+    ],
+    'worker_job' => [
+        'shift_changed' => 'Job shift changed.',
+        'shift_changed_subject' => 'Job shift changed | Broom Service',
     ]
 ];

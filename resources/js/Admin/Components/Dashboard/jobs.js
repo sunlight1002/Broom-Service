@@ -3,12 +3,14 @@ import ReactPaginate from "react-paginate";
 import Moment from "moment";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function jobs() {
     const [jobs, setjobs] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [latestJobs, setlatestJobs] = useState([]);
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -196,7 +198,7 @@ export default function jobs() {
                         aria-selected="true"
                         role="tab"
                     >
-                        Today
+                        {t("admin.dashboard.jobs.today")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -211,7 +213,7 @@ export default function jobs() {
                         aria-selected="false"
                         role="tab"
                     >
-                        This week
+                        {t("admin.dashboard.jobs.thisWeek")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -224,7 +226,7 @@ export default function jobs() {
                         aria-selected="false"
                         role="tab"
                     >
-                        Completed
+                        {t("admin.dashboard.jobs.completed")}
                     </a>
                 </li>
             </ul>
@@ -247,28 +249,36 @@ export default function jobs() {
                                             }}
                                             style={{ cursor: "pointer" }}
                                         >
-                                            Job Date{" "}
+                                            {t("admin.dashboard.jobs.jobDate")}{" "}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>{" "}
                                         </th>
-                                        <th>Worker</th>
-                                        <th>Client</th>
-                                        <th>Service</th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.worker")}
+                                        </th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.client")}
+                                        </th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.service")}
+                                        </th>
                                         <th
                                             onClick={(e) => {
                                                 sortTable(e, "status");
                                             }}
                                             style={{ cursor: "pointer" }}
                                         >
-                                            Status{" "}
+                                            {t("admin.dashboard.jobs.status")}
                                             <span className="arr">
                                                 {" "}
                                                 &darr;{" "}
                                             </span>{" "}
                                         </th>
-                                        <th>Action</th>
+                                        <th>
+                                            {t("admin.dashboard.jobs.action")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -312,7 +322,9 @@ export default function jobs() {
                                                             to={`/admin/view-job/${j.id}`}
                                                             className="btn btn-primary"
                                                         >
-                                                            View
+                                                            {t(
+                                                                "admin.dashboard.jobs.view"
+                                                            )}
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -366,28 +378,48 @@ export default function jobs() {
                                                 }}
                                                 style={{ cursor: "pointer" }}
                                             >
-                                                Job Date{" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.jobDate"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>{" "}
                                             </th>
-                                            <th>Worker</th>
-                                            <th>Client</th>
-                                            <th>Service</th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.worker"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.client"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.service"
+                                                )}
+                                            </th>
                                             <th
                                                 onClick={(e) => {
                                                     sortTable(e, "start_date");
                                                 }}
                                                 style={{ cursor: "pointer" }}
                                             >
-                                                Status{" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.status"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>{" "}
                                             </th>
-                                            <th>Action</th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.action"
+                                                )}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -438,7 +470,9 @@ export default function jobs() {
                                                                 to={`/admin/view-job/${j.id}`}
                                                                 className="btn btn-primary"
                                                             >
-                                                                View
+                                                                {t(
+                                                                    "admin.dashboard.jobs.view"
+                                                                )}
                                                             </Link>
                                                         </td>
                                                     </tr>
@@ -489,16 +523,23 @@ export default function jobs() {
                                 <table className="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Client Name</th>
-                                            <th>Service Name</th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.clientName"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.serviceName"
+                                                )}
+                                            </th>
                                             <th
                                                 style={{ cursor: "pointer" }}
                                                 onClick={(e) =>
                                                     sortTablec("date")
                                                 }
                                             >
-                                                {" "}
-                                                Date{" "}
+                                                {t("admin.dashboard.jobs.date")}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -510,21 +551,29 @@ export default function jobs() {
                                                     sortTablec("shift")
                                                 }
                                             >
-                                                {" "}
-                                                Shift{" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.shift"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>{" "}
                                             </th>
-                                            <th>Assigned Worker</th>
+                                            <th>
+                                                {" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.assignedWorker"
+                                                )}
+                                            </th>
                                             <th
                                                 style={{ cursor: "pointer" }}
                                                 onClick={(e) =>
                                                     sortTablec("sattus")
                                                 }
                                             >
-                                                Status{" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.status"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
@@ -536,13 +585,19 @@ export default function jobs() {
                                                     sortTablec("total")
                                                 }
                                             >
-                                                Total{" "}
+                                                {t(
+                                                    "admin.dashboard.jobs.total"
+                                                )}
                                                 <span className="arr">
                                                     {" "}
                                                     &darr;{" "}
                                                 </span>{" "}
                                             </th>
-                                            <th>Action</th>
+                                            <th>
+                                                {t(
+                                                    "admin.dashboard.jobs.action"
+                                                )}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>

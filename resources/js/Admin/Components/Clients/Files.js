@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function files() {
     const [note, setNote] = useState("");
@@ -13,6 +14,7 @@ export default function files() {
     const [meeting, setMeeting] = useState([]);
     const param = useParams();
     const alert = useAlert();
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -140,7 +142,7 @@ export default function files() {
                     data-toggle="modal"
                     data-target="#exampleModal"
                 >
-                    Add File
+                    {t("admin.leads.leadDetails.File.AddFile")}
                 </button>
             </div>
             {AllFiles &&
@@ -245,7 +247,7 @@ export default function files() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Add File
+                                {t("admin.leads.leadDetails.File.AddFile")}
                             </h5>
                             <button
                                 type="button"
@@ -261,7 +263,9 @@ export default function files() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Meeting
+                                            {t(
+                                                "admin.leads.leadDetails.File.Meeting"
+                                            )}
                                         </label>
                                         <select
                                             name="meeting"
@@ -271,7 +275,9 @@ export default function files() {
                                             className="form-control"
                                         >
                                             <option value={0}>
-                                                --- Select meeting ---
+                                                {t(
+                                                    "admin.leads.leadDetails.File.selectDefault"
+                                                )}
                                             </option>
                                             {schedules &&
                                                 schedules.map((m, i) => {
@@ -299,7 +305,9 @@ export default function files() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Note
+                                            {t(
+                                                "admin.leads.leadDetails.File.Note"
+                                            )}
                                         </label>
                                         <textarea
                                             type="text"
@@ -309,28 +317,44 @@ export default function files() {
                                             }
                                             className="form-control"
                                             required
-                                            placeholder="Enter Note"
+                                            placeholder={t(
+                                                "admin.leads.leadDetails.File.placeHolder.Note"
+                                            )}
                                         ></textarea>
                                     </div>
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Type
+                                            {t(
+                                                "admin.leads.leadDetails.File.Type"
+                                            )}
                                         </label>
                                         <select
                                             name="filetype"
                                             className="form-control"
                                         >
-                                            <option value="image">Image</option>
-                                            <option value="video">Video</option>
+                                            <option value="image">
+                                                {" "}
+                                                {t(
+                                                    "admin.leads.leadDetails.File.options.Image"
+                                                )}
+                                            </option>
+                                            <option value="video">
+                                                {" "}
+                                                {t(
+                                                    "admin.leads.leadDetails.File.options.Video"
+                                                )}
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            File
+                                            {t(
+                                                "admin.leads.leadDetails.File.File"
+                                            )}
                                         </label>
                                         <input
                                             type="file"
@@ -351,14 +375,14 @@ export default function files() {
                                 className="btn btn-secondary closeb"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("admin.leads.leadDetails.File.Close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleFile}
                                 className="btn btn-primary"
                             >
-                                Save File
+                                {t("admin.leads.leadDetails.File.SaveFile")}
                             </button>
                         </div>
                     </div>

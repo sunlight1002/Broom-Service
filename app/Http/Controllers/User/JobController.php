@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Events\WorkerApprovedJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Admin;
@@ -15,10 +16,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
+use App\Traits\JobSchedule;
 
 class JobController extends Controller
 {
-    use PaymentAPI;
+    use PaymentAPI, JobSchedule;
 
     /**
      * Display a listing of the resource.
@@ -104,10 +106,26 @@ class JobController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $job = Job::with('client', 'worker', 'jobservice')->find($id);
+        $job = Job::with(['client', 'worker', 'jobservice'])
+            ->where('worker_id', Auth::id())
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        $job->update([
+            'status' => JobStatusEnum::COMPLETED
+        ]);
         //$this->invoice($id);
-        $job->status = JobStatusEnum::COMPLETED;
-        $job->save();
 
         $admin = Admin::find(1)->first();
         App::setLocale('en');
@@ -205,6 +223,8 @@ class JobController extends Controller
             'time_diff' => $request->time_diff,
         ]);
 
+        $this->updateJobWorkerMinutes($request->job_id);
+
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
@@ -231,7 +251,8 @@ class JobController extends Controller
         ]);
     }
 
-    public function setJobOpeningTimestamp(Request $request) {
+    public function setJobOpeningTimestamp(Request $request)
+    {
         $rData = $request->all();
         try {
             $job = Job::updateOrCreate([
@@ -267,5 +288,55 @@ class JobController extends Controller
                 'message' => 'Something went wrong!'
             ]);
         }
+    }
+
+    public function workerJob(Request $request, $wid, $jid)
+    {
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            ->where('worker_id', $wid)
+            ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+            ->find($jid);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $job
+        ]);
+    }
+
+    public function approveWorkerJob(Request $request, $wid, $jid)
+    {
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            ->where('worker_id', $wid)
+            ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+            ->find($jid);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 404);
+        }
+
+        if ($job->worker_approved_at) {
+            return response()->json([
+                'message' => 'Job already approved'
+            ], 403);
+        }
+
+        $job->update([
+            'worker_approved_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        event(new WorkerApprovedJob($job));
+
+        return response()->json([
+            'data' => 'Job approved successfully'
+        ]);
     }
 }

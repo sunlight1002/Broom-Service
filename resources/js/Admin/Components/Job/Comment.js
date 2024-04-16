@@ -4,16 +4,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function Comment() {
     let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
-    const [role, setRole] = useState("");
+    const [commentFor, setCommentFor] = useState("");
     const [allClientComment, setAllClientComment] = useState([]);
     const [allWorkerComment, setAllWorkerComment] = useState([]);
     const param = useParams();
     const alert = useAlert();
-
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "multipart/form-data",
@@ -22,7 +23,7 @@ export default function Comment() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (role == "") {
+        if (commentFor == "") {
             window.alert("Please Select Comment For.");
             return;
         }
@@ -33,7 +34,7 @@ export default function Comment() {
         const data = new FormData();
         data.append("job_id", param.id);
         data.append("comment", comment);
-        data.append("role", role);
+        data.append("comment_for", commentFor);
         data.append("name", localStorage.getItem("admin-name"));
         if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
             for (
@@ -56,7 +57,7 @@ export default function Comment() {
                 alert.success(res.data.message);
                 getComments();
                 setComment("");
-                setRole("");
+                setCommentFor("");
             }
         });
     };
@@ -125,7 +126,7 @@ export default function Comment() {
                     data-toggle="modal"
                     data-target="#exampleModal"
                 >
-                    Add Comment
+                    {t("admin.schedule.jobs.comment.AddComment")}
                 </button>
             </div>
             <ul className="nav nav-tabs" role="tablist">
@@ -138,7 +139,7 @@ export default function Comment() {
                         aria-selected="true"
                         role="tab"
                     >
-                        Client Comment
+                        {t("admin.schedule.jobs.comment.ClientComment")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -150,7 +151,7 @@ export default function Comment() {
                         aria-selected="true"
                         role="tab"
                     >
-                        Worker Comment
+                        {t("admin.schedule.jobs.comment.WorkerComment")}
                     </a>
                 </li>
             </ul>
@@ -380,7 +381,7 @@ export default function Comment() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Add Comment
+                                {t("admin.schedule.jobs.comment.AddComment")}
                             </h5>
                             <button
                                 type="button"
@@ -396,24 +397,31 @@ export default function Comment() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Comment For
+                                            {t(
+                                                "admin.schedule.jobs.comment.CommentFor"
+                                            )}
                                         </label>
                                         <select
-                                            value={role}
+                                            value={commentFor}
                                             onChange={(e) =>
-                                                setRole(e.target.value)
+                                                setCommentFor(e.target.value)
                                             }
                                             className="form-control"
                                         >
                                             <option value="">
-                                                --- Please Choose Comment For
-                                                ---
+                                                {t(
+                                                    "admin.schedule.jobs.comment.PleaseChooseCommentFor"
+                                                )}
                                             </option>
                                             <option value="client">
-                                                Client
+                                                {t(
+                                                    "admin.schedule.jobs.comment.Client"
+                                                )}
                                             </option>
                                             <option value="worker">
-                                                Worker
+                                                {t(
+                                                    "admin.schedule.jobs.comment.Worker"
+                                                )}
                                             </option>
                                         </select>
                                     </div>
@@ -421,14 +429,16 @@ export default function Comment() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Comment
+                                            {t(
+                                                "admin.schedule.jobs.comment.Comment"
+                                            )}
                                         </label>
                                         <textarea
                                             type="text"
                                             value={comment}
-                                            onChange={(e) =>
-                                                setComment(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setComment(e.target.value);
+                                            }}
                                             className="form-control"
                                             required
                                             placeholder="Enter Comment"
@@ -460,14 +470,14 @@ export default function Comment() {
                                 className="btn btn-secondary closeb"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("admin.schedule.jobs.comment.Close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleSubmit}
                                 className="btn btn-primary"
                             >
-                                Save Comment
+                                {t("admin.schedule.jobs.comment.SaveComment")}
                             </button>
                         </div>
                     </div>

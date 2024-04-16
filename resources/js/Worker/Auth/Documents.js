@@ -5,9 +5,11 @@ import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import DocumentList from "../../Admin/Components/Documents/DocumentList";
 
 export default function Documents() {
     const [file, setFile] = useState(false);
+    const [user, setUser] = useState({});
     const [pdf, setPdf] = useState("");
     const params = useParams();
     const alert = useAlert();
@@ -51,8 +53,21 @@ export default function Documents() {
             setFile(response.data.success.form_101);
         });
     };
+    const getDocuments = () => {
+        axios
+            .get(
+                `/api/document/${parseInt(localStorage.getItem("worker-id"))}`,
+                { headers }
+            )
+            .then((res) => {
+                if (res.data && res.data.user) {
+                    setUser(res.data.user);
+                }
+            });
+    };
     useEffect(() => {
         getWorker();
+        getDocuments();
     }, []);
 
     return (
@@ -87,7 +102,9 @@ export default function Documents() {
                     </button>
                 </div>
             </div>
-
+            <div className="col-md-12">
+                <DocumentList documents={user.documents} user={user} />
+            </div>
             <div
                 className="modal fade"
                 id="exampleModal"

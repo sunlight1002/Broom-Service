@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'webhook_fb',
         'twilio/voice/webhook',
-        'zcredit/callback'
+        'zcredit/callback',
+        'newlead',
     ];
 }

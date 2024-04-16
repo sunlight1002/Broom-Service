@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Models\Job;
+use App\Models\JobHours;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Str;
@@ -420,5 +422,21 @@ trait JobSchedule
 
         // Calculate the difference
         return $time2Obj->diffInMinutes($time1Obj);
+    }
+
+    private function updateJobWorkerMinutes($jobID)
+    {
+        $job = Job::find($jobID);
+
+        if ($job) {
+            $hours = JobHours::query()
+                ->where('job_id', $job->id)
+                ->selectRaw('SUM(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60) as minutes')
+                ->first();
+
+            $job->update([
+                'actual_time_taken_minutes' => (int)$hours->minutes
+            ]);
+        }
     }
 }
