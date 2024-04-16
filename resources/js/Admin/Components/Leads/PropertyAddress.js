@@ -50,6 +50,7 @@ const PropertyAddress = memo(function PropertyAddress({
     let Apt = useRef();
     let enterance = useRef();
     let zip = useRef();
+    let parking = useRef();
     let addressId = useRef();
     let lat = useRef();
     let long = useRef();
@@ -133,6 +134,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 apt_no: Apt.current.value,
                 entrence_code: enterance.current.value,
                 zipcode: zip.current.value,
+                parking: parking.current.value,
                 longitude: long.current.value,
                 latitude: lat.current.value,
                 city: city.current.value,
@@ -160,6 +162,8 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.entrence_code;
                 addressVal[addressId.current.value]["zipcode"] =
                     updatedData.zipcode;
+                addressVal[addressId.current.value]["parking"] =
+                    updatedData.parking;
                 addressVal[addressId.current.value]["prefer_type"] =
                     updatedData.prefer_type;
                 addressVal[addressId.current.value]["is_dog_avail"] =
@@ -214,6 +218,7 @@ const PropertyAddress = memo(function PropertyAddress({
         Apt.current && (Apt.current.value = "");
         enterance.current && (enterance.current.value = "");
         zip.current && (zip.current.value = "");
+        parking.current && (parking.current.value = "");
         prefer_type.current && (prefer_type.current.value = "default");
         is_cat_avail.current && (is_cat_avail.current.checked = false);
         is_dog_avail.current && (is_dog_avail.current.checked = false);
@@ -240,6 +245,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 Apt.current.value = data.apt_no;
                 enterance.current.value = data.entrence_code;
                 zip.current.value = data.zipcode;
+                parking.current.value = data.parking;
                 prefer_type.current.value = data.prefer_type
                     ? data.prefer_type
                     : "default";
@@ -534,12 +540,34 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 "admin.leads.AddLead.addAddress.placeHolder.ZipCode"
                                             )}
                                         />
-                                        {errors.zip ? (
+                                        {errors.zip && (
                                             <small className="text-danger mb-1">
                                                 {errors.zip}
                                             </small>
-                                        ) : (
-                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.parking"
+                                            )}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            ref={parking}
+                                            className="form-control"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.parking"
+                                            )}
+                                        />
+                                        {errors.parking && (
+                                            <small className="text-danger mb-1">
+                                                {errors.parking}
+                                            </small>
                                         )}
                                     </div>
                                 </div>

@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('worker:default-availability')->weekly();
+        $schedule->command('job:recurring')->dailyAt('02:00');
         $schedule->command('request:expired')->dailyAt('02:00');
         $schedule->command('worker:notify-next-day-job')->dailyAt('17:00');
         $schedule->command('worker:failed-to-approve-job')->dailyAt('20:00');

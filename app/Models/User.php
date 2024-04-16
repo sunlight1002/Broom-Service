@@ -43,6 +43,8 @@ class User extends Authenticatable
         'longitude',
         'freeze_shift_start_time',
         'freeze_shift_end_time',
+        'visa', 
+        'passport'
     ];
 
     /**
@@ -88,5 +90,15 @@ class User extends Authenticatable
     public function notAvailableDates()
     {
         return $this->hasMany(WorkerNotAvailableDate::class);
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'userable')->orderBy('created_at','DESC');
+    }
+
+    public function forms()
+    {
+        return $this->morphMany(Form::class, 'user');
     }
 }

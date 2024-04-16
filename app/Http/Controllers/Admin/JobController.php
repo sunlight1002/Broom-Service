@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
@@ -622,12 +623,143 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
+        $job->update($jobData);
+
+        $job->jobservice()->update([
+            'duration_minutes'  => $minutes,
+            'config'            => [
+                'cycle'             => $job->jobservice->cycle,
+                'period'            => $job->jobservice->period,
+                'preferred_weekday' => $preferredWeekDay
+            ]
+        ]);
+
+        $shiftFormattedArr = [];
+        foreach ($shiftsInHour as $key => $time) {
+            $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
+            $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            ];
         }
 
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
+        $job->workerShifts()->delete();
+        foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+            $job->workerShifts()->create($shift);
+        }
+
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
+
+        return response()->json([
+            'message' => 'Job has been updated successfully'
+        ]);
+    }
+
+    public function changeJobShift(Request $request, $id)
+    {
+        $data = $request->all();
+
+        if (!in_array($data['repeatancy'], ['one_time', 'until_date', 'forever'])) {
+            return response()->json([
+                'message' => "Repeatancy is invalid",
+            ], 422);
+        }
+
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'jobservice',
+            ])
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        $repeat_value = $job->jobservice->period;
+
+        $shifts = explode(',', $data['worker']['shifts']);
+        $shiftsInHour = [];
+        foreach ($shifts as $key => $shift) {
+            $timing = explode('-', $shift);
+            $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
+            $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+
+            $shiftsInHour[] = [
+                'start' => $timing[0],
+                'end' => $timing[1]
+            ];
+        }
+
+        $minutes = 0;
+        foreach ($shiftsInHour as $key => $value) {
+            $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
+        }
+        $job_date = Carbon::parse($data['worker']['date']);
+        $preferredWeekDay = strtolower($job_date->format('l'));
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+
+        $job_date = $job_date->toDateString();
+
+        $status = JobStatusEnum::SCHEDULED;
+
+        if (
+            Job::where('start_date', $job_date)
+            ->where('id', '!=', $job->id)
+            ->where('worker_id', $job->worker_id)
+            ->exists()
+        ) {
+            $status = JobStatusEnum::UNSCHEDULED;
+        }
+
+        $jobData = [
+            'start_date'    => $job_date,
+            'shifts'        => $data['worker']['shifts'],
+            'status'        => $status,
+            'next_start_date'   => $next_job_date,
+        ];
+
+        if ($data['repeatancy'] == 'one_time') {
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = NULL;
+        } else if ($data['repeatancy'] == 'until_date') {
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = $data['until_date'];
+        } else if ($data['repeatancy'] == 'forever') {
+            $jobData['previous_shifts'] = NULL;
+            $jobData['previous_shifts_after'] = NULL;
         }
 
         $job->update($jobData);
@@ -659,7 +791,7 @@ class JobController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
+        event(new JobShiftChanged($job, $shiftsInHour));
 
         return response()->json([
             'message' => 'Job has been updated successfully'
@@ -1037,22 +1169,6 @@ class JobController extends Controller
             $jobData['previous_worker_after'] = NULL;
             $otherJobData['previous_worker_id'] = NULL;
             $otherJobData['previous_worker_after'] = NULL;
-        }
-
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
-        }
-
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
-        }
-
-        if (!$otherWorkerJob->original_worker_id) {
-            $otherJobData['original_worker_id'] = $otherWorkerJob->worker_id;
-        }
-
-        if (!$otherWorkerJob->original_shifts) {
-            $otherJobData['original_shifts'] = $otherWorkerJob->shifts;
         }
 
         $job->update($jobData);

@@ -129,6 +129,8 @@ import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { IsrailContact } from "./Admin/Pages/Contract/IsrailContact";
 import { NonIsraeliContract } from "./Admin/Pages/Contract/NonIsraeliContract";
+import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
+import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -267,6 +269,11 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="/client/jobs/:id/review"
+                                element={<ReviewJob />}
+                            />
+                            <Route
+                                exact
                                 path="/client/jobs/:id/change-worker-request"
                                 element={<ChangeWorkerRequest />}
                             />
@@ -367,6 +374,11 @@ export default function MyRoutes() {
                                 exact
                                 path="jobs/:id/change-worker"
                                 element={<ChangeWorker />}
+                            />
+                            <Route
+                                exact
+                                path="jobs/:id/change-shift"
+                                element={<ChangeShift />}
                             />
                             <Route exact path="add-job" element={<AddJob />} />
                             <Route

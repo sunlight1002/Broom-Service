@@ -6,6 +6,7 @@ use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
+use App\Http\Controllers\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -51,4 +52,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('details', [AuthController::class, 'details']);
     Route::post('profile', [AuthController::class, 'updateProfile']);
+
+    Route::get('document/{id}', [DocumentController::class, 'documents']);
 });

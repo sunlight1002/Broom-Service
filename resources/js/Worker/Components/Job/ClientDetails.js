@@ -38,7 +38,7 @@ export default function ClientDetails({ client, address }) {
                                 <p>{client.phone}</p>
                             </div>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-4">
                             <div className="form-group">
                                 <label>{t("worker.jobs.view.geo_adr")}</label>
                                 <p>
@@ -51,6 +51,16 @@ export default function ClientDetails({ client, address }) {
                                 </p>
                             </div>
                         </div>
+                        {address.parking && (
+                            <div className="col-sm-4">
+                                <div className="form-group">
+                                    <label>
+                                        {t("worker.jobs.view.parking")}
+                                    </label>
+                                    <p>{address.parking}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </form>
             </div>

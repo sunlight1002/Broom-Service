@@ -467,4 +467,44 @@ class LeadWebhookController extends Controller
             die('sent');
         }
     }
+
+    public function saveLeadFromContactForm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required_without:email'],
+            'email' => ['required_without:phone|email'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $lead_exists = Client::where('phone', $request->phone)->orWhere('email', $request->email)->exists();
+        if (!$lead_exists) {
+            $lead = new Client;
+        } else {
+            $lead = Client::where('phone', 'like', '%' . $request->phone . '%')->first();
+            if (empty($lead)) {
+                $lead = Client::where('email', $request->email)->first();
+            }
+            $lead = Client::find($lead->id);
+        }
+        $name = explode(' ', $request->name);
+
+        $lead->firstname = $name[0];
+        $lead->lastname = (isset($name[1])) ? $name[1] : '';
+        $lead->phone = $request->phone;
+        $lead->email = $request->email;
+        $lead->status = 0;
+        $lead->password = Hash::make($request->phone);
+        $lead->save();
+
+        if (!$lead_exists) {
+            $lead->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+            );
+        }
+    }
 }

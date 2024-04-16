@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useAlert } from "react-alert";
@@ -9,6 +9,7 @@ import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import ClientDetails from "../../Components/Job/ClientDetails";
 import Services from "../../Components/Job/Services";
 import Comment from "../../Components/Job/Comment";
+import ChangeJobStatusModal from "../../Components/Modals/ChangeJobStatusModal";
 
 export default function WorkerViewJob() {
     const params = useParams();
@@ -24,8 +25,12 @@ export default function WorkerViewJob() {
     const [job_time, setJobTime] = useState([]);
     const [total_time, setTotalTime] = useState(0);
     const [address, setAddress] = useState({});
+    const [allComment, setAllComment] = useState([]);
+    const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
+
     const alert = useAlert();
     const { t } = useTranslation();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -54,16 +59,15 @@ export default function WorkerViewJob() {
     useEffect(() => {
         getJob();
     }, []);
-    const handleClick = () => {
-        navigate(`/worker/jobs`);
-    };
-    const HandleMarkComplete = () => {
+
+    const handleMarkComplete = () => {
         isRunning ? stopTimer() : "";
         const cbtn = document.querySelector(".cmbtn");
         cbtn.setAttribute("disabled", true);
         cbtn.value = "please wait ...";
-        document.querySelector(".note-btn").click();
+        setIsOpenChangeJobStatus(true);
     };
+
     const handleOpeningTime = (e) => {
         e.preventDefault();
         e.target.setAttribute("disabled", true);
@@ -173,10 +177,13 @@ export default function WorkerViewJob() {
             setTotalTime(parseInt(t.total));
         });
     };
+
     useEffect(() => {
         getTimes();
         getTime();
+        getComments();
     }, []);
+
     useEffect(() => {
         const interval = setInterval(() => {
             let timeDiff =
@@ -206,6 +213,14 @@ export default function WorkerViewJob() {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
         return `${hours}h:${minutes}m:${seconds}s`;
+    };
+
+    const getComments = () => {
+        axios
+            .get(`/api/job-comments?id=${params.id}`, { headers })
+            .then((res) => {
+                setAllComment(res.data.comments);
+            });
     };
 
     return (
@@ -248,7 +263,7 @@ export default function WorkerViewJob() {
                                                             <button
                                                                 type="button"
                                                                 onClick={
-                                                                    HandleMarkComplete
+                                                                    handleMarkComplete
                                                                 }
                                                                 className="btn btn-success cmbtn"
                                                             >
@@ -333,7 +348,7 @@ export default function WorkerViewJob() {
                                     <h2 className="text-custom">
                                         {t("worker.jobs.view.w_time")}
                                     </h2>
-                                    <div className="dashBox p-4">
+                                    <div className="dashBox p-4 mb-4">
                                         <div className="table-responsive">
                                             {job_time.length > 0 ? (
                                                 <Table className="table table-bordered responsiveTable">
@@ -419,24 +434,30 @@ export default function WorkerViewJob() {
                                         </div>
                                     </div>
                                     <Comment
-                                        handleGetJob={getJob}
-                                        jobStatus={job_status}
+                                        allComment={allComment}
+                                        handleGetComments={() => getComments()}
                                     />
-                                </div>
-                                <div className="col-sm-12 text-center">
-                                    <button
-                                        type="button"
-                                        onClick={handleClick}
-                                        className="btn btn-pink addButton"
-                                    >
-                                        {t("worker.jobs.view.back")}
-                                    </button>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {isOpenChangeJobStatus && (
+                <ChangeJobStatusModal
+                    allComment={allComment}
+                    jobId={params.id}
+                    jobStatus={job_status}
+                    setIsOpen={setIsOpenChangeJobStatus}
+                    isOpen={isOpenChangeJobStatus}
+                    onSuccess={() => {
+                        getComments();
+                        getJob();
+                        setIsOpenChangeJobStatus(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

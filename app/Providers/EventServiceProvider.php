@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
+use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Events\WorkerApprovedJob;
 use App\Events\WorkerNotApprovedJob;
+use App\Events\WorkerUpdatedJobStatus;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
+use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
+use App\Listeners\SendWorkerUpdatedJobStatusNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -36,6 +40,12 @@ class EventServiceProvider extends ServiceProvider
         WorkerNotApprovedJob::class => [
             SendJobNotApprovedNotification::class,
         ],
+        WorkerUpdatedJobStatus::class => [
+            SendWorkerUpdatedJobStatusNotification::class
+        ],
+        JobShiftChanged::class => [
+            SendShiftChangedNotification::class
+        ]
     ];
 
     /**

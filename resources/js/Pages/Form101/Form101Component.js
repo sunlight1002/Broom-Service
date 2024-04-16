@@ -1,7 +1,12 @@
 import { useFormik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { Base64 } from "js-base64";
+import Swal from "sweetalert2";
 import * as yup from "yup";
+import { useParams } from "react-router-dom";
+import { useAlert } from "react-alert";
+import i18next from "i18next";
+
 import EmployerDetails from "./EmployerDetails";
 import EmployeeDetails from "./EmployeeDetails";
 import ChildrenDetails from "./ChildrenDetails";
@@ -17,9 +22,6 @@ import logo from "../../Assets/image/logo.png";
 import check from "../../Assets/image/icons/check-mark.png";
 import TextField from "./inputElements/TextField";
 import ChangeYear from "./ChangeYear";
-import { useParams } from "react-router-dom";
-import { useAlert } from "react-alert";
-import i18next from "i18next";
 
 const initialValues = {
     employerName: "",
@@ -627,16 +629,21 @@ const Form101Component = () => {
         enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: (values) => {
-            axios.post(`/api/form101`, { id: id, data: values }).then((res) => {
-                if (res.data.success_code == 200) {
+            axios
+                .post(`/api/form101`, { id: id, data: values })
+                .then((res) => {
                     alert.success("Successfuly signed");
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
-                } else {
-                    window.alert("something went wrong ! please try again");
-                }
-            });
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
         },
     });
     const handleSignatureEnd = () => {
@@ -669,19 +676,25 @@ const Form101Component = () => {
             } else {
                 document.querySelector("html").removeAttribute("dir");
             }
-            if (
-                res.data.form.length > 0 &&
-                res.data.form[0].form_101 !== null
-            ) {
-                setFormValues(JSON.parse(res.data.form[0].form_101).data);
+            if (res.data.form) {
+                setFormValues(res.data.form);
                 disableInputs();
             }
         });
     };
 
-    const printPdf = (e) => {
-        window.location.href = `/pdf/${param.id}`;
-    };
+    // const printPdf = (e) => {
+    //     window.location.href = `/pdf/${param.id}`;
+    // };
+
+    useEffect(() => {
+        console.log("formValues", formValues);
+    }, [formValues]);
+
+    useEffect(() => {
+        console.log("errors", errors);
+    }, [errors]);
+
     return (
         <div className="container targetDiv">
             <div className="form101 p-4">

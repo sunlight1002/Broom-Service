@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -25,8 +29,18 @@ class JobCommentController extends Controller
         $comments = JobComments::query()
             ->with(['attachments'])
             ->where('job_id', $request->id)
-            ->where('role', 'worker')
-            ->orderBy('id', 'desc')
+            ->where(function ($q) {
+                $q
+                    ->where('comment_for', 'worker')
+                    ->orWhereHasMorph(
+                        'commenter',
+                        [User::class],
+                        function (Builder $query) {
+                            $query->where('commenter_id', Auth::id());
+                        }
+                    );
+            })
+            ->latest()
             ->get();
 
         return response()->json([
@@ -42,6 +56,16 @@ class JobCommentController extends Controller
      */
     public function store(Request $request)
     {
+        $job = Job::with(['client', 'worker', 'jobservice'])
+            ->where('worker_id', Auth::id())
+            ->find($request->job_id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'job_id' => ['required'],
@@ -52,41 +76,20 @@ class JobCommentController extends Controller
             return response()->json(['error' => $validator->messages()]);
         }
 
-        $comment = new JobComments();
-        $comment->name = $request->name;
-        $comment->job_id = $request->job_id;
-        $comment->role = 'worker';
-        $comment->comment = $request->comment;
+        $comment = JobComments::create([
+            'name' => $request->name,
+            'job_id' => $job->id,
+            'comment_for' => 'client',
+            'comment' => $request->comment,
+        ]);
 
         if (isset($request->status) && $request->status != '') {
-            $job = Job::with('client', 'worker', 'jobservice')->find($request->job_id);
-            $job->status = $request->status;
-            $job->save();
-
-            $admin = Admin::first();
-            App::setLocale('en');
-            $data = array(
-                'email'      => $admin->email,
-                'admin'      => $admin->toArray(),
-                'comment'    => $request->comment,
-                'worker_name' => $request->name,
-                'job'        => $job->toArray(),
-            );
-
-            Notification::create([
-                'user_id' => $job->client->id,
-                'type' => 'worker-reschedule',
-                'job_id' => $job->id,
-                'status' => 'reschedule'
+            $job->update([
+                'status' => $request->status
             ]);
 
-            Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-                $messages->to($data['email']);
-                $sub = __('mail.job_status.subject');
-                $messages->subject($sub);
-            });
+            event(new WorkerUpdatedJobStatus($job, $comment));
         }
-        $comment->save();
 
         $filesArr = $request->file('files');
         if ($request->hasFile('files') && count($filesArr) > 0) {
@@ -115,14 +118,30 @@ class JobCommentController extends Controller
      */
     public function destroy($id)
     {
-        $commentObj = JobComments::find($id);
-        foreach ($commentObj->attachments()->get() as $attachment) {
+        $comment = JobComments::query()
+            ->whereHasMorph(
+                'commenter',
+                [User::class],
+                function (Builder $query) {
+                    $query->where('commenter_id', Auth::id());
+                }
+            )
+            ->find($id);
+
+        if (!$comment) {
+            return response()->json([
+                'message' => 'Comment not found'
+            ]);
+        }
+
+        foreach ($comment->attachments()->get() as $attachment) {
             if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file)) {
                 Storage::drive('public')->delete('uploads/attachments/' . $attachment->file);
             }
             $attachment->delete();
         }
-        $commentObj->delete();
+        $comment->delete();
+
         return response()->json([
             'message' => 'Comment has been deleted successfully'
         ]);

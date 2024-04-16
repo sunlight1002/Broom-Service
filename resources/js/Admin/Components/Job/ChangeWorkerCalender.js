@@ -10,7 +10,7 @@ import "flatpickr/dist/flatpickr.css";
 import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
-export default function CreateJobCalender({ job }) {
+export default function ChangeWorkerCalender({ job }) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();

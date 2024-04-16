@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class WorkerController extends Controller
 {
@@ -60,6 +61,7 @@ class WorkerController extends Controller
     public function AllWorkers(Request $request)
     {
         $service = '';
+        $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
         if ($request->service_id) {
             // $contract=Contract::with('offer','client')->find($request->contract_id);
@@ -83,6 +85,9 @@ class WorkerController extends Controller
 
         $workers = User::query()
             ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
+            ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
+                return $q->whereIn('id', $onlyWorkerIDArr);
+            })
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
@@ -457,18 +462,25 @@ class WorkerController extends Controller
         }
     }
 
-    public function upload(Request $request, $id)
-    {
-        $worker = User::find($id);
+    // public function upload(Request $request, $id)
+    // {
+    //     $worker = User::find($id);
 
-        $pdf = $request->file('pdf');
-        $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
-        $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
-        $pdf->move($path, $filename);
-        $worker->form_101 = $filename;
-        $worker->save();
-        return response()->json(['success' => true]);
-    }
+    //     $pdf = $request->file('pdf');
+    //     $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $pdf->getClientOriginalExtension();
+
+    //     if (!Storage::disk('public')->exists('uploads/worker/form101')) {
+    //         Storage::disk('public')->makeDirectory('uploads/worker/form101');
+    //     }
+
+    //     if (Storage::disk('public')->putFileAs("uploads/worker/form101", $pdf, $filename)) {
+    //         $worker->update([
+    //             'form_101' => $filename
+    //         ]);
+    //     }
+
+    //     return response()->json(['success' => true]);
+    // }
 
     public function addNotAvailableDates(Request $request)
     {

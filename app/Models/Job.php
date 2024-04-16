@@ -48,6 +48,9 @@ class Job extends Model
         'previous_worker_after',
         'previous_shifts',
         'previous_shifts_after',
+        'job_opening_timestamp',
+        'rating',
+        'review',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
@@ -55,7 +58,6 @@ class Job extends Model
         'cancelled_at',
         'cancelled_for',
         'cancel_until_date',
-        'job_opening_timestamp'
     ];
 
     /**
@@ -75,6 +77,7 @@ class Job extends Model
         'is_worker_reminded' => 'boolean',
         'previous_worker_after' => 'date:Y-m-d',
         'previous_shifts_after' => 'date:Y-m-d',
+        'rating' => 'double',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',

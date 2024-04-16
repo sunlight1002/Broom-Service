@@ -29,11 +29,12 @@ Route::get('/google/callback', [GoogleController::class, 'callback']);
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhook'])->name('webhook_fb');
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 
-Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
+// Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
 Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
 Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
+Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
 
 // Auth::routes();
 Route::any('/{path?}', function () {

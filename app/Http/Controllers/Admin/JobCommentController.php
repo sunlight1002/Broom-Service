@@ -17,8 +17,16 @@ class JobCommentController extends Controller
      */
     public function index(request $request)
     {
-        $client_comments = JobComments::with(['attachments'])->where('job_id', $request->id)->where('role', 'client')->orderBy('id', 'desc')->get();
-        $worker_comments = JobComments::with(['attachments'])->where('job_id', $request->id)->where('role', 'worker')->orderBy('id', 'desc')->get();
+        $client_comments = JobComments::with(['attachments'])
+            ->where('job_id', $request->id)
+            ->where('comment_for', 'client')
+            ->orderBy('id', 'desc')
+            ->get();
+        $worker_comments = JobComments::with(['attachments'])
+            ->where('job_id', $request->id)
+            ->where('comment_for', 'worker')
+            ->orderBy('id', 'desc')
+            ->get();
 
         return response()->json([
             'client_comments' => $client_comments,
@@ -37,7 +45,7 @@ class JobCommentController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'job_id' => ['required'],
-            'role' => ['required'],
+            'comment_for' => ['required'],
             'comment' => ['required']
         ]);
 
@@ -49,7 +57,7 @@ class JobCommentController extends Controller
 
         $comment = JobComments::create([
             'name' => $data['name'],
-            'role' => $data['role'],
+            'comment_for' => $data['comment_for'],
             'job_id' => $data['job_id'],
             'comment' => $data['comment'],
         ]);
