@@ -127,11 +127,9 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
-import { IsrailContact } from "./Admin/Pages/Contract/IsrailContact";
-import { NonIsraeliContract } from "./Admin/Pages/Contract/NonIsraeliContract";
-import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
+import CustomCalendar from "./Pages/Form101/inputElements/CustomCalendar";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -353,21 +351,6 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="contract/israil"
-                                element={<IsrailContact />}
-                            />
-                            <Route
-                                exact
-                                path="safe-gear"
-                                element={<SafeAndGear />}
-                            />
-                            <Route
-                                exact
-                                path="contract/non-israil"
-                                element={<NonIsraeliContract />}
-                            />
-                            <Route
-                                exact
                                 path="create-job/:id"
                                 element={<CreateJob />}
                             />
@@ -375,6 +358,27 @@ export default function MyRoutes() {
                                 exact
                                 path="create-client-job/:id"
                                 element={<CreateClientJob />}
+                            />
+                            <Route
+                                exact
+                                path="customcalendar"
+                                element={
+                                    <CustomCalendar
+                                        handleChangeDate={(date) =>
+                                            console.log(date)
+                                        }
+                                        handleSelectTimeSlot={(date) =>
+                                            console.log("timeslot", date)
+                                        }
+                                        value={new Date()}
+                                        timeSlots={[
+                                            "9:00 am",
+                                            "9:30 am",
+                                            "10:00 am",
+                                            "10:30 am",
+                                        ]}
+                                    />
+                                }
                             />
                             <Route
                                 exact
