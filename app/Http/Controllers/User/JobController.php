@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
+use App\Traits\JobSchedule;
 
 class JobController extends Controller
 {
-    use PaymentAPI;
+    use PaymentAPI, JobSchedule;
 
     /**
      * Display a listing of the resource.
