@@ -682,8 +682,10 @@
                         "floor": "Enter floor",
                         "AptNumberAndAptName": "Enter Apt number and Apt name",
                         "EnteranceCode": "Enter enterance code",
-                        "ZipCode": "Enter zip code"
-                    }
+                        "ZipCode": "Enter zip code",
+                        "parking": "Enter parking"
+                    },
+                    "parking": "Parking"
                 },
                 "placeHolder": {
                     "FirstName": "Enter first name",
@@ -878,6 +880,7 @@
                 "Phone": "Phone",
                 "City": "City",
                 "Address": "Address",
+                "parking": "Parking",
                 "clientDetails": "client Details",
                 "workerDetails": "Worker Details",
                 "serviceDetailslabel": "Service Details",
@@ -985,10 +988,11 @@
             "job_details": "Job details",
             "view": {
                 "c_details": "Client Details",
-                "c_name": "Client Name",
-                "c_email": "Client Email",
-                "c_phone": "Client Phone",
+                "c_name": "Name",
+                "c_email": "Email",
+                "c_phone": "Phone",
                 "geo_adr": "Google address",
+                "parking": "Parking",
                 "s_details": "Service Details",
                 "services": "Services",
                 "job_status": "Job Status",

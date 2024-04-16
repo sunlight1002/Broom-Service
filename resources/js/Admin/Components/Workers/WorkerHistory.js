@@ -6,6 +6,7 @@ import WorkerAvailabilty from "./WorkerAvailabilty";
 import Documents from "./Documents";
 import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
+import Document from "../Documents/Document";
 
 export default function WorkerHistory() {
     const params = useParams();
@@ -107,6 +108,18 @@ export default function WorkerHistory() {
                         Not Available Date
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="worker-forms"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-worker-forms"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        Documents
+                    </a>
+                </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -156,6 +169,14 @@ export default function WorkerHistory() {
                     aria-labelledby="doucments"
                 >
                     <WorkerNotAvailabilty />
+                </div>
+                <div
+                    id="tab-worker-forms"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="forms"
+                >
+                    <Document />
                 </div>
             </div>
         </div>

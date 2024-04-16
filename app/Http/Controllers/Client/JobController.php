@@ -118,6 +118,7 @@ class JobController extends Controller
                 'worker',
                 'jobservice',
             ])
+            ->where('client_id', Auth::user()->id)
             ->find($id);
 
         if (!$job) {
@@ -194,6 +195,42 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Change worker request sent successfully'
+        ]);
+    }
+
+    public function saveReview(Request $request, $id)
+    {
+        $job = Job::query()
+            ->where('client_id', Auth::user()->id)
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if ($job->status != JobStatusEnum::COMPLETED) {
+            return response()->json([
+                'message' => 'Job not completed yet',
+            ], 403);
+        }
+
+        if ($job->rating) {
+            return response()->json([
+                'message' => 'Job rating already submitted',
+            ], 403);
+        }
+
+        $data = $request->all();
+
+        $job->update([
+            'rating' => $data['rating'],
+            'review' => $data['review']
+        ]);
+
+        return response()->json([
+            'message' => 'Job rating submitted successfully',
         ]);
     }
 }

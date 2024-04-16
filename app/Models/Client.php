@@ -65,6 +65,19 @@ class Client extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($model) {
+            Schedule::where('client_id', $model->id)->delete();
+            Offer::where('client_id', $model->id)->delete();
+            Contract::where('client_id', $model->id)->delete();
+            Notification::where('user_id', $model->id)->delete();
+            Job::where('client_id', $model->id)->delete();
+            Order::where('client_id', $model->id)->delete();
+        });
+    }
+
     public function jobs()
     {
         return $this->hasMany(Job::class);
@@ -109,18 +122,5 @@ class Client extends Authenticatable
             ->where('clients.phone', '!=', '')
             ->where('clients.phone', '!=', 0)
             ->where('clients.phone', '!=', NULL);
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-        static::deleting(function ($model) {
-            Schedule::where('client_id', $model->id)->delete();
-            Offer::where('client_id', $model->id)->delete();
-            Contract::where('client_id', $model->id)->delete();
-            Notification::where('user_id', $model->id)->delete();
-            Job::where('client_id', $model->id)->delete();
-            Order::where('client_id', $model->id)->delete();
-        });
     }
 }

@@ -10,10 +10,8 @@ export default function Documents() {
     const [form, setForm] = useState(false);
     const getForm = () => {
         axios.get(`/api/get101/${id}`).then((res) => {
-            if (res.data.form.length > 0) {
-                if (res.data.form[0].form_101 != null) {
-                    setForm(true);
-                }
+            if (res.data.form) {
+                setForm(true);
             } else {
                 setForm(false);
             }

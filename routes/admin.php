@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Api\LeadWebhookController;
+use App\Http\Controllers\DocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('create-job', [JobController::class, 'createJob']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeJobWorker']);
+    Route::post('jobs/{id}/change-shift', [JobController::class, 'changeJobShift']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancelJob']);
@@ -100,7 +102,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-workers/availability', [WorkerController::class, 'getALLWorkerAvailability']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
-    Route::post('upload/{id}', [WorkerController::class, 'upload']);
+    // Route::post('upload/{id}', [WorkerController::class, 'upload']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
 
     // not Available date
@@ -256,5 +258,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // settings
     Route::get('settings', [SettingController::class, 'allSettings']);
     Route::post('settings', [SettingController::class, 'updateSettings']);
-    Route::post('update-shift', [ClientController::class, 'updateShift']);
+
+    //documents
+    Route::get('documents/{id}', [DocumentController::class, 'documents']);
+    Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
+    Route::post('document/save', [DocumentController::class, 'save']);
+    Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
 });
