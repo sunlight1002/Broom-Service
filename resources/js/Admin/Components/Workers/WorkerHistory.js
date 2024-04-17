@@ -7,6 +7,7 @@ import Documents from "./Documents";
 import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
+import WorkerForms from "./WorkerForms";
 
 export default function WorkerHistory() {
     const params = useParams();
@@ -71,29 +72,17 @@ export default function WorkerHistory() {
                     >
                         Past Job
                     </a>
-                </li>
+                </li>                
                 <li className="nav-item" role="presentation">
                     <a
-                        id="doucments"
+                        id="worker-forms"
                         className="nav-link"
                         data-toggle="tab"
-                        href="#tab-doucments"
+                        href="#tab-worker-forms"
                         aria-selected="false"
                         role="tab"
                     >
-                        Form 101
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-contract"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-contract"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        Contract
+                        Forms
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -147,21 +136,13 @@ export default function WorkerHistory() {
                     <PastJob />
                 </div>
                 <div
-                    id="tab-doucments"
+                    id="tab-worker-forms"
                     className="tab-pane"
                     role="tab-panel"
-                    aria-labelledby="doucments"
+                    aria-labelledby="worker-forms"
                 >
-                    <Documents />
-                </div>
-                <div
-                    id="tab-worker-contract"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="doucments"
-                >
-                    <WorkerContract />
-                </div>
+                    <WorkerForms />
+                </div>                
                 <div
                     id="tab-worker-not-availability"
                     className="tab-pane"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Base64 } from "js-base64";
 import swal from "sweetalert";
@@ -9,7 +9,8 @@ import { NonIsraeliContract } from "../Admin/Pages/Contract/NonIsraeliContract";
 export default function WorkerContract() {
     const param = useParams();
     const [workerDetail, setWorkerDetail] = useState({});
-
+    const [workerFormDetail, setWorkerFormDetail] = useState({});
+    const [checkFormDetails, setCheckFormDetails] = useState(false);
     const handleAccept = (values) => {
         const data = {
             worker_id: Base64.decode(param.id),
@@ -49,6 +50,11 @@ export default function WorkerContract() {
                         document.querySelector("html").removeAttribute("dir");
                     }
                 }
+                if(res.data.form){
+                    let formData = res.data.form;
+                    setCheckFormDetails(true);
+                    setWorkerFormDetail(formData);
+                }
             });
     };
 
@@ -62,11 +68,15 @@ export default function WorkerContract() {
                     <IsrailContact
                         handleFormSubmit={handleAccept}
                         workerDetail={workerDetail}
+                        workerFormDetails={workerFormDetail}
+                        checkFormDetails={checkFormDetails}
                     />
                 ) : (
                     <NonIsraeliContract
                         handleFormSubmit={handleAccept}
                         workerDetail={workerDetail}
+                        workerFormDetails={workerFormDetail}
+                        checkFormDetails={checkFormDetails}
                     />
                 )
             ) : (

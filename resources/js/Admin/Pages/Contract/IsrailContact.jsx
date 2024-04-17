@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
@@ -29,8 +29,10 @@ const formSchema = yup.object({
         .required("Mobile number is required"),
     signature: yup.mixed().required("Signature is required"),
 });
-export function IsrailContact({ handleFormSubmit, workerDetail }) {
+export function IsrailContact({ handleFormSubmit, workerDetail,workerFormDetails,checkFormDetails }) {
     const sigRef = useRef();
+    const [formValues, setFormValues] = useState(null);
+
     const initialValues = {
         fullName: "",
         IdNumber: "",
@@ -51,12 +53,27 @@ export function IsrailContact({ handleFormSubmit, workerDetail }) {
         values,
         setFieldValue,
     } = useFormik({
-        initialValues,
+        initialValues: formValues ?? initialValues,
         validationSchema: formSchema,
         onSubmit: (values) => {
             handleFormSubmit(values);
         },
     });
+
+    useEffect(() => {
+        setFormValues(workerFormDetails);
+        if(checkFormDetails){
+            disableInputs();
+        }
+    }, [workerFormDetails, checkFormDetails]);
+
+    const disableInputs = () => {
+        const inputs = document.querySelectorAll(".targetDiv input");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    };
+
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
@@ -65,7 +82,7 @@ export function IsrailContact({ handleFormSubmit, workerDetail }) {
         setFieldValue("signature", "");
     };
     return (
-        <div id="container">
+        <div id="container targetDiv">
             {/* <Sidebar /> */}
             <div id="content">
                 <div className="w-75 mx-auto mt-5">

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
@@ -6,6 +6,25 @@ import { useFormik } from "formik";
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
 import SignatureCanvas from "react-signature-canvas";
+
+
+const initialValues = {
+    fullName: "",
+    IdNumber: "",
+    Address: "",
+    startDate: "",
+    signatureDate1: "",
+    signatureDate2: "",
+    signatureDate3: "",
+    signatureDate4: "",
+    signature1: "",
+    signature2: "",
+    signature3: "",
+    signature4: "",
+    companySignature1: "",
+    companySignature2: "",
+    role: "",
+};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -28,30 +47,14 @@ const formSchema = yup.object({
     companySignature2: yup.mixed().required("Signature is required"),
 });
 
-export function NonIsraeliContract({ handleFormSubmit }) {
+export function NonIsraeliContract({ handleFormSubmit, workerFormDetails, checkFormDetails }) {
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
     const sigRef4 = useRef();
     const companySigRef1 = useRef();
     const companySigRef2 = useRef();
-    const initialValues = {
-        fullName: "",
-        IdNumber: "",
-        Address: "",
-        startDate: "",
-        signatureDate1: "",
-        signatureDate2: "",
-        signatureDate3: "",
-        signatureDate4: "",
-        signature1: "",
-        signature2: "",
-        signature3: "",
-        signature4: "",
-        companySignature1: "",
-        companySignature2: "",
-        role: "",
-    };
+    const [formValues, setFormValues] = useState(null);
     const {
         errors,
         touched,
@@ -61,12 +64,27 @@ export function NonIsraeliContract({ handleFormSubmit }) {
         values,
         setFieldValue,
     } = useFormik({
-        initialValues,
+        initialValues: formValues ?? initialValues,
         validationSchema: formSchema,
         onSubmit: (values) => {
             handleFormSubmit(values);
         },
     });
+
+    useEffect(() => {
+        setFormValues(workerFormDetails);
+        if(checkFormDetails){
+            disableInputs();
+        }
+    }, [workerFormDetails, checkFormDetails]);
+
+    const disableInputs = () => {
+        const inputs = document.querySelectorAll(".targetDiv input");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    };
+
     const handleSignatureEnd1 = () => {
         setFieldValue("signature1", sigRef1.current.toDataURL());
     };
@@ -110,7 +128,7 @@ export function NonIsraeliContract({ handleFormSubmit }) {
         setFieldValue("companySignature2", "");
     };
     return (
-        <div id="container">
+        <div id="container targetDiv">
             {/* <Sidebar /> */}
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
