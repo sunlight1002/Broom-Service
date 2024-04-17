@@ -29,7 +29,7 @@ const formSchema = yup.object({
         .required("Mobile number is required"),
     signature: yup.mixed().required("Signature is required"),
 });
-export function IsrailContact() {
+export function IsrailContact({ handleFormSubmit, workerDetail }) {
     const sigRef = useRef();
     const initialValues = {
         fullName: "",
@@ -54,10 +54,9 @@ export function IsrailContact() {
         initialValues,
         validationSchema: formSchema,
         onSubmit: (values) => {
-            console.log("values", values);
+            handleFormSubmit(values);
         },
     });
-    console.log("errors,values", errors, values);
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
@@ -67,7 +66,7 @@ export function IsrailContact() {
     };
     return (
         <div id="container">
-            <Sidebar />
+            {/* <Sidebar /> */}
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
                     <form onSubmit={handleSubmit}>

@@ -28,7 +28,7 @@ const formSchema = yup.object({
     companySignature2: yup.mixed().required("Signature is required"),
 });
 
-export function NonIsraeliContract() {
+export function NonIsraeliContract({ handleFormSubmit }) {
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
@@ -64,7 +64,7 @@ export function NonIsraeliContract() {
         initialValues,
         validationSchema: formSchema,
         onSubmit: (values) => {
-            console.log("values", values);
+            handleFormSubmit(values);
         },
     });
     const handleSignatureEnd1 = () => {
@@ -111,7 +111,7 @@ export function NonIsraeliContract() {
     };
     return (
         <div id="container">
-            <Sidebar />
+            {/* <Sidebar /> */}
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
                     <form onSubmit={handleSubmit}>
