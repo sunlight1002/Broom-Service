@@ -16,7 +16,7 @@ export default function MeetingStatus() {
     const param = useParams();
 
     const updateMeeting = () => {
-        if (param.response == "re") {
+        if (param.response == "reschedule") {
             axios
                 .post(`/api/client/reschedule-meeting`, {
                     id: Base64.decode(param.id),

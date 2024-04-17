@@ -44,9 +44,6 @@ export default function Thankyou() {
                     updateMeeting();
                 }
 
-                if (param.response === "accept") {
-                    navigate(`/meetings/${param.id}/choose-slot`);
-                }
                 const lng = res.data.schedule.client.lng;
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {

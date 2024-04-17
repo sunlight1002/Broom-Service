@@ -94,7 +94,6 @@ import InsuranceEng from "./Pages/Insurance/InsuranceEng";
 import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
 import WorkContract from "./Pages/WorkContract";
 import MeetingStatus from "./Pages/MeetingStatus";
-import ChooseMeetingSlot from "./Pages/ChooseMeetingSlot";
 import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
@@ -155,18 +154,13 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
-                        path="meeting-status/:id/:response"
+                        path="meeting-status/:id/reschedule"
                         element={<MeetingStatus />}
                     />
                     <Route
                         exact
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
-                    />
-                    <Route
-                        exact
-                        path="meetings/:id/choose-slot"
-                        element={<ChooseMeetingSlot />}
                     />
                     <Route
                         exact
