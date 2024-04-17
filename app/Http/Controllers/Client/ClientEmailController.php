@@ -263,9 +263,11 @@ class ClientEmailController extends Controller
     ]);
   }
 
-  public function rescheduleMeeting(Request $request)
+  public function rescheduleMeeting(Request $request, $id)
   {
-    $schedule = Schedule::find($request->id);
+    $data = $request->all();
+
+    $schedule = Schedule::find($id);
     if (!$schedule) {
       return response()->json([
         'message' => 'Meeting not found'
@@ -279,9 +281,16 @@ class ClientEmailController extends Controller
       ], 404);
     }
 
+    $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->addMinutes(30)->format('h:i A');
+
     $schedule->update([
+      'start_date' => $data['start_date'],
+      'start_time' => $data['start_time'],
+      'end_time' => $data['end_time'],
       'booking_status' => 'rescheduled'
     ]);
+
+    $this->saveGoogleCalendarEvent($schedule);
 
     return response()->json([
       'message' => 'Thanks, your meeting is rescheduled'

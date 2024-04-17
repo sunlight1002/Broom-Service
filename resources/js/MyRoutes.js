@@ -128,7 +128,6 @@ import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
-import CustomCalendar from "./Pages/Form101/inputElements/CustomCalendar";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -352,27 +351,6 @@ export default function MyRoutes() {
                                 exact
                                 path="create-client-job/:id"
                                 element={<CreateClientJob />}
-                            />
-                            <Route
-                                exact
-                                path="customcalendar"
-                                element={
-                                    <CustomCalendar
-                                        handleChangeDate={(date) =>
-                                            console.log(date)
-                                        }
-                                        handleSelectTimeSlot={(date) =>
-                                            console.log("timeslot", date)
-                                        }
-                                        value={new Date()}
-                                        timeSlots={[
-                                            "9:00 am",
-                                            "9:30 am",
-                                            "10:00 am",
-                                            "10:30 am",
-                                        ]}
-                                    />
-                                }
                             />
                             <Route
                                 exact
