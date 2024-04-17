@@ -27,13 +27,7 @@ trait ScheduleMeeting
             ]));
         }
 
-        if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
-            $emailTemplate = '/Mails/MeetingMail';
-        } else {
-            $emailTemplate = '/Mails/ChooseMeetingSlotMail';
-        }
-
-        Mail::send($emailTemplate, $scheduleArr, function ($messages) use ($scheduleArr) {
+        Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
 
             if ($scheduleArr['client']['lng'] == 'en') {
@@ -50,6 +44,10 @@ trait ScheduleMeeting
 
     private function saveGoogleCalendarEvent($schedule)
     {
+        if (!$schedule->start_date) {
+            return NULL;
+        }
+
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');
