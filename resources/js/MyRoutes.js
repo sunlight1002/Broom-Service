@@ -202,6 +202,11 @@ export default function MyRoutes() {
                         path="worker-contract/:id"
                         element={<WorkerContract />}
                     />
+                    <Route
+                        exact
+                        path="worker-safe-gear/:id"
+                        element={<SafeAndGear />}
+                    />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
                         exact

@@ -7,6 +7,7 @@ import Documents from "./Documents";
 import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
+import WorkerSafeandGear from "./WorkerSafeandGear";
 
 export default function WorkerHistory() {
     const params = useParams();
@@ -98,6 +99,18 @@ export default function WorkerHistory() {
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
+                        id="worker-sageandgear"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-worker-sageandgear"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        Safe and Gear 
+                    </a>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <a
                         id="worker-not-availability"
                         className="nav-link"
                         data-toggle="tab"
@@ -161,6 +174,14 @@ export default function WorkerHistory() {
                     aria-labelledby="doucments"
                 >
                     <WorkerContract />
+                </div>
+                <div
+                    id="tab-worker-sageandgear"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="worker-sageandgear"
+                >
+                    <WorkerSafeandGear />
                 </div>
                 <div
                     id="tab-worker-not-availability"

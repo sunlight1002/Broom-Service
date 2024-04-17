@@ -1,9 +1,12 @@
-import React, { useRef } from "react";
-import Sidebar from "../../Layouts/Sidebar";
-import * as yup from "yup";
 import { useFormik } from "formik";
+import React, { useEffect, useRef, useState } from "react";
+import * as yup from "yup";
+import { Base64 } from "js-base64";
+import { useParams } from "react-router-dom";
+import { useAlert } from "react-alert";
+import i18next from "i18next";
 import TextField from "../../../Pages/Form101/inputElements/TextField";
-import ReactSignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "react-signature-canvas";
 
 const formSchema = yup.object({
     workerName: yup.string().trim().required("worker name is required"),
@@ -12,10 +15,17 @@ const formSchema = yup.object({
 });
 const SafeAndGear = () => {
     const sigRef = useRef();
+    const param = useParams();
+    const id = Base64.decode(param.id);
+    const alert = useAlert();
+    const [formValues, setFormValues] = useState({});
+    const [workerName, setWorkerName] = useState("");
+    const [workerName2, setWorkerName2] = useState("");
+    const [signature, setSignature] = useState("");
     const initialValues = {
-        workerName: "",
-        workerName2: "",
-        signature: "",
+        workerName: workerName,
+        workerName2: workerName2,
+        signature: signature,
     };
     const {
         errors,
@@ -30,6 +40,21 @@ const SafeAndGear = () => {
         validationSchema: formSchema,
         onSubmit: (values) => {
             console.log("values", values);
+            axios
+            .post(`/api/safegear`, { id: id, data: values })
+            .then((res) => {
+                alert.success("Successfuly signed");
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 2000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
         },
     });
     const handleSignatureEnd = () => {
@@ -39,9 +64,41 @@ const SafeAndGear = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
+
+  
+
+    useEffect(() => {
+        axios.get(`/api/getSafegear/${id}`).then((res) => {
+          i18next.changeLanguage(res.data.lng);
+            if (res.data.lng == "heb") {
+                import("../../../Assets/css/rtl.css");
+                document.querySelector("html").setAttribute("dir", "rtl");
+            } else {
+                document.querySelector("html").removeAttribute("dir");
+            }
+            if (res.data.form) {
+                
+            setFormValues(res.data.form); 
+            setFieldValue("workerName", res.data.form.workerName);
+            setFieldValue("workerName2", res.data.form.workerName2);
+            setFieldValue("signature", res.data.form.signature);
+            
+            disableInputs();
+            }
+        });
+    }, []);
+
+    const disableInputs = () => {
+        // Disable inputs within the div with the id "targetDiv"
+        const inputs = document.querySelectorAll(".targetDiv input ");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    };
+
+
     return (
-        <div id="container">
-            <Sidebar />
+        <div id="container" className="targetDiv">
             <div id="content">
                 <div className="w-75 mx-auto mt-5 px-5">
                     <div className="text-center">
@@ -226,37 +283,46 @@ const SafeAndGear = () => {
                                     <div className="col-6">
                                         <p>
                                             <strong>
-                                                The worke signature:*
+                                                The worker signature:*
                                             </strong>
                                             <span className="text-danger">
                                                 {touched.signature &&
                                                     errors.signature}
                                             </span>
                                         </p>
-                                        <ReactSignatureCanvas
-                                            penColor="black"
-                                            canvasProps={{
-                                                className:
-                                                    "sign101 border mt-1",
-                                            }}
-                                            ref={sigRef}
-                                            onEnd={handleSignatureEnd}
-                                        />
-                                        <div className="d-block">
-                                            <button
-                                                type="button"
-                                                className="btn btn-warning mb-2"
-                                                onClick={clearSignature}
-                                            >
-                                                Clear
-                                            </button>
-                                        </div>
+                                        {formValues && formValues.signature != null ? (
+                                            <img src={formValues.signature} />
+                                        ) : (
+                                            <div>
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef}
+                                                    onEnd={handleSignatureEnd}
+                                                />
+                                            
+                                                <div className="d-block">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-warning mb-2"
+                                                        onClick={clearSignature}
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-success">
-                                submit
-                            </button>
+                            {!formValues && (
+                                <button type="submit" className="btn btn-success">
+                                    submit
+                                </button>
+                            )}
                         </form>
                     </div>
                 </div>

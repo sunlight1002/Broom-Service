@@ -242,6 +242,14 @@ class WorkerController extends Controller
                     $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $worker['id'];
                 $messages->subject($sub);
             });
+
+            Mail::send('/Mails/WorkerSafeGearMail', $worker, function ($messages) use ($worker) {
+                $messages->to($worker['email']);
+                ($worker['lng'] == 'heb') ?
+                    $sub = $worker['id'] . "# " . __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') :
+                    $sub = __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') . " #" . $worker['id'];
+                $messages->subject($sub);
+            });
         }
 
         return response()->json([

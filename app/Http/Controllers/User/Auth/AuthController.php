@@ -218,6 +218,55 @@ class AuthController extends Controller
         ]);
     }
 
+    public function safegear(Request $request)
+    {
+        $worker = User::find($request->id);
+        
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Safety and gear already submitted for current year.'
+            ], 403);
+        }
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+            'data' => $data['data']
+        ]);
+
+        return response()->json([
+            'message' => 'Safety and gear  signed successfully.'
+        ]);
+    }
+
+    public function getSafegear($id)
+    {
+        $worker = User::find($id);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
+        return response()->json([
+            'success_code' => 200,
+            'lng' => $worker->lng,
+            'form' => $form ? $form->data : NULL
+        ]);
+    }
+
     public function get101($id)
     {
         $worker = User::find($id);
