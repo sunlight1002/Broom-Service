@@ -687,14 +687,6 @@ const Form101Component = () => {
     //     window.location.href = `/pdf/${param.id}`;
     // };
 
-    useEffect(() => {
-        console.log("formValues", formValues);
-    }, [formValues]);
-
-    useEffect(() => {
-        console.log("errors", errors);
-    }, [errors]);
-
     return (
         <div className="container targetDiv">
             <div className="form101 p-4">

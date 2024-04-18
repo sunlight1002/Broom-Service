@@ -179,41 +179,32 @@ class AuthController extends Controller
     public function WorkContract(Request $request)
     {
         $data = $request->all();
-        try {
-            $worker = User::where('worker_id', $data['worker_id'])->first();
 
-            if (!$worker) {
-                return response()->json([
-                    'message' => 'Worker not found',
-                ], 404);
-            }
-
-            $form = $worker->forms()
-                ->where('type', WorkerFormTypeEnum::CONTRACT)
-                ->whereYear('created_at', now()->year)
-                ->first();
-
-            if ($form) {
-                return response()->json([
-                    'message' => 'Contract already submitted for current year.'
-                ], 403);
-            }
-
-            $worker->forms()->create([
-                'type' => WorkerFormTypeEnum::CONTRACT,
-                'data' => $data['worker_contract_json']
-            ]);
-
+        $worker = User::where('worker_id', $data['worker_id'])->first();
+        if (!$worker) {
             return response()->json([
-                'message' => 'Contract signed successfully. Thanks, for accepting contract.'
-            ]);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'message' => 'Worker not found',
+            ], 404);
         }
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Contract already signed.'
+            ], 403);
+        }
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::CONTRACT,
+            'data' => $data['worker_contract_json']
+        ]);
+
+        return response()->json([
+            'message' => 'Contract signed successfully. Thanks, for signing the contract.'
+        ]);
     }
 
     public function form101(Request $request)
@@ -259,22 +250,20 @@ class AuthController extends Controller
             ->first();
 
         return response()->json([
-            'success_code' => 200,
             'lng' => $worker->lng,
             'form' => $form ? $form->data : NULL
         ]);
     }
 
-    public function getWorkContract($id){
+    public function getWorkContract($id)
+    {
         $worker = User::find($id);
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
-            ->whereYear('created_at', now()->year)
             ->first();
 
         return response()->json([
-            'success_code' => 200,
             'worker' => $worker,
             'form' => $form ? $form->data : NULL
         ]);

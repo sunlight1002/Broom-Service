@@ -29,7 +29,12 @@ const formSchema = yup.object({
         .required("Mobile number is required"),
     signature: yup.mixed().required("Signature is required"),
 });
-export function IsrailContact({ handleFormSubmit, workerDetail,workerFormDetails,checkFormDetails }) {
+export function IsrailContact({
+    handleFormSubmit,
+    workerDetail,
+    workerFormDetails,
+    checkFormDetails,
+}) {
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
 
@@ -62,7 +67,7 @@ export function IsrailContact({ handleFormSubmit, workerDetail,workerFormDetails
 
     useEffect(() => {
         setFormValues(workerFormDetails);
-        if(checkFormDetails){
+        if (checkFormDetails) {
             disableInputs();
         }
     }, [workerFormDetails, checkFormDetails]);

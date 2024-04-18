@@ -7,7 +7,6 @@ import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
 import SignatureCanvas from "react-signature-canvas";
 
-
 const initialValues = {
     fullName: "",
     IdNumber: "",
@@ -47,7 +46,11 @@ const formSchema = yup.object({
     companySignature2: yup.mixed().required("Signature is required"),
 });
 
-export function NonIsraeliContract({ handleFormSubmit, workerFormDetails, checkFormDetails }) {
+export function NonIsraeliContract({
+    handleFormSubmit,
+    workerFormDetails,
+    checkFormDetails,
+}) {
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
@@ -73,7 +76,7 @@ export function NonIsraeliContract({ handleFormSubmit, workerFormDetails, checkF
 
     useEffect(() => {
         setFormValues(workerFormDetails);
-        if(checkFormDetails){
+        if (checkFormDetails) {
             disableInputs();
         }
     }, [workerFormDetails, checkFormDetails]);

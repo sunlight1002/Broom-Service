@@ -11,7 +11,8 @@ export default function WorkerContract() {
     const [workerDetail, setWorkerDetail] = useState({});
     const [workerFormDetail, setWorkerFormDetail] = useState({});
     const [checkFormDetails, setCheckFormDetails] = useState(false);
-    const handleAccept = (values) => {
+
+    const handleSubmit = (values) => {
         const data = {
             worker_id: Base64.decode(param.id),
             worker_contract_json: values,
@@ -20,19 +21,16 @@ export default function WorkerContract() {
         axios
             .post(`/api/work-contract`, data)
             .then((res) => {
-                if (res.data.error) {
-                    swal("", res.data.error, "error");
-                } else {
-                    swal(res.data.message, "", "success");
-                    setTimeout(() => {
-                        window.location.href = "/worker/login";
-                    }, 1000);
-                }
+                swal(res.data.message, "", "success");
+                setTimeout(() => {
+                    window.location.href = "/worker/login";
+                }, 1000);
             })
             .catch((e) => {
                 swal("Error!", e.response.data.message, "error");
             });
     };
+
     const getWorker = () => {
         axios
             .post(`/api/worker-detail`, { worker_id: Base64.decode(param.id) })
@@ -50,7 +48,7 @@ export default function WorkerContract() {
                         document.querySelector("html").removeAttribute("dir");
                     }
                 }
-                if(res.data.form){
+                if (res.data.form) {
                     let formData = res.data.form;
                     setCheckFormDetails(true);
                     setWorkerFormDetail(formData);
@@ -61,19 +59,20 @@ export default function WorkerContract() {
     useEffect(() => {
         getWorker();
     }, []);
+
     return (
         <>
             {workerDetail ? (
                 workerDetail.country === "Israel" ? (
                     <IsrailContact
-                        handleFormSubmit={handleAccept}
+                        handleFormSubmit={handleSubmit}
                         workerDetail={workerDetail}
                         workerFormDetails={workerFormDetail}
                         checkFormDetails={checkFormDetails}
                     />
                 ) : (
                     <NonIsraeliContract
-                        handleFormSubmit={handleAccept}
+                        handleFormSubmit={handleSubmit}
                         workerDetail={workerDetail}
                         workerFormDetails={workerFormDetail}
                         checkFormDetails={checkFormDetails}
