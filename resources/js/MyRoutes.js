@@ -126,8 +126,6 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
-import { IsrailContact } from "./Admin/Pages/Contract/IsrailContact";
-import { NonIsraeliContract } from "./Admin/Pages/Contract/NonIsraeliContract";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
@@ -343,16 +341,6 @@ export default function MyRoutes() {
                                 exact
                                 path="jobs/change-worker-requests"
                                 element={<ChangeWorkerRequestList />}
-                            />
-                            <Route
-                                exact
-                                path="contract/israil"
-                                element={<IsrailContact />}
-                            />
-                            <Route
-                                exact
-                                path="contract/non-israil"
-                                element={<NonIsraeliContract />}
                             />
                             <Route
                                 exact
