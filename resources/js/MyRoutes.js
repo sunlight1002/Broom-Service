@@ -357,11 +357,6 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="safe-gear"
-                                element={<SafeAndGear />}
-                            />
-                            <Route
-                                exact
                                 path="contract/non-israil"
                                 element={<NonIsraeliContract />}
                             />

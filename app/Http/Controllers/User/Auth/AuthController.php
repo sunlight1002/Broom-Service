@@ -232,12 +232,11 @@ class AuthController extends Controller
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
-            ->whereYear('created_at', now()->year)
             ->first();
 
         if ($form) {
             return response()->json([
-                'message' => 'Safety and gear already submitted for current year.'
+                'message' => 'Safety and gear already signed.'
             ], 403);
         }
 
@@ -257,11 +256,9 @@ class AuthController extends Controller
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
-            ->whereYear('created_at', now()->year)
             ->first();
 
         return response()->json([
-            'success_code' => 200,
             'lng' => $worker->lng,
             'form' => $form ? $form->data : NULL
         ]);
