@@ -79,7 +79,9 @@ class ScheduleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'client_id'      => ['required'],
-            'start_date'     => ['required'],
+            'start_date'     => ['required_if:meet_via,on-site'],
+            'start_time'     => ['required_if:meet_via,on-site'],
+            'end_time'       => ['required_if:meet_via,on-site'],
             'booking_status' => ['required'],
             'address_id'     => ['required'],
             'team_id'        => ['required']
@@ -93,6 +95,11 @@ class ScheduleController extends Controller
         }
 
         $input = $request->input();
+
+        if ($input['start_time']) {
+            $input['start_time'] = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $input['start_time'])->format('h:i A');
+            $input['end_time'] = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $input['end_time'])->format('h:i A');
+        }
 
         $client = Client::find($input['client_id']);
         if (!$client) {
@@ -115,6 +122,15 @@ class ScheduleController extends Controller
         );
 
         $schedule->load(['client', 'propertyAddress']);
+
+        if (!$schedule->start_date) {
+            $this->sendMeetingMail($schedule);
+
+            return response()->json([
+                'data' => $schedule,
+                'message' => 'Meeting scheduled successfully',
+            ]);
+        }
 
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
@@ -291,6 +307,16 @@ class ScheduleController extends Controller
                 'end_time'       => ''
             ]);
             $change = 'date';
+        } else if ($request->name == 'start_time') {
+            if ($request->value) {
+                $startTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $request->value)->format('h:i A');
+                $endTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $request->value)->addMinutes(30)->format('h:i A');
+
+                $schedule->update([
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                ]);
+            }
         } else {
             $schedule->update([
                 $request->name => $request->value

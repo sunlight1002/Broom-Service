@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import FullCalendar from "@fullcalendar/react";
@@ -12,12 +11,16 @@ import Moment from "moment";
 import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
+import moment from "moment";
+
+import Sidebar from "../../Layouts/Sidebar";
+import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 
 export default function ViewSchedule() {
     const [startDate, setStartDate] = useState(new Date());
     const [client, setClient] = useState([]);
     const [totalTeam, setTotalTeam] = useState([]);
-    const [team, setTeam] = useState([]);
+    const [team, setTeam] = useState("");
     const [bstatus, setBstatus] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
@@ -28,10 +31,13 @@ export default function ViewSchedule() {
     const [startSlot, setStartSlot] = useState([]);
     const [endSlot, setEndSlot] = useState([]);
     const [interval, setInterval] = useState([]);
-    const [purpose, setPurpose] = useState(null);
+    const [purpose, setPurpose] = useState("");
     const [purposeText, setPurposeText] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [address, setAddress] = useState(null);
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [bookedSlots, setBookedSlots] = useState([]);
+    const [schedule, setSchedule] = useState(null);
 
     const param = useParams();
     const alert = useAlert();
@@ -40,28 +46,6 @@ export default function ViewSchedule() {
     const queryParams = new URLSearchParams(window.location.search);
     const sid = queryParams.get("sid");
     const urlParamAction = queryParams.get("action");
-    const time = [
-        "08:00 AM",
-        "08:30 AM",
-        "09:00 AM",
-        "09:30 AM",
-        "10:00 AM",
-        "10:30 AM",
-        "11:00 AM",
-        "11:30 AM",
-        "12:00 PM",
-        "12:30 PM",
-        "01:00 PM",
-        "01:30 PM",
-        "02:00 PM",
-        "02:30 PM",
-        "03:00 PM",
-        "03:30 PM",
-        "04:00 PM",
-        "04:30 PM",
-        "05:00 PM",
-        "05:30 PM",
-    ];
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -70,9 +54,6 @@ export default function ViewSchedule() {
     };
 
     const sendMeeting = () => {
-        const match = matchTime(startTime);
-        if (match == 0) return;
-
         let purps = "";
         if (purpose == null) {
             purps = "Price offer";
@@ -189,11 +170,21 @@ export default function ViewSchedule() {
     const getSchedule = () => {
         axios.get(`/api/admin/schedule/${sid}`, { headers }).then((res) => {
             const d = res.data.schedule;
+            setSchedule(d);
             setTeam(d.team_id ? d.team_id.toString() : "0");
             setBstatus(d.booking_status);
             setStartDate(Moment(d.start_date).toDate());
-            setStartTime(d.start_time);
-            setEndTime(d.end_time);
+
+            if (d.start_time) {
+                setStartTime(moment(d.start_time, "hh:mm A").format("kk:mm"));
+            } else {
+                setStartTime("");
+            }
+            if (d.end_time) {
+                setEndTime(moment(d.end_time, "hh:mm A").format("kk:mm"));
+            } else {
+                setEndTime("");
+            }
             setMeetVia(d.meet_via);
             setMeetLink(d.meet_link);
             setPurpose(d.purpose);
@@ -247,6 +238,14 @@ export default function ViewSchedule() {
         }
     }, []);
 
+    useEffect(() => {
+        if (meetVia == "off-site") {
+            setStartDate("");
+            setStartTime("");
+            setEndTime("");
+        }
+    }, [meetVia]);
+
     const handleUpdate = (e) => {
         if (sid != "" && sid != null) {
             let data = {};
@@ -283,35 +282,101 @@ export default function ViewSchedule() {
         }
     };
 
-    const changeTeam = (id) => {
-        getEvents(id);
-    };
-    const matchTime = (time) => {
-        if (events.length > 0) {
-            let raw = document.querySelector("#dateSel").value.split("/");
-            let pd = raw[2] + "-" + raw[1] + "-" + raw[0];
-            let dateSel = pd + " " + time;
-            for (let e in events) {
-                let cdt = Moment(dateSel).format("Y-MM-DD hh:mm:ss");
-                let st = Moment(events[e].start).format("Y-MM-DD hh:mm:ss");
-                let ed = Moment(events[e].end).format("Y-MM-DD hh:mm:ss");
-                let stime = Moment(events[e].start).format("hh:mm A");
-                let etime = Moment(events[e].end).format("hh:mm A");
+    const getTeamAvailibality = () => {
+        if (team && startDate) {
+            const _date = Moment(startDate).format("Y-MM-DD");
 
-                if (cdt >= st && cdt <= ed) {
-                    window.alert(
-                        "Your meeting is already schedule on " +
-                            document.querySelector("#dateSel").value +
-                            " between " +
-                            stime +
-                            " to " +
-                            etime
-                    );
-                    return 0;
-                }
-            }
+            axios
+                .get(`/api/admin/teams/availability/${team}/date/${_date}`, {
+                    headers,
+                })
+                .then((response) => {
+                    setAvailableSlots(response.data.available_slots);
+                    setBookedSlots(response.data.booked_slots);
+                })
+                .catch((e) => {
+                    setAvailableSlots([]);
+                    setBookedSlots([]);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
+        } else {
+            setAvailableSlots([]);
+            setBookedSlots([]);
         }
     };
+
+    const handleTeamChange = (_id) => {
+        getEvents(_id);
+    };
+
+    const timeOptions = useMemo(() => {
+        return createHalfHourlyTimeArray("08:00", "24:00");
+    }, []);
+
+    const startTimeOptions = useMemo(() => {
+        const _timeOptions = timeOptions.filter((_option) => {
+            if (_option == "24:00") {
+                return false;
+            }
+
+            if (schedule && schedule.start_time) {
+                const _st = moment(schedule.start_time, "hh:mm A").format(
+                    "kk:mm"
+                );
+                if (_st == _option) {
+                    return true;
+                }
+            }
+
+            const _startTime = moment(_option, "kk:mm");
+            const isSlotAvailable = availableSlots.some((slot) => {
+                const _slotStartTime = moment(slot.start, "kk:mm");
+                const _slotEndTime = moment(slot.end, "kk:mm");
+
+                return (
+                    _slotStartTime.isSame(_startTime) ||
+                    _startTime.isBetween(_slotStartTime, _slotEndTime)
+                );
+            });
+
+            if (!isSlotAvailable) {
+                return false;
+            }
+
+            return !bookedSlots.some((slot) => {
+                const _slotStartTime = moment(slot.start_time, "kk:mm");
+                const _slotEndTime = moment(slot.end_time, "kk:mm");
+
+                return (
+                    _startTime.isBetween(_slotStartTime, _slotEndTime) ||
+                    _startTime.isSame(_slotStartTime)
+                );
+            });
+        });
+
+        return _timeOptions;
+    }, [timeOptions, availableSlots, bookedSlots]);
+
+    useEffect(() => {
+        getTeamAvailibality();
+    }, [team, startDate]);
+
+    useEffect(() => {
+        const startIndex = timeOptions.indexOf(startTime);
+
+        if (startIndex != -1) {
+            const _timeOptions = timeOptions.slice(startIndex + 1);
+
+            const _endTime = _timeOptions[0];
+            setEndTime(_endTime);
+        }
+    }, [startTime]);
+
     const handlePurpose = (e) => {
         let pt = document.querySelector("#purpose_text");
         if (e.target.value == "Other") {
@@ -412,7 +477,7 @@ export default function ViewSchedule() {
                                     onChange={(e) => {
                                         setTeam(e.target.value);
                                         handleUpdate(e);
-                                        changeTeam(e.target.value);
+                                        handleTeamChange(e.target.value);
                                     }}
                                 >
                                     <option value="0">
@@ -443,36 +508,24 @@ export default function ViewSchedule() {
                                     className="form-control"
                                     name="purpose"
                                     id="purpose"
+                                    value={purpose}
                                     onChange={(e) => {
                                         setPurpose(e.target.value);
                                         handlePurpose(e);
                                         handleUpdate(e);
                                     }}
                                 >
-                                    <option
-                                        value="Price offer"
-                                        selected={purpose == "Price offer"}
-                                    >
+                                    <option value="Price offer">
                                         {t(
                                             "admin.schedule.options.meetingPurpose.priceOffer"
                                         )}
                                     </option>
-                                    <option
-                                        value="Quality check"
-                                        selected={purpose == "Quality check"}
-                                    >
+                                    <option value="Quality check">
                                         {t(
                                             "admin.schedule.options.meetingPurpose.qualityCheck"
                                         )}
                                     </option>
-                                    <option
-                                        value="Other"
-                                        selected={
-                                            purpose != "Quality check" &&
-                                            purpose != "Price offer" &&
-                                            purpose != null
-                                        }
-                                    >
+                                    <option value="Other">
                                         {t(
                                             "admin.schedule.options.meetingPurpose.other"
                                         )}
@@ -509,29 +562,65 @@ export default function ViewSchedule() {
                     </div>
                     <div className="mSchedule">
                         <h4>{t("admin.schedule.meetingTimeAndDate")}</h4>
-                        <div className="row">
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label> {t("admin.schedule.date")}</label>
-                                    <DatePicker
-                                        dateFormat="dd/MM/Y"
-                                        selected={startDate}
-                                        id="dateSel"
-                                        onChange={(date) => {
-                                            setStartDate(date);
-                                            handleUpdate(date);
-                                        }}
-                                    />
+                        {meetVia == "on-site" && (
+                            <div className="row">
+                                <div className="col-sm-4">
+                                    <div className="form-group">
+                                        <label>
+                                            {" "}
+                                            {t("admin.schedule.date")}
+                                        </label>
+                                        <DatePicker
+                                            dateFormat="dd/MM/Y"
+                                            selected={startDate}
+                                            id="dateSel"
+                                            onChange={(date) => {
+                                                setStartDate(date);
+                                                handleUpdate(date);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="col-sm-4">
+                                    <div className="form-group">
+                                        <label>Start Time</label>
+                                        <select
+                                            name="start_time"
+                                            id="start_time"
+                                            value={startTime}
+                                            onChange={(e) => {
+                                                setStartTime(e.target.value);
+                                                handleUpdate(e);
+                                            }}
+                                            className="form-control"
+                                        >
+                                            <option value="">
+                                                --- Choose start time ---
+                                            </option>
+                                            {startTimeOptions.map((t, i) => {
+                                                return (
+                                                    <option value={t} key={i}>
+                                                        {t}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="col-sm-4">
+                                    <div className="form-group">
+                                        <label>End Time</label>
+                                        <input
+                                            name="end_time"
+                                            id="end_time"
+                                            value={endTime}
+                                            className="form-control"
+                                            readOnly
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                            <div className="col-sm-4">
-                                {startTime && endTime && (
-                                    <p className="mt-sm-4">
-                                        between {`${startTime} - ${endTime}`}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                        )}
 
                         <div className="row">
                             <div className="col-sm-4">
