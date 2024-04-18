@@ -3,11 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import CurrentJob from "./CurrentJob";
 import PastJob from "./PastJob";
 import WorkerAvailabilty from "./WorkerAvailabilty";
-import Documents from "./Documents";
-import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
-import WorkerSafeandGear from "./WorkerSafeandGear";
 import WorkerForms from "./WorkerForms";
 
 export default function WorkerHistory() {
@@ -88,18 +85,6 @@ export default function WorkerHistory() {
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
-                        id="worker-sageandgear"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-sageandgear"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        Safe and Gear 
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
                         id="worker-not-availability"
                         className="nav-link"
                         data-toggle="tab"
@@ -115,7 +100,7 @@ export default function WorkerHistory() {
                         id="worker-forms"
                         className="nav-link"
                         data-toggle="tab"
-                        href="#tab-worker-forms"
+                        href="#tab-worker-document"
                         aria-selected="false"
                         role="tab"
                     >
@@ -155,14 +140,6 @@ export default function WorkerHistory() {
                     aria-labelledby="worker-forms"
                 >
                     <WorkerForms />
-                </div>                
-                <div
-                    id="tab-worker-sageandgear"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-sageandgear"
-                >
-                    <WorkerSafeandGear />
                 </div>
                 <div
                     id="tab-worker-not-availability"
@@ -173,7 +150,7 @@ export default function WorkerHistory() {
                     <WorkerNotAvailabilty />
                 </div>
                 <div
-                    id="tab-worker-forms"
+                    id="tab-worker-document"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="forms"
