@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Client\MeetingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\Auth\AuthController;
@@ -30,6 +31,7 @@ Route::post('safegear', [AuthController::class, 'safegear']);
 Route::get('getSafegear/{id}', [AuthController::class, 'getSafegear']);
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
+Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'availabilityByDate']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {

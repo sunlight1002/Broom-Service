@@ -153,7 +153,7 @@ export default function MeetingSchedule() {
                                 <Link
                                     target="_blank"
                                     className="btn btn-primary"
-                                    to={`/meeting-status/${param.id}/re`}
+                                    to={`/meeting-status/${param.id}/reschedule`}
                                 >
                                     {t("front_meet.reschedule")}
                                 </Link>
