@@ -9,7 +9,7 @@ import { NonIsraeliContract } from "../Admin/Pages/Contract/NonIsraeliContract";
 export default function WorkerContract() {
     const param = useParams();
     const [workerDetail, setWorkerDetail] = useState({});
-    const [workerFormDetail, setWorkerFormDetail] = useState({});
+    const [workerFormDetail, setWorkerFormDetail] = useState(null);
     const [checkFormDetails, setCheckFormDetails] = useState(false);
 
     const handleSubmit = (values) => {

@@ -1,11 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import Sidebar from "../../Layouts/Sidebar";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import SignatureCanvas from "react-signature-canvas";
+
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-import SignatureCanvas from "react-signature-canvas";
+
+const initialValues = {
+    fullName: "",
+    IdNumber: "",
+    Address: "",
+    startDate: "",
+    signatureDate: "",
+    PhoneNo: "",
+    MobileNo: "",
+    signature: "",
+    role: "",
+};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -38,17 +50,6 @@ export function IsrailContact({
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
 
-    const initialValues = {
-        fullName: "",
-        IdNumber: "",
-        Address: "",
-        startDate: "",
-        signatureDate: "",
-        PhoneNo: "",
-        MobileNo: "",
-        signature: "",
-        role: "",
-    };
     const {
         errors,
         touched,
@@ -57,8 +58,10 @@ export function IsrailContact({
         handleSubmit,
         values,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
         initialValues: formValues ?? initialValues,
+        enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: (values) => {
             handleFormSubmit(values);
@@ -67,10 +70,13 @@ export function IsrailContact({
 
     useEffect(() => {
         setFormValues(workerFormDetails);
+    }, [workerFormDetails]);
+
+    useEffect(() => {
         if (checkFormDetails) {
             disableInputs();
         }
-    }, [workerFormDetails, checkFormDetails]);
+    }, [checkFormDetails]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -87,8 +93,7 @@ export function IsrailContact({
         setFieldValue("signature", "");
     };
     return (
-        <div id="container targetDiv">
-            {/* <Sidebar /> */}
+        <div className="container targetDiv">
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
                     <form onSubmit={handleSubmit}>
@@ -597,24 +602,31 @@ export function IsrailContact({
                                                 errors.signature}
                                         </span>
                                     </p>
-                                    <SignatureCanvas
-                                        penColor="black"
-                                        canvasProps={{
-                                            className: "sign101 border mt-1",
-                                        }}
-                                        ref={sigRef}
-                                        onEnd={handleSignatureEnd}
-                                    />
+                                    {formValues && formValues.signature ? (
+                                        <img src={formValues.signature} />
+                                    ) : (
+                                        <>
+                                            <SignatureCanvas
+                                                penColor="black"
+                                                canvasProps={{
+                                                    className:
+                                                        "sign101 border mt-1",
+                                                }}
+                                                ref={sigRef}
+                                                onEnd={handleSignatureEnd}
+                                            />
 
-                                    <div className="d-block">
-                                        <button
-                                            className="btn btn-warning mb-2"
-                                            type="button"
-                                            onClick={clearSignature}
-                                        >
-                                            Clear
-                                        </button>
-                                    </div>
+                                            <div className="d-block">
+                                                <button
+                                                    className="btn btn-warning mb-2"
+                                                    type="button"
+                                                    onClick={clearSignature}
+                                                >
+                                                    Clear
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="col-5"></div>
                                 <div className="col-3">
@@ -641,9 +653,15 @@ export function IsrailContact({
                                 <strong>Broom Service L.M. Ltd</strong>
                             </div>
                         </div>
-                        <button className="btn btn-success mt-3" type="submit">
-                            Submit
-                        </button>
+                        {!formValues && (
+                            <button
+                                className="btn btn-success mt-3"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                Submit
+                            </button>
+                        )}
                     </form>
                 </div>
             </div>
