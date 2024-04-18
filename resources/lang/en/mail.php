@@ -112,14 +112,14 @@ return [
         'tel'         => 'Telephone'
     ],
     'worker_safe_gear' => [
-        'subject'     => 'SafeAndGear with',
+        'subject'     => 'Safety And Gear with',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
         'content'     => 'You have successfully registered on our portal. Please sign the contract form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the SafeAndGear.',
-        'btn_txt'     => 'Check SafeandGear',
+        'below_txt'   => 'Click the below button to check the Safety And Gear.',
+        'btn_txt'     => 'Check Safety And Gear',
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone'
