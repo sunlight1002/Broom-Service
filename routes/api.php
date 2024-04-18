@@ -25,6 +25,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::get('showPdf/{id}', [AuthController::class, 'showPdf']);
 Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
 Route::post('work-contract', [AuthController::class, 'WorkContract']);
+Route::get('work-contract/{id}', [AuthController::class, 'getWorkContract']);
 Route::post('form101', [AuthController::class, 'form101']);
 Route::get('get101/{id}', [AuthController::class, 'get101']);
 Route::post('safegear', [AuthController::class, 'safegear']);

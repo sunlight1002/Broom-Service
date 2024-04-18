@@ -1,11 +1,23 @@
-import React, { useRef } from "react";
-import Sidebar from "../../Layouts/Sidebar";
+import React, { useEffect, useRef, useState } from "react";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import SignatureCanvas from "react-signature-canvas";
+
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-import SignatureCanvas from "react-signature-canvas";
+
+const initialValues = {
+    fullName: "",
+    IdNumber: "",
+    Address: "",
+    startDate: "",
+    signatureDate: "",
+    PhoneNo: "",
+    MobileNo: "",
+    signature: "",
+    role: "",
+};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -29,19 +41,15 @@ const formSchema = yup.object({
         .required("Mobile number is required"),
     signature: yup.mixed().required("Signature is required"),
 });
-export function IsrailContact() {
+export function IsrailContact({
+    handleFormSubmit,
+    workerDetail,
+    workerFormDetails,
+    checkFormDetails,
+}) {
     const sigRef = useRef();
-    const initialValues = {
-        fullName: "",
-        IdNumber: "",
-        Address: "",
-        startDate: "",
-        signatureDate: "",
-        PhoneNo: "",
-        MobileNo: "",
-        signature: "",
-        role: "",
-    };
+    const [formValues, setFormValues] = useState(null);
+
     const {
         errors,
         touched,
@@ -50,14 +58,33 @@ export function IsrailContact() {
         handleSubmit,
         values,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
-        initialValues,
+        initialValues: formValues ?? initialValues,
+        enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: (values) => {
-            console.log("values", values);
+            handleFormSubmit(values);
         },
     });
-    console.log("errors,values", errors, values);
+
+    useEffect(() => {
+        setFormValues(workerFormDetails);
+    }, [workerFormDetails]);
+
+    useEffect(() => {
+        if (checkFormDetails) {
+            disableInputs();
+        }
+    }, [checkFormDetails]);
+
+    const disableInputs = () => {
+        const inputs = document.querySelectorAll(".targetDiv input");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    };
+
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
@@ -66,8 +93,7 @@ export function IsrailContact() {
         setFieldValue("signature", "");
     };
     return (
-        <div id="container">
-            <Sidebar />
+        <div className="container targetDiv">
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
                     <form onSubmit={handleSubmit}>
@@ -576,24 +602,31 @@ export function IsrailContact() {
                                                 errors.signature}
                                         </span>
                                     </p>
-                                    <SignatureCanvas
-                                        penColor="black"
-                                        canvasProps={{
-                                            className: "sign101 border mt-1",
-                                        }}
-                                        ref={sigRef}
-                                        onEnd={handleSignatureEnd}
-                                    />
+                                    {formValues && formValues.signature ? (
+                                        <img src={formValues.signature} />
+                                    ) : (
+                                        <>
+                                            <SignatureCanvas
+                                                penColor="black"
+                                                canvasProps={{
+                                                    className:
+                                                        "sign101 border mt-1",
+                                                }}
+                                                ref={sigRef}
+                                                onEnd={handleSignatureEnd}
+                                            />
 
-                                    <div className="d-block">
-                                        <button
-                                            className="btn btn-warning mb-2"
-                                            type="button"
-                                            onClick={clearSignature}
-                                        >
-                                            Clear
-                                        </button>
-                                    </div>
+                                            <div className="d-block">
+                                                <button
+                                                    className="btn btn-warning mb-2"
+                                                    type="button"
+                                                    onClick={clearSignature}
+                                                >
+                                                    Clear
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="col-5"></div>
                                 <div className="col-3">
@@ -620,9 +653,15 @@ export function IsrailContact() {
                                 <strong>Broom Service L.M. Ltd</strong>
                             </div>
                         </div>
-                        <button className="btn btn-success mt-3" type="submit">
-                            Submit
-                        </button>
+                        {!formValues && (
+                            <button
+                                className="btn btn-success mt-3"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                Submit
+                            </button>
+                        )}
                     </form>
                 </div>
             </div>

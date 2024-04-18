@@ -1,11 +1,29 @@
-import React, { useRef } from "react";
-import Sidebar from "../../Layouts/Sidebar";
+import React, { useEffect, useRef, useState } from "react";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import SignatureCanvas from "react-signature-canvas";
+
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-import SignatureCanvas from "react-signature-canvas";
+
+const initialValues = {
+    fullName: "",
+    IdNumber: "",
+    Address: "",
+    startDate: "",
+    signatureDate1: "",
+    signatureDate2: "",
+    signatureDate3: "",
+    signatureDate4: "",
+    signature1: "",
+    signature2: "",
+    signature3: "",
+    signature4: "",
+    companySignature1: "",
+    companySignature2: "",
+    role: "",
+};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -13,13 +31,13 @@ const formSchema = yup.object({
     IdNumber: yup
         .number()
         .typeError("invalid number")
-        .required("Id Number is required"),
-    Address: yup.string().trim().required("Address  is required"),
+        .required("ID Number is required"),
+    Address: yup.string().trim().required("Address is required"),
     startDate: yup.date().required("Start date of job is required"),
-    signatureDate1: yup.date().required("Date  is required"),
-    signatureDate2: yup.date().required("Date  is required"),
-    signatureDate3: yup.date().required("Date  is required"),
-    signatureDate4: yup.date().required("Date  is required"),
+    signatureDate1: yup.date().required("Date is required"),
+    signatureDate2: yup.date().required("Date is required"),
+    signatureDate3: yup.date().required("Date is required"),
+    signatureDate4: yup.date().required("Date is required"),
     signature1: yup.mixed().required("Signature is required"),
     signature2: yup.mixed().required("Signature is required"),
     signature3: yup.mixed().required("Signature is required"),
@@ -28,30 +46,18 @@ const formSchema = yup.object({
     companySignature2: yup.mixed().required("Signature is required"),
 });
 
-export function NonIsraeliContract() {
+export function NonIsraeliContract({
+    handleFormSubmit,
+    workerFormDetails,
+    checkFormDetails,
+}) {
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
     const sigRef4 = useRef();
     const companySigRef1 = useRef();
     const companySigRef2 = useRef();
-    const initialValues = {
-        fullName: "",
-        IdNumber: "",
-        Address: "",
-        startDate: "",
-        signatureDate1: "",
-        signatureDate2: "",
-        signatureDate3: "",
-        signatureDate4: "",
-        signature1: "",
-        signature2: "",
-        signature3: "",
-        signature4: "",
-        companySignature1: "",
-        companySignature2: "",
-        role: "",
-    };
+    const [formValues, setFormValues] = useState(null);
     const {
         errors,
         touched,
@@ -60,13 +66,33 @@ export function NonIsraeliContract() {
         handleSubmit,
         values,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
-        initialValues,
+        initialValues: formValues ?? initialValues,
+        enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: (values) => {
-            console.log("values", values);
+            handleFormSubmit(values);
         },
     });
+
+    useEffect(() => {
+        setFormValues(workerFormDetails);
+    }, [workerFormDetails]);
+
+    useEffect(() => {
+        if (checkFormDetails) {
+            disableInputs();
+        }
+    }, [checkFormDetails]);
+
+    const disableInputs = () => {
+        const inputs = document.querySelectorAll(".targetDiv input");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    };
+
     const handleSignatureEnd1 = () => {
         setFieldValue("signature1", sigRef1.current.toDataURL());
     };
@@ -109,9 +135,9 @@ export function NonIsraeliContract() {
         companySigRef2.current.clear();
         setFieldValue("companySignature2", "");
     };
+
     return (
-        <div id="container">
-            <Sidebar />
+        <div className="container targetDiv">
             <div id="content">
                 <div className="w-75 mx-auto mt-5">
                     <form onSubmit={handleSubmit}>
@@ -185,19 +211,19 @@ export function NonIsraeliContract() {
                                     />
                                 </li>
                                 <li>
+                                    <DateField
+                                        name={"startDate"}
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        label={"The date of the start of"}
+                                        value={values.startDate}
+                                        required={true}
+                                        error={
+                                            touched.startDate &&
+                                            errors.startDate
+                                        }
+                                    />
                                     <p>
-                                        <DateField
-                                            name={"startDate"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={"The date of the start of"}
-                                            value={values.startDate}
-                                            required={true}
-                                            error={
-                                                touched.startDate &&
-                                                errors.startDate
-                                            }
-                                        />
                                         The contract period is not fixed. The
                                         employee is hired as a new employee for
                                         all intents and purposes.
@@ -261,34 +287,48 @@ export function NonIsraeliContract() {
                                                             The worker's
                                                             signature:*
                                                         </strong>
-                                                        <span className="text-danger">
-                                                            {touched.signature1 &&
-                                                                errors.signature1}
-                                                        </span>
                                                     </p>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            className:
-                                                                "sign101 border mt-1",
-                                                        }}
-                                                        ref={sigRef1}
-                                                        onEnd={
-                                                            handleSignatureEnd1
-                                                        }
-                                                    />
-
-                                                    <div className="d-block">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-warning mb-2"
-                                                            onClick={
-                                                                clearSignature1
+                                                    {formValues &&
+                                                    formValues.signature1 ? (
+                                                        <img
+                                                            src={
+                                                                formValues.signature1
                                                             }
-                                                        >
-                                                            Clear
-                                                        </button>
-                                                    </div>
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            <SignatureCanvas
+                                                                penColor="black"
+                                                                canvasProps={{
+                                                                    className:
+                                                                        "sign101 border mt-1",
+                                                                }}
+                                                                ref={sigRef1}
+                                                                onEnd={
+                                                                    handleSignatureEnd1
+                                                                }
+                                                            />
+                                                            {touched.signature1 &&
+                                                                errors.signature1 && (
+                                                                    <p className="text-danger">
+                                                                        {touched.signature1 &&
+                                                                            errors.signature1}
+                                                                    </p>
+                                                                )}
+
+                                                            <div className="d-block">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-warning mb-2"
+                                                                    onClick={
+                                                                        clearSignature1
+                                                                    }
+                                                                >
+                                                                    Clear
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                                 <div className="col-5"></div>
                                                 <div className="col-3">
@@ -387,30 +427,46 @@ export function NonIsraeliContract() {
                                                 <strong>
                                                     The worker's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.signature2 &&
-                                                        errors.signature2}
-                                                </span>
                                             </p>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={sigRef2}
-                                                onEnd={handleSignatureEnd2}
-                                            />
+                                            {formValues &&
+                                            formValues.signature2 ? (
+                                                <img
+                                                    src={formValues.signature2}
+                                                />
+                                            ) : (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            className:
+                                                                "sign101 border mt-1",
+                                                        }}
+                                                        ref={sigRef2}
+                                                        onEnd={
+                                                            handleSignatureEnd2
+                                                        }
+                                                    />
+                                                    {touched.signature2 &&
+                                                        errors.signature2 && (
+                                                            <p className="text-danger">
+                                                                {touched.signature2 &&
+                                                                    errors.signature2}
+                                                            </p>
+                                                        )}
 
-                                            <div className="d-block">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-warning mb-2"
-                                                    onClick={clearSignature2}
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-warning mb-2"
+                                                            onClick={
+                                                                clearSignature2
+                                                            }
+                                                        >
+                                                            Clear
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                         <div className="col-5"></div>
                                         <div className="col-3">
@@ -530,64 +586,94 @@ export function NonIsraeliContract() {
                                                 <strong>
                                                     The worker's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.signature3 &&
-                                                        errors.signature3}
-                                                </span>
                                             </p>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={sigRef3}
-                                                onEnd={handleSignatureEnd3}
-                                            />
+                                            {formValues &&
+                                            formValues.signature3 ? (
+                                                <img
+                                                    src={formValues.signature3}
+                                                />
+                                            ) : (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            className:
+                                                                "sign101 border mt-1",
+                                                        }}
+                                                        ref={sigRef3}
+                                                        onEnd={
+                                                            handleSignatureEnd3
+                                                        }
+                                                    />
+                                                    {touched.signature3 &&
+                                                        errors.signature3 && (
+                                                            <p className="text-danger">
+                                                                {touched.signature3 &&
+                                                                    errors.signature3}
+                                                            </p>
+                                                        )}
 
-                                            <div className="d-block">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-warning mb-2"
-                                                    onClick={clearSignature3}
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-warning mb-2"
+                                                            onClick={
+                                                                clearSignature3
+                                                            }
+                                                        >
+                                                            Clear
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                         <div className="col-6">
                                             <p>
                                                 <strong>
                                                     The Company's signature:*
                                                 </strong>
-                                                <span className="text-danger">
-                                                    {touched.companySignature1 &&
-                                                        errors.companySignature1}
-                                                </span>
                                             </p>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={companySigRef1}
-                                                onEnd={
-                                                    handleCompanySignatureEnd1
-                                                }
-                                            />
-
-                                            <div className="d-block">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-warning mb-2"
-                                                    onClick={
-                                                        clearCompanySignature1
+                                            {formValues &&
+                                            formValues.companySignature1 ? (
+                                                <img
+                                                    src={
+                                                        formValues.companySignature1
                                                     }
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                                />
+                                            ) : (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            className:
+                                                                "sign101 border mt-1",
+                                                        }}
+                                                        ref={companySigRef1}
+                                                        onEnd={
+                                                            handleCompanySignatureEnd1
+                                                        }
+                                                    />
+                                                    {touched.companySignature1 &&
+                                                        errors.companySignature1 && (
+                                                            <p className="text-danger">
+                                                                {touched.companySignature1 &&
+                                                                    errors.companySignature1}
+                                                            </p>
+                                                        )}
+
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-warning mb-2"
+                                                            onClick={
+                                                                clearCompanySignature1
+                                                            }
+                                                        >
+                                                            Clear
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                         <div className="col-12">
                                             <DateField
@@ -670,58 +756,85 @@ export function NonIsraeliContract() {
                                         <strong>
                                             The worker's signature:*
                                         </strong>
-                                        <span className="text-danger">
-                                            {touched.signature4 &&
-                                                errors.signature4}
-                                        </span>
                                     </p>
-                                    <SignatureCanvas
-                                        penColor="black"
-                                        canvasProps={{
-                                            className: "sign101 border mt-1",
-                                        }}
-                                        ref={sigRef4}
-                                        onEnd={handleSignatureEnd4}
-                                    />
+                                    {formValues && formValues.signature4 ? (
+                                        <img src={formValues.signature4} />
+                                    ) : (
+                                        <>
+                                            <SignatureCanvas
+                                                penColor="black"
+                                                canvasProps={{
+                                                    className:
+                                                        "sign101 border mt-1",
+                                                }}
+                                                ref={sigRef4}
+                                                onEnd={handleSignatureEnd4}
+                                            />
+                                            {touched.signature4 &&
+                                                errors.signature4 && (
+                                                    <p className="text-danger">
+                                                        {touched.signature4 &&
+                                                            errors.signature4}
+                                                    </p>
+                                                )}
 
-                                    <div className="d-block">
-                                        <button
-                                            type="button"
-                                            className="btn btn-warning mb-2"
-                                            onClick={clearSignature4}
-                                        >
-                                            Clear
-                                        </button>
-                                    </div>
+                                            <div className="d-block">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-warning mb-2"
+                                                    onClick={clearSignature4}
+                                                >
+                                                    Clear
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="col-6">
                                     <p>
                                         <strong>
                                             The Company's signature:*
                                         </strong>
-                                        <span className="text-danger">
-                                            {touched.companySignature2 &&
-                                                errors.companySignature2}
-                                        </span>
                                     </p>
-                                    <SignatureCanvas
-                                        penColor="black"
-                                        canvasProps={{
-                                            className: "sign101 border mt-1",
-                                        }}
-                                        ref={companySigRef2}
-                                        onEnd={handleCompanySignatureEnd2}
-                                    />
+                                    {formValues &&
+                                    formValues.companySignature2 ? (
+                                        <img
+                                            src={formValues.companySignature2}
+                                        />
+                                    ) : (
+                                        <>
+                                            <SignatureCanvas
+                                                penColor="black"
+                                                canvasProps={{
+                                                    className:
+                                                        "sign101 border mt-1",
+                                                }}
+                                                ref={companySigRef2}
+                                                onEnd={
+                                                    handleCompanySignatureEnd2
+                                                }
+                                            />
+                                            {touched.companySignature2 &&
+                                                errors.companySignature2 && (
+                                                    <p className="text-danger">
+                                                        {touched.companySignature2 &&
+                                                            errors.companySignature2}
+                                                    </p>
+                                                )}
 
-                                    <div className="d-block">
-                                        <button
-                                            className="btn btn-warning mb-2"
-                                            type="button"
-                                            onClick={clearCompanySignature2}
-                                        >
-                                            Clear
-                                        </button>
-                                    </div>
+                                            <div className="d-block">
+                                                <button
+                                                    className="btn btn-warning mb-2"
+                                                    type="button"
+                                                    onClick={
+                                                        clearCompanySignature2
+                                                    }
+                                                >
+                                                    Clear
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="col-12">
                                     <DateField
@@ -739,9 +852,15 @@ export function NonIsraeliContract() {
                                 </div>
                             </div>
                         </div>
-                        <button className="btn btn-success mt-3" type="submit">
-                            Submit
-                        </button>
+                        {!formValues && (
+                            <button
+                                className="btn btn-success mt-3"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                Submit
+                            </button>
+                        )}
                     </form>
                 </div>
             </div>

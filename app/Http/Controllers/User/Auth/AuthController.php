@@ -165,24 +165,46 @@ class AuthController extends Controller
     {
         $user = User::where('worker_id', $request->worker_id)->first();
 
+        $form = $user->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
         return response()->json([
-            'worker' => $user
+            'worker' => $user,
+            'form' => $form ? $form->data : NULL
         ]);
     }
 
     public function WorkContract(Request $request)
     {
-        try {
-            User::where('worker_id', $request->worker_id)->update($request->input());
-            return response()->json([
-                'message' => "Thanks, for accepting contract"
-            ]);
-        } catch (\Exception $e) {
+        $data = $request->all();
 
+        $worker = User::where('worker_id', $data['worker_id'])->first();
+        if (!$worker) {
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'message' => 'Worker not found',
+            ], 404);
         }
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Contract already signed.'
+            ], 403);
+        }
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::CONTRACT,
+            'data' => $data['worker_contract_json']
+        ]);
+
+        return response()->json([
+            'message' => 'Contract signed successfully. Thanks, for signing the contract.'
+        ]);
     }
 
     public function form101(Request $request)
@@ -274,12 +296,24 @@ class AuthController extends Controller
             ->first();
 
         return response()->json([
-            'success_code' => 200,
             'lng' => $worker->lng,
             'form' => $form ? $form->data : NULL
         ]);
     }
 
+    public function getWorkContract($id)
+    {
+        $worker = User::find($id);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->first();
+
+        return response()->json([
+            'worker' => $worker,
+            'form' => $form ? $form->data : NULL
+        ]);
+    }
     // public function pdf101($id)
     // {
     //     $user = User::find(base64_decode($id))->toArray();
