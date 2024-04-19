@@ -2,10 +2,12 @@
 
 namespace App\Traits;
 
+use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Models\Job;
 use App\Models\Order;
 use App\Models\Setting;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
@@ -386,6 +388,13 @@ trait PaymentAPI
             throw new Exception($json["reason"], 500);
         }
 
+        $hasPendingJobInMonth = Job::query()
+            ->whereIn('id', $jobIDs)
+            ->whereNotNull('next_start_date')
+            ->whereDate('next_start_date', '>=', Carbon::today()->toDateString())
+            ->whereDate('next_start_date', '<=', Carbon::today()->endOfMonth()->toDateString())
+            ->exists();
+
         $order = Order::create([
             'order_id'          => $json['docnum'],
             'doc_url'           => $json['doc_url'],
@@ -394,6 +403,7 @@ trait PaymentAPI
             'items'             => json_encode($items),
             'status'            => 'Open',
             'invoice_status'    => $isOneTime ? 0 : 1,
+            'paid_status'       => $hasPendingJobInMonth ? OrderPaidStatusEnum::UNDONE : NULL
         ]);
 
         Job::whereIn('id', $jobIDs)
