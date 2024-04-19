@@ -53,6 +53,10 @@ const initialValues = {
     employeeHealthFundMember: "",
     employeeHealthFundname: "",
     employeemyIncomeToKibbutz: "",
+    incomeType: "",
+    allowance: false,
+    scholarship: false,
+    DateOfBeginningWork:"",
     children: [],
     otherIncome: {
         haveincome: "",
@@ -219,9 +223,7 @@ const formSchema = yup.object({
         ),
     allowance: yup.boolean(),
     scholarship: yup.boolean(),
-    DateOfBeginningWork: yup
-        .date()
-        .required("Date of beginning of work is required"),
+    DateOfBeginningWork: yup.date().required("Date of beginning of work is required"),
     otherIncome: yup.object().shape({
         haveincome: yup.string().required(),
         incomeType: yup
