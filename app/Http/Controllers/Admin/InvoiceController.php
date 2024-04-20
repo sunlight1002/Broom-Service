@@ -465,6 +465,10 @@ class InvoiceController extends Controller
             $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
 
             if ($paymentResponse['HasError'] == true) {
+                $order->update([
+                    'paid_status' => OrderPaidStatusEnum::PROBLEM
+                ]);
+
                 return response()->json([
                     'message' => 'Unable to pay from credit card'
                 ], 500);
@@ -708,18 +712,16 @@ class InvoiceController extends Controller
             'items' => $pay_items
         ]);
 
-        if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
+        if (!$captureChargeResponse['HasError']) {
             $transaction->update([
                 'status' => TransactionStatusEnum::COMPLETED,
                 'transaction_id' => $captureChargeResponse['ReferenceNumber'],
                 'transaction_at' => now(),
                 'metadata' => ['card_number' => $token],
             ]);
-
-            return $captureChargeResponse;
         }
 
-        throw new Exception("Error Processing Charge Request", 500);
+        return $captureChargeResponse;
     }
 
     public function manualInvoice($id)
@@ -767,6 +769,10 @@ class InvoiceController extends Controller
             $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
 
             if ($paymentResponse['HasError'] == true) {
+                $order->update([
+                    'paid_status' => OrderPaidStatusEnum::PROBLEM
+                ]);
+
                 $doctype = 'invoice';
             } else {
                 $isPaymentProcessed = true;
@@ -1400,6 +1406,14 @@ class InvoiceController extends Controller
             $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
 
             if ($paymentResponse['HasError'] == true) {
+                foreach ($invoices as $key => $invoice) {
+                    $order = $invoice->order;
+
+                    $order->update([
+                        'paid_status' => OrderPaidStatusEnum::PROBLEM
+                    ]);
+                }
+
                 return response()->json([
                     'message' => 'Unable to pay from credit card'
                 ], 500);
@@ -1552,6 +1566,12 @@ class InvoiceController extends Controller
         $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
 
         if ($paymentResponse['HasError'] == true) {
+            foreach ($orders as $key => $order) {
+                $order->update([
+                    'paid_status' => OrderPaidStatusEnum::PROBLEM
+                ]);
+            }
+
             return response()->json([
                 'message' => 'Unable to pay from credit card'
             ], 500);

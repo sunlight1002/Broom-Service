@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderPaidStatusEnum;
 use App\Enums\TransactionStatusEnum;
 use App\Models\Client;
 use App\Models\ClientCard;
 use App\Models\Contract;
+use App\Models\Order;
 use App\Models\Transaction;
 use App\Traits\PaymentAPI;
 use Illuminate\Http\Request;
@@ -91,6 +93,14 @@ class PaymentController extends Controller
                                     $contract->update([
                                         'card_id' => $card->id
                                     ]);
+                                } else {
+                                    Order::query()
+                                        ->where('client_id', $client->id)
+                                        ->where('status', 'Open')
+                                        ->where('paid_status', OrderPaidStatusEnum::PROBLEM)
+                                        ->update([
+                                            'paid_status' => OrderPaidStatusEnum::UNPAID
+                                        ]);
                                 }
 
                                 if (

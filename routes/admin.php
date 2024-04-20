@@ -197,6 +197,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
+    Route::post('client/{id}/initialize-card', [ClientController::class, 'createClientCardSession']);
+    Route::post('client/{id}/check-card-by-session', [ClientController::class, 'checkTranxBySessionId']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);

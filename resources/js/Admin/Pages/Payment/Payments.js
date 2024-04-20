@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
@@ -33,6 +34,12 @@ export default function Payments() {
     const [paidStatusFilter, setPaidStatusFilter] = useState("all");
     const [addPaymentModalOpen, setAddPaymentModalOpen] = useState(false);
     const [selectedClientID, setSelectedClientID] = useState(null);
+    const [clientCardSessionID, setClientCardSessionID] = useState(null);
+    const [sessionURL, setSessionURL] = useState("");
+    const [checkingClientIDForCard, setCheckingClientIDForCard] =
+        useState(null);
+
+    const alert = useAlert();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -138,6 +145,8 @@ export default function Payments() {
                 getClientPayments();
             })
             .catch((e) => {
+                getClientPayments();
+
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -145,6 +154,79 @@ export default function Payments() {
                 });
             });
     };
+
+    const handleAddingClientCard = (_clientID) => {
+        if (checkingClientIDForCard) {
+            alert.info("Adding card is already in-progress");
+            return false;
+        }
+
+        alert.info("Adding card in progress");
+
+        axios
+            .post(
+                `/api/admin/client/${_clientID}/initialize-card`,
+                {},
+                { headers }
+            )
+            .then((response) => {
+                setCheckingClientIDForCard(_clientID);
+
+                setClientCardSessionID(response.data.session_id);
+                setSessionURL(response.data.redirect_url);
+                $("#addCardModal").modal("show");
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+
+    useEffect(() => {
+        let _intervalID;
+
+        if (checkingClientIDForCard && clientCardSessionID) {
+            _intervalID = setInterval(() => {
+                if (checkingClientIDForCard) {
+                    axios
+                        .post(
+                            `/api/admin/client/${checkingClientIDForCard}/check-card-by-session`,
+                            { session_id: clientCardSessionID },
+                            { headers }
+                        )
+                        .then((response) => {
+                            if (response.data.status == "completed") {
+                                alert.success("Card added successfully");
+                                setCheckingClientIDForCard(null);
+                                setClientCardSessionID(null);
+                                clearInterval(_intervalID);
+                                getClientPayments();
+                            }
+                        })
+                        .catch((e) => {
+                            setCheckingClientIDForCard(null);
+                            setClientCardSessionID(null);
+                            clearInterval(_intervalID);
+
+                            Swal.fire({
+                                title: "Error!",
+                                text: e.response.data.message,
+                                icon: "error",
+                            });
+                        });
+                }
+            }, 2000);
+        }
+
+        return () => clearInterval(_intervalID);
+    }, [checkingClientIDForCard, clientCardSessionID]);
+
+    useEffect(() => {
+        console.log("clientCardSessionID", clientCardSessionID);
+    }, [clientCardSessionID]);
 
     return (
         <div id="container">
@@ -303,68 +385,81 @@ export default function Payments() {
                                                     </Td>
                                                     <Td>{item.visits}</Td>
                                                     <Td>
-                                                        <div className="action-dropdown dropdown">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-default dropdown-toggle"
-                                                                data-toggle="dropdown"
-                                                            >
-                                                                <i className="fa fa-ellipsis-vertical"></i>
-                                                            </button>
-                                                            <div className="dropdown-menu">
-                                                                {item.last_order_doc_url && (
-                                                                    <Link
-                                                                        className="dropdown-item"
-                                                                        to={`/admin/view-client/${item.client_id}#tab-order`}
-                                                                    >
-                                                                        See
-                                                                        document
-                                                                    </Link>
-                                                                )}
-                                                                {item.last_paid_status ==
-                                                                    "unpaid" && (
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleCloseWithReceipt(
-                                                                                item.client_id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Close
-                                                                        invoice
-                                                                        with
-                                                                        receipt
-                                                                    </button>
-                                                                )}
+                                                        {(item.last_order_doc_url ||
+                                                            item.last_paid_status) && (
+                                                            <div className="action-dropdown dropdown">
                                                                 <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() => {}}
+                                                                    type="button"
+                                                                    className="btn btn-default dropdown-toggle"
+                                                                    data-toggle="dropdown"
                                                                 >
-                                                                    Update new
-                                                                    Credit Card
+                                                                    <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
-                                                                {
-                                                                    (item.payment_method =
-                                                                        "cc" &&
-                                                                            item.last_paid_status !=
-                                                                                "paid" && (
-                                                                                <button
-                                                                                    className="dropdown-item"
-                                                                                    onClick={() =>
-                                                                                        handleCloseForPayment(
-                                                                                            item.client_id
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Close
-                                                                                    for
-                                                                                    payment
-                                                                                </button>
-                                                                            ))
-                                                                }
+                                                                <div className="dropdown-menu">
+                                                                    {item.last_order_doc_url && (
+                                                                        <Link
+                                                                            className="dropdown-item"
+                                                                            to={`/admin/view-client/${item.client_id}#tab-order`}
+                                                                        >
+                                                                            See
+                                                                            document
+                                                                        </Link>
+                                                                    )}
+                                                                    {item.last_paid_status ==
+                                                                        "unpaid" && (
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>
+                                                                                handleCloseWithReceipt(
+                                                                                    item.client_id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Close
+                                                                            invoice
+                                                                            with
+                                                                            receipt
+                                                                        </button>
+                                                                    )}
+                                                                    {item.last_paid_status ==
+                                                                        "problem" && (
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() =>
+                                                                                handleAddingClientCard(
+                                                                                    item.client_id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Update
+                                                                            new
+                                                                            Credit
+                                                                            Card
+                                                                        </button>
+                                                                    )}
+                                                                    {
+                                                                        (item.payment_method =
+                                                                            "cc" &&
+                                                                                item.last_paid_status &&
+                                                                                item.last_paid_status !=
+                                                                                    "paid" && (
+                                                                                    <button
+                                                                                        className="dropdown-item"
+                                                                                        onClick={() =>
+                                                                                            handleCloseForPayment(
+                                                                                                item.client_id
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        Close
+                                                                                        for
+                                                                                        payment
+                                                                                    </button>
+                                                                                ))
+                                                                    }
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        )}
                                                     </Td>
                                                 </Tr>
                                             );
@@ -419,6 +514,47 @@ export default function Payments() {
                     clientId={selectedClientID}
                 />
             )}
+
+            <div
+                className="modal fade"
+                id="addCardModal"
+                tabIndex="-1"
+                role="dialog"
+                aria-labelledby="addCardModalLabel"
+                aria-hidden="true"
+            >
+                <div
+                    className="modal-dialog modal-dialog-centered modal-lg"
+                    role="document"
+                >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                Back
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <iframe
+                                            src={sessionURL}
+                                            title="Pay Card Transaction"
+                                            width="100%"
+                                            height="800"
+                                        ></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
