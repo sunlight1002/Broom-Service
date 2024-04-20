@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Helpers\Helper;
 
 class RecurringJob extends Command
 {
@@ -221,7 +222,7 @@ class RecurringJob extends Command
                         'start_time' => $shiftStart,
                         'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
                     );
-
+                    Helper::sendJobWANotification($emailData);
                     Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                         $messages->to($emailData['email']);
                         $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');

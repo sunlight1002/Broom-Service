@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
@@ -134,7 +136,12 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
-
+        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
         Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['email']);
             $sub = __('mail.job_status.subject');
@@ -275,6 +282,12 @@ class JobController extends Controller
                 'worker'     => $job->worker,
                 'job'        => $job->toArray(),
             );
+            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                    "notificationData" => $data
+                ]));
+            }
             Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.job_status.subject');

@@ -18,6 +18,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class WorkerController extends Controller
 {
@@ -227,6 +229,18 @@ class WorkerController extends Controller
         App::setLocale($worker->lng);
         $worker = $worker->toArray();
         if (!is_null($worker['email'])) {
+
+            if (!empty($worker['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FORM101,
+                    "notificationData" => $worker
+                ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
+                    "notificationData" => $worker
+                ]));
+            }
+
             Mail::send('/Mails/Form101Mail', $worker, function ($messages) use ($worker) {
                 $messages->to($worker['email']);
                 ($worker['lng'] == 'heb') ?

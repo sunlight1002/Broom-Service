@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class OfferController extends Controller
 {
@@ -146,6 +148,12 @@ class OfferController extends Controller
         $offer['service_names'] = $s_names;
 
         App::setLocale($offer['client']['lng']);
+        if (isset($offer['client']) && !empty($offer['client']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
+                "notificationData" => $offer
+            ]));
+        }
         Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
             $messages->to($offer['client']['email']);
             ($offer['client']['lng'] == 'en') ?

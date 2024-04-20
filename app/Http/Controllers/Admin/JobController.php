@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Helpers\Helper;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
@@ -486,7 +489,7 @@ class JobController extends Controller
                             'start_time' => $shiftsInHour[0]['start'],
                             'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
                         );
-
+                        Helper::sendJobWANotification($emailData);
                         Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                             $messages->to($emailData['email']);
                             $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -937,7 +940,12 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
-
+        if (isset($data['job']['client']) && !empty($data['job']['client']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
         Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['job']['client']['email']);
             $ln = $data['job']['client']['lng'];
@@ -1029,7 +1037,7 @@ class JobController extends Controller
                 'job'  => $job->toArray(),
                 'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
             );
-
+            Helper::sendJobWANotification($data);
             Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -1188,7 +1196,7 @@ class JobController extends Controller
                 'job'  => $jobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
             );
-
+            Helper::sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -1210,7 +1218,7 @@ class JobController extends Controller
                 'job'  => $otherJobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
             );
-
+            Helper::sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
