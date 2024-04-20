@@ -99,10 +99,10 @@ export default function WorkerHistory() {
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
-                        id="worker-forms"
+                        id="worker-documents"
                         className="nav-link"
                         data-toggle="tab"
-                        href="#tab-worker-forms"
+                        href="#tab-worker-documents"
                         aria-selected="false"
                         role="tab"
                     >
@@ -152,7 +152,7 @@ export default function WorkerHistory() {
                     <WorkerNotAvailabilty />
                 </div>
                 <div
-                    id="tab-worker-forms"
+                    id="tab-worker-documents"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="forms"

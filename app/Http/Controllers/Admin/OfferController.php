@@ -123,39 +123,37 @@ class OfferController extends Controller
 
     public function sendOfferMail($offer)
     {
-        if (isset($offer)) {
-            $offer = $offer->toArray();
-            $services = ($offer['services'] != '') ? json_decode($offer['services']) : [];
-            if (isset($services)) {
-                $s_names  = '';
-                foreach ($services as $k => $service) {
+        $offer = $offer->toArray();
+        $services = ($offer['services'] != '') ? json_decode($offer['services']) : [];
+        if (isset($services)) {
+            $s_names  = '';
+            foreach ($services as $k => $service) {
 
-                    if ($k != count($services) - 1 && $service->service != 10) {
-                        $s_names .= $service->name . ", ";
-                    } else if ($service->service == 10) {
-                        if ($k != count($services) - 1) {
-                            $s_names .= $service->other_title . ", ";
-                        } else {
-                            $s_names .= $service->other_title;
-                        }
+                if ($k != count($services) - 1 && $service->service != 10) {
+                    $s_names .= $service->name . ", ";
+                } else if ($service->service == 10) {
+                    if ($k != count($services) - 1) {
+                        $s_names .= $service->other_title . ", ";
                     } else {
-                        $s_names .= $service->name;
+                        $s_names .= $service->other_title;
                     }
+                } else {
+                    $s_names .= $service->name;
                 }
             }
-
-            $offer['service_names'] = $s_names;
-
-            App::setLocale($offer['client']['lng']);
-            Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-                $messages->to($offer['client']['email']);
-                ($offer['client']['lng'] == 'en') ?
-                    $sub = __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company') . " #" . ($offer['id'])
-                    : $sub = $offer['id'] . "# " . __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company');
-
-                $messages->subject($sub);
-            });
         }
+
+        $offer['service_names'] = $s_names;
+
+        App::setLocale($offer['client']['lng']);
+        Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
+            $messages->to($offer['client']['email']);
+            ($offer['client']['lng'] == 'en') ?
+                $sub = __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company') . " #" . ($offer['id'])
+                : $sub = $offer['id'] . "# " . __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company');
+
+            $messages->subject($sub);
+        });
     }
 
     /**
