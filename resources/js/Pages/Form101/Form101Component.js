@@ -56,7 +56,7 @@ const initialValues = {
     incomeType: "",
     allowance: false,
     scholarship: false,
-    DateOfBeginningWork:"",
+    DateOfBeginningWork: "",
     children: [],
     otherIncome: {
         haveincome: "",
@@ -150,24 +150,29 @@ const formSchema = yup.object({
     employeeIdNumber: yup.string().when("employeeIdentityType", {
         is: "IDNumber",
         then: () => yup.string().required("ID Number is required"),
+        otherwise: () => yup.string(),
     }),
     employeeIdCardCopy: yup.mixed().when("employeeIdentityType", {
         is: "IDNumber",
         then: () => yup.mixed().required("ID card copy is required"),
+        otherwise: () => yup.string(),
     }),
     employeecountry: yup.string().when("employeeIdentityType", {
         is: "Passport",
         then: () => yup.string().required("Country is required"),
+        otherwise: () => yup.string(),
     }),
     employeePassportNumber: yup.string().when("employeeIdentityType", {
         is: "Passport",
         then: () => yup.string().required("Passport number is required"),
+        otherwise: () => yup.string(),
     }),
     employeepassportCopy: yup.mixed().when("employeeIdentityType", {
         is: "Passport",
         then: () => yup.mixed().required("Passport copy is required"),
+        otherwise: () => yup.mixed().nullable(),
     }),
-    employeeResidencePermit: yup.mixed(),
+    employeeResidencePermit: yup.mixed().nullable(),
     employeeDob: yup.date().required("Date of birth is required"),
     employeeDateOfAliyah: yup.date().nullable(),
     employeeCity: yup.string().required("City is required"),
@@ -223,7 +228,9 @@ const formSchema = yup.object({
         ),
     allowance: yup.boolean(),
     scholarship: yup.boolean(),
-    DateOfBeginningWork: yup.date().required("Date of beginning of work is required"),
+    DateOfBeginningWork: yup
+        .date()
+        .required("Date of beginning of work is required"),
     otherIncome: yup.object().shape({
         haveincome: yup.string().required(),
         incomeType: yup
@@ -290,7 +297,7 @@ const formSchema = yup.object({
         disabledCertificate: yup.mixed().when("disabled", {
             is: true,
             then: () => yup.mixed().required("Certificate is required"),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
         disabledCompensation: yup.boolean(),
         disabledCompensationCertificate: yup
@@ -303,7 +310,7 @@ const formSchema = yup.object({
                         .required(
                             "Certificate for receiving monthly compensation is required"
                         ),
-                otherwise: () => yup.mixed(),
+                otherwise: () => yup.mixed().nullable(),
             }),
         exm3: yup.boolean(),
         exm3Date: yup.date().when("exm3", {
@@ -319,7 +326,7 @@ const formSchema = yup.object({
         exm3Certificate: yup.mixed().when("exm3", {
             is: true,
             then: () => yup.mixed().required("Certificate is required"),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
         exm4: yup.boolean(),
         exm4FromDate: yup.date().when("TaxExemption.exm4", {
@@ -333,7 +340,7 @@ const formSchema = yup.object({
                 yup
                     .mixed()
                     .required("Immigration certificate is required for exm4"),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
         exm4NoIncomeDate: yup.date().when("exm4", {
             is: true,
@@ -351,7 +358,7 @@ const formSchema = yup.object({
                     .required(
                         "Disabled or blind certificate is required for exm5"
                     ),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
 
         exm6: yup.boolean(),
@@ -448,7 +455,7 @@ const formSchema = yup.object({
                     .required(
                         "Photocopy of a court order for child support is required for exm10"
                     ),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
         exm11: yup.boolean(),
         exm11NoOfChildWithDisibility: yup.number().when("exm11", {
@@ -469,7 +476,7 @@ const formSchema = yup.object({
                     .required(
                         "Children's disability benefit certificate is required for exm11"
                     ),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
 
         exm12: yup.boolean(),
@@ -481,7 +488,7 @@ const formSchema = yup.object({
                     .required(
                         "Photocopy of a court order for alimony is required for exm12"
                     ),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
 
         exm13: yup.boolean(),
@@ -514,7 +521,7 @@ const formSchema = yup.object({
                     .required(
                         "Discharge/end of service certificate is required for exm14"
                     ),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
 
         exm15: yup.boolean(),
@@ -524,7 +531,7 @@ const formSchema = yup.object({
                 yup
                     .mixed()
                     .required("Declaration in Form 119 is required for exm15"),
-            otherwise: () => yup.mixed(),
+            otherwise: () => yup.mixed().nullable(),
         }),
     }),
 
