@@ -322,7 +322,7 @@ class WhatsappNotification
                                         "text"=> $eventData['content_data']?$eventData['content_data']:' '
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ".(isset($jobData['start_time'])? ("( ". $jobData['start_time']. " )") :"")
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ".(isset($jobData['start_time'])? ("( ". $jobData['start_time']. " )") :" ")
                                     ],[
                                         "type"=> "text",
                                         "text"=> $clientData['firstname'].' '.$clientData['lastname']
@@ -331,7 +331,7 @@ class WhatsappNotification
                                         "text"=> $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'].', ') : ($jobData['jobservice']['name'].', ')
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  "")
+                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  " ")
                                     ],[
                                         "type"=> "text",
                                         "text"=> ucfirst($jobData['status']) 
@@ -382,7 +382,7 @@ class WhatsappNotification
                                         "text"=> $jobData['jobservice']['name']
                                     ],[
                                         "type"=> "text",
-                                        "text"=>  $jobData['property_address']['address_name']
+                                        "text"=>  $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
                                     ],[
                                         "type"=> "text",
                                         "text"=> isset($jobData['worker'])? ($jobData['worker']['firstname'].' '.$jobData['worker']['lastname']) : "NA"
@@ -451,7 +451,7 @@ class WhatsappNotification
                                         "text"=> $adminData['name']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ( ".$jobData['shifts'] ." )"
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " ". ($jobData['shifts'] ? (" ( ".$jobData['shifts']. " ) ") : " ")
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['client']['firstname'] ." " . $jobData['client']['lastname']
@@ -463,7 +463,7 @@ class WhatsappNotification
                                         "text"=> ($jobData['jobservice']['name'].', ')
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name']
+                                        "text"=> $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
                                     ]
                                 ]
                             ],
@@ -501,13 +501,13 @@ class WhatsappNotification
                                         "text"=> $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'].', ') : ($jobData['jobservice']['name'].', ')
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  "")
+                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  " ")
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['shifts']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> isset($jobData['start_time'])?$jobData['start_time']:""
+                                        "text"=> isset($jobData['start_time'])?$jobData['start_time']:" "
                                     ],[
                                         "type"=> "text",
                                         "text"=> ucfirst($jobData['status']) 
@@ -588,7 +588,7 @@ class WhatsappNotification
                                         "text"=> ($by == 'client') ? $adminData['name'] : $jobData['client']['firstname']." ".$jobData['client']['lastname']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): "")
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): " ")
                                     ],[
                                         "type"=> "text",
                                         "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
@@ -603,7 +603,7 @@ class WhatsappNotification
                                         "text"=> ucfirst($jobData['status'])
                                     ],[
                                         "type"=> "text",
-                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ." ILS."): "" ):("Job is marked as ".ucfirst($jobData['status'])))
+                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ." ILS."): " " ):("Job is marked as ".ucfirst($jobData['status'])))
                                     ]
                                 ]
                             ],
@@ -699,7 +699,7 @@ class WhatsappNotification
                                         "text"=> ucfirst($jobData['status'])
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): "") 
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): " ") 
                                     ],[
                                         "type"=> "text",
                                         "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
