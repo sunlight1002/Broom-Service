@@ -129,6 +129,21 @@ class JobController extends Controller
         ]);
         //$this->invoice($id);
 
+        $client = $job->client;
+        $service = $job->jobservice;
+
+        $items = [
+            [
+                'description' => $client->lng == 'heb' ? $service->heb_name : $service->name,
+                'unitprice' => $service->total,
+                'quantity' => 1
+            ]
+        ];
+
+        $dueDate = Carbon::today()->endOfMonth()->toDateString();
+
+        $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
+
         $admin = Admin::find(1)->first();
         App::setLocale('en');
         $data = array(
@@ -162,7 +177,7 @@ class JobController extends Controller
 
         $availabilities = [];
         foreach ($worker_availabilities->groupBy('date') as $date => $times) {
-            $availabilities[$date] = $times->map(function($item, $key) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
                 return $item->only(['start_time', 'end_time']);
             });
         }
