@@ -83,7 +83,7 @@ class WhatsappNotification
                                     ],
                                     [
                                         "type"=> "text",
-                                        "text"=> $eventData['purpose']
+                                        "text"=> $eventData['purpose']?$eventData['purpose']:'NA'
                                     ],
                                 ]
                             ],
@@ -101,7 +101,6 @@ class WhatsappNotification
                         ]
                     ]
                 ];
-                
             }elseif ($eventType == WhatsappMessageTemplateEnum::OFFER_PRICE) {
                 $clientData = $eventData['client'];
                 $service_names = isset($eventData['service_names']) ? $eventData['service_names']: '';
