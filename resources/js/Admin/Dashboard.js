@@ -54,33 +54,6 @@ export default function Dashboard() {
         navigate(`/admin/view-job/${id}`);
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            GetDashboardData();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
     const copy = [...latestJobs];
     const [order, setOrder] = useState("ASC");
     const sortTable = (col) => {

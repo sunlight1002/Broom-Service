@@ -245,22 +245,6 @@ class JobController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $job = Job::find($id);
-        $job->delete();
-
-        return response()->json([
-            'message' => "Job has been deleted"
-        ]);
-    }
-
     public function getJobByClient(Request $request, $id)
     {
         $jobQuery = Job::query()
