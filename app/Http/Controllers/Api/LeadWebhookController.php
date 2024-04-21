@@ -100,7 +100,7 @@ class LeadWebhookController extends Controller
         return ($nums != "" && strlen($nums) > 8) ? true : false;
     }
 
-    public function fbWebhook(Request $request)
+    public function fbWebhookCurrentLive(Request $request)
     {
         $challenge = $request->hub_challenge;
 
@@ -137,6 +137,11 @@ class LeadWebhookController extends Controller
 
             $client_exist = Client::where('phone', '%' . $from . '%')->first();
 
+            $lng = 'heb';
+            if (strlen($from) > 10 && substr($from, 0, 3) != 972) {
+                $lng = 'eng';
+            }
+
             if (is_null($client_exist) && is_null($check_response)) {
                 $result = Helper::sendWhatsappMessage($from, 'leads', array('name' => ''));
 
@@ -145,7 +150,7 @@ class LeadWebhookController extends Controller
                 $response = WebhookResponse::create([
                     'status'        => 1,
                     'name'          => 'whatsapp',
-                    'message'       =>  $_msg->heb,
+                    'message'       =>  $_msg->$lng,
                     'number'        =>  $from,
                     'read'          => 1,
                     'flex'          => 'A',
