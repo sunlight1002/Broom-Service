@@ -62,39 +62,44 @@ export const createHourlyTimeArray = (startTime, endTime) => {
 };
 
 export const filterShiftOptions = (
-    options,
-    selectedShifts,
+    availableTimeRanges,
+    bookedTimeRanges,
     shiftFreezeTime = {}
 ) => {
-    const shifts = selectedShifts;
-
-    // Convert the selectedShifts to an array of shift start and end times
-    const shiftTimes = shifts.map((shift) => {
-        const [_, start, end] = shift.match(/(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/);
+    // Convert the bookedTimeRanges to an array of shift start and end times
+    const _bookedSlots = bookedTimeRanges.map((shift) => {
+        const [start, end] = shift.split("-");
         return { start, end };
     });
-    const isFullDay = shiftTimes.some((shift) => {
-        return shift.start === "8am" && shift.end === "16pm";
-    });
 
-    if (isFullDay) {
-        return [];
-    }
-    // Filter out the options that are not overlapped with any selected shifts
-    const nonOverlappingOptions = options.filter((option) => {
-        const [_, start, end] = option.label.match(
-            /(\d{1,2}[ap]m)-(\d{1,2}[ap]m)/
+    let _availSlots = [];
+    availableTimeRanges.forEach((range) => {
+        const _timeArray = createHourlyTimeArray(
+            range.start_time.slice(0, -3),
+            range.end_time.slice(0, -3)
         );
 
-        let isOverlapping = !shiftTimes.some((shift) => {
-            return start === shift.start || end === shift.end;
+        _availSlots = _availSlots.concat(
+            _timeArray.slice(0, -1).map((i, _index) => {
+                return { start: i, end: _timeArray[_index + 1] };
+            })
+        );
+    });
+
+    // Filter out the options that are not overlapped with any selected shifts
+    const nonOverlappingOptions = _availSlots.filter((option, _index) => {
+        const start_time = option.start;
+        const end_time = option.end;
+
+        let isOverlapping = !_bookedSlots.some((shift) => {
+            return start_time === shift.start || end_time === shift.end;
         });
 
         if (!isOverlapping) {
             return isOverlapping;
         }
-        const _startTime = moment(start, "ha");
-        const _endTime = moment(end, "ha");
+        const _startTime = moment(start_time, "HH:mm");
+        const _endTime = moment(end_time, "HH:mm");
 
         if (shiftFreezeTime.start && shiftFreezeTime.end) {
             const _startTimeF = moment(shiftFreezeTime["start"], "ha");
@@ -108,7 +113,7 @@ export const filterShiftOptions = (
                 _endTime.isBetween(_startTimeF, _endTimeF)
             );
         }
-        return !shiftTimes.some((shift) => {
+        return !_bookedSlots.some((shift) => {
             const _shiftStartTime = moment(shift.start, "ha");
             const _shiftEndTime = moment(shift.end, "ha");
 
@@ -122,6 +127,7 @@ export const filterShiftOptions = (
             );
         });
     });
+
     return nonOverlappingOptions;
 };
 

@@ -35,7 +35,7 @@ class SendShiftChangedNotification
             $emailData = array(
                 'email' => $event->job['worker']['email'],
                 'job' => $event->job->toArray(),
-                'start_time' => $event->shiftsInHour[0]['start'],
+                'start_time' => $event->startTime,
                 'content' => __('mail.worker_job.shift_changed') . " " . __('mail.worker_new_job.please_check'),
             );
             Helper::sendJobWANotification($emailData);

@@ -142,22 +142,35 @@ class RecurringJob extends Command
                     $job_shifts = $job->shifts;
                 }
 
-                $shifts = explode(',', $job_shifts);
-                $shiftsInHour = [];
-                foreach ($shifts as $key => $shift) {
-                    $timing = explode('-', $shift);
-                    $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
-                    $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+                $slots = explode(',', $job_shifts);
+                // sort slots in ascending order of time before merging for continuous time
+                sort($slots);
 
-                    $shiftsInHour[] = [
-                        'start' => $timing[0],
-                        'end' => $timing[1]
+                foreach ($slots as $key => $shift) {
+                    $timing = explode('-', $shift);
+
+                    $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
                     ];
                 }
 
+                $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+                $slotsInString = '';
+                foreach ($mergedContinuousTime as $key => $slot) {
+                    if (!empty($slotsInString)) {
+                        $slotsInString .= ',';
+                    }
+                    $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+                }
+
                 $minutes = 0;
-                foreach ($shiftsInHour as $key => $value) {
-                    $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
+                foreach ($mergedContinuousTime as $key => $value) {
+                    $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
                 }
 
                 $nextJob = Job::create([
@@ -166,7 +179,7 @@ class RecurringJob extends Command
                     'contract_id'   => $job->contract_id,
                     'offer_id'      => $job->offer_id,
                     'start_date'    => $job_date,
-                    'shifts'        => $job_shifts,
+                    'shifts'        => $slotsInString,
                     'schedule'      => $job->schedule,
                     'schedule_id'   => $job->schedule_id,
                     'status'        => $status,
@@ -189,21 +202,7 @@ class RecurringJob extends Command
                 ]);
                 $nextJobService->save();
 
-                $shiftFormattedArr = [];
-                $shiftStart = NULL;
-                foreach ($shiftsInHour as $key => $time) {
-                    $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
-                    $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
-
-                    $shiftFormattedArr[$key] = [
-                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
-                    ];
-
-                    $shiftStart = Carbon::parse($job_date . ' ' . $start_time)->format('H:i');
-                }
-
-                foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+                foreach ($mergedContinuousTime as $key => $shift) {
                     $nextJob->workerShifts()->create($shift);
                 }
 
@@ -219,7 +218,7 @@ class RecurringJob extends Command
                     $emailData = array(
                         'email' => $nextJob['worker']['email'],
                         'job' => $nextJob->toArray(),
-                        'start_time' => $shiftStart,
+                        'start_time' => $mergedContinuousTime[0]['starting_at'],
                         'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
                     );
                     Helper::sendJobWANotification($emailData);

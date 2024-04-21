@@ -7,7 +7,6 @@ import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 
-import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
 export default function ChangeWorkerCalender({ job }) {
@@ -165,26 +164,19 @@ export default function ChangeWorkerCalender({ job }) {
                 data[0].date == date)
         ) {
             setWorkerData([...workerData, { ...e, w_id, date }]);
+
             e = [
                 ...workerData.filter((d) => d.date == date && d.w_id == w_id),
                 { ...e, w_id, date },
             ];
-            let w_n = $("#worker-" + w_id).html();
-            let filtered = data.filter((d) => {
-                if (d.date == date && d.worker_id == w_id) {
-                    return false;
-                } else {
-                    return d;
-                }
+
+            const w_n = $("#worker-" + w_id).html();
+
+            const filtered = data.filter((d) => {
+                return !(d.date == date && d.worker_id == w_id);
             });
-            let shifts = "";
-            e.forEach((v) => {
-                if (shifts == "") {
-                    shifts = v.label;
-                } else {
-                    shifts += "," + v.label;
-                }
-            });
+
+            const shifts = e.map((v) => `${v.start}-${v.end}`).join(",");
 
             var newdata;
             if (shifts != "") {
@@ -209,42 +201,47 @@ export default function ChangeWorkerCalender({ job }) {
             });
         }
     };
+
     const removeShift = (w_id, date, e) => {
-        let filtered = data.find((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return d;
-            } else {
-                return false;
-            }
+        const filtered = data.find((d) => {
+            return d.date == date && d.worker_id == w_id;
         });
+
         if (filtered) {
-            const shift = filtered.shifts.split(",") ?? [];
-            var index = shift.indexOf(e.label);
-            if (index > -1) {
-                shift.splice(index, 1);
+            const _shifts = filtered.shifts.split(",") ?? [];
+
+            const _index = _shifts.indexOf(`${e.start}-${e.end}`);
+            if (_index !== -1) {
+                _shifts.splice(_index, 1);
                 const tmpworker = [...workerData];
-                var indexWorker = tmpworker.findIndex(
-                    (item) =>
+
+                const indexWorker = tmpworker.findIndex((item) => {
+                    return (
                         item.date === date &&
                         item.w_id === w_id &&
-                        item.value === e.value &&
-                        item.label === e.label
-                );
-                if (indexWorker > -1) {
+                        item.start === e.start &&
+                        item.end === e.end
+                    );
+                });
+
+                if (indexWorker !== -1) {
                     tmpworker.splice(indexWorker, 1);
                     setWorkerData(tmpworker);
                 }
-                if (shift.length > 0) {
-                    setData(
-                        data.map((item) =>
-                            item.date === date && item.worker_id === w_id
-                                ? { ...item, shifts: shift.join(",") }
-                                : item
-                        )
+
+                if (_shifts.length > 0) {
+                    setData((oldData) =>
+                        oldData.map((item) => {
+                            if (item.date === date && item.worker_id === w_id) {
+                                return { ...item, shifts: _shifts.join(",") };
+                            } else {
+                                return item;
+                            }
+                        })
                     );
                 } else {
-                    setData(
-                        data.filter(
+                    setData((oldData) =>
+                        oldData.filter(
                             (item) =>
                                 item.date !== date && item.worker_id !== w_id
                         )
@@ -253,21 +250,18 @@ export default function ChangeWorkerCalender({ job }) {
             }
         }
     };
+
     const hasActive = (w_id, date, e) => {
-        let filtered = data.find((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return d;
-            } else {
-                return false;
-            }
+        const filtered = data.find((d) => {
+            return d.date == date && d.worker_id == w_id;
         });
+
         if (filtered) {
-            const shift = filtered.shifts.split(",") ?? [];
-            var index = shift.indexOf(e.label);
-            if (index > -1) {
-                return true;
-            }
+            const _shifts = filtered.shifts.split(",") ?? [];
+
+            return _shifts.includes(`${e.start}-${e.end}`);
         }
+
         return false;
     };
 
@@ -364,9 +358,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
-                                                              shiftOptions[
-                                                                  aval[element]
-                                                              ],
+                                                              aval[element],
                                                               shifts,
                                                               shiftFreezeTime
                                                           )
@@ -398,29 +390,14 @@ export default function ChangeWorkerCalender({ job }) {
                                                                     );
                                                                 }
                                                             )}
-                                                            {/* {list &&
-                                                            sav.map((s, i) => {
-                                                                return (
-                                                                    <div
-                                                                        className="text-success p-0"
-                                                                        key={i}
-                                                                    >
-                                                                        {
-                                                                            s.label
-                                                                        }
-                                                                    </div>
-                                                                );
-                                                            })} */}
 
                                                             {isDateAvailable &&
                                                             aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
-                                                                    shiftOptions[
-                                                                        aval[
-                                                                            element
-                                                                        ]
+                                                                    aval[
+                                                                        element
                                                                     ],
                                                                     shifts,
                                                                     shiftFreezeTime
@@ -462,7 +439,11 @@ export default function ChangeWorkerCalender({ job }) {
                                                                             >
                                                                                 <div>
                                                                                     {
-                                                                                        shift.label
+                                                                                        shift.start
+                                                                                    }{" "}
+                                                                                    -{" "}
+                                                                                    {
+                                                                                        shift.end
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
@@ -545,9 +526,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
-                                                              shiftOptions[
-                                                                  aval[element]
-                                                              ],
+                                                              aval[element],
                                                               shifts,
                                                               shiftFreezeTime
                                                           )
@@ -580,29 +559,14 @@ export default function ChangeWorkerCalender({ job }) {
                                                                     );
                                                                 }
                                                             )}
-                                                            {/* {list &&
-                                                            sav.map((s, i) => {
-                                                                return (
-                                                                    <div
-                                                                        className="text-success p-0"
-                                                                        key={i}
-                                                                    >
-                                                                        {
-                                                                            s.label
-                                                                        }
-                                                                    </div>
-                                                                );
-                                                            })} */}
 
                                                             {isDateAvailable &&
                                                             aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
-                                                                    shiftOptions[
-                                                                        aval[
-                                                                            element
-                                                                        ]
+                                                                    aval[
+                                                                        element
                                                                     ],
                                                                     shifts,
                                                                     shiftFreezeTime
@@ -644,7 +608,11 @@ export default function ChangeWorkerCalender({ job }) {
                                                                             >
                                                                                 <div>
                                                                                     {
-                                                                                        shift.label
+                                                                                        shift.start
+                                                                                    }{" "}
+                                                                                    -{" "}
+                                                                                    {
+                                                                                        shift.end
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
@@ -730,11 +698,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                     let sav =
                                                         shifts.length > 0
                                                             ? filterShiftOptions(
-                                                                  shiftOptions[
-                                                                      aval[
-                                                                          element
-                                                                      ]
-                                                                  ],
+                                                                  aval[element],
                                                                   shifts,
                                                                   shiftFreezeTime
                                                               )
@@ -775,10 +739,8 @@ export default function ChangeWorkerCalender({ job }) {
                                                                 aval[element] !=
                                                                     "" ? (
                                                                     filterShiftOptions(
-                                                                        shiftOptions[
-                                                                            aval[
-                                                                                element
-                                                                            ]
+                                                                        aval[
+                                                                            element
                                                                         ],
                                                                         shifts,
                                                                         shiftFreezeTime
@@ -820,7 +782,11 @@ export default function ChangeWorkerCalender({ job }) {
                                                                                 >
                                                                                     <div>
                                                                                         {
-                                                                                            shift.label
+                                                                                            shift.start
+                                                                                        }{" "}
+                                                                                        -{" "}
+                                                                                        {
+                                                                                            shift.end
                                                                                         }
                                                                                     </div>
                                                                                     {isActive ? (

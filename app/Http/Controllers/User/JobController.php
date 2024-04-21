@@ -155,19 +155,23 @@ class JobController extends Controller
 
     public function getAvailability()
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', Auth::user()->id)
+        $worker_availabilities = WorkerAvailability::query()
+            ->where('user_id', Auth::user()->id)
             ->orderBy('id', 'asc')
-            ->get();
+            ->get(['date', 'start_time', 'end_time']);
 
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $new_array[$w_a->date] = $w_a->working;
+        $availabilities = [];
+        foreach ($worker_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
 
         return response()->json([
-            'availability' => $new_array,
+            'availability' => $availabilities,
         ]);
     }
+
     public function updateAvailability(Request $request)
     {
         $isMondayPassed = Carbon::today()->weekday() > Carbon::MONDAY;
@@ -185,16 +189,19 @@ class JobController extends Controller
             ->whereDate('date', '>=', $firstEditDate->toDateString())
             ->delete();
 
-        foreach ($data as $key => $availabilty) {
+        foreach ($data['time_slots'] as $key => $availabilties) {
             $date = trim($key);
 
             if ($firstEditDate->lte(Carbon::parse($date))) {
-                WorkerAvailability::create([
-                    'user_id' => Auth::user()->id,
-                    'date' => $date,
-                    'working' => $availabilty,
-                    'status' => '1',
-                ]);
+                foreach ($availabilties as $key => $availabilty) {
+                    WorkerAvailability::create([
+                        'user_id' => Auth::user()->id,
+                        'date' => $date,
+                        'start_time' => $availabilty['start_time'],
+                        'end_time' => $availabilty['end_time'],
+                        'status' => '1',
+                    ]);
+                }
             }
         }
 
