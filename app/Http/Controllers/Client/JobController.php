@@ -84,7 +84,7 @@ class JobController extends Controller
             'status' => 'declined'
         ]);
 
-        $admin = Admin::find(1)->first();
+        $admin = Admin::where('role', 'admin')->first();
         App::setLocale('en');
         $data = array(
             'by'         => 'client',

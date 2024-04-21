@@ -588,7 +588,7 @@ class WhatsappNotification
                                         "text"=> ($by == 'client') ? $adminData['name'] : $jobData['client']['firstname']." ".$jobData['client']['lastname']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." (".($jobData['start_time'] ." to ". $jobData['end_time'])." )"
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): "")
                                     ],[
                                         "type"=> "text",
                                         "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
@@ -603,7 +603,7 @@ class WhatsappNotification
                                         "text"=> ucfirst($jobData['status'])
                                     ],[
                                         "type"=> "text",
-                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ."ILS."): "" ):("Job is marked as ".ucfirst($jobData['status'])))
+                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ." ILS."): "" ):("Job is marked as ".ucfirst($jobData['status'])))
                                     ]
                                 ]
                             ],
@@ -699,10 +699,7 @@ class WhatsappNotification
                                         "text"=> ucfirst($jobData['status'])
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $jobData['status'] != 'completed' ? $comment : ""
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): "") 
                                     ],[
                                         "type"=> "text",
                                         "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
@@ -712,9 +709,6 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['jobservice']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($jobData['start_time'] ." to ". $jobData['end_time'])
                                     ],[
                                         "type"=> "text",
                                         "text"=> ucfirst($jobData['status'])
