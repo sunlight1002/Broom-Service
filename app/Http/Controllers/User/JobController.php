@@ -296,7 +296,7 @@ class JobController extends Controller
                 'status' => 'going to start'
             ]);
 
-            $admin = Admin::first();
+            $admin = Admin::where('role', 'admin')->first();
             App::setLocale('en');
             $data = array(
                 'email'      => $admin->email,

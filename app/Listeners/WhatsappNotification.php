@@ -171,7 +171,7 @@ class WhatsappNotification
                                 "parameters"=> [
                                     [
                                         "type"=> "text",
-                                        "text"=> "work-contract/".base64_encode($eventData['contract_id'])
+                                        "text"=> "work-contract/".$eventData['contract_id']
                                     ]
                                 ]
                             ],
@@ -180,7 +180,7 @@ class WhatsappNotification
                 ];
                
             }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED) {
-                $jobData = $eventData->job;
+                $jobData = $eventData['job'];
                 $clientData = $jobData['client'];
                 $params = [
                     "messaging_product"=> "whatsapp",
@@ -227,7 +227,6 @@ class WhatsappNotification
                
             }elseif ($eventType == WhatsappMessageTemplateEnum::DELETE_MEETING) {
                 $clientData = $eventData['client'];
-                $teamData = $eventData['team'];
                 $params = [
                     "messaging_product"=> "whatsapp",
                     "to"=> $clientData['phone'],
@@ -246,7 +245,7 @@ class WhatsappNotification
                                         "text"=> $clientData['firstname'].' '.$clientData['lastname']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> isset($teamData) && !empty($teamData['name']) ? "with" . $teamData['name'] : ''
+                                        "text"=> isset($eventData['team']) && !empty($eventData['team']['name']) ? "with" . $eventData['team']['name'] : ' '
                                     ],[
                                         "type"=> "text",
                                         "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
@@ -320,10 +319,10 @@ class WhatsappNotification
                                         "text"=> $workerData['firstname'].' '.$workerData['lastname']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $eventData['content']
+                                        "text"=> $eventData['content_data']?$eventData['content_data']:' '
                                     ],[
                                         "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ".(isset($jobData['start_time'])? ("( ". $jobData['start_time']. " )") :"")
                                     ],[
                                         "type"=> "text",
                                         "text"=> $clientData['firstname'].' '.$clientData['lastname']
@@ -333,12 +332,6 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  "")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['shifts']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($jobData['start_time'])?$jobData['start_time']:""
                                     ],[
                                         "type"=> "text",
                                         "text"=> ucfirst($jobData['status']) 
@@ -458,10 +451,7 @@ class WhatsappNotification
                                         "text"=> $adminData['name']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> $eventData['content']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') 
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ( ".$jobData['shifts'] ." )"
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['client']['firstname'] ." " . $jobData['client']['lastname']
@@ -474,9 +464,6 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['property_address']['address_name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['shifts']
                                     ]
                                 ]
                             ],
@@ -503,9 +490,6 @@ class WhatsappNotification
                                     [
                                         "type"=> "text",
                                         "text"=> $workerData['firstname'].' '.$workerData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['content']
                                     ],[
                                         "type"=> "text",
                                         "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
@@ -585,7 +569,7 @@ class WhatsappNotification
             }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION) {
                 $by = $eventData['by'];
                 $adminData = $eventData['admin'];
-                $jobData = $jobData['job'];
+                $jobData = $eventData['job'];
                 $params = [
                     "messaging_product"=> "whatsapp",
                     "to"=> $by == 'client' ? $adminData['phone'] : ['job']['client']['phone'],
@@ -604,10 +588,7 @@ class WhatsappNotification
                                         "text"=> ($by == 'client') ? $adminData['name'] : $jobData['client']['firstname']." ".$jobData['client']['lastname']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ."ILS."): "" ):("Job is marked as ".ucfirst($jobData['status'])))
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." (".($jobData['start_time'] ." to ". $jobData['end_time'])." )"
                                     ],[
                                         "type"=> "text",
                                         "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
@@ -619,10 +600,10 @@ class WhatsappNotification
                                         "text"=> $jobData['jobservice']['name']
                                     ],[
                                         "type"=> "text",
-                                        "text"=> ($jobData['start_time'] ." to ". $jobData['end_time'])
+                                        "text"=> ucfirst($jobData['status'])
                                     ],[
                                         "type"=> "text",
-                                        "text"=> ucfirst($jobData['status'])
+                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ."ILS."): "" ):("Job is marked as ".ucfirst($jobData['status'])))
                                     ]
                                 ]
                             ],
@@ -644,7 +625,7 @@ class WhatsappNotification
             }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION) {
                 $workerData = $eventData['worker'];
                 $adminData = $eventData['admin'];
-                $jobData = $jobData['job'];
+                $jobData = $eventData['job'];
                 $params = [
                     "messaging_product"=> "whatsapp",
                     "to"=> $adminData['phone'],
@@ -674,10 +655,18 @@ class WhatsappNotification
                                 "parameters"=> [
                                     [
                                         "type"=> "text",
-                                        "text"=> "worker/view-job/".$jobData[id]
-                                    ],[
+                                        "text"=> "worker/view-job/".$jobData['id']
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "1", 
+                                "parameters"=> [
+                                    [
                                         "type"=> "text",
-                                        "text"=> "admin/view-worker/".$jobData[id]
+                                        "text"=> "admin/view-worker/".$jobData['id']
                                     ]
                                 ]
                             ],
@@ -688,7 +677,7 @@ class WhatsappNotification
             }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION) {
                 $comment = $eventData['comment'];
                 $adminData = $eventData['admin'];
-                $jobData = $jobData['job'];
+                $jobData = $eventData['job'];
                 $params = [
                     "messaging_product"=> "whatsapp",
                     "to"=> $adminData['phone'],
@@ -751,10 +740,12 @@ class WhatsappNotification
 
             ob_start();
             $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-            curl_exec($ch);
+            $r = curl_exec($ch);
+            // \Log::info(json_decode($r, true));
             curl_close($ch);
             ob_end_clean();
         } catch (\Throwable $th) {

@@ -220,6 +220,7 @@ class RecurringJob extends Command
                         'job' => $nextJob->toArray(),
                         'start_time' => $mergedContinuousTime[0]['starting_at'],
                         'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                        'content_data'  => __('mail.worker_new_job.new_job_assigned'),
                     );
                     Helper::sendJobWANotification($emailData);
                     Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {

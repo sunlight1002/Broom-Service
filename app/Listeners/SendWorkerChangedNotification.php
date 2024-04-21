@@ -39,6 +39,7 @@ class SendWorkerChangedNotification
                 'job' => $event->job->toArray(),
                 'start_time' => $event->startTime,
                 'content' => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                'content_data' => __('mail.worker_new_job.new_job_assigned'),
             );
             Helper::sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
