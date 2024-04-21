@@ -98,10 +98,13 @@ class WorkerController extends Controller
 
     public function workerAvl($availabilities)
     {
-        $data = array();
-        foreach ($availabilities as $avl) {
-            $data[$avl->date] = $avl->working;
+        $worker_availabilities = [];
+        foreach ($availabilities->groupBy('date') as $date => $times) {
+            $worker_availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
-        return $data;
+
+        return $worker_availabilities;
     }
 }

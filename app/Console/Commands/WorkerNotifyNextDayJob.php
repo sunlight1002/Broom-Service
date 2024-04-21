@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class WorkerNotifyNextDayJob extends Command
 {
@@ -61,6 +63,12 @@ class WorkerNotifyNextDayJob extends Command
                 'job'  => $job->toArray(),
                 'content'  => __('mail.worker_tomorrow_job.message') . " " . __('mail.worker_new_job.please_check'),
             );
+            if (isset($emailData['job']['worker']) && !empty($emailData['job']['worker']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_REMIND_JOB,
+                    "notificationData" => $emailData
+                ]));
+              }
 
             Mail::send('/Mails/WorkerRemindJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);

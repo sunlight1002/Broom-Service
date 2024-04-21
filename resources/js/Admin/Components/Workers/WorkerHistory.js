@@ -3,8 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import CurrentJob from "./CurrentJob";
 import PastJob from "./PastJob";
 import WorkerAvailabilty from "./WorkerAvailabilty";
-import Documents from "./Documents";
-import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
@@ -142,7 +140,7 @@ export default function WorkerHistory() {
                     aria-labelledby="worker-forms"
                 >
                     <WorkerForms />
-                </div>                
+                </div>
                 <div
                     id="tab-worker-not-availability"
                     className="tab-pane"

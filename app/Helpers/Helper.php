@@ -6,6 +6,8 @@ use App\Mail\MailInvoiceToClient;
 use App\Models\Job;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class Helper
 {
@@ -92,6 +94,15 @@ class Helper
             return $data['error'];
         } else {
             return 'message sent successfully.';
+        }
+    }
+
+    public static function sendJobWANotification($emailData){
+        if (isset($emailData['job']['worker']) && !empty($emailData['job']['worker']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::NEW_JOB,
+                "notificationData" => $emailData
+            ]));
         }
     }
 

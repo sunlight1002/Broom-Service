@@ -126,6 +126,7 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
+import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
@@ -192,6 +193,11 @@ export default function MyRoutes() {
                         exact
                         path="worker-contract/:id"
                         element={<WorkerContract />}
+                    />
+                    <Route
+                        exact
+                        path="worker-safe-gear/:id"
+                        element={<SafeAndGear />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route

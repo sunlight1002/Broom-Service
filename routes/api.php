@@ -28,6 +28,8 @@ Route::post('work-contract', [AuthController::class, 'WorkContract']);
 Route::get('work-contract/{id}', [AuthController::class, 'getWorkContract']);
 Route::post('form101', [AuthController::class, 'form101']);
 Route::get('get101/{id}', [AuthController::class, 'get101']);
+Route::post('safegear', [AuthController::class, 'safegear']);
+Route::get('getSafegear/{id}', [AuthController::class, 'getSafegear']);
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'availabilityByDate']);

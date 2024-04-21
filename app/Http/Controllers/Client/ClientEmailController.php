@@ -20,6 +20,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 
 class ClientEmailController extends Controller
 {
@@ -129,6 +131,12 @@ class ClientEmailController extends Controller
 
     App::setLocale($ofr['client']['lng']);
 
+    if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
+      event(new WhatsappNotificationEvent([
+          "type" => WhatsappMessageTemplateEnum::CONTRACT,
+          "notificationData" => $ofr
+      ]));
+    }
     Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
       $messages->to($ofr['client']['email']);
       $ofr['client']['lng'] ?

@@ -8,8 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 import useDebounce from "./hooks/useDebounce";
+
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
+import CancelJobModal from "../../Components/Modals/CancelJobModal";
 
 export default function TotalJobs() {
     const todayFilter = {
@@ -68,6 +70,8 @@ export default function TotalJobs() {
     const [paymentFilter, setPaymentFilter] = useState("");
     const [searchVal, setSearchVal] = useState("");
     const [selectedFilter, setselectedFilter] = useState("Week");
+    const [selectedJob, setSelectedJob] = useState(null);
+    const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -112,10 +116,6 @@ export default function TotalJobs() {
             });
     };
 
-    // useEffect(() => {
-    //     getJobs();
-    // }, []);
-
     useEffect(() => {
         getJobs();
     }, [currentPage, paymentFilter, dateRange, searchVal]);
@@ -142,33 +142,6 @@ export default function TotalJobs() {
             .then((response) => {
                 getJobs();
             });
-    };
-
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getJobs();
-                        }, 1000);
-                    });
-            }
-        });
     };
 
     const handleNavigate = (e, id) => {
@@ -336,9 +309,14 @@ export default function TotalJobs() {
         });
     };
 
-    const handleSwitchWorker = (_jobID) => {
-        setSelectedJobId(_jobID);
+    const handleSwitchWorker = (_job) => {
+        setSelectedJob(_job);
         setIsOpenSwitchWorker(true);
+    };
+
+    const handleCancel = (_job) => {
+        setSelectedJob(_job);
+        setIsOpenCancelModal(true);
     };
 
     return (
@@ -799,7 +777,7 @@ export default function TotalJobs() {
                                                             <div
                                                                 onClick={() => {
                                                                     handleSwitchWorker(
-                                                                        item.id
+                                                                        item
                                                                     );
                                                                     // $(
                                                                     //     "#available-workers"
@@ -995,7 +973,7 @@ export default function TotalJobs() {
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>
                                                                                         handleSwitchWorker(
-                                                                                            item.id
+                                                                                            item
                                                                                         )
                                                                                     }
                                                                                 >
@@ -1019,12 +997,12 @@ export default function TotalJobs() {
                                                                                 <button
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>
-                                                                                        handleDelete(
-                                                                                            item.id
+                                                                                        handleCancel(
+                                                                                            item
                                                                                         )
                                                                                     }
                                                                                 >
-                                                                                    Delete
+                                                                                    Cancel
                                                                                 </button>
                                                                             </>
                                                                         )}
@@ -1377,8 +1355,16 @@ export default function TotalJobs() {
                 <SwitchWorkerModal
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
-                    jobId={selectedJobId}
+                    jobId={selectedJob.id}
                     onSuccess={() => getJobs()}
+                />
+            )}
+
+            {isOpenCancelModal && (
+                <CancelJobModal
+                    setIsOpen={setIsOpenCancelModal}
+                    isOpen={isOpenCancelModal}
+                    job={selectedJob}
                 />
             )}
         </div>

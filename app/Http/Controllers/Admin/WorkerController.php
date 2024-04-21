@@ -18,6 +18,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class WorkerController extends Controller
 {
@@ -150,11 +152,14 @@ class WorkerController extends Controller
 
     public function workerAvl($availabilities)
     {
-        $data = array();
-        foreach ($availabilities as $avl) {
-            $data[$avl->date] = $avl->working;
+        $worker_availabilities = [];
+        foreach ($availabilities->groupBy('date') as $date => $times) {
+            $worker_availabilities[$date] = $times->map(function($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
-        return $data;
+
+        return $worker_availabilities;
     }
 
     /**
@@ -214,7 +219,8 @@ class WorkerController extends Controller
                 $w_a = new WorkerAvailability;
                 $w_a->user_id = $worker->id;
                 $w_a->date = $day->toDateString();
-                $w_a->working = array('8am-16pm');
+                $w_a->start_time = '08:00:00';
+                $w_a->end_time = '16:00:00';
                 $w_a->status = 1;
                 $w_a->save();
             }
@@ -227,6 +233,18 @@ class WorkerController extends Controller
         App::setLocale($worker->lng);
         $worker = $worker->toArray();
         if (!is_null($worker['email'])) {
+
+            if (!empty($worker['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FORM101,
+                    "notificationData" => $worker
+                ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
+                    "notificationData" => $worker
+                ]));
+            }
+
             Mail::send('/Mails/Form101Mail', $worker, function ($messages) use ($worker) {
                 $messages->to($worker['email']);
                 ($worker['lng'] == 'heb') ?
@@ -240,6 +258,14 @@ class WorkerController extends Controller
                 ($worker['lng'] == 'heb') ?
                     $sub = $worker['id'] . "# " . __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') :
                     $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $worker['id'];
+                $messages->subject($sub);
+            });
+
+            Mail::send('/Mails/WorkerSafeGearMail', $worker, function ($messages) use ($worker) {
+                $messages->to($worker['email']);
+                ($worker['lng'] == 'heb') ?
+                    $sub = $worker['id'] . "# " . __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') :
+                    $sub = __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') . " #" . $worker['id'];
                 $messages->subject($sub);
             });
         }
@@ -339,13 +365,18 @@ class WorkerController extends Controller
 
         WorkerAvailability::where('user_id', $id)->delete();
 
-        foreach ($data as $key => $availabilty) {
-            WorkerAvailability::create([
-                'user_id' => $id,
-                'date' => trim($key),
-                'working' => $availabilty,
-                'status' => '1',
-            ]);
+        foreach ($data['time_slots'] as $key => $availabilties) {
+            $date = trim($key);
+
+            foreach ($availabilties as $key => $availabilty) {
+                WorkerAvailability::create([
+                    'user_id' => $id,
+                    'date' => $date,
+                    'start_time' => $availabilty['start_time'],
+                    'end_time' => $availabilty['end_time'],
+                    'status' => '1',
+                ]);
+            }
         }
 
         return response()->json([
@@ -355,16 +386,20 @@ class WorkerController extends Controller
 
     public function getWorkerAvailability($id)
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', $id)
+        $worker_availabilities = WorkerAvailability::query()
+            ->where('user_id', $id)
             ->orderBy('id', 'asc')
-            ->get();
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $new_array[$w_a->date] = $w_a->working;
+            ->get(['date', 'start_time', 'end_time']);
+
+        $availabilities = [];
+        foreach ($worker_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
 
         return response()->json([
-            'data' => $new_array,
+            'data' => $availabilities,
         ]);
     }
 

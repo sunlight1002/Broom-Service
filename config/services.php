@@ -35,7 +35,6 @@ return [
         'secret' => env('WHATSAPP_API_SECRET'),
         'auth_token' => env('WHATSAPP_AUTH_TOKEN'),
         'from_id' => env('WHATSAPP_FROM_NUMBER_ID'),
-        'meeting_schedule' => env('WHATSAPP_TEMPLATE_METTING_SCHEDULE'),
     ],
 
     'app' => [

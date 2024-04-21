@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 trait ScheduleMeeting
 {
@@ -22,7 +23,7 @@ trait ScheduleMeeting
         App::setLocale($scheduleArr['client']['lng']);
         if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
             event(new WhatsappNotificationEvent([
-                "type" => 'client_meeting_schedule',
+                "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
                 "notificationData" => $scheduleArr
             ]));
         }

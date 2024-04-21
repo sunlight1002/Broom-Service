@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
@@ -127,6 +129,21 @@ class JobController extends Controller
         ]);
         //$this->invoice($id);
 
+        $client = $job->client;
+        $service = $job->jobservice;
+
+        $items = [
+            [
+                'description' => $client->lng == 'heb' ? $service->heb_name : $service->name,
+                'unitprice' => $service->total,
+                'quantity' => 1
+            ]
+        ];
+
+        $dueDate = Carbon::today()->endOfMonth()->toDateString();
+
+        $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
+
         $admin = Admin::find(1)->first();
         App::setLocale('en');
         $data = array(
@@ -134,7 +151,12 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
-
+        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
         Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['email']);
             $sub = __('mail.job_status.subject');
@@ -148,19 +170,23 @@ class JobController extends Controller
 
     public function getAvailability()
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', Auth::user()->id)
+        $worker_availabilities = WorkerAvailability::query()
+            ->where('user_id', Auth::user()->id)
             ->orderBy('id', 'asc')
-            ->get();
+            ->get(['date', 'start_time', 'end_time']);
 
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $new_array[$w_a->date] = $w_a->working;
+        $availabilities = [];
+        foreach ($worker_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
 
         return response()->json([
-            'availability' => $new_array,
+            'availability' => $availabilities,
         ]);
     }
+
     public function updateAvailability(Request $request)
     {
         $isMondayPassed = Carbon::today()->weekday() > Carbon::MONDAY;
@@ -178,16 +204,19 @@ class JobController extends Controller
             ->whereDate('date', '>=', $firstEditDate->toDateString())
             ->delete();
 
-        foreach ($data as $key => $availabilty) {
+        foreach ($data['time_slots'] as $key => $availabilties) {
             $date = trim($key);
 
             if ($firstEditDate->lte(Carbon::parse($date))) {
-                WorkerAvailability::create([
-                    'user_id' => Auth::user()->id,
-                    'date' => $date,
-                    'working' => $availabilty,
-                    'status' => '1',
-                ]);
+                foreach ($availabilties as $key => $availabilty) {
+                    WorkerAvailability::create([
+                        'user_id' => Auth::user()->id,
+                        'date' => $date,
+                        'start_time' => $availabilty['start_time'],
+                        'end_time' => $availabilty['end_time'],
+                        'status' => '1',
+                    ]);
+                }
             }
         }
 
@@ -275,6 +304,12 @@ class JobController extends Controller
                 'worker'     => $job->worker,
                 'job'        => $job->toArray(),
             );
+            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                    "notificationData" => $data
+                ]));
+            }
             Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.job_status.subject');

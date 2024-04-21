@@ -47,33 +47,6 @@ export default function Jobs({ contracts, client }) {
             });
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getJobs();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
@@ -505,17 +478,6 @@ export default function Jobs({ contracts, client }) {
                                                                 Create Invoice
                                                             </Link>
                                                         )} */}
-
-                                                        <button
-                                                            className="dropdown-item"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    j.id
-                                                                )
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </td>
