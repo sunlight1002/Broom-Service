@@ -1,4 +1,6 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
+
 import Contract from "./Contract";
 import Jobs from "./Jobs";
 import OfferedPrice from "./OfferedPrice";
@@ -14,16 +16,23 @@ export default function ClientHistory({
     latestContract,
     client,
 }) {
+    const { hash } = useLocation();
+
     return (
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
                 <li className="nav-item" role="presentation">
                     <a
                         id="schedule-meeting"
-                        className="nav-link active"
+                        className={
+                            `nav-link ` +
+                            (!hash || hash === "#tab-schedule" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-schedule"
-                        aria-selected="true"
+                        aria-selected={
+                            !hash || hash === "#tab-schedule" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Scheduled Meeting
@@ -32,10 +41,15 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="offered-price"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-offered" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-offered"
-                        aria-selected="false"
+                        aria-selected={
+                            hash === "#tab-offered" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Offered Price
@@ -44,10 +58,15 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="contract"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-contract" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-contract"
-                        aria-selected="false"
+                        aria-selected={
+                            hash === "#tab-contract" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Contracts
@@ -56,10 +75,12 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="jobs-tab"
-                        className="nav-link"
+                        className={
+                            `nav-link ` + (hash === "#tab-jobs" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-jobs"
-                        aria-selected="false"
+                        aria-selected={hash === "#tab-jobs" ? "true" : "false"}
                         role="tab"
                     >
                         Jobs
@@ -69,13 +90,16 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="order-tab"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-order" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-order"
                         onClick={(e) => {
                             $(".order_drop").show();
                         }}
-                        aria-selected="false"
+                        aria-selected={hash === "#tab-order" ? "true" : "false"}
                         role="tab"
                     >
                         Orders{" "}
@@ -85,10 +109,15 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="invoice-tab"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-invoice" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-invoice"
-                        aria-selected="false"
+                        aria-selected={
+                            hash === "#tab-invoice" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Invoice
@@ -97,10 +126,15 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="payment-tab"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-payment" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-payment"
-                        aria-selected="false"
+                        aria-selected={
+                            hash === "#tab-payment" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Payment
@@ -109,10 +143,15 @@ export default function ClientHistory({
                 <li className="nav-item" role="presentation">
                     <a
                         id="creditCard-tab"
-                        className="nav-link"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-creditCard" ? "active" : "")
+                        }
                         data-toggle="tab"
                         href="#tab-creditCard"
-                        aria-selected="false"
+                        aria-selected={
+                            hash === "#tab-creditCard" ? "true" : "false"
+                        }
                         role="tab"
                     >
                         Card Details
@@ -122,7 +161,10 @@ export default function ClientHistory({
             <div className="tab-content">
                 <div
                     id="tab-schedule"
-                    className="tab-pane active show"
+                    className={
+                        `tab-pane ` +
+                        (!hash || hash === "#tab-schedule" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="schedule-meeting"
                 >
@@ -130,7 +172,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-offered"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-offered" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="offered-price"
                 >
@@ -138,7 +183,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-contract"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-contract" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="rejected-tab"
                 >
@@ -149,7 +197,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-jobs"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-jobs" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="rejected-tab"
                 >
@@ -157,7 +208,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-order"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-order" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="order-tab"
                 >
@@ -165,7 +219,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-invoice"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-invoice" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="invoice-tab"
                 >
@@ -173,7 +230,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-payment"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-payment" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="payment-tab"
                 >
@@ -181,7 +241,10 @@ export default function ClientHistory({
                 </div>
                 <div
                     id="tab-creditCard"
-                    className="tab-pane"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-creditCard" ? "active show" : "")
+                    }
                     role="tab-panel"
                     aria-labelledby="creditCard-tab"
                 >

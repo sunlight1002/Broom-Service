@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
@@ -90,7 +92,12 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
-
+        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
         Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['email']);
             $sub = __('mail.client_job_status.subject');
@@ -186,7 +193,12 @@ class JobController extends Controller
                 'admin' => $admin->toArray(),
                 'job' => $job->toArray(),
             );
-
+            if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
+                    "notificationData" => $emailData
+                ]));
+            }
             Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $messages->subject(__('mail.change_worker_request.subject'));

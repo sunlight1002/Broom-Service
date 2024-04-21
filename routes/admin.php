@@ -182,7 +182,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('income', [DashboardController::class, 'income'])->name('income');
 
     // Invoice
-    Route::post('add-invoice', [InvoiceController::class, 'AddInvoice']);
+    // Route::post('add-invoice', [InvoiceController::class, 'AddInvoice']);
     Route::get('invoices', [InvoiceController::class, 'index']);
     Route::get('get-invoice/{id}', [InvoiceController::class, 'getInvoice']);
     Route::post('update-invoice/{id}', [InvoiceController::class, 'updateInvoice']);
@@ -191,9 +191,14 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('order-jobs', [InvoiceController::class, 'orderJobs']);
     Route::get('delete-invoice/{id}', [InvoiceController::class, 'deleteInvoice']);
     Route::get('payments', [InvoiceController::class, 'payments']);
+    Route::get('client/{id}/unpaid-invoice', [InvoiceController::class, 'clientUnpaidInvoice']);
+    Route::post('client/{id}/update-invoice', [InvoiceController::class, 'closeClientInvoicesWithReceipt']);
+    Route::post('client/{id}/close-for-payment', [InvoiceController::class, 'closeClientForPayment']);
     Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
+    Route::post('client/{id}/initialize-card', [ClientController::class, 'createClientCardSession']);
+    Route::post('client/{id}/check-card-by-session', [ClientController::class, 'checkTranxBySessionId']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);
@@ -201,6 +206,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('order-manual-invoice/{id}', [InvoiceController::class, 'manualInvoice']);
     Route::get('client-invoices/{id}', [InvoiceController::class, 'getClientInvoices']);
 
+    Route::get('client-payments', [InvoiceController::class, 'paymentClientWise']);
     Route::get('client-payments/{id}', [InvoiceController::class, 'clientPayments']);
 
     // Orders

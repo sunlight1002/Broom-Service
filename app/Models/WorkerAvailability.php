@@ -15,13 +15,17 @@ class WorkerAvailability extends Model
         'user_id',
         'day',
         'date',
+        'start_time',
+        'end_time',
         'working',
-        'status',        
+        'status',
     ];
+
     protected $casts = [
         'working' => 'array',
     ];
-     public function worker()
+
+    public function worker()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

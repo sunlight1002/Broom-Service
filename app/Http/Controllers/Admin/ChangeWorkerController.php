@@ -107,28 +107,42 @@ class ChangeWorkerController extends Controller
 
         $repeat_value = $job->jobservice->period;
 
-        $shifts = explode(',', $changeWorkerRequest->shifts);
-        $shiftsInHour = [];
-        foreach ($shifts as $key => $shift) {
-            $timing = explode('-', $shift);
-            $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
-            $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
-
-            $shiftsInHour[] = [
-                'start' => $timing[0],
-                'end' => $timing[1]
-            ];
-        }
-
-        $minutes = 0;
-        foreach ($shiftsInHour as $key => $value) {
-            $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
-        }
         $job_date = Carbon::parse($changeWorkerRequest->date);
         $preferredWeekDay = strtolower($job_date->format('l'));
         $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
 
         $job_date = $job_date->toDateString();
+
+        $slots = explode(',', $changeWorkerRequest->shifts);
+        // sort slots in ascending order of time before merging for continuous time
+        sort($slots);
+
+        foreach ($slots as $key => $shift) {
+            $timing = explode('-', $shift);
+
+            $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            ];
+        }
+
+        $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+        $slotsInString = '';
+        foreach ($mergedContinuousTime as $key => $slot) {
+            if (!empty($slotsInString)) {
+                $slotsInString .= ',';
+            }
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+        }
+
+        $minutes = 0;
+        foreach ($mergedContinuousTime as $key => $value) {
+            $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+        }
 
         $status = JobStatusEnum::SCHEDULED;
 
@@ -143,7 +157,7 @@ class ChangeWorkerController extends Controller
         $jobData = [
             'worker_id'     => $changeWorkerRequest->worker_id,
             'start_date'    => $job_date,
-            'shifts'        => $changeWorkerRequest->shifts,
+            'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
         ];
@@ -176,19 +190,8 @@ class ChangeWorkerController extends Controller
             ]
         ]);
 
-        $shiftFormattedArr = [];
-        foreach ($shiftsInHour as $key => $time) {
-            $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
-            $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
-
-            $shiftFormattedArr[$key] = [
-                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
-            ];
-        }
-
         $job->workerShifts()->delete();
-        foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+        foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
 
@@ -200,7 +203,7 @@ class ChangeWorkerController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
+        event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
 
         return response()->json([
             'message' => 'Job has been updated successfully'

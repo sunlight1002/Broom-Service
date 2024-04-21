@@ -5,7 +5,6 @@ import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
 
-import { shiftOptions } from "../../../Utils/common.utils";
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
 export default function CreateJobCalender({
@@ -163,26 +162,19 @@ export default function CreateJobCalender({
 
     const changeShift = (w_id, date, e) => {
         setWorkerData([...workerData, { ...e, w_id, date }]);
+
         e = [
             ...workerData.filter((d) => d.date == date && d.w_id == w_id),
             { ...e, w_id, date },
         ];
-        let w_n = $("#worker-" + w_id).html();
-        let filtered = data.filter((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return false;
-            } else {
-                return d;
-            }
+
+        const w_n = $("#worker-" + w_id).html();
+
+        const filtered = data.filter((d) => {
+            return !(d.date == date && d.worker_id == w_id);
         });
-        let shifts = "";
-        e.forEach((v) => {
-            if (shifts == "") {
-                shifts = v.label;
-            } else {
-                shifts = shifts + "," + v.label;
-            }
-        });
+
+        const shifts = e.map((v) => `${v.start}-${v.end}`).join(",");
 
         var newdata;
         if (shifts != "") {
@@ -200,56 +192,58 @@ export default function CreateJobCalender({
         }
         setData(newdata);
     };
+
     const removeShift = (w_id, date, e) => {
-        let filtered = data.find((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return d;
-            } else {
-                return false;
-            }
+        const filtered = data.find((d) => {
+            return d.date == date && d.worker_id == w_id;
         });
+
         if (filtered) {
-            const shift = filtered.shifts.split(",") ?? [];
-            var index = shift.indexOf(e.label);
-            if (index > -1) {
-                shift.splice(index, 1);
+            const _shifts = filtered.shifts.split(",") ?? [];
+
+            const _index = _shifts.indexOf(`${e.start}-${e.end}`);
+            if (_index !== -1) {
+                _shifts.splice(_index, 1);
                 const tmpworker = [...workerData];
-                var indexWorker = tmpworker.findIndex(
-                    (item) =>
+
+                const indexWorker = tmpworker.findIndex((item) => {
+                    return (
                         item.date === date &&
                         item.w_id === w_id &&
-                        item.value === e.value &&
-                        item.label === e.label
-                );
-                if (indexWorker > -1) {
+                        item.start === e.start &&
+                        item.end === e.end
+                    );
+                });
+
+                if (indexWorker !== -1) {
                     tmpworker.splice(indexWorker, 1);
                     setWorkerData(tmpworker);
                 }
-                setData(
-                    data.map((item) =>
-                        item.date === date && item.worker_id === w_id
-                            ? { ...item, shifts: shift.join(",") }
-                            : item
-                    )
+
+                setData((oldData) =>
+                    oldData.map((item) => {
+                        if (item.date === date && item.worker_id === w_id) {
+                            return { ...item, shifts: _shifts.join(",") };
+                        } else {
+                            return item;
+                        }
+                    })
                 );
             }
         }
     };
+
     const hasActive = (w_id, date, e) => {
-        let filtered = data.find((d) => {
-            if (d.date == date && d.worker_id == w_id) {
-                return d;
-            } else {
-                return false;
-            }
+        const filtered = data.find((d) => {
+            return d.date == date && d.worker_id == w_id;
         });
+
         if (filtered) {
-            const shift = filtered.shifts.split(",") ?? [];
-            var index = shift.indexOf(e.label);
-            if (index > -1) {
-                return true;
-            }
+            const _shifts = filtered.shifts.split(",") ?? [];
+
+            return _shifts.includes(`${e.start}-${e.end}`);
         }
+
         return false;
     };
 
@@ -346,9 +340,7 @@ export default function CreateJobCalender({
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
-                                                              shiftOptions[
-                                                                  aval[element]
-                                                              ],
+                                                              aval[element],
                                                               shifts,
                                                               shiftFreezeTime
                                                           )
@@ -380,29 +372,14 @@ export default function CreateJobCalender({
                                                                     );
                                                                 }
                                                             )}
-                                                            {/* {list &&
-                                                            sav.map((s, i) => {
-                                                                return (
-                                                                    <div
-                                                                        className="text-success p-0"
-                                                                        key={i}
-                                                                    >
-                                                                        {
-                                                                            s.label
-                                                                        }
-                                                                    </div>
-                                                                );
-                                                            })} */}
 
                                                             {isDateAvailable &&
                                                             aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
-                                                                    shiftOptions[
-                                                                        aval[
-                                                                            element
-                                                                        ]
+                                                                    aval[
+                                                                        element
                                                                     ],
                                                                     shifts,
                                                                     shiftFreezeTime
@@ -444,7 +421,11 @@ export default function CreateJobCalender({
                                                                             >
                                                                                 <div>
                                                                                     {
-                                                                                        shift.label
+                                                                                        shift.start
+                                                                                    }{" "}
+                                                                                    -{" "}
+                                                                                    {
+                                                                                        shift.end
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
@@ -527,9 +508,7 @@ export default function CreateJobCalender({
                                                 let sav =
                                                     shifts.length > 0
                                                         ? filterShiftOptions(
-                                                              shiftOptions[
-                                                                  aval[element]
-                                                              ],
+                                                              aval[element],
                                                               shifts,
                                                               shiftFreezeTime
                                                           )
@@ -562,29 +541,14 @@ export default function CreateJobCalender({
                                                                     );
                                                                 }
                                                             )}
-                                                            {/* {list &&
-                                                            sav.map((s, i) => {
-                                                                return (
-                                                                    <div
-                                                                        className="text-success p-0"
-                                                                        key={i}
-                                                                    >
-                                                                        {
-                                                                            s.label
-                                                                        }
-                                                                    </div>
-                                                                );
-                                                            })} */}
 
                                                             {isDateAvailable &&
                                                             aval[element] &&
                                                             aval[element] !=
                                                                 "" ? (
                                                                 filterShiftOptions(
-                                                                    shiftOptions[
-                                                                        aval[
-                                                                            element
-                                                                        ]
+                                                                    aval[
+                                                                        element
                                                                     ],
                                                                     shifts,
                                                                     shiftFreezeTime
@@ -626,7 +590,11 @@ export default function CreateJobCalender({
                                                                             >
                                                                                 <div>
                                                                                     {
-                                                                                        shift.label
+                                                                                        shift.start
+                                                                                    }{" "}
+                                                                                    -{" "}
+                                                                                    {
+                                                                                        shift.end
                                                                                     }
                                                                                 </div>
                                                                                 {isActive ? (
@@ -712,11 +680,7 @@ export default function CreateJobCalender({
                                                     let sav =
                                                         shifts.length > 0
                                                             ? filterShiftOptions(
-                                                                  shiftOptions[
-                                                                      aval[
-                                                                          element
-                                                                      ]
-                                                                  ],
+                                                                  aval[element],
                                                                   shifts,
                                                                   shiftFreezeTime
                                                               )
@@ -757,10 +721,8 @@ export default function CreateJobCalender({
                                                                 aval[element] !=
                                                                     "" ? (
                                                                     filterShiftOptions(
-                                                                        shiftOptions[
-                                                                            aval[
-                                                                                element
-                                                                            ]
+                                                                        aval[
+                                                                            element
                                                                         ],
                                                                         shifts,
                                                                         shiftFreezeTime
@@ -802,7 +764,11 @@ export default function CreateJobCalender({
                                                                                 >
                                                                                     <div>
                                                                                         {
-                                                                                            shift.label
+                                                                                            shift.start
+                                                                                        }{" "}
+                                                                                        -{" "}
+                                                                                        {
+                                                                                            shift.end
                                                                                         }
                                                                                     </div>
                                                                                     {isActive ? (

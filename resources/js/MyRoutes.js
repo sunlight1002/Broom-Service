@@ -113,11 +113,11 @@ import Languages from "./Admin/Pages/Languages/language";
 import EditLanguages from "./Admin/Pages/Languages/EditLanguage";
 import Notification from "./Admin/Pages/Notification/Notification";
 import Income from "./Admin/Pages/Income";
-import Invoices from "./Admin/Pages/Sales/Invoices/Invoices";
-import AddInvoice from "./Admin/Pages/Sales/Invoices/AddInvoice";
-import Orders from "./Admin/Pages/Sales/Orders/Orders";
+// import Invoices from "./Admin/Pages/Sales/Invoices/Invoices";
+// import AddInvoice from "./Admin/Pages/Sales/Invoices/AddInvoice";
+// import Orders from "./Admin/Pages/Sales/Orders/Orders";
 import AddOrder from "./Admin/Pages/Sales/Orders/AddOrder";
-import Payments from "./Admin/Pages/Sales/Payments/payments";
+import Payments from "./Admin/Pages/Payment/Payments";
 import ScheduleMeet from "./Pages/ScheduleMeet";
 import Chat from "./Admin/Pages/Chat/chat";
 import Responses from "./Admin/Pages/Chat/responses";
@@ -618,11 +618,11 @@ export default function MyRoutes() {
                                 element={<EditLanguages />}
                             />
                             <Route exact path="income" element={<Income />} />
-                            <Route
+                            {/* <Route
                                 exact
                                 path="invoices"
                                 element={<Invoices />}
-                            />
+                            /> */}
                             {/* <Route
                                 exact
                                 path="add-invoice"
@@ -633,7 +633,7 @@ export default function MyRoutes() {
                                 path="add-order"
                                 element={<AddOrder />}
                             />
-                            <Route exact path="orders" element={<Orders />} />
+                            {/* <Route exact path="orders" element={<Orders />} /> */}
                             <Route
                                 exact
                                 path="payments"

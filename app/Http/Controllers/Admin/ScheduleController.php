@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ScheduleMeeting;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+
 
 class ScheduleController extends Controller
 {
@@ -356,6 +359,12 @@ class ScheduleController extends Controller
         $scheduleArr = $schedule->toArray();
 
         App::setLocale($scheduleArr['client']['lng']);
+        if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::DELETE_MEETING,
+                "notificationData" => $scheduleArr
+            ]));
+        }
         Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
             $sub = __('mail.cancel_meeting.subject') . " " . __('mail.cancel_meeting.from') . " " . __('mail.cancel_meeting.company') . " #" . $scheduleArr['id'];

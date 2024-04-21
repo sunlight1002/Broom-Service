@@ -16,6 +16,7 @@ class Order extends Model
         'items',
         'status',
         'invoice_status',
+        'paid_status',
     ];
 
     public function jobs()

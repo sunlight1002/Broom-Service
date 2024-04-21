@@ -64,7 +64,8 @@ class WorkerDefaultAvailability extends Command
                         if (!$worker->availabilities->where('date', $dateInString)->count()) {
                             $worker->availabilities()->create([
                                 'date' => $dateInString,
-                                'working' => array('8am-16pm'),
+                                'start_time' => '08:00:00',
+                                'end_time' => '16:00:00',
                                 'status' => '1',
                             ]);
                         }
@@ -82,7 +83,8 @@ class WorkerDefaultAvailability extends Command
 
                         $worker->availabilities()->create([
                             'date' => $dateInString,
-                            'working' => array('8am-16pm'),
+                            'start_time' => '08:00:00',
+                            'end_time' => '16:00:00',
                             'status' => '1',
                         ]);
                     }
