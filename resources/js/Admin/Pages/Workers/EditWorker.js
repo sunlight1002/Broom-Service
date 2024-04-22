@@ -100,7 +100,6 @@ export default function EditWorker() {
             firstname: firstname,
             lastname: lastname,
             phone: phone,
-            email: email,
             address: address,
             renewal_visa: renewal_date,
             gender: gender,
@@ -267,6 +266,7 @@ export default function EditWorker() {
                                                 setEmail(e.target.value)
                                             }
                                             className="form-control"
+                                            readOnly
                                             placeholder="Email"
                                         />
                                         {errors.email ? (
