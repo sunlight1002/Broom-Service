@@ -101,4 +101,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(Form::class, 'user');
     }
+
+    public function defaultAvailabilities()
+    {
+        return $this->hasMany(WorkerDefaultAvailability::class);
+    }
 }
