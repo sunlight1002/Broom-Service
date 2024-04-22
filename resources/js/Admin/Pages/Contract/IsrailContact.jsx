@@ -49,10 +49,6 @@ export function IsrailContact({
 }) {
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
-    const [firstNameReadOnly, setFirstNameReadOnly] = useState(false);
-    const [idNumberReadOnly, setIdNumberReadOnly] = useState(false);
-    const [addressReadOnly, setAddressReadOnly] = useState(false);
-    const [phoneNoReadOnly, setPhoneNoReadOnly] = useState(false);
     const {
         errors,
         touched,
@@ -80,10 +76,6 @@ export function IsrailContact({
             setFieldValue("IdNumber",workerDetail.worker_id);
             setFieldValue("Address",workerDetail.address);
             setFieldValue("PhoneNo",workerDetail.phone);
-            setFirstNameReadOnly(true);
-            setIdNumberReadOnly(true);
-            setAddressReadOnly(true);
-            setPhoneNoReadOnly(true);
         }
     }, [checkFormDetails,workerFormDetails,workerDetail]);
 
@@ -140,7 +132,7 @@ export function IsrailContact({
                                                 label={" Name of the employee"}
                                                 value={values.fullName}
                                                 required={true}
-                                                readonly={firstNameReadOnly}
+                                                readonly={true}
                                                 error={
                                                     touched.fullName &&
                                                     errors.fullName
@@ -155,7 +147,7 @@ export function IsrailContact({
                                                 label={" ID Number"}
                                                 value={values.IdNumber}
                                                 required={true}
-                                                readonly={idNumberReadOnly}
+                                                readonly={true}
                                                 error={
                                                     touched.IdNumber &&
                                                     errors.IdNumber
@@ -169,7 +161,7 @@ export function IsrailContact({
                                         onChange={handleChange}
                                         label={"Address"}
                                         value={values.Address}
-                                        readonly={addressReadOnly}
+                                        readonly={true}
                                         required={true}
                                         error={
                                             touched.Address && errors.Address
@@ -198,7 +190,7 @@ export function IsrailContact({
                                                 label={"Home phone number:"}
                                                 value={values.PhoneNo}
                                                 required={true}
-                                                readonly={phoneNoReadOnly}
+                                                readonly={true}
                                                 error={
                                                     touched.PhoneNo &&
                                                     errors.PhoneNo

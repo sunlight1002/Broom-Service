@@ -61,6 +61,7 @@ export default function EmployeeDetails({
                         value={values.employeeFirstName}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employeeFirstName &&
                             errors.employeeFirstName
@@ -77,6 +78,7 @@ export default function EmployeeDetails({
                         value={values.employeeLastName}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employeeLastName && errors.employeeLastName
                                 ? errors.employeeLastName
@@ -350,6 +352,7 @@ export default function EmployeeDetails({
                         label="Mobile number"
                         value={values.employeeMobileNo}
                         onChange={handleChange}
+                        readonly={true}
                         onBlur={handleBlur}
                         error={
                             touched.employeeMobileNo && errors.employeeMobileNo
@@ -379,6 +382,7 @@ export default function EmployeeDetails({
                         label="Email"
                         value={values.employeeEmail}
                         onChange={handleChange}
+                        readonly={true}
                         onBlur={handleBlur}
                         error={
                             touched.employeeEmail && errors.employeeEmail

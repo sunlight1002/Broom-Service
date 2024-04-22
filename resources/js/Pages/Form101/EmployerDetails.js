@@ -21,6 +21,7 @@ export default function EmployerDetails({
                         value={values.employerName}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employerName && errors.employerName
                                 ? errors.employerName
@@ -35,6 +36,7 @@ export default function EmployerDetails({
                         value={values.employerAddress}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employerAddress && errors.employerAddress
                                 ? errors.employerAddress
@@ -49,6 +51,7 @@ export default function EmployerDetails({
                         value={values.employerPhone}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employerPhone && errors.employerPhone
                                 ? errors.employerPhone
@@ -63,6 +66,7 @@ export default function EmployerDetails({
                         value={values.employerDeductionsFileNo}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        readonly={true}
                         error={
                             touched.employerDeductionsFileNo &&
                             errors.employerDeductionsFileNo

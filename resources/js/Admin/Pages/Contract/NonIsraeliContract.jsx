@@ -42,12 +42,11 @@ const formSchema = yup.object({
     signature2: yup.mixed().required("Signature is required"),
     signature3: yup.mixed().required("Signature is required"),
     signature4: yup.mixed().required("Signature is required"),
-    companySignature1: yup.mixed().required("Signature is required"),
-    companySignature2: yup.mixed().required("Signature is required"),
 });
 
 export function NonIsraeliContract({
     handleFormSubmit,
+    workerDetail,
     workerFormDetails,
     checkFormDetails,
 }) {
@@ -58,6 +57,7 @@ export function NonIsraeliContract({
     const companySigRef1 = useRef();
     const companySigRef2 = useRef();
     const [formValues, setFormValues] = useState(null);
+
     const {
         errors,
         touched,
@@ -77,14 +77,15 @@ export function NonIsraeliContract({
     });
 
     useEffect(() => {
-        setFormValues(workerFormDetails);
-    }, [workerFormDetails]);
-
-    useEffect(() => {
         if (checkFormDetails) {
-            disableInputs();
+            setFormValues(workerFormDetails);
+            disableInputs();            
+        }else{
+            setFieldValue("fullName",workerDetail.firstname +' '+workerDetail.lastname);
+            setFieldValue("Address",workerDetail.address);
+            setFieldValue("PhoneNo",workerDetail.phone);
         }
-    }, [checkFormDetails]);
+    }, [checkFormDetails,workerFormDetails,workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -177,6 +178,7 @@ export function NonIsraeliContract({
                                                 label={"Employee's name"}
                                                 value={values.fullName}
                                                 required={true}
+                                                readonly={true}
                                                 error={
                                                     touched.fullName &&
                                                     errors.fullName
@@ -204,6 +206,7 @@ export function NonIsraeliContract({
                                         onChange={handleChange}
                                         label={"Address"}
                                         value={values.Address}
+                                        readonly={true}
                                         required={true}
                                         error={
                                             touched.Address && errors.Address
@@ -630,7 +633,7 @@ export function NonIsraeliContract({
                                         <div className="col-6">
                                             <p>
                                                 <strong>
-                                                    The Company's signature:*
+                                                    The Company's signature:
                                                 </strong>
                                             </p>
                                             {formValues &&
@@ -793,7 +796,7 @@ export function NonIsraeliContract({
                                 <div className="col-6">
                                     <p>
                                         <strong>
-                                            The Company's signature:*
+                                            The Company's signature:
                                         </strong>
                                     </p>
                                     {formValues &&

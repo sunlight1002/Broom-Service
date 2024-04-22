@@ -9,8 +9,6 @@ import TextField from "../../../Pages/Form101/inputElements/TextField";
 import SignatureCanvas from "react-signature-canvas";
 
 const formSchema = yup.object({
-    workerName: yup.string().trim().required("worker name is required"),
-    workerName2: yup.string().trim().required("worker name is required"),
     signature: yup.mixed().required("Signature is required"),
 });
 const SafeAndGear = () => {
@@ -102,7 +100,21 @@ const SafeAndGear = () => {
         });
     };
 
-
+    const workerStyle = {
+        workerName:{
+            width: "100%",
+            padding: "8px",
+            margin: "0px 0px 15px",
+            'text-align': "left",
+            'font-size': "18px",
+        },
+        workerName2: {
+            width: '100%',
+            padding: '8px',
+            margin: '10px 0px 0px 0px',
+            'font-size': "18px",
+        }
+    }
     return (
         <div id="container" className="targetDiv">
             <div id="content">
@@ -226,18 +238,7 @@ const SafeAndGear = () => {
                         <div></div>
                         <form onSubmit={handleSubmit}>
                             <div className="mt-4" style={{ fontSize: "16px" }}>
-                                <TextField
-                                    name={"workerName"}
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    label={"Worker Name"}
-                                    value={values.workerName +' '+values.workerName2}
-                                    required={true}
-                                    readonly={true}
-                                    error={
-                                        touched.workerName && errors.workerName
-                                    }
-                                />
+                                <span className="badge badge-primary" style={workerStyle.workerName}>{values.workerName +' '+values.workerName2}</span>
                                 <p>
                                     I {values.workerName +' '+values.workerName2} declare that I have
                                     received the file with the attached
@@ -274,7 +275,7 @@ const SafeAndGear = () => {
                                 <p>*. Wet rags and scabs to hang for drying</p>
                                 <div className="row gap-5">
                                     <div className="col-6">
-                                        <TextField
+                                        {/* <TextField
                                             name={"workerName2"}
                                             onBlur={handleBlur}
                                             onChange={handleChange}
@@ -286,7 +287,9 @@ const SafeAndGear = () => {
                                                 touched.workerName2 &&
                                                 errors.workerName2
                                             }
-                                        />
+                                        /> */}
+
+                                        <span className="badge badge-primary" style={workerStyle.workerName2}>{values.workerName +' '+values.workerName2}</span>
                                     </div>
                                     <div className="col-6">
                                         <p>
@@ -326,11 +329,11 @@ const SafeAndGear = () => {
                                     </div>
                                 </div>
                             </div>
-                            {formValues === "" && (
+                            {/* {formValues === "" && ( */}
                                 <button type="submit" className="btn btn-success">
                                     submit
                                 </button>
-                            )}
+                            {/* )} */}
                         </form>
                     </div>
                 </div>

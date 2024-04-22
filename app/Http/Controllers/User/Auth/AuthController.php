@@ -297,7 +297,8 @@ class AuthController extends Controller
 
         return response()->json([
             'lng' => $worker->lng,
-            'form' => $form ? $form->data : NULL
+            'form' => $form ? $form->data : NULL,
+            'worker' => $worker
         ]);
     }
 
