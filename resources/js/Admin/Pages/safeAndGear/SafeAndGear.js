@@ -18,7 +18,7 @@ const SafeAndGear = () => {
     const param = useParams();
     const id = Base64.decode(param.id);
     const alert = useAlert();
-    const [formValues, setFormValues] = useState({});
+    const [formValues, setFormValues] = useState("");
     const [workerName, setWorkerName] = useState("");
     const [workerName2, setWorkerName2] = useState("");
     const [signature, setSignature] = useState("");
@@ -76,14 +76,20 @@ const SafeAndGear = () => {
             } else {
                 document.querySelector("html").removeAttribute("dir");
             }
+
+            if (res.data.worker) {
+                setFieldValue("workerName", res.data.worker.firstname);
+                setFieldValue("workerName2", res.data.worker.lastname);
+            }
+           
             if (res.data.form) {
+
+                setFormValues(res.data.form); 
+                setFieldValue("workerName", res.data.form.workerName);
+                setFieldValue("workerName2", res.data.form.workerName2);
+                setFieldValue("signature", res.data.form.signature);
                 
-            setFormValues(res.data.form); 
-            setFieldValue("workerName", res.data.form.workerName);
-            setFieldValue("workerName2", res.data.form.workerName2);
-            setFieldValue("signature", res.data.form.signature);
-            
-            disableInputs();
+                disableInputs();
             }
         });
     }, []);
@@ -225,14 +231,15 @@ const SafeAndGear = () => {
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     label={"Worker Name"}
-                                    value={values.workerName}
+                                    value={values.workerName +' '+values.workerName2}
                                     required={true}
+                                    readonly={true}
                                     error={
                                         touched.workerName && errors.workerName
                                     }
                                 />
                                 <p>
-                                    I __________________ declare that I have
+                                    I {values.workerName +' '+values.workerName2} declare that I have
                                     received the file with the attached
                                     equipment list and undertake to keep it if
                                     it is in my possession and return it intact
@@ -272,8 +279,9 @@ const SafeAndGear = () => {
                                             onBlur={handleBlur}
                                             onChange={handleChange}
                                             label={"Worker Name"}
-                                            value={values.workerName2}
+                                            value={values.workerName +' '+values.workerName2}
                                             required={true}
+                                            readonly={true}
                                             error={
                                                 touched.workerName2 &&
                                                 errors.workerName2
@@ -318,7 +326,7 @@ const SafeAndGear = () => {
                                     </div>
                                 </div>
                             </div>
-                            {!formValues && (
+                            {formValues === "" && (
                                 <button type="submit" className="btn btn-success">
                                     submit
                                 </button>

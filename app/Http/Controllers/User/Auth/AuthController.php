@@ -275,13 +275,13 @@ class AuthController extends Controller
     public function getSafegear($id)
     {
         $worker = User::find($id);
-
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
 
         return response()->json([
             'lng' => $worker->lng,
+            'worker' => $worker,
             'form' => $form ? $form->data : NULL
         ]);
     }
