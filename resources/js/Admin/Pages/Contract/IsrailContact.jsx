@@ -49,7 +49,10 @@ export function IsrailContact({
 }) {
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
-
+    const [firstNameReadOnly, setFirstNameReadOnly] = useState(false);
+    const [idNumberReadOnly, setIdNumberReadOnly] = useState(false);
+    const [addressReadOnly, setAddressReadOnly] = useState(false);
+    const [phoneNoReadOnly, setPhoneNoReadOnly] = useState(false);
     const {
         errors,
         touched,
@@ -69,14 +72,20 @@ export function IsrailContact({
     });
 
     useEffect(() => {
-        setFormValues(workerFormDetails);
-    }, [workerFormDetails]);
-
-    useEffect(() => {
         if (checkFormDetails) {
-            disableInputs();
+            setFormValues(workerFormDetails);
+            disableInputs();            
+        }else{
+            setFieldValue("fullName",workerDetail.firstname +' '+workerDetail.lastname);
+            setFieldValue("IdNumber",workerDetail.worker_id);
+            setFieldValue("Address",workerDetail.address);
+            setFieldValue("PhoneNo",workerDetail.phone);
+            setFirstNameReadOnly(true);
+            setIdNumberReadOnly(true);
+            setAddressReadOnly(true);
+            setPhoneNoReadOnly(true);
         }
-    }, [checkFormDetails]);
+    }, [checkFormDetails,workerFormDetails,workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -131,6 +140,7 @@ export function IsrailContact({
                                                 label={" Name of the employee"}
                                                 value={values.fullName}
                                                 required={true}
+                                                readonly={firstNameReadOnly}
                                                 error={
                                                     touched.fullName &&
                                                     errors.fullName
@@ -145,6 +155,7 @@ export function IsrailContact({
                                                 label={" ID Number"}
                                                 value={values.IdNumber}
                                                 required={true}
+                                                readonly={idNumberReadOnly}
                                                 error={
                                                     touched.IdNumber &&
                                                     errors.IdNumber
@@ -158,6 +169,7 @@ export function IsrailContact({
                                         onChange={handleChange}
                                         label={"Address"}
                                         value={values.Address}
+                                        readonly={addressReadOnly}
                                         required={true}
                                         error={
                                             touched.Address && errors.Address
@@ -186,6 +198,7 @@ export function IsrailContact({
                                                 label={"Home phone number:"}
                                                 value={values.PhoneNo}
                                                 required={true}
+                                                readonly={phoneNoReadOnly}
                                                 error={
                                                     touched.PhoneNo &&
                                                     errors.PhoneNo
