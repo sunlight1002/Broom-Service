@@ -74,7 +74,7 @@
 			<a href='{{ url("meeting-status/".base64_encode($id)."/reschedule")}}' target='_blank' style="background: #4385f5;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.reschedule')}}</a>
 			@endif
 
-			<a href='{{ url("meeting-files/".base64_encode($id))}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.upload_meeting_files')}}</a>
+			<a href='{{ url("meeting-files/".base64_encode($id))}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.upload_job_description')}}</a>
 		</div>
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>

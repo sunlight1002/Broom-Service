@@ -164,7 +164,7 @@ export default function MeetingSchedule() {
                                     className="btn btn-secondary"
                                     to={`/meeting-files/${param.id}`}
                                 >
-                                    {t("front_meet.upload_meeting_files")}
+                                    {t("front_meet.upload_job_description")}
                                 </Link>
                             </div>
                         </div>

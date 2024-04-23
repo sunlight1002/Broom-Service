@@ -23,7 +23,7 @@
         "accept": "Accept",
         "reject": "Reject",
         "reschedule": "Reschedule",
-        "upload_meeting_files": "Upload meeting files",
+        "upload_job_description": "Upload Job Description",
         "choose_slot": "Choose slot"
     },
     "res_txt": "Thankyou for your response",
