@@ -26,7 +26,7 @@ Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
-Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhook'])->name('webhook_fb');
+Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 
 // Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);

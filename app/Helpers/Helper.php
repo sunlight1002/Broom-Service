@@ -28,7 +28,7 @@ class Helper
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
     }
 
-    public static function sendWhatsappMessage($number, $template = '', $data = array())
+    public static function sendWhatsappMessage($number, $template = '', $data = array(), $lang = 'he')
     {
         $ch = curl_init();
 
@@ -45,7 +45,6 @@ class Helper
 
         if ($template == '') {
             $params = [
-
                 "messaging_product" => "whatsapp",
                 "recipient_type" => "individual",
                 "to" => $mobile_no,
@@ -53,9 +52,7 @@ class Helper
                 "preview_url" =>  true,
                 "text" => [
                     "body" =>  $data['message']
-
                 ],
-
             ];
         } else {
             $params = [
@@ -66,27 +63,29 @@ class Helper
                 "template" => [
                     "name" => $template,
                     "language" => [
-                        "code" => "he"
+                        "code" => $lang
                     ],
                 ]
             ];
         }
 
-        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v16.0/' . config('services.whatsapp_api.code') . '/messages');
+        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v18.0/' . config('services.whatsapp_api.from_id') . '/messages');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
 
         $headers = array();
-        $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.secret');
+        $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.auth_token');
         $headers[] = 'Content-Type: application/json';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
+            logger(curl_error($ch));
             echo 'Error:' . curl_error($ch);
         }
+        logger($result);
         $data = json_decode($result, 1);
 
         curl_close($ch);
