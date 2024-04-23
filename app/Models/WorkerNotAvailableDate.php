@@ -17,5 +17,7 @@ class WorkerNotAvailableDate extends Model
         'user_id',
         'date',
         'status',
+        'start_time',
+        'end_time',
     ];
 }

@@ -518,6 +518,8 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'date'     => 'required',
             'worker_id'  => 'required',
+            'start_time' => 'required_with:end_time',
+            'end_time' => 'required_with:start_time', 
         ]);
 
         if ($validator->fails()) {
@@ -528,6 +530,8 @@ class WorkerController extends Controller
             'user_id' => $request->worker_id,
             'date'    => $request->date,
             'status'  => $request->status,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time
         ]);
 
         return response()->json(['message' => 'Date added']);

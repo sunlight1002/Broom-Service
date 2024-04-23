@@ -1,38 +1,67 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
 export default function WorkerNotAvailability() {
     const [date, setDate] = useState("");
     const [AllDates, setAllDates] = useState([]);
     const param = useParams();
     const alert = useAlert();
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
+   
+    const slots = useMemo(() => {
+        return createHourlyTimeArray("08:00", "24:00");
+    }, []);
 
     const handleDate = (e) => {
         e.preventDefault();
+       
+        if ((startTime && !endTime) || (!startTime && endTime)) {
+            alert.error("Please select both Start Time and End Time, or leave both empty.");
+            return;
+        }
+
+        if (startTime && endTime) {
+            const startTimeMinutes = parseInt(startTime.split(":")[0]) * 60 + parseInt(startTime.split(":")[1]);
+            const endTimeMinutes = parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]);
+    
+            if (endTimeMinutes <= startTimeMinutes) {
+                alert.error("End Time must be greater than Start Time.");
+                return;
+            }
+        }
+
         const data = {
             date: date,
+            start_time: startTime,
+            end_time: endTime,
+            worker_id: parseInt(param.id),
             status: 1,
         };
 
         axios.post(`/api/not-available-date`, data, { headers }).then((res) => {
             if (res.data.errors) {
                 for (let e in res.data.errors) {
-                    window.alert(res.data.errors[e]);
+                    alert.error(res.data.errors[e]);
                 }
             } else {
+                setDate("");
+                setStartTime("");
+                setEndTime("");
                 document.querySelector(".closeb1").click();
                 alert.success(res.data.message);
                 getDates();
-                setDate("");
             }
         });
     };
@@ -102,7 +131,7 @@ export default function WorkerNotAvailability() {
                                 }}
                             >
                                 <div className="row">
-                                    <div className="col-sm-10 col-10">
+                                    <div className="col-sm-4 col-4">
                                         <p
                                             style={{
                                                 fontSize: "16px",
@@ -110,6 +139,26 @@ export default function WorkerNotAvailability() {
                                             }}
                                         >
                                             {n.date ? n.date : "NA"}
+                                        </p>
+                                    </div>
+                                    <div className="col-sm-3 col-3">
+                                        <p
+                                            style={{
+                                                fontSize: "16px",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {n.start_time ? n.start_time : "NA"}
+                                        </p>
+                                    </div>
+                                    <div className="col-sm-3 col-3">
+                                        <p
+                                            style={{
+                                                fontSize: "16px",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {n.end_time ? n.end_time : "NA"}
                                         </p>
                                     </div>
                                     <div className="col-sm-2 col-2">
@@ -171,6 +220,56 @@ export default function WorkerNotAvailability() {
                                             required
                                             placeholder="Enter Date"
                                         />
+                                    </div>
+                                </div>
+                                <div className="col-sm-12 row">
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Start Time
+                                            </label>
+                                            <select
+                                                name="startTime"
+                                                className="form-control"
+                                                onChange={(e) =>
+                                                    setStartTime(e.target.value)
+                                                }
+                                            >
+                                                <option value="">{"Start Time"}</option>
+                                                {slots.map((t, i) => {
+                                                    return (
+                                                        <option value={t} key={i}>
+                                                            {" "}
+                                                            {t}{" "}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                End Time
+                                            </label>
+                                            <select
+                                                name="endTime"
+                                                className="form-control"
+                                                onChange={(e) =>
+                                                    setEndTime(e.target.value)
+                                                }
+                                            >
+                                                <option value="">{"End Time"}</option>
+                                                {slots.map((t, i) => {
+                                                    return (
+                                                        <option value={t} key={i}>
+                                                            {" "}
+                                                            {t}{" "}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
