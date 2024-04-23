@@ -4,20 +4,19 @@ import { Link, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 
-export default function WorkerForms() {
-    const params = useParams();
-    const id = params.id;
+export default function WorkerForms({ worker }) {
     const [form, setForm] = useState(false);
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [workerId, setWorkerId] = useState("");
 
     const getForm = () => {
-        axios.get(`/api/work-contract/${id}`).then((res) => {
+        axios.get(`/api/work-contract/${worker.id}`).then((res) => {
             setContractForm(res.data.form ? true : false);
             setWorkerId(res.data.worker.worker_id);
         });
-        axios.get(`/api/get101/${id}`).then((res) => {
+
+        axios.get(`/api/get101/${worker.id}`).then((res) => {
             if (res.data.form) {
                 setForm(true);
             } else {
@@ -25,7 +24,7 @@ export default function WorkerForms() {
             }
         });
 
-        axios.get(`/api/getSafegear/${id}`).then((res) => {
+        axios.get(`/api/getSafegear/${worker.id}`).then((res) => {
             if (res.data.form) {
                 setSafetyAndGearForm(true);
             } else {
@@ -46,7 +45,6 @@ export default function WorkerForms() {
             aria-labelledby="customer-notes-tab"
         >
             <div
-                key={"contract"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -102,7 +100,6 @@ export default function WorkerForms() {
                 </div>
             </div>
             <div
-                key={"form101"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -143,7 +140,7 @@ export default function WorkerForms() {
                                         target="_blank"
                                         to={
                                             `/form101/` +
-                                            Base64.encode(id.toString())
+                                            Base64.encode(worker.id.toString())
                                         }
                                         className="m-2 m-2 btn btn-pink"
                                     >
@@ -158,7 +155,6 @@ export default function WorkerForms() {
                 </div>
             </div>
             <div
-                key={"safetyandgear"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -199,7 +195,7 @@ export default function WorkerForms() {
                                         target="_blank"
                                         to={
                                             `/worker-safe-gear/` +
-                                            Base64.encode(id.toString())
+                                            Base64.encode(worker.id.toString())
                                         }
                                         className="m-2 m-2 btn btn-pink"
                                     >

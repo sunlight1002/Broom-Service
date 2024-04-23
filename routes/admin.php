@@ -231,7 +231,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
 
     // View Password
-    Route::post('viewpass', [DashboardController::class, 'viewPass'])->name('viewpass');
+    Route::post('viewpass', [DashboardController::class, 'viewPass']);
 
     // ManageTime
     Route::post('update-time', [DashboardController::class, 'updateTime'])->name('update-time');

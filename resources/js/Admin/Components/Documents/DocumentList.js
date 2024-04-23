@@ -1,12 +1,12 @@
 import Moment from "moment";
 const arr = ["visa", "passport"];
 
-const DocumentList = ({ documents, user, handleDelete }) => {
+const DocumentList = ({ documents, worker, handleDelete }) => {
     return (
         <div>
             {arr.map(
                 (a) =>
-                    user[a] && (
+                    worker[a] && (
                         <div
                             key={a}
                             className="card card-widget widget-user-2"
@@ -26,7 +26,7 @@ const DocumentList = ({ documents, user, handleDelete }) => {
                                             className="noteDate"
                                             style={{ fontWeight: "600" }}
                                         >
-                                            {Moment(user.updated_at).format(
+                                            {Moment(worker.updated_at).format(
                                                 "Y"
                                             )}
                                         </span>
@@ -48,10 +48,10 @@ const DocumentList = ({ documents, user, handleDelete }) => {
                                             key={a}
                                         >
                                             <a
-                                                href={`/storage/uploads/documents/${user[a]}`}
+                                                href={`/storage/uploads/documents/${worker[a]}`}
                                                 target={"_blank"}
                                             >
-                                                {user[a]}
+                                                {worker[a]}
                                             </a>
                                         </span>
                                     </div>
