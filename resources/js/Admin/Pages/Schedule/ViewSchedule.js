@@ -31,13 +31,14 @@ export default function ViewSchedule() {
     const [startSlot, setStartSlot] = useState([]);
     const [endSlot, setEndSlot] = useState([]);
     const [interval, setInterval] = useState([]);
-    const [purpose, setPurpose] = useState("");
-    const [purposeText, setPurposeText] = useState(null);
+    const [purpose, setPurpose] = useState("Price offer");
+    const [purposeText, setPurposeText] = useState("");
     const [addresses, setAddresses] = useState([]);
-    const [address, setAddress] = useState(null);
+    const [address, setAddress] = useState("");
     const [availableSlots, setAvailableSlots] = useState([]);
     const [bookedSlots, setBookedSlots] = useState([]);
     const [schedule, setSchedule] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const param = useParams();
     const alert = useAlert();
@@ -77,9 +78,7 @@ export default function ViewSchedule() {
             address_id: address,
         };
 
-        let btn = document.querySelector(".sendBtn");
-        btn.setAttribute("disabled", true);
-        btn.innerHTML = "Sending..";
+        setIsLoading(true);
 
         axios
             .post(`/api/admin/schedule`, data, { headers })
@@ -88,8 +87,7 @@ export default function ViewSchedule() {
                     for (let e in res.data.errors) {
                         alert.error(res.data.errors[e]);
                     }
-                    btn.removeAttribute("disabled");
-                    btn.innerHTML = "Send meeting";
+                    setIsLoading(false);
                 } else {
                     if (res.data.action == "redirect") {
                         window.location = res.data.url;
@@ -100,6 +98,8 @@ export default function ViewSchedule() {
                 }
             })
             .catch((e) => {
+                setIsLoading(false);
+
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -109,9 +109,7 @@ export default function ViewSchedule() {
     };
 
     const createAndSendMeeting = (_scheduleID) => {
-        let btn = document.querySelector(".sendBtn");
-        btn.setAttribute("disabled", true);
-        btn.innerHTML = "Sending..";
+        setIsLoading(true);
 
         axios
             .post(
@@ -122,8 +120,7 @@ export default function ViewSchedule() {
                 }
             )
             .then((res) => {
-                btn.removeAttribute("disabled");
-                btn.innerHTML = "Send meeting";
+                setIsLoading(false);
 
                 if (res.data.errors) {
                     for (let e in res.data.errors) {
@@ -137,6 +134,7 @@ export default function ViewSchedule() {
                 }
             })
             .catch((error) => {
+                setIsLoading(false);
                 if (error.response.data.error.message) {
                     Swal.fire({
                         title: "Error!",
@@ -291,7 +289,14 @@ export default function ViewSchedule() {
                     headers,
                 })
                 .then((response) => {
-                    setAvailableSlots(response.data.available_slots);
+                    setAvailableSlots(
+                        response.data.available_slots.map((i) => {
+                            return {
+                                start_time: i.start_time.slice(0, -3),
+                                end_time: i.end_time.slice(0, -3),
+                            };
+                        })
+                    );
                     setBookedSlots(response.data.booked_slots);
                 })
                 .catch((e) => {
@@ -335,8 +340,8 @@ export default function ViewSchedule() {
 
             const _startTime = moment(_option, "kk:mm");
             const isSlotAvailable = availableSlots.some((slot) => {
-                const _slotStartTime = moment(slot.start, "kk:mm");
-                const _slotEndTime = moment(slot.end, "kk:mm");
+                const _slotStartTime = moment(slot.start_time, "kk:mm");
+                const _slotEndTime = moment(slot.end_time, "kk:mm");
 
                 return (
                     _slotStartTime.isSame(_startTime) ||
@@ -545,7 +550,7 @@ export default function ViewSchedule() {
                                         style={
                                             purpose != "Quality check" &&
                                             purpose != "Price offer" &&
-                                            purpose != null
+                                            purpose != ""
                                                 ? { display: "block" }
                                                 : { display: "none" }
                                         }
@@ -685,7 +690,7 @@ export default function ViewSchedule() {
                                         }}
                                         className="form-control"
                                     >
-                                        <option value="null">
+                                        <option value="">
                                             {t(
                                                 "admin.schedule.options.pleaseSelect"
                                             )}
@@ -706,6 +711,7 @@ export default function ViewSchedule() {
                             <button
                                 className="btn btn-pink sendBtn"
                                 onClick={sendMeeting}
+                                disabled={isLoading}
                             >
                                 {t("admin.schedule.btnSend")}
                             </button>
