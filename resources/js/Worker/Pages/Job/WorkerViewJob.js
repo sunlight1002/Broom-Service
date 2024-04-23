@@ -30,6 +30,7 @@ export default function WorkerViewJob() {
 
     const alert = useAlert();
     const { t } = useTranslation();
+    const [isButtonEnabled, setIsButtonEnabled] = useState(true);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -47,6 +48,7 @@ export default function WorkerViewJob() {
                 setClient(r.client);
                 setWorker(r.worker);
                 setAddress(r.property_address ? r.property_address : {});
+                handleStartTime(res.data.job.start_date);
             })
             .catch((e) => {
                 Swal.fire({
@@ -67,6 +69,19 @@ export default function WorkerViewJob() {
         cbtn.value = "please wait ...";
         setIsOpenChangeJobStatus(true);
     };
+
+    const handleApproveJob = (e) => {
+        e.preventDefault();
+        axios
+            .post(`/api/worker/${worker.id}/jobs/${params.id}/approve`)
+            .then((res) => {
+                getJob();
+                alert.success(res.data.data);
+            })
+            .catch((err) => {
+                alert.error(err.message);
+            });
+    }
 
     const handleOpeningTime = (e) => {
         e.preventDefault();
@@ -223,6 +238,16 @@ export default function WorkerViewJob() {
             });
     };
 
+    const handleStartTime = (start_date) => {
+        const today = new Date();
+        const startDate = new Date(start_date);
+        if (startDate > today) {
+            setIsButtonEnabled(false);
+        } else {
+            setIsButtonEnabled(true);
+        }
+    };
+
     return (
         <div id="container">
             <WorkerSidebar />
@@ -241,12 +266,24 @@ export default function WorkerViewJob() {
                                             </h2>
                                         </div>
 
-                                        {job.job_opening_timestamp === null ? (
+                                        {job.job_opening_timestamp === null && job.worker_approved_at === null ? (
+                                            <div className="col-sm-2 col-6">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleApproveJob}
+                                                    className="btn btn-primary cmbtn"
+                                                >
+                                                    {"Aprroved"}
+                                                </button>
+                                            </div>
+                                        ) : job.job_opening_timestamp === null && job.worker_approved_at !== null ?(
+                                                
                                             <div className="col-sm-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleOpeningTime}
                                                     className="btn btn-success cmbtn"
+                                                    disabled={!isButtonEnabled}
                                                 >
                                                     {t(
                                                         "worker.jobs.view.going_to_start"
