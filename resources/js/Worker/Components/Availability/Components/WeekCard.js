@@ -39,7 +39,6 @@ const WeekCard = ({
                                         {!notAvailableDates.includes(w) && (
                                             <TimeSlot
                                                 clsName={w}
-                                                keyName={_wIndex}
                                                 slots={slots}
                                                 setTimeSlots={setTimeSlots}
                                                 timeSlots={timeSlots}

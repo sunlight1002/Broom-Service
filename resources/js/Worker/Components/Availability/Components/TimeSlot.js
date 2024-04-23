@@ -1,4 +1,4 @@
-import { Fragment, createRef, useRef } from "react";
+import { Fragment, createRef, useEffect, useRef } from "react";
 
 const slotTimeArr = [
     {
@@ -11,14 +11,7 @@ const slotTimeArr = [
     },
 ];
 
-const TimeSlot = ({
-    clsName,
-    keyName,
-    slots,
-    setTimeSlots,
-    timeSlots,
-    isDisabled,
-}) => {
+const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots, isDisabled }) => {
     const elementsRef = useRef(slotTimeArr.map(() => createRef()));
     const handleTimeSlotAdd = () => {
         let flag = true;
@@ -56,7 +49,7 @@ const TimeSlot = ({
     };
 
     return (
-        <div className={clsName} key={keyName}>
+        <div className={clsName}>
             {!isDisabled && (
                 <div className="d-flex flex-row bd-highlight align-content-center align-items-center justify-content-center">
                     <div className="d-flex flex-column bd-highlight mb-3 align-content-center flex-wrap align-items-center">

@@ -84,7 +84,7 @@ class JobController extends Controller
             'status' => 'declined'
         ]);
 
-        $admin = Admin::find(1)->first();
+        $admin = Admin::where('role', 'admin')->first();
         App::setLocale('en');
         $data = array(
             'by'         => 'client',
@@ -184,7 +184,6 @@ class JobController extends Controller
         $admins = Admin::where('role', 'admin')->get();
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-
         foreach ($admins as $key => $admin) {
             // App::setLocale($admin->lng);
 

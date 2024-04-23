@@ -475,6 +475,7 @@ class JobController extends Controller
                             'job' => $job->toArray(),
                             'start_time' => $mergedContinuousTime[0]['starting_at'],
                             'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                            'content_data'  => __('mail.worker_new_job.new_job_assigned'),
                         );
                         Helper::sendJobWANotification($emailData);
                         Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
@@ -1029,6 +1030,7 @@ class JobController extends Controller
                 'email' => $job['worker']['email'],
                 'job'  => $job->toArray(),
                 'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.new_job_assigned'),
             );
             Helper::sendJobWANotification($data);
             Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
@@ -1188,6 +1190,7 @@ class JobController extends Controller
                 'email' => $jobArray['worker']['email'],
                 'job'  => $jobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
             Helper::sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
@@ -1210,6 +1213,7 @@ class JobController extends Controller
                 'email' => $otherJobArray['worker']['email'],
                 'job'  => $otherJobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
             Helper::sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {

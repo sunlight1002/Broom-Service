@@ -170,9 +170,10 @@ class JobController extends Controller
 
     public function getAvailability()
     {
-        $worker_availabilities = WorkerAvailability::query()
-            ->where('user_id', Auth::user()->id)
-            ->orderBy('id', 'asc')
+        $worker = Auth::user();
+
+        $worker_availabilities = $worker->availabilities()
+            ->orderBy('date', 'asc')
             ->get(['date', 'start_time', 'end_time']);
 
         $availabilities = [];
@@ -182,13 +183,22 @@ class JobController extends Controller
             });
         }
 
+        $default_availabilities = $worker->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['start_time', 'end_time', 'until_date']);
+
         return response()->json([
-            'availability' => $availabilities,
+            'availability' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
         ]);
     }
 
     public function updateAvailability(Request $request)
     {
+        $worker = Auth::user();
+
         $isMondayPassed = Carbon::today()->weekday() > Carbon::MONDAY;
 
         $data = $request->all();
@@ -199,8 +209,7 @@ class JobController extends Controller
             $firstEditDate = Carbon::today()->addWeek()->startOfWeek(Carbon::SUNDAY);
         }
 
-        WorkerAvailability::query()
-            ->where('user_id', Auth::user()->id)
+        $worker->availabilities()
             ->whereDate('date', '>=', $firstEditDate->toDateString())
             ->delete();
 
@@ -217,6 +226,18 @@ class JobController extends Controller
                         'status' => '1',
                     ]);
                 }
+            }
+        }
+
+        $worker->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $key => $timeSlot) {
+                $worker->defaultAvailabilities()->create([
+                    'start_time' => $timeSlot['start_time'],
+                    'end_time' => $timeSlot['end_time'],
+                    'until_date' => $data['default']['until_date'],
+                ]);
             }
         }
 
@@ -296,7 +317,7 @@ class JobController extends Controller
                 'status' => 'going to start'
             ]);
 
-            $admin = Admin::first();
+            $admin = Admin::where('role', 'admin')->first();
             App::setLocale('en');
             $data = array(
                 'email'      => $admin->email,

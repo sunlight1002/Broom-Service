@@ -34,8 +34,8 @@ class SendJobNotApprovedNotification
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
-            ->get(['name', 'email', 'id']);
-
+            ->get(['name', 'email', 'id', 'phone']);
+        
         foreach ($admins as $key => $admin) {
             $emailData = array(
                 'admin' => $admin->toArray(),
