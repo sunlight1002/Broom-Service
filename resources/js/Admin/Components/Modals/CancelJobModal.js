@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
-        fee: "50",
+        fee: "0",
         repeatancy: "",
         until_date: null,
     });
@@ -55,6 +55,18 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             });
     };
 
+    const handleFeeChange = (_value) => {
+        if (formValues.fee == _value) {
+            setFormValues((values) => {
+                return { ...values, fee: "0" };
+            });
+        } else {
+            setFormValues((values) => {
+                return { ...values, fee: _value };
+            });
+        }
+    };
+
     useEffect(() => {
         setMinUntilDate(
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
@@ -90,38 +102,13 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                             <div className="form-check">
                                 <input
                                     className="form-check-input"
-                                    type="radio"
-                                    name="fee"
-                                    id="fee0"
-                                    value={0}
-                                    checked={formValues.fee == 0}
-                                    onChange={(e) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            fee: e.target.value,
-                                        });
-                                    }}
-                                />
-                                <label
-                                    className="form-check-label"
-                                    htmlFor="fee0"
-                                >
-                                    0%
-                                </label>
-                            </div>
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="radio"
+                                    type="checkbox"
                                     name="fee"
                                     id="fee50"
                                     value={50}
                                     checked={formValues.fee == 50}
                                     onChange={(e) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            fee: e.target.value,
-                                        });
+                                        handleFeeChange(e.target.value);
                                     }}
                                 />
                                 <label
@@ -134,16 +121,13 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                             <div className="form-check">
                                 <input
                                     className="form-check-input"
-                                    type="radio"
+                                    type="checkbox"
                                     name="fee"
                                     id="fee100"
                                     value={100}
                                     checked={formValues.fee == 100}
                                     onChange={(e) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            fee: e.target.value,
-                                        });
+                                        handleFeeChange(e.target.value);
                                     }}
                                 />
                                 <label

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
@@ -6,6 +6,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 import { filterShiftOptions } from "../../../Utils/job.utils";
 
@@ -18,11 +19,13 @@ export default function ChangeWorkerCalender({ job }) {
     const [interval, setTimeInterval] = useState([]);
     const [data, setData] = useState([]);
     const [formValues, setFormValues] = useState({
+        fee: "0",
         repeatancy: "one_time",
         until_date: null,
     });
     const [minUntilDate, setMinUntilDate] = useState(null);
 
+    const { t } = useTranslation();
     const flatpickrRef = useRef(null);
 
     const headers = {
@@ -82,6 +85,11 @@ export default function ChangeWorkerCalender({ job }) {
 
         if (formValues.repeatancy == "until_date" && !formValues.until_date) {
             alert.error("The Until Date is missing");
+            return false;
+        }
+
+        if (!formValues.fee) {
+            alert.error("The fee is missing");
             return false;
         }
 
@@ -264,6 +272,22 @@ export default function ChangeWorkerCalender({ job }) {
 
         return false;
     };
+
+    const handleFeeChange = (_value) => {
+        if (formValues.fee == _value) {
+            setFormValues((values) => {
+                return { ...values, fee: "0" };
+            });
+        } else {
+            setFormValues((values) => {
+                return { ...values, fee: _value };
+            });
+        }
+    };
+
+    const feeInAmount = useMemo(() => {
+        return job.offer.total * (formValues.fee / 100);
+    }, [formValues.fee]);
 
     return (
         <>
@@ -1027,6 +1051,73 @@ export default function ChangeWorkerCalender({ job }) {
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="offset-sm-4 col-sm-4">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t(
+                                                "admin.schedule.jobs.CancelModal.CancellationFee"
+                                            )}
+                                        </label>
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                name="fee"
+                                                id="fee50"
+                                                value={50}
+                                                checked={formValues.fee == 50}
+                                                onChange={(e) => {
+                                                    handleFeeChange(
+                                                        e.target.value
+                                                    );
+                                                }}
+                                                style={{ height: "unset" }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="fee50"
+                                            >
+                                                50%
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                name="fee"
+                                                id="fee100"
+                                                value={100}
+                                                checked={formValues.fee == 100}
+                                                onChange={(e) => {
+                                                    handleFeeChange(
+                                                        e.target.value
+                                                    );
+                                                }}
+                                                style={{ height: "unset" }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="fee100"
+                                            >
+                                                100%
+                                            </label>
+                                        </div>
+
+                                        {feeInAmount > 0 ? (
+                                            <p>
+                                                {feeInAmount} ILS will be
+                                                charged.
+                                            </p>
+                                        ) : (
+                                            <p>
+                                                {t(
+                                                    "admin.schedule.jobs.CancelModal.NoCharge"
+                                                )}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="modal-footer">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
@@ -273,6 +273,17 @@ export default function ChangeWorkerCalender({ job }) {
 
         return false;
     };
+
+    const feeInAmount = useMemo(() => {
+        const diffInDays = moment(job.start_date).diff(
+            moment().startOf("day"),
+            "days"
+        );
+
+        const _feePercentage = diffInDays >= 1 ? 50 : 100;
+
+        return job.offer.total * (_feePercentage / 100);
+    }, [job]);
 
     return (
         <>
@@ -974,6 +985,11 @@ export default function ChangeWorkerCalender({ job }) {
 
                             <div className="row">
                                 <div className="offset-sm-4 col-sm-4">
+                                    <p className="mb-4">
+                                        Cancellation fee of {feeInAmount} ILS
+                                        will be charged.
+                                    </p>
+
                                     <div className="form-group">
                                         <label className="control-label">
                                             Repeatancy
