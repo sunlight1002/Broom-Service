@@ -29,6 +29,7 @@ class User extends Authenticatable
         'worker_id',
         'lng',
         'skill',
+        'company_type',
         'status',
         'passcode',
         'password',

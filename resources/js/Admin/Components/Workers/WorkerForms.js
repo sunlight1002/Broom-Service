@@ -11,7 +11,6 @@ export default function WorkerForms() {
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [workerId, setWorkerId] = useState("");
-    
 
     const getForm = () => {
         axios.get(`/api/work-contract/${id}`).then((res) => {
@@ -25,7 +24,7 @@ export default function WorkerForms() {
                 setForm(false);
             }
         });
-        
+
         axios.get(`/api/getSafegear/${id}`).then((res) => {
             if (res.data.form) {
                 setSafetyAndGearForm(true);
@@ -65,7 +64,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Contract
+                                Contract
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -75,7 +74,7 @@ export default function WorkerForms() {
                                         Signed
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -83,20 +82,21 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {contractForm && workerId ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/worker-contract/` + Base64.encode(workerId)}
-                                            className="m-2 btn btn-pink"
-                                        >
-                                            View Contract
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/worker-contract/` +
+                                            Base64.encode(workerId)
+                                        }
+                                        className="m-2 btn btn-pink"
+                                    >
+                                        View Contract
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Form 101
+                                Form 101
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -130,7 +130,7 @@ export default function WorkerForms() {
                                         Signed{" "}
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -138,20 +138,21 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {form ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/form101/` + Base64.encode(id.toString())}
-                                            className="m-2 m-2 btn btn-pink"
-                                        >
-                                            View Form
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/form101/` +
+                                            Base64.encode(id.toString())
+                                        }
+                                        className="m-2 m-2 btn btn-pink"
+                                    >
+                                        View Form
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -175,7 +176,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Safety and Gear
+                                Safety and Gear
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -185,7 +186,7 @@ export default function WorkerForms() {
                                         Signed
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -193,20 +194,21 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {safetyAndGearForm ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/worker-safe-gear/` + Base64.encode(id.toString())}
-                                            className="m-2 m-2 btn btn-pink"
-                                        >
-                                            View Safety and Gear Form
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/worker-safe-gear/` +
+                                            Base64.encode(id.toString())
+                                        }
+                                        className="m-2 m-2 btn btn-pink"
+                                    >
+                                        View Safety and Gear Form
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>
