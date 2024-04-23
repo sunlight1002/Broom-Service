@@ -744,8 +744,8 @@ const Form101Component = () => {
                 <p className="text-center max600">
                     {t("form101.declare_week")}
                 </p>
-                <hr />
-                <div className="agg-list">
+                {/* <hr /> */}
+                {/* <div className="agg-list">
                     <div className="icons">
                         <img src={check} />
                     </div>
@@ -792,7 +792,7 @@ const Form101Component = () => {
                     <div className="agg-text">
                         <p>{t("form101.notes_6")}</p>
                     </div>
-                </div>
+                </div> */}
                 <div className="box-heading">
                     <h2>{t("form101.texYearTitle")}</h2>
                     <p>
