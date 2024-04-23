@@ -154,6 +154,8 @@ class ScheduleController extends Controller
         } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
+            $this->sendMeetingMail($schedule);
+
             $this->saveGoogleCalendarEvent($schedule);
 
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
@@ -164,8 +166,6 @@ class ScheduleController extends Controller
                     'status' => $schedule->booking_status
                 ]);
             }
-
-            $this->sendMeetingMail($schedule);
 
             return response()->json([
                 'data' => $schedule,

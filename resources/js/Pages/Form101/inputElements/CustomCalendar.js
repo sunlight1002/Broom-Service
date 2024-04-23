@@ -23,7 +23,14 @@ const CustomCalendar = ({ meeting }) => {
         axios
             .get(`/api/teams/availability/${meeting.team_id}/date/${_date}`)
             .then((response) => {
-                setAvailableSlots(response.data.available_slots);
+                setAvailableSlots(
+                    response.data.available_slots.map((i) => {
+                        return {
+                            start_time: i.start_time.slice(0, -3),
+                            end_time: i.end_time.slice(0, -3),
+                        };
+                    })
+                );
                 setBookedSlots(response.data.booked_slots);
             })
             .catch((e) => {
@@ -59,8 +66,8 @@ const CustomCalendar = ({ meeting }) => {
 
             const _startTime = moment(_option, "kk:mm");
             const isSlotAvailable = availableSlots.some((slot) => {
-                const _slotStartTime = moment(slot.start, "kk:mm");
-                const _slotEndTime = moment(slot.end, "kk:mm");
+                const _slotStartTime = moment(slot.start_time, "kk:mm");
+                const _slotEndTime = moment(slot.end_time, "kk:mm");
 
                 return (
                     _slotStartTime.isSame(_startTime) ||

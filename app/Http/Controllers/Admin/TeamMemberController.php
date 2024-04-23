@@ -167,50 +167,79 @@ class TeamMemberController extends Controller
         ]);
     }
 
-    public function updateAvailability(Request $request)
+    public function updateAvailability(Request $request, $id)
     {
-        $data = $request->all();
-        $time_slots = $data['time_slots'];
-        $team_id = $data['teamId'];
-        try {
-            TeamMemberAvailability::updateOrCreate([
-                'team_member_id' => $team_id,
-            ], [
-                'time_slots' => $time_slots
-            ]);
+        $teamMember = Admin::find($id);
 
-            return response()->json([
-                'message' => 'Availability updated successfully'
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Error'
-            ], 500);
+        $data = $request->all();
+
+        $teamMember->availabilities()->delete();
+
+        foreach ($data['time_slots'] as $key => $availabilties) {
+            $date = trim($key);
+
+            foreach ($availabilties as $key => $availabilty) {
+                TeamMemberAvailability::create([
+                    'team_member_id' => $id,
+                    'date' => $date,
+                    'start_time' => $availabilty['start_time'],
+                    'end_time' => $availabilty['end_time'],
+                    'status' => '1',
+                ]);
+            }
         }
+
+        $teamMember->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $key => $timeSlot) {
+                $teamMember->defaultAvailabilities()->create([
+                    'start_time' => $timeSlot['start_time'],
+                    'end_time' => $timeSlot['end_time'],
+                    'until_date' => $data['default']['until_date'],
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Availability updated successfully'
+        ]);
     }
 
     public function availability($id)
     {
-        $availArr = TeamMemberAvailability::select('time_slots')->where('team_member_id', $id)->first();
+        $teamMember = Admin::find($id);
+
+        $team_member_availabilities = $teamMember->availabilities()
+            ->orderBy('date', 'asc')
+            ->get(['date', 'start_time', 'end_time']);
+
+        $availabilities = [];
+        foreach ($team_member_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
+        }
+
+        $default_availabilities = $teamMember->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['start_time', 'end_time', 'until_date']);
+
         return response()->json([
-            'data' => $availArr
+            'data' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
         ]);
     }
 
     public function availabilityByDate($id, $date)
     {
-        $availArr = TeamMemberAvailability::select('time_slots')->where('team_member_id', $id)->first();
+        $teamMember = Admin::find($id);
 
-        $timeSlot = json_decode($availArr->time_slots, true);
-        $availableSlots = isset($timeSlot[$date]) ? $timeSlot[$date] : [];
-
-        $availableSlots24Hrs = [];
-        foreach ($availableSlots as $key => $value) {
-            $availableSlots24Hrs[] = [
-                'start' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[0])->format('H:i'),
-                'end' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[1])->format('H:i'),
-            ];
-        }
+        $available_slots = $teamMember->availabilities()
+            ->whereDate('date', $date)
+            ->get(['start_time', 'end_time']);
 
         $bookedSlots = Schedule::query()
             ->whereDate('start_date', $date)
@@ -225,7 +254,7 @@ class TeamMemberController extends Controller
 
         return response()->json([
             'booked_slots' => $bookedSlots,
-            'available_slots' => $availableSlots24Hrs
+            'available_slots' => $available_slots
         ]);
     }
 }

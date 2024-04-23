@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Schedule;
 use App\Models\TeamMemberAvailability;
 use Carbon\Carbon;
@@ -12,18 +13,11 @@ class MeetingController extends Controller
 {
     public function availabilityByDate($id, $date)
     {
-        $availArr = TeamMemberAvailability::select('time_slots')->where('team_member_id', $id)->first();
+        $teamMember = Admin::find($id);
 
-        $timeSlot = json_decode($availArr->time_slots, true);
-        $availableSlots = isset($timeSlot[$date]) ? $timeSlot[$date] : [];
-
-        $availableSlots24Hrs = [];
-        foreach ($availableSlots as $key => $value) {
-            $availableSlots24Hrs[] = [
-                'start' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[0])->format('H:i'),
-                'end' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[1])->format('H:i'),
-            ];
-        }
+        $available_slots = $teamMember->availabilities()
+            ->whereDate('date', $date)
+            ->get(['start_time', 'end_time']);
 
         $bookedSlots = Schedule::query()
             ->whereDate('start_date', $date)
@@ -38,7 +32,7 @@ class MeetingController extends Controller
 
         return response()->json([
             'booked_slots' => $bookedSlots,
-            'available_slots' => $availableSlots24Hrs
+            'available_slots' => $available_slots
         ]);
     }
 }

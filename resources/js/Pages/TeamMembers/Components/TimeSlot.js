@@ -10,7 +10,8 @@ const slotTimeArr = [
         key: "end_time",
     },
 ];
-const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
+
+const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
     const elementsRef = useRef(slotTimeArr.map(() => createRef()));
     const handleTimeSlotAdd = () => {
         let flag = true;
@@ -27,11 +28,18 @@ const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
             alert("Please add start & end time!");
             return false;
         }
+
+        const _time = {
+            start_time: time[0],
+            end_time: time[1],
+        };
+
         setTimeSlots((state) => ({
             ...state,
-            [clsName]: state[clsName] ? [...state[clsName], time] : [time],
+            [clsName]: state[clsName] ? [...state[clsName], _time] : [_time],
         }));
     };
+
     const handleTimeSlotRemove = (w, indexId) => {
         const removedSlots = [...timeSlots[w]].filter((t, i) => i !== indexId);
         setTimeSlots((state) => ({
@@ -39,8 +47,9 @@ const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
             [w]: removedSlots,
         }));
     };
+
     return (
-        <div className={clsName} key={keyName}>
+        <div className={clsName}>
             <div className="d-flex flex-row bd-highlight align-content-center align-items-center justify-content-center">
                 <div className="d-flex flex-column bd-highlight mb-3 align-content-center flex-wrap align-items-center">
                     {slotTimeArr.map((s, index) => (
@@ -84,7 +93,9 @@ const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
                                         className="btn-check"
                                     />
                                     <span className={"forcustom"}>
-                                        <label>{t[0] + "-" + t[1]}</label>
+                                        <label>
+                                            {t.start_time + "-" + t.end_time}
+                                        </label>
                                     </span>
                                 </label>
                                 <button

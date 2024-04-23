@@ -154,7 +154,7 @@ class WorkerController extends Controller
     {
         $worker_availabilities = [];
         foreach ($availabilities->groupBy('date') as $date => $times) {
-            $worker_availabilities[$date] = $times->map(function($item, $key) {
+            $worker_availabilities[$date] = $times->map(function ($item, $key) {
                 return $item->only(['start_time', 'end_time']);
             });
         }
@@ -361,9 +361,11 @@ class WorkerController extends Controller
 
     public function updateAvailability(Request $request, $id)
     {
+        $worker = User::find($id);
+
         $data = $request->all();
 
-        WorkerAvailability::where('user_id', $id)->delete();
+        $worker->availabilities()->delete();
 
         foreach ($data['time_slots'] as $key => $availabilties) {
             $date = trim($key);
@@ -379,6 +381,18 @@ class WorkerController extends Controller
             }
         }
 
+        $worker->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $key => $timeSlot) {
+                $worker->defaultAvailabilities()->create([
+                    'start_time' => $timeSlot['start_time'],
+                    'end_time' => $timeSlot['end_time'],
+                    'until_date' => $data['default']['until_date'],
+                ]);
+            }
+        }
+
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
@@ -386,9 +400,10 @@ class WorkerController extends Controller
 
     public function getWorkerAvailability($id)
     {
-        $worker_availabilities = WorkerAvailability::query()
-            ->where('user_id', $id)
-            ->orderBy('id', 'asc')
+        $worker = User::find($id);
+
+        $worker_availabilities = $worker->availabilities()
+            ->orderBy('date', 'asc')
             ->get(['date', 'start_time', 'end_time']);
 
         $availabilities = [];
@@ -398,8 +413,15 @@ class WorkerController extends Controller
             });
         }
 
+        $default_availabilities = $worker->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['start_time', 'end_time', 'until_date']);
+
         return response()->json([
-            'data' => $availabilities,
+            'data' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
         ]);
     }
 

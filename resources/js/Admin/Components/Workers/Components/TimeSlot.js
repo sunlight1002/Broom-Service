@@ -10,7 +10,7 @@ const slotTimeArr = [
         key: "end_time",
     },
 ];
-const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
+const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
     const elementsRef = useRef(slotTimeArr.map(() => createRef()));
     const handleTimeSlotAdd = () => {
         let flag = true;
@@ -46,7 +46,7 @@ const TimeSlot = ({ clsName, keyName, slots, setTimeSlots, timeSlots }) => {
         }));
     };
     return (
-        <div className={clsName} key={keyName}>
+        <div className={clsName}>
             <div className="d-flex flex-row bd-highlight align-content-center align-items-center justify-content-center">
                 <div className="d-flex flex-column bd-highlight mb-3 align-content-center flex-wrap align-items-center">
                     {slotTimeArr.map((s, index) => (

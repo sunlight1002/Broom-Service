@@ -140,7 +140,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
-    Route::post('teams/update-availability', [TeamMemberController::class, 'updateAvailability']);
+    Route::post('teams/{id}/availability', [TeamMemberController::class, 'updateAvailability']);
     Route::get('teams/availability/{id}', [TeamMemberController::class, 'availability']);
     Route::get('teams/availability/{id}/date/{date}', [TeamMemberController::class, 'availabilityByDate']);
 

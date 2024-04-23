@@ -63,13 +63,13 @@ export default function WorkerSidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/schedule">
-                        <i className="fa-solid fa-clipboard-list"></i>
+                        <i className="fa-solid fa-calendar-days"></i>
                         {t("worker.sidebar.schedule")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/not-available">
-                        <i className="fa-solid fa-clipboard-list"></i>
+                        <i className="fa-solid fa-calendar-xmark"></i>
                         {t("worker.sidebar.not_available")}
                     </NavLink>
                 </li>
