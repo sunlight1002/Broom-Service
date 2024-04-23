@@ -38,16 +38,16 @@ class SendWorkerFormsNotification
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
 
-            // if (!empty($workerArr['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::FORM101,
-            //         "notificationData" => $workerArr
-            //     ]));
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
-            //         "notificationData" => $workerArr
-            //     ]));
-            // }
+            if (!empty($workerArr['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FORM101,
+                    "notificationData" => $workerArr
+                ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
+                    "notificationData" => $workerArr
+                ]));
+            }
 
             Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
                 $messages->to($workerArr['email']);
