@@ -11,23 +11,25 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    public function documents(request $request, $id)
+    public function documents($id)
     {
-        $userWithDoc = User::query()
-            ->where('id', $id)
-            ->with(['documents','documents.document_type' => function ($query) {
-                return $query->select(['id','name']);
-            }])->first();
+        $worker = User::find($id);
+
+        $documents = $worker->documents()
+            ->with(['document_type' => function ($query) {
+                return $query->select(['id', 'name']);
+            }])
+            ->get();
 
         return response()->json([
-            'user' => $userWithDoc
+            'documents' => $documents
         ]);
     }
     public function save(Request $request)
     {
         $data = $request->all();
         $user = User::find($data['id']);
-        if( $request->file('visa') ||  $request->file('passport')){
+        if ($request->file('visa') ||  $request->file('passport')) {
             $visa_file = $request->file('visa');
             if ($request->hasFile('visa')) {
                 if (!Storage::disk('public')->exists('uploads/documents')) {
@@ -37,7 +39,7 @@ class DocumentController extends Controller
                 if (Storage::disk('public')->putFileAs("uploads/documents", $visa_file, $tmp_file_name)) {
                     $user->visa = $tmp_file_name;
                     $user->save();
-                }           
+                }
             }
             $pasport_file = $request->file('passport');
             if ($request->hasFile('passport')) {
@@ -48,9 +50,9 @@ class DocumentController extends Controller
                 if (Storage::disk('public')->putFileAs("uploads/documents", $pasport_file, $tmp_file_name)) {
                     $user->passport = $tmp_file_name;
                     $user->save();
-                }           
+                }
             }
-        }else{
+        } else {
             $validator = Validator::make($request->all(), [
                 'id'        => ['required'],
                 'doc_id'    => ['required'],
@@ -58,11 +60,11 @@ class DocumentController extends Controller
             ], [], [
                 'doc_id'    => 'Document type',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->messages()]);
             }
-    
+
             $file = $request->file('file');
             $file_name = '';
             if ($request->hasFile('file')) {
@@ -72,8 +74,8 @@ class DocumentController extends Controller
                 $tmp_file_name = $user->id . "_" . date('s') . "_" . $file->getClientOriginalName();
                 if (Storage::disk('public')->putFileAs("uploads/documents", $file, $tmp_file_name)) {
                     $file_name = $tmp_file_name;
-                }           
-            }        
+                }
+            }
             $user->documents()->create([
                 'document_type_id' => $data['doc_id'],
                 'file' => $file_name,
@@ -83,21 +85,21 @@ class DocumentController extends Controller
         return response()->json([
             'message' => 'Document has been created successfully!'
         ]);
-    }    
+    }
     public function remove($id, $user_id)
     {
-        if(in_array($id, ['visa', 'passport'])){
+        if (in_array($id, ['visa', 'passport'])) {
             $userobj = User::find($user_id);
-            if(!empty($userobj)){
+            if (!empty($userobj)) {
                 if (Storage::drive('public')->exists('uploads/documents/' . $userobj->file)) {
                     Storage::drive('public')->delete('uploads/documents/' . $userobj->file);
                 }
                 $userobj->$id = null;
                 $userobj->save();
             }
-        }else{
+        } else {
             $docObj = Document::find($id);
-            if(!empty($docObj)){
+            if (!empty($docObj)) {
                 if (Storage::drive('public')->exists('uploads/documents/' . $docObj->file)) {
                     Storage::drive('public')->delete('uploads/documents/' . $docObj->file);
                 }
@@ -115,5 +117,5 @@ class DocumentController extends Controller
         return response()->json([
             'documentTypes' => $documentTypes
         ]);
-    }    
+    }
 }

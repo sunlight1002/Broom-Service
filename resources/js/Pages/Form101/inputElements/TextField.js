@@ -9,6 +9,7 @@ export default function TextField({
     onBlur,
     error,
     required,
+    readonly,
 }) {
     return (
         <div className="text-start form-group">
@@ -24,6 +25,7 @@ export default function TextField({
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
+                readOnly={readonly}
             />
             <p className="text-danger">{error}</p>
         </div>

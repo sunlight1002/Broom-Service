@@ -1,23 +1,23 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import DocumentList from "../Documents/DocumentList";
 import DocumentModal from "../Documents/DocumentModal";
 
-export default function Document() {
-    const param = useParams();
+export default function Document({ worker }) {
+    const [alldocumentTypes, setAllDocumentTypes] = useState([]);
+    const [documents, setDocuments] = useState({});
+    const [isOpenDocumentModal, setIsOpenDocumentModal] = useState(false);
+
     const alert = useAlert();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    const [isDocToggle, setIsDocToggle] = useState(false);
-    const [alldocumentTypes, setAllDocumentTypes] = useState([]);
-    const [documentTypes, setDocumentTypes] = useState([]);
-    const [user, setUser] = useState({});
 
     const handleDelete = (e, id) => {
         e.preventDefault();
@@ -32,7 +32,7 @@ export default function Document() {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`/api/admin/document/remove/${id}/${param.id}`, {
+                    .delete(`/api/admin/document/remove/${id}/${worker.id}`, {
                         headers,
                     })
                     .then((response) => {
@@ -51,11 +51,9 @@ export default function Document() {
 
     const getDocuments = () => {
         axios
-            .get(`/api/admin/documents/${parseInt(param.id)}`, { headers })
-            .then((res) => {
-                if (res.data && res.data.user) {
-                    setUser(res.data.user);
-                }
+            .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
+            .then((response) => {
+                setDocuments(response.data.documents);
             });
     };
 
@@ -63,7 +61,6 @@ export default function Document() {
         axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
                 setAllDocumentTypes(res.data.documentTypes);
-                setDocumentTypes(res.data.documentTypes);
             }
         });
     };
@@ -73,38 +70,25 @@ export default function Document() {
         getDocumentTypes();
     }, []);
 
-    const handleDocToggle = () => {
-        if (!isDocToggle) {
-            if (
-                user.country !== "Israel" &&
-                (!user.visa ||
-                    !user.passport ||
-                    user.visa === "" ||
-                    user.passport === "")
-            ) {
-                alert.error("Please add required document : visa & passport");
-                return;
-            }
-
-            if (user.country !== "Israel") {
-                setDocumentTypes(
-                    alldocumentTypes.filter(
-                        (i) =>
-                            !["pension-form", "training-fund-form"].includes(
-                                i.slug
-                            )
-                    )
-                );
-            } else {
-                setDocumentTypes(alldocumentTypes);
-            }
+    const handleAddDocument = () => {
+        if (
+            worker.country !== "Israel" &&
+            (!worker.visa ||
+                !worker.passport ||
+                worker.visa === "" ||
+                worker.passport === "")
+        ) {
+            alert.error("Please add required document : visa & passport");
+            return;
         }
-        setIsDocToggle((prev) => !prev);
+
+        setIsOpenDocumentModal(true);
     };
 
     const handleDocSubmit = (data) => {
         save(data);
     };
+
     const save = (data) => {
         axios
             .post(`/api/admin/document/save`, data, { headers })
@@ -114,39 +98,59 @@ export default function Document() {
                         alert.error(res.data.errors[e][0]);
                     }
                 } else {
-                    if (isDocToggle) {
-                        handleDocToggle();
-                    }
                     alert.success(res.data.message);
                     getDocuments();
+                    setIsOpenDocumentModal(false);
                 }
             })
             .catch((err) => {
                 alert.error("Error!");
             });
     };
+
     const handleFileChange = (e, type) => {
         const data = new FormData();
-        data.append("id", param.id);
+        data.append("id", worker.id);
         if (e.target.files.length > 0) {
             data.append(`${type}`, e.target.files[0]);
         }
         save(data);
     };
+
     const btnSelect = (type) => {
         document.getElementById(`${type}`).click();
     };
+
+    const documentTypes = useMemo(() => {
+        if (worker.company_type === "my-company") {
+            if (worker.country === "Israel") {
+                return alldocumentTypes.filter((i) => i.slug !== "israeli-id");
+            } else {
+                return alldocumentTypes.filter((i) => i.slug === "payslip");
+            }
+        } else {
+            if (worker.country === "Israel") {
+                return alldocumentTypes.filter(
+                    (i) => !["payslip", "israeli-id"].includes(i.slug)
+                );
+            } else {
+            }
+        }
+
+        return alldocumentTypes;
+    }, [worker, alldocumentTypes]);
+
     return (
         <div
             className="tab-pane fade active show"
-            id="customer-notes"
+            id="customer-documents"
             role="tabpanel"
-            aria-labelledby="customer-notes-tab"
+            aria-labelledby="customer-documents-tab"
         >
             <div className="text-right pb-3">
-                {user.country !== "Israel" && (
+                {worker.country !== "Israel" && (
                     <>
-                        {user.visa === null && (
+                        {worker.visa === null && (
                             <>
                                 <button
                                     type="button"
@@ -166,7 +170,7 @@ export default function Document() {
                                 ></input>
                             </>
                         )}
-                        {user.passport === null && (
+                        {worker.passport === null && (
                             <>
                                 <button
                                     type="button"
@@ -190,21 +194,21 @@ export default function Document() {
                 )}
                 <button
                     type="button"
-                    onClick={() => handleDocToggle()}
+                    onClick={() => handleAddDocument()}
                     className="btn btn-success m-3"
                 >
                     Add Document
                 </button>
             </div>
             <DocumentList
-                documents={user.documents}
-                user={user}
+                documents={documents}
+                worker={worker}
                 handleDelete={handleDelete}
             />
-            {isDocToggle && (
+            {isOpenDocumentModal && (
                 <DocumentModal
-                    isDocToggle={isDocToggle}
-                    handleDocToggle={handleDocToggle}
+                    isOpen={isOpenDocumentModal}
+                    setIsOpen={setIsOpenDocumentModal}
                     handleDocSubmit={handleDocSubmit}
                     docTypes={documentTypes}
                 />

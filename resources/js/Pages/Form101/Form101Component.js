@@ -129,7 +129,7 @@ const initialValues = {
     date: "",
     sender: {
         employeeEmail: "",
-        employerEmail: "",
+        employerEmail: "office@broomservice.co.il",
     },
     signature: "",
 };
@@ -663,8 +663,10 @@ const Form101Component = () => {
         setFieldValue("signature", "");
     };
     useEffect(() => {
+        setFieldValue("sender.employerEmail","office@broomservice.co.il");
         getForm();
     }, []);
+
     const disableInputs = () => {
         // Disable inputs within the div with the id "targetDiv"
         const inputs = document.querySelectorAll(".targetDiv input ");
@@ -676,14 +678,27 @@ const Form101Component = () => {
             select.disabled = true;
         });
     };
+
     const getForm = () => {
         axios.get(`/api/get101/${id}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
+            console.log(res.data);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
                 document.querySelector("html").setAttribute("dir", "rtl");
             } else {
                 document.querySelector("html").removeAttribute("dir");
+            }
+            if (res.data.worker){
+                const worker = res.data.worker;
+                setFieldValue("employeeFirstName",worker.firstname);
+                setFieldValue("employeeLastName",worker.lastname);
+                setFieldValue("employeeMobileNo",worker.phone);
+                const workerGender = worker.gender;
+                const gender= workerGender.charAt(0).toUpperCase() + workerGender.slice(1)
+                setFieldValue("employeeEmail",worker.email);
+                setFieldValue("sender.employeeEmail",worker.email);
+                setFieldValue("employeeSex",gender);
             }
             if (res.data.form) {
                 setFormValues(res.data.form);
@@ -930,6 +945,7 @@ const Form101Component = () => {
                                 value={values.sender.employerEmail}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
+                                readonly={true}
                                 error={
                                     touched.sender &&
                                     errors.sender &&
@@ -946,6 +962,7 @@ const Form101Component = () => {
                                 value={values.sender.employeeEmail}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
+                                readonly={true}
                                 error={
                                     touched.sender &&
                                     errors.sender &&

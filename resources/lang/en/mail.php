@@ -22,7 +22,7 @@ return [
         'tel'         => 'Telephone',
         'price_offer' => 'Price offer',
         'quality_check' => 'Quality check',
-        'upload_meeting_files' => 'Upload meeting files',
+        'upload_job_description' => 'Upload Job Description',
         'address_txt' => 'Address',
         'choose_slot' => 'Choose slot'
     ],

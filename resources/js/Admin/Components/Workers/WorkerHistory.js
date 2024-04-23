@@ -7,14 +7,15 @@ import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
 
-export default function WorkerHistory() {
-    const params = useParams();
+export default function WorkerHistory({ worker }) {
     const [interval, setTimeInterval] = useState([]);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
@@ -28,6 +29,7 @@ export default function WorkerHistory() {
             }
         });
     };
+
     useEffect(() => {
         getTime();
     }, []);
@@ -70,19 +72,22 @@ export default function WorkerHistory() {
                     >
                         Past Job
                     </a>
-                </li>                
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-forms"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-forms"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        Forms
-                    </a>
                 </li>
+                {worker.country === "Israel" &&
+                    worker.company_type === "my-company" && (
+                        <li className="nav-item" role="presentation">
+                            <a
+                                id="worker-forms"
+                                className="nav-link"
+                                data-toggle="tab"
+                                href="#tab-worker-forms"
+                                aria-selected="false"
+                                role="tab"
+                            >
+                                Forms
+                            </a>
+                        </li>
+                    )}
                 <li className="nav-item" role="presentation">
                     <a
                         id="worker-not-availability"
@@ -133,14 +138,17 @@ export default function WorkerHistory() {
                 >
                     <PastJob />
                 </div>
-                <div
-                    id="tab-worker-forms"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-forms"
-                >
-                    <WorkerForms />
-                </div>
+                {worker.country === "Israel" &&
+                    worker.company_type === "my-company" && (
+                        <div
+                            id="tab-worker-forms"
+                            className="tab-pane"
+                            role="tab-panel"
+                            aria-labelledby="worker-forms"
+                        >
+                            <WorkerForms worker={worker} />
+                        </div>
+                    )}
                 <div
                     id="tab-worker-not-availability"
                     className="tab-pane"
@@ -155,7 +163,7 @@ export default function WorkerHistory() {
                     role="tab-panel"
                     aria-labelledby="forms"
                 >
-                    <Document />
+                    <Document worker={worker} />
                 </div>
             </div>
         </div>

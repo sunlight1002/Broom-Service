@@ -61,7 +61,6 @@ export default function WorkerMyAccount() {
             firstname: firstname,
             lastname: lastname,
             phone: phone,
-            email: email,
             address: address,
             renewal_visa: renewal_date,
             gender: gender,
@@ -187,6 +186,7 @@ export default function WorkerMyAccount() {
                                         onChange={(e) =>
                                             setEmail(e.target.value)
                                         }
+                                        readOnly
                                         className="form-control"
                                         placeholder={t("worker.settings.email")}
                                     />

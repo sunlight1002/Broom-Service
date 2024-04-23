@@ -1355,7 +1355,7 @@ export default function TotalJobs() {
                 <SwitchWorkerModal
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
-                    jobId={selectedJob.id}
+                    job={selectedJob}
                     onSuccess={() => getJobs()}
                 />
             )}

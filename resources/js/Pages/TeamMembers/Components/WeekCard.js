@@ -25,7 +25,6 @@ const WeekCard = ({ tabName, week, slots, setTimeSlots, timeSlots }) => {
                                 <td key={_wIndex}>
                                     <TimeSlot
                                         clsName={w}
-                                        keyName={_wIndex}
                                         slots={slots}
                                         setTimeSlots={setTimeSlots}
                                         timeSlots={timeSlots}

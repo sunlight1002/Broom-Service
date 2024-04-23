@@ -4,29 +4,27 @@ import { Link, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 
-export default function WorkerForms() {
-    const params = useParams();
-    const id = params.id;
+export default function WorkerForms({ worker }) {
     const [form, setForm] = useState(false);
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [workerId, setWorkerId] = useState("");
-    
 
     const getForm = () => {
-        axios.get(`/api/work-contract/${id}`).then((res) => {
+        axios.get(`/api/work-contract/${worker.id}`).then((res) => {
             setContractForm(res.data.form ? true : false);
             setWorkerId(res.data.worker.worker_id);
         });
-        axios.get(`/api/get101/${id}`).then((res) => {
+
+        axios.get(`/api/get101/${worker.id}`).then((res) => {
             if (res.data.form) {
                 setForm(true);
             } else {
                 setForm(false);
             }
         });
-        
-        axios.get(`/api/getSafegear/${id}`).then((res) => {
+
+        axios.get(`/api/getSafegear/${worker.id}`).then((res) => {
             if (res.data.form) {
                 setSafetyAndGearForm(true);
             } else {
@@ -47,7 +45,6 @@ export default function WorkerForms() {
             aria-labelledby="customer-notes-tab"
         >
             <div
-                key={"contract"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -65,7 +62,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Contract
+                                Contract
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -75,7 +72,7 @@ export default function WorkerForms() {
                                         Signed
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -83,26 +80,26 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {contractForm && workerId ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/worker-contract/` + Base64.encode(workerId)}
-                                            className="m-2 btn btn-pink"
-                                        >
-                                            View Contract
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/worker-contract/` +
+                                            Base64.encode(workerId)
+                                        }
+                                        className="m-2 btn btn-pink"
+                                    >
+                                        View Contract
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
             <div
-                key={"form101"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -120,7 +117,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Form 101
+                                Form 101
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -130,7 +127,7 @@ export default function WorkerForms() {
                                         Signed{" "}
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -138,26 +135,26 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {form ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/form101/` + Base64.encode(id.toString())}
-                                            className="m-2 m-2 btn btn-pink"
-                                        >
-                                            View Form
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/form101/` +
+                                            Base64.encode(worker.id.toString())
+                                        }
+                                        className="m-2 m-2 btn btn-pink"
+                                    >
+                                        View Form
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
             <div
-                key={"safetyandgear"}
                 className="card card-widget widget-user-2"
                 style={{ boxShadow: "none" }}
             >
@@ -175,7 +172,7 @@ export default function WorkerForms() {
                                 className="noteDate"
                                 style={{ fontWeight: "600" }}
                             >
-                               Safety and Gear
+                                Safety and Gear
                             </span>
                         </div>
                         <div className="col-sm-4 col-4">
@@ -185,7 +182,7 @@ export default function WorkerForms() {
                                         Signed
                                     </span>
                                 </div>
-                            ) : (                                
+                            ) : (
                                 <span className="btn btn-warning m-3">
                                     Not Signed{" "}
                                 </span>
@@ -193,20 +190,21 @@ export default function WorkerForms() {
                         </div>
                         <div className="col-sm-4 col-4">
                             {safetyAndGearForm ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={`/worker-safe-gear/` + Base64.encode(id.toString())}
-                                            className="m-2 m-2 btn btn-pink"
-                                        >
-                                            View Safety and Gear Form
-                                        </Link>
-                                    </div>
-                                ) : (                                
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
-                                )}
+                                <div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            `/worker-safe-gear/` +
+                                            Base64.encode(worker.id.toString())
+                                        }
+                                        className="m-2 m-2 btn btn-pink"
+                                    >
+                                        View Safety and Gear Form
+                                    </Link>
+                                </div>
+                            ) : (
+                                <span className="btn btn-warning m-3">-</span>
+                            )}
                         </div>
                     </div>
                 </div>

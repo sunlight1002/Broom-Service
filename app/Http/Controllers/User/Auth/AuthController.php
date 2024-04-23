@@ -115,7 +115,7 @@ class AuthController extends Controller
         $worker->firstname     = $request->firstname;
         $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;
-        $worker->email         = $request->email;
+        // $worker->email         = $request->email;
         $worker->address       = $request->address;
         $worker->renewal_visa  = $request->renewal_visa;
         $worker->gender        = $request->gender;
@@ -275,13 +275,13 @@ class AuthController extends Controller
     public function getSafegear($id)
     {
         $worker = User::find($id);
-
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
 
         return response()->json([
             'lng' => $worker->lng,
+            'worker' => $worker,
             'form' => $form ? $form->data : NULL
         ]);
     }
@@ -297,7 +297,8 @@ class AuthController extends Controller
 
         return response()->json([
             'lng' => $worker->lng,
-            'form' => $form ? $form->data : NULL
+            'form' => $form ? $form->data : NULL,
+            'worker' => $worker
         ]);
     }
 

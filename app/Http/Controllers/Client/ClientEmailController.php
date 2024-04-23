@@ -34,7 +34,7 @@ class ClientEmailController extends Controller
       ->with([
         'client:id,lng,firstname,lastname',
         'team:id,name,heb_name',
-        'team.availability:team_member_id,time_slots',
+        'team.availabilities:team_member_id,date,start_time,end_time',
         'propertyAddress:id,address_name,latitude,longitude'
       ])
       ->find($id);
@@ -58,24 +58,10 @@ class ClientEmailController extends Controller
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(start_time, '%h:%i %p'), '%H:%i') as start_time")
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(end_time, '%h:%i %p'), '%H:%i') as end_time")
       ->get();
-    $timeSlot = [];
-    $availableSlots = [];
-    if($schedule->team->availability){
-      $timeSlot = json_decode($schedule->team->availability->time_slots, true);
-      $availableSlots = isset($timeSlot[$startDate]) ? $timeSlot[$startDate] : [];
-    }
-    $availableSlots24Hrs = [];
-    foreach ($availableSlots as $key => $value) {
-      $availableSlots24Hrs[] = [
-        'start' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[0])->format('H:i'),
-        'end' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[1])->format('H:i'),
-      ];
-    }
 
     return response()->json([
       'schedule' => $scheduleArr,
       'booked_slots' => $bookedSlots,
-      'available_slots' => $availableSlots24Hrs
     ]);
   }
 

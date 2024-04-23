@@ -24,16 +24,17 @@ const animalArray = [
 
 export default function EditWorker() {
     const elementsRef = useRef(animalArray.map(() => createRef()));
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
-    const [renewal_date, setRenewalDate] = useState("");
-    const [gender, setGender] = useState("male");
-    const [payment_hour, setPaymentHour] = useState(0);
-    const [worker_id, setWorkerId] = useState(
-        Math.random().toString().concat("0".repeat(3)).substr(2, 5)
-    );
+    const [formValues, setFormValues] = useState({
+        firstname: "",
+        lastname: "",
+        phone: "",
+        email: "",
+        gender: "",
+        payment_hour: "",
+        worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
+        renewal_date: "",
+        company_type: "",
+    });
     const [password, setPassword] = useState("");
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
@@ -97,20 +98,20 @@ export default function EditWorker() {
         });
 
         const data = {
-            firstname: firstname,
-            lastname: lastname,
-            phone: phone,
-            email: email,
+            firstname: formValues.firstname,
+            lastname: formValues.lastname,
+            phone: formValues.phone,
             address: address,
-            renewal_visa: renewal_date,
-            gender: gender,
-            payment_hour: payment_hour,
+            renewal_visa: formValues.renewal_date,
+            gender: formValues.gender,
+            payment_hour: formValues.payment_hour,
             lng: !lng ? "en" : lng,
-            worker_id: worker_id,
+            worker_id: formValues.worker_id,
             password: password,
             skill: skr,
             status: !itemStatus ? 1 : parseInt(itemStatus),
             country: country,
+            company_type: formValues.company_type,
             latitude: latitude,
             longitude: longitude,
         };
@@ -135,15 +136,8 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/workers/${params.id}/edit`, { headers })
             .then((response) => {
+                const _worker = response.data.worker;
                 const {
-                    firstname,
-                    lastname,
-                    email,
-                    phone,
-                    renewal_visa,
-                    gender,
-                    payment_per_hour,
-                    worker_id,
                     passcode,
                     skill,
                     address,
@@ -155,14 +149,20 @@ export default function EditWorker() {
                     is_afraid_by_cat,
                     is_afraid_by_dog,
                 } = response.data.worker;
-                setFirstName(firstname);
-                setLastName(lastname);
-                setEmail(email);
-                setPhone(phone);
-                setRenewalDate(renewal_visa);
-                setGender(gender);
-                setPaymentHour(payment_per_hour);
-                setWorkerId(worker_id);
+
+                setFormValues({
+                    ...formValues,
+                    firstname: _worker.firstname,
+                    lastname: _worker.lastname,
+                    email: _worker.email,
+                    phone: _worker.phone,
+                    renewal_date: _worker.renewal_visa,
+                    gender: _worker.gender,
+                    payment_hour: _worker.payment_per_hour,
+                    worker_id: _worker.worker_id,
+                    company_type: _worker.company_type,
+                });
+
                 setPassword(passcode);
                 setSkill(skill);
                 setAddress(address);
@@ -222,10 +222,13 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="text"
-                                            value={firstname}
-                                            onChange={(e) =>
-                                                setFirstName(e.target.value)
-                                            }
+                                            value={formValues.firstname}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    firstname: e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
                                             required
                                             placeholder="Enter First Name"
@@ -246,10 +249,13 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="text"
-                                            value={lastname}
-                                            onChange={(e) =>
-                                                setLastName(e.target.value)
-                                            }
+                                            value={formValues.lastname}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    lastname: e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
                                             placeholder="Enter Last Name"
                                         />
@@ -262,11 +268,15 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="tyoe"
-                                            value={email}
-                                            onChange={(e) =>
-                                                setEmail(e.target.value)
-                                            }
+                                            value={formValues.email}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    email: e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
+                                            readOnly
                                             placeholder="Email"
                                         />
                                         {errors.email ? (
@@ -285,10 +295,13 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="tel"
-                                            value={phone}
-                                            onChange={(e) =>
-                                                setPhone(e.target.value)
-                                            }
+                                            value={formValues.phone}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    phone: e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
                                             placeholder="Phone"
                                         />
@@ -313,10 +326,15 @@ export default function EditWorker() {
                                                 type="radio"
                                                 className="form-check-input"
                                                 value="male"
-                                                onChange={(e) =>
-                                                    setGender(e.target.value)
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        gender: e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.gender === "male"
                                                 }
-                                                checked={gender === "male"}
                                             />
                                             Male
                                         </label>
@@ -327,10 +345,16 @@ export default function EditWorker() {
                                                 type="radio"
                                                 className="form-check-input"
                                                 value="female"
-                                                onChange={(e) =>
-                                                    setGender(e.target.value)
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        gender: e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.gender ===
+                                                    "female"
                                                 }
-                                                checked={gender === "female"}
                                             />
                                             Female
                                         </label>
@@ -343,10 +367,14 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="text"
-                                            value={payment_hour}
-                                            onChange={(e) =>
-                                                setPaymentHour(e.target.value)
-                                            }
+                                            value={formValues.payment_hour}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    payment_hour:
+                                                        e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
                                             placeholder="Payment Per Hour"
                                         />
@@ -359,10 +387,13 @@ export default function EditWorker() {
                                         </label>
                                         <input
                                             type="text"
-                                            value={worker_id}
-                                            onChange={(e) =>
-                                                setWorkerId(e.target.value)
-                                            }
+                                            value={formValues.worker_id}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    worker_id: e.target.value,
+                                                });
+                                            }}
                                             className="form-control"
                                             placeholder="Payment Per Hour"
                                         />
@@ -445,18 +476,79 @@ export default function EditWorker() {
                                             </label>
                                             <input
                                                 type="date"
-                                                value={renewal_date}
-                                                onChange={(e) =>
-                                                    setRenewalDate(
-                                                        e.target.value
-                                                    )
-                                                }
+                                                value={formValues.renewal_date}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        renewal_date:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Email"
                                             />
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Company
+                                        </label>
+                                    </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="my-company"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "my-company"
+                                                }
+                                            />
+                                            My Company
+                                        </label>
+                                    </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="manpower"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "manpower"
+                                                }
+                                            />
+                                            Manpower
+                                        </label>
+                                    </div>
+                                    <div>
+                                        {errors.company_type ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.company_type}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <div className="form-group">
                                 <label className="control-label">

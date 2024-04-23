@@ -22,6 +22,7 @@ return [
         'tel'         =>'טלפון',
         'price_offer' => 'הצעת מחיר',
         'quality_check'=>'בקרת איכות',
+        'upload_job_description' => 'העלה תמונות וסרטונים',
         'choose_slot'=>'בחר משבצת'
      ],
      'cancel_meeting'=>[

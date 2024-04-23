@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WorkerCreated;
+use Illuminate\Validation\Rule;
 
 class WorkerController extends Controller
 {
@@ -179,6 +181,10 @@ class WorkerController extends Controller
             'password'  => ['required'],
             'email'     => ['nullable', 'unique:users'],
             'gender'    => ['required'],
+            'company_type'    => [
+                'required',
+                Rule::in(['my-company', 'manpower']),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -201,6 +207,7 @@ class WorkerController extends Controller
         $worker->passcode      = $request->password;
         $worker->password      = Hash::make($request->password);
         $worker->skill         = $request->skill;
+        $worker->company_type  = $request->company_type;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
@@ -230,45 +237,7 @@ class WorkerController extends Controller
             }
         }
 
-        App::setLocale($worker->lng);
-        $worker = $worker->toArray();
-        if (!is_null($worker['email'])) {
-
-            if (!empty($worker['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::FORM101,
-                    "notificationData" => $worker
-                ]));
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
-                    "notificationData" => $worker
-                ]));
-            }
-
-            Mail::send('/Mails/Form101Mail', $worker, function ($messages) use ($worker) {
-                $messages->to($worker['email']);
-                ($worker['lng'] == 'heb') ?
-                    $sub = $worker['id'] . "# " . __('mail.form_101.subject') . "  " . __('mail.form_101.company') :
-                    $sub = __('mail.form_101.subject') . "  " . __('mail.form_101.company') . " #" . $worker['id'];
-                $messages->subject($sub);
-            });
-
-            Mail::send('/Mails/WorkerContractMail', $worker, function ($messages) use ($worker) {
-                $messages->to($worker['email']);
-                ($worker['lng'] == 'heb') ?
-                    $sub = $worker['id'] . "# " . __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') :
-                    $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $worker['id'];
-                $messages->subject($sub);
-            });
-
-            Mail::send('/Mails/WorkerSafeGearMail', $worker, function ($messages) use ($worker) {
-                $messages->to($worker['email']);
-                ($worker['lng'] == 'heb') ?
-                    $sub = $worker['id'] . "# " . __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') :
-                    $sub = __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') . " #" . $worker['id'];
-                $messages->subject($sub);
-            });
-        }
+        event(new WorkerCreated($worker));
 
         return response()->json([
             'message' => 'Worker updated successfully',
@@ -312,6 +281,10 @@ class WorkerController extends Controller
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
+            'company_type'    => [
+                'required',
+                Rule::in(['my-company', 'manpower']),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -322,7 +295,7 @@ class WorkerController extends Controller
         $worker->firstname     = $request->firstname;
         $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;
-        $worker->email         = $request->email;
+        // $worker->email         = $request->email;
         $worker->address       = $request->address;
         $worker->latitude      = $request->latitude;
         $worker->longitude     = $request->longitude;
@@ -334,6 +307,7 @@ class WorkerController extends Controller
         $worker->passcode     = $request->password;
         $worker->password      = Hash::make($request->password);
         $worker->skill         = $request->skill;
+        $worker->company_type  = $request->company_type;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;

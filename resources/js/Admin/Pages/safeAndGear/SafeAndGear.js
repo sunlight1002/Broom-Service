@@ -9,8 +9,6 @@ import TextField from "../../../Pages/Form101/inputElements/TextField";
 import SignatureCanvas from "react-signature-canvas";
 
 const formSchema = yup.object({
-    workerName: yup.string().trim().required("worker name is required"),
-    workerName2: yup.string().trim().required("worker name is required"),
     signature: yup.mixed().required("Signature is required"),
 });
 const SafeAndGear = () => {
@@ -18,7 +16,7 @@ const SafeAndGear = () => {
     const param = useParams();
     const id = Base64.decode(param.id);
     const alert = useAlert();
-    const [formValues, setFormValues] = useState({});
+    const [formValues, setFormValues] = useState("");
     const [workerName, setWorkerName] = useState("");
     const [workerName2, setWorkerName2] = useState("");
     const [signature, setSignature] = useState("");
@@ -41,20 +39,20 @@ const SafeAndGear = () => {
         onSubmit: (values) => {
             console.log("values", values);
             axios
-            .post(`/api/safegear`, { id: id, data: values })
-            .then((res) => {
-                alert.success("Successfuly signed");
-                setTimeout(() => {
-                    window.location.reload(true);
-                }, 2000);
-            })
-            .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
+                .post(`/api/safegear`, { id: id, data: values })
+                .then((res) => {
+                    alert.success("Successfuly signed");
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
                 });
-            });
         },
     });
     const handleSignatureEnd = () => {
@@ -65,25 +63,28 @@ const SafeAndGear = () => {
         setFieldValue("signature", "");
     };
 
-  
-
     useEffect(() => {
         axios.get(`/api/getSafegear/${id}`).then((res) => {
-          i18next.changeLanguage(res.data.lng);
+            i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../../Assets/css/rtl.css");
                 document.querySelector("html").setAttribute("dir", "rtl");
             } else {
                 document.querySelector("html").removeAttribute("dir");
             }
+
+            if (res.data.worker) {
+                setFieldValue("workerName", res.data.worker.firstname);
+                setFieldValue("workerName2", res.data.worker.lastname);
+            }
+
             if (res.data.form) {
-                
-            setFormValues(res.data.form); 
-            setFieldValue("workerName", res.data.form.workerName);
-            setFieldValue("workerName2", res.data.form.workerName2);
-            setFieldValue("signature", res.data.form.signature);
-            
-            disableInputs();
+                setFormValues(res.data.form);
+                setFieldValue("workerName", res.data.form.workerName);
+                setFieldValue("workerName2", res.data.form.workerName2);
+                setFieldValue("signature", res.data.form.signature);
+
+                disableInputs();
             }
         });
     }, []);
@@ -96,7 +97,21 @@ const SafeAndGear = () => {
         });
     };
 
-
+    const workerStyle = {
+        workerName: {
+            width: "100%",
+            padding: "8px",
+            margin: "0px 0px 15px",
+            "text-align": "left",
+            "font-size": "18px",
+        },
+        workerName2: {
+            width: "100%",
+            padding: "8px",
+            margin: "10px 0px 0px 0px",
+            "font-size": "18px",
+        },
+    };
     return (
         <div id="container" className="targetDiv">
             <div id="content">
@@ -220,24 +235,24 @@ const SafeAndGear = () => {
                         <div></div>
                         <form onSubmit={handleSubmit}>
                             <div className="mt-4" style={{ fontSize: "16px" }}>
-                                <TextField
-                                    name={"workerName"}
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    label={"Worker Name"}
-                                    value={values.workerName}
-                                    required={true}
-                                    error={
-                                        touched.workerName && errors.workerName
-                                    }
-                                />
+                                <span
+                                    className="badge badge-primary"
+                                    style={workerStyle.workerName}
+                                >
+                                    {values.workerName +
+                                        " " +
+                                        values.workerName2}
+                                </span>
                                 <p>
-                                    I __________________ declare that I have
-                                    received the file with the attached
-                                    equipment list and undertake to keep it if
-                                    it is in my possession and return it intact
-                                    at the end of my employment period at the
-                                    company.
+                                    I{" "}
+                                    {values.workerName +
+                                        " " +
+                                        values.workerName2}{" "}
+                                    declare that I have received the file with
+                                    the attached equipment list and undertake to
+                                    keep it if it is in my possession and return
+                                    it intact at the end of my employment period
+                                    at the company.
                                 </p>
                                 <p>
                                     I also took Broom Service work shirts and a
@@ -267,18 +282,28 @@ const SafeAndGear = () => {
                                 <p>*. Wet rags and scabs to hang for drying</p>
                                 <div className="row gap-5">
                                     <div className="col-6">
-                                        <TextField
+                                        {/* <TextField
                                             name={"workerName2"}
                                             onBlur={handleBlur}
                                             onChange={handleChange}
                                             label={"Worker Name"}
-                                            value={values.workerName2}
+                                            value={values.workerName +' '+values.workerName2}
                                             required={true}
+                                            readonly={true}
                                             error={
                                                 touched.workerName2 &&
                                                 errors.workerName2
                                             }
-                                        />
+                                        /> */}
+
+                                        <span
+                                            className="badge badge-primary"
+                                            style={workerStyle.workerName2}
+                                        >
+                                            {values.workerName +
+                                                " " +
+                                                values.workerName2}
+                                        </span>
                                     </div>
                                     <div className="col-6">
                                         <p>
@@ -290,7 +315,8 @@ const SafeAndGear = () => {
                                                     errors.signature}
                                             </span>
                                         </p>
-                                        {formValues && formValues.signature != null ? (
+                                        {formValues &&
+                                        formValues.signature != null ? (
                                             <img src={formValues.signature} />
                                         ) : (
                                             <div>
@@ -303,7 +329,7 @@ const SafeAndGear = () => {
                                                     ref={sigRef}
                                                     onEnd={handleSignatureEnd}
                                                 />
-                                            
+
                                                 <div className="d-block">
                                                     <button
                                                         type="button"
@@ -319,7 +345,10 @@ const SafeAndGear = () => {
                                 </div>
                             </div>
                             {!formValues && (
-                                <button type="submit" className="btn btn-success">
+                                <button
+                                    type="submit"
+                                    className="btn btn-success"
+                                >
                                     submit
                                 </button>
                             )}

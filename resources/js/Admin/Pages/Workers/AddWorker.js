@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../Layouts/Sidebar";
 import {
     GoogleMap,
     LoadScript,
@@ -10,6 +9,9 @@ import {
     Autocomplete,
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
+import Swal from "sweetalert2";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 const animalArray = [
     {
@@ -24,16 +26,18 @@ const animalArray = [
 
 export default function AddWorker() {
     const elementsRef = useRef(animalArray.map(() => createRef()));
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
-    const [renewal_date, setRenewalDate] = useState("");
-    const [gender, setGender] = useState("");
-    const [payment_hour, setPaymentHour] = useState();
-    const [worker_id, setWorkerId] = useState(
-        Math.random().toString().concat("0".repeat(3)).substr(2, 5)
-    );
+    const [formValues, setFormValues] = useState({
+        firstname: "",
+        lastname: "",
+        phone: "",
+        email: "",
+        gender: "",
+        payment_hour: "",
+        worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
+        renewal_date: "",
+        company_type: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
     const [password, setPassword] = useState("");
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
@@ -89,41 +93,52 @@ export default function AddWorker() {
     const handleSubmit = (e) => {
         e.preventDefault();
         const data = {
-            firstname: firstname,
-            lastname: lastname,
-            email: email,
-            phone: phone,
+            firstname: formValues.firstname,
+            lastname: formValues.lastname,
+            email: formValues.email,
+            phone: formValues.phone,
             address: address,
-            renewal_visa: renewal_date,
-            gender: gender,
-            payment_hour: payment_hour,
-            worker_id: worker_id,
+            renewal_visa: formValues.renewal_date,
+            gender: formValues.gender,
+            payment_hour: formValues.payment_hour,
+            worker_id: formValues.worker_id,
             lng: !lng ? "en" : lng,
             password: password,
             skill: skill,
             status: !itemStatus ? 1 : parseInt(itemStatus),
             country: country,
+            company_type: formValues.company_type,
             latitude: latitude,
             longitude: longitude,
         };
         elementsRef.current.map(
-            (ref) => data[ref.current.name] =  ref.current.checked
+            (ref) => (data[ref.current.name] = ref.current.checked)
         );
-        let sbtn = document.querySelector(".saveBtn");
-        sbtn.setAttribute("disabled", true);
-        sbtn.innerText = "Saving..";
-        axios.post(`/api/admin/workers`, data, { headers }).then((response) => {
-            if (response.data.errors) {
-                setErrors(response.data.errors);
-                sbtn.removeAttribute("disabled");
-                sbtn.innerText = "Save";
-            } else {
-                alert.success("Worker has been created successfully");
-                setTimeout(() => {
-                    navigate("/admin/workers");
-                }, 1000);
-            }
-        });
+
+        setIsLoading(true);
+
+        axios
+            .post(`/api/admin/workers`, data, { headers })
+            .then((response) => {
+                if (response.data.errors) {
+                    setErrors(response.data.errors);
+                    setIsLoading(false);
+                } else {
+                    alert.success("Worker has been created successfully");
+                    setTimeout(() => {
+                        navigate("/admin/workers");
+                    }, 1000);
+                }
+            })
+            .catch((e) => {
+                setIsLoading(false);
+
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
     const getAvailableSkill = () => {
         axios
@@ -158,10 +173,14 @@ export default function AddWorker() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={firstname}
-                                                onChange={(e) =>
-                                                    setFirstName(e.target.value)
-                                                }
+                                                value={formValues.firstname}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        firstname:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder="Enter First Name"
@@ -182,10 +201,14 @@ export default function AddWorker() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={lastname}
-                                                onChange={(e) =>
-                                                    setLastName(e.target.value)
-                                                }
+                                                value={formValues.lastname}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        lastname:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Enter Last Name"
                                             />
@@ -197,11 +220,14 @@ export default function AddWorker() {
                                                 Email
                                             </label>
                                             <input
-                                                type="tyoe"
-                                                value={email}
-                                                onChange={(e) =>
-                                                    setEmail(e.target.value)
-                                                }
+                                                type="email"
+                                                value={formValues.email}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        email: e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Email"
                                             />
@@ -221,10 +247,13 @@ export default function AddWorker() {
                                             </label>
                                             <input
                                                 type="tel"
-                                                value={phone}
-                                                onChange={(e) =>
-                                                    setPhone(e.target.value)
-                                                }
+                                                value={formValues.phone}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        phone: e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Phone"
                                             />
@@ -250,12 +279,17 @@ export default function AddWorker() {
                                                     type="radio"
                                                     className="form-check-input"
                                                     value="male"
-                                                    onChange={(e) =>
-                                                        setGender(
-                                                            e.target.value
-                                                        )
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            gender: e.target
+                                                                .value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.gender ===
+                                                        "male"
                                                     }
-                                                    checked={gender === "male"}
                                                 />
                                                 Male
                                             </label>
@@ -266,13 +300,16 @@ export default function AddWorker() {
                                                     type="radio"
                                                     className="form-check-input"
                                                     value="female"
-                                                    onChange={(e) =>
-                                                        setGender(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            gender: e.target
+                                                                .value,
+                                                        });
+                                                    }}
                                                     checked={
-                                                        gender === "female"
+                                                        formValues.gender ===
+                                                        "female"
                                                     }
                                                 />
                                                 Female
@@ -295,12 +332,14 @@ export default function AddWorker() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={payment_hour}
-                                                onChange={(e) =>
-                                                    setPaymentHour(
-                                                        e.target.value
-                                                    )
-                                                }
+                                                value={formValues.payment_hour}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        payment_hour:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Payment Per Hour"
                                             />
@@ -313,10 +352,14 @@ export default function AddWorker() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={worker_id}
-                                                onChange={(e) =>
-                                                    setWorkerId(e.target.value)
-                                                }
+                                                value={formValues.worker_id}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        worker_id:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 placeholder="Payment Per Hour"
                                             />
@@ -419,17 +462,78 @@ export default function AddWorker() {
                                                 </label>
                                                 <input
                                                     type="date"
-                                                    onChange={(e) =>
-                                                        setRenewalDate(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            renewal_date:
+                                                                e.target.value,
+                                                        });
+                                                    }}
                                                     className="form-control"
                                                     placeholder="Email"
                                                 />
                                             </div>
                                         </div>
                                     )}
+
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Company
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="my-company"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "my-company"
+                                                    }
+                                                />
+                                                My Company
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="manpower"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "manpower"
+                                                    }
+                                                />
+                                                Manpower
+                                            </label>
+                                        </div>
+                                        <div>
+                                            {errors.company_type ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.company_type}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="form-group">
@@ -594,11 +698,14 @@ export default function AddWorker() {
                                     )}
                                 </div>
                                 <div className="form-group text-center">
-                                    <input
+                                    <button
                                         type="submit"
                                         onClick={handleSubmit}
-                                        className="btn btn-pink saveBtn"
-                                    />
+                                        className="btn btn-pink"
+                                        disabled={isLoading}
+                                    >
+                                        Submit
+                                    </button>
                                 </div>
                             </form>
                         </div>
