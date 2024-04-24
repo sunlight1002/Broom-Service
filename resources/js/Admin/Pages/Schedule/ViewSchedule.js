@@ -281,7 +281,7 @@ export default function ViewSchedule() {
     };
 
     const getTeamAvailibality = () => {
-        if (team && startDate) {
+        if ((team && team != "0" && team != "") && startDate) {
             const _date = Moment(startDate).format("Y-MM-DD");
 
             axios
