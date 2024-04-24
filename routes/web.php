@@ -28,6 +28,7 @@ Route::get('/google/callback', [GoogleController::class, 'callback']);
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
+Route::any('/facebook/webhook', [LeadController::class, 'facebookWebhook']);
 
 // Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
 Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
