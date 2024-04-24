@@ -330,6 +330,28 @@ export default function ViewSchedule() {
         getEvents(_id);
     };
 
+    const handleDateChange = (_date) => {
+        setSelectedDate(_date);
+
+        if (sid != "" && sid != null) {
+            handleUpdate({
+                name: "start_date",
+                value: _date,
+            });
+        }
+    };
+
+    const handleTimeChange = (_time) => {
+        setSelectedTime(_time);
+
+        if (sid != "" && sid != null) {
+            handleUpdate({
+                name: "start_time",
+                value: _time,
+            });
+        }
+    };
+
     const timeOptions = useMemo(() => {
         return createHalfHourlyTimeArray("08:00", "24:00");
     }, []);
@@ -381,24 +403,6 @@ export default function ViewSchedule() {
     useEffect(() => {
         getTeamAvailibality();
     }, [team, selectedDate]);
-
-    useEffect(() => {
-        if (sid != "" && sid != null) {
-            handleUpdate({
-                name: "start_date",
-                value: selectedDate,
-            });
-        }
-    }, [selectedDate]);
-
-    useEffect(() => {
-        if (sid != "" && sid != null) {
-            handleUpdate({
-                name: "start_time",
-                value: selectedTime,
-            });
-        }
-    }, [selectedTime]);
 
     const handlePurpose = (e) => {
         let pt = document.querySelector("#purpose_text");
@@ -692,7 +696,7 @@ export default function ViewSchedule() {
                                                 <DatePicker
                                                     selected={selectedDate}
                                                     onChange={(date) =>
-                                                        setSelectedDate(date)
+                                                        handleDateChange(date)
                                                     }
                                                     autoFocus
                                                     shouldCloseOnSelect={false}
@@ -720,11 +724,11 @@ export default function ViewSchedule() {
                                                                         key={
                                                                             index
                                                                         }
-                                                                        onClick={() =>
-                                                                            setSelectedTime(
+                                                                        onClick={() => {
+                                                                            handleTimeChange(
                                                                                 t
-                                                                            )
-                                                                        }
+                                                                            );
+                                                                        }}
                                                                     >
                                                                         {t}
                                                                     </li>

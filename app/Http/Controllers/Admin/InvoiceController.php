@@ -1251,6 +1251,7 @@ class InvoiceController extends Controller
             ->when($last_paid_status != 'all', function ($q) use ($last_paid_status) {
                 return $q->where('order.paid_status', $last_paid_status);
             })
+            ->where('job_visits.visits', '>', 0)
             ->select('clients.id AS client_id', 'job_visits.last_activity_date', 'order.doc_url AS last_order_doc_url', 'clients.payment_method')
             ->selectRaw('IFNULL(job_visits.visits, 0) AS visits')
             ->selectRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) AS client_name')
