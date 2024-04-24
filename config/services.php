@@ -57,6 +57,7 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'calendar_id' => env('GOOGLE_CALENDAR_ID'),
         'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+        'map_key' => env('GOOGLE_MAP_KEY'),
     ],
 
     'facebook' => [
