@@ -17,13 +17,10 @@ import Sidebar from "../../Layouts/Sidebar";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 
 export default function ViewSchedule() {
-    const [startDate, setStartDate] = useState(new Date());
     const [client, setClient] = useState([]);
     const [totalTeam, setTotalTeam] = useState([]);
     const [team, setTeam] = useState("");
     const [bstatus, setBstatus] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
     const [events, setEvents] = useState([]);
     const [lang, setLang] = useState("");
     const [meetVia, setMeetVia] = useState("on-site");
@@ -39,6 +36,8 @@ export default function ViewSchedule() {
     const [bookedSlots, setBookedSlots] = useState([]);
     const [schedule, setSchedule] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(null);
 
     const param = useParams();
     const alert = useAlert();
@@ -55,6 +54,18 @@ export default function ViewSchedule() {
     };
 
     const sendMeeting = () => {
+        if (meetVia === "on-site") {
+            if (!selectedDate) {
+                alert.error("Date not selected");
+                return false;
+            }
+
+            if (!selectedTime) {
+                alert.error("Time not selected");
+                return false;
+            }
+        }
+
         let purps = "";
         if (purpose == null) {
             purps = "Price offer";
@@ -68,9 +79,8 @@ export default function ViewSchedule() {
         const data = {
             client_id: param.id,
             team_id: team.length > 0 ? team : team == 0 ? "" : "",
-            start_date: startDate,
-            start_time: startTime,
-            end_time: endTime,
+            start_date: selectedDate,
+            start_time: selectedTime,
             meet_via: meetVia,
             meet_link: meetLink,
             purpose: purps,
@@ -171,17 +181,12 @@ export default function ViewSchedule() {
             setSchedule(d);
             setTeam(d.team_id ? d.team_id.toString() : "0");
             setBstatus(d.booking_status);
-            setStartDate(Moment(d.start_date).toDate());
+            setSelectedDate(Moment(d.start_date).toDate());
 
             if (d.start_time) {
-                setStartTime(moment(d.start_time, "hh:mm A").format("kk:mm"));
+                setSelectedTime(d.start_time);
             } else {
-                setStartTime("");
-            }
-            if (d.end_time) {
-                setEndTime(moment(d.end_time, "hh:mm A").format("kk:mm"));
-            } else {
-                setEndTime("");
+                setSelectedTime("");
             }
             setMeetVia(d.meet_via);
             setMeetLink(d.meet_link);
@@ -238,30 +243,19 @@ export default function ViewSchedule() {
 
     useEffect(() => {
         if (meetVia == "off-site") {
-            setStartDate("");
-            setStartTime("");
-            setEndTime("");
+            setSelectedDate("");
+            setSelectedTime("");
         }
     }, [meetVia]);
 
-    const handleUpdate = (e) => {
-        if (sid != "" && sid != null) {
-            let data = {};
-
-            if (e.target == undefined) {
-                data.name = "start_date";
-                data.value = e;
-            } else if (e.target.value == "Other") {
-                data.name = e.target.name;
-                data.value = document.querySelector("#purpose_text").value;
-            } else {
-                data.name =
-                    e.target.name == "purpose_text" ? "purpose" : e.target.name;
-                data.value = e.target.value;
-            }
-
+    const handleUpdate = (_data) => {
+        if (
+            sid != "" &&
+            sid != null &&
+            urlParamAction !== "create-calendar-event"
+        ) {
             axios
-                .put(`/api/admin/schedule/${sid}`, data, { headers })
+                .put(`/api/admin/schedule/${sid}`, _data, { headers })
                 .then((res) => {
                     alert.success(res.data.message);
                     if (res.data.change == "date") {
@@ -280,9 +274,26 @@ export default function ViewSchedule() {
         }
     };
 
+    const handleFieldValueChange = () => {
+        if (sid != "" && sid != null) {
+            let _data = {};
+
+            if (e.target.value == "Other") {
+                _data.name = e.target.name;
+                _data.value = document.querySelector("#purpose_text").value;
+            } else {
+                _data.name =
+                    e.target.name == "purpose_text" ? "purpose" : e.target.name;
+                _data.value = e.target.value;
+            }
+
+            handleUpdate(_data);
+        }
+    };
+
     const getTeamAvailibality = () => {
-        if ((team && team != "0" && team != "") && startDate) {
-            const _date = Moment(startDate).format("Y-MM-DD");
+        if (team && team != "0" && team != "" && selectedDate) {
+            const _date = Moment(selectedDate).format("Y-MM-DD");
 
             axios
                 .get(`/api/admin/teams/availability/${team}/date/${_date}`, {
@@ -369,18 +380,25 @@ export default function ViewSchedule() {
 
     useEffect(() => {
         getTeamAvailibality();
-    }, [team, startDate]);
+    }, [team, selectedDate]);
 
     useEffect(() => {
-        const startIndex = timeOptions.indexOf(startTime);
-
-        if (startIndex != -1) {
-            const _timeOptions = timeOptions.slice(startIndex + 1);
-
-            const _endTime = _timeOptions[0];
-            setEndTime(_endTime);
+        if (sid != "" && sid != null) {
+            handleUpdate({
+                name: "start_date",
+                value: selectedDate,
+            });
         }
-    }, [startTime]);
+    }, [selectedDate]);
+
+    useEffect(() => {
+        if (sid != "" && sid != null) {
+            handleUpdate({
+                name: "start_time",
+                value: selectedTime,
+            });
+        }
+    }, [selectedTime]);
 
     const handlePurpose = (e) => {
         let pt = document.querySelector("#purpose_text");
@@ -390,6 +408,22 @@ export default function ViewSchedule() {
             pt.style.display = "none";
         }
     };
+
+    const dayName = new Date(selectedDate)?.toLocaleDateString("en-US", {
+        month: "long",
+    });
+
+    const monthName = new Date(selectedDate).toLocaleDateString("en-US", {
+        weekday: "long",
+    });
+
+    const date = new Date(selectedDate)?.getDate();
+
+    const timeSlots = useMemo(() => {
+        return startTimeOptions.map((i) =>
+            moment(i, "kk:mm").format("hh:mm A")
+        );
+    }, [startTimeOptions]);
 
     return (
         <div id="container">
@@ -443,7 +477,7 @@ export default function ViewSchedule() {
                                     value={bstatus}
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
-                                        handleUpdate(e);
+                                        handleFieldValueChange(e);
                                     }}
                                 >
                                     <option value="pending">
@@ -481,7 +515,7 @@ export default function ViewSchedule() {
                                     value={team}
                                     onChange={(e) => {
                                         setTeam(e.target.value);
-                                        handleUpdate(e);
+                                        handleFieldValueChange(e);
                                         handleTeamChange(e.target.value);
                                     }}
                                 >
@@ -503,7 +537,7 @@ export default function ViewSchedule() {
                             </div>
                         </div>
                     </div>
-                    <div className="row mt-4">
+                    <div className="row">
                         <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
@@ -517,7 +551,7 @@ export default function ViewSchedule() {
                                     onChange={(e) => {
                                         setPurpose(e.target.value);
                                         handlePurpose(e);
-                                        handleUpdate(e);
+                                        handleFieldValueChange(e);
                                     }}
                                 >
                                     <option value="Price offer">
@@ -557,7 +591,9 @@ export default function ViewSchedule() {
                                         onChange={(e) => {
                                             setPurposeText(e.target.value);
                                         }}
-                                        onBlur={(e) => handleUpdate(e)}
+                                        onBlur={(e) =>
+                                            handleFieldValueChange(e)
+                                        }
                                         placeholder="Enter purpose please"
                                         className="form-control"
                                     />
@@ -565,148 +601,150 @@ export default function ViewSchedule() {
                             </div>
                         </div>
                     </div>
-                    <div className="mSchedule">
-                        <h4>{t("admin.schedule.meetingTimeAndDate")}</h4>
-                        {meetVia == "on-site" && (
-                            <div className="row">
-                                <div className="col-sm-4">
-                                    <div className="form-group">
-                                        <label>
-                                            {" "}
-                                            {t("admin.schedule.date")}
-                                        </label>
-                                        <DatePicker
-                                            dateFormat="dd/MM/Y"
-                                            selected={startDate}
-                                            id="dateSel"
-                                            onChange={(date) => {
-                                                setStartDate(date);
-                                                handleUpdate(date);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-sm-4">
-                                    <div className="form-group">
-                                        <label>Start Time</label>
-                                        <select
-                                            name="start_time"
-                                            id="start_time"
-                                            value={startTime}
-                                            onChange={(e) => {
-                                                setStartTime(e.target.value);
-                                                handleUpdate(e);
-                                            }}
-                                            className="form-control"
-                                        >
-                                            <option value="">
-                                                --- Choose start time ---
-                                            </option>
-                                            {startTimeOptions.map((t, i) => {
-                                                return (
-                                                    <option value={t} key={i}>
-                                                        {t}
-                                                    </option>
-                                                );
-                                            })}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-4">
-                                    <div className="form-group">
-                                        <label>End Time</label>
-                                        <input
-                                            name="end_time"
-                                            id="end_time"
-                                            value={endTime}
-                                            className="form-control"
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
+                    <div className="row">
+                        <div className="col-sm-4">
+                            <div className="form-group">
+                                <label>{t("admin.schedule.meetVia")}</label>
+                                <select
+                                    name="meet_via"
+                                    id="meet_via"
+                                    value={meetVia}
+                                    onChange={(e) => {
+                                        setMeetVia(e.target.value);
+                                        handleFieldValueChange(e);
+                                    }}
+                                    className="form-control"
+                                >
+                                    <option value="on-site">
+                                        {t(
+                                            "admin.schedule.options.meetVia.onSite"
+                                        )}
+                                    </option>
+                                    <option value="off-site">
+                                        {t(
+                                            "admin.schedule.options.meetVia.offSite"
+                                        )}
+                                    </option>
+                                </select>
                             </div>
+                        </div>
+                        <div className="col-sm-4">
+                            <div className="form-group">
+                                <label>{t("admin.schedule.meetLink")}</label>
+                                <input
+                                    type="text"
+                                    id="meet_link"
+                                    name="meet_link"
+                                    value={meetLink}
+                                    onChange={(e) => {
+                                        setMeetLink(e.target.value);
+                                        handleFieldValueChange(e);
+                                    }}
+                                    className="form-control"
+                                    placeholder="Insert Meeting Link"
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-4">
+                            <div className="form-group">
+                                <label>{t("admin.schedule.Property")}</label>
+                                <select
+                                    name="address_id"
+                                    id="address_id"
+                                    value={address}
+                                    onChange={(e) => {
+                                        setAddress(e.target.value);
+                                        handleFieldValueChange(e);
+                                    }}
+                                    className="form-control"
+                                >
+                                    <option value="">
+                                        {t(
+                                            "admin.schedule.options.pleaseSelect"
+                                        )}
+                                    </option>
+                                    {addresses.map((address, i) => (
+                                        <option
+                                            value={address.id}
+                                            key={address.id}
+                                        >
+                                            {address.address_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mSchedule">
+                        {meetVia == "on-site" && (
+                            <>
+                                <h4>
+                                    {t("admin.schedule.meetingTimeAndDate")}
+                                </h4>
+
+                                <div className="mx-auto mt-5 row custom-calendar">
+                                    <div className="col-8 border">
+                                        <h5 className="mt-3">
+                                            Select a Date & Time
+                                        </h5>
+                                        <div className="d-flex gap-3 p-3">
+                                            <div>
+                                                <DatePicker
+                                                    selected={selectedDate}
+                                                    onChange={(date) =>
+                                                        setSelectedDate(date)
+                                                    }
+                                                    autoFocus
+                                                    shouldCloseOnSelect={false}
+                                                    inline
+                                                />
+                                            </div>
+                                            <div className="mt-1 ">
+                                                <h6 className="time-slot-date">
+                                                    {dayName ?? ""},{" "}
+                                                    {monthName ?? ""},{" "}
+                                                    {date ?? ""}
+                                                </h6>
+                                                <ul className="list-unstyled mt-4 timeslot">
+                                                    {timeSlots.length > 0 ? (
+                                                        timeSlots.map(
+                                                            (t, index) => {
+                                                                return (
+                                                                    <li
+                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${
+                                                                            selectedTime ===
+                                                                            t
+                                                                                ? "bg-primary text-white"
+                                                                                : "text-primary"
+                                                                        }`}
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        onClick={() =>
+                                                                            setSelectedTime(
+                                                                                t
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        {t}
+                                                                    </li>
+                                                                );
+                                                            }
+                                                        )
+                                                    ) : (
+                                                        <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
+                                                            No time slot
+                                                            avaiable
+                                                        </li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
                         )}
 
-                        <div className="row">
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>{t("admin.schedule.meetVia")}</label>
-                                    <select
-                                        name="meet_via"
-                                        id="meet_via"
-                                        value={meetVia}
-                                        onChange={(e) => {
-                                            setMeetVia(e.target.value);
-                                            handleUpdate(e);
-                                        }}
-                                        className="form-control"
-                                    >
-                                        <option value="on-site">
-                                            {t(
-                                                "admin.schedule.options.meetVia.onSite"
-                                            )}
-                                        </option>
-                                        <option value="off-site">
-                                            {t(
-                                                "admin.schedule.options.meetVia.offSite"
-                                            )}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>
-                                        {t("admin.schedule.meetLink")}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="meet_link"
-                                        name="meet_link"
-                                        value={meetLink}
-                                        onChange={(e) => {
-                                            setMeetLink(e.target.value);
-                                            handleUpdate(e);
-                                        }}
-                                        className="form-control"
-                                        placeholder="Insert Meeting Link"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>
-                                        {t("admin.schedule.Property")}
-                                    </label>
-                                    <select
-                                        name="address_id"
-                                        id="address_id"
-                                        value={address}
-                                        onChange={(e) => {
-                                            setAddress(e.target.value);
-                                            handleUpdate(e);
-                                        }}
-                                        className="form-control"
-                                    >
-                                        <option value="">
-                                            {t(
-                                                "admin.schedule.options.pleaseSelect"
-                                            )}
-                                        </option>
-                                        {addresses.map((address, i) => (
-                                            <option
-                                                value={address.id}
-                                                key={address.id}
-                                            >
-                                                {address.address_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
                         <div className="text-center mt-3">
                             <button
                                 className="btn btn-pink sendBtn"
