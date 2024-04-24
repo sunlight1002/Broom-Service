@@ -240,8 +240,14 @@ export default function Payments() {
                     </div>
                 </div>
                 <div className="payment-filter mb-3">
-                    <div className="row">
-                        <div className="col-sm-6">
+                    <div className="row mb-2">
+                        <div className="col-sm-12 d-flex align-items-center">
+                            <div
+                                className="mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                Status
+                            </div>
                             <FilterButtons
                                 text="all"
                                 className="px-3 mr-1"
@@ -277,57 +283,92 @@ export default function Payments() {
                                 setselectedFilter={setPaidStatusFilter}
                             />
                         </div>
-                        <div className="col-sm-6">
-                            <div className="float-right">
-                                <FilterButtons
-                                    text="This month"
-                                    className="px-3 mr-1"
-                                    onClick={() =>
-                                        setDateRange({
-                                            start_date:
-                                                thisMonthFilter.start_date,
-                                            end_date: thisMonthFilter.end_date,
-                                        })
-                                    }
-                                    selectedFilter={selectedDateFilter}
-                                    setselectedFilter={setSelectedDateFilter}
-                                />
-
-                                <FilterButtons
-                                    text="Next month"
-                                    className="px-3 mr-1"
-                                    onClick={() =>
-                                        setDateRange({
-                                            start_date:
-                                                nextMonthFilter.start_date,
-                                            end_date: nextMonthFilter.end_date,
-                                        })
-                                    }
-                                    selectedFilter={selectedDateFilter}
-                                    setselectedFilter={setSelectedDateFilter}
-                                />
-
-                                <FilterButtons
-                                    text="All time"
-                                    className="px-3 mr-1"
-                                    onClick={() =>
-                                        setDateRange({
-                                            start_date: null,
-                                            end_date: null,
-                                        })
-                                    }
-                                    selectedFilter={selectedDateFilter}
-                                    setselectedFilter={setSelectedDateFilter}
-                                />
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-12 d-flex align-items-center">
+                            <div
+                                className="mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                Date Period
                             </div>
+                            <input
+                                className="form-control"
+                                type="date"
+                                placeholder="From date"
+                                name="from filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.start_date}
+                                onChange={(e) => {
+                                    setPaidStatusFilter("Custom Range");
+                                    setDateRange({
+                                        start_date: e.target.value,
+                                        end_date: dateRange.end_date,
+                                    });
+                                }}
+                            />
+                            <div className="mx-2">to</div>
+                            <input
+                                className="form-control mr-2"
+                                type="date"
+                                placeholder="To date"
+                                name="to filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.end_date}
+                                onChange={(e) => {
+                                    setPaidStatusFilter("Custom Range");
+                                    setDateRange({
+                                        start_date: dateRange.start_date,
+                                        end_date: e.target.value,
+                                    });
+                                }}
+                            />
+                            <FilterButtons
+                                text="This month"
+                                className="px-3 mr-1"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date: thisMonthFilter.start_date,
+                                        end_date: thisMonthFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedDateFilter}
+                                setselectedFilter={setSelectedDateFilter}
+                            />
+
+                            <FilterButtons
+                                text="Next month"
+                                className="px-3 mr-1"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date: nextMonthFilter.start_date,
+                                        end_date: nextMonthFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedDateFilter}
+                                setselectedFilter={setSelectedDateFilter}
+                            />
+
+                            <FilterButtons
+                                text="All time"
+                                className="px-3 mr-1"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date: null,
+                                        end_date: null,
+                                    })
+                                }
+                                selectedFilter={selectedDateFilter}
+                                setselectedFilter={setSelectedDateFilter}
+                            />
                         </div>
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
-                        <div className="boxPanel">
+                        <div className="boxPanel-th-border-none">
                             <div className="table-responsive">
-                                <Table className="table table-bordered">
+                                <Table className="table">
                                     <Thead>
                                         <Tr>
                                             <Th
@@ -375,13 +416,59 @@ export default function Payments() {
                                                     </Td>
                                                     <Td>
                                                         <Link
-                                                            to={`/admin/view-client/${item.client_id}`}
+                                                            to={
+                                                                item.client
+                                                                    ? `/admin/view-client/${item.client_id}`
+                                                                    : "#"
+                                                            }
+                                                            style={{
+                                                                color: "white",
+                                                                background:
+                                                                    "#D500A6",
+                                                                padding:
+                                                                    "3px 8px",
+                                                                borderRadius:
+                                                                    "5px",
+                                                                display: "flex",
+                                                                alignItems:
+                                                                    "center",
+                                                                width: "max-content",
+                                                            }}
                                                         >
-                                                            {item.client_name}
+                                                            <i
+                                                                className="fa-solid fa-user"
+                                                                style={{
+                                                                    fontSize:
+                                                                        "12px",
+                                                                    marginRight:
+                                                                        "5px",
+                                                                }}
+                                                            ></i>
+                                                            {item.client_name ||
+                                                                "NA"}
                                                         </Link>
                                                     </Td>
                                                     <Td>
-                                                        {item.last_paid_status}
+                                                        <div
+                                                            style={{
+                                                                color: "white",
+                                                                background:
+                                                                    item.last_paid_status
+                                                                        ? "#2F4054"
+                                                                        : "white",
+                                                                padding:
+                                                                    "3px 20px",
+                                                                borderRadius:
+                                                                    "5px",
+                                                                display: "flex",
+                                                                alignItems:
+                                                                    "center",
+                                                                width: "max-content",
+                                                            }}
+                                                        >
+                                                            {item.last_paid_status ||
+                                                                "-"}
+                                                        </div>
                                                     </Td>
                                                     <Td>{item.visits}</Td>
                                                     <Td>
@@ -479,8 +566,8 @@ export default function Payments() {
 
                                 {clients.length > 0 && (
                                     <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
+                                        previousLabel={"<"}
+                                        nextLabel={">"}
                                         breakLabel={"..."}
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
@@ -490,14 +577,15 @@ export default function Payments() {
                                             "pagination justify-content-end mt-3"
                                         }
                                         pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
+                                        pageLinkClassName={"page-link px-4"}
                                         previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
+                                        previousLinkClassName={"page-link page-link-prev-link customize-pagination"}
                                         nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
+                                        nextLinkClassName={"page-link page-link-next-link customize-pagination"}
                                         breakClassName={"page-item"}
                                         breakLinkClassName={"page-link"}
                                         activeClassName={"active"}
+                                        disabledLinkClassName="disabled-pagination-link"
                                     />
                                 )}
                             </div>

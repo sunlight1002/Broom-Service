@@ -2269,4 +2269,29 @@ h1 {
   overflow: auto;
 }
 
+.page-item.active .page-link {
+  color: black !important;
+  background-color: white !important;
+  border-color: #E5EBF1 !important;
+  margin: 0 10px;
+  border-radius: 10px;
+}
+
+.page-link-prev-link, .page-link-next-link {
+  color: white !important;
+  background-color: #2F4054 !important;
+  border: 1px solid #2F4054 !important;
+  border-radius: 10px !important;
+}
+
+.customize-pagination {
+  padding: 1px 10px !important;
+  font-size: x-large !important;
+}
+
+.disabled-pagination-link {
+  opacity: 50%;
+  pointer-events: none;
+}
+
 /*******End*************/
