@@ -2,6 +2,7 @@
 return [
     'meeting' => [
         'subject'     => 'Meeting schedule',
+        'resubject'     => 'Re-schedule Meeting',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',

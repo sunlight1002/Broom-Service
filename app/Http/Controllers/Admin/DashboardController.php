@@ -99,6 +99,13 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
+          }else if ($notice->type == 'reschedule-meeting') {            
+            $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
+
+            if (isset($sch)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> Re-scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+                "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
+            }
           } else if ($notice->type == 'accept-meeting') {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 

@@ -116,6 +116,7 @@ const CustomCalendar = ({ meeting }) => {
             })
             .then((response) => {
                 setIsLoading(false);
+                alert.error(response.data.message);
             })
             .catch((e) => {
                 setIsLoading(false);

@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ReScheduleMettingJob;
 use App\Events\WhatsappNotificationEvent;
 
 class ClientEmailController extends Controller
@@ -284,8 +285,12 @@ class ClientEmailController extends Controller
       'booking_status' => 'rescheduled'
     ]);
 
-    $this->saveGoogleCalendarEvent($schedule);
+    
+   $this->saveGoogleCalendarEvent($schedule);
 
+    $schedule->load(['client', 'team', 'propertyAddress']);    
+    event(new ReScheduleMettingJob($schedule));
+    
     return response()->json([
       'message' => 'Thanks, your meeting is rescheduled'
     ]);
