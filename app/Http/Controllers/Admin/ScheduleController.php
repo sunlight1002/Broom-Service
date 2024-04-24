@@ -84,7 +84,6 @@ class ScheduleController extends Controller
             'client_id'      => ['required'],
             'start_date'     => ['required_if:meet_via,on-site'],
             'start_time'     => ['required_if:meet_via,on-site'],
-            'end_time'       => ['required_if:meet_via,on-site'],
             'booking_status' => ['required'],
             'address_id'     => ['required'],
             'team_id'        => ['required']
@@ -100,8 +99,7 @@ class ScheduleController extends Controller
         $input = $request->input();
 
         if ($input['start_time']) {
-            $input['start_time'] = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $input['start_time'])->format('h:i A');
-            $input['end_time'] = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $input['end_time'])->format('h:i A');
+            $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
         }
 
         $client = Client::find($input['client_id']);
@@ -312,11 +310,10 @@ class ScheduleController extends Controller
             $change = 'date';
         } else if ($request->name == 'start_time') {
             if ($request->value) {
-                $startTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $request->value)->format('h:i A');
-                $endTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $request->value)->addMinutes(30)->format('h:i A');
+                $endTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request->value)->addMinutes(30)->format('h:i A');
 
                 $schedule->update([
-                    'start_time' => $startTime,
+                    'start_time' => $request->value,
                     'end_time' => $endTime,
                 ]);
             }
