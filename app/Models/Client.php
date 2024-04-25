@@ -113,6 +113,11 @@ class Client extends Authenticatable
         return $this->hasMany(ClientPropertyAddress::class)->orderBy('id', 'desc');
     }
 
+    public function jobComments()
+    {
+        return $this->morphMany(JobComments::class, 'commenter');
+    }
+
     public function ScopeReply($query)
     {
         return WhatsappLastReply::where('message', '=', '0')

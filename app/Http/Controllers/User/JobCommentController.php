@@ -9,6 +9,7 @@ use App\Models\Admin;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
+use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\User;
 use App\Traits\PaymentAPI;
 use Carbon\Carbon;
@@ -84,9 +85,26 @@ class JobCommentController extends Controller
         $comment = JobComments::create([
             'name' => $request->name,
             'job_id' => $job->id,
-            'comment_for' => 'client',
+            'comment_for' => 'admin',
             'comment' => $request->comment,
         ]);
+
+        $filesArr = $request->file('files');
+        if ($request->hasFile('files') && count($filesArr) > 0) {
+            if (!Storage::disk('public')->exists('uploads/attachments')) {
+                Storage::disk('public')->makeDirectory('uploads/attachments');
+            }
+
+            $resultArr = [];
+            foreach ($filesArr as $key => $file) {
+                $file_name = $comment->job_id . "_" . date('s') . "_" . $file->getClientOriginalName();
+                if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
+                    array_push($resultArr, ['file' => $file_name]);
+                }
+            }
+
+            $comment->attachments()->createMany($resultArr);
+        }
 
         if (isset($request->status) && $request->status != '') {
             $job->update([
@@ -96,6 +114,8 @@ class JobCommentController extends Controller
             event(new WorkerUpdatedJobStatus($job, $comment));
 
             if ($job->status == JobStatusEnum::COMPLETED) {
+                ScheduleNextJobOccurring::dispatch($job->id);
+
                 $client = $job->client;
                 $service = $job->jobservice;
 
@@ -113,20 +133,6 @@ class JobCommentController extends Controller
             }
         }
 
-        $filesArr = $request->file('files');
-        if ($request->hasFile('files') && count($filesArr) > 0) {
-            if (!Storage::disk('public')->exists('uploads/attachments')) {
-                Storage::disk('public')->makeDirectory('uploads/attachments');
-            }
-            $resultArr = [];
-            foreach ($filesArr as $key => $file) {
-                $file_name = $comment->job_id . "_" . date('s') . "_" . $file->getClientOriginalName();
-                if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
-                    array_push($resultArr, ['file' => $file_name]);
-                }
-            }
-            $comment->attachments()->createMany($resultArr);
-        }
         return response()->json([
             'message' => 'Comment has been created successfully'
         ]);

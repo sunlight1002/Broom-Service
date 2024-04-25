@@ -107,4 +107,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkerDefaultAvailability::class);
     }
+
+    public function jobComments()
+    {
+        return $this->morphMany(JobComments::class, 'commenter');
+    }
 }
