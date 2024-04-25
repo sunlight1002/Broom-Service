@@ -1660,7 +1660,7 @@ h1 {
 }
 
 .responsiveTable td.pivoted {
-  padding-bottom: 2px !important;
+  padding: 5px !important;
 }
 
 .responsiveTable tbody tr td:last-child {
@@ -1681,9 +1681,9 @@ h1 {
   max-height: 250px;
   overflow-y: auto;
 }
-.crt-jb-wrap.responsiveTable tbody tr td div:last-child{
+/* .crt-jb-wrap.responsiveTable tbody tr td div:last-child{
   border-bottom: 0px !important;
-}
+} */
 
 .fc-license-message {
   display: none;
@@ -2292,6 +2292,11 @@ h1 {
 .disabled-pagination-link {
   opacity: 50%;
   pointer-events: none;
+}
+
+.bg-primary-selected{
+  background-color: #E7A807 !important;
+  color: white !important;
 }
 
 /*******End*************/

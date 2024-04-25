@@ -20,7 +20,7 @@ export default function CreateJobCalender({
     const [selectedService, setSelectedService] = useState(0);
     const [data, setData] = useState([]);
     const [c_time, setCTime] = useState(0);
-
+    const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -249,46 +249,39 @@ export default function CreateJobCalender({
 
     return (
         <>
-            <ul className="nav nav-tabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-availability"
-                        className="nav-link active"
-                        data-toggle="tab"
-                        href="#tab-worker-availability"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Current Week
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Next Week
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-next-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-next-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Next Next Week
-                    </a>
-                </li>
-            </ul>
+            <div className="row mb-3">
+                <div className="col-sm-12 d-flex align-items-center">
+                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                        Worker Availability
+                    </div>
+                    <FilterButtons
+                        text="Current Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+
+                    <FilterButtons
+                        text="Next Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+
+                    <FilterButtons
+                        text="Next Next Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+                </div>
+            </div>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Current Week" ? "block" : "none",
+                    }}
                     id="tab-worker-availability"
                     className="tab-pane active show  table-responsive"
                     role="tab-panel"
@@ -298,9 +291,9 @@ export default function CreateJobCalender({
                         <Table className="table table-bordered crt-jb-wrap">
                             <Thead>
                                 <Tr>
-                                    <Th>Worker</Th>
+                                    <Th className="text-center">Worker</Th>
                                     {week.map((element, index) => (
-                                        <Th key={index}>
+                                        <Th className="text-center" key={index}>
                                             {moment(element)
                                                 .toString()
                                                 .slice(0, 15)}
@@ -357,7 +350,7 @@ export default function CreateJobCalender({
 
                                                 return (
                                                     <Td key={index}>
-                                                        <div>
+                                                        <div className="d-flex">
                                                             {shifts.map(
                                                                 (s, i) => {
                                                                     return (
@@ -397,9 +390,9 @@ export default function CreateJobCalender({
 
                                                                         return (
                                                                             <div
-                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center  ${
+                                                                                className={`d-flex justify-content-between p-2 border align-items-center  ${
                                                                                     isActive
-                                                                                        ? "bg-primary"
+                                                                                        ? "bg-primary-selected"
                                                                                         : ""
                                                                                 }`}
                                                                                 onClick={() => {
@@ -419,20 +412,16 @@ export default function CreateJobCalender({
                                                                                     _sIdx
                                                                                 }
                                                                             >
-                                                                                <div>
-                                                                                    {
-                                                                                        shift.start
-                                                                                    }{" "}
-                                                                                    -{" "}
-                                                                                    {
-                                                                                        shift.end
-                                                                                    }
-                                                                                </div>
-                                                                                {isActive ? (
-                                                                                    <i className="fa-solid fa-minus"></i>
-                                                                                ) : (
-                                                                                    <i className="fa-solid fa-plus"></i>
-                                                                                )}
+                                                                                <>
+                                                                                    {shift.start
+                                                                                        ? moment(
+                                                                                              shift.start,
+                                                                                              "HH:mm"
+                                                                                          ).format(
+                                                                                              "hh A"
+                                                                                          )
+                                                                                        : "-"}
+                                                                                </>
                                                                             </div>
                                                                         );
                                                                     }
@@ -456,7 +445,12 @@ export default function CreateJobCalender({
                         </Table>
                     </div>
                 </div>
+
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Next Week" ? "block" : "none",
+                    }}
                     id="tab-current-job"
                     className="tab-pane"
                     role="tab-panel"
@@ -466,9 +460,9 @@ export default function CreateJobCalender({
                         <Table className="table table-bordered crt-jb-wrap">
                             <Thead>
                                 <Tr>
-                                    <Th>Worker</Th>
+                                    <Th className="text-center">Worker</Th>
                                     {nextweek.map((element, index) => (
-                                        <Th key={index}>
+                                        <Th className="text-center" key={index}>
                                             {moment(element)
                                                 .toString()
                                                 .slice(0, 15)}
@@ -526,7 +520,7 @@ export default function CreateJobCalender({
 
                                                 return (
                                                     <Td key={index}>
-                                                        <div>
+                                                        <div className="d-flex">
                                                             {shifts.map(
                                                                 (s, i) => {
                                                                     return (
@@ -566,9 +560,9 @@ export default function CreateJobCalender({
 
                                                                         return (
                                                                             <div
-                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
+                                                                                className={`d-flex justify-content-between p-2 border align-items-center ${
                                                                                     isActive
-                                                                                        ? "bg-primary"
+                                                                                        ? "bg-primary-selected"
                                                                                         : ""
                                                                                 }`}
                                                                                 key={
@@ -588,20 +582,16 @@ export default function CreateJobCalender({
                                                                                           );
                                                                                 }}
                                                                             >
-                                                                                <div>
-                                                                                    {
-                                                                                        shift.start
-                                                                                    }{" "}
-                                                                                    -{" "}
-                                                                                    {
-                                                                                        shift.end
-                                                                                    }
-                                                                                </div>
-                                                                                {isActive ? (
-                                                                                    <i className="fa-solid fa-minus"></i>
-                                                                                ) : (
-                                                                                    <i className="fa-solid fa-plus"></i>
-                                                                                )}
+                                                                                <>
+                                                                                    {shift.start
+                                                                                        ? moment(
+                                                                                              shift.start,
+                                                                                              "HH:mm"
+                                                                                          ).format(
+                                                                                              "hh A"
+                                                                                          )
+                                                                                        : "-"}
+                                                                                </>
                                                                             </div>
                                                                         );
                                                                     }
@@ -626,6 +616,12 @@ export default function CreateJobCalender({
                     </div>
                 </div>
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Next Next Week"
+                                ? "block"
+                                : "none",
+                    }}
                     id="tab-current-next-job"
                     className="tab-pane"
                     role="tab-panel"
@@ -635,9 +631,9 @@ export default function CreateJobCalender({
                         <Table className="table table-bordered crt-jb-wrap">
                             <Thead>
                                 <Tr>
-                                    <Th>Worker</Th>
+                                    <Th className="text-center">Worker</Th>
                                     {nextnextweek.map((element, index) => (
-                                        <Th key={index}>
+                                        <Th className="text-center" key={index}>
                                             {moment(element)
                                                 .toString()
                                                 .slice(0, 15)}
@@ -698,7 +694,7 @@ export default function CreateJobCalender({
 
                                                     return (
                                                         <Td key={index}>
-                                                            <div>
+                                                            <div className="d-flex">
                                                                 {shifts.map(
                                                                     (s, i) => {
                                                                         return (
@@ -740,9 +736,9 @@ export default function CreateJobCalender({
 
                                                                             return (
                                                                                 <div
-                                                                                    className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
+                                                                                    className={`d-flex justify-content-between p-2 border align-items-center ${
                                                                                         isActive
-                                                                                            ? "bg-primary"
+                                                                                            ? "bg-primary-selected"
                                                                                             : ""
                                                                                     }`}
                                                                                     key={
@@ -762,20 +758,16 @@ export default function CreateJobCalender({
                                                                                               );
                                                                                     }}
                                                                                 >
-                                                                                    <div>
-                                                                                        {
-                                                                                            shift.start
-                                                                                        }{" "}
-                                                                                        -{" "}
-                                                                                        {
-                                                                                            shift.end
-                                                                                        }
-                                                                                    </div>
-                                                                                    {isActive ? (
-                                                                                        <i className="fa-solid fa-minus"></i>
-                                                                                    ) : (
-                                                                                        <i className="fa-solid fa-plus"></i>
-                                                                                    )}
+                                                                                    <>
+                                                                                        {shift.start
+                                                                                            ? moment(
+                                                                                                  shift.start,
+                                                                                                  "HH:mm"
+                                                                                              ).format(
+                                                                                                  "hh A"
+                                                                                              )
+                                                                                            : "-"}
+                                                                                    </>
                                                                                 </div>
                                                                             );
                                                                         }
@@ -810,6 +802,8 @@ export default function CreateJobCalender({
                     data-target="#exampleModal"
                 />
             </div>
+
+            {/* modals */}
             <div
                 className="modal fade"
                 id="exampleModal"
@@ -1082,3 +1076,35 @@ export default function CreateJobCalender({
         </>
     );
 }
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn border ${className}`}
+        type="button"
+        style={
+            selectedFilter !== text
+                ? {
+                      background: "#EDF1F6",
+                      color: "#2c3f51",
+                      borderRadius: "6px",
+                  }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                      borderRadius: "6px",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);
