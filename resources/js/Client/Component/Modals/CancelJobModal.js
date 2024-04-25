@@ -44,6 +44,10 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                 setLoading(false);
                 alert.success("Job cancelled successfully");
                 navigate(`/client/jobs`);
+            })
+            .catch((e) => {
+                setLoading(false);
+                alert.error(e.response.data.message);
             });
     };
 
