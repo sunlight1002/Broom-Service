@@ -331,7 +331,7 @@ trait JobSchedule
         return $date;
     }
 
-    private function scheduleNextJobDate($jobDate, $period, $preferredWeekDay)
+    private function scheduleNextJobDate($jobDate, $period, $preferredWeekDay, $workingWeekDays)
     {
         if ($period == 'na') {
             return NULL;
@@ -346,7 +346,7 @@ trait JobSchedule
                 ->clone()
                 ->addDays($period_sequence_length);
 
-            if ($this->isHoliday($next_job_date)) {
+            if ($this->isHoliday($next_job_date, $workingWeekDays)) {
                 $next_job_date->modify('next sunday');
             }
         } else if ($period_type == 'week') {
@@ -360,7 +360,7 @@ trait JobSchedule
 
             if (
                 !$next_job_date->is($preferredWeekDay) ||
-                $this->isHoliday($next_job_date)
+                $this->isHoliday($next_job_date, $workingWeekDays)
             ) {
                 $next_job_date->modify('next ' . $preferredWeekDay);
             }
@@ -371,7 +371,7 @@ trait JobSchedule
 
             if (
                 !$next_job_date->is($preferredWeekDay) ||
-                $this->isHoliday($next_job_date)
+                $this->isHoliday($next_job_date, $workingWeekDays)
             ) {
                 $next_job_date->modify('next ' . $preferredWeekDay);
             }
@@ -380,9 +380,9 @@ trait JobSchedule
         return $next_job_date ? $next_job_date->toDateString() : NULL;
     }
 
-    private function isHoliday($date)
+    private function isHoliday($date, $workingWeekDays)
     {
-        return $date->is('friday') || $date->is('saturday');
+        return !in_array($date->dayOfWeek, $workingWeekDays);
     }
 
     private function mergeContinuousTimes($times)

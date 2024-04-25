@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
+use App\Events\AdminReScheduleMettingJob;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
+use App\Events\ReScheduleMettingJob;
 use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
+use App\Listeners\AdminReScheduleMettingNotification;
+use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
 use App\Listeners\SendShiftChangedNotification;
@@ -50,6 +54,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerCreated::class => [
             SendWorkerFormsNotification::class
+        ],
+        ReScheduleMettingJob::class => [
+            ReScheduleMettingNotification::class,
+        ],
+        AdminReScheduleMettingJob::class => [
+            AdminReScheduleMettingNotification::class,
         ]
     ];
 

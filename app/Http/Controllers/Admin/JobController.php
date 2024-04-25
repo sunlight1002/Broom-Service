@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Helpers\Helper;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Jobs\ScheduleNextJobOccurring;
+use App\Models\ManageTime;
 
 class JobController extends Controller
 {
@@ -154,31 +156,6 @@ class JobController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'client_id' => ['required'],
-            'worker_id' => ['required'],
-            'start_date' => ['required']
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        Job::create($request->input());
-
-        return response()->json([
-            'message' => 'Job has been created successfully'
-        ]);
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -207,41 +184,6 @@ class JobController extends Controller
 
         return response()->json([
             'job' => $job,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'workers' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        $worker = $request->workers[0];
-        $job = Job::find($id);
-
-        $job->upcate([
-            'worker_id'  => $worker['worker_id'],
-            'start_date' => $worker['date'],
-            'start_time' => $worker['start'],
-            'end_time'   => $worker['end'],
-            'status'     => 'scheduled',
-        ]);
-
-        $this->sendWorkerEmail($id);
-
-        return response()->json([
-            'message' => 'Job has been updated successfully'
         ]);
     }
 
@@ -363,6 +305,9 @@ class JobController extends Controller
         $s_total  = $selectedService['totalamount'];
         $s_id     = $selectedService['service'];
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
         $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
         foreach ($workerIDs as $workerID) {
             $workerDates = Arr::where($data['workers'], function ($value) use ($workerID) {
@@ -379,7 +324,7 @@ class JobController extends Controller
 
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
-                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
                 $job_date = $job_date->toDateString();
 
@@ -458,6 +403,10 @@ class JobController extends Controller
                         'period'            => $serviceSchedule->period,
                         'preferred_weekday' => $preferredWeekDay
                     ]
+                ]);
+
+                $job->update([
+                    'origin_job_id' => $job->id
                 ]);
 
                 foreach ($mergedContinuousTime as $key => $shift) {
@@ -556,9 +505,12 @@ class JobController extends Controller
 
         $repeat_value = $job->jobservice->period;
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
         $job_date = Carbon::parse($data['worker']['date']);
         $preferredWeekDay = strtolower($job_date->format('l'));
-        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
         $job_date = $job_date->toDateString();
 
@@ -702,11 +654,14 @@ class JobController extends Controller
             ], 404);
         }
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
         $repeat_value = $job->jobservice->period;
 
         $job_date = Carbon::parse($data['worker']['date']);
         $preferredWeekDay = strtolower($job_date->format('l'));
-        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
         $job_date = $job_date->toDateString();
 
@@ -912,6 +867,18 @@ class JobController extends Controller
             ->with(['worker', 'offer', 'client', 'jobservice'])
             ->find($id);
 
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
         $feePercentage = $request->fee;
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
 
@@ -926,6 +893,8 @@ class JobController extends Controller
             'cancel_until_date' => $request->until_date,
         ]);
 
+        ScheduleNextJobOccurring::dispatch($job->id);
+
         $admin = Admin::find(1)->first();
         App::setLocale('en');
         $data = array(
@@ -934,12 +903,14 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
+
         if (isset($data['job']['client']) && !empty($data['job']['client']['phone'])) {
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
                 "notificationData" => $data
             ]));
         }
+
         Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['job']['client']['email']);
             $ln = $data['job']['client']['lng'];

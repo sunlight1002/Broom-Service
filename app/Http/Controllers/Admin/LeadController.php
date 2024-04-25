@@ -14,6 +14,9 @@ use App\Models\Schedule;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use App\Models\Fblead;
+use Exception;
 
 class LeadController extends Controller
 {
@@ -385,5 +388,51 @@ class LeadController extends Controller
                 'message' => 'Something went wrong!',
             ], 500);
         }
+    }
+
+    public function facebookWebhook(Request $request) {
+        $request_data = $request->all();
+        if(isset($request_data['object']) && $request_data['object'] == "page" && isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 ) {
+            \Log::info("webhook_request_data");
+            \Log::info($request_data);
+            $entry_data = $request_data['entry'][0];
+            $changes_data = $entry_data['changes'];
+            foreach ($changes_data as $key => $changes) {
+                $url = "https://graph.facebook.com/v18.0/" . $changes['value']['leadgen_id'] . "/";
+                $lead_response = Http::get($url, [
+                    'access_token' => config('services.facebook.access_token'),
+                ]);
+                $lead_data = $lead_response->json();
+                $http_code = $lead_response->status();
+                \Log::info("lead_data_get");
+                \Log::info($lead_data);
+                if ($http_code == 200) {
+                    Fblead::create(["challenge" => $lead_data]);
+                    $client = Client::updateOrCreate([
+                        'email'             => 'lead'.$lead_data['id'] . '@lead.com',
+                    ], [
+                        'payment_method'    => 'cc',
+                        'password'          => Hash::make($lead_data['id']),
+                        'status'            => 0,
+                        'lng'               => 'heb',
+                        'firstname'         => 'lead_' . $lead_data['id']
+                    ]);
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                    );
+                }
+                // else{
+                //     throw new Exception('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
+                // }
+            }
+            $webhook_response = WebhookResponse::create([
+                'entry_id'  => $entry_data['id'],
+                'read'      => 1,
+                'name'      => 'facebook-callback-lead',
+                'data'      => json_encode($request_data)
+            ]);
+        }
+        die('sent');
     }
 }

@@ -42,6 +42,7 @@ class Job extends Model
         'is_worker_reminded',
         'worker_approved_at',
         'actual_time_taken_minutes',
+        'origin_job_id',
         'original_worker_id',
         'original_shifts',
         'previous_worker_id',
@@ -163,5 +164,10 @@ class Job extends Model
     public function changeWorkerRequests()
     {
         return $this->hasMany(ChangeJobWorkerRequest::class, 'job_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(JobComments::class, 'job_id');
     }
 }

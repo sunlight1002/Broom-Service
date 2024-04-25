@@ -43,7 +43,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('not-available-date', [DashboardController::class, 'addNotAvailableDates']);
     Route::post('delete-not-available-date', [DashboardController::class, 'deleteNotAvailableDates']);
 
-    Route::resource('jobs', JobController::class)->only(['index', 'show', 'update']);
+    Route::resource('jobs', JobController::class)->only(['index', 'show']);
     Route::post('job-start-time', [JobController::class, 'JobStartTime']);
     Route::post('job-end-time', [JobController::class, 'JobEndTime']);
     Route::post('get-job-time', [JobController::class, 'getJobTime']);

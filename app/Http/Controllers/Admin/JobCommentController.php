@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
+use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -17,20 +18,16 @@ class JobCommentController extends Controller
      */
     public function index(request $request)
     {
-        $client_comments = JobComments::with(['attachments'])
-            ->where('job_id', $request->id)
-            ->where('comment_for', 'client')
-            ->orderBy('id', 'desc')
-            ->get();
-        $worker_comments = JobComments::with(['attachments'])
-            ->where('job_id', $request->id)
-            ->where('comment_for', 'worker')
+        $job = Job::find($request->id);
+
+        $comments = $job
+            ->comments()
+            ->with(['attachments'])
             ->orderBy('id', 'desc')
             ->get();
 
         return response()->json([
-            'client_comments' => $client_comments,
-            'worker_comments' => $worker_comments
+            'comments' => $comments
         ]);
     }
 

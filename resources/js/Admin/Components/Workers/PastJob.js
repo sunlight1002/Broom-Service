@@ -175,13 +175,6 @@ export default function PastJob() {
                                             <td>
                                                 <div className="d-flex">
                                                     <Link
-                                                        to={`/admin/edit-job/${item.id}`}
-                                                        className="btn bg-green"
-                                                    >
-                                                        <i className="fa fa-edit"></i>
-                                                    </Link>
-
-                                                    <Link
                                                         to={`/admin/view-job/${item.id}`}
                                                         className="ml-2 btn btn-warning"
                                                     >

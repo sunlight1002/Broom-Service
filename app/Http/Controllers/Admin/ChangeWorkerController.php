@@ -8,6 +8,7 @@ use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeJobWorkerRequest;
 use App\Models\Job;
+use App\Models\ManageTime;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -105,11 +106,14 @@ class ChangeWorkerController extends Controller
             'shifts' => $job->shifts,
         ];
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
         $repeat_value = $job->jobservice->period;
 
         $job_date = Carbon::parse($changeWorkerRequest->date);
         $preferredWeekDay = strtolower($job_date->format('l'));
-        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
         $job_date = $job_date->toDateString();
 

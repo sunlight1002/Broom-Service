@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
+use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
-use App\Models\ChangeJobWorkerRequest;
 use App\Models\Job;
 use App\Models\Notification;
 use Carbon\Carbon;
@@ -14,8 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
@@ -63,6 +63,18 @@ class JobController extends Controller
             ->where('client_id', Auth::user()->id)
             ->find($id);
 
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
         $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
 
@@ -76,6 +88,8 @@ class JobController extends Controller
             'cancelled_for' => $request->repeatancy,
             'cancel_until_date' => $request->until_date,
         ]);
+
+        ScheduleNextJobOccurring::dispatch($job->id);
 
         Notification::create([
             'user_id' => $job->client->id,
