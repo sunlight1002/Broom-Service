@@ -55,7 +55,7 @@ class WhatsappNotification
                         "template"=> [
                             "name"=> WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
                             "language"=> [
-                                "code"=> $clientData['lng']
+                                "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
                         ],
                         "components"=> [
                             [
@@ -111,7 +111,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::OFFER_PRICE,
                         "language"=> [
-                            "code"=> $clientData['lng']
+                            "code"=>  $clientData['lng'] == "heb"?'he':$clientData['lng']
                         ],
                         "components"=> [
                             [
@@ -151,7 +151,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::CONTRACT,
                         "language"=> [
-                            "code"=> $clientData['lng']
+                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
                         ],
                         "components"=> [
                             [
@@ -188,7 +188,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
                         "language"=> [
-                            "code"=> $clientData['lng']
+                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
                         ],
                         "components"=> [
                             [
@@ -233,7 +233,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::DELETE_MEETING,
                         "language"=> [
-                            "code"=> $clientData['lng']
+                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
                         ],
                         "components"=> [
                             [
@@ -270,7 +270,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::FORM101,
                         "language"=> [
-                            "code"=> $workerData['lng']
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
                         ],
                         "components"=> [
                             [
@@ -307,7 +307,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::NEW_JOB,
                         "language"=> [
-                            "code"=> $workerData['lng']
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
                         ],
                         "components"=> [
                             [
@@ -403,7 +403,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::WORKER_CONTRACT,
                         "language"=> [
-                            "code"=> $workerData['lng']
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
                         ],
                         "components"=> [
                             [
@@ -480,7 +480,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::WORKER_REMIND_JOB,
                         "language"=> [
-                            "code"=> $workerData['lng']
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
                         ],
                         "components"=> [
                             [
@@ -538,7 +538,7 @@ class WhatsappNotification
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
                         "language"=> [
-                            "code"=> $oldWorkerData['lng']
+                            "code"=> $oldWorkerData['lng'] == "heb"?'he':$oldWorkerData['lng']
                         ],
                         "components"=> [
                             [
