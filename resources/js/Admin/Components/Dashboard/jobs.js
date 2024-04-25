@@ -668,12 +668,6 @@ export default function jobs() {
                                                         <td>
                                                             <div className="d-flex">
                                                                 <Link
-                                                                    to={`/admin/edit-job/${item.id}`}
-                                                                    className="btn bg-purple d-none"
-                                                                >
-                                                                    <i className="fa fa-edit"></i>
-                                                                </Link>
-                                                                <Link
                                                                     to={`/admin/view-job/${item.id}`}
                                                                     className="ml-2 btn bg-yellow"
                                                                 >

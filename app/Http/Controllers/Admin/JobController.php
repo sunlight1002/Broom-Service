@@ -156,31 +156,6 @@ class JobController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'client_id' => ['required'],
-            'worker_id' => ['required'],
-            'start_date' => ['required']
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        Job::create($request->input());
-
-        return response()->json([
-            'message' => 'Job has been created successfully'
-        ]);
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -209,41 +184,6 @@ class JobController extends Controller
 
         return response()->json([
             'job' => $job,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'workers' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        $worker = $request->workers[0];
-        $job = Job::find($id);
-
-        $job->upcate([
-            'worker_id'  => $worker['worker_id'],
-            'start_date' => $worker['date'],
-            'start_time' => $worker['start'],
-            'end_time'   => $worker['end'],
-            'status'     => 'scheduled',
-        ]);
-
-        $this->sendWorkerEmail($id);
-
-        return response()->json([
-            'message' => 'Job has been updated successfully'
         ]);
     }
 

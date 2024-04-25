@@ -46,9 +46,7 @@ import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/Cha
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
 import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
-import AddJob from "./Admin/Pages/Jobs/AddJob";
 import ViewJob from "./Admin/Pages/Jobs/ViewJob";
-import EditJob from "./Admin/Pages/Jobs/EditJob";
 import Leads from "./Admin/Pages/Lead/Lead";
 import AddLead from "./Admin/Pages/Lead/AddLead";
 import EditLead from "./Admin/Pages/Lead/EditLead";
@@ -368,17 +366,10 @@ export default function MyRoutes() {
                                 path="jobs/:id/change-shift"
                                 element={<ChangeShift />}
                             />
-                            <Route exact path="add-job" element={<AddJob />} />
                             <Route
                                 exact
                                 path="view-job/:id"
                                 element={<ViewJob />}
-                            />
-                            <Route exact path="add-job" element={<AddJob />} />
-                            <Route
-                                exact
-                                path="edit-job/:id"
-                                element={<EditJob />}
                             />
                             <Route exact path="leads" element={<Leads />} />
                             <Route

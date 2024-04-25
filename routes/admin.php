@@ -69,7 +69,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
     // Jobs Api
-    Route::resource('jobs', JobController::class)->except(['create', 'edit', 'destroy']);
+    Route::resource('jobs', JobController::class)->only(['index', 'show']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('create-job', [JobController::class, 'createJob']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeJobWorker']);
