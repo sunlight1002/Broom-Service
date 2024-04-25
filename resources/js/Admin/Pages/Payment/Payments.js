@@ -300,7 +300,6 @@ export default function Payments() {
                                 style={{ width: "fit-content" }}
                                 value={dateRange.start_date}
                                 onChange={(e) => {
-                                    setPaidStatusFilter("Custom Range");
                                     setDateRange({
                                         start_date: e.target.value,
                                         end_date: dateRange.end_date,
@@ -316,7 +315,6 @@ export default function Payments() {
                                 style={{ width: "fit-content" }}
                                 value={dateRange.end_date}
                                 onChange={(e) => {
-                                    setPaidStatusFilter("Custom Range");
                                     setDateRange({
                                         start_date: dateRange.start_date,
                                         end_date: e.target.value,
@@ -579,9 +577,13 @@ export default function Payments() {
                                         pageClassName={"page-item"}
                                         pageLinkClassName={"page-link px-4"}
                                         previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link page-link-prev-link customize-pagination"}
+                                        previousLinkClassName={
+                                            "page-link page-link-prev-link customize-pagination"
+                                        }
                                         nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link page-link-next-link customize-pagination"}
+                                        nextLinkClassName={
+                                            "page-link page-link-next-link customize-pagination"
+                                        }
                                         breakClassName={"page-item"}
                                         breakLinkClassName={"page-link"}
                                         activeClassName={"active"}
