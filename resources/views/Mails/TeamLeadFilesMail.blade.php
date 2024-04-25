@@ -9,7 +9,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<title>Re-schedule Meeting</title>
+	<title>Metting Files</title>
 </head>
 <body style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;">
 
@@ -22,41 +22,20 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.meeting.hi')}}, {{$name}}</h1>
+		<h1 style="text-align: center;">{{__('mail.meeting.hi')}}, {{$team['name']}}</h1>
        
-		<p style="text-align: center;">{{__('mail.meeting.greetings')}} {{__('mail.meeting.from')}} {{__('mail.meeting.company')}}. {{__('mail.meeting.appointment')}}
+       <p style="text-align: center;">{{__('mail.meeting.greetings')}} {{__('mail.meeting.from')}} {{__('mail.meeting.company')}}. {{__('mail.meeting.file')}}
 		
+	   <p style="text-align: center;">{{$client['firstname']}} {{$client['lastname']}} {{__('mail.meeting.file_content')}}</p>
+       		
 		
 		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{$client['firstname']}} {{$client['lastname']}}</span>
-		
 
 			@if($start_date)
 			{{__('mail.meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
 			{{__('mail.meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
 			{{__('mail.meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
 			@endif
-
-		 @if(isset($property_address))
-		 {{__('mail.meeting.address_txt')}}       <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
-		 @endif
-		
-		 @if($purpose != '') 
-         {{__('mail.meeting.for')}}  
-
-		 @if($purpose == 'Price offer')   
-		 <span style="color:#0130c6;font-weight:700;">{{ __('mail.meeting.price_offer') }}&nbsp;</span></p>
-		 @elseif($purpose == "Quality check")
-		 <span style="color:#0130c6;font-weight:700;">{{ __('mail.meeting.quality_check') }}&nbsp;</span></p>
-		 @else
-		 <span style="color:#0130c6;font-weight:700;">{{ $purpose }}&nbsp;</span></p>
-		 @endif
-
-		 @endif
-
-
-		@if(!empty($meet_link))
-		<p style="text-align: center;">{{$meet_link}}</p>
-		@endif
 
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>

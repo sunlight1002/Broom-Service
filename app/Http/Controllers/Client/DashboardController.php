@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Events\AdminLeadFilesNotificationJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Offer;
@@ -174,6 +175,7 @@ class DashboardController extends Controller
 
     public function addfile(Request $request)
     {
+        
         $validator = Validator::make($request->all(), [
             'role'   => 'required',
             'user_id' => 'required'
@@ -183,6 +185,9 @@ class DashboardController extends Controller
             return response()->json(['error' => $validator->messages()]);
         }
 
+        $schedule = Schedule::find($request->meeting);
+        $schedule->load(['client', 'team', 'propertyAddress']);  
+        
         $file_nm = '';
         if ($request->type == 'video') {
 
@@ -206,7 +211,7 @@ class DashboardController extends Controller
             }
         }
 
-        Files::create([
+        $files=Files::create([
             'user_id'   => $request->user_id,
             'meeting'   => $request->meeting,
             'note'      => $request->note,
@@ -214,7 +219,8 @@ class DashboardController extends Controller
             'type'      => $request->type,
             'file'      => $file_nm
         ]);
-
+        event(new AdminLeadFilesNotificationJob($schedule,$files));
+        
         return response()->json([
             'message' => 'File uploaded',
         ]);

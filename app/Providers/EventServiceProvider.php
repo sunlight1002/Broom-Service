@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
@@ -10,6 +11,7 @@ use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
+use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
@@ -60,6 +62,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         AdminReScheduleMettingJob::class => [
             AdminReScheduleMettingNotification::class,
+        ],
+        AdminLeadFilesNotificationJob::class => [
+            AdminLeadFilesNotification::class,
         ]
     ];
 

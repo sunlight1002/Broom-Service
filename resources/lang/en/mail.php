@@ -3,6 +3,8 @@ return [
     'meeting' => [
         'subject'     => 'Meeting schedule',
         'resubject'     => 'Re-schedule Meeting',
+        'file'     => 'Files',
+        'file_content'     => "Added New files in below mentions metting details",
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
