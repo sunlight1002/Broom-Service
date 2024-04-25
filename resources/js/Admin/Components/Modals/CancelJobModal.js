@@ -52,6 +52,10 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                 setLoading(false);
                 alert.success("Job cancelled successfully");
                 navigate(`/admin/jobs`);
+            })
+            .catch((e) => {
+                setLoading(false);
+                alert.error(e.response.data.message);
             });
     };
 
@@ -220,7 +224,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                             },
                                         ],
                                     }}
-                                    defaultValue={minUntilDate}
+                                    defaultValue={null}
                                     ref={flatpickrRef}
                                 />
                             </div>
