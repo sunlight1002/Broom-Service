@@ -302,7 +302,6 @@ class JobController extends Controller
         $s_freq   = $selectedService['freq_name'];
         $s_cycle  = $selectedService['cycle'];
         $s_period = $selectedService['period'];
-        $s_total  = $selectedService['totalamount'];
         $s_id     = $selectedService['service'];
 
         $manageTime = ManageTime::first();
@@ -316,15 +315,17 @@ class JobController extends Controller
 
             $workerDates = array_values($workerDates);
             foreach ($workerDates as $workerIndex => $workerDate) {
-                // if ($selectedService['type'] == 'hourly') {
-                //     $total_amount = $selectedService['rateperhour'];
-                // } else {
-                //     $total_amount = $selectedService['fixed_price'];
-                // }
-
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
                 $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                if (!$next_job_date) {
+                    $is_one_time_in_month_job = true;
+                } else {
+                    $next_job_date_carbon = Carbon::parse($next_job_date);
+                    $is_one_time_in_month_job = !($job_date->year == $next_job_date_carbon->year &&
+                        $job_date->month == $next_job_date_carbon->month);
+                }
 
                 $job_date = $job_date->toDateString();
 
@@ -346,17 +347,23 @@ class JobController extends Controller
 
                 $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
+                $minutes = 0;
                 $slotsInString = '';
                 foreach ($mergedContinuousTime as $key => $slot) {
                     if (!empty($slotsInString)) {
                         $slotsInString .= ',';
                     }
+
                     $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
                 }
 
-                $minutes = 0;
-                foreach ($mergedContinuousTime as $key => $value) {
-                    $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+                if ($selectedService['type'] == 'hourly') {
+                    $hours = ($minutes / 60);
+                    $total_amount = $selectedService['rateperhour'] * $hours;
+                } else {
+                    $total_amount = $selectedService['fixed_price'];
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
@@ -377,10 +384,10 @@ class JobController extends Controller
                     'start_date'    => $job_date,
                     'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
-                    'is_one_time_job'   => $repeat_value == 'na',
+                    'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
-                    'total_amount'  => $s_total,
+                    'total_amount'  => $total_amount,
                     'next_start_date'   => $next_job_date,
                     'address_id'        => $selectedService['address']['id'],
                     'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
@@ -397,7 +404,7 @@ class JobController extends Controller
                     'freq_name'         => $s_freq,
                     'cycle'             => $s_cycle,
                     'period'            => $s_period,
-                    'total'             => $s_total,
+                    'total'             => $total_amount,
                     'config'            => [
                         'cycle'             => $serviceSchedule->cycle,
                         'period'            => $serviceSchedule->period,

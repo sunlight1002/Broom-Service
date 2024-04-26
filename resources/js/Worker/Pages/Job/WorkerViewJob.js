@@ -27,10 +27,12 @@ export default function WorkerViewJob() {
     const [address, setAddress] = useState({});
     const [allComment, setAllComment] = useState([]);
     const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
+    const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
+    const [isButtonEnabled, setIsButtonEnabled] = useState(true);
 
     const alert = useAlert();
     const { t } = useTranslation();
-    const [isButtonEnabled, setIsButtonEnabled] = useState(true);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -64,24 +66,26 @@ export default function WorkerViewJob() {
 
     const handleMarkComplete = () => {
         isRunning ? stopTimer() : "";
-        const cbtn = document.querySelector(".cmbtn");
-        cbtn.setAttribute("disabled", true);
-        cbtn.value = "please wait ...";
+        setIsCompleteBtnDisable(true);
         setIsOpenChangeJobStatus(true);
     };
 
     const handleApproveJob = (e) => {
         e.preventDefault();
+
+        setIsApproving(true);
         axios
             .post(`/api/worker/${worker.id}/jobs/${params.id}/approve`)
             .then((res) => {
                 getJob();
                 alert.success(res.data.data);
+                setIsApproving(false);
             })
             .catch((err) => {
+                setIsApproving(false);
                 alert.error(err.message);
             });
-    }
+    };
 
     const handleOpeningTime = (e) => {
         e.preventDefault();
@@ -266,23 +270,28 @@ export default function WorkerViewJob() {
                                             </h2>
                                         </div>
 
-                                        {job.job_opening_timestamp === null && job.worker_approved_at === null ? (
+                                        {job.job_opening_timestamp === null &&
+                                        job.worker_approved_at === null ? (
                                             <div className="col-sm-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleApproveJob}
-                                                    className="btn btn-primary cmbtn"
+                                                    disabled={isApproving}
+                                                    className="btn btn-primary"
                                                 >
-                                                    {"Aprroved"}
+                                                    {t(
+                                                        "worker.jobs.view.approve"
+                                                    )}
                                                 </button>
                                             </div>
-                                        ) : job.job_opening_timestamp === null && job.worker_approved_at !== null ?(
-                                                
+                                        ) : job.job_opening_timestamp ===
+                                              null &&
+                                          job.worker_approved_at !== null ? (
                                             <div className="col-sm-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleOpeningTime}
-                                                    className="btn btn-success cmbtn"
+                                                    className="btn btn-success"
                                                     disabled={!isButtonEnabled}
                                                 >
                                                     {t(
@@ -302,7 +311,10 @@ export default function WorkerViewJob() {
                                                                 onClick={
                                                                     handleMarkComplete
                                                                 }
-                                                                className="btn btn-success cmbtn"
+                                                                disabled={
+                                                                    isCompleteBtnDisable
+                                                                }
+                                                                className="btn btn-success"
                                                             >
                                                                 {t(
                                                                     "worker.jobs.view.completebtn"

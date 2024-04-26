@@ -7,6 +7,7 @@ use App\Helpers\Helper;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Traits\JobSchedule;
+use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -15,12 +16,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
 class ScheduleNextJobOccurring implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, JobSchedule;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, JobSchedule, PriceOffered;
 
     protected $jobID;
 
@@ -42,7 +44,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
     public function handle()
     {
         $job = Job::query()
-            ->where('is_one_time_job', false)
+            ->where('schedule', '!=', 'na')
             ->where('is_next_job_created', false)
             ->where(function ($q) {
                 $q->whereNull('cancelled_for')
@@ -54,6 +56,13 @@ class ScheduleNextJobOccurring implements ShouldQueue
         $workingWeekDays = json_decode($manageTime->days);
 
         if ($job) {
+            $offerServices = $this->formatServices($job->offer, false);
+            $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
+                return $value['service'] == $job->schedule_id;
+            });
+
+            $selectedService = head($filtered);
+
             $job_date = Carbon::parse($job->start_date);
             $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
             $next_job_date = $this->scheduleNextJobDate($job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
@@ -70,8 +79,18 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $next_to_next_job_date = $this->scheduleNextJobDate(Carbon::parse($next_job_date), $job->schedule, $preferredWeekDay, $workingWeekDays);
 
             $job->update([
-                'next_start_date'   => $next_to_next_job_date,
+                'next_start_date' => $next_job_date,
             ]);
+
+            if (!$next_to_next_job_date) {
+                $is_one_time_in_month_job = true;
+            } else {
+                $next_job_date_carbon = Carbon::parse($next_job_date);
+                $next_to_next_job_date_carbon = Carbon::parse($next_to_next_job_date);
+
+                $is_one_time_in_month_job = !($next_to_next_job_date_carbon->year == $next_job_date_carbon->year &&
+                    $next_to_next_job_date_carbon->month == $next_job_date_carbon->month);
+            }
 
             $job_date = $job_date->toDateString();
 
@@ -152,17 +171,23 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
+            $minutes = 0;
             $slotsInString = '';
             foreach ($mergedContinuousTime as $key => $slot) {
                 if (!empty($slotsInString)) {
                     $slotsInString .= ',';
                 }
+
                 $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
             }
 
-            $minutes = 0;
-            foreach ($mergedContinuousTime as $key => $value) {
-                $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+            if ($selectedService['type'] == 'hourly') {
+                $hours = ($minutes / 60);
+                $total_amount = $selectedService['rateperhour'] * $hours;
+            } else {
+                $total_amount = $selectedService['fixed_price'];
             }
 
             $nextJob = Job::create([
@@ -175,11 +200,11 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'schedule'      => $job->schedule,
                 'schedule_id'   => $job->schedule_id,
                 'status'        => $status,
-                'total_amount'  => $job->total_amount,
+                'total_amount'  => $total_amount,
                 'next_start_date'   => $next_to_next_job_date,
                 'address_id'        => $job->address_id,
                 'keep_prev_worker'  => $job->keep_prev_worker,
-                'is_one_time_job'   => $job->is_one_time_job,
+                'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                 'origin_job_id'     => $job->origin_job_id,
                 'original_worker_id'    => $job->original_worker_id,
                 'original_shifts'       => $job->original_shifts,
@@ -192,6 +217,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $nextJobService = $job->jobservice->replicate()->fill([
                 'job_id' => $nextJob->id,
                 'duration_minutes'  => $minutes,
+                'total'             => $total_amount,
             ]);
             $nextJobService->save();
 
