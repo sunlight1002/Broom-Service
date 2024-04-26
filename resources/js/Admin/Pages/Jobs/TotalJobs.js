@@ -925,37 +925,12 @@ export default function TotalJobs() {
                                                                                     Order
                                                                                 </Link>
                                                                             )}
-                                                                        {/* {item.client &&
-                                                                            item.order && (
-                                                                                <Link
-                                                                                    to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Create
-                                                                                    Invoice
-                                                                                </Link>
-                                                                            )} */}
                                                                         <Link
                                                                             to={`/admin/view-job/${item.id}`}
                                                                             className="dropdown-item"
                                                                         >
                                                                             View
                                                                         </Link>
-                                                                        {/* <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                console.log(
-                                                                                    `edit item - ${item.id}`
-                                                                                );
-                                                                                $(
-                                                                                    "#edit-job"
-                                                                                ).modal(
-                                                                                    "show"
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            Edit
-                                                                        </button> */}
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",

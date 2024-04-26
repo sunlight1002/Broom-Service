@@ -148,7 +148,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -235,7 +238,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status != JobStatusEnum::COMPLETED) {
+        if (
+            $job->status != JobStatusEnum::COMPLETED ||
+            !$job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job not completed yet',
             ], 403);

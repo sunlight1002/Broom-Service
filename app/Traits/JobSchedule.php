@@ -6,6 +6,7 @@ use App\Models\Job;
 use App\Models\JobHours;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 trait JobSchedule
@@ -436,6 +437,41 @@ trait JobSchedule
 
             $job->update([
                 'actual_time_taken_minutes' => (int)$hours->minutes
+            ]);
+        }
+    }
+
+    private function updateJobAmount($jobID)
+    {
+        $job = Job::with(['offer', 'jobservice'])->find($jobID);
+
+        if ($job) {
+            $offerServices = $this->formatServices($job->offer, false);
+            $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
+                return $value['service'] == $job->schedule_id;
+            });
+
+            $selectedService = head($filtered);
+
+            if ($selectedService['type'] == 'hourly') {
+                if ($job->actual_time_taken_minutes > 0) {
+                    $minutes = $job->actual_time_taken_minutes;
+                } else {
+                    $minutes = $job->jobservice->duration_minutes;
+                }
+
+                $hours = ($minutes / 60);
+                $total_amount = $selectedService['rateperhour'] * $hours;
+            } else {
+                $total_amount = $selectedService['fixed_price'];
+            }
+
+            $job->update([
+                'total_amount' => $total_amount
+            ]);
+
+            $job->jobservice()->update([
+                'total'  => $total_amount,
             ]);
         }
     }

@@ -204,7 +204,7 @@ class JobController extends Controller
             'time_diff' => $request->time_diff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'message' => 'Updated Successfully',

@@ -50,6 +50,7 @@ class WorkerNotifyNextDayJob extends Command
             ->whereNotNull('worker_id')
             ->whereHas('worker')
             ->where('is_worker_reminded', false)
+            ->whereNull('worker_approved_at')
             ->whereDate('start_date', $tomorrow)
             ->get();
 
@@ -68,7 +69,7 @@ class WorkerNotifyNextDayJob extends Command
                     "type" => WhatsappMessageTemplateEnum::WORKER_REMIND_JOB,
                     "notificationData" => $emailData
                 ]));
-              }
+            }
 
             Mail::send('/Mails/WorkerRemindJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
