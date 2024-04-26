@@ -1018,7 +1018,8 @@
                 "save_cmt": "Save Comment",
                 "close": "Close",
                 "file": "Upload files",
-                "going_to_start": "I'm leaving for work now"
+                "going_to_start": "I'm leaving for work now",
+                "approve": "Approve"
             }
         },
         "schedule": {

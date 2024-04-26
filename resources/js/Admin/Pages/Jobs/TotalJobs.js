@@ -732,11 +732,7 @@ export default function TotalJobs() {
                                                                         : "#"
                                                                 }
                                                                 style={{
-                                                                    color: item
-                                                                        .client
-                                                                        .color
-                                                                        ? "#FFFFFF"
-                                                                        : "#000000",
+                                                                    color: "#000000",
                                                                     background:
                                                                         item
                                                                             .client

@@ -31,7 +31,7 @@ class AdminReScheduleMettingNotification
     public function handle($event)
     {
         $schedules = $event->schedules;
-        dd($schedules);
+        
         $scheduleArr = $schedules->toArray();
         $teamEmail =$schedules->team['email'];
         $teamId = $schedules->team['id'];
