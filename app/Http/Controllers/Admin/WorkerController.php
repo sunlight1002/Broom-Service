@@ -88,7 +88,12 @@ class WorkerController extends Controller
         $prefer_type = $request->get('prefer_type');
 
         $workers = User::query()
-            ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
+            ->with([
+                'availabilities:user_id,day,date,start_time,end_time',
+                'jobs:worker_id,start_date,shifts,client_id',
+                'jobs.client:id,firstname,lastname',
+                'notAvailableDates:user_id,date,start_time,end_time'
+            ])
             ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
                 return $q->whereIn('id', $onlyWorkerIDArr);
             })
@@ -123,9 +128,41 @@ class WorkerController extends Controller
         if (isset($request->filter)) {
             $workers = $workers->map(function ($worker, $key) {
                 $workerArr = $worker->toArray();
+
+                $availabilities = [];
+                foreach ($worker->availabilities->groupBy('date') as $date => $times) {
+                    $availabilities[$date] = $times->map(function ($item, $key) {
+                        return $item->only(['start_time', 'end_time']);
+                    });
+                }
+
+                $workerArr['availabilities'] = $availabilities;
                 $workerArr['aval'] = $this->workerAvl($worker->availabilities);
                 $workerArr['wjobs'] = $this->workerJobs($worker->jobs);
+
+                $dates = array();
+                foreach ($worker->jobs as $job) {
+                    $slotInfo = [
+                        'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
+                        'slot' => $job->shifts
+                    ];
+
+                    $dates[$job->start_date][] = $slotInfo;
+                }
+
+                $workerArr['booked_slots'] = $dates;
+                $workerArr['not_available_on'] = $worker
+                    ->notAvailableDates
+                    ->map(function ($item) {
+                        return $item->only([
+                            'date',
+                            'start_time',
+                            'end_time'
+                        ]);
+                    })
+                    ->toArray();
                 $workerArr['not_available_dates'] = $worker->notAvailableDates->pluck('date')->toArray();
+
                 return $workerArr;
             });
 
@@ -425,7 +462,7 @@ class WorkerController extends Controller
             'date'     => 'required',
             'worker_id'  => 'required',
             'start_time' => 'required_with:end_time',
-            'end_time' => 'required_with:start_time', 
+            'end_time' => 'required_with:start_time',
         ]);
 
         if ($validator->fails()) {
