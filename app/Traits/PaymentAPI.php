@@ -334,7 +334,7 @@ trait PaymentAPI
     }
 
     // Same API but different configuration for 'order' doctype.
-    private function generateOrderDocument($client, $jobIDs, $items, $duedate, $isOneTime)
+    private function generateOrderDocument($client, $jobIDs, $items, $duedate, $isOneTimeInMonth)
     {
         $address = $client->property_addresses()->first();
 
@@ -402,7 +402,7 @@ trait PaymentAPI
             'response'          => json_encode($json, true),
             'items'             => json_encode($items),
             'status'            => 'Open',
-            'invoice_status'    => $isOneTime ? 0 : 1,
+            'invoice_status'    => $isOneTimeInMonth ? 0 : 1,
             'paid_status'       => $hasPendingJobInMonth ? OrderPaidStatusEnum::UNDONE : NULL
         ]);
 

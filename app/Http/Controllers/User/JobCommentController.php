@@ -129,7 +129,13 @@ class JobCommentController extends Controller
 
                 $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-                $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
+                $this->generateOrderDocument(
+                    $client,
+                    [$job->id],
+                    $items,
+                    $dueDate,
+                    $job->is_one_time_in_month_job
+                );
             }
         }
 

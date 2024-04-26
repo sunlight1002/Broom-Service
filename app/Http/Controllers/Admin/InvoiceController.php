@@ -840,7 +840,6 @@ class InvoiceController extends Controller
             'invoice_no'            => $json["docnum"],
             'invoice_url'           => $json["doc_url"],
             'isOrdered'             => 2,
-            'status'                => JobStatusEnum::COMPLETED
         ]);
 
         /*Close Order */
@@ -929,7 +928,9 @@ class InvoiceController extends Controller
     public function createOrder(Request $request)
     {
         $id = $request->job_id;
-        $job = Job::query()->with(['jobservice', 'client'])->find($id);
+        $job = Job::query()
+            ->with(['jobservice', 'client'])
+            ->find($id);
 
         if (!$job) {
             return response()->json([
@@ -937,10 +938,16 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        $client = $job->client;
-        if (!$job) {
+        if ($job->status != JobStatusEnum::COMPLETED) {
             return response()->json([
-                'message' => 'Job not found'
+                'message' => 'Job not completed'
+            ], 403);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
             ], 404);
         }
 
@@ -959,7 +966,13 @@ class InvoiceController extends Controller
         $items = $request->services;
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-        $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
+        $this->generateOrderDocument(
+            $client,
+            [$job->id],
+            $items,
+            $dueDate,
+            $job->is_one_time_in_month_job
+        );
 
         return response()->json([
             'message' => 'Order generated successfully'
@@ -971,6 +984,7 @@ class InvoiceController extends Controller
         $jobs = Job::query()
             ->with(['jobservice'])
             ->whereHas('jobservice')
+            ->where('status', JobStatusEnum::COMPLETED)
             ->where('is_order_generated', false)
             ->find($request->all());
 
@@ -1001,8 +1015,8 @@ class InvoiceController extends Controller
             ], 403);
         }
 
-        $oneTimeJobs = $jobs->where('is_one_time_job', true)->values();
-        $notOneTimeJobs = $jobs->where('is_one_time_job', false)->values();
+        $oneTimeJobs = $jobs->where('is_one_time_in_month_job', true)->values();
+        $notOneTimeJobs = $jobs->where('is_one_time_in_month_job', false)->values();
 
         $not_one_time_job_ids = [];
         $items = [];
@@ -1020,7 +1034,13 @@ class InvoiceController extends Controller
 
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
         if (count($not_one_time_job_ids) > 0) {
-            $this->generateOrderDocument($client, $not_one_time_job_ids, $items, $dueDate, false);
+            $this->generateOrderDocument(
+                $client,
+                $not_one_time_job_ids,
+                $items,
+                $dueDate,
+                false
+            );
         }
 
         foreach ($oneTimeJobs as $job) {
@@ -1032,7 +1052,13 @@ class InvoiceController extends Controller
                 "quantity"    => 1,
             ];
 
-            $this->generateOrderDocument($client, [$job->id], [$item], $dueDate, $job->is_one_time_job);
+            $this->generateOrderDocument(
+                $client,
+                [$job->id],
+                [$item],
+                $dueDate,
+                $job->is_one_time_in_month_job
+            );
         }
 
         return response()->json([

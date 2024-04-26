@@ -26,7 +26,6 @@ use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
-use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Api\LeadWebhookController;
@@ -46,7 +45,6 @@ use App\Http\Controllers\DocumentController;
 // Unauthenticated Routes
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-Route::get('weeklyjob', [CronController::class, 'WeeklyJob']);
 Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
@@ -69,7 +67,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
     // Jobs Api
-    Route::resource('jobs', JobController::class)->except(['create', 'edit', 'destroy']);
+    Route::resource('jobs', JobController::class)->only(['index', 'show']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('create-job', [JobController::class, 'createJob']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeJobWorker']);
@@ -99,7 +97,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
     Route::get('all-workers', [WorkerController::class, 'AllWorkers']);
     Route::post('workers/{id}/freeze-shift', [WorkerController::class, 'updateFreezeShift']);
-    Route::get('all-workers/availability', [WorkerController::class, 'getALLWorkerAvailability']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
     // Route::post('upload/{id}', [WorkerController::class, 'upload']);

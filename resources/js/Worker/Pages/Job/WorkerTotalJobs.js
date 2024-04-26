@@ -93,22 +93,6 @@ export default function WorkerTotalJobs() {
                                 {t("worker.jobs.title")}
                             </h1>
                         </div>
-                        <div className="col-sm-6" style={{ display: "none" }}>
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Search"
-                                />
-                                <Link
-                                    to="/admin/add-job"
-                                    className="btn btn-pink addButton"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
-                                </Link>
-                            </div>
-                        </div>
 
                         <div className="col-sm-7 hidden-xs">
                             <div className="job-buttons">
