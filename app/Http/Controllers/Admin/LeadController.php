@@ -392,68 +392,77 @@ class LeadController extends Controller
     }
 
     public function facebookWebhook(Request $request) {
-        $pageAccessToken = $this->pageAccessToken();
-        $request_data = $request->all();
-        \Log::info("webhook_request_data");
-        \Log::info($request_data);
-        if(isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
-            $entry_data = $request_data['entry'][0];
-            $changes_data = $entry_data['changes'];
-            foreach ($changes_data as $key => $changes) {
-                $response = $this->getLeadData($changes['value']['leadgen_id'], $pageAccessToken);
-                if ($response['http_code'] == 200) {
-                    $lead_data = $response['lead_data'];
-                    $name_keys = ['full_name', 'phone_number'];
-                    $field_data = $lead_data['field_data'];
-                    $mapped_field_data = [];
-                    foreach ($field_data as $key => $field) {
-                        if(isset($field['name']) && in_array($field['name'], $name_keys) && $field['values'] && count($field['values']) > 0){
-                            $mapped_field_data[$field['name']] =  $field['values'][0];
-                        }
-                    }
-
-                    $email = isset($mapped_field_data['email']) && !empty($mapped_field_data['email'])?$mapped_field_data['email']:'lead'.$lead_data['id'] . '@lead.com';
-
-                    $name = isset($mapped_field_data['full_name']) && !empty($mapped_field_data['full_name'])? explode(' ', $mapped_field_data['full_name']):'lead '.$lead_data['id'];
-
-                    $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number'])?str_replace('+', '', $mapped_field_data['phone_number']):'';
-                    $lng = 'heb';
-                    if(isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972){
-                        $lng = 'en';
-                    }
-                    // Fblead::create(["challenge" => json_encode($lead_data)]);
-                    $client = Client::updateOrCreate([
-                        'email'             => $email,
-                    ], [
-                        'payment_method'    => 'cc',
-                        'password'          => Hash::make($lead_data['id']),
-                        'status'            => 0,
-                        'lng'               => $lng,
-                        'firstname'         => $name[0],
-                        'lastname'          => $name[1],
-                        'phone'             => $phone,
-                    ]);
-                    if(!empty($phone)){
-                        $result = Helper::sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
-                    }
-                    $client->lead_status()->updateOrCreate(
-                        [],
-                        ['lead_status' => LeadStatusEnum::PENDING_LEAD]
-                    );
-                }
-                else{
-                    \Log::info('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
-                }
+        $challenge = $request->hub_challenge;
+        if (!empty($challenge)) {
+            $verify_token = $request->hub_verify_token;
+            if ($verify_token === config('services.facebook.webhook_token')) {
+                Fblead::create(["challenge" => $challenge]);
+                return $challenge;
             }
-            $webhook_response = WebhookResponse::create([
-                'entry_id'  => $entry_data['id'],
-                'read'      => 1,
-                'flex'      => 'A',
-                'name'      => 'facebook-callback-lead',
-                'data'      => json_encode($request_data)
-            ]);
+        } else {
+            $pageAccessToken = $this->pageAccessToken();
+            $request_data = $request->all();
+            \Log::info("webhook_request_data");
+            \Log::info($request_data);
+            if(isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
+                $entry_data = $request_data['entry'][0];
+                $changes_data = $entry_data['changes'];
+                foreach ($changes_data as $key => $changes) {
+                    $response = $this->getLeadData($changes['value']['leadgen_id'], $pageAccessToken);
+                    if ($response['http_code'] == 200) {
+                        $lead_data = $response['lead_data'];
+                        $name_keys = ['full_name', 'phone_number'];
+                        $field_data = $lead_data['field_data'];
+                        $mapped_field_data = [];
+                        foreach ($field_data as $key => $field) {
+                            if(isset($field['name']) && in_array($field['name'], $name_keys) && $field['values'] && count($field['values']) > 0){
+                                $mapped_field_data[$field['name']] =  $field['values'][0];
+                            }
+                        }
+
+                        $email = isset($mapped_field_data['email']) && !empty($mapped_field_data['email'])?$mapped_field_data['email']:'lead'.$lead_data['id'] . '@lead.com';
+
+                        $name = isset($mapped_field_data['full_name']) && !empty($mapped_field_data['full_name'])? explode(' ', $mapped_field_data['full_name']):'lead '.$lead_data['id'];
+
+                        $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number'])?str_replace('+', '', $mapped_field_data['phone_number']):'';
+                        $lng = 'heb';
+                        if(isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972){
+                            $lng = 'en';
+                        }
+                        // Fblead::create(["challenge" => json_encode($lead_data)]);
+                        $client = Client::updateOrCreate([
+                            'email'             => $email,
+                        ], [
+                            'payment_method'    => 'cc',
+                            'password'          => Hash::make($lead_data['id']),
+                            'status'            => 0,
+                            'lng'               => $lng,
+                            'firstname'         => $name[0],
+                            'lastname'          => $name[1],
+                            'phone'             => $phone,
+                        ]);
+                        if(!empty($phone)){
+                            $result = Helper::sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
+                        }
+                        $client->lead_status()->updateOrCreate(
+                            [],
+                            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                        );
+                    }
+                    else{
+                        \Log::info('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
+                    }
+                }
+                $webhook_response = WebhookResponse::create([
+                    'entry_id'  => $entry_data['id'],
+                    'read'      => 1,
+                    'flex'      => 'A',
+                    'name'      => 'facebook-callback-lead',
+                    'data'      => json_encode($request_data)
+                ]);
+            }
+            die('sent');
         }
-        die('sent');
     }
 
     public function getLeadData($leadgen_id, $pageAccessToken){

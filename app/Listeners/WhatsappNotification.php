@@ -729,6 +729,238 @@ class WhatsappNotification
                     ]
                 ];
                
+            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR) {
+                $workerData = $eventData;
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $workerData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
+                        "language"=> [
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0", 
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "worker-safe-gear/".base64_encode($workerData["id"])
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING) {
+                if($eventData['purpose'] == "Price offer"){
+                    $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                }else if($eventData['purpose'] == "Quality check"){
+                    $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                }else{
+                    $eventData['purpose'] = $eventData['purpose'];
+                }
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $eventData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+                        "language"=> [
+                            "code"=> "en"
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $eventData['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING) {
+                if($eventData['purpose'] == "Price offer"){
+                    $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                }else if($eventData['purpose'] == "Quality check"){
+                    $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                }else{
+                    $eventData['purpose'] = $eventData['purpose'];
+                }
+                $teamData = $eventData['team'];
+                $clientData = $eventData['client'];
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $teamData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
+                        "language"=> [
+                            "code"=> "en"
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $teamData['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING) {
+                if($eventData['purpose'] == "Price offer"){
+                    $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                }else if($eventData['purpose'] == "Quality check"){
+                    $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                }else{
+                    $eventData['purpose'] = $eventData['purpose'];
+                }
+                $teamData = $eventData['team'];
+                $clientData = $eventData['client'];
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $clientData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
+                        "language"=> [
+                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $clientData['lng'] == 'heb' ? $teamData['heb_name'] : $teamData['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES) {
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $eventData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
+                        "language"=> [
+                            "code"=> "en"
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $eventData['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_LEAD_FILES) {
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $eventData['team']['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
+                        "language"=> [
+                            "code"=> "en"
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $eventData['team']['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
             }
             // \Log::info($eventType);
             // \Log::info($params);

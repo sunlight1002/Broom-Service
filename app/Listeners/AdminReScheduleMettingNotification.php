@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Events\AdminReScheduleMettingJob;
 use App\Models\Admin;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class AdminReScheduleMettingNotification
 {
@@ -48,6 +50,11 @@ class AdminReScheduleMettingNotification
                 
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
             
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+                "notificationData" => $emailDataWithAdditional
+            ]));
+
             Mail::send('/Mails/AdminReScheduleMeetingMail',$emailDataWithAdditional, function ($messages) use ($scheduleArr,$adminEmail) {
                 $messages->to($adminEmail);
 
@@ -68,6 +75,10 @@ class AdminReScheduleMettingNotification
         }
 
         //team mail
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
+            "notificationData" => $scheduleArr
+        ]));
         Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr,$teamEmail) {
             $messages->to($teamEmail);
 
@@ -77,6 +88,10 @@ class AdminReScheduleMettingNotification
         });
 
         //customer mail
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
+            "notificationData" => $scheduleArr
+        ]));
         Mail::send('/Mails/ClientReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr,$teamEmail) {
             $messages->to($teamEmail);
             

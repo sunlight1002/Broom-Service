@@ -47,6 +47,10 @@ class SendWorkerFormsNotification
                     "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
                     "notificationData" => $workerArr
                 ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
+                    "notificationData" => $workerArr
+                ]));
             }
 
             Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
