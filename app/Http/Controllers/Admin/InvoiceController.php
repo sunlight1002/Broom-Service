@@ -938,7 +938,10 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        if ($job->status != JobStatusEnum::COMPLETED) {
+        if (
+            $job->status != JobStatusEnum::COMPLETED ||
+            !$job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job not completed'
             ], 403);
@@ -1637,7 +1640,6 @@ class InvoiceController extends Controller
                 'invoice_no'            => $json["docnum"],
                 'invoice_url'           => $json["doc_url"],
                 'isOrdered'             => 2,
-                'status'                => JobStatusEnum::COMPLETED
             ]);
 
             /*Close Order */

@@ -179,6 +179,7 @@ class LeadWebhookController extends Controller
                     $lead->status        = 3;
                     $lead->password      = Hash::make($from);
                     $lead->geo_address   = '';
+                    $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
                     $lead->save();
 
                     WhatsAppBotClientState::updateOrCreate([

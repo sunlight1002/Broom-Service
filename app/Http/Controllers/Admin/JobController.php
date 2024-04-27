@@ -478,7 +478,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -539,17 +542,16 @@ class JobController extends Controller
 
         $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
+        $minutes = 0;
         $slotsInString = '';
         foreach ($mergedContinuousTime as $key => $slot) {
             if (!empty($slotsInString)) {
                 $slotsInString .= ',';
             }
-            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
-        }
 
-        $minutes = 0;
-        foreach ($mergedContinuousTime as $key => $value) {
-            $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+            $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
         }
 
         $status = JobStatusEnum::SCHEDULED;
@@ -636,7 +638,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -690,16 +695,15 @@ class JobController extends Controller
 
         $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
+        $minutes = 0;
         $slotsInString = '';
         foreach ($mergedContinuousTime as $key => $slot) {
             if (!empty($slotsInString)) {
                 $slotsInString .= ',';
             }
-            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
-        }
 
-        $minutes = 0;
-        foreach ($mergedContinuousTime as $key => $value) {
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
             $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
         }
 
@@ -835,7 +839,7 @@ class JobController extends Controller
             'time_diff' => $request->timeDiff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'time' => $time,
@@ -861,7 +865,7 @@ class JobController extends Controller
             'time_diff' => $request->timeDiff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'time' => $time,
@@ -1032,7 +1036,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -1083,7 +1090,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -1118,7 +1128,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($otherWorkerJob->status == JobStatusEnum::COMPLETED) {
+        if (
+            $otherWorkerJob->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => "Other worker's job already completed",
             ], 403);
@@ -1210,10 +1223,18 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-        if ($job) {
-            $job->update([
-                'is_job_done' => $request->checked
-            ]);
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
+
+        if ($job->is_job_done) {
+            $this->updateJobAmount($job->id);
         }
 
         return response()->json([
@@ -1225,11 +1246,15 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-        if ($job) {
-            $job->update([
-                'actual_time_taken_minutes' => $request->value
-            ]);
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
         }
+
+        $job->update([
+            'actual_time_taken_minutes' => $request->value
+        ]);
 
         return response()->json([
             'message' => 'Job has been updated',

@@ -9,9 +9,12 @@ use App\Models\Admin;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
+use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\User;
+use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
+use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -23,7 +26,7 @@ use Illuminate\Support\Facades\Storage;
 
 class JobCommentController extends Controller
 {
-    use PaymentAPI;
+    use PaymentAPI, JobSchedule, PriceOffered;
 
     /**
      * Display a listing of the resource.
@@ -114,28 +117,11 @@ class JobCommentController extends Controller
             event(new WorkerUpdatedJobStatus($job, $comment));
 
             if ($job->status == JobStatusEnum::COMPLETED) {
+                $this->updateJobWorkerMinutes($job->id);
+                $this->updateJobAmount($job->id);
+
                 ScheduleNextJobOccurring::dispatch($job->id);
-
-                $client = $job->client;
-                $service = $job->jobservice;
-
-                $items = [
-                    [
-                        'description' => $client->lng == 'heb' ? $service->heb_name : $service->name,
-                        'unitprice' => $service->total,
-                        'quantity' => 1
-                    ]
-                ];
-
-                $dueDate = Carbon::today()->endOfMonth()->toDateString();
-
-                $this->generateOrderDocument(
-                    $client,
-                    [$job->id],
-                    $items,
-                    $dueDate,
-                    $job->is_one_time_in_month_job
-                );
+                CreateJobOrder::dispatch($job->id);
             }
         }
 

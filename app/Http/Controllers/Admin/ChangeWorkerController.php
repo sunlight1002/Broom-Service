@@ -74,7 +74,10 @@ class ChangeWorkerController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
