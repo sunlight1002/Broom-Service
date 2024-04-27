@@ -1242,6 +1242,13 @@ class JobController extends Controller
         } else {
             if ($job->is_order_generated) {
                 $order = $job->order;
+
+                if ($order->status == 'Closed') {
+                    return response()->json([
+                        'message' => 'Job order is already closed',
+                    ], 403);
+                }
+
                 $closeDocResponse = $this->cancelICountDocument(
                     $order->order_id,
                     'order',
@@ -1271,12 +1278,21 @@ class JobController extends Controller
 
     public function updateWorkerActualTime(Request $request, $id)
     {
-        $job = Job::find($id);
+        $job = Job::with('order')->find($id);
 
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found',
             ], 404);
+        }
+
+        if (
+            $job->order &&
+            $job->order->status == 'Closed'
+        ) {
+            return response()->json([
+                'message' => 'Job order is already closed',
+            ], 403);
         }
 
         $job->update([

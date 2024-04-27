@@ -121,8 +121,6 @@ export default function TotalJobs() {
     }, [currentPage, paymentFilter, dateRange, searchVal]);
 
     const handleJobDone = (_jobID, _checked) => {
-        console.log(_checked);
-
         if (_checked) {
             axios
                 .post(
@@ -152,6 +150,9 @@ export default function TotalJobs() {
                         )
                         .then((response) => {
                             getJobs();
+                        })
+                        .catch((e) => {
+                            getJobs();
                         });
                 }
             });
@@ -166,6 +167,9 @@ export default function TotalJobs() {
                 { headers }
             )
             .then((response) => {
+                getJobs();
+            })
+            .catch((e) => {
                 getJobs();
             });
     };

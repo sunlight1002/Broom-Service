@@ -17,6 +17,7 @@ use App\Models\Refunds;
 use App\Models\Services;
 use App\Models\Transaction;
 use App\Traits\ClientCardTrait;
+use App\Traits\ICountDocument;
 use App\Traits\PaymentAPI;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
-    use PaymentAPI, ClientCardTrait;
+    use PaymentAPI, ClientCardTrait, ICountDocument;
 
     public function index(Request $request)
     {
@@ -601,26 +602,6 @@ class InvoiceController extends Controller
         return view('thanks', compact('client'));
     }
 
-    public function closeDoc($docnum, $type)
-    {
-        Log::info('close doc.' . $docnum . '-' . $type);
-        $closeDocResponse = $this->closeICountDocument($docnum, $type);
-
-        if (!$closeDocResponse["status"]) {
-            throw new Exception($closeDocResponse["reason"], 500);
-        }
-
-        if ($type == 'invoice') {
-            Invoices::where('invoice_id', $docnum)->update(['invoice_icount_status' => 'Closed']);
-        }
-
-        if ($type == 'order') {
-            Order::where('order_id', $docnum)->update(['status' => 'Closed']);
-        }
-
-        return response()->json(['message' => 'Doc closed successfully!']);
-    }
-
     public function cancelDoc(Request $request)
     {
         $data = $request->all();
@@ -658,6 +639,12 @@ class InvoiceController extends Controller
 
         if ($doctype == 'order') {
             $order = Order::where('order_id', $docnum)->first();
+            if ($order->status == 'Closed') {
+                return response()->json([
+                    'message' => 'Order is already closed',
+                ], 403);
+            }
+
             $order->jobs()->update([
                 'isOrdered' => 'c',
                 'order_id' => NULL,
@@ -667,58 +654,6 @@ class InvoiceController extends Controller
         }
 
         return response()->json(['message' => 'Doc cancelled successfully!']);
-    }
-
-    public function commitInvoicePayment($client, $services, $token, $subtotal)
-    {
-        $address = $client->property_addresses()->first();
-
-        $pay_items = [];
-
-        foreach ($services as $k => $service) {
-            $pay_items[] = [
-                'ItemDescription' => $service['description'],
-                'ItemQuantity'    => $service['quantity'],
-                'ItemPrice'       => $service['unitprice'],
-                'IsTaxFree'       => "false"
-            ];
-        }
-
-        $transaction = Transaction::create([
-            'client_id' => $client->id,
-            'amount' => $subtotal,
-            'currency' => config('services.app.currency'),
-            'status' => TransactionStatusEnum::INITIATED,
-            'type' => 'deposit',
-            'description' => 'Pay for Invoice',
-            'source' => 'credit-card',
-            'destination' => 'merchant',
-            'gateway' => 'zcredit'
-        ]);
-
-        $captureChargeResponse = $this->captureCardCharge([
-            'card_number' => $token,
-            'amount' => $subtotal,
-            'client_name' => $client->firstname . ' ' . $client->lastname,
-            'client_address' => $address ? $address->geo_address : '',
-            'client_email' => $client->email,
-            'client_phone' => $client->phone,
-            'J' => 0,
-            'obeligo_action' => "",
-            'original_zcredit_reference_number' => "",
-            'items' => $pay_items
-        ]);
-
-        if (!$captureChargeResponse['HasError']) {
-            $transaction->update([
-                'status' => TransactionStatusEnum::COMPLETED,
-                'transaction_id' => $captureChargeResponse['ReferenceNumber'],
-                'transaction_at' => now(),
-                'metadata' => ['card_number' => $token],
-            ]);
-        }
-
-        return $captureChargeResponse;
     }
 
     public function manualInvoice($id)

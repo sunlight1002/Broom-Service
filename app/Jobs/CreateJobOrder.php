@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Enums\JobStatusEnum;
 use App\Models\Job;
 use App\Traits\PaymentAPI;
 use Carbon\Carbon;
@@ -45,7 +44,7 @@ class CreateJobOrder implements ShouldQueue
     {
         $job = Job::query()
             ->with(['client', 'jobservice'])
-            ->where('is_invoice_generated', false)
+            ->where('is_order_generated', false)
             ->where('is_paid', false)
             ->where('is_job_done', true)
             ->find($this->jobID);
@@ -64,13 +63,17 @@ class CreateJobOrder implements ShouldQueue
 
             $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-            $this->generateOrderDocument(
+            $order = $this->generateOrderDocument(
                 $client,
                 [$job->id],
                 $items,
                 $dueDate,
                 $job->is_one_time_in_month_job
             );
+
+            if ($job->is_one_time_in_month_job) {
+                GenerateJobInvoice::dispatch($order->id);
+            }
         }
     }
 }

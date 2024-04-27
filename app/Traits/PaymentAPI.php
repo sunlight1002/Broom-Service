@@ -4,9 +4,11 @@ namespace App\Traits;
 
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
+use App\Enums\TransactionStatusEnum;
 use App\Models\Job;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -673,5 +675,57 @@ trait PaymentAPI
         }
 
         return $json;
+    }
+
+    private function commitInvoicePayment($client, $services, $token, $subtotal)
+    {
+        $address = $client->property_addresses()->first();
+
+        $pay_items = [];
+
+        foreach ($services as $k => $service) {
+            $pay_items[] = [
+                'ItemDescription' => $service['description'],
+                'ItemQuantity'    => $service['quantity'],
+                'ItemPrice'       => $service['unitprice'],
+                'IsTaxFree'       => "false"
+            ];
+        }
+
+        $transaction = Transaction::create([
+            'client_id' => $client->id,
+            'amount' => $subtotal,
+            'currency' => config('services.app.currency'),
+            'status' => TransactionStatusEnum::INITIATED,
+            'type' => 'deposit',
+            'description' => 'Pay for Invoice',
+            'source' => 'credit-card',
+            'destination' => 'merchant',
+            'gateway' => 'zcredit'
+        ]);
+
+        $captureChargeResponse = $this->captureCardCharge([
+            'card_number' => $token,
+            'amount' => $subtotal,
+            'client_name' => $client->firstname . ' ' . $client->lastname,
+            'client_address' => $address ? $address->geo_address : '',
+            'client_email' => $client->email,
+            'client_phone' => $client->phone,
+            'J' => 0,
+            'obeligo_action' => "",
+            'original_zcredit_reference_number' => "",
+            'items' => $pay_items
+        ]);
+
+        if (!$captureChargeResponse['HasError']) {
+            $transaction->update([
+                'status' => TransactionStatusEnum::COMPLETED,
+                'transaction_id' => $captureChargeResponse['ReferenceNumber'],
+                'transaction_at' => now(),
+                'metadata' => ['card_number' => $token],
+            ]);
+        }
+
+        return $captureChargeResponse;
     }
 }
