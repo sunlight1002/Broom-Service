@@ -78,33 +78,6 @@ export default function Order() {
         }
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Order!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .get(`/api/admin/delete-oders/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Order has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getOrders();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
@@ -392,9 +365,6 @@ export default function Order() {
                                                                 Cancel Doc
                                                             </button>
                                                         )}
-
-                                                        {/*<button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
-                                                    >Delete</button>*/}
                                                     </div>
                                                 </div>
                                             </Td>

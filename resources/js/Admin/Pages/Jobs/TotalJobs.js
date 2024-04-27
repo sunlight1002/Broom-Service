@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -121,15 +121,41 @@ export default function TotalJobs() {
     }, [currentPage, paymentFilter, dateRange, searchVal]);
 
     const handleJobDone = (_jobID, _checked) => {
-        axios
-            .post(
-                `/api/admin/jobs/${_jobID}/update-job-done`,
-                { checked: _checked },
-                { headers }
-            )
-            .then((response) => {
-                getJobs();
+        console.log(_checked);
+
+        if (_checked) {
+            axios
+                .post(
+                    `/api/admin/jobs/${_jobID}/update-job-done`,
+                    { checked: _checked },
+                    { headers }
+                )
+                .then((response) => {
+                    getJobs();
+                });
+        } else {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Current open order will be cancelled!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Mark Job Undone!",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios
+                        .post(
+                            `/api/admin/jobs/${_jobID}/update-job-done`,
+                            { checked: _checked },
+                            { headers }
+                        )
+                        .then((response) => {
+                            getJobs();
+                        });
+                }
             });
+        }
     };
 
     const handleWorkerActualTime = (_jobID, _value) => {
@@ -703,6 +729,13 @@ export default function TotalJobs() {
                                                                         checked={
                                                                             item.is_job_done
                                                                         }
+                                                                        disabled={
+                                                                            item.order &&
+                                                                            item
+                                                                                .order
+                                                                                .status ==
+                                                                                "Closed"
+                                                                        }
                                                                         onChange={(
                                                                             e
                                                                         ) => {
@@ -775,11 +808,6 @@ export default function TotalJobs() {
                                                                     handleSwitchWorker(
                                                                         item
                                                                     );
-                                                                    // $(
-                                                                    //     "#available-workers"
-                                                                    // ).modal(
-                                                                    //     "show"
-                                                                    // );
                                                                 }}
                                                                 style={{
                                                                     color: "black",
@@ -1105,219 +1133,6 @@ export default function TotalJobs() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* <div
-                            className="modal fade"
-                            id="edit-job"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Edit Job
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                            onClick={(e) => resetShift()}
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Date
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="shift_date"
-                                                        type="date"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Client
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="client"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Worker
-                                                    </label>
-
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                        }}
-                                                    >
-                                                        <option
-                                                            value="William"
-                                                            selected
-                                                        >
-                                                            William
-                                                        </option>
-                                                        <option value="Adam">
-                                                            Adam
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Shift
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="shift"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Service
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="service"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Comments
-                                                    </label>
-
-                                                    <textarea
-                                                        className="form-control"
-                                                        name="comments"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary closeb"
-                                            data-dismiss="modal"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                console.log("submit");
-                                            }}
-                                            className="btn btn-primary"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
-
-                        {/* <div
-                            className="modal fade"
-                            id="available-workers"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Available Workers
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                            onClick={(e) => resetShift()}
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-1">
-                                                        Worker Gender
-                                                    </label>
-
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                        }}
-                                                    >
-                                                        <option
-                                                            value="male"
-                                                            selected
-                                                        >
-                                                            Only Male
-                                                        </option>
-                                                        <option value="female">
-                                                            Only Female
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary closeb"
-                                            data-dismiss="modal"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                console.log("submit");
-                                            }}
-                                            className="btn btn-primary"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
                     </div>
                 </div>
             </div>
@@ -1378,8 +1193,17 @@ const divStyle = {
 
 const ActuallyTimeWorker = ({ data, emitValue }) => {
     const [count, setCount] = useState(0);
-    const [isChanged, setisChanged] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
     const debouncedValue = useDebounce(count, 500);
+
+    const handleChangeHours = (_isIncrement) => {
+        if (_isIncrement) {
+            setCount((_count) => _count + 1);
+        } else {
+            setCount((_count) => _count - 1);
+        }
+        setIsChanged(true);
+    };
 
     useEffect(() => {
         isChanged && emitValue(debouncedValue);
@@ -1393,13 +1217,17 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
         );
     }, [data]);
 
+    const isOrderClosed = useMemo(() => {
+        return data.order && data.order.status == "Closed";
+    }, [data.order]);
+
     return (
         <div className="d-flex align-items-center">
-            <div
+            <button
                 onClick={() => {
-                    setisChanged(true);
-                    setCount(count - 1);
+                    handleChangeHours(false);
                 }}
+                disabled={isOrderClosed}
                 style={{
                     ...divStyle,
                     pointerEvents: count === 0 ? "none" : "auto",
@@ -1407,15 +1235,21 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
                 }}
             >
                 -
-            </div>
-            <span className="mx-1" style={{ ...divStyle, background: "white" }}>
+            </button>
+            <span
+                className="mx-1"
+                style={{
+                    ...divStyle,
+                    background: isOrderClosed ? "#e7e7e7" : "white",
+                }}
+            >
                 {count}
             </span>
             <button
                 onClick={() => {
-                    setisChanged(true);
-                    setCount(count + 1);
+                    handleChangeHours(true);
                 }}
+                disabled={isOrderClosed}
                 style={divStyle}
             >
                 +

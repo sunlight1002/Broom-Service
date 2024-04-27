@@ -28,12 +28,14 @@ use Illuminate\Support\Facades\Mail;
 use App\Helpers\Helper;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\ManageTime;
+use App\Traits\PaymentAPI;
 
 class JobController extends Controller
 {
-    use JobSchedule, PriceOffered;
+    use JobSchedule, PriceOffered, PaymentAPI;
 
     /**
      * Display a listing of the resource.
@@ -1221,7 +1223,7 @@ class JobController extends Controller
 
     public function updateJobDone(Request $request, $id)
     {
-        $job = Job::find($id);
+        $job = Job::with(['order'])->find($id);
 
         if (!$job) {
             return response()->json([
@@ -1235,6 +1237,31 @@ class JobController extends Controller
 
         if ($job->is_job_done) {
             $this->updateJobAmount($job->id);
+
+            CreateJobOrder::dispatch($job->id);
+        } else {
+            if ($job->is_order_generated) {
+                $order = $job->order;
+                $closeDocResponse = $this->cancelICountDocument(
+                    $order->order_id,
+                    'order',
+                    'Creating another order'
+                );
+
+                if ($closeDocResponse['status'] != true) {
+                    return response()->json([
+                        'message' => $closeDocResponse['reason']
+                    ], 500);
+                }
+
+                $order->update(['status' => 'Cancelled']);
+
+                $order->jobs()->update([
+                    'isOrdered' => 'c',
+                    'order_id' => NULL,
+                    'is_order_generated' => false
+                ]);
+            }
         }
 
         return response()->json([

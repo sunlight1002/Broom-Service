@@ -182,33 +182,6 @@ export default function Invoice() {
         });
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Invoice!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .get(`/api/admin/delete-invoice/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Invoice has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getInvoices();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
     const handleCancel = (e) => {
         e.preventDefault();
         const data = {
@@ -635,8 +608,6 @@ export default function Invoice() {
                                                                     View Receipt
                                                                 </a>
                                                             )}
-                                                            {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                        >Delete</button>*/}
                                                         </div>
                                                     </div>
                                                 </Td>

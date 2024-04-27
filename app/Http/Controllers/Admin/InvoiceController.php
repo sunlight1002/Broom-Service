@@ -601,13 +601,6 @@ class InvoiceController extends Controller
         return view('thanks', compact('client'));
     }
 
-    public function deleteInvoice($id)
-    {
-        $invoice = Invoices::find($id);
-
-        $invoice->delete();
-    }
-
     public function closeDoc($docnum, $type)
     {
         Log::info('close doc.' . $docnum . '-' . $type);
@@ -665,7 +658,11 @@ class InvoiceController extends Controller
 
         if ($doctype == 'order') {
             $order = Order::where('order_id', $docnum)->first();
-            $order->jobs()->update(['isOrdered' => 'c']);
+            $order->jobs()->update([
+                'isOrdered' => 'c',
+                'order_id' => NULL,
+                'is_order_generated' => false
+            ]);
             $order->update(['status' => 'Cancelled']);
         }
 
@@ -1123,13 +1120,6 @@ class InvoiceController extends Controller
             'not_generated' => $ngen,
             'all'           => $all,
         ]);
-    }
-
-    public function deleteOrders($id)
-    {
-        $order = Order::find($id);
-
-        $order->delete();
     }
 
     public function payments(Request $request)
