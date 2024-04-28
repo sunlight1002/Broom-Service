@@ -93,6 +93,11 @@ class Client extends Authenticatable
         return $this->hasMany(Offer::class, 'client_id', 'id');
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'client_id', 'id');
+    }
+
     public function subscription()
     {
         return $this->hasOne(Subscription::class);
