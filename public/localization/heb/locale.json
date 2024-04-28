@@ -219,6 +219,7 @@
         }
     },
     "work-contract": {
+        "action": "פעולה",
         "inHead": "ברום סרוויס ל.מ בע'מ ח.פ. 515184208\n הסכם מסגרת התקשרות בלעדית עם דיירים/לקוחות",
         "signed": "תאריך",
         "between": "בין:",
@@ -394,6 +395,7 @@
             "scheduled": "נקבע",
             "status": "סטטוס",
             "files": "קבצים",
+            "address_txt": "כתובת",
             "cfiles": {
                 "title": "קבצים לפגישה",
                 "button": "הוסף קבצים",
@@ -435,7 +437,8 @@
                 "hour_s": "שעות",
                 "total": "סה'כ",
                 "phone": "טלפון",
-                "email": "אימייל"
+                "email": "אימייל",
+                "address": "כתובת"
             }
         },
         "contract": {
@@ -460,6 +463,7 @@
             "total": "סה'כ",
             "action": "פעולה",
             "view_btn": "צפה",
+            "change_worker_request": "שנה בקשת עובד",
             "view": {
                 "worker_details": "פרטי עובד",
                 "job_status": "סטטוס העבודה",

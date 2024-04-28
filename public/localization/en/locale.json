@@ -218,6 +218,7 @@
         }
     },
     "work-contract": {
+        "action": "Action",
         "inHead": "Broom Service L.M. Ltd Private Company no. 515184208 \n Exclusive Framework Agreement with Tenants/Clients",
         "signed": "Made and Signed in :",
         "between": "Between:",
@@ -462,6 +463,7 @@
             "total": "Total",
             "action": "Action",
             "view_btn": "View",
+            "change_worker_request": "Change Worker Request",
             "view": {
                 "worker_details": "Worker Details",
                 "job_status": "Job Status",
