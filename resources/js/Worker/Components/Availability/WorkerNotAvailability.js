@@ -5,6 +5,7 @@ import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { createHourlyTimeArray } from "../../../Utils/job.utils";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerNotAvailability() {
     const [date, setDate] = useState("");
@@ -13,29 +14,35 @@ export default function WorkerNotAvailability() {
     const alert = useAlert();
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
-   
+
     const slots = useMemo(() => {
         return createHourlyTimeArray("08:00", "24:00");
     }, []);
 
     const handleDate = (e) => {
         e.preventDefault();
-       
+
         if ((startTime && !endTime) || (!startTime && endTime)) {
-            alert.error("Please select both Start Time and End Time, or leave both empty.");
+            alert.error(
+                "Please select both Start Time and End Time, or leave both empty."
+            );
             return;
         }
 
         if (startTime && endTime) {
-            const startTimeMinutes = parseInt(startTime.split(":")[0]) * 60 + parseInt(startTime.split(":")[1]);
-            const endTimeMinutes = parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]);
-    
+            const startTimeMinutes =
+                parseInt(startTime.split(":")[0]) * 60 +
+                parseInt(startTime.split(":")[1]);
+            const endTimeMinutes =
+                parseInt(endTime.split(":")[0]) * 60 +
+                parseInt(endTime.split(":")[1]);
+
             if (endTimeMinutes <= startTimeMinutes) {
                 alert.error("End Time must be greater than Start Time.");
                 return;
@@ -192,7 +199,7 @@ export default function WorkerNotAvailability() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalNote">
-                                Add Note
+                                {t("worker.schedule.add_date")}
                             </h5>
                             <button
                                 type="button"
@@ -208,7 +215,7 @@ export default function WorkerNotAvailability() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Date
+                                            {t("worker.schedule.date")}
                                         </label>
                                         <input
                                             type="date"
@@ -226,7 +233,9 @@ export default function WorkerNotAvailability() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Start Time
+                                                {t(
+                                                    "worker.schedule.start_time"
+                                                )}
                                             </label>
                                             <select
                                                 name="startTime"
@@ -235,10 +244,15 @@ export default function WorkerNotAvailability() {
                                                     setStartTime(e.target.value)
                                                 }
                                             >
-                                                <option value="">{"Start Time"}</option>
+                                                <option value="">
+                                                    {"Start Time"}
+                                                </option>
                                                 {slots.map((t, i) => {
                                                     return (
-                                                        <option value={t} key={i}>
+                                                        <option
+                                                            value={t}
+                                                            key={i}
+                                                        >
                                                             {" "}
                                                             {t}{" "}
                                                         </option>
@@ -250,7 +264,7 @@ export default function WorkerNotAvailability() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                End Time
+                                                {t("worker.schedule.end_time")}
                                             </label>
                                             <select
                                                 name="endTime"
@@ -259,10 +273,15 @@ export default function WorkerNotAvailability() {
                                                     setEndTime(e.target.value)
                                                 }
                                             >
-                                                <option value="">{"End Time"}</option>
+                                                <option value="">
+                                                    {"End Time"}
+                                                </option>
                                                 {slots.map((t, i) => {
                                                     return (
-                                                        <option value={t} key={i}>
+                                                        <option
+                                                            value={t}
+                                                            key={i}
+                                                        >
                                                             {" "}
                                                             {t}{" "}
                                                         </option>
@@ -280,14 +299,14 @@ export default function WorkerNotAvailability() {
                                 className="btn btn-secondary closeb1"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("worker.schedule.close")}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleDate}
                                 className="btn btn-primary"
                             >
-                                Save Date
+                                {t("worker.schedule.save_date")}
                             </button>
                         </div>
                     </div>

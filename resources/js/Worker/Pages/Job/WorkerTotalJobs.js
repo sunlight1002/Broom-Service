@@ -108,8 +108,7 @@ export default function WorkerTotalJobs() {
                                         borderColor: "#858282",
                                     }}
                                 >
-                                    {" "}
-                                    All Jobs
+                                    {t("worker.jobs.all_jobs")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-success"
@@ -117,8 +116,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("current");
                                     }}
                                 >
-                                    {" "}
-                                    Current week
+                                    {t("worker.jobs.current_week")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-pink"
@@ -126,8 +124,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("next");
                                     }}
                                 >
-                                    {" "}
-                                    Next week
+                                    {t("worker.jobs.next_week")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-primary"
@@ -135,8 +132,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("nextnext");
                                     }}
                                 >
-                                    {" "}
-                                    Next Next week
+                                    {t("worker.jobs.next_next_week")}
                                 </button>
                             </div>
                         </div>

@@ -10,21 +10,6 @@ import WeekCard from "./Components/WeekCard";
 import TimeSlot from "./Components/TimeSlot";
 import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
-const tabList = [
-    {
-        key: "current-week",
-        label: "Current Week",
-    },
-    {
-        key: "first-next-week",
-        label: "Next Week",
-    },
-    {
-        key: "first-next-next-week",
-        label: "Next To Next Week",
-    },
-];
-
 export default function WorkerAvailabilty() {
     const [interval, setTimeInterval] = useState([]);
     const [notAvailableDates, setNotAvailableDates] = useState([]);
@@ -42,6 +27,21 @@ export default function WorkerAvailabilty() {
     const alert = useAlert();
     const { t } = useTranslation();
     const flatpickrRef = useRef(null);
+
+    const tabList = [
+        {
+            key: "current-week",
+            label: t("worker.schedule.c_week"),
+        },
+        {
+            key: "first-next-week",
+            label: t("worker.schedule.n_week"),
+        },
+        {
+            key: "first-next-next-week",
+            label: t("worker.schedule.n_n_week"),
+        },
+    ];
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -292,7 +292,7 @@ export default function WorkerAvailabilty() {
                         role="tab"
                         onClick={() => handleTab("custom")}
                     >
-                        Custom
+                        {t("worker.schedule.custom")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -306,7 +306,7 @@ export default function WorkerAvailabilty() {
                         role="tab"
                         onClick={() => handleTab("default")}
                     >
-                        Default
+                        {t("worker.schedule.default")}
                     </a>
                 </li>
             </ul>
@@ -345,7 +345,7 @@ export default function WorkerAvailabilty() {
                     <div className="offset-sm-4 col-sm-4">
                         <div className="form-group">
                             <label className="control-label">
-                                Select Date Range
+                                {t('worker.schedule.select_date_range')}
                             </label>
                             <Flatpickr
                                 name="date"
@@ -428,7 +428,7 @@ export default function WorkerAvailabilty() {
                                         <div className="offset-sm-4 col-sm-4">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Until Date
+                                                {t('worker.schedule.until_date')}
                                                 </label>
                                                 <Flatpickr
                                                     name="date"
