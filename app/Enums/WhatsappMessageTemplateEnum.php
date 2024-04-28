@@ -25,6 +25,14 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
 
     public const CLIENT_JOB_STATUS_NOTIFICATION = 'client_job_status_notification';
     public const WORKER_JOB_OPENING_NOTIFICATION = 'worker_job_opening_notification';
-    public const WORKER_JOB_STATUS_NOTIFICATION = 'worker_job_status_notification';    
+    public const WORKER_JOB_STATUS_NOTIFICATION = 'worker_job_status_notification';
+
+    public const WORKER_SAFE_GEAR = 'worker_safe_gear';
+    public const ADMIN_RESCHEDULE_MEETING = 'admin_reschedule_meeting';
+    public const TEAM_RESCHEDULE_MEETING = 'team_reschedule_meeting';
+    public const CLIENT_RESCHEDULE_MEETING = 'client_reschedule_meeting';
+    public const ADMIN_LEAD_FILES = 'admin_lead_files';
+    public const TEAM_LEAD_FILES = 'team_lead_files';
+
 
 }

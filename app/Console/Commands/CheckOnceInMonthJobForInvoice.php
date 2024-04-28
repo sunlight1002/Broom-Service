@@ -43,18 +43,18 @@ class CheckOnceInMonthJobForInvoice extends Command
     public function handle()
     {
         $orders = Order::query()
-            ->with(['jobs:jobservice,client,contract,order'])
+            ->with(['jobs'])
             ->has('jobs', '=', 1)
             ->where('invoice_status', '0')
-            ->limit(10)
             ->where('status', 'Open')
             ->get();
 
-        foreach ($orders as $order) {
-            $job = $order->job[0];
+        foreach ($orders as $key => $order) {
+            $job = $order->jobs[0];
 
             if ($job->is_one_time_in_month_job) {
-                GenerateJobInvoice::dispatch($order->id);
+                GenerateJobInvoice::dispatch($order->id)
+                    ->delay(now()->addMinutes(1 + (($key) * 2)));
             }
         }
 

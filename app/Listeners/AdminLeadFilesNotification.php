@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Admin;
 use App\Models\Notification;
 use Symfony\Component\Finder\Iterator\FilenameFilterIterator;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class AdminLeadFilesNotification
 {
@@ -54,6 +56,10 @@ class AdminLeadFilesNotification
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
             $emailDataWithAdditional['file_name']=$fileName;
             
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
+                "notificationData" => $emailDataWithAdditional
+            ]));
             
             Mail::send('/Mails/AdminLeadFilesMail',$emailDataWithAdditional, function ($messages) use ($scheduleArr,$adminEmail,$filePath) {
                 $messages->to($adminEmail);
@@ -74,9 +80,12 @@ class AdminLeadFilesNotification
             'status' => $schedules->booking_status
         ]);
         
-
-         //team mail
-         Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr,$teamEmail) {
+        //team mail
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
+            "notificationData" => $scheduleArr
+        ]));
+        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr,$teamEmail) {
             $messages->to($teamEmail);
 
             $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
