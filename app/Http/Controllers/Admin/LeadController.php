@@ -401,10 +401,10 @@ class LeadController extends Controller
             }
         } else {
             $pageAccessToken = $this->pageAccessToken();
-            $request_data = $request->all();
+            $request_data = $request->getContent();
             \Log::info("webhook_request_data");
             \Log::info($request_data);
-            if(isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
+            if(isset($request_data['object']) && $request_data['object']  == "page" && isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
                 $entry_data = $request_data['entry'][0];
                 $changes_data = $entry_data['changes'];
                 foreach ($changes_data as $key => $changes) {
@@ -461,7 +461,7 @@ class LeadController extends Controller
                     'data'      => json_encode($request_data)
                 ]);
             }
-            die('sent');
+            die('received');
         }
     }
 
