@@ -345,8 +345,8 @@ export default function Order() {
                                                                 Generate Invoice
                                                             </button>
                                                         )}
-                                                        {item.status !=
-                                                            "Cancelled" && (
+                                                        {item.status ==
+                                                            "Open" && (
                                                             <button
                                                                 onClick={(
                                                                     e

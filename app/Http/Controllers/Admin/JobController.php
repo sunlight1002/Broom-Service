@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Events\JobShiftChanged;
@@ -30,6 +31,7 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
+use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
 use App\Traits\PaymentAPI;
 
@@ -886,6 +888,28 @@ class JobController extends Controller
             ], 404);
         }
 
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
         if ($job->status == JobStatusEnum::CANCEL) {
             return response()->json([
                 'message' => 'Job already cancelled'
@@ -894,6 +918,17 @@ class JobController extends Controller
 
         $feePercentage = $request->fee;
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
+
+        $cancellationFee = JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CANCELLATION,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
 
         $job->update([
             'status' => JobStatusEnum::CANCEL,
@@ -906,6 +941,7 @@ class JobController extends Controller
             'cancel_until_date' => $request->until_date,
         ]);
 
+        CreateJobOrder::dispatch($job->id);
         ScheduleNextJobOccurring::dispatch($job->id);
 
         $admin = Admin::find(1)->first();
@@ -1170,6 +1206,20 @@ class JobController extends Controller
         $job->update($jobData);
         $otherWorkerJob->update($otherJobData);
 
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::SWITCH_WORKER,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
+
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
         $jobArray = $job->toArray();
 
@@ -1231,6 +1281,12 @@ class JobController extends Controller
             ], 404);
         }
 
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
         $job->update([
             'is_job_done' => $request->checked
         ]);
@@ -1284,6 +1340,12 @@ class JobController extends Controller
             return response()->json([
                 'message' => 'Job not found',
             ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
         }
 
         if (

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Order;
 use App\Models\Receipts;
 use App\Models\Refunds;
@@ -532,6 +533,11 @@ class InvoiceController extends Controller
                 'is_paid' => true
             ]);
 
+        JobCancellationFee::where('order_id', $order->id)
+            ->update([
+                'is_paid' => true
+            ]);
+
         return response()->json([
             'message' => 'Invoice updated successfully'
         ]);
@@ -780,10 +786,12 @@ class InvoiceController extends Controller
 
         $this->generateOrderDocument(
             $client,
-            [$job->id],
             $items,
             $dueDate,
-            $job->is_one_time_in_month_job
+            [
+                'job_ids' => [$job->id],
+                'is_one_time_in_month' => $job->is_one_time_in_month_job
+            ]
         );
 
         return response()->json([
@@ -848,10 +856,12 @@ class InvoiceController extends Controller
         if (count($not_one_time_job_ids) > 0) {
             $this->generateOrderDocument(
                 $client,
-                $not_one_time_job_ids,
                 $items,
                 $dueDate,
-                false
+                [
+                    'job_ids' => [$not_one_time_job_ids],
+                    'is_one_time_in_month' => false
+                ]
             );
         }
 
@@ -866,10 +876,12 @@ class InvoiceController extends Controller
 
             $this->generateOrderDocument(
                 $client,
-                [$job->id],
                 [$item],
                 $dueDate,
-                $job->is_one_time_in_month_job
+                [
+                    'job_ids' => [$job->id],
+                    'is_one_time_in_month' => $job->is_one_time_in_month_job
+                ]
             );
         }
 
@@ -1313,6 +1325,11 @@ class InvoiceController extends Controller
                 ->update([
                     'is_paid' => true
                 ]);
+
+            JobCancellationFee::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
         }
 
         return response()->json([
@@ -1444,6 +1461,11 @@ class InvoiceController extends Controller
                 'isOrdered'             => 2,
             ]);
 
+            $order->jobCancellationFees()->update([
+                'invoice_id'            => $invoice->id,
+                'is_invoice_generated'  => true,
+            ]);
+
             /*Close Order */
             $this->closeDoc($order->order_id, 'order');
 
@@ -1462,6 +1484,11 @@ class InvoiceController extends Controller
             $order->update($orderUpdateData);
 
             Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+
+            JobCancellationFee::where('order_id', $order->id)
                 ->update([
                     'is_paid' => true
                 ]);

@@ -6,6 +6,7 @@ use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\Transaction;
@@ -336,7 +337,7 @@ trait PaymentAPI
     }
 
     // Same API but different configuration for 'order' doctype.
-    private function generateOrderDocument($client, $jobIDs, $items, $duedate, $isOneTimeInMonth)
+    private function generateOrderDocument($client, $items, $duedate, $data)
     {
         $address = $client->property_addresses()->first();
 
@@ -390,12 +391,24 @@ trait PaymentAPI
             throw new Exception($json["reason"], 500);
         }
 
-        $hasPendingJobInMonth = Job::query()
-            ->whereIn('id', $jobIDs)
-            ->whereNotNull('next_start_date')
-            ->whereDate('next_start_date', '>=', Carbon::today()->toDateString())
-            ->whereDate('next_start_date', '<=', Carbon::today()->endOfMonth()->toDateString())
-            ->exists();
+        $invoice_status = 1;
+        $paid_status = NULL;
+        if (isset($data['job_ids'])) {
+            $jobIDs = $data['job_ids'];
+
+            $hasPendingJobInMonth = Job::query()
+                ->whereIn('id', $jobIDs)
+                ->whereNotNull('next_start_date')
+                ->whereDate('next_start_date', '>=', Carbon::today()->toDateString())
+                ->whereDate('next_start_date', '<=', Carbon::today()->endOfMonth()->toDateString())
+                ->exists();
+
+            $paid_status = $hasPendingJobInMonth ? OrderPaidStatusEnum::UNDONE : NULL;
+        }
+
+        if (isset($data['is_one_time_in_month'])) {
+            $invoice_status = $data['is_one_time_in_month'] ? 0 : 1;
+        }
 
         $order = Order::create([
             'order_id'          => $json['docnum'],
@@ -404,16 +417,28 @@ trait PaymentAPI
             'response'          => json_encode($json, true),
             'items'             => json_encode($items),
             'status'            => 'Open',
-            'invoice_status'    => $isOneTimeInMonth ? 0 : 1,
-            'paid_status'       => $hasPendingJobInMonth ? OrderPaidStatusEnum::UNDONE : NULL
+            'invoice_status'    => $invoice_status,             // 1 = regular invoice, 0 = immediate invoice
+            'paid_status'       => $paid_status
         ]);
 
-        Job::whereIn('id', $jobIDs)
-            ->update([
-                'isOrdered' => '1',
-                'order_id' => $order->id,
-                'is_order_generated' => true
-            ]);
+        if (isset($data['job_ids'])) {
+            Job::query()
+                ->whereIn('id', $data['job_ids'])
+                ->where('is_order_generated', false)
+                ->update([
+                    'isOrdered' => '1',
+                    'order_id' => $order->id,
+                    'is_order_generated' => true
+                ]);
+
+            JobCancellationFee::query()
+                ->whereIn('job_id', $data['job_ids'])
+                ->where('is_order_generated', false)
+                ->update([
+                    'order_id' => $order->id,
+                    'is_order_generated' => true
+                ]);
+        }
 
         return $order;
     }

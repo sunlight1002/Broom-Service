@@ -734,11 +734,13 @@ export default function TotalJobs() {
                                                                             item.is_job_done
                                                                         }
                                                                         disabled={
-                                                                            item.order &&
-                                                                            item
-                                                                                .order
-                                                                                .status ==
-                                                                                "Closed"
+                                                                            item.status ==
+                                                                                "cancel" ||
+                                                                            (item.order &&
+                                                                                item
+                                                                                    .order
+                                                                                    .status ==
+                                                                                    "Closed")
                                                                         }
                                                                         onChange={(
                                                                             e
@@ -1222,7 +1224,10 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
     }, [data]);
 
     const isOrderClosed = useMemo(() => {
-        return data.order && data.order.status == "Closed";
+        return (
+            data.status == "cancel" ||
+            (data.order && data.order.status == "Closed")
+        );
     }, [data.order]);
 
     return (

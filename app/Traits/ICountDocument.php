@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Enums\OrderPaidStatusEnum;
 use App\Models\Invoices;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Order;
 use Carbon\Carbon;
 use Exception;
@@ -129,6 +130,11 @@ trait ICountDocument
             'isOrdered'             => 2,
         ]);
 
+        $order->jobCancellationFees()->update([
+            'invoice_id'            => $invoice->id,
+            'is_invoice_generated'  => true,
+        ]);
+
         /*Close Order */
         $this->closeDoc($order->order_id, 'order');
 
@@ -155,6 +161,11 @@ trait ICountDocument
 
         if ($doctype == 'invrec') {
             Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+
+            JobCancellationFee::where('order_id', $order->id)
                 ->update([
                     'is_paid' => true
                 ]);

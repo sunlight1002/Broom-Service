@@ -95,6 +95,7 @@ export default function ChangeWorkerCalender({ job }) {
 
         let formdata = {
             worker: data[0],
+            fee: formValues.fee,
             repeatancy: formValues.repeatancy,
             until_date: formValues.until_date,
         };

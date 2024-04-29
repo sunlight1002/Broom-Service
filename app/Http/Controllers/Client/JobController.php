@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
+use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Notification;
+use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -19,6 +23,8 @@ use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
+    use JobSchedule;
+
     /**
      * Display a listing of the resource.
      *
@@ -69,6 +75,28 @@ class JobController extends Controller
             ], 404);
         }
 
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
         if ($job->status == JobStatusEnum::CANCEL) {
             return response()->json([
                 'message' => 'Job already cancelled'
@@ -77,6 +105,17 @@ class JobController extends Controller
 
         $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
         $feeAmount = ($feePercentage / 100) * $job->offer->total;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'client',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CANCELLATION,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
 
         $job->update([
             'status' => JobStatusEnum::CANCEL,
@@ -89,6 +128,7 @@ class JobController extends Controller
             'cancel_until_date' => $request->until_date,
         ]);
 
+        CreateJobOrder::dispatch($job->id);
         ScheduleNextJobOccurring::dispatch($job->id);
 
         Notification::create([
