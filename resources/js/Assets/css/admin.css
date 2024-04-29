@@ -1673,17 +1673,6 @@ h1 {
 .crt-jb-table-scrollable{
   overflow-x: auto;
 }
-.crt-jb-wrap.responsiveTable tbody tr td {
-  min-width: 280px;
-  cursor: pointer;
-}
-.crt-jb-wrap.responsiveTable tbody tr td > div{
-  max-height: 250px;
-  overflow-y: auto;
-}
-/* .crt-jb-wrap.responsiveTable tbody tr td div:last-child{
-  border-bottom: 0px !important;
-} */
 
 .fc-license-message {
   display: none;
@@ -2297,6 +2286,53 @@ h1 {
 .bg-primary-selected{
   background-color: #E7A807 !important;
   color: white !important;
+}
+
+/* Worker availability tables */
+.worker-availability-table .slots .slot {
+  width: 22px;
+  height: 32px;
+  line-height: 12px;
+  font-size: 11px;
+  text-align: center;
+  padding: 4px 2px;
+  border-right: 1px solid #E5EBF1;
+  cursor: pointer;
+}
+
+.worker-availability-table .worker-name {
+  position: sticky;
+  left: 0;
+  width: 100px;
+  text-align: left !important;
+  background-color: #fff;
+  border-left: 1px solid #dee2e6 !important;
+  border-right: 1px solid #dee2e6 !important;
+  opacity: 1;
+  z-index: 9;
+}
+
+.worker-availability-table .slots .slot:last-child {
+  border-right: none;
+}
+
+.worker-availability-table .slots { 
+  border: 1px solid #E5EBF1;
+  border-radius: 4px;;
+}
+
+.worker-availability-table .day-text {
+  font-weight: 400;
+}
+
+.worker-availability-table td, .worker-availability-table td {
+  min-width: 150px;
+}
+
+.slot.slot-disabled {
+  cursor: default !important;
+  color: #2F4054;
+  opacity: 0.4;
 }
 
 /*******End*************/
