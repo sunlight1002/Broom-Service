@@ -61,74 +61,317 @@ export const createHourlyTimeArray = (startTime, endTime) => {
     return timeArray;
 };
 
+export const generateHourlyTimeSlots = (startTime, endTime) => {
+    let slots = [];
+    let start = moment(startTime, "HH:mm:ss");
+    let end = moment(endTime, "HH:mm:ss");
+
+    while (start < end) {
+        slots.push(start.format("HH:mm:ss"));
+        start.add(1, "hours");
+    }
+
+    return slots;
+};
+
+export const convertShiftsFormat = (shiftsArray) => {
+    const convertedShifts = [];
+
+    // Create an object to store shifts for each worker and date
+    const shiftsMap = {};
+
+    // Iterate over the original array and aggregate shifts
+    shiftsArray.forEach((shift) => {
+        const key = `${shift.workerName}_${shift.workerId}_${shift.date}`;
+
+        // If the key doesn't exist in the map, initialize it
+        if (!shiftsMap[key]) {
+            shiftsMap[key] = [];
+        }
+
+        // Push the shift time to the array
+        shiftsMap[key].push(shift.time.time);
+    });
+
+    // Convert the aggregated shifts to the desired format
+    for (const key in shiftsMap) {
+        const [workerName, workerId, date] = key.split("_");
+        const shifts = shiftsMap[key]
+            .map((time, index) => {
+                const startTime = time;
+                return `${moment(startTime, "HH:mm:ss").format(
+                    "HH:mm"
+                )}-${moment(startTime, "HH:mm:ss")
+                    .add(1, "hour")
+                    .format("HH:mm")}`;
+            })
+            .join(",");
+
+        convertedShifts.push({
+            worker_id: workerId,
+            worker_name: workerName,
+            date: date,
+            shifts: shifts,
+        });
+    }
+
+    return convertedShifts;
+};
+
+export const getAvailableSlots = (
+    workerAvailabilities,
+    w_id,
+    date,
+    shift,
+    workHours
+) => {
+    const chosenDateMoment = moment(date, "YYYY-MM-DD");
+    const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
+    let workerName = "";
+    // Find the worker's slots for the chosen start date
+    const workerSlots = workerAvailabilities.find((worker) => {
+        return (
+            worker.workerId === w_id &&
+            worker.slots.some((slot) =>
+                moment(slot.date, "YYYY-MM-DD").isSame(chosenDateMoment, "day")
+            )
+        );
+    });
+
+    if (!workerSlots) {
+        alert.error("Worker is not available on the chosen start date");
+        return [];
+    }
+    workerName = workerSlots.workerName;
+
+    // Find the slots for the chosen start time
+    const chosenDateSlots = workerSlots.slots.find((slot) =>
+        moment(slot.date, "YYYY-MM-DD").isSame(chosenDateMoment, "day")
+    );
+    const startIndex = chosenDateSlots.slots.findIndex((slot) =>
+        moment(slot.time, "HH:mm:ss").isSame(chosenStartTimeMoment, "minute")
+    );
+
+    if (startIndex === -1) {
+        alert.error("Chosen start time is not available");
+        return [];
+    }
+
+    // Get the available slots based on work hours
+    const availableSlots = [];
+    let remainingHours = parseInt(workHours);
+    for (
+        let i = startIndex;
+        i < chosenDateSlots.slots.length && remainingHours > 0;
+        i++
+    ) {
+        availableSlots.push({
+            workerName: workerName,
+            workerId: w_id,
+            date: chosenDateSlots.date,
+            time: chosenDateSlots.slots[i],
+        });
+        remainingHours--;
+    }
+
+    let nextDate = chosenDateSlots.date;
+
+    if (remainingHours > 0) {
+        let nextAvailableDateIndex = workerAvailabilities.findIndex(
+            (worker) => {
+                return (
+                    worker.workerId === w_id &&
+                    worker.slots.some((slot) =>
+                        moment(slot.date, "YYYY-MM-DD").isAfter(nextDate, "day")
+                    )
+                );
+            }
+        );
+
+        // Iterate through subsequent dates to find enough slots
+        while (nextAvailableDateIndex !== -1 && remainingHours > 0) {
+            const nextAvailableDateSlots = workerAvailabilities[
+                nextAvailableDateIndex
+            ].slots.find((slot) =>
+                moment(slot.date, "YYYY-MM-DD").isAfter(nextDate, "day")
+            );
+
+            if (nextAvailableDateSlots) {
+                for (let slot of nextAvailableDateSlots.slots) {
+                    availableSlots.push({
+                        workerName: workerName,
+                        workerId: w_id,
+                        date: nextAvailableDateSlots.date,
+                        time: slot,
+                    });
+                    remainingHours--;
+                    if (remainingHours === 0) break;
+                }
+                nextDate = nextAvailableDateSlots.date;
+                nextAvailableDateIndex = workerAvailabilities.findIndex(
+                    (worker) => {
+                        return (
+                            worker.workerId === w_id &&
+                            worker.slots.some((slot) =>
+                                moment(slot.date, "YYYY-MM-DD").isAfter(
+                                    nextDate,
+                                    "day"
+                                )
+                            )
+                        );
+                    }
+                );
+            }
+        }
+
+        if (remainingHours > 0) {
+            alert.error("Not enough available slots for the chosen work hours");
+            return [];
+        }
+    }
+
+    return availableSlots;
+};
+
+export const getWorkerAvailabilities = (workers) => {
+    return workers?.map((worker) => {
+        const shiftFreezeTime = {
+            start: worker.freeze_shift_start_time,
+            end: worker.freeze_shift_end_time,
+        };
+        const booked_slots = worker.booked_slots ?? [];
+
+        const notAvailableDates = worker.not_available_on;
+        const availabilityArray = Object.entries(worker?.availabilities);
+        let slots = availabilityArray?.map(([key, value]) => {
+            let slots = filterShiftOptions(
+                value ?? [],
+                booked_slots[key] ?? [],
+                shiftFreezeTime,
+                notAvailableDates?.find((n) => n.date == key)
+            );
+
+            return {
+                date: key,
+                slots: slots
+                    .filter(
+                        (slot) =>
+                            !slot?.isBooked &&
+                            !slot?.isFreezed &&
+                            !slot?.notAvailable
+                    )
+                    .map((slot) => {
+                        return { time: slot.time };
+                    }),
+            };
+        });
+        return {
+            workerId: worker.id,
+            workerName: worker.firstname + " " + worker.lastname,
+            slots: slots,
+        };
+    });
+};
+
+const parseTimeSlots = (slots) => {
+    // Split the string into pairs
+    const pairs = slots.split(",").map((slot) => slot.split("-"));
+
+    // This will store the final groups of time slots
+    let groupedSlots = [];
+    let currentGroup = [pairs[0][0]]; // Initialize with the start of the first slot
+
+    // Iterate over the pairs to group them
+    pairs.forEach((pair, index) => {
+        if (index > 0) {
+            // Check if the current pair's start time is the same as the last pair's end time
+            if (pair[0] === pairs[index - 1][1]) {
+                // Continue the current group
+                currentGroup[1] = pair[1];
+            } else {
+                // Finish the current group and start a new one
+                groupedSlots.push(currentGroup.join(" - "));
+                currentGroup = [pair[0], pair[1]];
+            }
+        }
+    });
+
+    // Add the last group
+    groupedSlots.push(currentGroup.join(" - "));
+
+    return groupedSlots;
+};
+
+export const getWorkersData = (workers) => {
+    const data = [];
+    workers.forEach((worker, index) => {
+        worker?.formattedSlots?.forEach((slots) => {
+            let shifts = parseTimeSlots(slots?.shifts ?? "");
+            data.push({
+                worker_name: slots?.worker_name ?? '',
+                date: slots?.date ?? '',
+                shifts: shifts.join(', ') ?? '',
+            })
+        });
+    });
+    return data;
+};
+
 export const filterShiftOptions = (
     availableTimeRanges,
     bookedTimeRanges,
-    shiftFreezeTime = {}
+    shiftFreezeTime = {},
+    notAvailableDates = {}
 ) => {
-    // Convert the bookedTimeRanges to an array of shift start and end times
-    const _bookedSlots = bookedTimeRanges.map((shift) => {
-        const [start, end] = shift.split("-");
-        return { start, end };
-    });
-
     let _availSlots = [];
     availableTimeRanges.forEach((range) => {
-        const _timeArray = createHourlyTimeArray(
-            range.start_time.slice(0, -3),
-            range.end_time.slice(0, -3)
-        );
-
         _availSlots = _availSlots.concat(
-            _timeArray.slice(0, -1).map((i, _index) => {
-                return { start: i, end: _timeArray[_index + 1] };
-            })
+            generateHourlyTimeSlots(range.start_time, range.end_time)
         );
     });
 
-    // Filter out the options that are not overlapped with any selected shifts
-    const nonOverlappingOptions = _availSlots.filter((option, _index) => {
-        const start_time = option.start;
-        const end_time = option.end;
-
-        let isOverlapping = !_bookedSlots.some((shift) => {
-            return start_time === shift.start || end_time === shift.end;
-        });
-
-        if (!isOverlapping) {
-            return isOverlapping;
-        }
-        const _startTime = moment(start_time, "HH:mm");
-        const _endTime = moment(end_time, "HH:mm");
-
-        if (shiftFreezeTime.start && shiftFreezeTime.end) {
-            const _startTimeF = moment(shiftFreezeTime["start"], "ha");
-            const _endTimeF = moment(shiftFreezeTime["end"], "ha");
-            return !(
-                _startTimeF.isSame(_startTime) ||
-                _endTimeF.isSame(_endTime) ||
-                _startTimeF.isBetween(_startTime, _endTime) ||
-                _endTimeF.isBetween(_startTime, _endTime) ||
-                _startTime.isBetween(_startTimeF, _endTimeF) ||
-                _endTime.isBetween(_startTimeF, _endTimeF)
-            );
-        }
-        return !_bookedSlots.some((shift) => {
-            const _shiftStartTime = moment(shift.start, "ha");
-            const _shiftEndTime = moment(shift.end, "ha");
-
-            return (
-                _shiftStartTime.isSame(_startTime) ||
-                _shiftEndTime.isSame(_endTime) ||
-                _shiftStartTime.isBetween(_startTime, _endTime) ||
-                _shiftEndTime.isBetween(_startTime, _endTime) ||
-                _startTime.isBetween(_shiftStartTime, _shiftEndTime) ||
-                _endTime.isBetween(_shiftStartTime, _shiftEndTime)
-            );
-        });
+    let _bookedSlots = bookedTimeRanges.map((range) => {
+        const [start, end] = range.slot.split("-");
+        const _slots = generateHourlyTimeSlots(start + ":00", end + ":00");
+        return {
+            client_name: range.client_name,
+            slots: _slots,
+        };
     });
 
-    return nonOverlappingOptions;
+    let _freezeSlots = [];
+    if (shiftFreezeTime?.start && shiftFreezeTime?.end) {
+        _freezeSlots = generateHourlyTimeSlots(
+            shiftFreezeTime?.start,
+            shiftFreezeTime?.end
+        );
+    }
+
+    let _notAvailableSlots = [];
+    if (notAvailableDates?.date) {
+        if (notAvailableDates?.start_time && notAvailableDates?.end_time) {
+            _notAvailableSlots = generateHourlyTimeSlots(
+                notAvailableDates?.start_time,
+                notAvailableDates?.end_time
+            );
+        } else {
+            _notAvailableSlots = _availSlots;
+        }
+    }
+
+    return _availSlots.map((slot) => {
+        const bookedSlots = _bookedSlots.find((bookedSlot) => {
+            return bookedSlot?.slots?.includes(slot);
+        });
+
+        return {
+            time: slot,
+            isBooked: bookedSlots ? true : false,
+            clientName: bookedSlots?.client_name ?? null,
+            isFreezed: _freezeSlots?.includes(slot),
+            notAvailable: _notAvailableSlots?.includes(slot),
+        };
+    });
 };
 
 export const createHalfHourlyTimeArray = (startTime, endTime) => {

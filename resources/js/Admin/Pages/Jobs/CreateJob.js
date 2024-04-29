@@ -103,12 +103,21 @@ export default function CreateJob() {
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
-                                                    >
-                                                        {item.jobHours} hours
-                                                    </p>
+                                                    <div key={index}>
+                                                        {item?.workers?.map(
+                                                            (worker, i) => (
+                                                                <p
+                                                                    className={`services-${item.service}-${item.contract_id}`}
+                                                                    key={i}
+                                                                >
+                                                                    {
+                                                                        worker.jobHours
+                                                                    }{" "}
+                                                                    hours (Worker {i + 1})
+                                                                </p>
+                                                            )
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
@@ -172,13 +181,13 @@ export default function CreateJob() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <div className="col-sm-12">
+                                        {/* <div className="col-sm-12">
                                             <div className="mt-3 mb-3">
                                                 <h3 className="text-center">
                                                     Worker Availability
                                                 </h3>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div className="col-sm-12">
                                             <CreateJobCalender
                                                 services={services}
