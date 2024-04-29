@@ -8,11 +8,13 @@ import { Base64 } from "js-base64";
 
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import ChangeWorkerCalender from "../../Component/Job/ChangeWorkerCalender";
+import { useTranslation } from "react-i18next";
 
 export default function ChangeWorkerRequest() {
     const params = useParams();
     const [job, setJob] = useState(null);
     const [hasPendingRequest, setHasPendingRequest] = useState(false);
+    const { t } = useTranslation();
 
     const jobId = Base64.decode(params.id);
 
@@ -54,7 +56,7 @@ export default function ChangeWorkerRequest() {
             <div id="content">
                 <div className="view-applicant">
                     <h1 className="page-title editJob">
-                        Change Worker Request
+                        {t("client.jobs.change.title")}
                     </h1>
                     <div id="calendar"></div>
                     <div className="card">
@@ -64,13 +66,21 @@ export default function ChangeWorkerRequest() {
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Services</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.services"
+                                                    )}
+                                                </label>
                                                 <p>{job.jobservice.name}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Frequency</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.frequency"
+                                                    )}
+                                                </label>
                                                 <p>
                                                     {job.jobservice.freq_name}
                                                 </p>
@@ -78,7 +88,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Time to Complete</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.time_to_complete"
+                                                    )}
+                                                </label>
                                                 <p>
                                                     {job.jobservice.jobHours}{" "}
                                                     hours
@@ -87,7 +101,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Property</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.property"
+                                                    )}
+                                                </label>
                                                 <p>
                                                     {
                                                         job.property_address
@@ -98,7 +116,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Pet animals</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.pet_animals"
+                                                    )}
+                                                </label>
                                                 <p>
                                                     {job.property_address
                                                         .is_cat_avail
@@ -117,7 +139,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Gender preference</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.gender_preference"
+                                                    )}
+                                                </label>
                                                 <p
                                                     style={{
                                                         textTransform:
@@ -135,7 +161,11 @@ export default function ChangeWorkerRequest() {
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Worker</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.worker"
+                                                    )}
+                                                </label>
                                                 {job.worker ? (
                                                     <p>
                                                         {job.worker.firstname +
@@ -149,7 +179,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Date</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.date"
+                                                    )}
+                                                </label>
                                                 <p>
                                                     {moment(job.start_date)
                                                         .toString()
@@ -159,7 +193,11 @@ export default function ChangeWorkerRequest() {
                                         </div>
                                         <div className="col-sm-2">
                                             <div className="form-group">
-                                                <label>Shift</label>
+                                                <label>
+                                                    {t(
+                                                        "client.jobs.change.shift"
+                                                    )}
+                                                </label>
                                                 <p>{job.shifts}</p>
                                             </div>
                                         </div>
@@ -169,12 +207,14 @@ export default function ChangeWorkerRequest() {
                                             <div className="col-sm-12">
                                                 <div className="mt-3 mb-3">
                                                     <h3 className="text-center">
-                                                        Worker Availability
+                                                        {t(
+                                                            "client.jobs.change.worker_availability"
+                                                        )}
                                                     </h3>
                                                     <p className="text-center text-danger">
-                                                        Assign a specific worker
-                                                        only and choose a shift
-                                                        for a single date.
+                                                        {t(
+                                                            "client.jobs.change.desc"
+                                                        )}
                                                     </p>
                                                 </div>
                                             </div>
@@ -191,7 +231,9 @@ export default function ChangeWorkerRequest() {
                                         <div className="row">
                                             <div className="col-sm-12">
                                                 <p className="text-center text-info">
-                                                    Request is pending.
+                                                    {t(
+                                                        "client.jobs.change.pending"
+                                                    )}
                                                 </p>
                                             </div>
                                         </div>

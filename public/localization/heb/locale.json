@@ -219,6 +219,7 @@
         }
     },
     "work-contract": {
+        "action": "פעולה",
         "inHead": "ברום סרוויס ל.מ בע'מ ח.פ. 515184208\n הסכם מסגרת התקשרות בלעדית עם דיירים/לקוחות",
         "signed": "תאריך",
         "between": "בין:",
@@ -394,6 +395,7 @@
             "scheduled": "נקבע",
             "status": "סטטוס",
             "files": "קבצים",
+            "address_txt": "כתובת",
             "cfiles": {
                 "title": "קבצים לפגישה",
                 "button": "הוסף קבצים",
@@ -435,7 +437,8 @@
                 "hour_s": "שעות",
                 "total": "סה'כ",
                 "phone": "טלפון",
-                "email": "אימייל"
+                "email": "אימייל",
+                "address": "כתובת"
             }
         },
         "contract": {
@@ -460,6 +463,22 @@
             "total": "סה'כ",
             "action": "פעולה",
             "view_btn": "צפה",
+            "change_worker_request": "שנה בקשת עובד",
+            "change": {
+                "title": "שינוי בקשת עובד",
+                "worker_availability":"זמינות עובדים",
+                "desc": "הקצה עובד ספציפי בלבד ובחר משמרת לתאריך בודד.",
+                "services":"שירותים",
+                "frequency": "תדירות",
+                "time_to_complete": "זמן להשלמה",
+                "property": "נכס",
+                "gender_preference": "העדפת מין",
+                "pet_animals": "חיות מחמד",
+                "shift": "משמרת",
+                "date": "תאריך",
+                "worker": "עובד",
+                "pending": "הבקשה ממתינה."
+            },
             "view": {
                 "worker_details": "פרטי עובד",
                 "job_status": "סטטוס העבודה",
@@ -957,7 +976,7 @@
             "dashboard": "לוּחַ מַחווָנִים",
             "jobs": "מקומות תעסוקה",
             "schedule": "לוח זמנים",
-            "not_available": "Not Available Dates"
+            "not_available": "תאריכים לא זמינים"
         },
         "dashboard": {
             "recent_jobs": "משרות אחרונות",
@@ -972,6 +991,10 @@
             "action": "פעולה"
         },
         "jobs": {
+            "all_jobs": "כל העבודות",
+            "current_week": "משרות נוכחיות",
+            "next_week": "משרות הבאות",
+            "next_next_week": "משרות הבאות הבאות",
             "title": "מקומות תעסוקה",
             "date": "תַאֲרִיך",
             "client": "לָקוּחַ",
@@ -1021,7 +1044,18 @@
             "title": "לוח זמנים",
             "c_week": "השבוע הנוכחי",
             "n_week": "שבוע הבא",
-            "update": "עדכון זמינות"
+            "n_n_week": "שבוע הבא הבא",
+            "update": "עדכון זמינות",
+            "default": "ברירת מחדל",
+            "custom": "התאמה אישית",
+            "select_date_range": "בחר טווח תאריכים",
+            "until_date": "עד תאריך",
+            "add_date": "הוסף תאריך",
+            "date": "תַאֲרִיך",
+            "start_time":"שעת התחלה",
+            "end_time":"שעת סיום",
+            "save_date": "שמור תאריך",
+            "close": "סגור"
         },
         "settings": {
             "edit_account": "ערוך חשבון",

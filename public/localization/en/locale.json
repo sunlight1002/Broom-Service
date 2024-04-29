@@ -218,6 +218,7 @@
         }
     },
     "work-contract": {
+        "action": "Action",
         "inHead": "Broom Service L.M. Ltd Private Company no. 515184208 \n Exclusive Framework Agreement with Tenants/Clients",
         "signed": "Made and Signed in :",
         "between": "Between:",
@@ -462,6 +463,22 @@
             "total": "Total",
             "action": "Action",
             "view_btn": "View",
+            "change_worker_request": "Change Worker Request",
+            "change": {
+                "title": "Change Worker Request",
+                "worker_availability":"Worker Availability",
+                "desc": "Assign a specific worker only and choose a shift for a single date.",
+                "services":"Services",
+                "frequency": "Frequency",
+                "time_to_complete": "Time to Complete",
+                "property": "Property",
+                "gender_preference": "Gender preference",
+                "pet_animals": "Pet animals",
+                "shift": "Shift",
+                "date":"Date",
+                "worker": "Worker",
+                "pending": "Request is pending."
+            },
             "view": {
                 "worker_details": "Worker Details",
                 "job_status": "Job Status",
@@ -973,6 +990,10 @@
             "action": "Action"
         },
         "jobs": {
+            "all_jobs": "All Jobs",
+            "current_week": "Current Jobs",
+            "next_week": "Next Jobs",
+            "next_next_week": "Next Next Jobs",
             "title": "Jobs",
             "date": "Date",
             "client": "Client",
@@ -1026,7 +1047,18 @@
             "title": "Schedule",
             "c_week": "Current Week",
             "n_week": "Next Week",
-            "update": "Update Availability"
+            "n_n_week": "Next to Next Week",
+            "update": "Update Availability",
+            "default": "Default",
+            "custom": "Custom",
+            "select_date_range": "Select Date Range",
+            "until_date": "Until Date",
+            "add_date": "Add Date",
+            "date": "Date",
+            "start_time":"Start Time",
+            "end_time":"End Time",
+            "save_date": "Save Date",
+            "close": "Close"
         },
         "settings": {
             "edit_account": "Edit Account",

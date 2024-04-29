@@ -309,9 +309,9 @@ export default function TotalJobs() {
                                                                         )}/change-worker-request`}
                                                                         className="dropdown-item"
                                                                     >
-                                                                        Change
-                                                                        Worker
-                                                                        Request
+                                                                        {t(
+                                                                            "client.jobs.change_worker_request"
+                                                                        )}
                                                                     </Link>
                                                                 </div>
                                                             </div>

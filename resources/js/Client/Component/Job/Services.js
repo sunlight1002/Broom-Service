@@ -66,7 +66,7 @@ export default function Services({ job }) {
 
     return (
         <>
-            <h2 className="text-custom">Service Details</h2>
+            <h2 className="text-custom">{t("worker.jobs.view.s_details")}</h2>
             <div className="dashBox p-4 mb-3">
                 {service && (
                     <form>

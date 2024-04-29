@@ -25,7 +25,7 @@ export default function NotAvailability() {
                                     data-toggle="modal"
                                     data-target="#exampleModalNote"
                                 >
-                                    Add Date
+                                    {t("worker.schedule.add_date")}
                                 </button>
                             </div>
                         </div>
