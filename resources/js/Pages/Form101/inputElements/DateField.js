@@ -8,6 +8,7 @@ export default function DateField({
     onBlur,
     error,
     required,
+    readOnly,
 }) {
     return (
         <div className="form-group">
@@ -23,6 +24,7 @@ export default function DateField({
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
+                readOnly={readOnly}
             />
             <p className="text-danger">{error}</p>
         </div>

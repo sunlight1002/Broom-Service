@@ -3,21 +3,10 @@ import { Table } from "react-bootstrap";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import SignatureCanvas from "react-signature-canvas";
+import moment from "moment";
 
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-
-const initialValues = {
-    fullName: "",
-    IdNumber: "",
-    Address: "",
-    startDate: "",
-    signatureDate: "",
-    PhoneNo: "",
-    MobileNo: "",
-    signature: "",
-    role: "",
-};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -29,11 +18,7 @@ const formSchema = yup.object({
     Address: yup.string().trim().required("Address  is required"),
     startDate: yup.date().required("Start date of job is required"),
     signatureDate: yup.date().required("Date  is required"),
-    PhoneNo: yup
-        .string()
-        .trim()
-        .matches(/^\d{10}$/, "Invalid phone number")
-        .required("Phone number is required"),
+    PhoneNo: yup.string().trim().required("Phone number is required"),
     MobileNo: yup
         .string()
         .trim()
@@ -49,6 +34,20 @@ export function IsrailContact({
 }) {
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
+    const currentDate = moment().format("YYYY-MM-DD");
+
+    const initialValues = {
+        fullName: "",
+        IdNumber: "",
+        Address: "",
+        startDate: "",
+        signatureDate: currentDate,
+        PhoneNo: "",
+        MobileNo: "",
+        signature: "",
+        role: "",
+    };
+
     const {
         errors,
         touched,
@@ -70,14 +69,17 @@ export function IsrailContact({
     useEffect(() => {
         if (checkFormDetails) {
             setFormValues(workerFormDetails);
-            disableInputs();            
-        }else{
-            setFieldValue("fullName",workerDetail.firstname +' '+workerDetail.lastname);
-            setFieldValue("IdNumber",workerDetail.worker_id);
-            setFieldValue("Address",workerDetail.address);
-            setFieldValue("PhoneNo",workerDetail.phone);
+            disableInputs();
+        } else {
+            setFieldValue(
+                "fullName",
+                workerDetail.firstname + " " + workerDetail.lastname
+            );
+            setFieldValue("IdNumber", workerDetail.worker_id);
+            setFieldValue("Address", workerDetail.address);
+            setFieldValue("PhoneNo", workerDetail.phone);
         }
-    }, [checkFormDetails,workerFormDetails,workerDetail]);
+    }, [checkFormDetails, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -642,6 +644,7 @@ export function IsrailContact({
                                         label={"Date"}
                                         value={values.signatureDate}
                                         required={true}
+                                        readOnly
                                         error={
                                             touched.signatureDate &&
                                             errors.signatureDate

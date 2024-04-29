@@ -3,27 +3,10 @@ import { Table } from "react-bootstrap";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import SignatureCanvas from "react-signature-canvas";
+import moment from "moment";
 
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-
-const initialValues = {
-    fullName: "",
-    IdNumber: "",
-    Address: "",
-    startDate: "",
-    signatureDate1: "",
-    signatureDate2: "",
-    signatureDate3: "",
-    signatureDate4: "",
-    signature1: "",
-    signature2: "",
-    signature3: "",
-    signature4: "",
-    companySignature1: "",
-    companySignature2: "",
-    role: "",
-};
 
 const formSchema = yup.object({
     fullName: yup.string().trim().required("Full name is required"),
@@ -58,6 +41,26 @@ export function NonIsraeliContract({
     const companySigRef2 = useRef();
     const [formValues, setFormValues] = useState(null);
 
+    const currentDate = moment().format("YYYY-MM-DD");
+
+    const initialValues = {
+        fullName: "",
+        IdNumber: "",
+        Address: "",
+        startDate: "",
+        signatureDate1: currentDate,
+        signatureDate2: currentDate,
+        signatureDate3: currentDate,
+        signatureDate4: currentDate,
+        signature1: "",
+        signature2: "",
+        signature3: "",
+        signature4: "",
+        companySignature1: "",
+        companySignature2: "",
+        role: "",
+    };
+
     const {
         errors,
         touched,
@@ -79,13 +82,16 @@ export function NonIsraeliContract({
     useEffect(() => {
         if (checkFormDetails) {
             setFormValues(workerFormDetails);
-            disableInputs();            
-        }else{
-            setFieldValue("fullName",workerDetail.firstname +' '+workerDetail.lastname);
-            setFieldValue("Address",workerDetail.address);
-            setFieldValue("PhoneNo",workerDetail.phone);
+            disableInputs();
+        } else {
+            setFieldValue(
+                "fullName",
+                workerDetail.firstname + " " + workerDetail.lastname
+            );
+            setFieldValue("Address", workerDetail.address);
+            setFieldValue("PhoneNo", workerDetail.phone);
         }
-    }, [checkFormDetails,workerFormDetails,workerDetail]);
+    }, [checkFormDetails, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -344,6 +350,7 @@ export function NonIsraeliContract({
                                                             values.signatureDate1
                                                         }
                                                         required={true}
+                                                        readOnly
                                                         error={
                                                             touched.signatureDate1 &&
                                                             errors.signatureDate1
@@ -480,6 +487,7 @@ export function NonIsraeliContract({
                                                 label={"Date"}
                                                 value={values.signatureDate2}
                                                 required={true}
+                                                readOnly
                                                 error={
                                                     touched.signatureDate2 &&
                                                     errors.signatureDate2
@@ -686,6 +694,7 @@ export function NonIsraeliContract({
                                                 label={"Date"}
                                                 value={values.signatureDate3}
                                                 required={true}
+                                                readOnly
                                                 error={
                                                     touched.signatureDate3 &&
                                                     errors.signatureDate3
@@ -847,6 +856,7 @@ export function NonIsraeliContract({
                                         label={"Date"}
                                         value={values.signatureDate4}
                                         required={true}
+                                        readOnly
                                         error={
                                             touched.signatureDate4 &&
                                             errors.signatureDate4

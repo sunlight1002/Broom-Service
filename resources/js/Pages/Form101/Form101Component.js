@@ -618,13 +618,18 @@ const formSchema = yup.object({
     }),
     signature: yup.mixed().required(),
 });
+
 const Form101Component = () => {
     const sigRef = useRef();
     const { t } = useTranslation();
     const alert = useAlert();
     const param = useParams();
     const id = Base64.decode(param.id);
+
     const [formValues, setFormValues] = useState(null);
+
+    const currentYear = new Date().getFullYear();
+
     const {
         values,
         touched,
@@ -663,7 +668,7 @@ const Form101Component = () => {
         setFieldValue("signature", "");
     };
     useEffect(() => {
-        setFieldValue("sender.employerEmail","office@broomservice.co.il");
+        setFieldValue("sender.employerEmail", "office@broomservice.co.il");
         getForm();
     }, []);
 
@@ -689,16 +694,18 @@ const Form101Component = () => {
             } else {
                 document.querySelector("html").removeAttribute("dir");
             }
-            if (res.data.worker){
+            if (res.data.worker) {
                 const worker = res.data.worker;
-                setFieldValue("employeeFirstName",worker.firstname);
-                setFieldValue("employeeLastName",worker.lastname);
-                setFieldValue("employeeMobileNo",worker.phone);
+                setFieldValue("employeeFirstName", worker.firstname);
+                setFieldValue("employeeLastName", worker.lastname);
+                setFieldValue("employeeMobileNo", worker.phone);
                 const workerGender = worker.gender;
-                const gender= workerGender.charAt(0).toUpperCase() + workerGender.slice(1)
-                setFieldValue("employeeEmail",worker.email);
-                setFieldValue("sender.employeeEmail",worker.email);
-                setFieldValue("employeeSex",gender);
+                const gender =
+                    workerGender.charAt(0).toUpperCase() +
+                    workerGender.slice(1);
+                setFieldValue("employeeEmail", worker.email);
+                setFieldValue("sender.employeeEmail", worker.email);
+                setFieldValue("employeeSex", gender);
             }
             if (res.data.form) {
                 setFormValues(res.data.form);
@@ -796,7 +803,7 @@ const Form101Component = () => {
                 <div className="box-heading">
                     <h2>{t("form101.texYearTitle")}</h2>
                     <p>
-                        <strong>{t("form101.year_2023")}</strong>{" "}
+                        <strong>{currentYear}</strong>{" "}
                         {t("form101.year_2023_details")}
                     </p>
                 </div>

@@ -41,7 +41,6 @@ class WorkerController extends Controller
                 'jobs.client:id,firstname,lastname',
                 'notAvailableDates:user_id,date,start_time,end_time'
             ])
-            ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
