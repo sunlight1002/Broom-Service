@@ -102,7 +102,6 @@ return [
         'btn_txt'     =>'Check Contract',
         'thanks_text'   =>'Thanks',
         'cancelled'   => 'מבוטל',
-        'worker_switched'   => 'עובד התחלף',
         'worker_changed'   => 'עובד התחלף',
         'shift_changed'   => 'Shift השתנה',
     ],

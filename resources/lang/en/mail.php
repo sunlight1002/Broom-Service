@@ -101,7 +101,6 @@ return [
         'job'         => 'Job',
         'started_by'  => 'has been started by',
         'cancelled'   => 'Cancelled',
-        'worker_switched'   => 'Worker Switched',
         'worker_changed'   => 'Worker Changed',
         'shift_changed'   => 'Shift Changed',
     ],

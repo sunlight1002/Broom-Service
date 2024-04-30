@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeJobWorkerRequest;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
@@ -201,6 +203,20 @@ class ChangeWorkerController extends Controller
         foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
+
+        $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_WORKER,
+            'duration' => $changeWorkerRequest->repeatancy,
+            'until_date' => $changeWorkerRequest->repeat_until_date,
+        ]);
 
         $changeWorkerRequest->update([
             'status' => ChangeWorkerRequestStatusEnum::ACCEPTED,

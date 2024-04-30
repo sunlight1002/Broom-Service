@@ -131,7 +131,7 @@ export default function SwitchWorkerModal({
     }, []);
 
     const feeInAmount = useMemo(() => {
-        return job.offer.total * (formValues.fee / 100);
+        return job.total_amount * (formValues.fee / 100);
     }, [formValues.fee]);
 
     return (

@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeShiftCalender from "../../Components/Job/ChangeShiftCalender";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ChangeShift() {
     const params = useParams();
@@ -77,7 +78,10 @@ export default function ChangeShift() {
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 <p>
-                                                    {job.jobservice.jobHours}{" "}
+                                                    {convertMinsToDecimalHrs(
+                                                        job.jobservice
+                                                            .duration_minutes
+                                                    )}{" "}
                                                     hours
                                                 </p>
                                             </div>
@@ -162,13 +166,6 @@ export default function ChangeShift() {
                                         </div>
                                     </div>
                                     <div className="row">
-                                        <div className="col-sm-12">
-                                            <div className="mt-3 mb-3">
-                                                <h3 className="text-center">
-                                                    Worker Availability
-                                                </h3>
-                                            </div>
-                                        </div>
                                         <div className="col-sm-12">
                                             <ChangeShiftCalender job={job} />
                                             <div className="mb-3">&nbsp;</div>

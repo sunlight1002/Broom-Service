@@ -104,7 +104,7 @@ class JobController extends Controller
         }
 
         $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
-        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
         JobCancellationFee::create([
             'job_id' => $job->id,

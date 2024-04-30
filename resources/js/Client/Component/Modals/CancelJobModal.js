@@ -65,7 +65,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
 
         const _feePercentage = diffInDays >= 1 ? 50 : 100;
 
-        return job.offer.total * (_feePercentage / 100);
+        return job.total_amount * (_feePercentage / 100);
     }, [job]);
 
     useEffect(() => {

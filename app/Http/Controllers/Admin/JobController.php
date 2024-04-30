@@ -609,6 +609,20 @@ class JobController extends Controller
             $job->workerShifts()->create($shift);
         }
 
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_WORKER,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
+
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
         event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
@@ -708,7 +722,7 @@ class JobController extends Controller
 
             $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
 
-            $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+            $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
         }
 
         $status = JobStatusEnum::SCHEDULED;
@@ -755,6 +769,20 @@ class JobController extends Controller
         foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
+
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_SHIFT,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
@@ -917,9 +945,9 @@ class JobController extends Controller
         }
 
         $feePercentage = $request->fee;
-        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
-        $cancellationFee = JobCancellationFee::create([
+        JobCancellationFee::create([
             'job_id' => $job->id,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
@@ -1205,20 +1233,6 @@ class JobController extends Controller
 
         $job->update($jobData);
         $otherWorkerJob->update($otherJobData);
-
-        $feePercentage = $request->fee;
-        $feeAmount = ($feePercentage / 100) * $job->offer->total;
-
-        JobCancellationFee::create([
-            'job_id' => $job->id,
-            'cancellation_fee_percentage' => $feePercentage,
-            'cancellation_fee_amount' => $feeAmount,
-            'cancelled_user_role' => 'admin',
-            'cancelled_by' => Auth::user()->id,
-            'action' => CancellationActionEnum::SWITCH_WORKER,
-            'duration' => $request->repeatancy,
-            'until_date' => $request->until_date,
-        ]);
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
         $jobArray = $job->toArray();

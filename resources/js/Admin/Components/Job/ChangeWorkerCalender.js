@@ -2,28 +2,36 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import { useTranslation } from "react-i18next";
 
-import { filterShiftOptions } from "../../../Utils/job.utils";
+import {
+    convertShiftsFormat,
+    getAvailableSlots,
+    getWorkerAvailabilities,
+    getWorkersData,
+} from "../../../Utils/job.utils";
+import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ChangeWorkerCalender({ job }) {
-    const params = useParams();
-    const navigate = useNavigate();
-    const alert = useAlert();
-    const [workerData, setWorkerData] = useState([]);
+    const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
+    const [selectedHours, setSelectedHours] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
-    const [interval, setTimeInterval] = useState([]);
-    const [data, setData] = useState([]);
+    const [days, setDays] = useState([]);
     const [formValues, setFormValues] = useState({
         fee: "0",
         repeatancy: "one_time",
         until_date: null,
     });
     const [minUntilDate, setMinUntilDate] = useState(null);
+    const [currentFilter, setcurrentFilter] = useState("Current Week");
+
+    const params = useParams();
+    const navigate = useNavigate();
+    const alert = useAlert();
 
     const { t } = useTranslation();
     const flatpickrRef = useRef(null);
@@ -38,12 +46,7 @@ export default function ChangeWorkerCalender({ job }) {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
-                let ai = [];
-                ar && ar.map((a, i) => ai.push(parseInt(a)));
-                var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
-                    return ai.indexOf(obj) == -1;
-                });
-                setTimeInterval(hid);
+                setDays(ar);
             }
         });
     };
@@ -63,6 +66,9 @@ export default function ChangeWorkerCalender({ job }) {
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
+                setWorkerAvailabilities(
+                    getWorkerAvailabilities(res.data.workers)
+                );
             });
     };
 
@@ -76,6 +82,16 @@ export default function ChangeWorkerCalender({ job }) {
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
         );
     }, []);
+
+    useEffect(() => {
+        setSelectedHours([
+            {
+                jobHours: job.jobservice.duration_minutes / 60,
+                slots: null,
+                formattedSlots: null,
+            },
+        ]);
+    }, [job]);
 
     const handleSubmit = () => {
         if (!formValues.repeatancy) {
@@ -93,182 +109,162 @@ export default function ChangeWorkerCalender({ job }) {
             return false;
         }
 
-        let formdata = {
-            worker: data[0],
-            fee: formValues.fee,
-            repeatancy: formValues.repeatancy,
-            until_date: formValues.until_date,
-        };
-        let viewbtn = document.querySelectorAll(".viewBtn");
-        if (data.length > 0) {
-            viewbtn[0].setAttribute("disabled", true);
-            viewbtn[0].value = "please wait ...";
-
-            axios
-                .post(`/api/admin/jobs/${params.id}/change-worker`, formdata, {
-                    headers,
-                })
-                .then((res) => {
-                    alert.success(res.data.message);
-                    setTimeout(() => {
-                        navigate("/admin/jobs");
-                    }, 1000);
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response.data.message,
-                        icon: "error",
+        if (selectedHours) {
+            const unfilled = selectedHours.find((worker) => {
+                return worker.slots == null;
+            });
+            if (unfilled) {
+                alert.error("Please select all workers.");
+            } else {
+                const data = [];
+                selectedHours.forEach((worker, index) => {
+                    worker?.formattedSlots?.forEach((slots) => {
+                        data.push(slots);
                     });
                 });
-        } else {
-            viewbtn[0].removeAttribute("disabled");
-            viewbtn[0].value = "View Job";
-            alert.error("Please Select the Workers");
+
+                let formdata = {
+                    worker: data[0],
+                    fee: formValues.fee,
+                    repeatancy: formValues.repeatancy,
+                    until_date: formValues.until_date,
+                };
+                let viewbtn = document.querySelectorAll(".viewBtn");
+                if (data.length > 0) {
+                    viewbtn[0].setAttribute("disabled", true);
+                    viewbtn[0].value = "please wait ...";
+
+                    axios
+                        .post(
+                            `/api/admin/jobs/${params.id}/change-worker`,
+                            formdata,
+                            {
+                                headers,
+                            }
+                        )
+                        .then((res) => {
+                            alert.success(res.data.message);
+                            setTimeout(() => {
+                                navigate("/admin/jobs");
+                            }, 1000);
+                        })
+                        .catch((e) => {
+                            Swal.fire({
+                                title: "Error!",
+                                text: e.response.data.message,
+                                icon: "error",
+                            });
+                        });
+                } else {
+                    viewbtn[0].removeAttribute("disabled");
+                    viewbtn[0].value = "View Job";
+                    alert.error("Please Select the Workers");
+                }
+            }
         }
     };
 
-    let curr = new Date();
-    let week = [];
-    let nextweek = [];
-    let nextnextweek = [];
-    for (let i = 0; i < 7; i++) {
-        let first = curr.getDate() - curr.getDay() + i;
-        if (first >= curr.getDate()) {
-            if (!interval.includes(i)) {
-                let day = new Date(curr.setDate(first))
-                    .toISOString()
-                    .slice(0, 10);
-                week.push(day);
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
             }
-        }
-    }
+        });
+        return week;
+    };
 
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 7 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextweek.push(firstday);
-        }
-    }
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 14 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextnextweek.push(firstday);
-        }
-    }
+    const sundayOfCurrentWeek = moment().startOf("week");
+
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        if (
-            data.length === 0 ||
-            (data.length > 0 &&
-                data[0].worker_id == w_id &&
-                data[0].date == date)
-        ) {
-            setWorkerData([...workerData, { ...e, w_id, date }]);
-
-            e = [
-                ...workerData.filter((d) => d.date == date && d.w_id == w_id),
-                { ...e, w_id, date },
-            ];
-
-            const w_n = $("#worker-" + w_id).html();
-
-            const filtered = data.filter((d) => {
-                return !(d.date == date && d.worker_id == w_id);
+        setSelectedHours((data) => {
+            let added = false;
+            return data.map((worker, index) => {
+                if (
+                    (worker.slots == null ||
+                        worker?.slots[0]?.workerId == w_id) &&
+                    !added
+                ) {
+                    const slots = getAvailableSlots(
+                        workerAvailabilities,
+                        w_id,
+                        date,
+                        e,
+                        worker.jobHours
+                    );
+                    added = true;
+                    return {
+                        jobHours: worker.jobHours,
+                        slots: slots.length > 0 ? slots : null,
+                        formattedSlots:
+                            slots.length > 0
+                                ? convertShiftsFormat(slots)
+                                : null,
+                    };
+                }
+                if (!added && data.length == index + 1) {
+                    alert.error("Already other workers selected.");
+                }
+                return worker;
             });
-
-            const shifts = e.map((v) => `${v.start}-${v.end}`).join(",");
-
-            var newdata;
-            if (shifts != "") {
-                newdata = [
-                    ...filtered,
-                    {
-                        worker_id: w_id,
-                        worker_name: w_n,
-                        date: date,
-                        shifts: shifts,
-                    },
-                ];
-            } else {
-                newdata = [...filtered];
-            }
-            setData(newdata);
-        } else {
-            Swal.fire({
-                title: "Error!",
-                text: "You can't select multiple workers and multiple date",
-                icon: "error",
-            });
-        }
+        });
     };
 
-    const removeShift = (w_id, date, e) => {
-        const filtered = data.find((d) => {
-            return d.date == date && d.worker_id == w_id;
+    const removeShift = (w_id, date, shift) => {
+        setSelectedHours((data) => {
+            return data.map((worker) => {
+                if (worker.slots != null) {
+                    const slot = worker.slots.find((s) => {
+                        return (
+                            s.workerId == w_id &&
+                            s.date == date &&
+                            shift.time == s.time.time
+                        );
+                    });
+                    if (slot) {
+                        return {
+                            jobHours: worker.jobHours,
+                            slots: null,
+                            formattedSlots: null,
+                        };
+                    }
+                }
+                return worker;
+            });
         });
-
-        if (filtered) {
-            const _shifts = filtered.shifts.split(",") ?? [];
-
-            const _index = _shifts.indexOf(`${e.start}-${e.end}`);
-            if (_index !== -1) {
-                _shifts.splice(_index, 1);
-                const tmpworker = [...workerData];
-
-                const indexWorker = tmpworker.findIndex((item) => {
-                    return (
-                        item.date === date &&
-                        item.w_id === w_id &&
-                        item.start === e.start &&
-                        item.end === e.end
-                    );
-                });
-
-                if (indexWorker !== -1) {
-                    tmpworker.splice(indexWorker, 1);
-                    setWorkerData(tmpworker);
-                }
-
-                if (_shifts.length > 0) {
-                    setData((oldData) =>
-                        oldData.map((item) => {
-                            if (item.date === date && item.worker_id === w_id) {
-                                return { ...item, shifts: _shifts.join(",") };
-                            } else {
-                                return item;
-                            }
-                        })
-                    );
-                } else {
-                    setData((oldData) =>
-                        oldData.filter(
-                            (item) =>
-                                item.date !== date && item.worker_id !== w_id
-                        )
-                    );
-                }
-            }
-        }
     };
 
-    const hasActive = (w_id, date, e) => {
-        const filtered = data.find((d) => {
-            return d.date == date && d.worker_id == w_id;
-        });
-
-        if (filtered) {
-            const _shifts = filtered.shifts.split(",") ?? [];
-
-            return _shifts.includes(`${e.start}-${e.end}`);
+    const hasActive = (w_id, date, shift) => {
+        if (selectedHours) {
+            const filtered = selectedHours.find((worker) => {
+                if (worker.slots != null) {
+                    const slot = worker.slots.find((s) => {
+                        return (
+                            s.workerId == w_id &&
+                            s.date == date &&
+                            shift.time == s.time.time
+                        );
+                    });
+                    if (slot) {
+                        return {
+                            jobHours: worker.jobHours,
+                            slots: null,
+                            formattedSlots: null,
+                        };
+                    }
+                }
+                return false;
+            });
+            if (filtered) {
+                return true;
+            }
         }
 
         return false;
@@ -287,560 +283,99 @@ export default function ChangeWorkerCalender({ job }) {
     };
 
     const feeInAmount = useMemo(() => {
-        return job.offer.total * (formValues.fee / 100);
+        return job.total_amount * (formValues.fee / 100);
     }, [formValues.fee]);
 
     return (
         <>
-            <ul className="nav nav-tabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-availability"
-                        className="nav-link active"
-                        data-toggle="tab"
-                        href="#tab-worker-availability"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Current Week
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Next Week
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-next-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-next-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Next Next Week
-                    </a>
-                </li>
-            </ul>
+            <div className="row mb-3">
+                <div className="col-sm-12 d-flex align-items-center">
+                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                        Worker Availability
+                    </div>
+                    <FilterButtons
+                        text="Current Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+
+                    <FilterButtons
+                        text="Next Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+
+                    <FilterButtons
+                        text="Next Next Week"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
+                </div>
+            </div>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Current Week" ? "block" : "none",
+                    }}
                     id="tab-worker-availability"
                     className="tab-pane active show  table-responsive"
                     role="tab-panel"
                     aria-labelledby="current-job"
                 >
                     <div className="crt-jb-table-scrollable">
-                        <Table className="table table-bordered crt-jb-wrap">
-                            <Thead>
-                                <Tr>
-                                    <Th>Worker</Th>
-                                    {week.map((element, index) => (
-                                        <Th key={index}>
-                                            {moment(element)
-                                                .toString()
-                                                .slice(0, 15)}
-                                        </Th>
-                                    ))}
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {AllWorkers.map((w, index) => {
-                                    let aval = w.aval ? w.aval : [];
-                                    let wjobs = w.wjobs ? w.wjobs : [];
-                                    let fullname =
-                                        w.firstname + " " + w.lastname;
-
-                                    const shiftFreezeTime = {
-                                        start: w.freeze_shift_start_time,
-                                        end: w.freeze_shift_end_time,
-                                    };
-
-                                    const notAvailableDates =
-                                        w.not_available_dates;
-
-                                    return (
-                                        <Tr key={index}>
-                                            <Td>
-                                                <span
-                                                    id={`worker-${w.id}`}
-                                                    className="d-flex align-items-center justify-content-center"
-                                                >
-                                                    {fullname}
-                                                </span>
-                                            </Td>
-                                            {week.map((element, index) => {
-                                                let shifts = wjobs[element]
-                                                    ? wjobs[element].split(",")
-                                                    : [];
-                                                let sav =
-                                                    shifts.length > 0
-                                                        ? filterShiftOptions(
-                                                              aval[element],
-                                                              shifts,
-                                                              shiftFreezeTime
-                                                          )
-                                                        : [];
-
-                                                let list =
-                                                    shifts.length > 0
-                                                        ? true
-                                                        : false;
-                                                const isDateAvailable =
-                                                    !notAvailableDates.includes(
-                                                        element
-                                                    );
-
-                                                return (
-                                                    <Td key={index}>
-                                                        <div>
-                                                            {shifts.map(
-                                                                (s, i) => {
-                                                                    return (
-                                                                        <div
-                                                                            className="text-success p-2 bg-light border-bottom"
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
-                                                                            {s}
-                                                                        </div>
-                                                                    );
-                                                                }
-                                                            )}
-
-                                                            {isDateAvailable &&
-                                                            aval[element] &&
-                                                            aval[element] !=
-                                                                "" ? (
-                                                                filterShiftOptions(
-                                                                    aval[
-                                                                        element
-                                                                    ],
-                                                                    shifts,
-                                                                    shiftFreezeTime
-                                                                ).map(
-                                                                    (
-                                                                        shift,
-                                                                        _sIdx
-                                                                    ) => {
-                                                                        const isActive =
-                                                                            hasActive(
-                                                                                w.id,
-                                                                                element,
-                                                                                shift
-                                                                            );
-
-                                                                        return (
-                                                                            <div
-                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center  ${
-                                                                                    isActive
-                                                                                        ? "bg-primary"
-                                                                                        : ""
-                                                                                }`}
-                                                                                onClick={() => {
-                                                                                    isActive
-                                                                                        ? removeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          )
-                                                                                        : changeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          );
-                                                                                }}
-                                                                                key={
-                                                                                    _sIdx
-                                                                                }
-                                                                            >
-                                                                                <div>
-                                                                                    {
-                                                                                        shift.start
-                                                                                    }{" "}
-                                                                                    -{" "}
-                                                                                    {
-                                                                                        shift.end
-                                                                                    }
-                                                                                </div>
-                                                                                {isActive ? (
-                                                                                    <i className="fa-solid fa-minus"></i>
-                                                                                ) : (
-                                                                                    <i className="fa-solid fa-plus"></i>
-                                                                                )}
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                )
-                                                            ) : (
-                                                                <div
-                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
-                                                                >
-                                                                    Not
-                                                                    Available
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </Td>
-                                                );
-                                            })}
-                                        </Tr>
-                                    );
-                                })}
-                            </Tbody>
-                        </Table>
+                        <WorkerAvailabilityTable
+                            week={week}
+                            AllWorkers={AllWorkers}
+                            hasActive={hasActive}
+                            changeShift={changeShift}
+                            removeShift={removeShift}
+                        />
                     </div>
                 </div>
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Next Week" ? "block" : "none",
+                    }}
                     id="tab-current-job"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="current-job"
                 >
                     <div className="crt-jb-table-scrollable">
-                        <Table className="table table-bordered crt-jb-wrap">
-                            <Thead>
-                                <Tr>
-                                    <Th>Worker</Th>
-                                    {nextweek.map((element, index) => (
-                                        <Th key={index}>
-                                            {moment(element)
-                                                .toString()
-                                                .slice(0, 15)}
-                                        </Th>
-                                    ))}
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {AllWorkers.map((w, index) => {
-                                    let aval = w.aval ? w.aval : [];
-                                    let wjobs = w.wjobs ? w.wjobs : [];
-                                    let fullname =
-                                        w.firstname + " " + w.lastname;
-
-                                    const shiftFreezeTime = {
-                                        start: w.freeze_shift_start_time,
-                                        end: w.freeze_shift_end_time,
-                                    };
-
-                                    const notAvailableDates =
-                                        w.not_available_dates;
-
-                                    return (
-                                        <Tr key={index}>
-                                            <Td>
-                                                <span
-                                                    id={`worker-${w.id}`}
-                                                    className="d-flex align-items-center justify-content-center"
-                                                >
-                                                    {fullname}
-                                                </span>
-                                            </Td>
-                                            {nextweek.map((element, index) => {
-                                                let shifts = wjobs[element]
-                                                    ? wjobs[element].split(",")
-                                                    : [];
-                                                let sav =
-                                                    shifts.length > 0
-                                                        ? filterShiftOptions(
-                                                              aval[element],
-                                                              shifts,
-                                                              shiftFreezeTime
-                                                          )
-                                                        : [];
-
-                                                let list =
-                                                    shifts.length > 0
-                                                        ? true
-                                                        : false;
-
-                                                const isDateAvailable =
-                                                    !notAvailableDates.includes(
-                                                        element
-                                                    );
-
-                                                return (
-                                                    <Td key={index}>
-                                                        <div>
-                                                            {shifts.map(
-                                                                (s, i) => {
-                                                                    return (
-                                                                        <div
-                                                                            className="text-success p-2 bg-light border-bottom"
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
-                                                                            {s}
-                                                                        </div>
-                                                                    );
-                                                                }
-                                                            )}
-
-                                                            {isDateAvailable &&
-                                                            aval[element] &&
-                                                            aval[element] !=
-                                                                "" ? (
-                                                                filterShiftOptions(
-                                                                    aval[
-                                                                        element
-                                                                    ],
-                                                                    shifts,
-                                                                    shiftFreezeTime
-                                                                ).map(
-                                                                    (
-                                                                        shift,
-                                                                        _sIdx
-                                                                    ) => {
-                                                                        const isActive =
-                                                                            hasActive(
-                                                                                w.id,
-                                                                                element,
-                                                                                shift
-                                                                            );
-
-                                                                        return (
-                                                                            <div
-                                                                                className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
-                                                                                    isActive
-                                                                                        ? "bg-primary"
-                                                                                        : ""
-                                                                                }`}
-                                                                                key={
-                                                                                    _sIdx
-                                                                                }
-                                                                                onClick={() => {
-                                                                                    isActive
-                                                                                        ? removeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          )
-                                                                                        : changeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          );
-                                                                                }}
-                                                                            >
-                                                                                <div>
-                                                                                    {
-                                                                                        shift.start
-                                                                                    }{" "}
-                                                                                    -{" "}
-                                                                                    {
-                                                                                        shift.end
-                                                                                    }
-                                                                                </div>
-                                                                                {isActive ? (
-                                                                                    <i className="fa-solid fa-minus"></i>
-                                                                                ) : (
-                                                                                    <i className="fa-solid fa-plus"></i>
-                                                                                )}
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                )
-                                                            ) : (
-                                                                <div
-                                                                    className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
-                                                                >
-                                                                    Not
-                                                                    Available
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </Td>
-                                                );
-                                            })}
-                                        </Tr>
-                                    );
-                                })}
-                            </Tbody>
-                        </Table>
+                        <WorkerAvailabilityTable
+                            week={nextweek}
+                            AllWorkers={AllWorkers}
+                            hasActive={hasActive}
+                            changeShift={changeShift}
+                            removeShift={removeShift}
+                        />
                     </div>
                 </div>
                 <div
+                    style={{
+                        display:
+                            currentFilter === "Next Next Week"
+                                ? "block"
+                                : "none",
+                    }}
                     id="tab-current-next-job"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="current-job"
                 >
                     <div className="crt-jb-table-scrollable">
-                        <Table className="table table-bordered crt-jb-wrap">
-                            <Thead>
-                                <Tr>
-                                    <Th>Worker</Th>
-                                    {nextnextweek.map((element, index) => (
-                                        <Th key={index}>
-                                            {moment(element)
-                                                .toString()
-                                                .slice(0, 15)}
-                                        </Th>
-                                    ))}
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {AllWorkers.map((w, index) => {
-                                    let aval = w.aval ? w.aval : [];
-                                    let wjobs = w.wjobs ? w.wjobs : [];
-                                    let fullname =
-                                        w.firstname + " " + w.lastname;
-
-                                    const shiftFreezeTime = {
-                                        start: w.freeze_shift_start_time,
-                                        end: w.freeze_shift_end_time,
-                                    };
-
-                                    const notAvailableDates =
-                                        w.not_available_dates;
-
-                                    return (
-                                        <Tr key={index}>
-                                            <Td>
-                                                <span
-                                                    id={`worker-${w.id}`}
-                                                    className="d-flex align-items-center justify-content-center"
-                                                >
-                                                    {fullname}
-                                                </span>
-                                            </Td>
-                                            {nextnextweek.map(
-                                                (element, index) => {
-                                                    let shifts = wjobs[element]
-                                                        ? wjobs[element].split(
-                                                              ","
-                                                          )
-                                                        : [];
-                                                    let sav =
-                                                        shifts.length > 0
-                                                            ? filterShiftOptions(
-                                                                  aval[element],
-                                                                  shifts,
-                                                                  shiftFreezeTime
-                                                              )
-                                                            : [];
-
-                                                    let list =
-                                                        shifts.length > 0
-                                                            ? true
-                                                            : false;
-
-                                                    const isDateAvailable =
-                                                        !notAvailableDates.includes(
-                                                            element
-                                                        );
-
-                                                    return (
-                                                        <Td key={index}>
-                                                            <div>
-                                                                {shifts.map(
-                                                                    (s, i) => {
-                                                                        return (
-                                                                            <div
-                                                                                className="text-success p-2 bg-light border-bottom"
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    s
-                                                                                }
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                )}
-
-                                                                {isDateAvailable &&
-                                                                aval[element] &&
-                                                                aval[element] !=
-                                                                    "" ? (
-                                                                    filterShiftOptions(
-                                                                        aval[
-                                                                            element
-                                                                        ],
-                                                                        shifts,
-                                                                        shiftFreezeTime
-                                                                    ).map(
-                                                                        (
-                                                                            shift,
-                                                                            _sIdx
-                                                                        ) => {
-                                                                            const isActive =
-                                                                                hasActive(
-                                                                                    w.id,
-                                                                                    element,
-                                                                                    shift
-                                                                                );
-
-                                                                            return (
-                                                                                <div
-                                                                                    className={`d-flex justify-content-between p-2 border-bottom align-items-center ${
-                                                                                        isActive
-                                                                                            ? "bg-primary"
-                                                                                            : ""
-                                                                                    }`}
-                                                                                    key={
-                                                                                        _sIdx
-                                                                                    }
-                                                                                    onClick={() => {
-                                                                                        isActive
-                                                                                            ? removeShift(
-                                                                                                  w.id,
-                                                                                                  element,
-                                                                                                  shift
-                                                                                              )
-                                                                                            : changeShift(
-                                                                                                  w.id,
-                                                                                                  element,
-                                                                                                  shift
-                                                                                              );
-                                                                                    }}
-                                                                                >
-                                                                                    <div>
-                                                                                        {
-                                                                                            shift.start
-                                                                                        }{" "}
-                                                                                        -{" "}
-                                                                                        {
-                                                                                            shift.end
-                                                                                        }
-                                                                                    </div>
-                                                                                    {isActive ? (
-                                                                                        <i className="fa-solid fa-minus"></i>
-                                                                                    ) : (
-                                                                                        <i className="fa-solid fa-plus"></i>
-                                                                                    )}
-                                                                                </div>
-                                                                            );
-                                                                        }
-                                                                    )
-                                                                ) : (
-                                                                    <div
-                                                                        className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
-                                                                    >
-                                                                        Not
-                                                                        Available
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </Td>
-                                                    );
-                                                }
-                                            )}
-                                        </Tr>
-                                    );
-                                })}
-                            </Tbody>
-                        </Table>
+                        <WorkerAvailabilityTable
+                            week={nextnextweek}
+                            AllWorkers={AllWorkers}
+                            hasActive={hasActive}
+                            changeShift={changeShift}
+                            removeShift={removeShift}
+                        />
                     </div>
                 </div>
             </div>
@@ -914,10 +449,10 @@ export default function ChangeWorkerCalender({ job }) {
                                                 </td>
                                                 <td>
                                                     <p>
-                                                        {
+                                                        {convertMinsToDecimalHrs(
                                                             job.jobservice
-                                                                .jobHours
-                                                        }{" "}
+                                                                .duration_minutes
+                                                        )}{" "}
                                                         hours
                                                     </p>
                                                 </td>
@@ -966,18 +501,23 @@ export default function ChangeWorkerCalender({ job }) {
                                     </table>
                                 </div>
                                 <div className="table-responsive">
-                                    {data.length > 0 && (
+                                    {getWorkersData(selectedHours).length >
+                                    0 ? (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">Worker</th>
-                                                    <th scope="col">Data</th>
+                                                    <th scope="col">Date</th>
                                                     <th scope="col">Shifts</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {data &&
-                                                    data.map((d, i) => (
+                                                {getWorkersData(
+                                                    selectedHours
+                                                ) &&
+                                                    getWorkersData(
+                                                        selectedHours
+                                                    ).map((d, i) => (
                                                         <tr key={i}>
                                                             <td>
                                                                 {d.worker_name}
@@ -988,6 +528,8 @@ export default function ChangeWorkerCalender({ job }) {
                                                     ))}
                                             </tbody>
                                         </table>
+                                    ) : (
+                                        ""
                                     )}
                                 </div>
                             </div>
@@ -1144,3 +686,35 @@ export default function ChangeWorkerCalender({ job }) {
         </>
     );
 }
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn btn-sm border ${className}`}
+        type="button"
+        style={
+            selectedFilter !== text
+                ? {
+                      background: "#EDF1F6",
+                      color: "#2c3f51",
+                      borderRadius: "6px",
+                  }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                      borderRadius: "6px",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);

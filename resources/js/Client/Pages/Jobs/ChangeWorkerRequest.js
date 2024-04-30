@@ -9,6 +9,7 @@ import { Base64 } from "js-base64";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import ChangeWorkerCalender from "../../Component/Job/ChangeWorkerCalender";
 import { useTranslation } from "react-i18next";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ChangeWorkerRequest() {
     const params = useParams();
@@ -94,7 +95,10 @@ export default function ChangeWorkerRequest() {
                                                     )}
                                                 </label>
                                                 <p>
-                                                    {job.jobservice.jobHours}{" "}
+                                                    {convertMinsToDecimalHrs(
+                                                        job.jobservice
+                                                            .duration_minutes
+                                                    )}{" "}
                                                     hours
                                                 </p>
                                             </div>
@@ -204,20 +208,6 @@ export default function ChangeWorkerRequest() {
                                     </div>
                                     {!hasPendingRequest ? (
                                         <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="mt-3 mb-3">
-                                                    <h3 className="text-center">
-                                                        {t(
-                                                            "client.jobs.change.worker_availability"
-                                                        )}
-                                                    </h3>
-                                                    <p className="text-center text-danger">
-                                                        {t(
-                                                            "client.jobs.change.desc"
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            </div>
                                             <div className="col-sm-12">
                                                 <ChangeWorkerCalender
                                                     job={job}
