@@ -90,6 +90,7 @@ class WorkerController extends Controller
         $workers = User::query()
             ->with([
                 'availabilities:user_id,day,date,start_time,end_time',
+                'defaultAvailabilities:user_id,weekday,start_time,end_time,until_date',
                 'jobs:worker_id,start_date,shifts,client_id',
                 'jobs.client:id,firstname,lastname',
                 'notAvailableDates:user_id,date,start_time,end_time'
@@ -129,11 +130,38 @@ class WorkerController extends Controller
             $workers = $workers->map(function ($worker, $key) {
                 $workerArr = $worker->toArray();
 
+                $defaultAvailabilities = $worker->defaultAvailabilities
+                    ->where('until_date', '>=', date('Y-m-d'))
+                    ->groupBy('weekday');
+
                 $availabilities = [];
                 foreach ($worker->availabilities->groupBy('date') as $date => $times) {
                     $availabilities[$date] = $times->map(function ($item, $key) {
                         return $item->only(['start_time', 'end_time']);
                     });
+                }
+
+                $available_dates = array_keys($availabilities);
+                $dates = [];
+
+                $currentDate = Carbon::now();
+
+                // Loop through the next 4 weeks (28 days)
+                for ($i = 0; $i < 28; $i++) {
+                    // Add the current date to the array
+                    $date_ = $currentDate->toDateString();
+
+                    if (!in_array($date_, $available_dates)) {
+                        $weekDay = $currentDate->weekday();
+                        if (isset($defaultAvailabilities[$weekDay])) {
+                            $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
+                                return $item->only(['start_time', 'end_time']);
+                            });
+                        }
+                    }
+
+                    // Move to the next day
+                    $currentDate->addDay();
                 }
 
                 $workerArr['availabilities'] = $availabilities;
