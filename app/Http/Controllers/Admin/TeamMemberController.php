@@ -245,6 +245,14 @@ class TeamMemberController extends Controller
             ->whereDate('date', $date)
             ->get(['start_time', 'end_time']);
 
+        if ($available_slots->count() == 0) {
+            $weekDay = Carbon::parse($date)->weekday();
+            $available_slots = $teamMember->defaultAvailabilities()
+                ->where('weekday', $weekDay)
+                ->whereDate('until_date', '>=', date('Y-m-d'))
+                ->get(['start_time', 'end_time']);
+        }
+
         $bookedSlots = Schedule::query()
             ->whereDate('start_date', $date)
             ->whereNotNull('start_time')
