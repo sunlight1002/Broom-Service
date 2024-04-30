@@ -137,8 +137,6 @@ class WorkerController extends Controller
                 }
 
                 $workerArr['availabilities'] = $availabilities;
-                $workerArr['aval'] = $this->workerAvl($worker->availabilities);
-                $workerArr['wjobs'] = $this->workerJobs($worker->jobs);
 
                 $dates = array();
                 foreach ($worker->jobs as $job) {
@@ -174,31 +172,6 @@ class WorkerController extends Controller
         return response()->json([
             'workers' => $workers,
         ]);
-    }
-
-    public function workerJobs($jobs)
-    {
-        $data = array();
-        foreach ($jobs as $job) {
-            if (array_key_exists($job->start_date, $data)) {
-                $data[$job->start_date] = $data[$job->start_date] . ',' . $job->shifts;
-            } else {
-                $data[$job->start_date] = $job->shifts;
-            }
-        }
-        return $data;
-    }
-
-    public function workerAvl($availabilities)
-    {
-        $worker_availabilities = [];
-        foreach ($availabilities->groupBy('date') as $date => $times) {
-            $worker_availabilities[$date] = $times->map(function ($item, $key) {
-                return $item->only(['start_time', 'end_time']);
-            });
-        }
-
-        return $worker_availabilities;
     }
 
     /**
@@ -395,12 +368,15 @@ class WorkerController extends Controller
         $worker->defaultAvailabilities()->delete();
 
         if (isset($data['default']['time_slots'])) {
-            foreach ($data['default']['time_slots'] as $key => $timeSlot) {
-                $worker->defaultAvailabilities()->create([
-                    'start_time' => $timeSlot['start_time'],
-                    'end_time' => $timeSlot['end_time'],
-                    'until_date' => $data['default']['until_date'],
-                ]);
+            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
+                foreach ($availabilties as $key => $timeSlot) {
+                    $worker->defaultAvailabilities()->create([
+                        'weekday' => $weekday,
+                        'start_time' => $timeSlot['start_time'],
+                        'end_time' => $timeSlot['end_time'],
+                        'until_date' => $data['default']['until_date'],
+                    ]);
+                }
             }
         }
 
@@ -426,7 +402,8 @@ class WorkerController extends Controller
 
         $default_availabilities = $worker->defaultAvailabilities()
             ->orderBy('id', 'asc')
-            ->get(['start_time', 'end_time', 'until_date']);
+            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
+            ->groupBy('weekday');
 
         return response()->json([
             'data' => [

@@ -116,7 +116,8 @@ class JobController extends Controller
 
         $default_availabilities = $worker->defaultAvailabilities()
             ->orderBy('id', 'asc')
-            ->get(['start_time', 'end_time', 'until_date']);
+            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
+            ->groupBy('weekday');
 
         return response()->json([
             'availability' => [
@@ -163,12 +164,15 @@ class JobController extends Controller
         $worker->defaultAvailabilities()->delete();
 
         if (isset($data['default']['time_slots'])) {
-            foreach ($data['default']['time_slots'] as $key => $timeSlot) {
-                $worker->defaultAvailabilities()->create([
-                    'start_time' => $timeSlot['start_time'],
-                    'end_time' => $timeSlot['end_time'],
-                    'until_date' => $data['default']['until_date'],
-                ]);
+            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
+                foreach ($availabilties as $key => $timeSlot) {
+                    $worker->defaultAvailabilities()->create([
+                        'weekday' => $weekday,
+                        'start_time' => $timeSlot['start_time'],
+                        'end_time' => $timeSlot['end_time'],
+                        'until_date' => $data['default']['until_date'],
+                    ]);
+                }
             }
         }
 

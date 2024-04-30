@@ -10,6 +10,7 @@ class TeamMemberDefaultAvailability extends Model
 
     protected $fillable = [
         'team_member_id',
+        'weekday',
         'start_time',
         'end_time',
         'until_date',

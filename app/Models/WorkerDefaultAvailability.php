@@ -10,6 +10,7 @@ class WorkerDefaultAvailability extends Model
 
     protected $fillable = [
         'user_id',
+        'weekday',
         'start_time',
         'end_time',
         'until_date',

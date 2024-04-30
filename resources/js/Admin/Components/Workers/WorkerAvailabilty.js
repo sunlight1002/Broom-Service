@@ -25,7 +25,7 @@ const tabList = [
     },
 ];
 
-export default function WorkerAvailabilty({ interval }) {
+export default function WorkerAvailabilty({ days }) {
     const [notAvailableDates, setNotAvailableDates] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
     const [activeTab, setActiveTab] = useState("current-week");
@@ -47,6 +47,8 @@ export default function WorkerAvailabilty({ interval }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
     const slots = useMemo(() => {
         return createHourlyTimeArray("08:00", "24:00");
     }, []);
@@ -55,42 +57,24 @@ export default function WorkerAvailabilty({ interval }) {
         return moment().startOf("week").add(3, "week").format("YYYY-MM-DD");
     }, []);
 
-    let curr = new Date();
-    let week = [];
-    let nextweek = [];
-    let nextnextweek = [];
-    for (let i = 0; i < 7; i++) {
-        let first = curr.getDate() - curr.getDay() + i;
-        if (first >= curr.getDate()) {
-            if (!interval.includes(i)) {
-                let day = new Date(curr.setDate(first))
-                    .toISOString()
-                    .slice(0, 10);
-                week.push(day);
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
             }
-        }
-    }
+        });
+        return week;
+    };
 
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 7 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextweek.push(firstday);
-        }
-    }
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 14 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextnextweek.push(firstday);
-        }
-    }
+    const sundayOfCurrentWeek = moment().startOf("week");
+
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const getWorkerAvailabilty = () => {
         axios
@@ -149,25 +133,35 @@ export default function WorkerAvailabilty({ interval }) {
                     }
 
                     const _defaultAvailSlots = response.data.data.default;
-                    let _defaultSlots = [];
+                    let _defaultSlots = {};
 
-                    if (_defaultAvailSlots.length) {
+                    const _defaultAvailSlotsKeys =
+                        Object.keys(_defaultAvailSlots);
+                    if (_defaultAvailSlotsKeys.length) {
                         setFormValues((values) => {
                             return {
                                 ...values,
                                 default_until_date:
-                                    _defaultAvailSlots[0].until_date,
+                                    _defaultAvailSlots[
+                                        _defaultAvailSlotsKeys[0]
+                                    ][0].until_date,
                             };
                         });
 
-                        _defaultSlots["default"] = _defaultAvailSlots.map(
-                            (i) => {
+                        for (const [key, value] of Object.entries(
+                            _defaultAvailSlots
+                        )) {
+                            const _defaultWeekDaySlots = _defaultAvailSlots[
+                                key
+                            ].map((i) => {
                                 return {
                                     start_time: i.start_time.slice(0, -3),
                                     end_time: i.end_time.slice(0, -3),
                                 };
-                            }
-                        );
+                            });
+
+                            _defaultSlots[key] = _defaultWeekDaySlots;
+                        }
                     }
 
                     setDefaultTimeSlots(_defaultSlots);
@@ -197,13 +191,18 @@ export default function WorkerAvailabilty({ interval }) {
             return false;
         }
 
+        if (!formValues.default_until_date) {
+            alert.error("Default until date not selected");
+            return false;
+        }
+
         axios
             .post(
                 `/api/admin/update_availability/${params.id}`,
                 {
                     time_slots: timeSlots,
                     default: {
-                        time_slots: defaultTimeSlots.default,
+                        time_slots: defaultTimeSlots,
                         until_date: formValues.default_until_date,
                     },
                 },
@@ -413,52 +412,66 @@ export default function WorkerAvailabilty({ interval }) {
                 >
                     <div className="table-responsive">
                         <table className="timeslots table">
+                            <thead>
+                                <tr>
+                                    {[...Array(7).keys()].map(
+                                        (element, index) => (
+                                            <th key={index}>
+                                                {weekDays[element]}
+                                            </th>
+                                        )
+                                    )}
+                                </tr>
+                            </thead>
                             <tbody>
                                 <tr>
-                                    <td>
-                                        <div className="offset-sm-4 col-sm-4">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    Until Date
-                                                </label>
-                                                <Flatpickr
-                                                    name="date"
-                                                    className="form-control"
-                                                    onChange={(
-                                                        selectedDates,
-                                                        dateStr,
-                                                        instance
-                                                    ) => {
-                                                        setFormValues({
-                                                            ...formValues,
-                                                            default_until_date:
-                                                                dateStr,
-                                                        });
-                                                    }}
-                                                    value={
-                                                        formValues.default_until_date
+                                    {[...Array(7).keys()].map((w, _wIndex) => {
+                                        return (
+                                            <td key={_wIndex}>
+                                                <TimeSlot
+                                                    clsName={w}
+                                                    slots={slots}
+                                                    setTimeSlots={
+                                                        setDefaultTimeSlots
                                                     }
-                                                    options={{
-                                                        disableMobile: true,
-                                                    }}
-                                                    ref={flatpickrRef}
+                                                    timeSlots={defaultTimeSlots}
+                                                    isDisabled={false}
                                                 />
-                                            </div>
-
-                                            <TimeSlot
-                                                clsName="default"
-                                                slots={slots}
-                                                setTimeSlots={
-                                                    setDefaultTimeSlots
-                                                }
-                                                timeSlots={defaultTimeSlots}
-                                                isDisabled={false}
-                                            />
-                                        </div>
-                                    </td>
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <div className="row">
+                        <div className="offset-sm-4 col-sm-4">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Until Date
+                                </label>
+                                <Flatpickr
+                                    name="date"
+                                    className="form-control"
+                                    onChange={(
+                                        selectedDates,
+                                        dateStr,
+                                        instance
+                                    ) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            default_until_date: dateStr,
+                                        });
+                                    }}
+                                    value={formValues.default_until_date}
+                                    options={{
+                                        disableMobile: true,
+                                    }}
+                                    ref={flatpickrRef}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

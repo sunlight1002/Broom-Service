@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
 import CurrentJob from "./CurrentJob";
 import PastJob from "./PastJob";
 import WorkerAvailabilty from "./WorkerAvailabilty";
@@ -8,7 +7,7 @@ import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
 
 export default function WorkerHistory({ worker }) {
-    const [interval, setTimeInterval] = useState([]);
+    const [days, setDays] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -20,12 +19,7 @@ export default function WorkerHistory({ worker }) {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
-                let ai = [];
-                ar && ar.map((a, i) => ai.push(parseInt(a)));
-                var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
-                    return ai.indexOf(obj) == -1;
-                });
-                setTimeInterval(hid);
+                setDays(ar);
             }
         });
     };
@@ -120,7 +114,7 @@ export default function WorkerHistory({ worker }) {
                     role="tab-panel"
                     aria-labelledby="current-job"
                 >
-                    <WorkerAvailabilty interval={interval} />
+                    <WorkerAvailabilty days={days} />
                 </div>
                 <div
                     id="tab-current-job"
