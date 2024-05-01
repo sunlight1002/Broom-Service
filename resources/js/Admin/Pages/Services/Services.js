@@ -241,6 +241,12 @@ export default function Services() {
                                                                     >
                                                                         Edit
                                                                     </Link>
+                                                                    <Link
+                                                                        to={`/admin/services/${item.id}`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        View
+                                                                    </Link>
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>

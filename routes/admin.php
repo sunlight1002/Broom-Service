@@ -112,10 +112,20 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-clients', [ClientController::class, 'AllClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
 
+    // Client Comments
+    Route::get('clients/{id}/comments', [ClientController::class, 'getComments']);
+    Route::post('clients/{id}/comments', [ClientController::class, 'saveComment']);
+    Route::delete('clients/{client_id}/comments/{id}', [ClientController::class, 'deleteComment']);
+
     // Services Api
     Route::resource('services', ServicesController::class)->except('show');
     Route::get('all-services', [ServicesController::class, 'AllServices']);
     Route::post('all-services', [ServicesController::class, 'AllServicesByLng']);
+
+    // Services Comments
+    Route::get('services/{id}/comments', [ServicesController::class, 'getComments']);
+    Route::post('services/{id}/comments', [ServicesController::class, 'saveComment']);
+    Route::delete('services/{service_id}/comments/{id}', [ServicesController::class, 'deleteComment']);
 
     // Services schedule Api
     Route::resource('service-schedule', ServiceSchedulesController::class)->except(['create', 'show']);

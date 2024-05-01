@@ -255,7 +255,7 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
 
                                                     show.setAttribute(
                                                         "src",
-                                                        `/storage/uploads/attachments/${cm.file}`
+                                                        `/storage/uploads/attachments/${cm.file_name}`
                                                     );
                                                     show.style.display =
                                                         "block";
@@ -266,7 +266,7 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
                                                     cursor: "pointer",
                                                 }}
                                             >
-                                                {cm.file}
+                                                {cm.original_name}
                                             </a>
                                         </span>
                                     );

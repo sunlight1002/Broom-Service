@@ -65,9 +65,14 @@ class JobCommentController extends Controller
             }
             $resultArr = [];
             foreach ($filesArr as $key => $file) {
-                $file_name = $data['job_id'] . "_" . date('s') . "_" . $file->getClientOriginalName();
+                $original_name = $file->getClientOriginalName();
+                $file_name = $data['job_id'] . "_" . date('s') . "_" . $original_name;
+
                 if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
-                    array_push($resultArr, ['file' => $file_name]);
+                    array_push($resultArr, [
+                        'file_name' => $file_name,
+                        'original_name' => $original_name
+                    ]);
                 }
             }
             $comment->attachments()->createMany($resultArr);
@@ -87,8 +92,8 @@ class JobCommentController extends Controller
     {
         $commentObj = JobComments::find($id);
         foreach ($commentObj->attachments()->get() as $attachment) {
-            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file)) {
-                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file);
+            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file_name)) {
+                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file_name);
             }
             $attachment->delete();
         }

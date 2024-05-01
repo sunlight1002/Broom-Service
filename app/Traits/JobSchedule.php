@@ -2,11 +2,19 @@
 
 namespace App\Traits;
 
+use App\Models\Admin;
+use App\Models\Client;
+use App\Models\ClientPropertyAddress;
+use App\Models\Comment;
 use App\Models\Job;
+use App\Models\JobComments;
 use App\Models\JobHours;
+use App\Models\Services;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait JobSchedule
@@ -473,6 +481,76 @@ trait JobSchedule
             $job->jobservice()->update([
                 'total'  => $total_amount,
             ]);
+        }
+    }
+
+    private function copyDefaultCommentsToJob($job)
+    {
+        $client_id = $job->client_id;
+        $service_id = $job->schedule_id;
+        $address_id = $job->address_id;
+
+        $defaultComments = Comment::query()
+            ->with('commenter', 'attachments')
+            ->where(function ($q) use ($client_id, $service_id, $address_id) {
+                $q->where(function ($sq) use ($client_id) {
+                    $sq->where('relation_type', Client::class)
+                        ->where('relation_id', $client_id);
+                })->orWhere(function ($sq) use ($service_id) {
+                    $sq->where('relation_type', Services::class)
+                        ->where('relation_id', $service_id);
+                })->orWhere(function ($sq) use ($address_id) {
+                    $sq->where('relation_type', ClientPropertyAddress::class)
+                        ->where('relation_id', $address_id);
+                });
+            })
+            ->where(function ($q) {
+                $q->whereNull('valid_till')
+                    ->orWhereDate('valid_till', '>=', date('Y-m-d'));
+            })
+            ->get();
+
+        if (!Storage::disk('public')->exists('uploads/attachments')) {
+            Storage::disk('public')->makeDirectory('uploads/attachments');
+        }
+
+        foreach ($defaultComments as $key => $dComment) {
+            $commenter_name = NULL;
+            if (get_class($dComment->commenter) == Admin::class) {
+                $commenter_name = $dComment->commenter->name;
+            } else if (get_class($dComment->commenter) == User::class) {
+                $commenter_name = $dComment->commenter->firstname . ' ' . $dComment->commenter->lastname;
+            } else if (get_class($dComment->commenter) == Client::class) {
+                $commenter_name = $dComment->commenter->firstname . ' ' . $dComment->commenter->lastname;
+            }
+
+            if ($commenter_name) {
+                $comment = JobComments::create([
+                    'name' => $commenter_name,
+                    'comment_for' => 'worker',
+                    'job_id' => $job->id,
+                    'comment' => $dComment->comment,
+                ]);
+
+                $resultArr = [];
+                foreach ($dComment->attachments()->get() as $key => $attachment_) {
+
+                    $original_name = $attachment_->original_name;
+                    $file_name = $job->id . "_" . date('s') . "_" . $original_name;
+
+                    if (Storage::disk('public')->copy(
+                        'uploads/attachments/' . $attachment_->file_name,
+                        'uploads/attachments/' . $file_name
+                    )) {
+                        array_push($resultArr, [
+                            'file_name' => $file_name,
+                            'original_name' => $original_name
+                        ]);
+                    }
+                }
+
+                $comment->attachments()->createMany($resultArr);
+            }
         }
     }
 }

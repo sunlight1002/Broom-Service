@@ -247,6 +247,8 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'is_next_job_created' => true
             ]);
 
+            $this->copyDefaultCommentsToJob($nextJob);
+
             $nextJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
             if ($nextJob->worker_id && !empty($nextJob['worker']['email'])) {

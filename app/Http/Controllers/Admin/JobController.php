@@ -424,6 +424,8 @@ class JobController extends Controller
                     $job->workerShifts()->create($shift);
                 }
 
+                $this->copyDefaultCommentsToJob($job);
+
                 if ($workerIndex == 0) {
                     $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 

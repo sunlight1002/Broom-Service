@@ -103,7 +103,7 @@ export default function Documents() {
                 </div>
             </div>
             <div className="col-md-12">
-                <DocumentList documents={user.documents} user={user} />
+                <DocumentList documents={user.documents} worker={user} />
             </div>
             <div
                 className="modal fade"

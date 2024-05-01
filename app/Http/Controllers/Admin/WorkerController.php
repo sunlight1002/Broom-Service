@@ -134,8 +134,16 @@ class WorkerController extends Controller
                     ->where('until_date', '>=', date('Y-m-d'))
                     ->groupBy('weekday');
 
+                $workerAvailabilitiesByDate = $worker
+                    ->availabilities
+                    ->sortBy([
+                        ['date', 'asc'],
+                        ['start_time', 'asc'],
+                    ])
+                    ->groupBy('date');
+
                 $availabilities = [];
-                foreach ($worker->availabilities->groupBy('date') as $date => $times) {
+                foreach ($workerAvailabilitiesByDate as $date => $times) {
                     $availabilities[$date] = $times->map(function ($item, $key) {
                         return $item->only(['start_time', 'end_time']);
                     });

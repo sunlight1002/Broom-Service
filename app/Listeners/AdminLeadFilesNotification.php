@@ -35,43 +35,42 @@ class AdminLeadFilesNotification
         $schedules = $event->schedules;
         $scheduleArr = $schedules->toArray();
         App::setLocale($scheduleArr['client']['lng']);
-        
-        
-        $teamEmail =$schedules->team['email'];
+
+        $teamEmail = $schedules->team['email'];
         $teamId = $schedules->team['id'];
-        
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
-            ->where("id",'!=',$teamId)
+            ->where("id", '!=', $teamId)
             ->get(['name', 'email', 'id', 'phone']);
-        
-        $fileName=$event->files->file;
-        $filePath= asset('storage/uploads/ClientFiles') . "/" . $fileName;
+
+        $fileName = $event->files->file;
+        $filePath = asset('storage/uploads/ClientFiles') . "/" . $fileName;
 
         //admin mail's
         foreach ($admins as $key => $admin) {
             $adminEmail = $admin->email;
-                
+
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
-            $emailDataWithAdditional['file_name']=$fileName;
-            
+            $emailDataWithAdditional['file_name'] = $fileName;
+
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
                 "notificationData" => $emailDataWithAdditional
             ]));
-            
-            Mail::send('/Mails/AdminLeadFilesMail',$emailDataWithAdditional, function ($messages) use ($scheduleArr,$adminEmail,$filePath) {
+
+            Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
                 $messages->to($adminEmail);
 
                 $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-                
+
                 //$messages->attach($filePath);
 
                 $messages->subject($subject);
             });
         }
-        
+
         // admin bell icon notification
         Notification::create([
             'user_id' => $schedules->client_id,
@@ -79,19 +78,18 @@ class AdminLeadFilesNotification
             'meet_id' => $schedules->id,
             'status' => $schedules->booking_status
         ]);
-        
+
         //team mail
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
             "notificationData" => $scheduleArr
         ]));
-        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr,$teamEmail) {
+        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
             $messages->to($teamEmail);
 
             $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-            
+
             $messages->subject($subject);
         });
-
     }
 }

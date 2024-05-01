@@ -193,7 +193,7 @@ export default function Comment() {
 
                                                             show.setAttribute(
                                                                 "src",
-                                                                `/storage/uploads/attachments/${cm.file}`
+                                                                `/storage/uploads/attachments/${cm.file_name}`
                                                             );
                                                             show.style.display =
                                                                 "block";
@@ -204,7 +204,7 @@ export default function Comment() {
                                                             cursor: "pointer",
                                                         }}
                                                     >
-                                                        {cm.file}
+                                                        {cm.original_name}
                                                     </a>
                                                 </span>
                                             );

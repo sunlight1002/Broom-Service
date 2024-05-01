@@ -9,6 +9,7 @@ import CardDetails from "./CardDetails";
 import Order from "./Order";
 import Invoice from "./Invoice";
 import Payment from "./Payment";
+import Comments from "../common/Comments";
 
 export default function ClientHistory({
     contracts,
@@ -157,6 +158,23 @@ export default function ClientHistory({
                         Card Details
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="comments-tab"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-comments" ? "active" : "")
+                        }
+                        data-toggle="tab"
+                        href="#tab-comments"
+                        aria-selected={
+                            hash === "#tab-comments" ? "true" : "false"
+                        }
+                        role="tab"
+                    >
+                        Comments
+                    </a>
+                </li>
             </ul>
             <div className="tab-content">
                 <div
@@ -252,6 +270,17 @@ export default function ClientHistory({
                         latestContract={latestContract}
                         client={client}
                     />
+                </div>
+                <div
+                    id="tab-comments"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-comments" ? "active show" : "")
+                    }
+                    role="tab-panel"
+                    aria-labelledby="comments-tab"
+                >
+                    <Comments relationID={client.id} routeType="clients" />
                 </div>
             </div>
         </div>

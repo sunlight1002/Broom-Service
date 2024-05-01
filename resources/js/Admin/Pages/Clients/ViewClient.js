@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 export default function ViewClient() {
-    const [client, setClient] = useState([]);
+    const [client, setClient] = useState(null);
     const [scheduleStatus, setSchedulesStatus] = useState([]);
     const [offerStatus, setOfferStatus] = useState([]);
     const [contracts, setContracts] = useState([]);
@@ -92,24 +92,26 @@ export default function ViewClient() {
                         </div>
                     </div>
                 </div>
-                <div className="view-applicant">
-                    <ProfileDetails
-                        client={client}
-                        offerStatus={offerStatus}
-                        scheduleStatus={scheduleStatus}
-                        latestContract={latestContract}
-                    />
-                    <div className="card mt-3">
-                        <div className="card-body">
-                            <ClientHistory
-                                contracts={contracts}
-                                setContracts={setContracts}
-                                latestContract={latestContract}
-                                client={client}
-                            />
+                {client && (
+                    <div className="view-applicant">
+                        <ProfileDetails
+                            client={client}
+                            offerStatus={offerStatus}
+                            scheduleStatus={scheduleStatus}
+                            latestContract={latestContract}
+                        />
+                        <div className="card mt-3">
+                            <div className="card-body">
+                                <ClientHistory
+                                    contracts={contracts}
+                                    setContracts={setContracts}
+                                    latestContract={latestContract}
+                                    client={client}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

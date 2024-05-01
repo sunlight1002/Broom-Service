@@ -70,6 +70,7 @@ import EditTeam from "./Admin/Pages/Setting/EditTeam";
 import Services from "./Admin/Pages/Services/Services";
 import AddService from "./Admin/Pages/Services/AddService";
 import EditService from "./Admin/Pages/Services/EditService";
+import ViewService from "./Admin/Pages/Services/ViewService";
 import ServiceSchedule from "./Admin/Pages/Services/ServiceSchedule";
 import AddServiceSchedule from "./Admin/Pages/Services/AddServiceSchedule";
 import EditServiceSchedule from "./Admin/Pages/Services/EditServiceSchedule";
@@ -477,6 +478,11 @@ export default function MyRoutes() {
                                 exact
                                 path="services/:id/edit"
                                 element={<EditService />}
+                            />
+                            <Route
+                                exact
+                                path="services/:id"
+                                element={<ViewService />}
                             />
                             <Route
                                 exact

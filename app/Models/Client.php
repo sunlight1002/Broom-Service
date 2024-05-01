@@ -75,6 +75,11 @@ class Client extends Authenticatable
             Notification::where('user_id', $model->id)->delete();
             Job::where('client_id', $model->id)->delete();
             Order::where('client_id', $model->id)->delete();
+
+            $comments = $model->comments()->get();
+            foreach ($comments as $key => $comment) {
+                $comment->delete();
+            }
         });
     }
 
@@ -121,6 +126,11 @@ class Client extends Authenticatable
     public function jobComments()
     {
         return $this->morphMany(JobComments::class, 'commenter');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'relation');
     }
 
     public function ScopeReply($query)
