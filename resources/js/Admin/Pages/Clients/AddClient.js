@@ -252,6 +252,13 @@ export default function AddClient() {
                                                 required
                                                 placeholder="Invoice Name"
                                             />
+                                            {errors.invoicename ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.invoicename}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
                                         </div>
                                     </div>
                                     <div className="col-sm-6">

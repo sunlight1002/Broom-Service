@@ -15,6 +15,7 @@ use App\Traits\PaymentAPI;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -100,17 +101,50 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 }
 
                 // Create client address if not already exists
-                if (!ClientPropertyAddress::where('address_name', $row['address_name'] ?? '')->where('client_id', $client->id)->exists()) {
+                if (!ClientPropertyAddress::where('client_id', $client->id)->exists()) {
+                    if (empty($row['full_address'])) {
+                        throw new Exception('Invalid address');
+                    }
+
+                    $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                        'address' => $row['full_address'],
+                        'key' => config('services.google.map_key')
+                    ]);
+
+                    if (!$response->successful()) {
+                        throw new Exception('Invalid address');
+                    }
+
+                    $data = $response->object();
+                    $result = $data->results[0] ?? null;
+
+                    if (!$result) {
+                        throw new Exception('Invalid address');
+                    }
+
+                    $zipcode = null;
+                    $city = null;
+
+                    foreach ($result->address_components ?? [] as $key => $address_component) {
+                        if (in_array('locality', $address_component->types)) {
+                            $city = $address_component->long_name;
+                        }
+
+                        if (in_array('postal_code', $address_component->types)) {
+                            $zipcode = $address_component->long_name;
+                        }
+                    }
+
                     ClientPropertyAddress::create([
-                        'address_name' => $row['address_name'] ?? '',
-                        'floor' => $row['floor'] ?? '',
-                        'apt_no' => $row['apt_number_and_apt_name'] ?? '',
-                        'entrence_code' => $row['enterance_code'] ?? '',
-                        'zipcode' => $row['zip_code'] ?? '',
-                        'geo_address' => $row['full_address'] ?? '',
-                        'latitude' => $row['lat'] ?? '',
-                        'longitude' => $row['lng'] ?? '',
-                        'city' => $row['city'] ?? '',
+                        'address_name' => $result->formatted_address ?? null,
+                        'city' => $city ?? NULL,
+                        'floor' => NULL,
+                        'apt_no' => null,
+                        'entrence_code' => null,
+                        'zipcode' => $zipcode ?? NULL,
+                        'geo_address' => $result->formatted_address ?? NULL,
+                        'latitude' => $result->geometry->location->lat ?? NULL,
+                        'longitude' => $result->geometry->location->lng ?? NULL,
                         'client_id' => $client->id,
                         'prefer_type' => $row['prefered_type'] ?? '',
                         'is_dog_avail' => strtolower($row['dog_in_the_property'] ?? '') == 'yes' ? 1 : 0,
