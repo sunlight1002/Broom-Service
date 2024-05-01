@@ -25,4 +25,20 @@ class ClientPropertyAddress extends Model
         'is_cat_avail',
         'not_allowed_worker_ids'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($model) {
+            $comments = $model->comments()->get();
+            foreach ($comments as $key => $comment) {
+                $comment->delete();
+            }
+        });
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'relation');
+    }
 }

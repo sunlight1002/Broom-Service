@@ -1,13 +1,22 @@
 import { memo, useState, useEffect } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { Tooltip } from "react-tooltip";
+
+import AddCommentModal from "../Modals/AddCommentModal";
+import CommentsModal from "../Modals/CommentsModal";
 
 const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
     const [address, setAddress] = useState([]);
+    const [isOpenAddComment, setIsOpenAddComment] = useState(false);
+    const [isOpenCommentList, setIsOpenCommentList] = useState(false);
+    const [selectedPropertyID, setSelectedPropertyID] = useState(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
     const getPropertyAddress = () => {
         axios
             .get(`/api/admin/clients/${parseInt(clientId)}/edit`, {
@@ -23,9 +32,21 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                 }
             });
     };
+
+    const handleAddComment = (_propertyID) => {
+        setSelectedPropertyID(_propertyID);
+        setIsOpenAddComment(true);
+    };
+
+    const handleShowComments = (_propertyID) => {
+        setSelectedPropertyID(_propertyID);
+        setIsOpenCommentList(true);
+    };
+
     useEffect(() => {
         getPropertyAddress();
     }, [clientId]);
+
     return (
         <div>
             <div className="card">
@@ -38,8 +59,7 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                                         <Th>Name</Th>
                                         <Th>Address</Th>
                                         <Th>Zipcode</Th>
-                                        <Th>Latitude</Th>
-                                        <Th>Longitude</Th>
+                                        <Th>Action</Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -63,14 +83,30 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                                                             : "NA"}
                                                     </Td>
                                                     <Td>
-                                                        {item.latitude
-                                                            ? item.latitude
-                                                            : "NA"}
-                                                    </Td>
-                                                    <Td>
-                                                        {item.longitude
-                                                            ? item.longitude
-                                                            : "NA"}
+                                                        <button
+                                                            onClick={() => {
+                                                                handleAddComment(
+                                                                    item.id
+                                                                );
+                                                            }}
+                                                            data-tooltip-id="address-tooltip"
+                                                            data-tooltip-content="Add Comment"
+                                                        >
+                                                            <i className="fa fa-comment-medical"></i>
+                                                        </button>
+
+                                                        <button
+                                                            className="ml-1"
+                                                            onClick={() => {
+                                                                handleShowComments(
+                                                                    item.id
+                                                                );
+                                                            }}
+                                                            data-tooltip-id="address-tooltip"
+                                                            data-tooltip-content="Comment List"
+                                                        >
+                                                            <i className="fa fa-comments"></i>
+                                                        </button>
                                                     </Td>
                                                 </Tr>
                                             );
@@ -83,8 +119,31 @@ const PropertyAddressTable = memo(function PropertyAddressTable({ clientId }) {
                             </p>
                         )}
                     </div>
+
+                    {isOpenAddComment && selectedPropertyID && (
+                        <AddCommentModal
+                            relationID={selectedPropertyID}
+                            routeType="property-addresses"
+                            isOpen={isOpenAddComment}
+                            setIsOpen={setIsOpenAddComment}
+                            onSuccess={() => {}}
+                        />
+                    )}
+
+                    {isOpenCommentList && selectedPropertyID && (
+                        <CommentsModal
+                            relationID={selectedPropertyID}
+                            routeType="property-addresses"
+                            isOpen={isOpenCommentList}
+                            setIsOpen={setIsOpenCommentList}
+                            canAddComment={false}
+                            size="lg"
+                        />
+                    )}
                 </div>
             </div>
+
+            <Tooltip id="address-tooltip" />
         </div>
     );
 });

@@ -5,7 +5,11 @@ import moment from "moment";
 
 import AddCommentModal from "../Modals/AddCommentModal";
 
-export default function Comments({ relationID, routeType }) {
+export default function Comments({
+    relationID,
+    routeType,
+    canAddComment = true,
+}) {
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState("Loading..");
     const [isOpenAddComment, setIsOpenAddComment] = useState(false);
@@ -71,23 +75,27 @@ export default function Comments({ relationID, routeType }) {
 
     return (
         <div className="boxPanel">
-            <div className="action-dropdown dropdown text-right mb-3">
-                <button
-                    className="btn btn-primary mr-3"
-                    onClick={(e) => handleAddComment(e)}
-                >
-                    Add Comment
-                </button>
-            </div>
+            {canAddComment && (
+                <>
+                    <div className="action-dropdown dropdown text-right mb-3">
+                        <button
+                            className="btn btn-primary mr-3"
+                            onClick={(e) => handleAddComment(e)}
+                        >
+                            Add Comment
+                        </button>
+                    </div>
 
-            {isOpenAddComment && (
-                <AddCommentModal
-                    relationID={relationID}
-                    routeType={routeType}
-                    isOpen={isOpenAddComment}
-                    setIsOpen={setIsOpenAddComment}
-                    onSuccess={() => getComments()}
-                />
+                    {isOpenAddComment && (
+                        <AddCommentModal
+                            relationID={relationID}
+                            routeType={routeType}
+                            isOpen={isOpenAddComment}
+                            setIsOpen={setIsOpenAddComment}
+                            onSuccess={() => getComments()}
+                        />
+                    )}
+                </>
             )}
 
             <div className="table-responsive">

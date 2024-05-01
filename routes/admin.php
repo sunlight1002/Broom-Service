@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InformationPageController;
@@ -92,6 +93,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
+
+    // Client Property Address Comments
+    Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
+    Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);
+    Route::delete('property-addresses/{service_id}/comments/{id}', [ClientPropertyAddressController::class, 'deleteComment']);
 
     // workers Api
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
