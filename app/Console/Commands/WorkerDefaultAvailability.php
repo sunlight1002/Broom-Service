@@ -65,7 +65,7 @@ class WorkerDefaultAvailability extends Command
                             $worker->availabilities()->create([
                                 'date' => $dateInString,
                                 'start_time' => '08:00:00',
-                                'end_time' => '16:00:00',
+                                'end_time' => '17:00:00',
                                 'status' => '1',
                             ]);
                         }
@@ -84,7 +84,7 @@ class WorkerDefaultAvailability extends Command
                         $worker->availabilities()->create([
                             'date' => $dateInString,
                             'start_time' => '08:00:00',
-                            'end_time' => '16:00:00',
+                            'end_time' => '17:00:00',
                             'status' => '1',
                         ]);
                     }

@@ -125,33 +125,33 @@ export default function Jobs({ contracts, client }) {
         }
     };
 
-    const genOrder = () => {
-        let cb = document.querySelectorAll(".cb");
-        let job_id_arr = [];
-        cb.forEach((c, i) => {
-            if (c.checked == true) {
-                job_id_arr.push(c.value);
-            }
-        });
-        if (job_id_arr.length == 0) {
-            alert.error("Please check job");
-            return;
-        }
+    // const genOrder = () => {
+    //     let cb = document.querySelectorAll(".cb");
+    //     let job_id_arr = [];
+    //     cb.forEach((c, i) => {
+    //         if (c.checked == true) {
+    //             job_id_arr.push(c.value);
+    //         }
+    //     });
+    //     if (job_id_arr.length == 0) {
+    //         alert.error("Please check job");
+    //         return;
+    //     }
 
-        axios
-            .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
-            .then((res) => {
-                getJobs(filtered);
-                alert.success("Job Order(s) created successfully");
-            })
-            .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
-                });
-            });
-    };
+    //     axios
+    //         .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
+    //         .then((res) => {
+    //             getJobs(filtered);
+    //             alert.success("Job Order(s) created successfully");
+    //         })
+    //         .catch((e) => {
+    //             Swal.fire({
+    //                 title: "Error!",
+    //                 text: e.response.data.message,
+    //                 icon: "error",
+    //             });
+    //         });
+    // };
 
     const genInvoice = () => {
         let cb = document.querySelectorAll(".cb");
@@ -185,12 +185,12 @@ export default function Jobs({ contracts, client }) {
     return (
         <div className="boxPanel">
             <div className="action-dropdown dropdown order_drop text-right mb-3">
-                <button
+                {/* <button
                     className="btn btn-pink mr-3"
                     onClick={(e) => genOrder(e)}
                 >
                     Generate Orders
-                </button>
+                </button> */}
                 <button
                     className="btn btn-primary mr-3 ml-3"
                     onClick={(e) => genInvoice(e)}

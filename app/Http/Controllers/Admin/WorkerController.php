@@ -273,7 +273,7 @@ class WorkerController extends Controller
                 $w_a->user_id = $worker->id;
                 $w_a->date = $day->toDateString();
                 $w_a->start_time = '08:00:00';
-                $w_a->end_time = '16:00:00';
+                $w_a->end_time = '17:00:00';
                 $w_a->status = 1;
                 $w_a->save();
             }

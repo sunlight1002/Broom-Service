@@ -17,7 +17,7 @@ class WorkerAvailabilitySeeder extends Seeder
     {
         $workerAvailabilities = WorkerAvailability::all();
         foreach ($workerAvailabilities as $key => $workerAvailability) {
-            $workerAvailability->update(['start_time' => "08:00:00", 'end_time' => "16:00:00"]);
+            $workerAvailability->update(['start_time' => "08:00:00", 'end_time' => "17:00:00"]);
         }
     }
 }
