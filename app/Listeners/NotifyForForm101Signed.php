@@ -15,7 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
-class NofityForForm101Signed implements ShouldQueue
+class NotifyForForm101Signed implements ShouldQueue
 {
     /**
      * Create the event listener.

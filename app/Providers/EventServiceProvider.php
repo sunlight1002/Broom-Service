@@ -14,7 +14,7 @@ use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
-use App\Listeners\NofityForForm101Signed;
+use App\Listeners\NotifyForForm101Signed;
 use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
@@ -69,7 +69,7 @@ class EventServiceProvider extends ServiceProvider
             AdminLeadFilesNotification::class,
         ],
         Form101Signed::class => [
-            NofityForForm101Signed::class
+            NotifyForForm101Signed::class
         ]
     ];
 
