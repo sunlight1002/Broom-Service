@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Events\WorkerApprovedJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
@@ -247,7 +248,7 @@ class JobController extends Controller
             ]);
             Notification::create([
                 'user_id' => $job->client->id,
-                'type' => 'opening-job',
+                'type' => NotificationTypeEnum::OPENING_JOB,
                 'job_id' => $job->id,
                 'status' => 'going to start'
             ]);

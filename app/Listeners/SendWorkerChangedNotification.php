@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Helpers\Helper;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
@@ -41,7 +40,7 @@ class SendWorkerChangedNotification
                 'content' => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
                 'content_data' => __('mail.worker_new_job.new_job_assigned'),
             );
-            Helper::sendJobWANotification($emailData);
+            sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');

@@ -3,17 +3,27 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Enums\WorkerFormTypeEnum;
+use App\Events\Form101Signed;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\WorkerFormService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    protected $workerFormService;
+
+    public function __construct(WorkerFormService $workerFormService)
+    {
+        $this->workerFormService = $workerFormService;
+    }
+
     /** 
      * Login api 
      * 
@@ -199,7 +209,8 @@ class AuthController extends Controller
 
         $worker->forms()->create([
             'type' => WorkerFormTypeEnum::CONTRACT,
-            'data' => $data['worker_contract_json']
+            'data' => $data['worker_contract_json'],
+            'submitted_at' => now()->toDateString()
         ]);
 
         return response()->json([
@@ -207,9 +218,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function form101(Request $request)
+    public function form101(Request $request, $id)
     {
-        $worker = User::find($request->id);
+        $worker = User::find($id);
 
         if (!$worker) {
             return response()->json([
@@ -224,16 +235,41 @@ class AuthController extends Controller
             ->whereYear('created_at', now()->year)
             ->first();
 
-        if ($form) {
+        if ($form && $form->submitted_at) {
             return response()->json([
                 'message' => 'Form 101 already submitted for current year.'
             ], 403);
         }
 
-        $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::FORM101,
-            'data' => $data['data']
-        ]);
+        if ($data['savingType'] == 'submit') {
+            $submittedAt = now()->toDateString();
+        } else {
+            $submittedAt = NULL;
+        }
+
+        if ($form) {
+            $form->update([
+                'data' => $data['data'],
+                'submitted_at' => $submittedAt
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $data['data'],
+                'submitted_at' => $submittedAt
+            ]);
+        }
+
+        if ($form->submitted_at) {
+            $file_name = Str::uuid()->toString() . '.pdf';
+            $this->workerFormService->generateForm101PDF($form, $file_name);
+
+            $form->update([
+                'pdf_name' => $file_name
+            ]);
+
+            event(new Form101Signed($worker, $form));
+        }
 
         return response()->json([
             'message' => 'Form 101 signed successfully.'
@@ -243,7 +279,7 @@ class AuthController extends Controller
     public function safegear(Request $request)
     {
         $worker = User::find($request->id);
-        
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -264,7 +300,8 @@ class AuthController extends Controller
 
         $worker->forms()->create([
             'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
-            'data' => $data['data']
+            'data' => $data['data'],
+            'submitted_at' => now()->toDateString()
         ]);
 
         return response()->json([
@@ -297,7 +334,7 @@ class AuthController extends Controller
 
         return response()->json([
             'lng' => $worker->lng,
-            'form' => $form ? $form->data : NULL,
+            'form' => $form ? $form : NULL,
             'worker' => $worker
         ]);
     }

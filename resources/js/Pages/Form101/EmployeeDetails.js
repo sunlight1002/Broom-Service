@@ -143,7 +143,7 @@ export default function EmployeeDetails({
                                 <TextField
                                     name="employeePassportNumber"
                                     label="Passport Number"
-                                    value={values.passportNumber}
+                                    value={values.employeePassportNumber}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     error={
@@ -190,6 +190,7 @@ export default function EmployeeDetails({
                                 type="file"
                                 name="employeeResidencePermit"
                                 id="employeeResidencePermit"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "employeeResidencePermit",
@@ -233,6 +234,7 @@ export default function EmployeeDetails({
                                 type="file"
                                 name="employeeIdCardCopy"
                                 id="employeeIdCardCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "employeeIdCardCopy",

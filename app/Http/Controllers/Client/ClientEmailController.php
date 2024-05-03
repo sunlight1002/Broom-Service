@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -91,7 +92,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
-      'type' => 'accept-offer',
+      'type' => NotificationTypeEnum::ACCEPT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'accepted'
     ]);
@@ -162,7 +163,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $offerArr['client']['id'],
-      'type' => 'reject-offer',
+      'type' => NotificationTypeEnum::REJECT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'declined'
     ]);
@@ -205,7 +206,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
-      'type' => 'accept-meeting',
+      'type' => NotificationTypeEnum::ACCEPT_MEETING,
       'meet_id' => $request->id,
       'status' => 'confirmed'
     ]);
@@ -248,7 +249,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
-      'type' => 'reject-meeting',
+      'type' => NotificationTypeEnum::REJECT_MEETING,
       'meet_id' => $request->id,
       'status' => 'declined'
     ]);
@@ -329,7 +330,7 @@ class ClientEmailController extends Controller
 
       Notification::create([
         'user_id' => $contract->client_id,
-        'type' => 'contract-accept',
+        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
         'contract_id' => $contract->id,
         'status' => 'accepted'
       ]);
@@ -367,7 +368,7 @@ class ClientEmailController extends Controller
       Client::where('id', $contract->client_id)->update(['status' => 1]);
       Notification::create([
         'user_id' => $contract->client_id,
-        'type' => 'contract-reject',
+        'type' => NotificationTypeEnum::CONTRACT_REJECT,
         'contract_id' => $contract->id,
         'status' => 'declined'
       ]);

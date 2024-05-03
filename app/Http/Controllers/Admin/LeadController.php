@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use App\Models\Fblead;
 use Exception;
-use App\Helpers\Helper;
 
 class LeadController extends Controller
 {
@@ -442,7 +441,7 @@ class LeadController extends Controller
                             'phone'             => $phone,
                         ]);
                         if(!empty($phone)){
-                            $result = Helper::sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
+                            $result = sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
                         }
                         $client->lead_status()->updateOrCreate(
                             [],

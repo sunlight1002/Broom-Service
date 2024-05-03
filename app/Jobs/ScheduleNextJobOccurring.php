@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
-use App\Helpers\Helper;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Traits\JobSchedule;
@@ -263,7 +262,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         'content_data'  => __('mail.worker_new_job.new_job_assigned'),
                     );
 
-                    Helper::sendJobWANotification($emailData);
+                    sendJobWANotification($emailData);
 
                     Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                         $messages->to($emailData['email']);

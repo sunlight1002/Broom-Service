@@ -79,7 +79,7 @@ return [
         'tel'         => 'Telephone'
     ],
     'form_101' => [
-        'subject'     => 'Form 101 with',
+        'subject'     => 'Form 101 | Broom Service',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
@@ -105,27 +105,27 @@ return [
         'shift_changed'   => 'Shift Changed',
     ],
     'worker_contract' => [
-        'subject'     => 'Contract with',
+        'subject'     => 'Contract Form | Broom Service',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
         'content'     => 'You have successfully registered on our portal. Please sign the contract form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the contract.',
-        'btn_txt'     => 'Check Contract',
+        'below_txt'   => 'Click the below button to check the contract form.',
+        'btn_txt'     => 'Contract Form',
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone'
     ],
     'worker_safe_gear' => [
-        'subject'     => 'Safety And Gear with',
+        'subject'     => 'Safety and Gear Form | Broom Service',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
-        'content'     => 'You have successfully registered on our portal. Please sign the contract form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the Safety And Gear.',
-        'btn_txt'     => 'Check Safety And Gear',
+        'content'     => 'You have successfully registered on our portal. Please sign the safety and gear form to start working on the job.',
+        'below_txt'   => 'Click the below button to check the Safety and Gear form.',
+        'btn_txt'     => 'Safety And Gear Form',
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone'
@@ -241,5 +241,28 @@ return [
     'worker_job' => [
         'shift_changed' => 'Job shift changed.',
         'shift_changed_subject' => 'Job shift changed | Broom Service',
-    ]
+    ],
+    'common' => [
+        'salutation' => 'Hi, :name',
+        'greetings' => 'Greetings from Broom Service',
+        'dont_hesitate_to_get_in_touch'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'regards'     => 'Best Regards',
+        'company'     => 'Broom Service',
+        'tel'         => 'Telephone',
+    ],
+    'admin' => [
+        'form101-signed' => [
+            'subject' => 'Form 101 Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.'
+        ]
+    ],
+    'worker' => [
+        'form101-signed' => [
+            'subject' => 'Form 101 Signed | Broom Service',
+            'message' => 'You have completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.',
+        ]
+    ],
+    'form101' => [
+        'form_name' => 'Form 101',
+    ],
 ];

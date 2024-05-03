@@ -6,7 +6,6 @@ use App\Enums\JobStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
-use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
@@ -267,9 +266,9 @@ class InvoiceController extends Controller
     //     $url = "https://api.icount.co.il/api/v3.php/doc/create";
 
     //     $params = array(
-    //         "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
-    //         "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
-    //         "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
+    //         "cid"            => get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+    //         "user"           => get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+    //         "pass"           => get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
     //         "doctype"        => $doctype,
     //         "client_id"      => $client->id,

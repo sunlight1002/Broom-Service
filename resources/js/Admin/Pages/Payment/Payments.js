@@ -415,7 +415,7 @@ export default function Payments() {
                                                     <Td>
                                                         <Link
                                                             to={
-                                                                item.client
+                                                                item.client_id
                                                                     ? `/admin/view-client/${item.client_id}`
                                                                     : "#"
                                                             }

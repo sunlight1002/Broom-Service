@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationTypeEnum;
 use App\Events\ReScheduleMettingJob;
 use App\Models\Admin;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -78,7 +79,7 @@ class ReScheduleMettingNotification
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {
             Notification::create([
                 'user_id' => $schedules->client_id,
-                'type' => 'reschedule-meeting',
+                'type' => NotificationTypeEnum::RESCHEDULE_MEETING,
                 'meet_id' => $schedules->id,
                 'status' => $schedules->booking_status
             ]);

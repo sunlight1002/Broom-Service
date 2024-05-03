@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
@@ -159,7 +160,7 @@ class ScheduleController extends Controller
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
                     'user_id' => $schedule->client_id,
-                    'type' => 'sent-meeting',
+                    'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status
                 ]);
@@ -195,7 +196,7 @@ class ScheduleController extends Controller
 
                 Notification::create([
                     'user_id' => $schedule->client_id,
-                    'type' => 'sent-meeting',
+                    'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status
                 ]);

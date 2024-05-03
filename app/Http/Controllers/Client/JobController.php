@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\CancellationActionEnum;
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
@@ -133,7 +134,7 @@ class JobController extends Controller
 
         Notification::create([
             'user_id' => $job->client->id,
-            'type' => 'client-cancel-job',
+            'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
             'job_id' => $job->id,
             'status' => 'declined'
         ]);

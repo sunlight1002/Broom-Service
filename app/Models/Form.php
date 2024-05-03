@@ -11,6 +11,8 @@ class Form extends Model
         'user_id',
         'type',
         'data',
+        'pdf_name',
+        'submitted_at',
     ];
 
     /**

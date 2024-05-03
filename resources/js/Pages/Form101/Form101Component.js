@@ -38,7 +38,7 @@ const initialValues = {
     employeepassportCopy: null,
     employeeResidencePermit: null,
     employeeDob: "",
-    employeeDateOfAliyah: null,
+    employeeDateOfAliyah: "",
     employeeCity: "",
     employeeStreet: "",
     employeeHouseNo: "",
@@ -135,15 +135,17 @@ const initialValues = {
 };
 
 const formSchema = yup.object({
-    employerName: yup.string().trim(),
-    employerAddress: yup.string().trim(),
+    employerName: yup.string().trim().nullable(),
+    employerAddress: yup.string().trim().nullable(),
     employerPhone: yup
         .string()
         .trim()
-        .matches(/^\d{10}$/, "Invalid phone number"),
+        .matches(/^\d{10}$/, "Invalid phone number")
+        .nullable(),
     employerDeductionsFileNo: yup
         .number()
-        .typeError("Deductions file number must be a number"),
+        .typeError("Deductions file number must be a number")
+        .nullable(),
     employeeFirstName: yup.string().required("Name is required"),
     employeeLastName: yup.string().required("Name is required"),
     employeeIdentityType: yup.string().required("Identity type is required"),
@@ -155,17 +157,17 @@ const formSchema = yup.object({
     employeeIdCardCopy: yup.mixed().when("employeeIdentityType", {
         is: "IDNumber",
         then: () => yup.mixed().required("ID card copy is required"),
-        otherwise: () => yup.string(),
+        otherwise: () => yup.mixed().nullable(),
     }),
     employeecountry: yup.string().when("employeeIdentityType", {
         is: "Passport",
         then: () => yup.string().required("Country is required"),
-        otherwise: () => yup.string(),
+        otherwise: () => yup.string().nullable(),
     }),
     employeePassportNumber: yup.string().when("employeeIdentityType", {
         is: "Passport",
         then: () => yup.string().required("Passport number is required"),
-        otherwise: () => yup.string(),
+        otherwise: () => yup.string().nullable(),
     }),
     employeepassportCopy: yup.mixed().when("employeeIdentityType", {
         is: "Passport",
@@ -180,7 +182,7 @@ const formSchema = yup.object({
     employeeHouseNo: yup.string().required("House number is required"),
     employeePostalCode: yup.string().required("Postal Code is required"),
     employeeMobileNo: yup.string().required("Mobile number is required"),
-    employeePhoneNo: yup.string(),
+    employeePhoneNo: yup.string().nullable(),
     employeeEmail: yup
         .string()
         .email("Invalid email")
@@ -256,7 +258,6 @@ const formSchema = yup.object({
         studyFund: yup.boolean(),
         pensionInsurance: yup.boolean(),
     }),
-
     Spouse: yup.mixed().when("employeeMaritalStatus", {
         is: "Married",
         then: () =>
@@ -267,15 +268,24 @@ const formSchema = yup.object({
                     .string()
                     .required("Please select an option")
                     .oneOf(["IDNumber", "Passport"], "Invalid option"),
-                Country: yup.string().when("Identity", {
-                    is: "Passport",
-                    then: () => yup.string().required("Country is required"),
-                }),
-                passportNumber: yup.string().when("Identity", {
-                    is: "Passport",
-                    then: () =>
-                        yup.string().required("Passport Number is required"),
-                }),
+                Country: yup
+                    .string()
+                    .when("Identity", {
+                        is: "Passport",
+                        then: () =>
+                            yup.string().required("Country is required"),
+                    })
+                    .nullable(),
+                passportNumber: yup
+                    .string()
+                    .when("Identity", {
+                        is: "Passport",
+                        then: () =>
+                            yup
+                                .string()
+                                .required("Passport Number is required"),
+                    })
+                    .nullable(),
                 IdNumber: yup.string().when("Identity", {
                     is: "IDNumber",
                     then: () => yup.string().required("ID Number is required"),
@@ -283,16 +293,19 @@ const formSchema = yup.object({
                 Dob: yup.date().required("Date of birth is required"),
                 DateOFAliyah: yup.date(),
                 hasIncome: yup.string().required("Income is required"),
-                incomeType: yup.string().when("hasIncome", {
-                    is: "Yes",
-                    then: () =>
-                        yup.string().required("Income Type is required"),
-                }),
+                incomeType: yup
+                    .string()
+                    .when("hasIncome", {
+                        is: "Yes",
+                        then: () =>
+                            yup.string().required("Income Type is required"),
+                    })
+                    .nullable(),
             }),
         otherwise: () => yup.mixed().nullable(),
     }),
     TaxExemption: yup.object().shape({
-        isIsraelResident: yup.string(), // Add validation rules if needed
+        isIsraelResident: yup.string().nullable(), // Add validation rules if needed
         disabled: yup.boolean(),
         disabledCertificate: yup.mixed().when("disabled", {
             is: true,
@@ -316,12 +329,12 @@ const formSchema = yup.object({
         exm3Date: yup.date().when("exm3", {
             is: true,
             then: () => yup.date().required("From date is required"),
-            otherwise: () => yup.date(),
+            otherwise: () => yup.date().nullable(),
         }),
         exm3Locality: yup.string().when("exm3", {
             is: true,
             then: () => yup.string().required("Locality is required"),
-            otherwise: () => yup.string(),
+            otherwise: () => yup.string().nullable(),
         }),
         exm3Certificate: yup.mixed().when("exm3", {
             is: true,
@@ -332,7 +345,7 @@ const formSchema = yup.object({
         exm4FromDate: yup.date().when("TaxExemption.exm4", {
             is: true,
             then: () => yup.date().required("From date is required for exm4"),
-            otherwise: () => yup.date(),
+            otherwise: () => yup.date().nullable(),
         }),
         exm4ImmigrationCertificate: yup.mixed().when("TaxExemption.exm4", {
             is: true,
@@ -346,9 +359,8 @@ const formSchema = yup.object({
             is: true,
             then: () =>
                 yup.date().required("No income date is required for exm4"),
-            otherwise: () => yup.date(),
+            otherwise: () => yup.date().nullable(),
         }),
-
         exm5: yup.boolean(),
         exm5disabledCirtificate: yup.mixed().when("exm5", {
             is: true,
@@ -360,7 +372,6 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.mixed().nullable(),
         }),
-
         exm6: yup.boolean(),
         exm7: yup.boolean(),
         exm7NoOfChild: yup.number().when(["exm7", "children"], {
@@ -407,7 +418,6 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.number(),
         }),
-
         exm8: yup.boolean(),
         exm8NoOfChild: yup.number().when(["exm8", "children"], {
             is: (exm8, children) =>
@@ -442,10 +452,8 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.number(),
         }),
-
         exm9: yup.boolean(),
         // No need to specify validation for exm9
-
         exm10: yup.boolean(),
         exm10Certificate: yup.mixed().when("exm10", {
             is: true,
@@ -478,7 +486,6 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.mixed().nullable(),
         }),
-
         exm12: yup.boolean(),
         exm12Certificate: yup.mixed().when("exm12", {
             is: true,
@@ -490,10 +497,8 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.mixed().nullable(),
         }),
-
         exm13: yup.boolean(),
         // No need to specify validation for exm13
-
         exm14: yup.boolean(),
         exm14BeginingDate: yup.date().when("exm14", {
             is: true,
@@ -503,7 +508,7 @@ const formSchema = yup.object({
                     .required(
                         "Date of beginning of service is required for exm14"
                     ),
-            otherwise: () => yup.date(),
+            otherwise: () => yup.date().nullable(),
         }),
         exm14EndDate: yup.date().when("exm14", {
             is: true,
@@ -511,7 +516,7 @@ const formSchema = yup.object({
                 yup
                     .date()
                     .required("Date of end of service is required for exm14"),
-            otherwise: () => yup.date(),
+            otherwise: () => yup.date().nullable(),
         }),
         exm14Certificate: yup.mixed().when("exm14", {
             is: true,
@@ -523,7 +528,6 @@ const formSchema = yup.object({
                     ),
             otherwise: () => yup.mixed().nullable(),
         }),
-
         exm15: yup.boolean(),
         exm15Certificate: yup.mixed().when("exm15", {
             is: true,
@@ -534,18 +538,20 @@ const formSchema = yup.object({
             otherwise: () => yup.mixed().nullable(),
         }),
     }),
-
     TaxCoordination: yup.object().shape({
         hasTaxCoordination: yup.boolean(),
-        requestReason: yup.string().when("hasTaxCoordination", {
-            is: true,
-            then: () =>
-                yup
-                    .string()
-                    .required(
-                        "Reason for tax coordination request is required"
-                    ),
-        }),
+        requestReason: yup
+            .string()
+            .when("hasTaxCoordination", {
+                is: true,
+                then: () =>
+                    yup
+                        .string()
+                        .required(
+                            "Reason for tax coordination request is required"
+                        ),
+            })
+            .nullable(),
         requestReason1Certificate: yup
             .mixed()
             .nullable()
@@ -627,6 +633,8 @@ const Form101Component = () => {
     const id = Base64.decode(param.id);
 
     const [formValues, setFormValues] = useState(null);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [savingType, setSavingType] = useState("submit");
 
     const currentYear = new Date().getFullYear();
 
@@ -638,20 +646,23 @@ const Form101Component = () => {
         handleChange,
         handleSubmit,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: (values) => {
             axios
-                .post(`/api/form101`, { id: id, data: values })
-                .then((res) => {
-                    alert.success("Successfuly signed");
+                .post(`/api/form101`, { id: id, data: values, savingType })
+                .then((response) => {
+                    setSavingType("submit");
+                    alert.success(response.data.message);
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                 })
                 .catch((e) => {
+                    setSavingType("submit");
                     Swal.fire({
                         title: "Error!",
                         text: e.response.data.message,
@@ -687,7 +698,6 @@ const Form101Component = () => {
     const getForm = () => {
         axios.get(`/api/get101/${id}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
-            console.log(res.data);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
                 document.querySelector("html").setAttribute("dir", "rtl");
@@ -708,8 +718,14 @@ const Form101Component = () => {
                 setFieldValue("employeeSex", gender);
             }
             if (res.data.form) {
-                setFormValues(res.data.form);
-                disableInputs();
+                setFormValues(res.data.form.data);
+
+                if (res.data.form.submitted_at) {
+                    setTimeout(() => {
+                        disableInputs();
+                    }, 2000);
+                    setIsSubmitted(true);
+                }
             }
         });
     };
@@ -717,6 +733,11 @@ const Form101Component = () => {
     // const printPdf = (e) => {
     //     window.location.href = `/pdf/${param.id}`;
     // };
+
+    const handleSaveAsDraft = () => {
+        setSavingType("draft");
+        handleSubmit();
+    };
 
     return (
         <div className="container targetDiv">
@@ -981,10 +1002,26 @@ const Form101Component = () => {
                                 required
                             />
                         </div>
-                        {!formValues && (
-                            <button type="submit" className="btn btn-success">
-                                submit
-                            </button>
+                        {!isSubmitted && (
+                            <>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    disabled={isSubmitting}
+                                    onClick={() => {
+                                        handleSaveAsDraft();
+                                    }}
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-success ml-2"
+                                    disabled={isSubmitting}
+                                >
+                                    Submit
+                                </button>
+                            </>
                         )}
                     </form>
                 </div>

@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Helpers\Helper;
 
 class SendShiftChangedNotification
 {
@@ -39,7 +38,7 @@ class SendShiftChangedNotification
                 'content' => __('mail.worker_job.shift_changed') . " " . __('mail.worker_new_job.please_check'),
                 'content_data' => __('mail.worker_job.shift_changed'),
             );
-            Helper::sendJobWANotification($emailData);
+            sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_job.shift_changed_subject');

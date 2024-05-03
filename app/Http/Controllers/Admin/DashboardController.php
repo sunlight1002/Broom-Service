@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -92,49 +93,49 @@ class DashboardController extends Controller
 
       if (isset($noticeAll)) {
         foreach ($noticeAll as $k => $notice) {
-          if ($notice->type == 'sent-meeting') {
+          if ($notice->type == NotificationTypeEnum::SENT_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
-          }else if ($notice->type == 'reschedule-meeting') {            
+          }else if ($notice->type == NotificationTypeEnum::RESCHEDULE_MEETING) {            
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> Re-scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
-          } else if ($notice->type == 'accept-meeting') {
+          } else if ($notice->type == NotificationTypeEnum::ACCEPT_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->client->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> has been confirmed now on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
             }
-          } else if ($notice->type == 'reject-meeting') {
+          } else if ($notice->type == NotificationTypeEnum::REJECT_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> which on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time) . " has cancelled now.";
             }
-          } else if ($notice->type == 'accept-offer') {
+          } else if ($notice->type == NotificationTypeEnum::ACCEPT_OFFER) {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->first();
 
             if (isset($ofr)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has accepted the <a href='/admin/view-offer/" . $notice->offer_id . "'> price offer </a>";
             }
-          } else if ($notice->type == 'reject-offer') {
+          } else if ($notice->type == NotificationTypeEnum::REJECT_OFFER) {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->first();
 
             if (isset($ofr)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has rejected <a href='/admin/view-offer/" . $notice->offer_id . "'>the price offer </a>";
             }
-          } else if ($notice->type == 'contract-accept') {
+          } else if ($notice->type == NotificationTypeEnum::CONTRACT_ACCEPT) {
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->first();
 
             if (isset($contract)) {
@@ -144,7 +145,7 @@ class DashboardController extends Controller
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
               }
             }
-          } else if ($notice->type == 'contract-reject') {
+          } else if ($notice->type == NotificationTypeEnum::CONTRACT_REJECT) {
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->first();
 
             if (isset($contract)) {
@@ -154,7 +155,7 @@ class DashboardController extends Controller
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
               }
             }
-          } else if ($notice->type == 'client-cancel-job') {
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_CANCEL_JOB) {
             $job = Job::with('offer', 'client')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
@@ -164,14 +165,14 @@ class DashboardController extends Controller
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $job->offer->id . "'> offer </a> ";
               }
             }
-          } else if ($notice->type == 'worker-reschedule') {
+          } else if ($notice->type == NotificationTypeEnum::WORKER_RESCHEDULE) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> request for reschedule the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
             }
-          } else if ($notice->type == 'opening-job') {
+          } else if ($notice->type == NotificationTypeEnum::OPENING_JOB) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {

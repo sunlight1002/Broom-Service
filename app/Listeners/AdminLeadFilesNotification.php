@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationTypeEnum;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
@@ -74,7 +75,7 @@ class AdminLeadFilesNotification
         // admin bell icon notification
         Notification::create([
             'user_id' => $schedules->client_id,
-            'type' => 'files',
+            'type' => NotificationTypeEnum::FILES,
             'meet_id' => $schedules->id,
             'status' => $schedules->booking_status
         ]);
@@ -87,7 +88,7 @@ class AdminLeadFilesNotification
         Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
             $messages->to($teamEmail);
 
-            $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
+            $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
 
             $messages->subject($subject);
         });

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\LeadStatusEnum;
-use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Fblead;
 use App\Models\Client;
@@ -73,7 +72,7 @@ class LeadWebhookController extends Controller
                 );
             }
 
-            $result = Helper::sendWhatsappMessage($lead->phone, 'bot_main_menu', array('name' => ucfirst($lead->firstname)));
+            $result = sendWhatsappMessage($lead->phone, 'bot_main_menu', array('name' => ucfirst($lead->firstname)));
 
             WhatsAppBotClientState::updateOrCreate([
                 'client_id' => $lead->id,
@@ -158,7 +157,7 @@ class LeadWebhookController extends Controller
 
 
                 if (!$client) {
-                    $result = Helper::sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
+                    $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
 
                     $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
@@ -207,7 +206,7 @@ class LeadWebhookController extends Controller
 
                     // Send main menu is last menu state not found
                     if (!$client_menus || $message == '9') {
-                        $result = Helper::sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $client->lng == 'heb' ? 'he' : 'en');
+                        $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $client->lng == 'heb' ? 'he' : 'en');
                         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
                         $response = WebhookResponse::create([
@@ -237,7 +236,7 @@ class LeadWebhookController extends Controller
 
                     // Need more help
                     if ((in_array($last_menu, ['email', 'need_more_help']) && (str_contains($message, 'yes') || str_contains($message, 'כן'))) || (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')) {
-                        $result = Helper::sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $client->lng == 'heb' ? 'he' : 'en');
+                        $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $client->lng == 'heb' ? 'he' : 'en');
                         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
                         $response = WebhookResponse::create([
@@ -271,7 +270,7 @@ class LeadWebhookController extends Controller
                             'data'          => json_encode($get_data)
                         ]);
                         WhatsAppBotClientState::where('client_id', $client->id)->delete();
-                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                        $result = sendWhatsappMessage($from, '', array('message' => $msg));
                         die("Final message");
                     }
 
@@ -283,7 +282,7 @@ class LeadWebhookController extends Controller
                             Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'en']);
                         }
 
-                        $result = Helper::sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), 'en');
+                        $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), 'en');
 
                         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
@@ -404,7 +403,7 @@ If you would like to speak to a human representative, please send a message with
                             'data'          => json_encode($get_data)
                         ]);
                         WhatsAppBotClientState::where('client_id', $client->id)->delete();
-                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                        $result = sendWhatsappMessage($from, '', array('message' => $msg));
                         die("Final message");
                     }
 
@@ -437,7 +436,7 @@ If you would like to speak to a human representative, please send a message with
                             'menu_option' => 'main_menu->human_representative->need_more_help',
                             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                         ]);
-                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                        $result = sendWhatsappMessage($from, '', array('message' => $msg));
 
                         die("Human representative");
                     }
@@ -554,7 +553,7 @@ If you would like to speak to a human representative, please send a message with
                                 'data'          => json_encode($get_data)
                             ]);
 
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                         }
 
                         die("Store email");
@@ -591,7 +590,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -635,7 +634,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -680,7 +679,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -712,7 +711,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -744,7 +743,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -776,7 +775,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -810,7 +809,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -848,7 +847,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                         }
                         die("Send customer service menu");
                     }
@@ -893,7 +892,7 @@ If you would like to speak to a human representative, please send a message with
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
                         }
 
                         die("Send service menu");
@@ -914,7 +913,7 @@ If you would like to speak to a human representative, please send a message with
                             'data'          => json_encode($get_data)
                         ]);
 
-                        $result = Helper::sendWhatsappMessage($from, '', array('message' => $msg));
+                        $result = sendWhatsappMessage($from, '', array('message' => $msg));
 
                         switch ($message) {
                             case '1':

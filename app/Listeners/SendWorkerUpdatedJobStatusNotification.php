@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Admin;
 use App\Models\Notification;
@@ -44,7 +45,7 @@ class SendWorkerUpdatedJobStatusNotification
 
         Notification::create([
             'user_id' => $event->job->client->id,
-            'type' => 'worker-reschedule',
+            'type' => NotificationTypeEnum::WORKER_RESCHEDULE,
             'job_id' => $event->job->id,
             'status' => 'reschedule'
         ]);

@@ -56,24 +56,24 @@ class SendWorkerFormsNotification
             Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
                 $messages->to($workerArr['email']);
                 ($workerArr['lng'] == 'heb') ?
-                    $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') . "  " . __('mail.form_101.company') :
-                    $sub = __('mail.form_101.subject') . "  " . __('mail.form_101.company') . " #" . $workerArr['id'];
+                    $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') :
+                    $sub = __('mail.form_101.subject') . " #" . $workerArr['id'];
                 $messages->subject($sub);
             });
 
             Mail::send('/Mails/WorkerContractMail', $workerArr, function ($messages) use ($workerArr) {
                 $messages->to($workerArr['email']);
                 ($workerArr['lng'] == 'heb') ?
-                    $sub = $workerArr['id'] . "# " . __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') :
-                    $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $workerArr['id'];
+                    $sub = $workerArr['id'] . "# " . __('mail.worker_contract.subject') :
+                    $sub = __('mail.worker_contract.subject') . " #" . $workerArr['id'];
                 $messages->subject($sub);
             });
 
             Mail::send('/Mails/WorkerSafeGearMail', $workerArr, function ($messages) use ($workerArr) {
                 $messages->to($workerArr['email']);
                 ($workerArr['lng'] == 'heb') ?
-                    $sub = $workerArr['id'] . "# " . __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') :
-                    $sub = __('mail.worker_safe_gear.subject') . "  " . __('mail.worker_safe_gear.company') . " #" . $workerArr['id'];
+                    $sub = $workerArr['id'] . "# " . __('mail.worker_safe_gear.subject') :
+                    $sub = __('mail.worker_safe_gear.subject') . " #" . $workerArr['id'];
                 $messages->subject($sub);
             });
         }
