@@ -229,6 +229,8 @@ class AuthController extends Controller
         }
 
         $data = $request->all();
+        $savingType = $data['savingType'];
+        unset($data['savingType']);
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::FORM101)
@@ -241,7 +243,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if ($data['savingType'] == 'submit') {
+        if ($savingType == 'submit') {
             $submittedAt = now()->toDateString();
         } else {
             $submittedAt = NULL;
@@ -249,13 +251,13 @@ class AuthController extends Controller
 
         if ($form) {
             $form->update([
-                'data' => $data['data'],
+                'data' => $data,
                 'submitted_at' => $submittedAt
             ]);
         } else {
             $form = $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::FORM101,
-                'data' => $data['data'],
+                'data' => $data,
                 'submitted_at' => $submittedAt
             ]);
         }
