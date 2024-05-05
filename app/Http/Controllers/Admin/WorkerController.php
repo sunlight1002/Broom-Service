@@ -95,6 +95,9 @@ class WorkerController extends Controller
                 'jobs.client:id,firstname,lastname',
                 'notAvailableDates:user_id,date,start_time,end_time'
             ])
+            ->where(function ($query) {
+                $query->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
+            })
             ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
                 return $q->whereIn('id', $onlyWorkerIDArr);
             })
@@ -144,9 +147,11 @@ class WorkerController extends Controller
 
                 $availabilities = [];
                 foreach ($workerAvailabilitiesByDate as $date => $times) {
-                    $availabilities[$date] = $times->map(function ($item, $key) {
-                        return $item->only(['start_time', 'end_time']);
-                    });
+                    if (is_null($worker->last_work_date) || Carbon::parse($worker->last_work_date)->gte(Carbon::parse($date))) {
+                        $availabilities[$date] = $times->map(function ($item, $key) {
+                            return $item->only(['start_time', 'end_time']);
+                        });
+                    }
                 }
 
                 $available_dates = array_keys($availabilities);
@@ -162,9 +167,11 @@ class WorkerController extends Controller
                     if (!in_array($date_, $available_dates)) {
                         $weekDay = $currentDate->weekday();
                         if (isset($defaultAvailabilities[$weekDay])) {
-                            $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
-                                return $item->only(['start_time', 'end_time']);
-                            });
+                            if (is_null($worker->last_work_date) || Carbon::parse($worker->last_work_date)->gte(Carbon::parse($date_))) {
+                                $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
+                                    return $item->only(['start_time', 'end_time']);
+                                });
+                            }
                         }
                     }
 
@@ -568,6 +575,30 @@ class WorkerController extends Controller
 
         return response()->json([
             'message' => 'Freeze shift updated successfully'
+        ]);
+    }
+
+    public function updateLeaveJob(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $data = $request->all();
+        $date = null;
+        if (isset($data['date']) && !empty($data['date'])) {
+            $date = $data['date'];
+        }
+        $worker->update([
+            'last_work_date' => $date,
+        ]);
+
+        return response()->json([
+            'message' => 'Leave job date updated successfully'
         ]);
     }
 }
