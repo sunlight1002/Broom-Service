@@ -1204,9 +1204,9 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
 
     const handleChangeHours = (_isIncrement) => {
         if (_isIncrement) {
-            setCount((_count) => _count + 1);
+            setCount((_count) => _count + 0.25);
         } else {
-            setCount((_count) => _count - 1);
+            setCount((_count) => _count - 0.25);
         }
         setIsChanged(true);
     };
@@ -1218,7 +1218,7 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
     useEffect(() => {
         setCount(
             data.actual_time_taken_minutes
-                ? Math.floor(data.actual_time_taken_minutes / 60)
+                ? data.actual_time_taken_minutes / 60
                 : 0
         );
     }, [data]);
