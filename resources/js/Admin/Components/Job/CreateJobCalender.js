@@ -172,36 +172,42 @@ export default function CreateJobCalender({
     let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        setSelectedHours((data) => {
-            let added = false;
-            return data.map((worker, index) => {
-                if (
-                    (worker.slots == null ||
-                        worker?.slots[0]?.workerId == w_id) &&
-                    !added
-                ) {
-                    const slots = getAvailableSlots(
-                        workerAvailabilities,
-                        w_id,
-                        date,
-                        e,
-                        worker.jobHours
-                    );
-                    added = true;
-                    return {
-                        jobHours: worker.jobHours,
-                        slots: slots.length > 0 ? slots : null,
-                        formattedSlots:
-                            slots.length > 0
-                                ? convertShiftsFormat(slots)
-                                : null,
-                    };
-                }
-                if (!added && data.length == index + 1) {
-                    alert.error("Already other workers selected.");
-                }
-                return worker;
-            });
+        let added = false;
+        const promises = selectedHours.map(async (worker, index) => {
+            if (
+                (worker.slots == null ||
+                    worker?.slots[0]?.workerId == w_id) &&
+                !added
+            ) {
+                const slots = await getAvailableSlots(
+                    workerAvailabilities,
+                    w_id,
+                    date,
+                    e,
+                    worker.jobHours,
+                    false,
+                    alert,
+                );
+                added = true;
+                return {
+                    jobHours: worker.jobHours,
+                    slots: slots.length > 0 ? slots : null,
+                    formattedSlots:
+                        slots.length > 0
+                            ? convertShiftsFormat(slots)
+                            : null,
+                };
+            }
+            if (!added && selectedHours.length === index + 1) {
+                alert.error("Already other workers selected.");
+            }
+            return worker;
+        });
+
+        // Wait for all promises to resolve
+        Promise.all(promises).then((updatedData) => {
+            // Update the state with the resolved values
+            setSelectedHours(updatedData);
         });
     };
 
@@ -312,6 +318,7 @@ export default function CreateJobCalender({
                             hasActive={hasActive}
                             changeShift={changeShift}
                             removeShift={removeShift}
+                            selectedHours={selectedHours}
                         />
                     </div>
                 </div>
@@ -333,6 +340,7 @@ export default function CreateJobCalender({
                             hasActive={hasActive}
                             changeShift={changeShift}
                             removeShift={removeShift}
+                            selectedHours={selectedHours}
                         />
                     </div>
                 </div>
@@ -355,6 +363,7 @@ export default function CreateJobCalender({
                             hasActive={hasActive}
                             changeShift={changeShift}
                             removeShift={removeShift}
+                            selectedHours={selectedHours}
                         />
                     </div>
                 </div>
@@ -379,10 +388,14 @@ export default function CreateJobCalender({
                                 let end = moment(selectedDates[1]);
                                 const datesArray = [];
 
-                                for (let date = start.clone(); date.isSameOrBefore(end); date.add(1, 'day')) {
-                                    datesArray.push(date.format('YYYY-MM-DD'));
+                                for (
+                                    let date = start.clone();
+                                    date.isSameOrBefore(end);
+                                    date.add(1, "day")
+                                ) {
+                                    datesArray.push(date.format("YYYY-MM-DD"));
                                 }
-                                setCustomDateRange(datesArray)
+                                setCustomDateRange(datesArray);
                             }}
                             options={{
                                 disableMobile: true,
@@ -403,6 +416,7 @@ export default function CreateJobCalender({
                                 hasActive={hasActive}
                                 changeShift={changeShift}
                                 removeShift={removeShift}
+                                selectedHours={selectedHours}
                             />
                         </div>
                     )}

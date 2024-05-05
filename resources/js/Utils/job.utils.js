@@ -4,6 +4,7 @@ import {
     monthOccurrenceArr,
     weekOccurrenceArr,
 } from "./common.utils";
+import Swal from "sweetalert2";
 
 export const frequencyDescription = (_service) => {
     let descriptionStr = "";
@@ -118,12 +119,14 @@ export const convertShiftsFormat = (shiftsArray) => {
     return convertedShifts;
 };
 
-export const getAvailableSlots = (
+export const getAvailableSlots = async (
     workerAvailabilities,
     w_id,
     date,
     shift,
-    workHours
+    workHours,
+    isClient = false,
+    alert,
 ) => {
     const chosenDateMoment = moment(date, "YYYY-MM-DD");
     const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
@@ -174,59 +177,42 @@ export const getAvailableSlots = (
         remainingHours--;
     }
 
-    let nextDate = chosenDateSlots.date;
+    if(isClient && remainingHours > 0) {
+        alert.error("Not enough available slots for the chosen work hours");
+        return [];
+    }
 
     if (remainingHours > 0) {
-        let nextAvailableDateIndex = workerAvailabilities.findIndex(
-            (worker) => {
-                return (
-                    worker.workerId === w_id &&
-                    worker.slots.some((slot) =>
-                        moment(slot.date, "YYYY-MM-DD").isAfter(nextDate, "day")
-                    )
-                );
-            }
-        );
-
-        // Iterate through subsequent dates to find enough slots
-        while (nextAvailableDateIndex !== -1 && remainingHours > 0) {
-            const nextAvailableDateSlots = workerAvailabilities[
-                nextAvailableDateIndex
-            ].slots.find((slot) =>
-                moment(slot.date, "YYYY-MM-DD").isAfter(nextDate, "day")
-            );
-
-            if (nextAvailableDateSlots) {
-                for (let slot of nextAvailableDateSlots.slots) {
-                    availableSlots.push({
-                        workerName: workerName,
-                        workerId: w_id,
-                        date: nextAvailableDateSlots.date,
-                        time: slot,
-                    });
-                    remainingHours--;
-                    if (remainingHours === 0) break;
-                }
-                nextDate = nextAvailableDateSlots.date;
-                nextAvailableDateIndex = workerAvailabilities.findIndex(
-                    (worker) => {
-                        return (
-                            worker.workerId === w_id &&
-                            worker.slots.some((slot) =>
-                                moment(slot.date, "YYYY-MM-DD").isAfter(
-                                    nextDate,
-                                    "day"
-                                )
-                            )
-                        );
+        const alert = await Swal.fire({
+            title: "Are you sure?",
+            text: "Not enough available slots for the chosen work hours",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, do it!",
+        });
+        if (alert.isConfirmed) {
+            try {
+                const lastSlot =
+                    chosenDateSlots.allSlots[
+                        chosenDateSlots.allSlots.length - 1
+                    ];
+                if (lastSlot) {
+                    const startTimeMoment = moment(lastSlot.time, "HH:mm:ss");
+                    for (let i = 0; i < remainingHours; i++) {
+                        const slotTime = startTimeMoment.add(1, "hours");
+                        availableSlots.push({
+                            workerName: workerName,
+                            workerId: w_id,
+                            date: chosenDateSlots.date,
+                            time: { time: slotTime.format("HH:mm:ss") },
+                        });
                     }
-                );
+                }
+            } catch (error) {
+                return [];
             }
-        }
-
-        if (remainingHours > 0) {
-            alert.error("Not enough available slots for the chosen work hours");
-            return [];
         }
     }
 
@@ -253,6 +239,7 @@ export const getWorkerAvailabilities = (workers) => {
 
             return {
                 date: key,
+                allSlots: slots,
                 slots: slots
                     .filter(
                         (slot) =>
@@ -308,10 +295,10 @@ export const getWorkersData = (workers) => {
         worker?.formattedSlots?.forEach((slots) => {
             let shifts = parseTimeSlots(slots?.shifts ?? "");
             data.push({
-                worker_name: slots?.worker_name ?? '',
-                date: slots?.date ?? '',
-                shifts: shifts.join(', ') ?? '',
-            })
+                worker_name: slots?.worker_name ?? "",
+                date: slots?.date ?? "",
+                shifts: shifts.join(", ") ?? "",
+            });
         });
     });
     return data;
@@ -321,7 +308,10 @@ export const filterShiftOptions = (
     availableTimeRanges,
     bookedTimeRanges,
     shiftFreezeTime = {},
-    notAvailableDates = {}
+    notAvailableDates = {},
+    selectedHours = [],
+    workerId = null,
+    date = null,
 ) => {
     let _availSlots = [];
     availableTimeRanges.forEach((range) => {
@@ -329,6 +319,18 @@ export const filterShiftOptions = (
             generateHourlyTimeSlots(range.start_time, range.end_time)
         );
     });
+
+    if(selectedHours.length > 0) {
+        selectedHours.forEach((worker) => {
+            if(worker.slots && worker.slots.length > 0) {
+                worker.slots.forEach((slot) => {
+                    if (!_availSlots.includes(slot.time.time) && workerId == slot.workerId && date == slot.date) {
+                        _availSlots.push(slot.time.time);
+                    }
+                });
+            }
+        });
+    }
 
     let _bookedSlots = bookedTimeRanges.map((range) => {
         const [start, end] = range.slot.split("-");

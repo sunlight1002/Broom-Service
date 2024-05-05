@@ -9,6 +9,7 @@ export default function WorkerAvailabilityTable({
     hasActive,
     changeShift,
     removeShift,
+    selectedHours
 }) {
     return (
         <>
@@ -56,7 +57,10 @@ export default function WorkerAvailabilityTable({
                                         shiftFreezeTime,
                                         notAvailableDates?.find(
                                             (n) => n.date == element
-                                        )
+                                        ),
+                                        selectedHours,
+                                        w.id,
+                                        element,
                                     );
                                     return (
                                         <td key={index}>
