@@ -35,6 +35,7 @@ export default function ChangeWorkerCalender({ job }) {
 
     const { t } = useTranslation();
     const flatpickrRef = useRef(null);
+    const [customDateRange, setCustomDateRange] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -313,6 +314,13 @@ export default function ChangeWorkerCalender({ job }) {
                         selectedFilter={currentFilter}
                         setselectedFilter={setcurrentFilter}
                     />
+
+                    <FilterButtons
+                        text="Custom"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
                 </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
@@ -377,6 +385,59 @@ export default function ChangeWorkerCalender({ job }) {
                             removeShift={removeShift}
                         />
                     </div>
+                </div>
+                <div
+                    style={{
+                        display: currentFilter === "Custom" ? "block" : "none",
+                    }}
+                    id="tab-current-next-job"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="current-job"
+                >
+                    <div className="form-group">
+                        <label className="control-label">
+                            Select Date Range
+                        </label>
+                        <Flatpickr
+                            name="date"
+                            className="form-control"
+                            onChange={(selectedDates, dateStr, instance) => {
+                                let start = moment(selectedDates[0]);
+                                let end = moment(selectedDates[1]);
+                                const datesArray = [];
+
+                                for (
+                                    let date = start.clone();
+                                    date.isSameOrBefore(end);
+                                    date.add(1, "day")
+                                ) {
+                                    datesArray.push(date.format("YYYY-MM-DD"));
+                                }
+                                setCustomDateRange(datesArray);
+                            }}
+                            options={{
+                                disableMobile: true,
+                                minDate: moment(
+                                    nextnextweek[nextnextweek.length - 1]
+                                )
+                                    .add(1, "days")
+                                    .format("YYYY-MM-DD"),
+                                mode: "range",
+                            }}
+                        />
+                    </div>
+                    {customDateRange.length > 0 && (
+                        <div className="crt-jb-table-scrollable">
+                            <WorkerAvailabilityTable
+                                week={customDateRange}
+                                AllWorkers={AllWorkers}
+                                hasActive={hasActive}
+                                changeShift={changeShift}
+                                removeShift={removeShift}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="form-group text-center mt-3">

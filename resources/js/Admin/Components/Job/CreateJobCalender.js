@@ -3,6 +3,8 @@ import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
 
 import {
     convertShiftsFormat,
@@ -31,6 +33,7 @@ export default function CreateJobCalender({
     };
     let isPrevWorker = useRef();
     const [services, setServices] = useState(clientServices);
+    const [customDateRange, setCustomDateRange] = useState([]);
 
     useEffect(() => {
         setServices(clientServices);
@@ -282,6 +285,13 @@ export default function CreateJobCalender({
                         selectedFilter={currentFilter}
                         setselectedFilter={setcurrentFilter}
                     />
+
+                    <FilterButtons
+                        text="Custom"
+                        className="px-3 mr-2"
+                        selectedFilter={currentFilter}
+                        setselectedFilter={setcurrentFilter}
+                    />
                 </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
@@ -347,6 +357,55 @@ export default function CreateJobCalender({
                             removeShift={removeShift}
                         />
                     </div>
+                </div>
+                <div
+                    style={{
+                        display: currentFilter === "Custom" ? "block" : "none",
+                    }}
+                    id="tab-current-next-job"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="current-job"
+                >
+                    <div className="form-group">
+                        <label className="control-label">
+                            Select Date Range
+                        </label>
+                        <Flatpickr
+                            name="date"
+                            className="form-control"
+                            onChange={(selectedDates, dateStr, instance) => {
+                                let start = moment(selectedDates[0]);
+                                let end = moment(selectedDates[1]);
+                                const datesArray = [];
+
+                                for (let date = start.clone(); date.isSameOrBefore(end); date.add(1, 'day')) {
+                                    datesArray.push(date.format('YYYY-MM-DD'));
+                                }
+                                setCustomDateRange(datesArray)
+                            }}
+                            options={{
+                                disableMobile: true,
+                                minDate: moment(
+                                    nextnextweek[nextnextweek.length - 1]
+                                )
+                                    .add(1, "days")
+                                    .format("YYYY-MM-DD"),
+                                mode: "range",
+                            }}
+                        />
+                    </div>
+                    {customDateRange.length > 0 && (
+                        <div className="crt-jb-table-scrollable">
+                            <WorkerAvailabilityTable
+                                week={customDateRange}
+                                AllWorkers={AllWorkers}
+                                hasActive={hasActive}
+                                changeShift={changeShift}
+                                removeShift={removeShift}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="form-group text-center mt-3">
