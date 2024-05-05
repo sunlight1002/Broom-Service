@@ -304,6 +304,35 @@ class LeadWebhookController extends Controller
                         die("Language switched to english");
                     }
 
+                    // Send hebrew menu
+                    if ($last_menu == 'main_menu' && $message == '7') {
+                        if (strlen($from) > 10) {
+                            Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'heb']);
+                        } else {
+                            Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
+                        }
+
+                        $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), 'he');
+
+                        $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
+
+                        $response = WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'message'       => $_msg->{$client->lng  == 'heb' ? 'heb' : 'eng'},
+                            'number'        => $from,
+                            'read'          => 1,
+                            'flex'          => 'A',
+                        ]);
+                        WhatsAppBotClientState::updateOrCreate([
+                            'client_id' => $client->id,
+                        ], [
+                            'menu_option' => 'main_menu',
+                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                        ]);
+                        Log::info('Language switched to hebrew');
+                        die("Language switched to hebrew");
+                    }
 
                     // Menus Array
                     $menus = [
