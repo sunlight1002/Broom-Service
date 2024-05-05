@@ -427,4 +427,18 @@ class ChatController extends Controller
             'data' => $resp
         ]);
     }
+
+    public function deleteConversation(Request $request)
+    {
+        $chats = WebhookResponse::where('number', $request->number)->delete();
+        if($chats){
+            return response()->json([
+                'msg' => 'Conversation has been deleted!'
+            ]);
+        }else{
+            return response()->json([
+                'msg' => 'No conversation found!'
+            ], 422);
+        }
+    }
 }

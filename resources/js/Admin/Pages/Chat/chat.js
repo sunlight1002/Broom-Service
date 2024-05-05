@@ -111,9 +111,46 @@ export default function chat() {
 
     useEffect(() => {
         getData();
-        callApi();
+        if (localStorage.getItem("number")) {
+            callApi();
+        }
     }, []);
 
+    const handleDeleteConversation = (e) => {
+        e.preventDefault();
+        if (selectNumber == null) {
+            alert.error("Please open chat of number");
+            return;
+        }
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Delete conversation",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .post(
+                        `/api/admin/delete-conversation/`,
+                        { number: selectNumber },
+                        { headers }
+                    )
+                    .then((response) => {
+                        localStorage.removeItem("number");
+                        Swal.fire("Deleted!", response.data.msg, "success");
+                        setTimeout(() => {
+                            getData();
+                        }, 1000);
+                    })
+                    .catch((err) => {
+                        Swal.fire("Error!", err.response.data.msg, "error");
+                    });
+            }
+        });
+    };
     return (
         <div id="container">
             <Sidebar />
@@ -141,6 +178,15 @@ export default function chat() {
                                 <div className="col-sm-9">
                                     <h4 className="header-title mb-3">
                                         Replies
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger text-right float-right"
+                                            onClick={(e) =>
+                                                handleDeleteConversation(e)
+                                            }
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
                                     </h4>
                                     <hr />
                                     <div className="chat-conversation">
