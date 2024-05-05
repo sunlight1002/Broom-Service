@@ -26,11 +26,14 @@ const formSchema = yup.object({
         .required("Mobile number is required"),
     signature: yup.mixed().required("Signature is required"),
 });
+
 export function IsrailContact({
     handleFormSubmit,
     workerDetail,
     workerFormDetails,
-    checkFormDetails,
+    isSubmitted,
+    isGeneratingPDF,
+    contentRef,
 }) {
     const sigRef = useRef();
     const [formValues, setFormValues] = useState(null);
@@ -67,7 +70,7 @@ export function IsrailContact({
     });
 
     useEffect(() => {
-        if (checkFormDetails) {
+        if (isSubmitted) {
             setFormValues(workerFormDetails);
             disableInputs();
         } else {
@@ -79,7 +82,7 @@ export function IsrailContact({
             setFieldValue("Address", workerDetail.address);
             setFieldValue("PhoneNo", workerDetail.phone);
         }
-    }, [checkFormDetails, workerFormDetails, workerDetail]);
+    }, [isSubmitted, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -98,7 +101,7 @@ export function IsrailContact({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="w-75 mx-auto mt-5">
+                <div className="w-75 mx-auto mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -623,15 +626,17 @@ export function IsrailContact({
                                                 onEnd={handleSignatureEnd}
                                             />
 
-                                            <div className="d-block">
-                                                <button
-                                                    className="btn btn-warning mb-2"
-                                                    type="button"
-                                                    onClick={clearSignature}
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                            {!isGeneratingPDF && (
+                                                <div className="d-block">
+                                                    <button
+                                                        className="btn btn-warning mb-2"
+                                                        type="button"
+                                                        onClick={clearSignature}
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -661,7 +666,7 @@ export function IsrailContact({
                                 <strong>Broom Service L.M. Ltd</strong>
                             </div>
                         </div>
-                        {!formValues && (
+                        {!isSubmitted && !isGeneratingPDF && (
                             <button
                                 className="btn btn-success mt-3"
                                 type="submit"

@@ -22,6 +22,7 @@ import logo from "../../Assets/image/logo.png";
 import check from "../../Assets/image/icons/check-mark.png";
 import TextField from "./inputElements/TextField";
 import ChangeYear from "./ChangeYear";
+import { objectToFormData } from "../../Utils/common.utils";
 
 const initialValues = {
     employerName: "",
@@ -638,33 +639,6 @@ const Form101Component = () => {
 
     const currentYear = new Date().getFullYear();
 
-    // Function to convert JSON object to FormData
-    const objectToFormData = (obj, formData, namespace) => {
-        const fd = formData || new FormData();
-        let formKey;
-
-        for (const property in obj) {
-            if (obj.hasOwnProperty(property)) {
-                if (namespace) {
-                    formKey = namespace + "[" + property + "]";
-                } else {
-                    formKey = property;
-                }
-
-                if (
-                    typeof obj[property] === "object" &&
-                    !(obj[property] instanceof File)
-                ) {
-                    objectToFormData(obj[property], fd, formKey);
-                } else {
-                    fd.append(formKey, obj[property]);
-                }
-            }
-        }
-
-        return fd;
-    };
-
     const {
         values,
         touched,
@@ -681,7 +655,6 @@ const Form101Component = () => {
         onSubmit: (values) => {
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
-            // let formData = new FormData();
             formData.append("savingType", savingType);
 
             axios

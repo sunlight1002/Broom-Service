@@ -5,8 +5,9 @@ import { Base64 } from "js-base64";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import i18next from "i18next";
-import TextField from "../../../Pages/Form101/inputElements/TextField";
 import SignatureCanvas from "react-signature-canvas";
+import html2pdf from "html2pdf.js";
+import { objectToFormData } from "../../../Utils/common.utils";
 
 const formSchema = yup.object({
     signature: yup.mixed().required("Signature is required"),
@@ -20,11 +21,17 @@ const SafeAndGear = () => {
     const [workerName, setWorkerName] = useState("");
     const [workerName2, setWorkerName2] = useState("");
     const [signature, setSignature] = useState("");
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+    const contentRef = useRef(null);
+
     const initialValues = {
         workerName: workerName,
         workerName2: workerName2,
         signature: signature,
     };
+
     const {
         errors,
         touched,
@@ -33,13 +40,44 @@ const SafeAndGear = () => {
         handleSubmit,
         values,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
         initialValues,
         validationSchema: formSchema,
-        onSubmit: (values) => {
-            console.log("values", values);
+        onSubmit: async (values) => {
+            setIsGeneratingPDF(true);
+            const options = {
+                filename: "my-document.pdf",
+                margin: 1,
+                image: { type: "jpeg", quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: {
+                    unit: "mm",
+                    format: "a4",
+                    orientation: "portrait",
+                },
+            };
+
+            const content = contentRef.current;
+
+            const _pdf = await html2pdf()
+                .set(options)
+                .from(content)
+                .outputPdf("blob", "Safety-And-Gear.pdf");
+
+            setIsGeneratingPDF(false);
+
+            // Convert JSON object to FormData
+            let formData = objectToFormData(values);
+            formData.append("pdf_file", _pdf);
+
             axios
-                .post(`/api/safegear`, { id: id, data: values })
+                .post(`/api/${id}/safegear`, formData, {
+                    headers: {
+                        Accept: "application/json, text/plain, */*",
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
                 .then((res) => {
                     alert.success("Successfuly signed");
                     setTimeout(() => {
@@ -55,9 +93,11 @@ const SafeAndGear = () => {
                 });
         },
     });
+
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
+
     const clearSignature = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
@@ -79,12 +119,15 @@ const SafeAndGear = () => {
             }
 
             if (res.data.form) {
-                setFormValues(res.data.form);
-                setFieldValue("workerName", res.data.form.workerName);
-                setFieldValue("workerName2", res.data.form.workerName2);
-                setFieldValue("signature", res.data.form.signature);
+                setFormValues(res.data.form.data);
+                setFieldValue("workerName", res.data.form.data.workerName);
+                setFieldValue("workerName2", res.data.form.data.workerName2);
+                setFieldValue("signature", res.data.form.data.signature);
 
-                disableInputs();
+                if (res.data.form.submitted_at) {
+                    disableInputs();
+                    setIsSubmitted(true);
+                }
             }
         });
     }, []);
@@ -102,20 +145,20 @@ const SafeAndGear = () => {
             width: "100%",
             padding: "8px",
             margin: "0px 0px 15px",
-            "text-align": "left",
-            "font-size": "18px",
+            textAlign: "left",
+            fontSize: "18px",
         },
         workerName2: {
             width: "100%",
             padding: "8px",
             margin: "10px 0px 0px 0px",
-            "font-size": "18px",
+            fontSize: "18px",
         },
     };
     return (
         <div id="container" className="targetDiv">
             <div id="content">
-                <div className="w-75 mx-auto mt-5 px-5">
+                <div className="mx-5 mt-5" ref={contentRef}>
                     <div className="text-center">
                         <h5>
                             <strong>Welcome to Broom Service:</strong>
@@ -282,20 +325,6 @@ const SafeAndGear = () => {
                                 <p>*. Wet rags and scabs to hang for drying</p>
                                 <div className="row gap-5">
                                     <div className="col-6">
-                                        {/* <TextField
-                                            name={"workerName2"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={"Worker Name"}
-                                            value={values.workerName +' '+values.workerName2}
-                                            required={true}
-                                            readonly={true}
-                                            error={
-                                                touched.workerName2 &&
-                                                errors.workerName2
-                                            }
-                                        /> */}
-
                                         <span
                                             className="badge badge-primary"
                                             style={workerStyle.workerName2}
@@ -330,26 +359,31 @@ const SafeAndGear = () => {
                                                     onEnd={handleSignatureEnd}
                                                 />
 
-                                                <div className="d-block">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-warning mb-2"
-                                                        onClick={clearSignature}
-                                                    >
-                                                        Clear
-                                                    </button>
-                                                </div>
+                                                {!isGeneratingPDF && (
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-warning mb-2"
+                                                            onClick={
+                                                                clearSignature
+                                                            }
+                                                        >
+                                                            Clear
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                            {!formValues && (
+                            {!isSubmitted && !isGeneratingPDF && (
                                 <button
                                     type="submit"
+                                    disabled={isSubmitting}
                                     className="btn btn-success"
                                 >
-                                    submit
+                                    Submit
                                 </button>
                             )}
                         </form>

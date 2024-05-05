@@ -39,3 +39,30 @@ export const monthOccurrenceArr = [
 export const convertMinsToDecimalHrs = (minutes) => {
     return parseFloat(minutes / 60).toFixed(2);
 };
+
+// Function to convert JSON object to FormData
+export const objectToFormData = (obj, formData, namespace) => {
+    const fd = formData || new FormData();
+    let formKey;
+
+    for (const property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            if (namespace) {
+                formKey = namespace + "[" + property + "]";
+            } else {
+                formKey = property;
+            }
+
+            if (
+                typeof obj[property] === "object" &&
+                !(obj[property] instanceof File)
+            ) {
+                objectToFormData(obj[property], fd, formKey);
+            } else {
+                fd.append(formKey, obj[property]);
+            }
+        }
+    }
+
+    return fd;
+};

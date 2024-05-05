@@ -31,7 +31,9 @@ export function NonIsraeliContract({
     handleFormSubmit,
     workerDetail,
     workerFormDetails,
-    checkFormDetails,
+    isSubmitted,
+    isGeneratingPDF,
+    contentRef,
 }) {
     const sigRef1 = useRef();
     const sigRef2 = useRef();
@@ -80,7 +82,7 @@ export function NonIsraeliContract({
     });
 
     useEffect(() => {
-        if (checkFormDetails) {
+        if (isSubmitted) {
             setFormValues(workerFormDetails);
             disableInputs();
         } else {
@@ -91,7 +93,7 @@ export function NonIsraeliContract({
             setFieldValue("Address", workerDetail.address);
             setFieldValue("PhoneNo", workerDetail.phone);
         }
-    }, [checkFormDetails, workerFormDetails, workerDetail]);
+    }, [isSubmitted, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
         const inputs = document.querySelectorAll(".targetDiv input");
@@ -146,7 +148,7 @@ export function NonIsraeliContract({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="w-75 mx-auto mt-5">
+                <div className="w-75 mx-auto mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -325,17 +327,19 @@ export function NonIsraeliContract({
                                                                     </p>
                                                                 )}
 
-                                                            <div className="d-block">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-warning mb-2"
-                                                                    onClick={
-                                                                        clearSignature1
-                                                                    }
-                                                                >
-                                                                    Clear
-                                                                </button>
-                                                            </div>
+                                                            {!isGeneratingPDF && (
+                                                                <div className="d-block">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-warning mb-2"
+                                                                        onClick={
+                                                                            clearSignature1
+                                                                        }
+                                                                    >
+                                                                        Clear
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </>
                                                     )}
                                                 </div>
@@ -464,17 +468,19 @@ export function NonIsraeliContract({
                                                             </p>
                                                         )}
 
-                                                    <div className="d-block">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-warning mb-2"
-                                                            onClick={
-                                                                clearSignature2
-                                                            }
-                                                        >
-                                                            Clear
-                                                        </button>
-                                                    </div>
+                                                    {!isGeneratingPDF && (
+                                                        <div className="d-block">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-warning mb-2"
+                                                                onClick={
+                                                                    clearSignature2
+                                                                }
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </>
                                             )}
                                         </div>
@@ -624,17 +630,19 @@ export function NonIsraeliContract({
                                                             </p>
                                                         )}
 
-                                                    <div className="d-block">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-warning mb-2"
-                                                            onClick={
-                                                                clearSignature3
-                                                            }
-                                                        >
-                                                            Clear
-                                                        </button>
-                                                    </div>
+                                                    {!isGeneratingPDF && (
+                                                        <div className="d-block">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-warning mb-2"
+                                                                onClick={
+                                                                    clearSignature3
+                                                                }
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </>
                                             )}
                                         </div>
@@ -672,17 +680,19 @@ export function NonIsraeliContract({
                                                             </p>
                                                         )}
 
-                                                    <div className="d-block">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-warning mb-2"
-                                                            onClick={
-                                                                clearCompanySignature1
-                                                            }
-                                                        >
-                                                            Clear
-                                                        </button>
-                                                    </div>
+                                                    {!isGeneratingPDF && (
+                                                        <div className="d-block">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-warning mb-2"
+                                                                onClick={
+                                                                    clearCompanySignature1
+                                                                }
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </>
                                             )}
                                         </div>
@@ -790,15 +800,19 @@ export function NonIsraeliContract({
                                                     </p>
                                                 )}
 
-                                            <div className="d-block">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-warning mb-2"
-                                                    onClick={clearSignature4}
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                            {!isGeneratingPDF && (
+                                                <div className="d-block">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-warning mb-2"
+                                                        onClick={
+                                                            clearSignature4
+                                                        }
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -834,17 +848,19 @@ export function NonIsraeliContract({
                                                     </p>
                                                 )}
 
-                                            <div className="d-block">
-                                                <button
-                                                    className="btn btn-warning mb-2"
-                                                    type="button"
-                                                    onClick={
-                                                        clearCompanySignature2
-                                                    }
-                                                >
-                                                    Clear
-                                                </button>
-                                            </div>
+                                            {!isGeneratingPDF && (
+                                                <div className="d-block">
+                                                    <button
+                                                        className="btn btn-warning mb-2"
+                                                        type="button"
+                                                        onClick={
+                                                            clearCompanySignature2
+                                                        }
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -865,7 +881,7 @@ export function NonIsraeliContract({
                                 </div>
                             </div>
                         </div>
-                        {!formValues && (
+                        {!isSubmitted && !isGeneratingPDF && (
                             <button
                                 className="btn btn-success mt-3"
                                 type="submit"

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Enums\WorkerFormTypeEnum;
+use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
+use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\WorkerFormService;
@@ -186,11 +188,13 @@ class AuthController extends Controller
         ]);
     }
 
-    public function WorkContract(Request $request)
+    public function WorkContract(Request $request, $id)
     {
         $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
 
-        $worker = User::where('worker_id', $data['worker_id'])->first();
+        $worker = User::where('worker_id', $id)->first();
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -207,11 +211,21 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $worker->forms()->create([
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+        $form = $worker->forms()->create([
             'type' => WorkerFormTypeEnum::CONTRACT,
-            'data' => $data['worker_contract_json'],
-            'submitted_at' => now()->toDateString()
+            'data' => $data,
+            'submitted_at' => now()->toDateString(),
+            'pdf_name' => $file_name
         ]);
+
+        event(new ContractFormSigned($worker, $form));
 
         return response()->json([
             'message' => 'Contract signed successfully. Thanks, for signing the contract.'
@@ -278,9 +292,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function safegear(Request $request)
+    public function safegear(Request $request, $id)
     {
-        $worker = User::find($request->id);
+        $worker = User::find($id);
 
         if (!$worker) {
             return response()->json([
@@ -289,6 +303,8 @@ class AuthController extends Controller
         }
 
         $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
@@ -300,11 +316,21 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $worker->forms()->create([
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+        $form = $worker->forms()->create([
             'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
-            'data' => $data['data'],
-            'submitted_at' => now()->toDateString()
+            'data' => $data,
+            'submitted_at' => now()->toDateString(),
+            'pdf_name' => $file_name
         ]);
+
+        event(new SafetyAndGearFormSigned($worker, $form));
 
         return response()->json([
             'message' => 'Safety and gear  signed successfully.'
@@ -321,7 +347,7 @@ class AuthController extends Controller
         return response()->json([
             'lng' => $worker->lng,
             'worker' => $worker,
-            'form' => $form ? $form->data : NULL
+            'form' => $form
         ]);
     }
 
@@ -351,7 +377,7 @@ class AuthController extends Controller
 
         return response()->json([
             'worker' => $worker,
-            'form' => $form ? $form->data : NULL
+            'form' => $form
         ]);
     }
     // public function pdf101($id)

@@ -254,15 +254,37 @@ return [
         'form101-signed' => [
             'subject' => 'Form 101 Signed | Broom Service',
             'message' => ':worker_name has completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.'
+        ],
+        'safety-and-gear-signed' => [
+            'subject' => 'Safety and Gear Form Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.'
+        ],
+        'contract-signed' => [
+            'subject' => 'Contract Form Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.'
         ]
     ],
     'worker' => [
         'form101-signed' => [
             'subject' => 'Form 101 Signed | Broom Service',
             'message' => 'You have completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.',
+        ],
+        'safety-and-gear-signed' => [
+            'subject' => 'Safety and Gear Form Signed | Broom Service',
+            'message' => 'You have completed the signing of Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.',
+        ],
+        'contract-signed' => [
+            'subject' => 'Contract Form Signed | Broom Service',
+            'message' => 'You have completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.',
         ]
     ],
     'form101' => [
         'form_name' => 'Form 101',
+    ],
+    'safety-and-gear-form' => [
+        'form_name' => 'Safety and Gear Form',
+    ],
+    'contract-form' => [
+        'form_name' => 'Contract Form',
     ],
 ];
