@@ -49,10 +49,10 @@ export default function SwitchWorkerModal({
             return false;
         }
 
-        if (!formValues.fee) {
-            alert.error("The fee is missing");
-            return false;
-        }
+        // if (!formValues.fee) {
+        //     alert.error("The fee is missing");
+        //     return false;
+        // }
 
         return true;
     };
@@ -225,7 +225,7 @@ export default function SwitchWorkerModal({
                         </div>
                     )}
 
-                    <div className="col-sm-12">
+                    {/* <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
                                 {t(
@@ -281,7 +281,7 @@ export default function SwitchWorkerModal({
                                 </p>
                             )}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </Modal.Body>
 
