@@ -130,7 +130,7 @@ class ChatController extends Controller
             'status'        => 1,
             'name'          => 'whatsapp',
             'entry_id'      => '',
-            'message'       => ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb,
+            'message'       => $_msg ? ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb: '',
             'number'        => $request->number,
             'flex'          => 'A',
             'read'          => 1,

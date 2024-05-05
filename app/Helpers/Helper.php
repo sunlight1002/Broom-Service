@@ -26,7 +26,7 @@ if (!function_exists('sendInvoicePayToClient')) {
     }
 }
 
-if (!function_exists('sendInvoicePayToClient')) {
+if (!function_exists('sendWhatsappMessage')) {
     function sendWhatsappMessage($number, $template = '', $data = array(), $lang = 'he')
     {
         $ch = curl_init();
