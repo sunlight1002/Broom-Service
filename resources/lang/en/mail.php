@@ -287,4 +287,11 @@ return [
     'contract-form' => [
         'form_name' => 'Contract Form',
     ],
+    'client_credentials' => [
+        'credentials' => 'Client credentials from',
+        'content'   => 'Below is your login credentials.',
+        'btn_txt'   => 'Login',
+        'email' => 'Email',
+        'password'  => 'Password',
+    ],
 ];
