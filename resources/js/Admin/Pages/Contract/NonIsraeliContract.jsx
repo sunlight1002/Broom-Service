@@ -148,7 +148,7 @@ export function NonIsraeliContract({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="w-75 mx-auto mt-5" ref={contentRef}>
+                <div className="mx-5 mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -168,7 +168,7 @@ export function NonIsraeliContract({
                         </div>
                         <div>
                             <ol
-                                className="mt-5 lh-lg "
+                                className="mt-5 lh-lg"
                                 style={{ fontSize: "16px" }}
                             >
                                 <li>
@@ -234,7 +234,7 @@ export function NonIsraeliContract({
                                             errors.startDate
                                         }
                                     />
-                                    <p>
+                                    <p className="mb-2">
                                         The contract period is not fixed. The
                                         employee is hired as a new employee for
                                         all intents and purposes.
@@ -252,20 +252,25 @@ export function NonIsraeliContract({
                                         required={true}
                                         error={touched.role && errors.role}
                                     />
-                                    and any other job to which he will be
-                                    assigned by the company. Each party reserves
-                                    the right to terminate the placement and
-                                    employment while giving advance notice to
-                                    the other party in accordance with the Law
-                                    on Advance Notice for Layoffs and
-                                    Resignations of 2016
+                                    <p className="mb-2">
+                                        and any other job to which he will be
+                                        assigned by the company. Each party
+                                        reserves the right to terminate the
+                                        placement and employment while giving
+                                        advance notice to the other party in
+                                        accordance with the Law on Advance
+                                        Notice for Layoffs and
+                                        Resignations of 2016
+                                    </p>
                                 </li>
                                 <li>
-                                    The name of the employee's direct
-                                    supervisor: Alex Kane
+                                    <p className="mb-2">
+                                        The name of the employee's direct
+                                        supervisor: Alex Kane
+                                    </p>
                                 </li>
                                 <li>
-                                    <p>
+                                    <p className="mb-4">
                                         The basic salary of the cleaning workers
                                         will be calculated on the basis of
                                         minimum wage according to law, and in
@@ -278,19 +283,23 @@ export function NonIsraeliContract({
                                     </p>
                                     <ol>
                                         <li>
-                                            If the employee decides to leave the
-                                            job before the end of the foll
-                                            three-month period, as agreed upon
-                                            in this agreement, the employer will
-                                            be entitled to deduct the amount of
-                                            the bonus that exceeds the minimum
-                                            wage paid to the employee, and even
-                                            require the employee to return the
-                                            amount of the bonus already paid to
-                                            him during the first three months of
-                                            work, and often by of deducting the
-                                            excess amount from his salary or
-                                            from any other payment due to him.
+                                            <p style={{ marginBottom: "90px" }}>
+                                                If the employee decides to leave
+                                                the job before the end of the
+                                                foll three-month period, as
+                                                agreed upon in this agreement,
+                                                the employer will be entitled to
+                                                deduct the amount of the bonus
+                                                that exceeds the minimum wage
+                                                paid to the employee, and even
+                                                require the employee to return
+                                                the amount of the bonus already
+                                                paid to him during the first
+                                                three months of work, and often
+                                                by of deducting the excess
+                                                amount from his salary or from
+                                                any other payment due to him.
+                                            </p>
                                             <div className="row mt-5">
                                                 <div className="col-4">
                                                     <p>
@@ -364,7 +373,7 @@ export function NonIsraeliContract({
                                             </div>
                                         </li>
                                     </ol>
-                                    <Table bordered className=" mt-3" size="sm">
+                                    <Table bordered className="mt-3" size="sm">
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
@@ -435,7 +444,7 @@ export function NonIsraeliContract({
                                         the date will apply if a condition is
                                         met, this must be stated.
                                     </p>
-                                    <div className="row mt-5">
+                                    <div className="row mt-3">
                                         <div className="col-4">
                                             <p>
                                                 <strong>
@@ -502,19 +511,25 @@ export function NonIsraeliContract({
                                         </div>
                                     </div>
                                 </li>
-
                                 <li>
-                                    The length of the employee's normal working
-                                    day - 8 hours in practice. The length of the
-                                    employee's normal work week is 42 hours.
+                                    <p className="mb-2">
+                                        The length of the employee's normal
+                                        working day - 8 hours in practice. The
+                                        length of the employee's normal work
+                                        week is 42 hours.
+                                    </p>
                                 </li>
                                 <li>
-                                    The employee's weekly day of rest is
-                                    Saturday.
+                                    <p style={{ marginBottom: "90px" }}>
+                                        The employee's weekly day of rest is
+                                        Saturday.
+                                    </p>
                                 </li>
                                 <li>
-                                    Payments for social conditions to which the
-                                    employee is entitled:
+                                    <p className="mb-2">
+                                        Payments for social conditions to which
+                                        the employee is entitled:
+                                    </p>
                                     <Table bordered size="sm" className=" mt-3">
                                         <thead className="text-center">
                                             <tr>
@@ -597,7 +612,10 @@ export function NonIsraeliContract({
                                         signature of the employee and his
                                         permission to write of the employer{" "}
                                     </p>
-                                    <div className="row mt-5 gap-3">
+                                    <div
+                                        className="row gap-3"
+                                        style={{ marginBottom: "90px" }}
+                                    >
                                         <div className="col-6">
                                             <p>
                                                 <strong>
@@ -696,6 +714,8 @@ export function NonIsraeliContract({
                                                 </>
                                             )}
                                         </div>
+                                    </div>
+                                    <div className="row">
                                         <div className="col-12">
                                             <DateField
                                                 name={"signatureDate3"}
@@ -714,7 +734,7 @@ export function NonIsraeliContract({
                                     </div>
                                 </li>
                             </ol>
-                            <ol className="mt-5">
+                            <ol className="mt-3">
                                 <li>
                                     <u>Deductions:</u>
                                     <ol>
