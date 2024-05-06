@@ -139,36 +139,33 @@ class WorkerFormService
 
                 if (isset($formData['employeeCity'])) {
                     $text = (string)$formData['employeeCity'];
-                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 126;
-                    $y = 243;
-                    $fontsize = 14;
+                    $x = 108;
+                    $y = 246;
+                    $fontsize = 12;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
 
                 if (isset($formData['employeeHouseNo'])) {
                     $text = (string)$formData['employeeHouseNo'];
-                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
                     $x = 202;
-                    $y = 243;
-                    $fontsize = 14;
+                    $y = 246;
+                    $fontsize = 12;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
 
                 if (isset($formData['employeeStreet'])) {
                     $text = (string)$formData['employeeStreet'];
-                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 266;
-                    $y = 243;
-                    $fontsize = 14;
+                    $x = 234;
+                    $y = 246;
+                    $fontsize = 12;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
@@ -210,12 +207,11 @@ class WorkerFormService
 
                     if (isset($formData['employeeHealthFundname'])) {
                         $text = (string)$formData['employeeHealthFundname'];
-                        $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 150;
                         $h = 50;
                         $x = 25;
-                        $y = 286;
-                        $fontsize = 14;
+                        $y = 289;
+                        $fontsize = 10;
 
                         $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                     }
@@ -483,6 +479,58 @@ class WorkerFormService
                 }
             }
         }
+
+        if (
+            isset($formData['employeeIdentityType']) &&
+            $formData['employeeIdentityType'] == 'Passport'
+        ) {
+            if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeepassportCopy'])) {
+                //create a page
+                $pdf->AddPage();
+
+                $text = 'B. Employee details | Photocopy of passport';
+                $w = 500;
+                $h = 100;
+                $x = 85;
+                $y = 20;
+                $fontsize = 20;
+
+                $pdf->SetTextColor(0, 0, 0);
+                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                $pdf->SetTextColor(0, 7, 224);
+                $w = 530;
+                $h = 300;
+                $x = 30;
+                $y = 60;
+
+                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeepassportCopy']), $x, $y, $w, $h, '', '', '', true);
+            }
+
+            if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeeResidencePermit'])) {
+                //create a page
+                $pdf->AddPage();
+
+                $text = 'B. Employee details | Photocopy of residence permit in Israel for a foreign employee';
+                $w = 540;
+                $h = 100;
+                $x = 30;
+                $y = 20;
+                $fontsize = 14;
+
+                $pdf->SetTextColor(0, 0, 0);
+                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                $pdf->SetTextColor(0, 7, 224);
+                $w = 530;
+                $h = 300;
+                $x = 30;
+                $y = 50;
+
+                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeResidencePermit']), $x, $y, $w, $h, '', '', '', true);
+            }
+        }
+
         $total_page += (int)$pdf->numPages;
 
         $output = $pdf->Output('', 'S');

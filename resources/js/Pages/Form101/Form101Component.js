@@ -199,16 +199,20 @@ const formSchema = yup.object({
     employeeHealthFundMember: yup
         .string()
         .required("Health fund member is required"),
-    employeeHealthFundname: yup.string().when("employeeHealthFundMember", {
-        is: "Yes",
-        then: () => yup.string().required("Health fund name is required"),
-    }),
+    employeeHealthFundname: yup
+        .string()
+        .when("employeeHealthFundMember", {
+            is: "Yes",
+            then: () => yup.string().required("Health fund name is required"),
+        })
+        .nullable(),
     employeemyIncomeToKibbutz: yup
         .string()
         .when("employeeCollectiveMoshavMember", {
             is: "Yes",
             then: () => yup.string().required("this field is required"),
-        }),
+        })
+        .nullable(),
     children: yup.array().of(
         yup.object().shape({
             firstName: yup.string().required("Name is required"),
@@ -249,13 +253,16 @@ const formSchema = yup.object({
                         .required("Please select at least one type of income"),
             }),
         scholarship: yup.boolean(),
-        taxCreditsAtOtherIncome: yup.string().when("haveincome", {
-            is: "Yes",
-            then: () =>
-                yup
-                    .string()
-                    .required("Tax credits at other income is required"),
-        }),
+        taxCreditsAtOtherIncome: yup
+            .string()
+            .when("haveincome", {
+                is: "Yes",
+                then: () =>
+                    yup
+                        .string()
+                        .required("Tax credits at other income is required"),
+            })
+            .nullable(),
         studyFund: yup.boolean(),
         pensionInsurance: yup.boolean(),
     }),

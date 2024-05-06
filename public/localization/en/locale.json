@@ -1085,7 +1085,8 @@
             "add_file": "Add File",
             "file": "File",
             "close": "Close",
-            "save_file": "Save File"
+            "save_file": "Save File",
+            "forms": "Forms"
         }
     },
     "worker_contract": {

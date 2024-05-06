@@ -9,7 +9,7 @@ import DocumentList from "../../Admin/Components/Documents/DocumentList";
 
 export default function Documents() {
     const [file, setFile] = useState(false);
-    const [user, setUser] = useState({});
+    const [documents, setDocuments] = useState([]);
     const [pdf, setPdf] = useState("");
     const [worker, setWorker] = useState({});
     const params = useParams();
@@ -55,18 +55,15 @@ export default function Documents() {
             setFile(response.data.success.form_101);
         });
     };
+
     const getDocuments = () => {
-        axios
-            .get(
-                `/api/document/${parseInt(localStorage.getItem("worker-id"))}`,
-                { headers }
-            )
-            .then((res) => {
-                if (res.data && res.data) {
-                    setUser(res.data);
-                }
-            });
+        axios.get(`/api/documents`, { headers }).then((res) => {
+            if (res.data && res.data) {
+                setDocuments(res.data.documents);
+            }
+        });
     };
+
     useEffect(() => {
         getWorker();
         getDocuments();
@@ -105,7 +102,7 @@ export default function Documents() {
                 </div>
             </div>
             <div className="col-md-12">
-                <DocumentList documents={user.documents} worker={worker} />
+                <DocumentList documents={documents} worker={worker} />
             </div>
             <div
                 className="modal fade"

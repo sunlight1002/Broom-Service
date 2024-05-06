@@ -1082,7 +1082,8 @@
             "add_file": "הוסף קובץ",
             "file": "קוֹבֶץ",
             "close": "סגור",
-            "save_file": "שמור את הקובץ"
+            "save_file": "שמור את הקובץ",
+            "forms": "טפסים"
         }
     },
     "worker_contract": {

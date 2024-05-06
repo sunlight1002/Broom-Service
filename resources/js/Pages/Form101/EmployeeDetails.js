@@ -164,6 +164,7 @@ export default function EmployeeDetails({
                                     type="file"
                                     name="employeepassportCopy"
                                     id="employeepassportCopy"
+                                    accept="image/*"
                                     onChange={(e) =>
                                         setFieldValue(
                                             "employeepassportCopy",

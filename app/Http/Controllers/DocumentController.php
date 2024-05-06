@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\DocumentType;
 use App\Models\User;
 use App\Models\Document;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    public function documents($id)
+    public function documents()
     {
-        $worker = User::find($id);
+        $worker = Auth::user();
 
         $documents = $worker->documents()
             ->with(['document_type' => function ($query) {
@@ -25,6 +26,7 @@ class DocumentController extends Controller
             'documents' => $documents
         ]);
     }
+
     public function save(Request $request)
     {
         $data = $request->all();
@@ -110,12 +112,25 @@ class DocumentController extends Controller
             'message' => 'Document has been deleted successfully!'
         ]);
     }
-    public function getDocumentTypes(request $request)
+
+    public function getDocumentTypes(Request $request)
     {
         $documentTypes = DocumentType::get();
 
         return response()->json([
             'documentTypes' => $documentTypes
+        ]);
+    }
+
+    public function forms()
+    {
+        $worker = Auth::user();
+
+        $forms = $worker->forms()
+            ->get(['id', 'type', 'pdf_name', 'submitted_at']);
+
+        return response()->json([
+            'forms' => $forms
         ]);
     }
 }

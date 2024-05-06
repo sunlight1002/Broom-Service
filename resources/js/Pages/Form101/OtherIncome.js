@@ -56,9 +56,12 @@ const OtherIncome = ({
                             name={"otherIncome.incomeType"}
                             label="Monthly salary"
                             value="Monthly salary"
-                            checked={values.otherIncome.incomeType.includes(
-                                "Monthly salary"
-                            )}
+                            checked={
+                                values.otherIncome.incomeType &&
+                                values.otherIncome.incomeType.includes(
+                                    "Monthly salary"
+                                )
+                            }
                             onChange={handleIncomeChange}
                             onBlur={handleBlur}
                             error={
@@ -76,9 +79,12 @@ const OtherIncome = ({
                             name={"otherIncome.incomeType"}
                             label="Salary for additional employment"
                             value="Salary for additional employment"
-                            checked={values.otherIncome.incomeType.includes(
-                                "Salary for additional employment"
-                            )}
+                            checked={
+                                values.otherIncome.incomeType &&
+                                values.otherIncome.incomeType.includes(
+                                    "Salary for additional employment"
+                                )
+                            }
                             onChange={handleIncomeChange}
                             onBlur={handleBlur}
                             error={
@@ -96,9 +102,12 @@ const OtherIncome = ({
                             name={"otherIncome.incomeType"}
                             label="Partial salary"
                             value="Partial salary"
-                            checked={values.otherIncome.incomeType.includes(
-                                "Partial salary"
-                            )}
+                            checked={
+                                values.otherIncome.incomeType &&
+                                values.otherIncome.incomeType.includes(
+                                    "Partial salary"
+                                )
+                            }
                             onChange={handleIncomeChange}
                             onBlur={handleBlur}
                             error={
@@ -116,9 +125,12 @@ const OtherIncome = ({
                             name={"otherIncome.incomeType"}
                             label="Wage (Daily rate of pay)"
                             value="Wage (Daily rate of pay)"
-                            checked={values.otherIncome.incomeType.includes(
-                                "Wage (Daily rate of pay)"
-                            )}
+                            checked={
+                                values.otherIncome.incomeType &&
+                                values.otherIncome.incomeType.includes(
+                                    "Wage (Daily rate of pay)"
+                                )
+                            }
                             onChange={handleIncomeChange}
                             onBlur={handleBlur}
                             error={

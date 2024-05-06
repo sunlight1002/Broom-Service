@@ -246,10 +246,20 @@ class AuthController extends Controller
         $savingType = $data['savingType'];
         unset($data['savingType']);
 
+        if (!Storage::disk('public')->exists('uploads/form101/documents')) {
+            Storage::disk('public')->makeDirectory('uploads/form101/documents');
+        }
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::FORM101)
             ->whereYear('created_at', now()->year)
             ->first();
+
+        $formOldData = $form ? $form->data : [];
+
+        $data = $this->saveForm101UploadedDocument($data, 'employeepassportCopy', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'employeeResidencePermit', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'employeeIdCardCopy', $formOldData);
 
         if ($form && $form->submitted_at) {
             return response()->json([
@@ -290,6 +300,27 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Form 101 signed successfully.'
         ]);
+    }
+
+    private function saveForm101UploadedDocument($data, $key, $formOldData)
+    {
+        if (isset($data[$key]) && !is_string($data[$key]) && $data[$key]->isFile()) {
+            $file = $data[$key];
+
+            $file_name = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+            if (Storage::disk('public')->putFileAs("uploads/form101/documents", $file, $file_name)) {
+
+                if (isset($formOldData[$key])) {
+                    if (Storage::disk('public')->exists("uploads/form101/documents/" . $formOldData[$key])) {
+                        Storage::disk('public')->delete("uploads/form101/documents/" . $formOldData[$key]);
+                    }
+                }
+
+                $data[$key] = $file_name;
+            }
+        }
+
+        return $data;
     }
 
     public function safegear(Request $request, $id)

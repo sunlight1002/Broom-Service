@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import WorkerMyAccount from "../../Auth/WorkerMyAccount";
 import Documents from "../../Auth/Documents";
-import WorkerContract from "../../Auth/WorkerContract";
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
+import Forms from "../../Auth/Forms";
 
 export default function MyAccount() {
     const { t } = useTranslation();
@@ -40,14 +40,14 @@ export default function MyAccount() {
                         </li>
                         <li className="nav-item" role="presentation">
                             <a
-                                id="contract"
+                                id="forms"
                                 className="nav-link"
                                 data-toggle="tab"
-                                href="#tab-contract"
+                                href="#tab-forms"
                                 aria-selected="true"
                                 role="tab"
                             >
-                                <h4>{t("worker.settings.view_contract")}</h4>
+                                <h4>{t("worker.settings.forms")}</h4>
                             </a>
                         </li>
                     </ul>
@@ -69,12 +69,12 @@ export default function MyAccount() {
                             <Documents />
                         </div>
                         <div
-                            id="tab-contract"
+                            id="tab-forms"
                             className="tab-pane"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
-                            <WorkerContract />
+                            <Forms />
                         </div>
                     </div>
                 </div>

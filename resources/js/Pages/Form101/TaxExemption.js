@@ -64,6 +64,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.disabledCertificate"
                                 id="employeepassportCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.disabledCertificate",
@@ -118,6 +119,7 @@ export default function TaxExemption({
                                             className="col-12"
                                             name="TaxExemption.disabledCompensationCertificate"
                                             id="disabledCompensationCertificate"
+                                            accept="image/*"
                                             onChange={(e) =>
                                                 setFieldValue(
                                                     "TaxExemption.disabledCompensationCertificate",
@@ -211,6 +213,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm3Certificate"
                                 id="exm3Certificate"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm3Certificate",
@@ -278,6 +281,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm4ImmigrationCertificate"
                                 id="exm4ImmigrationCertificate"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm4ImmigrationCertificate",
@@ -364,6 +368,7 @@ export default function TaxExemption({
                                     type="file"
                                     name="TaxExemption.exm5disabledCirtificate"
                                     id="exm5disabledCirtificate"
+                                    accept="image/*"
                                     onChange={(e) =>
                                         setFieldValue(
                                             "TaxExemption.exm5disabledCirtificate",
@@ -446,6 +451,7 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm6disabledCirtificate"
                                         id="exm5disabledCirtificate"
+                                        accept="image/*"
                                         onChange={(e) =>
                                             setFieldValue(
                                                 "TaxExemption.exm5disabledCirtificate",
@@ -747,6 +753,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm10Certificate"
                                 id="employeepassportCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm10Certificate",
@@ -825,6 +832,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm11Certificate"
                                 id="TaxExemption.exm11Certificate"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm11Certificate",
@@ -879,6 +887,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm12Certificate"
                                 id="employeepassportCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm12Certificate",
@@ -908,7 +917,9 @@ export default function TaxExemption({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={
-                        values.Spouse.Dob == "" || values.employeeDob === ""
+                        !values.Spouse ||
+                        values.Spouse.Dob == "" ||
+                        values.employeeDob === ""
                     }
                     error={
                         touched.TaxExemption &&
@@ -993,6 +1004,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.TaxExemption"
                                 id="employeepassportCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.TaxExemption",
@@ -1047,6 +1059,7 @@ export default function TaxExemption({
                                 type="file"
                                 name="TaxExemption.exm15Certificate"
                                 id="employeepassportCopy"
+                                accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
                                         "TaxExemption.exm15Certificate",

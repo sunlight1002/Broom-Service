@@ -58,5 +58,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('details', [AuthController::class, 'details']);
     Route::post('profile', [AuthController::class, 'updateProfile']);
 
-    Route::get('document/{id}', [DocumentController::class, 'documents']);
+    Route::get('documents', [DocumentController::class, 'documents']);
+    Route::get('forms', [DocumentController::class, 'forms']);
 });

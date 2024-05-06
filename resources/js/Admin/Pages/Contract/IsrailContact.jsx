@@ -101,7 +101,7 @@ export function IsrailContact({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="w-75 mx-auto mt-5" ref={contentRef}>
+                <div className="mx-5 mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -218,7 +218,7 @@ export function IsrailContact({
                                         </div>
                                     </div>
 
-                                    <p>
+                                    <p className="mb-2">
                                         <strong>
                                             Contract period: The contract period
                                             is not fixed
@@ -226,22 +226,26 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    The main duties of the employee are as
-                                    follows:
-                                    <TextField
-                                        name={"role"}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        label={"Role"}
-                                        value={values.role}
-                                        required={true}
-                                        error={touched.role && errors.role}
-                                    />
+                                    <div className="mb-2">
+                                        The main duties of the employee are as
+                                        follows:
+                                        <TextField
+                                            name={"role"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={"Role"}
+                                            value={values.role}
+                                            required={true}
+                                            error={touched.role && errors.role}
+                                        />
+                                    </div>
                                 </li>
                                 <li>
-                                    The name of the direct supervisorof the
-                                    employee or the job title of the direct
-                                    supervisor: Full name: Alex Kanev
+                                    <p className="mb-2">
+                                        The name of the direct supervisorof the
+                                        employee or the job title of the direct
+                                        supervisor: Full name: Alex Kanev
+                                    </p>
                                 </li>
                                 <li>
                                     <p>
@@ -256,7 +260,7 @@ export function IsrailContact({
                                         work for 3 full months in a row in the
                                         company.
                                     </p>
-                                    <p>
+                                    <p style={{ marginBottom: "145px" }}>
                                         If the employee decides to leave the job
                                         before the end of the full three-month
                                         period, as agreed upon in this
@@ -282,7 +286,11 @@ export function IsrailContact({
                                         will be paid to the employee as wages
                                         are as follows:
                                     </p>
-                                    <Table bordered className=" mt-3" size="sm">
+                                    <Table
+                                        bordered
+                                        className="mt-3 mb-2"
+                                        size="sm"
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
@@ -398,36 +406,45 @@ export function IsrailContact({
                                 </li>
 
                                 <li>
-                                    The employee's rights, including time off,
-                                    recovery, illness, holidays, etc., are
-                                    calculated and paid according to the scope
-                                    of the actual position and in accordance
-                                    with the relevant legal provisions.
+                                    <p className="mb-2">
+                                        The employee's rights, including time
+                                        off, recovery, illness, holidays, etc.,
+                                        are calculated and paid according to the
+                                        scope of the actual position and in
+                                        accordance with the relevant legal
+                                        provisions.
+                                    </p>
                                 </li>
                                 <li>
-                                    Reimbursement of travel expenses in
-                                    accordance with the provisions of the
-                                    general collective agreement, and according
-                                    to the cheapest cost in public
-                                    transportation: 11 NIS per day or a maximum
-                                    of 225 NIS monthly free for a full month of
-                                    work.
+                                    <p className="mb-2">
+                                        Reimbursement of travel expenses in
+                                        accordance with the provisions of the
+                                        general collective agreement, and
+                                        according to the cheapest cost in public
+                                        transportation: 11 NIS per day or a
+                                        maximum of 225 NIS monthly free for a
+                                        full month of work.
+                                    </p>
                                 </li>
                                 <li>
-                                    Hereby, I agree to deduct the wages of
-                                    participation in meals/the value of meals
-                                    according to the custom at the site where I
-                                    work (to be circled).
+                                    <p className="mb-2">
+                                        Hereby, I agree to deduct the wages of
+                                        participation in meals/the value of
+                                        meals according to the custom at the
+                                        site where I work (to be circled).
+                                    </p>
                                 </li>
                                 <li>
-                                    The length of the employee's normal working
-                                    day is: 8 hours per day (6 days) / 8.4 hours
-                                    per day (5 days) / beyond that he will be
-                                    paid additional hours in accordance with the
-                                    law. It is known to the employee that during
-                                    a shift of over 6 hours he went on an unpaid
-                                    meal break.
-                                    <p>
+                                    <p style={{ marginBottom: "30px" }}>
+                                        The length of the employee's normal
+                                        working day is: 8 hours per day (6 days)
+                                        / 8.4 hours per day (5 days) / beyond
+                                        that he will be paid additional hours in
+                                        accordance with the law. It is known to
+                                        the employee that during a shift of over
+                                        6 hours he went on an unpaid meal break.
+                                    </p>
+                                    <p className="mb-2">
                                         The length of the employee's normal work
                                         week is 42 hours as well as: 5 days / 6
                                         days / according to the work arrangement
@@ -435,27 +452,33 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    The employee's weekly day of rest: for a
-                                    Jewish employee: Saturday / day of rest for
-                                    a non-Jewish employee if he
-                                    chooses: Sunday or
+                                    <p className="mb-2">
+                                        The employee's weekly day of rest: for a
+                                        Jewish employee: Saturday / day of rest
+                                        for a non-Jewish employee if he
+                                        chooses: Sunday or
+                                    </p>
                                 </li>
                                 <li>
-                                    As part of your work at the company, the
-                                    company will be entitled to place you on
-                                    various sites at its discretion and
-                                    according to the regional service manager.
-                                    The service manager as well as the
-                                    operations manager will be at your disposal
-                                    at any time for any question /
-                                    ambiguity on any subject
+                                    <p className="mb-2">
+                                        As part of your work at the company, the
+                                        company will be entitled to place you on
+                                        various sites at its discretion and
+                                        according to the regional service
+                                        manager. The service manager as well as
+                                        the operations manager will be at your
+                                        disposal at any time for any question /
+                                        ambiguity on any subject
+                                    </p>
                                 </li>
                                 <li>
-                                    {" "}
-                                    Payments for social conditions to which the
-                                    employee is entitled shall be paid according
-                                    to the expansion orders and the relevant
-                                    collective agreements applicable to him.
+                                    <p>
+                                        Payments for social conditions to which
+                                        the employee is entitled shall be paid
+                                        according to the expansion orders and
+                                        the relevant collective agreements
+                                        applicable to him.
+                                    </p>
                                     <p>
                                         The type of payment:
                                         flashlights/insurance, etc. Training.
@@ -466,7 +489,12 @@ export function IsrailContact({
                                         order/collective agreement applicable
                                         to the employee.
                                     </p>
-                                    <Table bordered size="sm" className=" mt-3">
+                                    <Table
+                                        bordered
+                                        size="sm"
+                                        className="mt-3"
+                                        style={{ marginBottom: "120px" }}
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th>Payment start date</th>
@@ -573,7 +601,7 @@ export function IsrailContact({
                                             </tr>
                                         </tbody>
                                     </Table>
-                                    <p>
+                                    <p className="mb-2">
                                         You are requested to notify your direct
                                         supervisor in writing of the name of the
                                         fund and/or training and/or pension fund
