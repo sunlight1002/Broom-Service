@@ -72,7 +72,7 @@ export default function ChangeWorkerCalender({ job }) {
             .then((res) => {
                 setAllWorkers(res.data.workers);
                 setWorkerAvailabilities(
-                    getWorkerAvailabilities(res.data.workers)
+                    getWorkerAvailabilities(res.data.workers, true)
                 );
             });
     };
@@ -343,6 +343,7 @@ export default function ChangeWorkerCalender({ job }) {
                             changeShift={changeShift}
                             removeShift={removeShift}
                             selectedHours={selectedHours}
+                            isClient={true}
                         />
                     </div>
                 </div>
@@ -363,6 +364,7 @@ export default function ChangeWorkerCalender({ job }) {
                         changeShift={changeShift}
                         removeShift={removeShift}
                         selectedHours={selectedHours}
+                        isClient={true}
                     />
                 </div>
                 <div
@@ -385,6 +387,7 @@ export default function ChangeWorkerCalender({ job }) {
                             changeShift={changeShift}
                             removeShift={removeShift}
                             selectedHours={selectedHours}
+                            isClient={true}
                         />
                     </div>
                 </div>
@@ -438,6 +441,7 @@ export default function ChangeWorkerCalender({ job }) {
                                 changeShift={changeShift}
                                 removeShift={removeShift}
                                 selectedHours={selectedHours}
+                                isClient={true}
                             />
                         </div>
                     )}

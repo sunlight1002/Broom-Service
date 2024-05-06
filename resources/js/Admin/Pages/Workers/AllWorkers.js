@@ -362,17 +362,13 @@ export default function AllWorkers() {
                                                                     >
                                                                         View
                                                                     </Link>
-                                                                    <button
+                                                                    <Link
+                                                                        to={`/admin/freeze-shift/${item.id}`}
                                                                         className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleFreezeShift(
-                                                                                item.id
-                                                                            )
-                                                                        }
                                                                     >
                                                                         Freeze
                                                                         Shift
-                                                                    </button>
+                                                                    </Link>
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>

@@ -113,4 +113,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(JobComments::class, 'commenter');
     }
+
+    public function freezeDates()
+    {
+        return $this->hasMany(WorkerFreezeDate::class);
+    }
 }

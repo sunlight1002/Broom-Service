@@ -127,7 +127,8 @@ class WorkerController extends Controller
 
                     $dates[$job->start_date][] = $slotInfo;
                 }
-
+                $freezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+                $workerArr['freeze_dates'] = $freezeDates;
                 $workerArr['booked_slots'] = $dates;
                 $workerArr['not_available_on'] = $worker
                     ->notAvailableDates

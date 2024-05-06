@@ -57,6 +57,7 @@ import AddLeadClient from "./Admin/Pages/Clients/AddLeadClient";
 import EditClient from "./Admin/Pages/Clients/EditClient";
 import ViewClient from "./Admin/Pages/Clients/ViewClient";
 import AllWorkers from "./Admin/Pages/Workers/AllWorkers";
+import FreezeShiftWorkers from "./Admin/Pages/Workers/FreezeShiftWorkers";
 import AddWorker from "./Admin/Pages/Workers/AddWorker";
 import EditWorker from "./Admin/Pages/Workers/EditWorker";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
@@ -413,6 +414,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers"
                                 element={<AllWorkers />}
+                            />
+                            <Route
+                                exact
+                                path="freeze-shift/:id"
+                                element={<FreezeShiftWorkers />}
                             />
                             <Route
                                 exact

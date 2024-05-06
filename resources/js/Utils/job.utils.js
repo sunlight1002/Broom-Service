@@ -126,7 +126,7 @@ export const getAvailableSlots = async (
     shift,
     workHours,
     isClient = false,
-    alert,
+    alert
 ) => {
     const chosenDateMoment = moment(date, "YYYY-MM-DD");
     const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
@@ -177,7 +177,7 @@ export const getAvailableSlots = async (
         remainingHours--;
     }
 
-    if(isClient && remainingHours > 0) {
+    if (isClient && remainingHours > 0) {
         alert.error("Not enough available slots for the chosen work hours");
         return [];
     }
@@ -219,12 +219,9 @@ export const getAvailableSlots = async (
     return availableSlots;
 };
 
-export const getWorkerAvailabilities = (workers) => {
+export const getWorkerAvailabilities = (workers, isClient = false) => {
     return workers?.map((worker) => {
-        const shiftFreezeTime = {
-            start: worker.freeze_shift_start_time,
-            end: worker.freeze_shift_end_time,
-        };
+        let freeze_dates = worker.freeze_dates ?? [];
         const booked_slots = worker.booked_slots ?? [];
 
         const notAvailableDates = worker.not_available_on;
@@ -233,7 +230,9 @@ export const getWorkerAvailabilities = (workers) => {
             let slots = filterShiftOptions(
                 value ?? [],
                 booked_slots[key] ?? [],
-                shiftFreezeTime,
+                freeze_dates.filter(f => {
+                    return f.date == key
+                }),
                 notAvailableDates?.find((n) => n.date == key)
             );
 
@@ -244,7 +243,7 @@ export const getWorkerAvailabilities = (workers) => {
                     .filter(
                         (slot) =>
                             !slot?.isBooked &&
-                            !slot?.isFreezed &&
+                            (!slot?.isFreezed || !isClient) &&
                             !slot?.notAvailable
                     )
                     .map((slot) => {
@@ -295,6 +294,7 @@ export const getWorkersData = (workers) => {
         worker?.formattedSlots?.forEach((slots) => {
             let shifts = parseTimeSlots(slots?.shifts ?? "");
             data.push({
+                workerId: worker.workerId,
                 worker_name: slots?.worker_name ?? "",
                 date: slots?.date ?? "",
                 shifts: shifts.join(", ") ?? "",
@@ -307,11 +307,11 @@ export const getWorkersData = (workers) => {
 export const filterShiftOptions = (
     availableTimeRanges,
     bookedTimeRanges,
-    shiftFreezeTime = {},
+    shiftFreezeDates = [],
     notAvailableDates = {},
     selectedHours = [],
     workerId = null,
-    date = null,
+    date = null
 ) => {
     let _availSlots = [];
     availableTimeRanges.forEach((range) => {
@@ -320,11 +320,15 @@ export const filterShiftOptions = (
         );
     });
 
-    if(selectedHours.length > 0) {
+    if (selectedHours.length > 0) {
         selectedHours.forEach((worker) => {
-            if(worker.slots && worker.slots.length > 0) {
+            if (worker.slots && worker.slots.length > 0) {
                 worker.slots.forEach((slot) => {
-                    if (!_availSlots.includes(slot.time.time) && workerId == slot.workerId && date == slot.date) {
+                    if (
+                        !_availSlots.includes(slot.time.time) &&
+                        workerId == slot.workerId &&
+                        date == slot.date
+                    ) {
                         _availSlots.push(slot.time.time);
                     }
                 });
@@ -342,12 +346,12 @@ export const filterShiftOptions = (
     });
 
     let _freezeSlots = [];
-    if (shiftFreezeTime?.start && shiftFreezeTime?.end) {
-        _freezeSlots = generateHourlyTimeSlots(
-            shiftFreezeTime?.start,
-            shiftFreezeTime?.end
-        );
-    }
+    shiftFreezeDates.forEach((date) => {
+        let slots = generateHourlyTimeSlots(date?.start_time, date?.end_time);
+        slots.forEach((slot) => {
+            _freezeSlots.push(slot);
+        });
+    });
 
     let _notAvailableSlots = [];
     if (notAvailableDates?.date) {

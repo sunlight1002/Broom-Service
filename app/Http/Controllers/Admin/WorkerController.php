@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\WorkerAvailability;
 use App\Models\Job;
 use App\Models\Contract;
+use App\Models\WorkerFreezeDate;
 use App\Models\WorkerNotAvailableDate;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
@@ -191,6 +192,8 @@ class WorkerController extends Controller
                     $dates[$job->start_date][] = $slotInfo;
                 }
 
+                $freezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+                $workerArr['freeze_dates'] = $freezeDates;
                 $workerArr['booked_slots'] = $dates;
                 $workerArr['not_available_on'] = $worker
                     ->notAvailableDates
@@ -575,6 +578,52 @@ class WorkerController extends Controller
 
         return response()->json([
             'message' => 'Freeze shift updated successfully'
+        ]);
+    }
+
+    public function updateFreezeShiftWorkers(Request $request)
+    {
+        if ($request->has('removedSlots')) {
+            $removedSlots = $request->get('removedSlots');
+            foreach ($removedSlots as $removedSlot) {
+                WorkerFreezeDate::where('user_id', $removedSlot['workerId'])->where('id', $removedSlot['id'])->delete();
+            }
+        }
+
+        if ($request->has('workers')) {
+            $workers = $request->get('workers');
+
+            foreach ($workers as $key => $worker) {
+                $times = explode(' - ', $worker['shifts']);
+                WorkerFreezeDate::updateOrCreate([
+                    'user_id' => $worker['workerId'],
+                    'date' => Carbon::parse($worker['date']),
+                    'start_time' => $times[0] . '.00',
+                    'end_time' => $times[1] . '.00',
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Freeze shifts updated successfully'
+        ]);
+    }
+
+    public function getFreezeShiftWorkers(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $workerFreezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+
+        return response()->json([
+            'data' => $workerFreezeDates,
+            'message' => 'Freeze shifts fetched successfully'
         ]);
     }
 
