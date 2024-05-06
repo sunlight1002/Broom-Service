@@ -6,6 +6,7 @@ use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
+use App\Events\JobReviewRequest;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Events\ReScheduleMettingJob;
@@ -22,6 +23,7 @@ use App\Listeners\NotifyForSafetyAndGearFormSigned;
 use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
+use App\Listeners\SendJobReviewRequestNotification;
 use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
 use App\Listeners\SendWorkerFormsNotification;
@@ -80,6 +82,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ContractFormSigned::class => [
             NotifyForContractFormSigned::class
+        ],
+        JobReviewRequest::class => [
+            SendJobReviewRequestNotification::class
         ]
     ];
 

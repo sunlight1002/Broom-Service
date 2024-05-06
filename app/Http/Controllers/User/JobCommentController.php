@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Events\JobReviewRequest;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
@@ -115,9 +116,15 @@ class JobCommentController extends Controller
         }
 
         if (isset($request->status) && $request->status != '') {
-            $job->update([
+            $jobData = [
                 'status' => $request->status
-            ]);
+            ];
+
+            if ($request->status == JobStatusEnum::COMPLETED) {
+                $jobData['completed_at'] = now()->toDateTimeString();
+            }
+
+            $job->update($jobData);
 
             event(new WorkerUpdatedJobStatus($job, $comment));
 
@@ -127,6 +134,10 @@ class JobCommentController extends Controller
 
                 ScheduleNextJobOccurring::dispatch($job->id);
                 CreateJobOrder::dispatch($job->id);
+            }
+
+            if (now()->hour >= 17 && now()->minute >= 1) {
+                event(new JobReviewRequest($job));
             }
         }
 

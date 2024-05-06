@@ -138,7 +138,6 @@ return [
         'btn_txt'     => 'Check Contract',
         'thanks_text'   => 'Thanks',
         'job_completed' => 'Your job has been completed',
-        'review_request' => 'Please, rate us and send your review',
         'review' => 'Review',
         'job_completed_subject'     => 'Job Completed | Broom Service',
     ],
@@ -263,6 +262,12 @@ return [
             'subject' => 'Contract Form Signed | Broom Service',
             'message' => ':worker_name has completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.'
         ]
+    ],
+    'client' => [
+        'review-request' => [
+            'subject' => 'Job Review | Broom Service',
+            'message' => 'Please, rate us and send your review.',
+        ],
     ],
     'worker' => [
         'form101-signed' => [

@@ -7,7 +7,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<title>Job Details</title>
+	<title>Job Review</title>
 </head>
 
 <body style="@if($job['client']['lng'] == 'heb') font-family: 'Noto Sans Hebrew', sans-serif;color: #212529;background: #fcfcfc; direction:rtl @else font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc; @endif">
@@ -22,7 +22,7 @@
 		</table>
 		<h1 style="text-align: center;">{{__('mail.client_new_job.hi')}}, {{ $job['client']['firstname'] }}</h1>
 
-		<p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}} {{__('mail.client_new_job.company')}}. {{__('mail.client_job_status.job_completed')}}</p>
+		<p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}. {{__('mail.client_job_status.job_completed')}}</p>
 
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<thead>
@@ -49,10 +49,13 @@
 			</tbody>
 		</table>
 
-		<p style="margin-top: 40px">{{__('mail.client_new_job.reply_txt')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.client_new_job.regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.client_new_job.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.client_new_job.tel')}}: 03-525-70-60</p>
+		<p style="margin-top: 40px">{{__('mail.client.review-request.message')}}</p>
+		<a href='{{ url("client/jobs").'/'.base64_encode($job['id']).'/review' }}' style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.client_job_status.review')}}</a>
+
+		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>
