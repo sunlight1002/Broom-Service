@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ContractStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\TransactionStatusEnum;
 use App\Models\Client;
@@ -93,6 +94,14 @@ class PaymentController extends Controller
                                     $contract->update([
                                         'card_id' => $card->id
                                     ]);
+
+                                    Contract::query()
+                                        ->where('client_id', $client->id)
+                                        ->where('status', ContractStatusEnum::VERIFIED)
+                                        ->whereNull('card_id')
+                                        ->update([
+                                            'card_id' => $card->id
+                                        ]);
                                 } else {
                                     Order::query()
                                         ->where('client_id', $client->id)

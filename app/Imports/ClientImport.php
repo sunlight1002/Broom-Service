@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
@@ -271,7 +272,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                                 'offer_id' => $offer->id,
                                 'client_id' => $client->id,
                                 'additional_address' => $row['additional_address'],
-                                'status' => 'verified',
+                                'status' => ContractStatusEnum::VERIFIED,
                                 'unique_hash' => $hash
                             ]);
                         } else {
@@ -279,7 +280,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                                 'offer_id' => $offer->id,
                                 'client_id' => $client->id,
                                 'additional_address' => $row['additional_address'],
-                                'status' => 'verified',
+                                'status' => ContractStatusEnum::VERIFIED,
                                 'unique_hash' => $hash
                             ]);
                         }
@@ -328,6 +329,14 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'card_token'  => $validateResponse['Token'],
                             'is_default'  => $isdefault ? 0 : 1
                         ]);
+
+                        Contract::query()
+                            ->where('client_id', $client->id)
+                            ->where('status', ContractStatusEnum::VERIFIED)
+                            ->whereNull('card_id')
+                            ->update([
+                                'card_id' => $card->id
+                            ]);
                     }
                 }
             } catch (Exception $e) {
