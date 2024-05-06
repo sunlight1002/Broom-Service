@@ -7,7 +7,7 @@ use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
-use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\User\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes

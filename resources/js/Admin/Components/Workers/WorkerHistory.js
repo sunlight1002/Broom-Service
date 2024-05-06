@@ -82,7 +82,7 @@ export default function WorkerHistory({ worker }) {
                             </a>
                         </li>
                     )}
-                <li className="nav-item" role="presentation">
+                {/* <li className="nav-item" role="presentation">
                     <a
                         id="worker-not-availability"
                         className="nav-link"
@@ -93,7 +93,7 @@ export default function WorkerHistory({ worker }) {
                     >
                         Not Available Date
                     </a>
-                </li>
+                </li> */}
                 <li className="nav-item" role="presentation">
                     <a
                         id="worker-documents"
@@ -143,14 +143,14 @@ export default function WorkerHistory({ worker }) {
                             <WorkerForms worker={worker} />
                         </div>
                     )}
-                <div
+                {/* <div
                     id="tab-worker-not-availability"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="doucments"
                 >
                     <WorkerNotAvailabilty />
-                </div>
+                </div> */}
                 <div
                     id="tab-worker-documents"
                     className="tab-pane"

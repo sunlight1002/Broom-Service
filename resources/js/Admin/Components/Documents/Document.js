@@ -8,7 +8,7 @@ import DocumentModal from "../Documents/DocumentModal";
 
 export default function Document({ worker }) {
     const [alldocumentTypes, setAllDocumentTypes] = useState([]);
-    const [documents, setDocuments] = useState({});
+    const [documents, setDocuments] = useState([]);
     const [isOpenDocumentModal, setIsOpenDocumentModal] = useState(false);
 
     const alert = useAlert();

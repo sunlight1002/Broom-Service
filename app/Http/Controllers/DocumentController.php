@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    public function documents()
+    public function documents($id)
     {
-        $worker = Auth::user();
+        $worker = User::find($id);
 
         $documents = $worker->documents()
             ->with(['document_type' => function ($query) {
@@ -119,18 +119,6 @@ class DocumentController extends Controller
 
         return response()->json([
             'documentTypes' => $documentTypes
-        ]);
-    }
-
-    public function forms()
-    {
-        $worker = Auth::user();
-
-        $forms = $worker->forms()
-            ->get(['id', 'type', 'pdf_name', 'submitted_at']);
-
-        return response()->json([
-            'forms' => $forms
         ]);
     }
 }

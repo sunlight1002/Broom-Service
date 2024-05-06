@@ -1,7 +1,7 @@
 import Moment from "moment";
 const arr = ["visa", "passport"];
 
-const DocumentList = ({ documents, worker }) => {
+const DocumentList = ({ documents, worker, handleDelete }) => {
     return (
         <div>
             {arr.map(
@@ -55,6 +55,21 @@ const DocumentList = ({ documents, worker }) => {
                                             </a>
                                         </span>
                                     </div>
+                                    {localStorage.getItem("admin-token") && (
+                                        <div className="col-sm-2 col-2">
+                                            <div className="float-right noteUser">
+                                                <button
+                                                    className="ml-2 btn bg-red"
+                                                    onClick={(e) =>
+                                                        handleDelete(e, a)
+                                                    }
+                                                >
+                                                    <i className="fa fa-trash"></i>
+                                                </button>
+                                                &nbsp;
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -108,6 +123,21 @@ const DocumentList = ({ documents, worker }) => {
                                     </a>
                                 </span>
                             </div>
+                            {localStorage.getItem("admin-token") && (
+                                <div className="col-sm-2 col-2">
+                                    <div className="float-right noteUser">
+                                        <button
+                                            className="ml-2 btn bg-red"
+                                            onClick={(e) =>
+                                                handleDelete(e, d.id)
+                                            }
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                        &nbsp;
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
