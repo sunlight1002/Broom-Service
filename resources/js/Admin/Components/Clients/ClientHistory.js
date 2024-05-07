@@ -16,6 +16,7 @@ export default function ClientHistory({
     setContracts,
     latestContract,
     client,
+    fetchContract,
 }) {
     const { hash } = useLocation();
 
@@ -211,6 +212,7 @@ export default function ClientHistory({
                     <Contract
                         contracts={contracts}
                         setContracts={setContracts}
+                        fetchContract={fetchContract}
                     />
                 </div>
                 <div

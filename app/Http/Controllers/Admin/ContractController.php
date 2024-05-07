@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ContractController extends Controller
 {
@@ -211,6 +213,46 @@ class ContractController extends Controller
 
         return response()->json([
             'msg' => $msg
+        ]);
+    }
+
+    public function saveContractFile(Request $request){
+        $data = $request->all();
+        $contract = Contract::find($data['contractId']);
+
+        $validator = Validator::make($request->all(), [
+            'contractId'=> ['required'],
+            'file'      => ['required'],
+        ], [], [
+            'contractId'    => 'Contract Id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $file = $request->file('file');
+        $file_name = '';
+        if ($request->hasFile('file')) {
+            if (!Storage::disk('public')->exists('uploads/client/contract')) {
+                Storage::disk('public')->makeDirectory('uploads/client/contract');
+            }
+            if (!empty($contract) && $contract->file) {
+                if (Storage::drive('public')->exists('uploads/client/contract/' . $contract->file)) {
+                    Storage::drive('public')->delete('uploads/client/contract/' . $contract->file);
+                }
+            }
+            $tmp_file_name = $contract->id . "_" . date('s') . "_" . $file->getClientOriginalName();
+            if (Storage::disk('public')->putFileAs("uploads/client/contract", $file, $tmp_file_name)) {
+                $file_name = $tmp_file_name;
+            }
+        }
+        $contract->update([
+            'file' => $file_name,
+        ]);
+
+        return response()->json([
+            'message' => 'Contact file uploaded!',
         ]);
     }
 }

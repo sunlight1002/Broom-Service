@@ -107,6 +107,7 @@ export default function ViewClient() {
                                     setContracts={setContracts}
                                     latestContract={latestContract}
                                     client={client}
+                                    fetchContract={getContract}
                                 />
                             </div>
                         </div>

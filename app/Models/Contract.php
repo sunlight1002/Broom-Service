@@ -15,6 +15,7 @@ class Contract extends Model
         'unique_hash',
         'card_id',
         'job_status',
+        'file'
     ];
 
     public function client()
