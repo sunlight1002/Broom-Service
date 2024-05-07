@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\TransactionStatusEnum;
 use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
+use App\Models\Admin;
 use App\Models\Client;
 use App\Models\ClientCard;
 use App\Models\Files;
@@ -26,13 +28,20 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Models\ClientPropertyAddress;
+use App\Models\Comment;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Traits\JobSchedule;
+use App\Traits\PaymentAPI;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ClientController extends Controller
 {
-    use JobSchedule;
+    use JobSchedule, PaymentAPI;
 
     /**
      * Display a listing of the resource.
@@ -150,6 +159,7 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
+            'invoicename' => ['required', 'string', 'max:255'],
             'phone'     => ['required', 'unique:clients'],
             'status'    => ['required'],
             'passcode'  => ['required', 'string', 'min:6',],
@@ -742,114 +752,6 @@ class ClientController extends Controller
         ]);
     }
 
-    public function updateShift(Request $request)
-    {
-        $req = (object)$request->cshift;
-
-        if ($req->repetency == 'one_time') {
-            if ($req->worker != '') {
-                Job::where('id', $req->job)->update([
-                    'worker_id' => $req->worker,
-                    'start_date' => $req->shift_date,
-                    'shifts' => $req->shift_time,
-                    'status' => 'scheduled'
-                ]);
-            } else {
-                Job::where('id', $req->job)->update([
-                    'start_date' => $req->shift_date,
-                    'shifts' => $req->shift_time
-                ]);
-            }
-        } else {
-            if ($req->repetency == 'forever') {
-                $jobs =  Job::query()
-                    ->where([
-                        'client_id' => $req->client,
-                        'contract_id' => $req->contract,
-                        //'schedule_id' => $req->service,
-                    ])
-                    ->whereIn('status', ['scheduled', 'unscheduled'])
-                    ->get();
-            }
-
-            if ($req->repetency == 'untill_date') {
-                $jobs =  Job::query()
-                    ->where([
-                        'client_id' => $req->client,
-                        'contract_id' => $req->contract,
-                        //'schedule_id' => $req->service,
-                    ])
-                    ->whereIn('status', ['scheduled', 'unscheduled'])
-                    ->whereBetween('start_date', [$req->from, $req->to])
-                    ->get();
-            }
-
-            if (isset($jobs)) {
-                Shift::create([
-                    'contract_id' =>  $req->contract,
-                    'repetency'   =>  $req->repetency,
-                    'old_freq'    =>  $jobs[0]->schedule,
-                    'new_freq'    =>  $req->period,
-                    'shift_date'  =>  $req->shift_date,
-                    'shift_time'  =>  $req->shift_time,
-                    'from'        =>  $req->from,
-                    'to'          =>  $req->to
-                ]);
-
-                $firstDate = true;
-                foreach ($jobs as $k => $job) {
-                    // if (Carbon::now()->format('Y-m-d') <= $job->start_date) {
-
-                    if ($req->period == 'w') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addDays(7);
-                    } else if ($req->period == '2w') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addDays(14);
-                    } else if ($req->period == '3w') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addDays(21);
-                    } else if ($req->period == 'm') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addMonths(1);
-                    } else if ($req->period == '2m') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addMonths(2);
-                    } else if ($req->period == '3m') {
-                        $date = Carbon::parse($job->start_date);
-                        $newDate = $date->addMonths(3);
-                    }
-
-                    //if ($job->start_date >= $req->shift_date && $firstDate == true) {
-                    if ($k == 0) {
-                        Job::where('id', $job->id)->update([
-                            'start_date'    => ($req->shift_date != '') ? $req->shift_date : $job->start_date,
-                            'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
-                            'schedule'      => $req->period,
-                            'schedule_id'   => $req->frequency,
-                            'worker_id'     => ($req->worker != '') ? $req->worker : $job->worker
-                        ]);
-
-                        // $firstDate = false;
-                    } else {
-                        Job::where('id', $job->id)->update([
-                            'start_date'    => $newDate,
-                            'shifts'        => ($req->shift_time != '') ? $req->shift_time : $job->shifts,
-                            'schedule'      => $req->period,
-                            'schedule_id'   => $req->frequency,
-                            'worker_id'     => ($req->worker != '') ? $req->worker : $job->worker
-                        ]);
-                    }
-                    // }
-                }
-            }
-        }
-
-        return response()->json([
-            'success' => 'shift updated successfully'
-        ]);
-    }
-
     public function import(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -881,5 +783,186 @@ class ClientController extends Controller
     public function sampleFileExport(Request $request)
     {
         return Excel::download(new ClientSampleFileExport, 'client-import-sheet.xlsx');
+    }
+
+    public function createClientCardSession($id)
+    {
+        $client = Client::with('property_addresses')->find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found!',
+            ], 404);
+        }
+
+        $amount = 1.00;
+
+        $transaction = Transaction::create([
+            'client_id' => $client->id,
+            'amount' => $amount,
+            'currency' => config('services.app.currency'),
+            'status' => TransactionStatusEnum::INITIATED,
+            'type' => 'deposit',
+            'description' => 'Validate credit card',
+            'source' => 'credit-card',
+            'destination' => 'merchant',
+            'metadata' => [],
+            'gateway' => 'zcredit'
+        ]);
+
+        $sessionResponse = $this->createSession([
+            'unique_id'     => 'BROOM-TX' . $transaction->id,
+            'success_url'   => url('thanks/' . $client->id),
+            'local'         => ($client->lng == 'heb') ? 'He' : 'En',
+            'client_id'     => $client->id,
+            'client_name'   => $client->firstname . ' ' . $client->lastname,
+            'client_email'  => $client->email,
+            'client_phone'  => $client->phone,
+            'card_items'    => [
+                [
+                    'Amount'        => $amount,
+                    'Currency'      => "ILS",
+                    'Name'          => (($client->lng == 'heb') ? "הוספת כרטיס - " : "Add a Card - ") . $client->firstname . " " . $client->lastname,
+                    "Description"   => 'card validation transaction',
+                    'Quantity'      => 1,
+                    "Image"         => "https://i.ibb.co/m8fr72P/sample.png",
+                    "IsTaxFree"     => "false",
+                    "AdjustAmount"  => "false"
+                ],
+            ]
+        ]);
+
+        if ($sessionResponse && $sessionResponse['HasError']) {
+            return response()->json([
+                'message' => "Error while initiating session"
+            ], 500);
+        }
+
+        $transaction->update([
+            'session_id' => $sessionResponse['Data']['SessionId'],
+        ]);
+
+        return response()->json([
+            'redirect_url' => $sessionResponse['Data']['SessionUrl'],
+            'session_id' => $sessionResponse['Data']['SessionId']
+        ]);
+    }
+
+    public function checkTranxBySessionId(Request $request, $id)
+    {
+        $transaction = Transaction::query()
+            ->where('session_id', $request->get('session_id'))
+            ->where('client_id', $id)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json([
+                'message' => 'Transaction not found!',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => $transaction->status,
+        ]);
+    }
+
+    public function getComments($id)
+    {
+        $comments = Comment::query()
+            ->with('commenter', 'attachments')
+            ->where('relation_type', Client::class)
+            ->where('relation_id', $id)
+            ->latest()
+            ->get();
+
+        $comments = $comments->map(function ($item, $key) {
+            $commenter_name = NULL;
+            if (get_class($item->commenter) == Admin::class) {
+                $commenter_name = $item->commenter->name;
+            } else if (get_class($item->commenter) == User::class) {
+                $commenter_name = $item->commenter->firstname . ' ' . $item->commenter->lastname;
+            } else if (get_class($item->commenter) == Client::class) {
+                $commenter_name = $item->commenter->firstname . ' ' . $item->commenter->lastname;
+            }
+            $item->commenter_name = $commenter_name;
+            return $item;
+        });
+
+        return response()->json([
+            'comments' => $comments
+        ]);
+    }
+
+    public function saveComment(Request $request, $id)
+    {
+        $client = Client::query()->find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found!',
+            ], 404);
+        }
+
+        if (!$request->get('comment')) {
+            return response()->json([
+                'message' => 'Comment is required!',
+            ], 404);
+        }
+
+        $comment = $client->comments()->create([
+            'comment' => $request->get('comment'),
+            'valid_till' => $request->get('valid_till')
+        ]);
+
+        $filesArr = $request->file('files');
+        if ($request->hasFile('files') && count($filesArr) > 0) {
+            if (!Storage::disk('public')->exists('uploads/attachments')) {
+                Storage::disk('public')->makeDirectory('uploads/attachments');
+            }
+            $resultArr = [];
+            foreach ($filesArr as $key => $file) {
+                $original_name = $file->getClientOriginalName();
+                $file_name = Str::uuid()->toString();
+                $file_extension = $file->getClientOriginalExtension();
+                $file_name = $file_name . '.' . $file_extension;
+
+                if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
+                    array_push($resultArr, [
+                        'file_name' => $file_name,
+                        'original_name' => $original_name
+                    ]);
+                }
+            }
+            $comment->attachments()->createMany($resultArr);
+        }
+
+        return response()->json([
+            'message' => 'Comment is added successfully!',
+        ]);
+    }
+
+    public function deleteComment($serviceID, $id)
+    {
+        $comment = Comment::query()
+            ->whereHasMorph(
+                'commenter',
+                [Admin::class],
+                function (Builder $query) {
+                    $query->where('commenter_id', Auth::id());
+                }
+            )
+            ->find($id);
+
+        if (!$comment) {
+            return response()->json([
+                'message' => 'Comment not found'
+            ]);
+        }
+
+        $comment->delete();
+
+        return response()->json([
+            'message' => 'Comment has been deleted successfully'
+        ]);
     }
 }

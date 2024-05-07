@@ -49,8 +49,13 @@ class Admin extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function availability()
+    public function availabilities()
     {
         return $this->hasOne(TeamMemberAvailability::class, 'team_member_id');
+    }
+
+    public function defaultAvailabilities()
+    {
+        return $this->hasMany(TeamMemberDefaultAvailability::class, 'team_member_id');
     }
 }

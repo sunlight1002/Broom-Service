@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Events\WorkerApprovedJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
@@ -16,10 +17,13 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
+use App\Traits\JobSchedule;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobController extends Controller
 {
-    use PaymentAPI;
+    use PaymentAPI, JobSchedule;
 
     /**
      * Display a listing of the resource.
@@ -96,72 +100,38 @@ class JobController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $job = Job::with(['client', 'worker', 'jobservice'])
-            ->where('worker_id', Auth::id())
-            ->find($id);
-
-        if (!$job) {
-            return response()->json([
-                'message' => 'Job not found',
-            ], 404);
-        }
-
-        if ($job->status == JobStatusEnum::COMPLETED) {
-            return response()->json([
-                'message' => 'Job already completed',
-            ], 403);
-        }
-
-        $job->update([
-            'status' => JobStatusEnum::COMPLETED
-        ]);
-        //$this->invoice($id);
-
-        $admin = Admin::find(1)->first();
-        App::setLocale('en');
-        $data = array(
-            'email'      => $admin->email,
-            'admin'      => $admin->toArray(),
-            'job'        => $job->toArray(),
-        );
-
-        Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            $messages->to($data['email']);
-            $sub = __('mail.job_status.subject');
-            $messages->subject($sub);
-        });
-
-        return response()->json([
-            'message' => 'Job completed',
-        ]);
-    }
-
     public function getAvailability()
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', Auth::user()->id)
-            ->orderBy('id', 'asc')
-            ->get();
+        $worker = Auth::user();
 
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $new_array[$w_a->date] = $w_a->working;
+        $worker_availabilities = $worker->availabilities()
+            ->orderBy('date', 'asc')
+            ->get(['date', 'start_time', 'end_time']);
+
+        $availabilities = [];
+        foreach ($worker_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
         }
 
+        $default_availabilities = $worker->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
+            ->groupBy('weekday');
+
         return response()->json([
-            'availability' => $new_array,
+            'availability' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
         ]);
     }
+
     public function updateAvailability(Request $request)
     {
+        $worker = Auth::user();
+
         $isMondayPassed = Carbon::today()->weekday() > Carbon::MONDAY;
 
         $data = $request->all();
@@ -172,21 +142,38 @@ class JobController extends Controller
             $firstEditDate = Carbon::today()->addWeek()->startOfWeek(Carbon::SUNDAY);
         }
 
-        WorkerAvailability::query()
-            ->where('user_id', Auth::user()->id)
+        $worker->availabilities()
             ->whereDate('date', '>=', $firstEditDate->toDateString())
             ->delete();
 
-        foreach ($data as $key => $availabilty) {
+        foreach ($data['time_slots'] as $key => $availabilties) {
             $date = trim($key);
 
             if ($firstEditDate->lte(Carbon::parse($date))) {
-                WorkerAvailability::create([
-                    'user_id' => Auth::user()->id,
-                    'date' => $date,
-                    'working' => $availabilty,
-                    'status' => '1',
-                ]);
+                foreach ($availabilties as $key => $availabilty) {
+                    WorkerAvailability::create([
+                        'user_id' => Auth::user()->id,
+                        'date' => $date,
+                        'start_time' => $availabilty['start_time'],
+                        'end_time' => $availabilty['end_time'],
+                        'status' => '1',
+                    ]);
+                }
+            }
+        }
+
+        $worker->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
+                foreach ($availabilties as $key => $timeSlot) {
+                    $worker->defaultAvailabilities()->create([
+                        'weekday' => $weekday,
+                        'start_time' => $timeSlot['start_time'],
+                        'end_time' => $timeSlot['end_time'],
+                        'until_date' => $data['default']['until_date'],
+                    ]);
+                }
             }
         }
 
@@ -222,7 +209,7 @@ class JobController extends Controller
             'time_diff' => $request->time_diff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'message' => 'Updated Successfully',
@@ -261,12 +248,12 @@ class JobController extends Controller
             ]);
             Notification::create([
                 'user_id' => $job->client->id,
-                'type' => 'opening-job',
+                'type' => NotificationTypeEnum::OPENING_JOB,
                 'job_id' => $job->id,
                 'status' => 'going to start'
             ]);
 
-            $admin = Admin::first();
+            $admin = Admin::where('role', 'admin')->first();
             App::setLocale('en');
             $data = array(
                 'email'      => $admin->email,
@@ -274,6 +261,12 @@ class JobController extends Controller
                 'worker'     => $job->worker,
                 'job'        => $job->toArray(),
             );
+            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                    "notificationData" => $data
+                ]));
+            }
             Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.job_status.subject');

@@ -49,9 +49,6 @@
 			</tbody>
 		</table>
 
-		<p style="margin-top: 40px">{{__('mail.client_job_status.review_request')}}</p>
-		<a href='{{ url("client/jobs").'/'.base64_encode($job['id']).'/review' }}' style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.client_job_status.review')}}</a>
-
 		<p style="margin-top: 40px">{{__('mail.client_new_job.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.client_new_job.regards')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.client_new_job.company')}}</p>

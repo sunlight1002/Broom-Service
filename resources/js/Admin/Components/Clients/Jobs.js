@@ -19,25 +19,6 @@ export default function Jobs({ contracts, client }) {
     const [wait, setWait] = useState(true);
     const alert = useAlert();
 
-    const [AllFreq, setAllFreq] = useState([]);
-    const [service, setService] = useState([]);
-    const [workers, setWorkers] = useState([]);
-    const [cshift, setCshift] = useState({
-        contract: "",
-        client: "",
-        repetency: "",
-        job: "",
-        from: "",
-        to: "",
-        worker: "",
-        service: "",
-        shift_date: "",
-        frequency: "",
-        cycle: "",
-        period: "",
-        shift_time: "",
-    });
-
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -64,33 +45,6 @@ export default function Jobs({ contracts, client }) {
                     setLoading("No job found");
                 }
             });
-    };
-
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getJobs();
-                        }, 1000);
-                    });
-            }
-        });
     };
 
     const handlePageClick = async (data) => {
@@ -171,33 +125,33 @@ export default function Jobs({ contracts, client }) {
         }
     };
 
-    const genOrder = () => {
-        let cb = document.querySelectorAll(".cb");
-        let job_id_arr = [];
-        cb.forEach((c, i) => {
-            if (c.checked == true) {
-                job_id_arr.push(c.value);
-            }
-        });
-        if (job_id_arr.length == 0) {
-            alert.error("Please check job");
-            return;
-        }
+    // const genOrder = () => {
+    //     let cb = document.querySelectorAll(".cb");
+    //     let job_id_arr = [];
+    //     cb.forEach((c, i) => {
+    //         if (c.checked == true) {
+    //             job_id_arr.push(c.value);
+    //         }
+    //     });
+    //     if (job_id_arr.length == 0) {
+    //         alert.error("Please check job");
+    //         return;
+    //     }
 
-        axios
-            .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
-            .then((res) => {
-                getJobs(filtered);
-                alert.success("Job Order(s) created successfully");
-            })
-            .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
-                });
-            });
-    };
+    //     axios
+    //         .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
+    //         .then((res) => {
+    //             getJobs(filtered);
+    //             alert.success("Job Order(s) created successfully");
+    //         })
+    //         .catch((e) => {
+    //             Swal.fire({
+    //                 title: "Error!",
+    //                 text: e.response.data.message,
+    //                 icon: "error",
+    //             });
+    //         });
+    // };
 
     const genInvoice = () => {
         let cb = document.querySelectorAll(".cb");
@@ -228,171 +182,15 @@ export default function Jobs({ contracts, client }) {
             });
     };
 
-    const slot = [
-        ["fullday-8am-16pm"],
-        ["morning1-8am-9am"],
-        ["morning2-9am-10am"],
-        ["morning3-10am-11am"],
-        ["morning4-11am-12pm"],
-        ["morning-8am-12pm"],
-        ["afternoon1-12pm-13pm"],
-        ["afternoon2-13pm-14pm"],
-        ["afternoon3-14pm-15pm"],
-        ["afternoon4-15pm-16pm"],
-        ["afternoon-12pm-16pm"],
-        ["evening1-16pm-17pm"],
-        ["evening2-17pm-18pm"],
-        ["evening3-18pm-19pm"],
-        ["evening4-19pm-20pm"],
-        ["evening-16pm-20pm"],
-        ["night1-20pm-21pm"],
-        ["night2-21pm-22pm"],
-        ["night3-22pm-23pm"],
-        ["night4-23pm-24am"],
-        ["night-20pm-24am"],
-    ];
-
-    const getFrequency = (lng) => {
-        axios
-            .post("/api/admin/all-service-schedule", { lng }, { headers })
-            .then((res) => {
-                setAllFreq(res.data.schedules);
-            });
-    };
-
-    const shiftChange = (e) => {
-        $("#edit-shift").modal("show");
-    };
-
-    const resetShift = () => {
-        setCshift({
-            contract: "",
-            client: "",
-            repetency: "",
-            job: "",
-            from: "",
-            to: "",
-            worker: "",
-            service: "",
-            shift_date: "",
-            frequency: "",
-            cycle: "",
-            period: "",
-            shift_time: "",
-        });
-    };
-
-    const handleShift = (e) => {
-        let newvalues = { ...cshift };
-
-        if (e.target.name == "job" && e.target.value) {
-            let j = e.target.options[e.target.selectedIndex];
-
-            newvalues["contract"] = j.getAttribute("contract");
-            newvalues["service"] = j.getAttribute("schedule_id");
-            newvalues["client"] = j.getAttribute("client");
-            //getWorker( j.getAttribute('schedule_id') );
-        }
-
-        if (e.target.name == "shift_date" || e.target.name == "shift_time") {
-            getWorker(cshift.service);
-        }
-
-        // if (e.target.name == 'contract' && e.target.value) {
-
-        //     setService(JSON.parse(contracts.find((c) => c.id == e.target.value).offer.services));
-        // }
-        if (e.target.name == "repetency" && e.target.value != "one_time") {
-            getFrequency(client.lng);
-        }
-
-        if (e.target.name == "frequency") {
-            newvalues["cycle"] =
-                e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newvalues["period"] =
-                e.target.options[e.target.selectedIndex].getAttribute("period");
-        }
-        newvalues[e.target.name] = e.target.value;
-        console.log(newvalues);
-        setCshift(newvalues);
-    };
-
-    const getWorker = (sid) => {
-        axios
-            .get(`/api/admin/shift-change-worker/${sid}/${cshift.shift_date}`, {
-                headers,
-            })
-            .then((res) => {
-                setWorkers(res.data.data);
-            });
-    };
-
-    const isEmptyOrSpaces = (str) => {
-        return str === null || str.match(/^ *$/) !== null;
-    };
-
-    const changeShift = (e) => {
-        e.preventDefault();
-
-        if (isEmptyOrSpaces(cshift.job)) {
-            window.alert("Please select job");
-            return;
-        }
-        if (isEmptyOrSpaces(cshift.shift_date)) {
-            window.alert("Please choose new shift date");
-            return;
-        }
-        if (isEmptyOrSpaces(cshift.shift_time)) {
-            window.alert("Please choose new shift time");
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.repetency)) {
-            window.alert("Please select repetency");
-            return;
-        }
-
-        if (
-            cshift.repetency == "untill_date" &&
-            (isEmptyOrSpaces(cshift.from) || isEmptyOrSpaces(cshift.to))
-        ) {
-            window.alert("Please select From and To date");
-            return;
-        }
-
-        if (
-            cshift.repetency == "forever" &&
-            isEmptyOrSpaces(cshift.frequency)
-        ) {
-            window.alert("Please select frequency");
-            return;
-        }
-
-        axios
-            .post(`/api/admin/update-shift`, { cshift }, { headers })
-            .then((res) => {
-                getJobs("f=all");
-                resetShift();
-                $("#edit-shift").modal("hide");
-                alert.success(res.data.success);
-            });
-    };
-
     return (
         <div className="boxPanel">
             <div className="action-dropdown dropdown order_drop text-right mb-3">
-                <button
-                    className="btn btn-info mr-3"
-                    onClick={(e) => shiftChange(e)}
-                >
-                    Shift Change
-                </button>
-                <button
+                {/* <button
                     className="btn btn-pink mr-3"
                     onClick={(e) => genOrder(e)}
                 >
                     Generate Orders
-                </button>
+                </button> */}
                 <button
                     className="btn btn-primary mr-3 ml-3"
                     onClick={(e) => genInvoice(e)}
@@ -680,17 +478,6 @@ export default function Jobs({ contracts, client }) {
                                                                 Create Invoice
                                                             </Link>
                                                         )} */}
-
-                                                        <button
-                                                            className="dropdown-item"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    j.id
-                                                                )
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </td>
@@ -703,7 +490,7 @@ export default function Jobs({ contracts, client }) {
                     <div className="form-control text-center">{loading}</div>
                 )}
 
-                {jobs.length > 0 ? (
+                {jobs.length > 0 && (
                     <ReactPaginate
                         previousLabel={"Previous"}
                         nextLabel={"Next"}
@@ -725,329 +512,7 @@ export default function Jobs({ contracts, client }) {
                         breakLinkClassName={"page-link"}
                         activeClassName={"active"}
                     />
-                ) : (
-                    ""
                 )}
-            </div>
-
-            <div
-                className="modal fade"
-                id="edit-shift"
-                tabIndex="-1"
-                role="dialog"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true"
-            >
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">
-                                Change Shift
-                            </h5>
-                            <button
-                                type="button"
-                                className="close"
-                                data-dismiss="modal"
-                                aria-label="Close"
-                                onClick={(e) => resetShift()}
-                            >
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    {/* <label className="control-label">
-                                        Contract
-                                    </label>
-                                    <select name="contract" value={cshift.contract} onChange={(e) => {
-                                        handleShift(e);
-                                    }}
-                                        className="form-control mb-3">
-                                        <option value="">--- Please Select contract ---</option>
-                                        {contracts &&
-                                            contracts.map((item, index) => {
-
-                                                return (
-                                                    <option value={item.id}> # {item.id} |  {Moment(item.created_at).format('DD MMM, Y')}  </option>
-                                                )
-
-                                            }
-                                            )}
-                                    </select> */}
-
-                                    <label className="control-label">Job</label>
-
-                                    <select
-                                        className="form-control mb-3"
-                                        name="job"
-                                        value={cshift.job}
-                                        onChange={(e) => handleShift(e)}
-                                    >
-                                        <option value="">
-                                            {" "}
-                                            --- Please select Job ---
-                                        </option>
-                                        {jobs &&
-                                            jobs.map((j, i) => {
-                                                return (
-                                                    <option
-                                                        contract={j.contract_id}
-                                                        client={j.client_id}
-                                                        value={j.id}
-                                                        schedule_id={
-                                                            j.schedule_id
-                                                        }
-                                                        key={i}
-                                                    >
-                                                        #{j.id} |{" "}
-                                                        {Moment(
-                                                            j.start_date
-                                                        ).format("DD MMM, Y")}
-                                                    </option>
-                                                );
-                                            })}
-                                    </select>
-
-                                    <label className="control-label">
-                                        New Shift date
-                                    </label>
-
-                                    <input
-                                        className="form-control mb-3"
-                                        name="shift_date"
-                                        type="date"
-                                        value={cshift.shift_date}
-                                        onChange={(e) => handleShift(e)}
-                                    />
-
-                                    <label className="control-label">
-                                        New Shift time
-                                    </label>
-
-                                    <select
-                                        className="form-control mb-3"
-                                        name="shift_time"
-                                        value={cshift.shift_time}
-                                        onChange={(e) => handleShift(e)}
-                                    >
-                                        <option value="">
-                                            {" "}
-                                            --- Please select new shift time ---
-                                        </option>
-                                        {slot?.map((s, i) => {
-                                            return (
-                                                <option value={s} key={i}>
-                                                    {s}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
-
-                                    {/*
-                                        cshift.contract != '' &&
-                                        <>
-                                            <label className="control-label">
-                                                Service
-                                            </label>
-                                            <select name="service" value={cshift.service} onChange={(e) => { handleShift(e); getWorker(e) }
-                                            } className="form-control mb-3">
-                                                <option value="">--- Please Select service ---</option>
-                                                {service &&
-                                                    service.map((item, index) => {
-
-                                                        return (
-                                                            <option value={item.service} > {item.name} | {item.freq_name}   </option>
-                                                        )
-
-                                                    }
-                                                    )}
-                                            </select>
-                                        </>
-                                    */}
-
-                                    {cshift.job != "" && (
-                                        <>
-                                            <label className="control-label">
-                                                Worker
-                                            </label>
-
-                                            <select
-                                                className="form-control mb-3"
-                                                name="worker"
-                                                value={cshift.worker}
-                                                onChange={(e) => handleShift(e)}
-                                            >
-                                                <option value="">
-                                                    {" "}
-                                                    --- Please select available
-                                                    workers ---
-                                                </option>
-                                                {workers &&
-                                                    workers.map(
-                                                        (item, index) => {
-                                                            return (
-                                                                <option
-                                                                    value={
-                                                                        item.id
-                                                                    }
-                                                                    key={index}
-                                                                >
-                                                                    {" "}
-                                                                    {
-                                                                        item.firstname
-                                                                    }{" "}
-                                                                    {
-                                                                        item.lastname
-                                                                    }{" "}
-                                                                </option>
-                                                            );
-                                                        }
-                                                    )}
-                                            </select>
-                                        </>
-                                    )}
-
-                                    <label className="control-label">
-                                        Repetnacy
-                                    </label>
-
-                                    <select
-                                        name="repetency"
-                                        onChange={(e) => handleShift(e)}
-                                        value={cshift.repetency}
-                                        className="form-control mb-3"
-                                    >
-                                        <option value="">
-                                            {" "}
-                                            --- Please select repetnacy ---
-                                        </option>
-                                        <option value="one_time">
-                                            {" "}
-                                            One Time ( for single job )
-                                        </option>
-                                        <option value="forever">
-                                            {" "}
-                                            Forever{" "}
-                                        </option>
-                                        <option value="untill_date">
-                                            {" "}
-                                            Until Date{" "}
-                                        </option>
-                                    </select>
-
-                                    {/*cshift.repetency == 'one_time' &&
-
-                                        <>
-                                            <label className="control-label">
-                                                Job
-                                            </label>
-
-                                            <select className='form-control mb-3'
-                                                name="job"
-                                                value={cshift.job}
-                                                onChange={e => handleShift(e)}
-                                            >
-                                                <option value=""> --- Please select Job --- </option>
-                                                {jobs && jobs.map((j) => {
-                                                    return <option value={j.id}> #{j.id} | {Moment(j.start_date).format('DD MMM, Y')}  </option>
-                                                })}
-
-                                            </select>
-                                        </>
-                                   */}
-
-                                    {cshift.repetency &&
-                                        cshift.repetency != "one_time" && (
-                                            <>
-                                                <label className="control-label">
-                                                    New Frequency
-                                                </label>
-
-                                                <select
-                                                    name="frequency"
-                                                    className="form-control mb-3"
-                                                    value={
-                                                        cshift.frequency || ""
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        -- Please select
-                                                        frequency --
-                                                    </option>
-                                                    {AllFreq &&
-                                                        AllFreq.map((s, i) => {
-                                                            return (
-                                                                <option
-                                                                    cycle={
-                                                                        s.cycle
-                                                                    }
-                                                                    period={
-                                                                        s.period
-                                                                    }
-                                                                    name={
-                                                                        s.name
-                                                                    }
-                                                                    value={s.id}
-                                                                    key={i}
-                                                                >
-                                                                    {" "}
-                                                                    {
-                                                                        s.name
-                                                                    }{" "}
-                                                                </option>
-                                                            );
-                                                        })}
-                                                </select>
-                                            </>
-                                        )}
-
-                                    {cshift.repetency == "untill_date" && (
-                                        <>
-                                            <label className="control-label">
-                                                From
-                                            </label>
-
-                                            <input
-                                                className="form-control mb-3"
-                                                type="date"
-                                                placeholder="From date"
-                                                name="from"
-                                                value={cshift.from}
-                                                onChange={(e) => handleShift(e)}
-                                            />
-
-                                            <label className="control-label">
-                                                To
-                                            </label>
-
-                                            <input
-                                                className="form-control mb-3"
-                                                type="date"
-                                                placeholder="To date"
-                                                name="to"
-                                                value={cshift.to}
-                                                onChange={(e) => handleShift(e)}
-                                            />
-                                        </>
-                                    )}
-
-                                    <button
-                                        className="btn btn-success form-control"
-                                        onClick={(e) => changeShift(e)}
-                                    >
-                                        {" "}
-                                        Change Shift{" "}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );

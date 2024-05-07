@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Schedule;
 use App\Models\TeamMemberAvailability;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -165,33 +167,106 @@ class TeamMemberController extends Controller
         ]);
     }
 
-    public function updateAvailability(Request $request)
+    public function updateAvailability(Request $request, $id)
     {
-        $data = $request->all();
-        $time_slots = $data['time_slots'];
-        $team_id = $data['teamId'];
-        try {
-            TeamMemberAvailability::updateOrCreate([
-                'team_member_id' => $team_id,
-            ], [
-                'time_slots' => $time_slots
-            ]);
+        $teamMember = Admin::find($id);
 
-            return response()->json([
-                'message' => 'Availability updated successfully'
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Error'
-            ], 500);
+        $data = $request->all();
+
+        $teamMember->availabilities()->delete();
+
+        foreach ($data['time_slots'] as $key => $availabilties) {
+            $date = trim($key);
+
+            foreach ($availabilties as $key => $availabilty) {
+                TeamMemberAvailability::create([
+                    'team_member_id' => $id,
+                    'date' => $date,
+                    'start_time' => $availabilty['start_time'],
+                    'end_time' => $availabilty['end_time'],
+                    'status' => '1',
+                ]);
+            }
         }
+
+        $teamMember->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
+                foreach ($availabilties as $key => $timeSlot) {
+                    $teamMember->defaultAvailabilities()->create([
+                        'weekday' => $weekday,
+                        'start_time' => $timeSlot['start_time'],
+                        'end_time' => $timeSlot['end_time'],
+                        'until_date' => $data['default']['until_date'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'Availability updated successfully'
+        ]);
     }
 
     public function availability($id)
     {
-        $availArr = TeamMemberAvailability::select('time_slots')->where('team_member_id', $id)->first();
+        $teamMember = Admin::find($id);
+
+        $team_member_availabilities = $teamMember->availabilities()
+            ->orderBy('date', 'asc')
+            ->get(['date', 'start_time', 'end_time']);
+
+        $availabilities = [];
+        foreach ($team_member_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
+        }
+
+        $default_availabilities = $teamMember->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
+            ->groupBy('weekday');
+
         return response()->json([
-            'data' => $availArr
+            'data' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
+        ]);
+    }
+
+    public function availabilityByDate($id, $date)
+    {
+        $teamMember = Admin::find($id);
+
+        $available_slots = $teamMember->availabilities()
+            ->whereDate('date', $date)
+            ->get(['start_time', 'end_time']);
+
+        if ($available_slots->count() == 0) {
+            $weekDay = Carbon::parse($date)->weekday();
+            $available_slots = $teamMember->defaultAvailabilities()
+                ->where('weekday', $weekDay)
+                ->whereDate('until_date', '>=', date('Y-m-d'))
+                ->get(['start_time', 'end_time']);
+        }
+
+        $bookedSlots = Schedule::query()
+            ->whereDate('start_date', $date)
+            ->whereNotNull('start_time')
+            ->where('start_time', '!=', '')
+            ->whereNotNull('end_time')
+            ->where('end_time', '!=', '')
+            // ->selectRaw("DATE_FORMAT(start_date, '%Y-%m-%d') as start_date")
+            ->selectRaw("DATE_FORMAT(STR_TO_DATE(start_time, '%h:%i %p'), '%H:%i') as start_time")
+            ->selectRaw("DATE_FORMAT(STR_TO_DATE(end_time, '%h:%i %p'), '%H:%i') as end_time")
+            ->get();
+
+        return response()->json([
+            'booked_slots' => $bookedSlots,
+            'available_slots' => $available_slots
         ]);
     }
 }

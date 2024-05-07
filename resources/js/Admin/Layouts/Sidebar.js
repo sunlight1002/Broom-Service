@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import i18next from "i18next";
+
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
-import axios from "axios";
 
 export default function Sidebar() {
     const alert = useAlert();
@@ -42,6 +44,7 @@ export default function Sidebar() {
         alert.success("Logged Out Successfully");
     };
     useEffect(() => {
+        i18next.changeLanguage("en");
         getAdmin();
     }, []);
 
@@ -149,6 +152,12 @@ export default function Sidebar() {
                 </li>
 
                 <li className="list-group-item">
+                    <NavLink to="/admin/payments">
+                        <i className="fa-solid fa-cart-shopping"></i>Payments
+                    </NavLink>
+                </li>
+
+                {/* <li className="list-group-item">
                     <div id="myFence" className="fence commonDropdown">
                         <div id="fencehead2">
                             <a
@@ -193,7 +202,7 @@ export default function Sidebar() {
                             </div>
                         </div>
                     </div>
-                </li>
+                </li> */}
 
                 {role !== "member" && (
                     <li className="list-group-item">

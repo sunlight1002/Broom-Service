@@ -8,6 +8,7 @@ import { Base64 } from "js-base64";
 import { Rating } from "react-simple-star-rating";
 import { useAlert } from "react-alert";
 import ClientSidebar from "../../Layouts/ClientSidebar";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ReviewJob() {
     const params = useParams();
@@ -114,7 +115,9 @@ export default function ReviewJob() {
                                                     Time to Complete
                                                 </label>
                                                 <p>
-                                                    {job.jobservice.jobHours}{" "}
+                                                    {convertMinsToDecimalHrs(
+                                                        job.actual_time_taken_minutes
+                                                    )}{" "}
                                                     hours
                                                 </p>
                                             </div>

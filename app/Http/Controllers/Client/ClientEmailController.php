@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -20,6 +21,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ReScheduleMettingJob;
+use App\Events\WhatsappNotificationEvent;
 
 class ClientEmailController extends Controller
 {
@@ -32,7 +36,7 @@ class ClientEmailController extends Controller
       ->with([
         'client:id,lng,firstname,lastname',
         'team:id,name,heb_name',
-        'team.availability:team_member_id,time_slots',
+        'team.availabilities:team_member_id,date,start_time,end_time',
         'propertyAddress:id,address_name,latitude,longitude'
       ])
       ->find($id);
@@ -56,24 +60,10 @@ class ClientEmailController extends Controller
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(start_time, '%h:%i %p'), '%H:%i') as start_time")
       ->selectRaw("DATE_FORMAT(STR_TO_DATE(end_time, '%h:%i %p'), '%H:%i') as end_time")
       ->get();
-    $timeSlot = [];
-    $availableSlots = [];
-    if($schedule->team->availability){
-      $timeSlot = json_decode($schedule->team->availability->time_slots, true);
-      $availableSlots = isset($timeSlot[$startDate]) ? $timeSlot[$startDate] : [];
-    }
-    $availableSlots24Hrs = [];
-    foreach ($availableSlots as $key => $value) {
-      $availableSlots24Hrs[] = [
-        'start' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[0])->format('H:i'),
-        'end' => Carbon::createFromFormat('Y-m-d H:i A', date('Y-m-d') . ' ' . $value[1])->format('H:i'),
-      ];
-    }
 
     return response()->json([
       'schedule' => $scheduleArr,
       'booked_slots' => $bookedSlots,
-      'available_slots' => $availableSlots24Hrs
     ]);
   }
 
@@ -102,7 +92,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
-      'type' => 'accept-offer',
+      'type' => NotificationTypeEnum::ACCEPT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'accepted'
     ]);
@@ -129,6 +119,12 @@ class ClientEmailController extends Controller
 
     App::setLocale($ofr['client']['lng']);
 
+    if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
+      event(new WhatsappNotificationEvent([
+          "type" => WhatsappMessageTemplateEnum::CONTRACT,
+          "notificationData" => $ofr
+      ]));
+    }
     Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
       $messages->to($ofr['client']['email']);
       $ofr['client']['lng'] ?
@@ -167,7 +163,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $offerArr['client']['id'],
-      'type' => 'reject-offer',
+      'type' => NotificationTypeEnum::REJECT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'declined'
     ]);
@@ -210,7 +206,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
-      'type' => 'accept-meeting',
+      'type' => NotificationTypeEnum::ACCEPT_MEETING,
       'meet_id' => $request->id,
       'status' => 'confirmed'
     ]);
@@ -253,7 +249,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
-      'type' => 'reject-meeting',
+      'type' => NotificationTypeEnum::REJECT_MEETING,
       'meet_id' => $request->id,
       'status' => 'declined'
     ]);
@@ -263,9 +259,11 @@ class ClientEmailController extends Controller
     ]);
   }
 
-  public function rescheduleMeeting(Request $request)
+  public function rescheduleMeeting(Request $request, $id)
   {
-    $schedule = Schedule::find($request->id);
+    $data = $request->all();
+
+    $schedule = Schedule::find($id);
     if (!$schedule) {
       return response()->json([
         'message' => 'Meeting not found'
@@ -279,10 +277,21 @@ class ClientEmailController extends Controller
       ], 404);
     }
 
+    $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->addMinutes(30)->format('h:i A');
+
     $schedule->update([
+      'start_date' => $data['start_date'],
+      'start_time' => $data['start_time'],
+      'end_time' => $data['end_time'],
       'booking_status' => 'rescheduled'
     ]);
 
+    
+   $this->saveGoogleCalendarEvent($schedule);
+
+    $schedule->load(['client', 'team', 'propertyAddress']);    
+    event(new ReScheduleMettingJob($schedule));
+    
     return response()->json([
       'message' => 'Thanks, your meeting is rescheduled'
     ]);
@@ -321,7 +330,7 @@ class ClientEmailController extends Controller
 
       Notification::create([
         'user_id' => $contract->client_id,
-        'type' => 'contract-accept',
+        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
         'contract_id' => $contract->id,
         'status' => 'accepted'
       ]);
@@ -359,7 +368,7 @@ class ClientEmailController extends Controller
       Client::where('id', $contract->client_id)->update(['status' => 1]);
       Notification::create([
         'user_id' => $contract->client_id,
-        'type' => 'contract-reject',
+        'type' => NotificationTypeEnum::CONTRACT_REJECT,
         'contract_id' => $contract->id,
         'status' => 'declined'
       ]);

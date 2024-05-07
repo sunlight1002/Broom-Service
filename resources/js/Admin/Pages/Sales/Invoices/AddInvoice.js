@@ -11,7 +11,7 @@ import swal from "sweetalert";
 import Swal from "sweetalert2";
 import { error } from "jquery";
 
-export default function AddInvoce() {
+export default function AddInvoice() {
     const [amount, setAmount] = useState(0);
     const [dueDate, setDueDate] = useState();
     const [customer, setCustomer] = useState();

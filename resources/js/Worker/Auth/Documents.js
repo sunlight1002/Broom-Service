@@ -9,8 +9,9 @@ import DocumentList from "../../Admin/Components/Documents/DocumentList";
 
 export default function Documents() {
     const [file, setFile] = useState(false);
-    const [user, setUser] = useState({});
+    const [documents, setDocuments] = useState([]);
     const [pdf, setPdf] = useState("");
+    const [worker, setWorker] = useState({});
     const params = useParams();
     const alert = useAlert();
     const { t } = useTranslation();
@@ -50,21 +51,19 @@ export default function Documents() {
             Authorization: `Bearer ` + localStorage.getItem("worker-token"),
         };
         axios.get(`/api/details`, { headers }).then((response) => {
+            setWorker(response.data.success);
             setFile(response.data.success.form_101);
         });
     };
+
     const getDocuments = () => {
-        axios
-            .get(
-                `/api/document/${parseInt(localStorage.getItem("worker-id"))}`,
-                { headers }
-            )
-            .then((res) => {
-                if (res.data && res.data.user) {
-                    setUser(res.data.user);
-                }
-            });
+        axios.get(`/api/documents`, { headers }).then((res) => {
+            if (res.data && res.data) {
+                setDocuments(res.data.documents);
+            }
+        });
     };
+
     useEffect(() => {
         getWorker();
         getDocuments();
@@ -103,7 +102,7 @@ export default function Documents() {
                 </div>
             </div>
             <div className="col-md-12">
-                <DocumentList documents={user.documents} user={user} />
+                <DocumentList documents={documents} worker={worker} />
             </div>
             <div
                 className="modal fade"

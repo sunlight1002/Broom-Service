@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\TextResponse;
@@ -72,7 +71,7 @@ class ChatController extends Controller
 
     public function chatReply(Request $request)
     {
-        $result = Helper::sendWhatsappMessage($request->number, '', array('message' => $request->message));
+        $result = sendWhatsappMessage($request->number, '', array('message' => $request->message));
 
         $response = WebhookResponse::create([
             'status'        => 1,
@@ -123,7 +122,7 @@ class ChatController extends Controller
 
     public function chatRestart(Request $request)
     {
-        Helper::sendWhatsappMessage($request->number, $request->template, array('name' => ''));
+        sendWhatsappMessage($request->number, $request->template, array('name' => ''));
         $client = Client::where('phone', 'like', '%' . $request->number . '%')->first();
         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
@@ -131,7 +130,7 @@ class ChatController extends Controller
             'status'        => 1,
             'name'          => 'whatsapp',
             'entry_id'      => '',
-            'message'       => ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb,
+            'message'       => $_msg ? ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb: '',
             'number'        => $request->number,
             'flex'          => 'A',
             'read'          => 1,
@@ -223,7 +222,7 @@ class ChatController extends Controller
 
         TextResponse::create(
             [
-                'keyword' => '1',
+                'keyword' => 'main_menu',
                 'heb'     => "אז מי אנחנו?\nברוום סרוויס הינה חברת ניקיון פרימיום הפועלת משנת 2015 ומספקת מענה לאנשים המחפשים שירותי ניקיון ברמה גבוהה לבית או הדירה וללא כל התעסקות מיותרת.\n\nבשונה מהאלטרנטיבות שאתם מכירים, כמו עוזרת בית או חברות שיתווכו בינכם לבין עוזרת לפי שעה או כח אדם לפי שעה,\nאצלנו המחיר הוא מחיר קבוע לביקור ומתומחר לפי 5 חבילות ברמות שונות המותאמות לכם ולצרכים שלכם.\n\nאנו מציעים גם שירותי ניקיון כללי ויסודי וגם שירותי סידור וארגון ארונות עב קבוע או חד פעמי.
                 ככל שעולים ברמת החבילה, אתם מקבלים יותר שירותים (בהתאם לצרכים שלכם) והמחיר נקבע בהתאם לעבודה ולאחר פגישה אצלכם בבית.\n\nכדי לקבל הצעת מחיר על השירות, יש לתאם פגישה להצעת מחיר בנכס שתרצו שננקה.
                 הפגישה ללא עלות או כל התחייבות מצדכם ולוקחת באיזור 10-15דק.
@@ -231,7 +230,16 @@ class ChatController extends Controller
                 התשלום מתבצע בסוף החודש או לאחר הביקור- במידה ומדובר בביקור חד פעמי.\n\nכשהמחיר הוא לביקור ומגלם בתוכו את הכל, תנאים סוציאליים, נסיעות, עובדים קבועים, בימים קבועים (למי שלוקח פעם בשבוע או יותר- אחרת אין התחייבות)  המגיעים עם כל החומרים והציוד לעבודה (למעט שואב דלי ומגב שאת זה הלקוח מספק) ומפוקחים עי מנהל עבודה מטעמנו, שיוודא כי העבודה תמיד לשביעות רצונכם ובסטנדרטים שלנו.
                 התשלום מתבצע בסוף החודש או לאחר הביקור- במידה ומדובר בביקור חד פעמי.\nהתשלום בכרטיס אשראי, כנגד חשבונית- מחיר לביקור כפול מספר הביקורים (בתוספת שירותים נוספים שאולי הזמנתם  באותו חודש כמו שירותי אירוח, חלונות, פוליש, סידור ארונות וכו)
                 ברום סרוויס היא אחת מחברות הניקיון היחידות שקיבלו רישיון ממשרד הכלכלה. כל עובדי החברה מקבלים תשלום גבוה מהיום הראשון בעבודה, ימי חופש ומחלה, מקבלים הפרשות לפנסיה ולקרן השתלמות כחוק. ",
-                'eng'     => "So who we are?\nBroom Service is a premium cleaning company that has been operating since 2015 and provides a response for people who looking for high-level cleaning services for their home or apartment without any unnecessary hassle.\n\nUnlike the alternatives you know, such as a housekeeper or companies that will mediate between you and an hourly maid.\nWith us you will get a fixed price per visit and is priced according to 5 packages at different levels tailored to you and your needs.\n\nWe offer both general clean and cleaning services as well as permanent or one-time wardrobe arrangement and organization services.\nAs you go up in the package level, you get more services (according to your needs).\n\nTo get a quote for the service, you must arrange a meeting for a quote at the property you want us to clean. The meeting is free of charge or any obligation on your part and takes around 10-15 minutes.\n \nAfter the meeting, we will send an orderly and detailed quote, according to the service or package that suits you.\nThe price is for a visit and includes worker’s social terms such as travels.\n\nYou will get a permanent worker, on fixed days (for those who take once a week or more - otherwise there is no obligation) who arrive with all the materials and equipment for work (except for a bucket , vacuum cleaner and a mop which the customer provides) and are supervised by our supervisor to make sure that the work is always to your satisfaction and to our standards.\nPayment is made at the end of the month or after the visit - if it is a one-time visit.Payment by credit card, against an invoice - price per visit twice the number of visits (in addition to other services you may have ordered that month such as hosting services, windows, polishing, arranging cabinets, etc).\nBroom Service is one of the only cleaning companies that received a license from the Ministry of Economy.\nAll company employees receive a high payment from the first day of work, days off and sick days, receive provisions for a pension and a training fund according to the law.",
+                'eng'     => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n\n2. Service Areas\n\n3. Set an appointment for a quote\n\n4. Customer Service\n\n5. Switch to a human representative (during business hours)",
+                'status'  => '1'
+            ]
+        );
+
+        TextResponse::create(
+            [
+                'keyword' => '1',
+                'heb'     => "אנחנו מספקים שירות בתל אביב, רמת גן, גבעתיים, קריית אונו, רמת השרון, כפר שמריהו והרצליה. \n\nהאם תרצו לתאם פישה להצאת מחיר?",
+                'eng'     => "Broom Service - Room service for your 🏠.\n\nBroom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.\n\nWe offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.\n\nYou can find all of our services and packages on our website at 🌐 www.broomservice.co.il.\n\nOur prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.\n\nWe work with a permanent and skilled team of employees supervised by a work manager.\n\nPayment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.\n\nTo receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.\n\nPlease note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.\n\nTo schedule an appointment for a quote or speak with a representative, press ☎️ 3.",
                 'status'  => '1'
             ]
         );
@@ -239,8 +247,9 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '2',
-                'heb'     => "אנחנו מספקים שירות בתל אביב, רמת גן, גבעתיים, קריית אונו, רמת השרון, כפר שמריהו והרצליה. \n\nהאם תרצו לתאם פישה להצאת מחיר?",
-                'eng'     => "We provide service in Tel Aviv, Ramat Gan, Givatayim, Kiryat Ono, Ramat Hasharon, Kfar Shmariahu and Herzliya.\n\nWould you like to arrange a price quote?",
+                'heb'     => "איך מתחילים?\nלפני השירות מגיע אחד המפקחים של החברה, לנכס שלכם, לפגישה ללא עלות וללא התחייבות.\nהמפקח, בוחן מהם הצרכים שלכם, בודק אילו משטחים יש לנקות בנכס ומאיזה חומר הם עשויים על מנת להתאים להם את חומר הניקוי הטוב ביותר,
+                רואה את גודל הנכס, מספר חדרי שירותים וחדרי שינה ובהתאם לכך מתאים לכם את החבילה והעובד המתאים.\nלאחר הפגישה תשלח אליכם הצעת מחיר אותה תוכלו לאשר ולהזמין את השירות- כשבוע מראש, או ע\"ב מקום פנוי באותו השבוע.\nנציג אנושי יצור איתך קשר בהקדם\nלקבוע פגישה",
+                'eng'     => "We provide service in the following areas: 🗺️\n\n• Tel Aviv\n• Ramat Gan\n• Givatayim\n• Kiryat Ono\n• Ramat HaSharon\n• Kfar Shmaryahu\n• Herzliya\nTo schedule an appointment for a quote or speak with a representative, press ☎️ 3.",
                 'status'  => '1'
             ]
         );
@@ -248,9 +257,8 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '3',
-                'heb'     => "איך מתחילים?\nלפני השירות מגיע אחד המפקחים של החברה, לנכס שלכם, לפגישה ללא עלות וללא התחייבות.\nהמפקח, בוחן מהם הצרכים שלכם, בודק אילו משטחים יש לנקות בנכס ומאיזה חומר הם עשויים על מנת להתאים להם את חומר הניקוי הטוב ביותר,
-                רואה את גודל הנכס, מספר חדרי שירותים וחדרי שינה ובהתאם לכך מתאים לכם את החבילה והעובד המתאים.\nלאחר הפגישה תשלח אליכם הצעת מחיר אותה תוכלו לאשר ולהזמין את השירות- כשבוע מראש, או ע\"ב מקום פנוי באותו השבוע.\nנציג אנושי יצור איתך קשר בהקדם\nלקבוע פגישה",
-                'eng'     => "How do we start?\nBefore the service, one of the company's inspectors will come to your house for a free and no-obligation meeting.\nThe inspector examines what your needs are, checks which surfaces must be cleaned in the property and what material they are made of in order to match them with the best cleaning fluid Sees the size of the property, number of bathrooms and bedrooms and accordingly adjusts the package and the appropriate employee to you.\n After the meeting, you will be sent a price quote which you can confirm and book the service - about a week in advance, or if there is an available space that week.\nA human representative will contact you shortly",
+                'heb'     => "היי, כיף לראות אותך שוב \n\n1. יצירת קשר עם מנהל עבודה \n2. הנהלת חשבונות \n3. ביטול שירות\n4.מעבר לנציג אנושי (בשעות הפעילות)",
+                'eng'     => "To receive a quote, please send us a message with the following details: 📝\n\n• Full name\n• Phone number\n• Full address\n• Email adress\n\nA representative from our team will contact you shortly to schedule an appointment.\n\nIs there anything else I can help you with today? 👋",
                 'status'  => '1'
             ]
         );
@@ -258,35 +266,17 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '4',
-                'heb'     => "היי, כיף לראות אותך שוב \n\n1. יצירת קשר עם מנהל עבודה \n2. הנהלת חשבונות \n3. ביטול שירות\n4.מעבר לנציג אנושי (בשעות הפעילות)",
-                'eng'     => "Hi, nice to see you again\n\n1. Contacting a supervisor\n2. accountancy\n3. Cancellation of service\n4.Switching to a human representative (during business hours)",
-                'status'  => '1'
-            ]
-        );
-
-        TextResponse::create(
-            [
-                'keyword' => '4_1',
                 'heb'     => "תודה רבה על תגובתך, מנהל העבודה יצור איתך קשר בהקדם",
-                'eng'     => "Thank you very much for your response, the foreman will contact you soon.",
+                'eng'     => "Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.\n\nYou can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.\n\nEnter your phone number or email address with which you registered for the service 📝",
                 'status'  => '1'
             ]
         );
 
         TextResponse::create(
             [
-                'keyword' => '4_2',
+                'keyword' => '4_existing_customers_service_menu',
                 'heb'     => "תודה רבה על תגובתך, נציג מהנהלת חשבונות יצור איתך קשר בהקדם",
-                'eng'     => "Thank you very much for your response, a representative from accounting will contact you shortly.",
-                'status'  => '1'
-            ]
-        );
-
-        TextResponse::create(
-            [
-                'keyword' => '4_3',
-                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
-                'eng'     => "Thank you very much for your response, a human representative will contact you shortly.",
+                'eng'     => "1. View your quotes\n\n2. View your contracts\n\n3. When is my next service?\n\n4. Cancel a one-time service\n\n5. Terminate the agreement\n\n6. Contact a representative",
                 'status'  => '1'
             ]
         );
@@ -294,8 +284,17 @@ class ChatController extends Controller
         TextResponse::create(
             [
                 'keyword' => '4_4',
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'eng'     => "Dear customer, according to the terms of service, cancellation of the service may be subject to cancellation fees. Are you sure you want to cancel the service?",
+                'status'  => '1'
+            ]
+        );
+
+        TextResponse::create(
+            [
+                'keyword' => '4_6',
                 'heb'     => "אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
-                'eng'     => "Please remain available, a human representative will contact you shortly.",
+                'eng'     => "Who would you like to speak to?\n\n1. Office manager and scheduling\n\n2. Customer service\n\n3. Accounting and billing",
                 'status'  => '1'
             ]
         );
@@ -305,7 +304,34 @@ class ChatController extends Controller
             [
                 'keyword' => '5',
                 'heb'     => "אנא הישאר זמין, נציג אנושי יצור איתך קשר בהקדם",
-                'eng'     => "Please remain available, a human representative will contact you shortly",
+                'eng'     => "Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.\n\nIf you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.\n\nIf you would like to speak to a human representative, please send a message with the word \"Human Representative\". 🙋🏻",
+                'status'  => '1'
+            ]
+        );
+
+        TextResponse::create(
+            [
+                'keyword' => 'representative_contact',
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'eng'     => "A representative from our team will contact you shortly.",
+                'status'  => '1'
+            ]
+        );
+
+        TextResponse::create(
+            [
+                'keyword' => 'anything_else',
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'eng'     => "Is there anything else I can help you with today? 👋",
+                'status'  => '1'
+            ]
+        );
+
+        TextResponse::create(
+            [
+                'keyword' => 'hope_helped',
+                'heb'     => "תודה רבה על תגובתך, נציג אנושי יצור איתך קשר בהקדם",
+                'eng'     => "I hope I helped! 🤗",
                 'status'  => '1'
             ]
         );
@@ -400,5 +426,19 @@ class ChatController extends Controller
         return response()->json([
             'data' => $resp
         ]);
+    }
+
+    public function deleteConversation(Request $request)
+    {
+        $chats = WebhookResponse::where('number', $request->number)->delete();
+        if($chats){
+            return response()->json([
+                'msg' => 'Conversation has been deleted!'
+            ]);
+        }else{
+            return response()->json([
+                'msg' => 'No conversation found!'
+            ], 422);
+        }
     }
 }

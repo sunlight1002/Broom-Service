@@ -121,106 +121,99 @@ export default function Comment() {
                     {t("client.jobs.view.add_cmt")}
                 </button>
             </div>
-            {allComment &&
-                allComment.map((c, i) => {
-                    return (
+            {allComment.map((c, i) => {
+                return (
+                    <div
+                        className="card card-widget widget-user-2"
+                        style={{ boxShadow: "none" }}
+                        key={i}
+                    >
+                        <div className="card-comments cardforResponsive"></div>
                         <div
-                            className="card card-widget widget-user-2"
-                            style={{ boxShadow: "none" }}
-                            key={i}
+                            className="card-comment p-3"
+                            style={{
+                                backgroundColor: "rgba(0,0,0,.05)",
+                                borderRadius: "5px",
+                            }}
                         >
-                            <div className="card-comments cardforResponsive"></div>
-                            <div
-                                className="card-comment p-3"
-                                style={{
-                                    backgroundColor: "rgba(0,0,0,.05)",
-                                    borderRadius: "5px",
-                                }}
-                            >
-                                <div className="row">
-                                    <div className="col-sm-10 col-10">
-                                        <p
-                                            className="noteby p-1"
-                                            style={{
-                                                fontSize: "16px",
-                                            }}
+                            <div className="row">
+                                <div className="col-sm-10 col-10">
+                                    <p
+                                        className="noteby p-1"
+                                        style={{
+                                            fontSize: "16px",
+                                        }}
+                                    >
+                                        {c.name} -
+                                        <span
+                                            className="noteDate"
+                                            style={{ fontWeight: "600" }}
                                         >
-                                            {c.name} -
-                                            <span
-                                                className="noteDate"
-                                                style={{ fontWeight: "600" }}
+                                            {" " +
+                                                Moment(c.created_at).format(
+                                                    "DD-MM-Y hh:mm a"
+                                                )}{" "}
+                                            <br />
+                                        </span>
+                                    </p>
+                                </div>
+                                <div className="col-sm-2 col-2">
+                                    <div className="float-right noteUser">
+                                        {c.name ==
+                                        localStorage.getItem("client-name") ? (
+                                            <button
+                                                className="ml-2 btn bg-red"
+                                                onClick={(e) =>
+                                                    handleDelete(e, c.id)
+                                                }
                                             >
-                                                {" " +
-                                                    Moment(c.created_at).format(
-                                                        "DD-MM-Y h:sa"
-                                                    )}{" "}
-                                                <br />
-                                            </span>
-                                        </p>
+                                                <i className="fa fa-trash"></i>
+                                            </button>
+                                        ) : (
+                                            ""
+                                        )}
+                                        &nbsp;
                                     </div>
-                                    <div className="col-sm-2 col-2">
-                                        <div className="float-right noteUser">
-                                            {c.name ==
-                                            localStorage.getItem(
-                                                "client-name"
-                                            ) ? (
-                                                <button
-                                                    className="ml-2 btn bg-red"
-                                                    onClick={(e) =>
-                                                        handleDelete(e, c.id)
-                                                    }
-                                                >
-                                                    <i className="fa fa-trash"></i>
-                                                </button>
-                                            ) : (
-                                                ""
-                                            )}
-                                            &nbsp;
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <p className="rtl-comment">
-                                            {c.comment}
-                                        </p>
-                                        {c.attachments &&
-                                            c.attachments.length > 0 &&
-                                            c.attachments.map((cm, i) => {
-                                                return (
-                                                    <span
-                                                        className="badge badge-warning text-dark"
-                                                        key={i}
-                                                    >
-                                                        <a
-                                                            onClick={(e) => {
-                                                                let show =
-                                                                    document.querySelector(
-                                                                        ".showFile"
-                                                                    );
+                                </div>
+                                <div className="col-sm-12">
+                                    <p className="rtl-comment">{c.comment}</p>
+                                    {c.attachments.map((cm, i) => {
+                                        return (
+                                            <span
+                                                className="badge badge-warning text-dark"
+                                                key={i}
+                                            >
+                                                <a
+                                                    onClick={(e) => {
+                                                        let show =
+                                                            document.querySelector(
+                                                                ".showFile"
+                                                            );
 
-                                                                show.setAttribute(
-                                                                    "src",
-                                                                    `/storage/uploads/attachments/${cm.file}`
-                                                                );
-                                                                show.style.display =
-                                                                    "block";
-                                                            }}
-                                                            data-toggle="modal"
-                                                            data-target="#exampleModalFile"
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                        >
-                                                            {cm.file}
-                                                        </a>
-                                                    </span>
-                                                );
-                                            })}
-                                    </div>
+                                                        show.setAttribute(
+                                                            "src",
+                                                            `/storage/uploads/attachments/${cm.file_name}`
+                                                        );
+                                                        show.style.display =
+                                                            "block";
+                                                    }}
+                                                    data-toggle="modal"
+                                                    data-target="#exampleModalFile"
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    {cm.original_name}
+                                                </a>
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
-                    );
-                })}
+                    </div>
+                );
+            })}
 
             <div
                 className="modal fade"

@@ -46,9 +46,7 @@ import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/Cha
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
 import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
-import AddJob from "./Admin/Pages/Jobs/AddJob";
 import ViewJob from "./Admin/Pages/Jobs/ViewJob";
-import EditJob from "./Admin/Pages/Jobs/EditJob";
 import Leads from "./Admin/Pages/Lead/Lead";
 import AddLead from "./Admin/Pages/Lead/AddLead";
 import EditLead from "./Admin/Pages/Lead/EditLead";
@@ -59,6 +57,7 @@ import AddLeadClient from "./Admin/Pages/Clients/AddLeadClient";
 import EditClient from "./Admin/Pages/Clients/EditClient";
 import ViewClient from "./Admin/Pages/Clients/ViewClient";
 import AllWorkers from "./Admin/Pages/Workers/AllWorkers";
+import FreezeShiftWorkers from "./Admin/Pages/Workers/FreezeShiftWorkers";
 import AddWorker from "./Admin/Pages/Workers/AddWorker";
 import EditWorker from "./Admin/Pages/Workers/EditWorker";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
@@ -72,6 +71,7 @@ import EditTeam from "./Admin/Pages/Setting/EditTeam";
 import Services from "./Admin/Pages/Services/Services";
 import AddService from "./Admin/Pages/Services/AddService";
 import EditService from "./Admin/Pages/Services/EditService";
+import ViewService from "./Admin/Pages/Services/ViewService";
 import ServiceSchedule from "./Admin/Pages/Services/ServiceSchedule";
 import AddServiceSchedule from "./Admin/Pages/Services/AddServiceSchedule";
 import EditServiceSchedule from "./Admin/Pages/Services/EditServiceSchedule";
@@ -94,7 +94,6 @@ import InsuranceEng from "./Pages/Insurance/InsuranceEng";
 import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
 import WorkContract from "./Pages/WorkContract";
 import MeetingStatus from "./Pages/MeetingStatus";
-import ChooseMeetingSlot from "./Pages/ChooseMeetingSlot";
 import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
@@ -114,11 +113,11 @@ import Languages from "./Admin/Pages/Languages/language";
 import EditLanguages from "./Admin/Pages/Languages/EditLanguage";
 import Notification from "./Admin/Pages/Notification/Notification";
 import Income from "./Admin/Pages/Income";
-import Invoices from "./Admin/Pages/Sales/Invoices/Invoices";
-import AddInvoice from "./Admin/Pages/Sales/Invoices/AddInvoice";
-import Orders from "./Admin/Pages/Sales/Orders/Orders";
+// import Invoices from "./Admin/Pages/Sales/Invoices/Invoices";
+// import AddInvoice from "./Admin/Pages/Sales/Invoices/AddInvoice";
+// import Orders from "./Admin/Pages/Sales/Orders/Orders";
 import AddOrder from "./Admin/Pages/Sales/Orders/AddOrder";
-import Payments from "./Admin/Pages/Sales/Payments/payments";
+import Payments from "./Admin/Pages/Payment/Payments";
 import ScheduleMeet from "./Pages/ScheduleMeet";
 import Chat from "./Admin/Pages/Chat/chat";
 import Responses from "./Admin/Pages/Chat/responses";
@@ -127,8 +126,10 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
+import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import TestPdfRoute from "./Pdf/TestPdfRoute";
+import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -156,18 +157,13 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
-                        path="meeting-status/:id/:response"
+                        path="meeting-status/:id/reschedule"
                         element={<MeetingStatus />}
                     />
                     <Route
                         exact
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
-                    />
-                    <Route
-                        exact
-                        path="meetings/:id/choose-slot"
-                        element={<ChooseMeetingSlot />}
                     />
                     <Route
                         exact
@@ -199,6 +195,11 @@ export default function MyRoutes() {
                         exact
                         path="worker-contract/:id"
                         element={<WorkerContract />}
+                    />
+                    <Route
+                        exact
+                        path="worker-safe-gear/:id"
+                        element={<SafeAndGear />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
@@ -364,17 +365,15 @@ export default function MyRoutes() {
                                 path="jobs/:id/change-worker"
                                 element={<ChangeWorker />}
                             />
-                            <Route exact path="add-job" element={<AddJob />} />
+                            <Route
+                                exact
+                                path="jobs/:id/change-shift"
+                                element={<ChangeShift />}
+                            />
                             <Route
                                 exact
                                 path="view-job/:id"
                                 element={<ViewJob />}
-                            />
-                            <Route exact path="add-job" element={<AddJob />} />
-                            <Route
-                                exact
-                                path="edit-job/:id"
-                                element={<EditJob />}
                             />
                             <Route exact path="leads" element={<Leads />} />
                             <Route
@@ -417,6 +416,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers"
                                 element={<AllWorkers />}
+                            />
+                            <Route
+                                exact
+                                path="freeze-shift/:id"
+                                element={<FreezeShiftWorkers />}
                             />
                             <Route
                                 exact
@@ -482,6 +486,11 @@ export default function MyRoutes() {
                                 exact
                                 path="services/:id/edit"
                                 element={<EditService />}
+                            />
+                            <Route
+                                exact
+                                path="services/:id"
+                                element={<ViewService />}
                             />
                             <Route
                                 exact
@@ -614,11 +623,11 @@ export default function MyRoutes() {
                                 element={<EditLanguages />}
                             />
                             <Route exact path="income" element={<Income />} />
-                            <Route
+                            {/* <Route
                                 exact
                                 path="invoices"
                                 element={<Invoices />}
-                            />
+                            /> */}
                             {/* <Route
                                 exact
                                 path="add-invoice"
@@ -629,7 +638,7 @@ export default function MyRoutes() {
                                 path="add-order"
                                 element={<AddOrder />}
                             />
-                            <Route exact path="orders" element={<Orders />} />
+                            {/* <Route exact path="orders" element={<Orders />} /> */}
                             <Route
                                 exact
                                 path="payments"

@@ -3,12 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-const DocumentModal = ({
-    isDocToggle,
-    handleDocToggle,
-    handleDocSubmit,
-    docTypes,
-}) => {
+const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
     const { t } = useTranslation();
     const param = useParams();
     let docTypeRef = useRef(null);
@@ -33,17 +28,19 @@ const DocumentModal = ({
         }
     };
     useEffect(() => {
-        if (isDocToggle) {
+        if (isOpen) {
             resetForm();
         }
-    }, [isDocToggle]);
+    }, [isOpen]);
 
     return (
         <Modal
             size="xl"
             className="modal-container"
-            show={isDocToggle}
-            onHide={() => handleDocToggle()}
+            show={isOpen}
+            onHide={() => {
+                setIsOpen(false);
+            }}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Add Document</Modal.Title>
@@ -87,7 +84,9 @@ const DocumentModal = ({
                 <Button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => handleDocToggle()}
+                    onClick={() => {
+                        setIsOpen(false);
+                    }}
                 >
                     Close
                 </Button>

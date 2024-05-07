@@ -35,7 +35,13 @@ class WorkerController extends Controller
         $prefer_type = $request->get('prefer_type');
 
         $workers = User::query()
-            ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
+            ->with([
+                'availabilities:user_id,day,date,start_time,end_time',
+                'defaultAvailabilities:user_id,weekday,start_time,end_time,until_date',
+                'jobs:worker_id,start_date,shifts,client_id',
+                'jobs.client:id,firstname,lastname',
+                'notAvailableDates:user_id,date,start_time,end_time'
+            ])
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
@@ -67,9 +73,75 @@ class WorkerController extends Controller
         if (isset($request->filter)) {
             $workers = $workers->map(function ($worker, $key) {
                 $workerArr = $worker->toArray();
-                $workerArr['aval'] = $this->workerAvl($worker->availabilities);
-                $workerArr['wjobs'] = $this->workerJobs($worker->jobs);
+
+                $defaultAvailabilities = $worker->defaultAvailabilities
+                    ->where('until_date', '>=', date('Y-m-d'))
+                    ->groupBy('weekday');
+
+                $workerAvailabilitiesByDate = $worker
+                    ->availabilities
+                    ->sortBy([
+                        ['date', 'asc'],
+                        ['start_time', 'asc'],
+                    ])
+                    ->groupBy('date');
+
+                $availabilities = [];
+                foreach ($workerAvailabilitiesByDate as $date => $times) {
+                    $availabilities[$date] = $times->map(function ($item, $key) {
+                        return $item->only(['start_time', 'end_time']);
+                    });
+                }
+
+                $available_dates = array_keys($availabilities);
+                $dates = [];
+
+                $currentDate = Carbon::now();
+
+                // Loop through the next 4 weeks (28 days)
+                for ($i = 0; $i < 28; $i++) {
+                    // Add the current date to the array
+                    $date_ = $currentDate->toDateString();
+
+                    if (!in_array($date_, $available_dates)) {
+                        $weekDay = $currentDate->weekday();
+                        if (isset($defaultAvailabilities[$weekDay])) {
+                            $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
+                                return $item->only(['start_time', 'end_time']);
+                            });
+                        }
+                    }
+
+                    // Move to the next day
+                    $currentDate->addDay();
+                }
+
+                $workerArr['availabilities'] = $availabilities;
+
+                $dates = array();
+                foreach ($worker->jobs as $job) {
+                    $slotInfo = [
+                        'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
+                        'slot' => $job->shifts
+                    ];
+
+                    $dates[$job->start_date][] = $slotInfo;
+                }
+                $freezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+                $workerArr['freeze_dates'] = $freezeDates;
+                $workerArr['booked_slots'] = $dates;
+                $workerArr['not_available_on'] = $worker
+                    ->notAvailableDates
+                    ->map(function ($item) {
+                        return $item->only([
+                            'date',
+                            'start_time',
+                            'end_time'
+                        ]);
+                    })
+                    ->toArray();
                 $workerArr['not_available_dates'] = $worker->notAvailableDates->pluck('date')->toArray();
+
                 return $workerArr;
             });
 
@@ -81,27 +153,5 @@ class WorkerController extends Controller
         return response()->json([
             'workers' => $workers,
         ]);
-    }
-
-    public function workerJobs($jobs)
-    {
-        $data = array();
-        foreach ($jobs as $job) {
-            if (array_key_exists($job->start_date, $data)) {
-                $data[$job->start_date] = $data[$job->start_date] . ',' . $job->shifts;
-            } else {
-                $data[$job->start_date] = $job->shifts;
-            }
-        }
-        return $data;
-    }
-
-    public function workerAvl($availabilities)
-    {
-        $data = array();
-        foreach ($availabilities as $avl) {
-            $data[$avl->date] = $avl->working;
-        }
-        return $data;
     }
 }

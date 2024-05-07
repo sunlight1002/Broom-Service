@@ -29,6 +29,7 @@ class User extends Authenticatable
         'worker_id',
         'lng',
         'skill',
+        'company_type',
         'status',
         'passcode',
         'password',
@@ -44,7 +45,8 @@ class User extends Authenticatable
         'freeze_shift_start_time',
         'freeze_shift_end_time',
         'visa', 
-        'passport'
+        'passport',
+        'last_work_date',
     ];
 
     /**
@@ -95,5 +97,25 @@ class User extends Authenticatable
     public function documents()
     {
         return $this->morphMany(Document::class, 'userable')->orderBy('created_at','DESC');
+    }
+
+    public function forms()
+    {
+        return $this->morphMany(Form::class, 'user');
+    }
+
+    public function defaultAvailabilities()
+    {
+        return $this->hasMany(WorkerDefaultAvailability::class);
+    }
+
+    public function jobComments()
+    {
+        return $this->morphMany(JobComments::class, 'commenter');
+    }
+
+    public function freezeDates()
+    {
+        return $this->hasMany(WorkerFreezeDate::class);
     }
 }

@@ -2,13 +2,31 @@
 
 namespace App\Providers;
 
+use App\Events\AdminLeadFilesNotificationJob;
+use App\Events\AdminReScheduleMettingJob;
+use App\Events\ContractFormSigned;
+use App\Events\Form101Signed;
+use App\Events\JobReviewRequest;
+use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
+use App\Events\ReScheduleMettingJob;
+use App\Events\SafetyAndGearFormSigned;
 use App\Events\WorkerApprovedJob;
+use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
+use App\Listeners\AdminLeadFilesNotification;
+use App\Listeners\AdminReScheduleMettingNotification;
+use App\Listeners\NotifyForContractFormSigned;
+use App\Listeners\NotifyForForm101Signed;
+use App\Listeners\NotifyForSafetyAndGearFormSigned;
+use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
+use App\Listeners\SendJobReviewRequestNotification;
+use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
+use App\Listeners\SendWorkerFormsNotification;
 use App\Listeners\SendWorkerUpdatedJobStatusNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -40,6 +58,33 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerUpdatedJobStatus::class => [
             SendWorkerUpdatedJobStatusNotification::class
+        ],
+        JobShiftChanged::class => [
+            SendShiftChangedNotification::class
+        ],
+        WorkerCreated::class => [
+            SendWorkerFormsNotification::class
+        ],
+        ReScheduleMettingJob::class => [
+            ReScheduleMettingNotification::class,
+        ],
+        AdminReScheduleMettingJob::class => [
+            AdminReScheduleMettingNotification::class,
+        ],
+        AdminLeadFilesNotificationJob::class => [
+            AdminLeadFilesNotification::class,
+        ],
+        Form101Signed::class => [
+            NotifyForForm101Signed::class
+        ],
+        SafetyAndGearFormSigned::class => [
+            NotifyForSafetyAndGearFormSigned::class
+        ],
+        ContractFormSigned::class => [
+            NotifyForContractFormSigned::class
+        ],
+        JobReviewRequest::class => [
+            SendJobReviewRequestNotification::class
         ]
     ];
 

@@ -13,11 +13,26 @@ import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 
+import AddCreditCardModal from "../Modals/AddCreditCardModal";
+
 export default function Invoice() {
     const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [res, setRes] = useState("");
+    const [payId, setPayID] = useState(0);
+    const [amount, setAmount] = useState();
+    const [txn, setTxn] = useState("");
+    const [bt, setBt] = useState(true);
+    const [ch, setCh] = useState(false);
+    const [cancelDoc, setCancelDoc] = useState("");
+    const [dtype, setDtype] = useState("");
+    const [reason, setReason] = useState("");
+    const [cbvalue, setCbvalue] = useState("");
+    const [filtered, setFiltered] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [addCardModalOpen, setAddCardModalOpen] = useState(false);
+
     const params = useParams();
     const id = params.id;
     const headers = {
@@ -25,21 +40,6 @@ export default function Invoice() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
-    const [payId, setPayID] = useState(0);
-    const [place, setPlace] = useState("");
-    const [paidAmount, setPaidAmount] = useState("");
-    const [amount, setAmount] = useState();
-    const [txn, setTxn] = useState("");
-
-    const [bt, setBt] = useState(true);
-    const [ch, setCh] = useState(false);
-    const [cancelDoc, setCancelDoc] = useState("");
-    const [dtype, setDtype] = useState("");
-    const [reason, setReason] = useState("");
-    const [cbvalue, setCbvalue] = useState("");
-
-    const [filtered, setFiltered] = useState("");
 
     const getInvoices = (filter) => {
         axios
@@ -109,47 +109,112 @@ export default function Invoice() {
                     setInvoices(response.data.invoices.data);
                     setPageCount(response.data.invoices.last_page);
                 } else {
+                    setInvoices([]);
                     setLoading("No Invoice Found");
                 }
             });
     };
 
     const handlePayment = () => {
-        if (paidAmount == "") {
-            window.alert("Please enter amount");
-            return;
-        }
-
         const m = document.querySelector(".mode").value;
-        const stat = paidAmount >= amount ? "Paid" : "Partially Paid";
         const pm = {
             cc: "Credit Card",
             mt: "Bank Transfer",
             cash: "Cash",
             cheque: "Cheque",
         };
-        const data = {
-            paid_amount: paidAmount,
-            pay_method: paidAmount > 0 ? pm[m] : "",
+        const mdata = {
+            paid_amount: amount,
+            pay_method: pm[m],
             txn_id: txn,
-            status: paidAmount > 0 ? stat : "Unpaid",
+            status: "Paid",
         };
+
+        let data = {};
+
+        if (m == "mt") {
+            const btd = document.querySelector(".btd").value;
+            const ba = document.querySelector(".ba").value;
+            if (btd == "") {
+                window.alert("Please select bank transfer date");
+                return;
+            }
+            if (ba == "") {
+                window.alert("please enter bank account");
+                return;
+            }
+            data = {
+                ...mdata,
+                date: btd,
+                account: ba,
+            };
+        } else if (m == "cheque") {
+            const cd = document.querySelector(".cd").value;
+            const cbk = document.querySelector(".cbk").value;
+            const cb = document.querySelector(".cb").value;
+            const ca = document.querySelector(".ca").value;
+            const cno = document.querySelector(".cno").value;
+            if (cd == "") {
+                window.alert("please select cheque date");
+                return;
+            }
+            if (cbk == "") {
+                window.alert("please enter cheque bank");
+                return;
+            }
+            if (cb == "") {
+                window.alert("please enter cheque branch");
+                return;
+            }
+            if (ca == "") {
+                window.alert("please enter cheque account");
+                return;
+            }
+            if (cno == "") {
+                window.alert("please enter cheque number");
+                return;
+            }
+
+            data = {
+                ...mdata,
+                date: cd,
+                bank: cbk,
+                branch: cb,
+                account: ca,
+                number: cno,
+            };
+        } else {
+            data = { ...mdata };
+        }
+
+        setIsSubmitting(true);
 
         axios
             .post(`/api/admin/update-invoice/${payId}`, data, { headers })
             .then((res) => {
                 document.querySelector(".closeb1").click();
                 getInvoices("");
-                setPaidAmount("");
                 setPayID(0);
+                setIsSubmitting(false);
             })
             .catch((e) => {
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
                     icon: "error",
+                    showCancelButton: true,
+                    confirmButtonText: "Add New Credit Card",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleAddNewCard();
+                    }
                 });
+                setIsSubmitting(false);
             });
+    };
+
+    const handleAddNewCard = () => {
+        setAddCardModalOpen(true);
     };
 
     const closeDoc = (id, type) => {
@@ -177,33 +242,6 @@ export default function Invoice() {
                             text: e.response.data.message,
                             icon: "error",
                         });
-                    });
-            }
-        });
-    };
-
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Invoice!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .get(`/api/admin/delete-invoice/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Invoice has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getInvoices();
-                        }, 1000);
                     });
             }
         });
@@ -256,6 +294,7 @@ export default function Invoice() {
         setFiltered("f=all");
         getInvoices("f=all");
     }, []);
+
     return (
         <>
             <div className="boxPanel">
@@ -463,186 +502,159 @@ export default function Invoice() {
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {invoices &&
-                                    invoices.map((item, index) => {
-                                        let services =
-                                            item.services != undefined &&
-                                            item.services != null
-                                                ? JSON.parse(item.services)
-                                                : [];
-
-                                        let pl =
-                                            item.amount != item.paid_amount
-                                                ? parseFloat(item.amount) -
-                                                  parseFloat(item.paid_amount)
-                                                : item.amount;
-                                        pl = "Total Payable -  " + pl + " ILS";
-
-                                        return (
-                                            <Tr key={index}>
-                                                <Td>#{item.invoice_id}</Td>
-                                                <Td>{item.amount} ILS</Td>
-                                                <Td>{item.paid_amount} ILS</Td>
-                                                <Td>
-                                                    {Moment(
-                                                        item.created_at
-                                                    ).format("DD, MMM Y")}
-                                                </Td>
-                                                <Td>
-                                                    {item.due_date != null
-                                                        ? Moment(
-                                                              item.due_date
-                                                          ).format("DD, MMM Y")
-                                                        : "NA"}
-                                                </Td>
-                                                <Td>
-                                                    <Link
-                                                        to={`/admin/view-client/${
-                                                            item.client
-                                                                ? item.client.id
-                                                                : "NA"
-                                                        }`}
-                                                    >
-                                                        {item.client
-                                                            ? item.client
-                                                                  .firstname +
-                                                              " " +
-                                                              item.client
-                                                                  .lastname
-                                                            : "NA"}
-                                                    </Link>
-                                                </Td>
-                                                <Td
-                                                    onClick={(e) =>
-                                                        displayCallback(
-                                                            item.callback
-                                                        )
-                                                    }
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    data-toggle="modal"
-                                                    data-target="#callBack"
+                                {invoices.map((item, index) => {
+                                    return (
+                                        <Tr key={index}>
+                                            <Td>#{item.invoice_id}</Td>
+                                            <Td>{item.amount} ILS</Td>
+                                            <Td>{item.paid_amount} ILS</Td>
+                                            <Td>
+                                                {Moment(item.created_at).format(
+                                                    "DD, MMM Y"
+                                                )}
+                                            </Td>
+                                            <Td>
+                                                {item.due_date != null
+                                                    ? Moment(
+                                                          item.due_date
+                                                      ).format("DD, MMM Y")
+                                                    : "NA"}
+                                            </Td>
+                                            <Td>
+                                                <Link
+                                                    to={`/admin/view-client/${
+                                                        item.client
+                                                            ? item.client.id
+                                                            : "NA"
+                                                    }`}
                                                 >
-                                                    <a href="#">
-                                                        {" "}
-                                                        {item.status}{" "}
-                                                    </a>
-                                                </Td>
-                                                <Td>
-                                                    {item.txn_id
-                                                        ? item.txn_id
+                                                    {item.client
+                                                        ? item.client
+                                                              .firstname +
+                                                          " " +
+                                                          item.client.lastname
                                                         : "NA"}
-                                                </Td>
-                                                <Td>
-                                                    {item.pay_method
-                                                        ? item.pay_method
-                                                        : "Credit Card"}
-                                                </Td>
-                                                <Td>
-                                                    <div className="action-dropdown dropdown">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-default dropdown-toggle"
-                                                            data-toggle="dropdown"
-                                                        >
-                                                            <i className="fa fa-ellipsis-vertical"></i>
-                                                        </button>
+                                                </Link>
+                                            </Td>
+                                            <Td
+                                                onClick={(e) =>
+                                                    displayCallback(
+                                                        item.callback
+                                                    )
+                                                }
+                                                style={{
+                                                    cursor: "pointer",
+                                                }}
+                                                data-toggle="modal"
+                                                data-target="#callBack"
+                                            >
+                                                <a href="#"> {item.status} </a>
+                                            </Td>
+                                            <Td>
+                                                {item.txn_id
+                                                    ? item.txn_id
+                                                    : "NA"}
+                                            </Td>
+                                            <Td>
+                                                {item.pay_method
+                                                    ? item.pay_method
+                                                    : "Credit Card"}
+                                            </Td>
+                                            <Td>
+                                                <div className="action-dropdown dropdown">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-default dropdown-toggle"
+                                                        data-toggle="dropdown"
+                                                    >
+                                                        <i className="fa fa-ellipsis-vertical"></i>
+                                                    </button>
 
-                                                        <div className="dropdown-menu">
-                                                            <a
-                                                                target="_blank"
-                                                                href={
-                                                                    item.doc_url
-                                                                }
+                                                    <div className="dropdown-menu">
+                                                        <a
+                                                            target="_blank"
+                                                            href={item.doc_url}
+                                                            className="dropdown-item"
+                                                        >
+                                                            View Invoice
+                                                        </a>
+                                                        {item.status !=
+                                                            "Paid" && (
+                                                            <button
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    setPayID(
+                                                                        item.id
+                                                                    );
+                                                                    setAmount(
+                                                                        item.amount
+                                                                    );
+                                                                }}
+                                                                data-toggle="modal"
+                                                                data-target="#exampleModaPaymentAdd"
                                                                 className="dropdown-item"
                                                             >
-                                                                View Invoice
-                                                            </a>
-                                                            {item.status !=
-                                                                "Paid" && (
-                                                                <button
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        setPayID(
-                                                                            item.id
-                                                                        );
-                                                                        setPlace(
-                                                                            pl
-                                                                        );
-                                                                        setAmount(
-                                                                            item.amount
-                                                                        );
-                                                                    }}
-                                                                    data-toggle="modal"
-                                                                    data-target="#exampleModaPaymentAdd"
-                                                                    className="dropdown-item"
-                                                                >
-                                                                    Add Payment
-                                                                </button>
-                                                            )}
+                                                                Add Payment
+                                                            </button>
+                                                        )}
 
-                                                            {item.invoice_icount_status ==
-                                                                "Open" && (
+                                                        {item.invoice_icount_status ==
+                                                            "Open" && (
+                                                            <button
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    closeDoc(
+                                                                        item.invoice_id,
+                                                                        item.type
+                                                                    );
+                                                                }}
+                                                                className="dropdown-item"
+                                                            >
+                                                                Close Doc
+                                                            </button>
+                                                        )}
+                                                        {item.invoice_icount_status !=
+                                                            "Cancelled" &&
+                                                            item.invoice_icount_status !=
+                                                                "Closed" && (
                                                                 <button
                                                                     onClick={(
                                                                         e
                                                                     ) => {
-                                                                        closeDoc(
-                                                                            item.invoice_id,
+                                                                        setCancelDoc(
+                                                                            item.invoice_id
+                                                                        );
+                                                                        setDtype(
                                                                             item.type
                                                                         );
                                                                     }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModalCancel"
                                                                     className="dropdown-item"
                                                                 >
-                                                                    Close Doc
+                                                                    Cancel Doc
                                                                 </button>
                                                             )}
-                                                            {item.invoice_icount_status !=
-                                                                "Cancelled" &&
-                                                                item.invoice_icount_status !=
-                                                                    "Closed" && (
-                                                                    <button
-                                                                        onClick={(
-                                                                            e
-                                                                        ) => {
-                                                                            setCancelDoc(
-                                                                                item.invoice_id
-                                                                            );
-                                                                            setDtype(
-                                                                                item.type
-                                                                            );
-                                                                        }}
-                                                                        data-toggle="modal"
-                                                                        data-target="#exampleModalCancel"
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Cancel
-                                                                        Doc
-                                                                    </button>
-                                                                )}
-                                                            {item.receipt && (
-                                                                <a
-                                                                    target="_blank"
-                                                                    href={
-                                                                        item
-                                                                            .receipt
-                                                                            .docurl
-                                                                    }
-                                                                    className="dropdown-item"
-                                                                >
-                                                                    View Receipt
-                                                                </a>
-                                                            )}
-                                                            {/*<button onClick={e => handleDelete(item.id)} className="dropdown-item"
-                                                        >Delete</button>*/}
-                                                        </div>
+                                                        {item.receipt && (
+                                                            <a
+                                                                target="_blank"
+                                                                href={
+                                                                    item.receipt
+                                                                        .docurl
+                                                                }
+                                                                className="dropdown-item"
+                                                            >
+                                                                View Receipt
+                                                            </a>
+                                                        )}
                                                     </div>
-                                                </Td>
-                                            </Tr>
-                                        );
-                                    })}
+                                                </div>
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })}
                             </Tbody>
                         </Table>
                     ) : (
@@ -714,15 +726,9 @@ export default function Invoice() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={paidAmount}
-                                                onChange={(e) =>
-                                                    setPaidAmount(
-                                                        e.target.value
-                                                    )
-                                                }
+                                                value={amount}
                                                 className="form-control"
-                                                required
-                                                placeholder={place}
+                                                readOnly
                                             ></input>
                                         </div>
                                     </div>
@@ -732,11 +738,11 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Transaction / Refrence ID
+                                                Transaction / Reference ID
                                                 <small>
                                                     {" "}
-                                                    ( Optional in credit card
-                                                    mode )
+                                                    (Optional in credit card
+                                                    mode)
                                                 </small>
                                             </label>
                                             <input
@@ -911,6 +917,7 @@ export default function Invoice() {
                                 <button
                                     type="button"
                                     onClick={handlePayment}
+                                    disabled={isSubmitting}
                                     className="btn btn-primary sbtn"
                                 >
                                     Save Payment
@@ -1053,6 +1060,15 @@ export default function Invoice() {
                     </div>
                 </div>
             </div>
+
+            {addCardModalOpen && (
+                <AddCreditCardModal
+                    isOpen={addCardModalOpen}
+                    setIsOpen={setAddCardModalOpen}
+                    onSuccess={() => getInvoices("f=all")}
+                    clientId={id}
+                />
+            )}
         </>
     );
 }

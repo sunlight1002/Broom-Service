@@ -38,9 +38,12 @@
 		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{ $client['lng'] == 'heb' ? $team['heb_name'] : $team['name']}}</span>
 		 @endif
 
-		 {{__('mail.meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
-		 {{__('mail.meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
-		 {{__('mail.meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
+			@if($start_date)
+			{{__('mail.meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
+			{{__('mail.meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
+			{{__('mail.meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
+			@endif
+
 		 @if(isset($property_address))
 		 {{__('mail.meeting.address_txt')}}       <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
 		 @endif
@@ -64,10 +67,14 @@
 		@endif
 
 		<div style="display:flex;justify-content: center">
-			<!-- <a href='{{ url("thankyou/".base64_encode($id)."/accept")}}' target='_blank' style="background: green;color: #fff;border: 1px solid green;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center">{{__('mail.meeting.accept')}}</a>
-			<a href='{{ url("thankyou/".base64_encode($id)."/reject")}}' style="background: red;color: #fff;border: 1px solid red;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;margin: 0 15px;text-align: center">{{__('mail.meeting.reject')}}</a> -->
-			<a href='{{ url("meeting-status/".base64_encode($id)."/re")}}' target='_blank' style="background: #4385f5;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.reschedule')}}</a>
-			<a href='{{ url("meeting-files/".base64_encode($id))}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.upload_meeting_files')}}</a>
+			<a href='{{ url("thankyou/".base64_encode($id)."/accept")}}' target='_blank' style="background: green;color: #fff;border: 1px solid green;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center">{{__('mail.meeting.accept')}}</a>
+			<a href='{{ url("thankyou/".base64_encode($id)."/reject")}}' style="background: red;color: #fff;border: 1px solid red;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;margin: 0 15px;text-align: center">{{__('mail.meeting.reject')}}</a>
+
+			@if($start_date)
+			<a href='{{ url("meeting-status/".base64_encode($id)."/reschedule")}}' target='_blank' style="background: #4385f5;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.reschedule')}}</a>
+			@endif
+
+			<a href='{{ url("meeting-files/".base64_encode($id))}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.upload_job_description')}}</a>
 		</div>
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>

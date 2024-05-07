@@ -50,7 +50,7 @@ export default function WorkerDashboard() {
                     </div>
                     <div className="row">
                         <div className="col-sm-3 col-xs-6">
-                            <a href="/worker/jobs">
+                            <Link to={`/worker/jobs`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
                                         <i className="fa-solid fa-suitcase"></i>
@@ -60,7 +60,7 @@ export default function WorkerDashboard() {
                                         <p>{t("worker.sidebar.jobs")}</p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div className="latest-users">

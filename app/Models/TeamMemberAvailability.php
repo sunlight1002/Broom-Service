@@ -10,6 +10,8 @@ class TeamMemberAvailability extends Model
 
     protected $fillable = [
         'team_member_id',
-        'time_slots',
+        'date',
+        'start_time',
+        'end_time',
     ];
 }

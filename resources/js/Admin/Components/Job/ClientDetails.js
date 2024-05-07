@@ -68,7 +68,7 @@ export default function ClientDetails({ client, address }) {
                                 <p>{address.city}</p>
                             </div>{" "}
                         </div>
-                        <div className="col-sm-8">
+                        <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
                                     {" "}
@@ -84,6 +84,16 @@ export default function ClientDetails({ client, address }) {
                                 </p>
                             </div>
                         </div>
+                        {address.parking && (
+                            <div className="col-sm-4">
+                                <div className="form-group">
+                                    <label>
+                                        {t("admin.schedule.jobs.parking")}
+                                    </label>
+                                    <p>{address.parking}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </form>
             </div>

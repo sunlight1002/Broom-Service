@@ -1,34 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
 import CurrentJob from "./CurrentJob";
 import PastJob from "./PastJob";
 import WorkerAvailabilty from "./WorkerAvailabilty";
-import Documents from "./Documents";
-import WorkerContract from "./WorkerContract";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
+import WorkerForms from "./WorkerForms";
 
-export default function WorkerHistory() {
-    const params = useParams();
-    const [interval, setTimeInterval] = useState([]);
+export default function WorkerHistory({ worker }) {
+    const [days, setDays] = useState([]);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
-                let ai = [];
-                ar && ar.map((a, i) => ai.push(parseInt(a)));
-                var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
-                    return ai.indexOf(obj) == -1;
-                });
-                setTimeInterval(hid);
+                setDays(ar);
             }
         });
     };
+
     useEffect(() => {
         getTime();
     }, []);
@@ -72,31 +67,22 @@ export default function WorkerHistory() {
                         Past Job
                     </a>
                 </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="doucments"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-doucments"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        Form 101
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-contract"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-contract"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        Contract
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
+                {worker.country === "Israel" &&
+                    worker.company_type === "my-company" && (
+                        <li className="nav-item" role="presentation">
+                            <a
+                                id="worker-forms"
+                                className="nav-link"
+                                data-toggle="tab"
+                                href="#tab-worker-forms"
+                                aria-selected="false"
+                                role="tab"
+                            >
+                                Forms
+                            </a>
+                        </li>
+                    )}
+                {/* <li className="nav-item" role="presentation">
                     <a
                         id="worker-not-availability"
                         className="nav-link"
@@ -107,13 +93,13 @@ export default function WorkerHistory() {
                     >
                         Not Available Date
                     </a>
-                </li>
+                </li> */}
                 <li className="nav-item" role="presentation">
                     <a
-                        id="worker-forms"
+                        id="worker-documents"
                         className="nav-link"
                         data-toggle="tab"
-                        href="#tab-worker-forms"
+                        href="#tab-worker-documents"
                         aria-selected="false"
                         role="tab"
                     >
@@ -128,7 +114,7 @@ export default function WorkerHistory() {
                     role="tab-panel"
                     aria-labelledby="current-job"
                 >
-                    <WorkerAvailabilty interval={interval} />
+                    <WorkerAvailabilty days={days} />
                 </div>
                 <div
                     id="tab-current-job"
@@ -146,37 +132,32 @@ export default function WorkerHistory() {
                 >
                     <PastJob />
                 </div>
-                <div
-                    id="tab-doucments"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="doucments"
-                >
-                    <Documents />
-                </div>
-                <div
-                    id="tab-worker-contract"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="doucments"
-                >
-                    <WorkerContract />
-                </div>
-                <div
+                {worker.country === "Israel" &&
+                    worker.company_type === "my-company" && (
+                        <div
+                            id="tab-worker-forms"
+                            className="tab-pane"
+                            role="tab-panel"
+                            aria-labelledby="worker-forms"
+                        >
+                            <WorkerForms worker={worker} />
+                        </div>
+                    )}
+                {/* <div
                     id="tab-worker-not-availability"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="doucments"
                 >
                     <WorkerNotAvailabilty />
-                </div>
+                </div> */}
                 <div
-                    id="tab-worker-forms"
+                    id="tab-worker-documents"
                     className="tab-pane"
                     role="tab-panel"
                     aria-labelledby="forms"
                 >
-                    <Document />
+                    <Document worker={worker} />
                 </div>
             </div>
         </div>

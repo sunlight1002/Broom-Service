@@ -23,7 +23,7 @@
         "accept": "Accept",
         "reject": "Reject",
         "reschedule": "Reschedule",
-        "upload_meeting_files": "Upload meeting files",
+        "upload_job_description": "Upload Job Description",
         "choose_slot": "Choose slot"
     },
     "res_txt": "Thankyou for your response",
@@ -218,6 +218,7 @@
         }
     },
     "work-contract": {
+        "action": "Action",
         "inHead": "Broom Service L.M. Ltd Private Company no. 515184208 \n Exclusive Framework Agreement with Tenants/Clients",
         "signed": "Made and Signed in :",
         "between": "Between:",
@@ -462,6 +463,22 @@
             "total": "Total",
             "action": "Action",
             "view_btn": "View",
+            "change_worker_request": "Change Worker Request",
+            "change": {
+                "title": "Change Worker Request",
+                "worker_availability": "Worker Availability",
+                "desc": "Assign a specific worker only and choose a shift for a single date.",
+                "services": "Services",
+                "frequency": "Frequency",
+                "time_to_complete": "Time to Complete",
+                "property": "Property",
+                "gender_preference": "Gender preference",
+                "pet_animals": "Pet animals",
+                "shift": "Shift",
+                "date": "Date",
+                "worker": "Worker",
+                "pending": "Request is pending."
+            },
             "view": {
                 "worker_details": "Worker Details",
                 "job_status": "Job Status",
@@ -682,8 +699,10 @@
                         "floor": "Enter floor",
                         "AptNumberAndAptName": "Enter Apt number and Apt name",
                         "EnteranceCode": "Enter enterance code",
-                        "ZipCode": "Enter zip code"
-                    }
+                        "ZipCode": "Enter zip code",
+                        "parking": "Enter parking"
+                    },
+                    "parking": "Parking"
                 },
                 "placeHolder": {
                     "FirstName": "Enter first name",
@@ -878,6 +897,7 @@
                 "Phone": "Phone",
                 "City": "City",
                 "Address": "Address",
+                "parking": "Parking",
                 "clientDetails": "client Details",
                 "workerDetails": "Worker Details",
                 "serviceDetailslabel": "Service Details",
@@ -970,6 +990,10 @@
             "action": "Action"
         },
         "jobs": {
+            "all_jobs": "All Jobs",
+            "current_week": "Current Jobs",
+            "next_week": "Next Jobs",
+            "next_next_week": "Next Next Jobs",
             "title": "Jobs",
             "date": "Date",
             "client": "Client",
@@ -985,10 +1009,11 @@
             "job_details": "Job details",
             "view": {
                 "c_details": "Client Details",
-                "c_name": "Client Name",
-                "c_email": "Client Email",
-                "c_phone": "Client Phone",
+                "c_name": "Name",
+                "c_email": "Email",
+                "c_phone": "Phone",
                 "geo_adr": "Google address",
+                "parking": "Parking",
                 "s_details": "Service Details",
                 "services": "Services",
                 "job_status": "Job Status",
@@ -1014,14 +1039,26 @@
                 "save_cmt": "Save Comment",
                 "close": "Close",
                 "file": "Upload files",
-                "going_to_start": "I'm leaving for work now"
+                "going_to_start": "I'm leaving for work now",
+                "approve": "Approve"
             }
         },
         "schedule": {
             "title": "Schedule",
             "c_week": "Current Week",
             "n_week": "Next Week",
-            "update": "Update Availability"
+            "n_n_week": "Next to Next Week",
+            "update": "Update Availability",
+            "default": "Default",
+            "custom": "Custom",
+            "select_date_range": "Select Date Range",
+            "until_date": "Until Date",
+            "add_date": "Add Date",
+            "date": "Date",
+            "start_time": "Start Time",
+            "end_time": "End Time",
+            "save_date": "Save Date",
+            "close": "Close"
         },
         "settings": {
             "edit_account": "Edit Account",
@@ -1048,7 +1085,8 @@
             "add_file": "Add File",
             "file": "File",
             "close": "Close",
-            "save_file": "Save File"
+            "save_file": "Save File",
+            "forms": "Forms"
         }
     },
     "worker_contract": {
@@ -1165,7 +1203,6 @@
         "notes_5": "Note! If your employer uses a different system for forms 101 - you must fill out the form there. It is recommended to check with the employer.",
         "notes_6": "Your privacy is important to us. We do not use your information and do not transfer it to third parties.",
         "texYearTitle": "Tax year",
-        "year_2023": "2023",
         "year_2023_details": "(The form can only be filled out for the current tax year. Except in the month of December, when the form can also be filled out for the next tax year and in the month of January, when the form can be filled out also for the previous tax year, for the benefit of employees who did not have time to fill out the form in time.)",
         "employer_details": "A. Employer details",
         "label_id": "ID",
@@ -1257,7 +1294,7 @@
         "exm10": "10. Regarding my children who are not in my possession listed in part C and I participate in their finances (To be filled out by a parent who lives separately, who is not entitled to credit points for his children, who created a PSA requiring him to pay child support)",
         "exm11": "11. I am a parent of children with disabilities who have not yet turned 19, for whom I receive a disabled child benefit from the National Insurance Institute (My partner does not receive these credit points. My children, for whom I am requesting the credit points, have no income this year)",
         "exm12": "12. In respect of alimony for my former spouse (To be filled in by the person who remarries)",
-        "exm13": "I or my partner have turned 16 and have not yet turned 18 in the tax year",
+        "exm13": "13. I or my partner have turned 16 and have not yet turned 18 in the tax year",
         "exm14": "14. I am a discharged soldier / served in national service",
         "exm15": "15. In respect of graduation for an academic degree, graduation from an internship or graduation from professional studies",
         "coordination_number": "H. Coordination number",
@@ -1284,7 +1321,12 @@
         "disclaimer_details1": "I declare that the details I provided in this form are complete and correct. I know that omitting or providing incorrect information is a violation of the Income Tax Ordinance.",
         "disclaimer_details2": "I undertake to inform the employer of any change that will apply to my personal details and the details above within a week from the date of the change.",
         "button_clear": "Clear",
-        "button_submit": "Submit"
+        "button_submit": "Submit",
+        "Date": "Date",
+        "sendTOYouAndEmployer": "Send the form to you and the employer",
+        "employerEmail": "Employer's email address",
+        "employesEmail": "Employee's email address",
+        "DetailsOfSpouse": "Details of spouse"
     },
     "credit-card": {
         "added-card": "Added Card"

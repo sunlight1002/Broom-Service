@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
@@ -24,10 +26,17 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Jobs\CreateJobOrder;
+use App\Jobs\ScheduleNextJobOccurring;
+use App\Models\JobCancellationFee;
+use App\Models\ManageTime;
+use App\Traits\PaymentAPI;
 
 class JobController extends Controller
 {
-    use JobSchedule, PriceOffered;
+    use JobSchedule, PriceOffered, PaymentAPI;
 
     /**
      * Display a listing of the resource.
@@ -150,31 +159,6 @@ class JobController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'client_id' => ['required'],
-            'worker_id' => ['required'],
-            'start_date' => ['required']
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        Job::create($request->input());
-
-        return response()->json([
-            'message' => 'Job has been created successfully'
-        ]);
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -203,57 +187,6 @@ class JobController extends Controller
 
         return response()->json([
             'job' => $job,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'workers' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
-        }
-
-        $worker = $request->workers[0];
-        $job = Job::find($id);
-
-        $job->upcate([
-            'worker_id'  => $worker['worker_id'],
-            'start_date' => $worker['date'],
-            'start_time' => $worker['start'],
-            'end_time'   => $worker['end'],
-            'status'     => 'scheduled',
-        ]);
-
-        $this->sendWorkerEmail($id);
-
-        return response()->json([
-            'message' => 'Job has been updated successfully'
-        ]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $job = Job::find($id);
-        $job->delete();
-
-        return response()->json([
-            'message' => "Job has been deleted"
         ]);
     }
 
@@ -372,8 +305,10 @@ class JobController extends Controller
         $s_freq   = $selectedService['freq_name'];
         $s_cycle  = $selectedService['cycle'];
         $s_period = $selectedService['period'];
-        $s_total  = $selectedService['totalamount'];
         $s_id     = $selectedService['service'];
+
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
 
         $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
         foreach ($workerIDs as $workerID) {
@@ -382,35 +317,57 @@ class JobController extends Controller
             });
 
             $workerDates = array_values($workerDates);
-            foreach ($workerDates as $key => $workerDate) {
-                // if ($selectedService['type'] == 'hourly') {
-                //     $total_amount = $selectedService['rateperhour'];
-                // } else {
-                //     $total_amount = $selectedService['fixed_price'];
-                // }
+            foreach ($workerDates as $workerIndex => $workerDate) {
+                $job_date = Carbon::parse($workerDate['date']);
+                $preferredWeekDay = strtolower($job_date->format('l'));
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
-                $shifts = explode(',', $workerDate['shifts']);
-                $shiftsInHour = [];
-                foreach ($shifts as $key => $shift) {
+                if (!$next_job_date) {
+                    $is_one_time_in_month_job = true;
+                } else {
+                    $next_job_date_carbon = Carbon::parse($next_job_date);
+                    $is_one_time_in_month_job = !($job_date->year == $next_job_date_carbon->year &&
+                        $job_date->month == $next_job_date_carbon->month);
+                }
+
+                $job_date = $job_date->toDateString();
+
+                $slots = explode(',', $workerDate['shifts']);
+                // sort slots in ascending order of time before merging for continuous time
+                sort($slots);
+
+                foreach ($slots as $key => $shift) {
                     $timing = explode('-', $shift);
-                    $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
-                    $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
 
-                    $shiftsInHour[] = [
-                        'start' => $timing[0],
-                        'end' => $timing[1]
+                    $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
                     ];
                 }
 
-                $minutes = 0;
-                foreach ($shiftsInHour as $key => $value) {
-                    $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
-                }
-                $job_date = Carbon::parse($workerDate['date']);
-                $preferredWeekDay = strtolower($job_date->format('l'));
-                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+                $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
-                $job_date = $job_date->toDateString();
+                $minutes = 0;
+                $slotsInString = '';
+                foreach ($mergedContinuousTime as $key => $slot) {
+                    if (!empty($slotsInString)) {
+                        $slotsInString .= ',';
+                    }
+
+                    $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+                }
+
+                if ($selectedService['type'] == 'hourly') {
+                    $hours = ($minutes / 60);
+                    $total_amount = $selectedService['rateperhour'] * $hours;
+                } else {
+                    $total_amount = $selectedService['fixed_price'];
+                }
 
                 $status = JobStatusEnum::SCHEDULED;
 
@@ -428,17 +385,17 @@ class JobController extends Controller
                     'contract_id'   => $contract->id,
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
-                    'shifts'        => $workerDate['shifts'],
+                    'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
-                    'is_one_time_job'   => $repeat_value == 'na',
+                    'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
-                    'total_amount'  => $s_total,
+                    'total_amount'  => $total_amount,
                     'next_start_date'   => $next_job_date,
                     'address_id'        => $selectedService['address']['id'],
                     'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
                     'original_worker_id'     => $workerDate['worker_id'],
-                    'original_shifts'        => $workerDate['shifts'],
+                    'original_shifts'        => $slotsInString,
                 ]);
 
                 JobService::create([
@@ -450,7 +407,7 @@ class JobController extends Controller
                     'freq_name'         => $s_freq,
                     'cycle'             => $s_cycle,
                     'period'            => $s_period,
-                    'total'             => $s_total,
+                    'total'             => $total_amount,
                     'config'            => [
                         'cycle'             => $serviceSchedule->cycle,
                         'period'            => $serviceSchedule->period,
@@ -458,22 +415,17 @@ class JobController extends Controller
                     ]
                 ]);
 
-                $shiftFormattedArr = [];
-                foreach ($shiftsInHour as $key => $time) {
-                    $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
-                    $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
+                $job->update([
+                    'origin_job_id' => $job->id
+                ]);
 
-                    $shiftFormattedArr[$key] = [
-                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
-                    ];
-                }
-
-                foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+                foreach ($mergedContinuousTime as $key => $shift) {
                     $job->workerShifts()->create($shift);
                 }
 
-                if ($key == 0) {
+                $this->copyDefaultCommentsToJob($job);
+
+                if ($workerIndex == 0) {
                     $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
@@ -482,10 +434,11 @@ class JobController extends Controller
                         $emailData = array(
                             'email' => $job['worker']['email'],
                             'job' => $job->toArray(),
-                            'start_time' => $shiftsInHour[0]['start'],
+                            'start_time' => $mergedContinuousTime[0]['starting_at'],
                             'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                            'content_data'  => __('mail.worker_new_job.new_job_assigned'),
                         );
-
+                        sendJobWANotification($emailData);
                         Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                             $messages->to($emailData['email']);
                             $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -530,7 +483,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -564,28 +520,44 @@ class JobController extends Controller
 
         $repeat_value = $job->jobservice->period;
 
-        $shifts = explode(',', $data['worker']['shifts']);
-        $shiftsInHour = [];
-        foreach ($shifts as $key => $shift) {
-            $timing = explode('-', $shift);
-            $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
-            $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
 
-            $shiftsInHour[] = [
-                'start' => $timing[0],
-                'end' => $timing[1]
+        $job_date = Carbon::parse($data['worker']['date']);
+        $preferredWeekDay = strtolower($job_date->format('l'));
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+        $job_date = $job_date->toDateString();
+
+        $slots = explode(',', $data['worker']['shifts']);
+        // sort slots in ascending order of time before merging for continuous time
+        sort($slots);
+
+        foreach ($slots as $key => $shift) {
+            $timing = explode('-', $shift);
+
+            $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
             ];
         }
 
-        $minutes = 0;
-        foreach ($shiftsInHour as $key => $value) {
-            $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
-        }
-        $job_date = Carbon::parse($data['worker']['date']);
-        $preferredWeekDay = strtolower($job_date->format('l'));
-        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+        $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
-        $job_date = $job_date->toDateString();
+        $minutes = 0;
+        $slotsInString = '';
+        foreach ($mergedContinuousTime as $key => $slot) {
+            if (!empty($slotsInString)) {
+                $slotsInString .= ',';
+            }
+
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+            $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+        }
 
         $status = JobStatusEnum::SCHEDULED;
 
@@ -600,7 +572,7 @@ class JobController extends Controller
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
             'start_date'    => $job_date,
-            'shifts'        => $data['worker']['shifts'],
+            'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
         ];
@@ -622,12 +594,165 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
+        $job->update($jobData);
+
+        $job->jobservice()->update([
+            'duration_minutes'  => $minutes,
+            'config'            => [
+                'cycle'             => $job->jobservice->cycle,
+                'period'            => $job->jobservice->period,
+                'preferred_weekday' => $preferredWeekDay
+            ]
+        ]);
+
+        $job->workerShifts()->delete();
+        foreach ($mergedContinuousTime as $key => $shift) {
+            $job->workerShifts()->create($shift);
         }
 
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_WORKER,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
+
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+        event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
+
+        return response()->json([
+            'message' => 'Job has been updated successfully'
+        ]);
+    }
+
+    public function changeJobShift(Request $request, $id)
+    {
+        $data = $request->all();
+
+        if (!in_array($data['repeatancy'], ['one_time', 'until_date', 'forever'])) {
+            return response()->json([
+                'message' => "Repeatancy is invalid",
+            ], 422);
+        }
+
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'jobservice',
+            ])
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
+        $repeat_value = $job->jobservice->period;
+
+        $job_date = Carbon::parse($data['worker']['date']);
+        $preferredWeekDay = strtolower($job_date->format('l'));
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+        $job_date = $job_date->toDateString();
+
+        $slots = explode(',', $data['worker']['shifts']);
+        // sort slots in ascending order of time before merging for continuous time
+        sort($slots);
+
+        foreach ($slots as $key => $shift) {
+            $timing = explode('-', $shift);
+
+            $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            ];
+        }
+
+        $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+        $minutes = 0;
+        $slotsInString = '';
+        foreach ($mergedContinuousTime as $key => $slot) {
+            if (!empty($slotsInString)) {
+                $slotsInString .= ',';
+            }
+
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+            $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+        }
+
+        $status = JobStatusEnum::SCHEDULED;
+
+        if (
+            Job::where('start_date', $job_date)
+            ->where('id', '!=', $job->id)
+            ->where('worker_id', $job->worker_id)
+            ->exists()
+        ) {
+            $status = JobStatusEnum::UNSCHEDULED;
+        }
+
+        $jobData = [
+            'start_date'    => $job_date,
+            'shifts'        => $slotsInString,
+            'status'        => $status,
+            'next_start_date'   => $next_job_date,
+        ];
+
+        if ($data['repeatancy'] == 'one_time') {
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = NULL;
+        } else if ($data['repeatancy'] == 'until_date') {
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = $data['until_date'];
+        } else if ($data['repeatancy'] == 'forever') {
+            $jobData['previous_shifts'] = NULL;
+            $jobData['previous_shifts_after'] = NULL;
         }
 
         $job->update($jobData);
@@ -641,25 +766,28 @@ class JobController extends Controller
             ]
         ]);
 
-        $shiftFormattedArr = [];
-        foreach ($shiftsInHour as $key => $time) {
-            $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
-            $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
-
-            $shiftFormattedArr[$key] = [
-                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
-            ];
-        }
-
         $job->workerShifts()->delete();
-        foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+        foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
 
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_SHIFT,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
+
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
+        event(new JobShiftChanged($job, $mergedContinuousTime[0]['starting_at']));
 
         return response()->json([
             'message' => 'Job has been updated successfully'
@@ -744,7 +872,7 @@ class JobController extends Controller
             'time_diff' => $request->timeDiff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'time' => $time,
@@ -770,7 +898,7 @@ class JobController extends Controller
             'time_diff' => $request->timeDiff,
         ]);
 
-        $this->updateJobWorkerMinutes($request->job_id);
+        $this->updateJobWorkerMinutes($time->job_id);
 
         return response()->json([
             'time' => $time,
@@ -783,8 +911,53 @@ class JobController extends Controller
             ->with(['worker', 'offer', 'client', 'jobservice'])
             ->find($id);
 
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
         $feePercentage = $request->fee;
-        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CANCELLATION,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
 
         $job->update([
             'status' => JobStatusEnum::CANCEL,
@@ -797,6 +970,9 @@ class JobController extends Controller
             'cancel_until_date' => $request->until_date,
         ]);
 
+        CreateJobOrder::dispatch($job->id);
+        ScheduleNextJobOccurring::dispatch($job->id);
+
         $admin = Admin::find(1)->first();
         App::setLocale('en');
         $data = array(
@@ -805,6 +981,13 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
+
+        if (isset($data['job']['client']) && !empty($data['job']['client']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
 
         Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['job']['client']['email']);
@@ -896,8 +1079,9 @@ class JobController extends Controller
                 'email' => $job['worker']['email'],
                 'job'  => $job->toArray(),
                 'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.new_job_assigned'),
             );
-
+            sendJobWANotification($data);
             Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
                 $messages->to($data['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -919,7 +1103,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -970,7 +1157,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -1005,7 +1195,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($otherWorkerJob->status == JobStatusEnum::COMPLETED) {
+        if (
+            $otherWorkerJob->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => "Other worker's job already completed",
             ], 403);
@@ -1039,22 +1232,6 @@ class JobController extends Controller
             $otherJobData['previous_worker_after'] = NULL;
         }
 
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
-        }
-
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
-        }
-
-        if (!$otherWorkerJob->original_worker_id) {
-            $otherJobData['original_worker_id'] = $otherWorkerJob->worker_id;
-        }
-
-        if (!$otherWorkerJob->original_shifts) {
-            $otherJobData['original_shifts'] = $otherWorkerJob->shifts;
-        }
-
         $job->update($jobData);
         $otherWorkerJob->update($otherJobData);
 
@@ -1071,8 +1248,9 @@ class JobController extends Controller
                 'email' => $jobArray['worker']['email'],
                 'job'  => $jobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-
+            sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -1093,8 +1271,9 @@ class JobController extends Controller
                 'email' => $otherJobArray['worker']['email'],
                 'job'  => $otherJobArray,
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
+                'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-
+            sendJobWANotification($emailData);
             Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -1109,12 +1288,58 @@ class JobController extends Controller
 
     public function updateJobDone(Request $request, $id)
     {
-        $job = Job::find($id);
+        $job = Job::with(['order'])->find($id);
 
-        if ($job) {
-            $job->update([
-                'is_job_done' => $request->checked
-            ]);
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
+
+        if ($job->is_job_done) {
+            $this->updateJobAmount($job->id);
+
+            CreateJobOrder::dispatch($job->id);
+        } else {
+            if ($job->is_order_generated) {
+                $order = $job->order;
+
+                if ($order->status == 'Closed') {
+                    return response()->json([
+                        'message' => 'Job order is already closed',
+                    ], 403);
+                }
+
+                $closeDocResponse = $this->cancelICountDocument(
+                    $order->order_id,
+                    'order',
+                    'Creating another order'
+                );
+
+                if ($closeDocResponse['status'] != true) {
+                    return response()->json([
+                        'message' => $closeDocResponse['reason']
+                    ], 500);
+                }
+
+                $order->update(['status' => 'Cancelled']);
+
+                $order->jobs()->update([
+                    'isOrdered' => 'c',
+                    'order_id' => NULL,
+                    'is_order_generated' => false
+                ]);
+            }
         }
 
         return response()->json([
@@ -1124,13 +1349,32 @@ class JobController extends Controller
 
     public function updateWorkerActualTime(Request $request, $id)
     {
-        $job = Job::find($id);
+        $job = Job::with('order')->find($id);
 
-        if ($job) {
-            $job->update([
-                'actual_time_taken_minutes' => $request->value
-            ]);
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
         }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        if (
+            $job->order &&
+            $job->order->status == 'Closed'
+        ) {
+            return response()->json([
+                'message' => 'Job order is already closed',
+            ], 403);
+        }
+
+        $job->update([
+            'actual_time_taken_minutes' => $request->value
+        ]);
 
         return response()->json([
             'message' => 'Job has been updated',

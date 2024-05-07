@@ -40,7 +40,7 @@
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 						{{ $job['jobservice']['name'].', ' }}
 					</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['property_address']['address_name'] }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['property_address'] ? $job['property_address']['address_name'] : "NA" }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>
 				</tr>
 			</tbody>

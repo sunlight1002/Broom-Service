@@ -75,6 +75,11 @@ class Client extends Authenticatable
             Notification::where('user_id', $model->id)->delete();
             Job::where('client_id', $model->id)->delete();
             Order::where('client_id', $model->id)->delete();
+
+            $comments = $model->comments()->get();
+            foreach ($comments as $key => $comment) {
+                $comment->delete();
+            }
         });
     }
 
@@ -91,6 +96,11 @@ class Client extends Authenticatable
     public function offers()
     {
         return $this->hasMany(Offer::class, 'client_id', 'id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'client_id', 'id');
     }
 
     public function subscription()
@@ -111,6 +121,16 @@ class Client extends Authenticatable
     public function property_addresses()
     {
         return $this->hasMany(ClientPropertyAddress::class)->orderBy('id', 'desc');
+    }
+
+    public function jobComments()
+    {
+        return $this->morphMany(JobComments::class, 'commenter');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'relation');
     }
 
     public function ScopeReply($query)

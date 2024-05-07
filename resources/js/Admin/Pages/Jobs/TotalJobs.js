@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -8,8 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 import useDebounce from "./hooks/useDebounce";
+
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
+import CancelJobModal from "../../Components/Modals/CancelJobModal";
 
 export default function TotalJobs() {
     const todayFilter = {
@@ -43,10 +45,6 @@ export default function TotalJobs() {
     const [loading, setLoading] = useState("Loading...");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
-    const [lw, setLw] = useState("Change shift");
-    const [AllFreq, setAllFreq] = useState([]);
-    const [sworkers, setSworkers] = useState([]);
-    const [lng, setLng] = useState(null);
     const [cshift, setCshift] = useState({
         contract: "",
         client: "",
@@ -72,6 +70,8 @@ export default function TotalJobs() {
     const [paymentFilter, setPaymentFilter] = useState("");
     const [searchVal, setSearchVal] = useState("");
     const [selectedFilter, setselectedFilter] = useState("Week");
+    const [selectedJob, setSelectedJob] = useState(null);
+    const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -116,24 +116,47 @@ export default function TotalJobs() {
             });
     };
 
-    // useEffect(() => {
-    //     getJobs();
-    // }, []);
-
     useEffect(() => {
         getJobs();
     }, [currentPage, paymentFilter, dateRange, searchVal]);
 
     const handleJobDone = (_jobID, _checked) => {
-        axios
-            .post(
-                `/api/admin/jobs/${_jobID}/update-job-done`,
-                { checked: _checked },
-                { headers }
-            )
-            .then((response) => {
-                getJobs();
+        if (_checked) {
+            axios
+                .post(
+                    `/api/admin/jobs/${_jobID}/update-job-done`,
+                    { checked: _checked },
+                    { headers }
+                )
+                .then((response) => {
+                    getJobs();
+                });
+        } else {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Current open order will be cancelled!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Mark Job Undone!",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios
+                        .post(
+                            `/api/admin/jobs/${_jobID}/update-job-done`,
+                            { checked: _checked },
+                            { headers }
+                        )
+                        .then((response) => {
+                            getJobs();
+                        })
+                        .catch((e) => {
+                            getJobs();
+                        });
+                }
             });
+        }
     };
 
     const handleWorkerActualTime = (_jobID, _value) => {
@@ -145,34 +168,10 @@ export default function TotalJobs() {
             )
             .then((response) => {
                 getJobs();
+            })
+            .catch((e) => {
+                getJobs();
             });
-    };
-
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getJobs();
-                        }, 1000);
-                    });
-            }
-        });
     };
 
     const handleNavigate = (e, id) => {
@@ -322,42 +321,6 @@ export default function TotalJobs() {
         },
     ];
 
-    const slot = [
-        ["fullday-8am-16pm"],
-        ["morning1-8am-9am"],
-        ["morning2-9am-10am"],
-        ["morning3-10am-11am"],
-        ["morning4-11am-12pm"],
-        ["morning-8am-12pm"],
-        ["afternoon1-12pm-13pm"],
-        ["afternoon2-13pm-14pm"],
-        ["afternoon3-14pm-15pm"],
-        ["afternoon4-15pm-16pm"],
-        ["afternoon-12pm-16pm"],
-        ["evening1-16pm-17pm"],
-        ["evening2-17pm-18pm"],
-        ["evening3-18pm-19pm"],
-        ["evening4-19pm-20pm"],
-        ["evening-16pm-20pm"],
-        ["night1-20pm-21pm"],
-        ["night2-21pm-22pm"],
-        ["night3-22pm-23pm"],
-        ["night4-23pm-24am"],
-        ["night-20pm-24am"],
-    ];
-
-    const getFrequency = (lng) => {
-        axios
-            .post("/api/admin/all-service-schedule", { lng }, { headers })
-            .then((res) => {
-                setAllFreq(res.data.schedules);
-            });
-    };
-
-    const shiftChange = (e) => {
-        $("#edit-shift").modal("show");
-    };
-
     const resetShift = () => {
         setCshift({
             contract: "",
@@ -376,105 +339,14 @@ export default function TotalJobs() {
         });
     };
 
-    const handleShift = (e) => {
-        let newvalues = { ...cshift };
-
-        if (e.target.name == "job" && e.target.value) {
-            let j = e.target.options[e.target.selectedIndex];
-
-            newvalues["contract"] = j.getAttribute("contract");
-            newvalues["service"] = j.getAttribute("schedule_id");
-            newvalues["client"] = j.getAttribute("client");
-            setLng(j.getAttribute("lng"));
-        }
-
-        if (e.target.name == "shift_date") {
-            getWorker(cshift.service, e.target.value);
-        }
-
-        if (e.target.name == "repetency" && e.target.value != "one_time") {
-            getFrequency(lng);
-        }
-
-        if (e.target.name == "frequency") {
-            newvalues["cycle"] =
-                e.target.options[e.target.selectedIndex].getAttribute("cycle");
-            newvalues["period"] =
-                e.target.options[e.target.selectedIndex].getAttribute("period");
-        }
-        newvalues[e.target.name] = e.target.value;
-        console.log(newvalues);
-        setCshift(newvalues);
-    };
-
-    const getWorker = (sid, d) => {
-        setLw("Loading data..");
-        axios
-            .get(`/api/admin/shift-change-worker/${sid}/${d}`, { headers })
-            .then((res) => {
-                setSworkers(res.data.data);
-                setLw("Change shift");
-            });
-    };
-
-    const isEmptyOrSpaces = (str) => {
-        return str === null || str === "";
-    };
-
-    const changeShift = (e) => {
-        e.preventDefault();
-
-        // if (isEmptyOrSpaces(cshift.job)) {
-        //     window.alert('Please select job');
-        //     return;
-        // }
-
-        if (isEmptyOrSpaces(cshift.shift_date)) {
-            window.alert("Please choose new shift date");
-            return;
-        }
-        if (isEmptyOrSpaces(cshift.shift_time)) {
-            window.alert("Please choose new shift time");
-            return;
-        }
-
-        if (isEmptyOrSpaces(cshift.repetency)) {
-            window.alert("Please select repetency");
-            return;
-        }
-
-        if (
-            cshift.repetency == "untill_date" &&
-            (isEmptyOrSpaces(cshift.from) || isEmptyOrSpaces(cshift.to))
-        ) {
-            window.alert("Please select From and To date");
-            return;
-        }
-        if (cshift.repetency == "one_time" && isEmptyOrSpaces(cshift.job)) {
-            window.alert("Please select job");
-            return;
-        }
-        if (
-            cshift.repetency == "forever" &&
-            isEmptyOrSpaces(cshift.frequency)
-        ) {
-            window.alert("Please select frequency");
-            return;
-        }
-
-        axios
-            .post(`/api/admin/update-shift`, { cshift }, { headers })
-            .then((res) => {
-                getJobs();
-                resetShift();
-                $("#edit-shift").modal("hide");
-                alert.success(res.data.success);
-            });
-    };
-
-    const handleSwitchWorker = (_jobID) => {
-        setSelectedJobId(_jobID);
+    const handleSwitchWorker = (_job) => {
+        setSelectedJob(_job);
         setIsOpenSwitchWorker(true);
+    };
+
+    const handleCancel = (_job) => {
+        setSelectedJob(_job);
+        setIsOpenCancelModal(true);
     };
 
     return (
@@ -861,6 +733,15 @@ export default function TotalJobs() {
                                                                         checked={
                                                                             item.is_job_done
                                                                         }
+                                                                        disabled={
+                                                                            item.status ==
+                                                                                "cancel" ||
+                                                                            (item.order &&
+                                                                                item
+                                                                                    .order
+                                                                                    .status ==
+                                                                                    "Closed")
+                                                                        }
                                                                         onChange={(
                                                                             e
                                                                         ) => {
@@ -890,11 +771,7 @@ export default function TotalJobs() {
                                                                         : "#"
                                                                 }
                                                                 style={{
-                                                                    color: item
-                                                                        .client
-                                                                        .color
-                                                                        ? "#FFFFFF"
-                                                                        : "#000000",
+                                                                    color: "#000000",
                                                                     background:
                                                                         item
                                                                             .client
@@ -935,13 +812,8 @@ export default function TotalJobs() {
                                                             <div
                                                                 onClick={() => {
                                                                     handleSwitchWorker(
-                                                                        item.id
+                                                                        item
                                                                     );
-                                                                    // $(
-                                                                    //     "#available-workers"
-                                                                    // ).modal(
-                                                                    //     "show"
-                                                                    // );
                                                                 }}
                                                                 style={{
                                                                     color: "black",
@@ -1087,37 +959,12 @@ export default function TotalJobs() {
                                                                                     Order
                                                                                 </Link>
                                                                             )}
-                                                                        {/* {item.client &&
-                                                                            item.order && (
-                                                                                <Link
-                                                                                    to={`/admin/add-invoice?j=${item.id}&c=${item.client.id}`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Create
-                                                                                    Invoice
-                                                                                </Link>
-                                                                            )} */}
                                                                         <Link
                                                                             to={`/admin/view-job/${item.id}`}
                                                                             className="dropdown-item"
                                                                         >
                                                                             View
                                                                         </Link>
-                                                                        {/* <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                console.log(
-                                                                                    `edit item - ${item.id}`
-                                                                                );
-                                                                                $(
-                                                                                    "#edit-job"
-                                                                                ).modal(
-                                                                                    "show"
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            Edit
-                                                                        </button> */}
                                                                         {[
                                                                             "not-started",
                                                                             "scheduled",
@@ -1129,45 +976,9 @@ export default function TotalJobs() {
                                                                             <>
                                                                                 <button
                                                                                     className="dropdown-item"
-                                                                                    onClick={() => {
-                                                                                        setCshift(
-                                                                                            {
-                                                                                                contract:
-                                                                                                    item.contract_id,
-                                                                                                client: item.client_id,
-                                                                                                repetency:
-                                                                                                    "",
-                                                                                                job: item.id,
-                                                                                                from: "",
-                                                                                                to: "",
-                                                                                                worker: "",
-                                                                                                service:
-                                                                                                    item.schedule_id,
-                                                                                                shift_date:
-                                                                                                    "",
-                                                                                                frequency:
-                                                                                                    "",
-                                                                                                cycle: "",
-                                                                                                period: "",
-                                                                                                shift_time:
-                                                                                                    "",
-                                                                                            }
-                                                                                        );
-                                                                                        $(
-                                                                                            "#edit-shift"
-                                                                                        ).modal(
-                                                                                            "show"
-                                                                                        );
-                                                                                    }}
-                                                                                >
-                                                                                    Change
-                                                                                    Shift
-                                                                                </button>
-                                                                                <button
-                                                                                    className="dropdown-item"
                                                                                     onClick={() =>
                                                                                         handleSwitchWorker(
-                                                                                            item.id
+                                                                                            item
                                                                                         )
                                                                                     }
                                                                                 >
@@ -1181,15 +992,22 @@ export default function TotalJobs() {
                                                                                     Change
                                                                                     Worker
                                                                                 </Link>
+                                                                                <Link
+                                                                                    to={`/admin/jobs/${item.id}/change-shift`}
+                                                                                    className="dropdown-item"
+                                                                                >
+                                                                                    Change
+                                                                                    Shift
+                                                                                </Link>
                                                                                 <button
                                                                                     className="dropdown-item"
                                                                                     onClick={() =>
-                                                                                        handleDelete(
-                                                                                            item.id
+                                                                                        handleCancel(
+                                                                                            item
                                                                                         )
                                                                                     }
                                                                                 >
-                                                                                    Delete
+                                                                                    Cancel
                                                                                 </button>
                                                                             </>
                                                                         )}
@@ -1321,561 +1139,6 @@ export default function TotalJobs() {
                                 </div>
                             </div>
                         </div>
-
-                        <div
-                            className="modal fade"
-                            id="edit-shift"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Change Shift
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                            onClick={(e) => resetShift()}
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <label className="control-label">
-                                                    Job
-                                                </label>
-
-                                                <select
-                                                    disabled
-                                                    className="form-control mb-3"
-                                                    name="job"
-                                                    value={cshift.job}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        --- Please select Job
-                                                        ---
-                                                    </option>
-                                                    {totalJobs.map((j, i) => {
-                                                        return (
-                                                            <option
-                                                                contract={
-                                                                    j.contract_id
-                                                                }
-                                                                client={
-                                                                    j.client_id
-                                                                }
-                                                                value={j.id}
-                                                                lng={
-                                                                    j.client
-                                                                        ? j
-                                                                              .client
-                                                                              .lng
-                                                                        : "heb"
-                                                                }
-                                                                schedule_id={
-                                                                    j.schedule_id
-                                                                }
-                                                                key={i}
-                                                            >
-                                                                {j.client
-                                                                    ? j.client
-                                                                          .firstname +
-                                                                      " " +
-                                                                      j.client
-                                                                          .lastname
-                                                                    : "NA"}{" "}
-                                                                | {j.shifts} |{" "}
-                                                                {Moment(
-                                                                    j.start_date
-                                                                ).format(
-                                                                    "DD MMM, Y"
-                                                                )}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
-
-                                                <label className="control-label">
-                                                    New Shift date
-                                                </label>
-
-                                                <input
-                                                    className="form-control mb-3"
-                                                    name="shift_date"
-                                                    type="date"
-                                                    value={cshift.shift_date}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                />
-
-                                                <label className="control-label">
-                                                    New Shift time
-                                                </label>
-
-                                                <select
-                                                    className="form-control mb-3"
-                                                    name="shift_time"
-                                                    value={cshift.shift_time}
-                                                    onChange={(e) =>
-                                                        handleShift(e)
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {" "}
-                                                        --- Please select new
-                                                        shift time ---
-                                                    </option>
-                                                    {slot?.map((s, i) => {
-                                                        return (
-                                                            <option
-                                                                value={s}
-                                                                key={i}
-                                                            >
-                                                                {s}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
-
-                                                {lw == "Change shift" &&
-                                                    cshift.shift_time != "" && (
-                                                        <>
-                                                            <label className="control-label">
-                                                                Worker
-                                                            </label>
-
-                                                            <select
-                                                                className="form-control mb-3"
-                                                                name="worker"
-                                                                value={
-                                                                    cshift.worker
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    --- Please
-                                                                    select
-                                                                    available
-                                                                    workers ---
-                                                                </option>
-                                                                {sworkers &&
-                                                                    sworkers.map(
-                                                                        (
-                                                                            item,
-                                                                            index
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    value={
-                                                                                        item.id
-                                                                                    }
-                                                                                    key={
-                                                                                        index
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        item.firstname
-                                                                                    }{" "}
-                                                                                    {
-                                                                                        item.lastname
-                                                                                    }{" "}
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )}
-                                                            </select>
-
-                                                            <label className="control-label">
-                                                                Repetnacy
-                                                            </label>
-
-                                                            <select
-                                                                name="repetency"
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                                value={
-                                                                    cshift.repetency
-                                                                }
-                                                                className="form-control mb-3"
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    --- Please
-                                                                    select
-                                                                    repetnacy
-                                                                    ---
-                                                                </option>
-                                                                <option value="one_time">
-                                                                    {" "}
-                                                                    One Time (
-                                                                    for single
-                                                                    job )
-                                                                </option>
-                                                                <option value="forever">
-                                                                    {" "}
-                                                                    Forever{" "}
-                                                                </option>
-                                                                <option value="untill_date">
-                                                                    {" "}
-                                                                    Until Date{" "}
-                                                                </option>
-                                                            </select>
-                                                        </>
-                                                    )}
-
-                                                {cshift.repetency &&
-                                                    cshift.repetency !=
-                                                        "one_time" && (
-                                                        <>
-                                                            <label className="control-label">
-                                                                New Frequency
-                                                            </label>
-
-                                                            <select
-                                                                name="frequency"
-                                                                className="form-control mb-3"
-                                                                value={
-                                                                    cshift.frequency ||
-                                                                    ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleShift(
-                                                                        e
-                                                                    )
-                                                                }
-                                                            >
-                                                                <option value="">
-                                                                    {" "}
-                                                                    -- Please
-                                                                    select
-                                                                    frequency --
-                                                                </option>
-                                                                {AllFreq &&
-                                                                    AllFreq.map(
-                                                                        (
-                                                                            s,
-                                                                            i
-                                                                        ) => {
-                                                                            return (
-                                                                                <option
-                                                                                    cycle={
-                                                                                        s.cycle
-                                                                                    }
-                                                                                    period={
-                                                                                        s.period
-                                                                                    }
-                                                                                    name={
-                                                                                        s.name
-                                                                                    }
-                                                                                    value={
-                                                                                        s.id
-                                                                                    }
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {" "}
-                                                                                    {
-                                                                                        s.name
-                                                                                    }{" "}
-                                                                                </option>
-                                                                            );
-                                                                        }
-                                                                    )}
-                                                            </select>
-                                                        </>
-                                                    )}
-
-                                                {cshift.repetency ==
-                                                    "untill_date" && (
-                                                    <>
-                                                        <label className="control-label">
-                                                            From
-                                                        </label>
-
-                                                        <input
-                                                            className="form-control mb-3"
-                                                            type="date"
-                                                            placeholder="From date"
-                                                            name="from"
-                                                            value={cshift.from}
-                                                            onChange={(e) =>
-                                                                handleShift(e)
-                                                            }
-                                                        />
-
-                                                        <label className="control-label">
-                                                            To
-                                                        </label>
-
-                                                        <input
-                                                            className="form-control mb-3"
-                                                            type="date"
-                                                            placeholder="To date"
-                                                            name="to"
-                                                            value={cshift.to}
-                                                            onChange={(e) =>
-                                                                handleShift(e)
-                                                            }
-                                                        />
-                                                    </>
-                                                )}
-
-                                                <button
-                                                    className="btn btn-success form-control"
-                                                    onClick={(e) =>
-                                                        changeShift(e)
-                                                    }
-                                                >
-                                                    {" "}
-                                                    {lw}{" "}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* <div
-                            className="modal fade"
-                            id="edit-job"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Edit Job
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                            onClick={(e) => resetShift()}
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Date
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="shift_date"
-                                                        type="date"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Client
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="client"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Worker
-                                                    </label>
-
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                        }}
-                                                    >
-                                                        <option
-                                                            value="William"
-                                                            selected
-                                                        >
-                                                            William
-                                                        </option>
-                                                        <option value="Adam">
-                                                            Adam
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Shift
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="shift"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Service
-                                                    </label>
-
-                                                    <input
-                                                        className="form-control"
-                                                        name="service"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-0">
-                                                        Comments
-                                                    </label>
-
-                                                    <textarea
-                                                        className="form-control"
-                                                        name="comments"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary closeb"
-                                            data-dismiss="modal"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                console.log("submit");
-                                            }}
-                                            className="btn btn-primary"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
-
-                        {/* <div
-                            className="modal fade"
-                            id="available-workers"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title"
-                                            id="exampleModalLabel"
-                                        >
-                                            Available Workers
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                            onClick={(e) => resetShift()}
-                                        >
-                                            <span aria-hidden="true">
-                                                &times;
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="mb-2">
-                                                    <label className="control-label mb-1">
-                                                        Worker Gender
-                                                    </label>
-
-                                                    <select
-                                                        className="form-control"
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                        }}
-                                                    >
-                                                        <option
-                                                            value="male"
-                                                            selected
-                                                        >
-                                                            Only Male
-                                                        </option>
-                                                        <option value="female">
-                                                            Only Female
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary closeb"
-                                            data-dismiss="modal"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                console.log("submit");
-                                            }}
-                                            className="btn btn-primary"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
                     </div>
                 </div>
             </div>
@@ -1884,8 +1147,16 @@ export default function TotalJobs() {
                 <SwitchWorkerModal
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
-                    jobId={selectedJobId}
+                    job={selectedJob}
                     onSuccess={() => getJobs()}
+                />
+            )}
+
+            {isOpenCancelModal && (
+                <CancelJobModal
+                    setIsOpen={setIsOpenCancelModal}
+                    isOpen={isOpenCancelModal}
+                    job={selectedJob}
                 />
             )}
         </div>
@@ -1928,8 +1199,17 @@ const divStyle = {
 
 const ActuallyTimeWorker = ({ data, emitValue }) => {
     const [count, setCount] = useState(0);
-    const [isChanged, setisChanged] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
     const debouncedValue = useDebounce(count, 500);
+
+    const handleChangeHours = (_isIncrement) => {
+        if (_isIncrement) {
+            setCount((_count) => _count + 0.25);
+        } else {
+            setCount((_count) => _count - 0.25);
+        }
+        setIsChanged(true);
+    };
 
     useEffect(() => {
         isChanged && emitValue(debouncedValue);
@@ -1938,18 +1218,25 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
     useEffect(() => {
         setCount(
             data.actual_time_taken_minutes
-                ? Math.floor(data.actual_time_taken_minutes / 60)
+                ? data.actual_time_taken_minutes / 60
                 : 0
         );
     }, [data]);
 
+    const isOrderClosed = useMemo(() => {
+        return (
+            data.status == "cancel" ||
+            (data.order && data.order.status == "Closed")
+        );
+    }, [data.order]);
+
     return (
         <div className="d-flex align-items-center">
-            <div
+            <button
                 onClick={() => {
-                    setisChanged(true);
-                    setCount(count - 1);
+                    handleChangeHours(false);
                 }}
+                disabled={isOrderClosed}
                 style={{
                     ...divStyle,
                     pointerEvents: count === 0 ? "none" : "auto",
@@ -1957,15 +1244,21 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
                 }}
             >
                 -
-            </div>
-            <span className="mx-1" style={{ ...divStyle, background: "white" }}>
+            </button>
+            <span
+                className="mx-1"
+                style={{
+                    ...divStyle,
+                    background: isOrderClosed ? "#e7e7e7" : "white",
+                }}
+            >
                 {count}
             </span>
             <button
                 onClick={() => {
-                    setisChanged(true);
-                    setCount(count + 1);
+                    handleChangeHours(true);
                 }}
+                disabled={isOrderClosed}
                 style={divStyle}
             >
                 +

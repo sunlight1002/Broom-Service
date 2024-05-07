@@ -1,33 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
 
-export default function WorkerProfile() {
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
-    const [renewal_date, setRenewalDate] = useState("");
-    const [gender, setGender] = useState("male");
-    const [payment_hour, setPaymentHour] = useState(0);
-    const [worker_id, setWorkerId] = useState(
-        Math.random().toString().concat("0".repeat(3)).substr(2, 5)
-    );
-    const [password, setPassword] = useState("00000");
-    const [address, setAddress] = useState("");
-    const [skill, setSkill] = useState([]);
-    const [avl_skill, setAvlSkill] = useState([]);
-    const [itemStatus, setItemStatus] = useState("");
+export default function WorkerProfile({ worker }) {
     const [pass, setPass] = useState(null);
     const [passVal, setPassVal] = useState(null);
-    const [latitude, setLatitude] = useState(null);
-    const [longitude, setLongitude] = useState(null);
-    const [country, setCountry] = useState("Israel");
-    let cords = latitude && longitude ? latitude + "," + longitude : "";
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const cords = useMemo(() => {
+        return worker.latitude && worker.longitude
+            ? worker.latitude + "," + worker.longitude
+            : "";
+    });
+
     const viewPass = () => {
         if (!passVal) {
             window.alert("Please enter your password");
             return;
         }
+
         axios
             .post(
                 `/api/admin/viewpass`,
@@ -38,47 +32,18 @@ export default function WorkerProfile() {
                 if (res.data.response == false) {
                     window.alert("Wrong password!");
                 } else {
-                    setPass(password);
+                    setPass(worker.passcode);
                     document.querySelector(".closeb1").click();
                 }
             });
     };
 
-    const params = useParams();
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-    };
-    const getWorker = () => {
-        axios
-            .get(`/api/admin/workers/${params.id}/edit`, { headers })
-            .then((response) => {
-                setFirstName(response.data.worker.firstname);
-                setLastName(response.data.worker.lastname);
-                setPhone(response.data.worker.phone);
-                setRenewalDate(response.data.worker.renewal_visa);
-                setGender(response.data.worker.gender);
-                setPaymentHour(response.data.worker.payment_per_hour);
-                setWorkerId(response.data.worker.worker_id);
-                setPassword(response.data.worker.passcode);
-                setSkill(response.data.worker.skill);
-                setAddress(response.data.worker.address);
-                setItemStatus(response.data.worker.status);
-                setEmail(response.data.worker.email);
-                setLatitude(response.data.worker.latitude);
-                setLongitude(response.data.worker.longitude);
-                setCountry(response.data.worker.country);
-            });
-    };
-    useEffect(() => {
-        getWorker();
-    }, []);
     return (
         <>
             <div className="worker-profile">
                 <h2>
-                    #{worker_id} {firstname + " " + lastname}
+                    #{worker.worker_id}{" "}
+                    {worker.firstname + " " + worker.lastname}
                 </h2>
                 <div className="dashBox p-4 mb-3">
                     <form>
@@ -95,17 +60,19 @@ export default function WorkerProfile() {
                                         Phone
                                     </label>
                                     <p>
-                                        <a href={`tel:${phone}`}>{phone}</a>
+                                        <a href={`tel:${worker.phone}`}>
+                                            {worker.phone}
+                                        </a>
                                     </p>
                                 </div>
                             </div>
-                            {country != "Israel" && (
+                            {worker.country != "Israel" && (
                                 <div className="col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
                                             Renewal of Visa
                                         </label>
-                                        <p>{renewal_date}</p>
+                                        <p>{worker.renewal_date}</p>
                                     </div>
                                 </div>
                             )}
@@ -114,7 +81,7 @@ export default function WorkerProfile() {
                                     <label className="control-label">
                                         Gender
                                     </label>
-                                    <p>{gender}</p>
+                                    <p>{worker.gender}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
@@ -122,7 +89,7 @@ export default function WorkerProfile() {
                                     <label className="control-label">
                                         Payment Per Hour
                                     </label>
-                                    <p>{payment_hour}</p>
+                                    <p>{worker.payment_per_hour}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
@@ -130,7 +97,7 @@ export default function WorkerProfile() {
                                     <label className="control-label">
                                         Worker Id
                                     </label>
-                                    <p>{worker_id}</p>
+                                    <p>{worker.worker_id}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
@@ -138,7 +105,7 @@ export default function WorkerProfile() {
                                     <label className="control-label">
                                         Worker email
                                     </label>
-                                    <p>{email}</p>
+                                    <p>{worker.email}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
@@ -174,7 +141,9 @@ export default function WorkerProfile() {
                                     <label className="control-label">
                                         Status
                                     </label>
-                                    <p>{itemStatus ? "Active" : "Inactive"}</p>
+                                    <p>
+                                        {worker.status ? "Active" : "Inactive"}
+                                    </p>
                                 </div>
                             </div>
 
@@ -187,7 +156,7 @@ export default function WorkerProfile() {
                                         href={`https://maps.google.com?q=${cords}`}
                                         target="_blank"
                                     >
-                                        <p>{address}</p>
+                                        <p>{worker.address}</p>
                                     </a>
                                 </div>
                             </div>

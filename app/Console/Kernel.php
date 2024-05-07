@@ -18,10 +18,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:default-availability')->weekly();
         $schedule->command('request:expired')->dailyAt('02:00');
         $schedule->command('worker:notify-next-day-job')->dailyAt('17:00');
+        $schedule->command('client:review-job-request')->dailyAt('17:00');
         $schedule->command('worker:failed-to-approve-job')->dailyAt('20:00');
-        // $schedule->command('order:generate')->everyMinute();
-        // $schedule->command('regular-invoice:generate')->dailyAt('17:00');
-        // $schedule->command('invoice:generate')->dailyAt('16:30');
+        $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
+        $schedule->command('regular-invoice:generate')->dailyAt('12:00');
     }
 
     /**

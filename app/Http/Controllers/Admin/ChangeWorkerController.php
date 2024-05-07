@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeJobWorkerRequest;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
+use App\Models\ManageTime;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -73,7 +76,10 @@ class ChangeWorkerController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -105,30 +111,47 @@ class ChangeWorkerController extends Controller
             'shifts' => $job->shifts,
         ];
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
         $repeat_value = $job->jobservice->period;
 
-        $shifts = explode(',', $changeWorkerRequest->shifts);
-        $shiftsInHour = [];
-        foreach ($shifts as $key => $shift) {
-            $timing = explode('-', $shift);
-            $timing[0] = str_replace(['am', 'pm'], '', $timing[0]);
-            $timing[1] = str_replace(['am', 'pm'], '', $timing[1]);
+        $job_date = Carbon::parse($changeWorkerRequest->date);
+        $preferredWeekDay = strtolower($job_date->format('l'));
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
-            $shiftsInHour[] = [
-                'start' => $timing[0],
-                'end' => $timing[1]
+        $job_date = $job_date->toDateString();
+
+        $slots = explode(',', $changeWorkerRequest->shifts);
+        // sort slots in ascending order of time before merging for continuous time
+        sort($slots);
+
+        foreach ($slots as $key => $shift) {
+            $timing = explode('-', $shift);
+
+            $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
             ];
         }
 
-        $minutes = 0;
-        foreach ($shiftsInHour as $key => $value) {
-            $minutes += $this->calcTimeDiffInMins($value['start'], $value['end']);
-        }
-        $job_date = Carbon::parse($changeWorkerRequest->date);
-        $preferredWeekDay = strtolower($job_date->format('l'));
-        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay);
+        $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
-        $job_date = $job_date->toDateString();
+        $slotsInString = '';
+        foreach ($mergedContinuousTime as $key => $slot) {
+            if (!empty($slotsInString)) {
+                $slotsInString .= ',';
+            }
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+        }
+
+        $minutes = 0;
+        foreach ($mergedContinuousTime as $key => $value) {
+            $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+        }
 
         $status = JobStatusEnum::SCHEDULED;
 
@@ -143,7 +166,7 @@ class ChangeWorkerController extends Controller
         $jobData = [
             'worker_id'     => $changeWorkerRequest->worker_id,
             'start_date'    => $job_date,
-            'shifts'        => $changeWorkerRequest->shifts,
+            'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
         ];
@@ -165,14 +188,6 @@ class ChangeWorkerController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
-        if (!$job->original_worker_id) {
-            $jobData['original_worker_id'] = $job->worker_id;
-        }
-
-        if (!$job->original_shifts) {
-            $jobData['original_shifts'] = $job->shifts;
-        }
-
         $job->update($jobData);
 
         $job->jobservice()->update([
@@ -184,21 +199,24 @@ class ChangeWorkerController extends Controller
             ]
         ]);
 
-        $shiftFormattedArr = [];
-        foreach ($shiftsInHour as $key => $time) {
-            $start_time = Carbon::createFromFormat('H', $time['start'])->toTimeString();
-            $end_time = Carbon::createFromFormat('H', $time['end'])->toTimeString();
-
-            $shiftFormattedArr[$key] = [
-                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
-            ];
-        }
-
         $job->workerShifts()->delete();
-        foreach ($this->mergeContinuousTimes($shiftFormattedArr) as $key => $shift) {
+        foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
+
+        $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_WORKER,
+            'duration' => $changeWorkerRequest->repeatancy,
+            'until_date' => $changeWorkerRequest->repeat_until_date,
+        ]);
 
         $changeWorkerRequest->update([
             'status' => ChangeWorkerRequestStatusEnum::ACCEPTED,
@@ -208,7 +226,7 @@ class ChangeWorkerController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        event(new JobWorkerChanged($job, $shiftsInHour, $old_job_data, $oldWorker));
+        event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
 
         return response()->json([
             'message' => 'Job has been updated successfully'

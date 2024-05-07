@@ -410,53 +410,57 @@ export default function Schedule() {
                                                                         )
                                                                     }
                                                                 >
-                                                                    <span
-                                                                        style={{
-                                                                            color: "blue",
-                                                                        }}
-                                                                    >
-                                                                        {Moment(
-                                                                            item.start_date
-                                                                        ).format(
-                                                                            "DD/MM/Y"
-                                                                        ) +
-                                                                            "\n"}
-                                                                    </span>
-                                                                    <br />
-                                                                    <span
-                                                                        style={{
-                                                                            color: "blue",
-                                                                        }}
-                                                                    >
-                                                                        {Moment(
-                                                                            item.start_date
-                                                                        ).format(
-                                                                            "dddd"
-                                                                        )}
-                                                                    </span>
-                                                                    {item.start_time &&
-                                                                        item.end_time && (
-                                                                            <>
-                                                                                <br />
-                                                                                <span
-                                                                                    style={{
-                                                                                        color: "green",
-                                                                                    }}
-                                                                                >
-                                                                                    {"Start :" +
-                                                                                        item.start_time}
-                                                                                </span>
-                                                                                <br />
-                                                                                <span
-                                                                                    style={{
-                                                                                        color: "red",
-                                                                                    }}
-                                                                                >
-                                                                                    {"End   :" +
-                                                                                        item.end_time}
-                                                                                </span>
-                                                                            </>
-                                                                        )}
+                                                                    {item.start_date && (
+                                                                        <>
+                                                                            <span
+                                                                                style={{
+                                                                                    color: "blue",
+                                                                                }}
+                                                                            >
+                                                                                {Moment(
+                                                                                    item.start_date
+                                                                                ).format(
+                                                                                    "DD/MM/Y"
+                                                                                ) +
+                                                                                    "\n"}
+                                                                            </span>
+                                                                            <br />
+                                                                            <span
+                                                                                style={{
+                                                                                    color: "blue",
+                                                                                }}
+                                                                            >
+                                                                                {Moment(
+                                                                                    item.start_date
+                                                                                ).format(
+                                                                                    "dddd"
+                                                                                )}
+                                                                            </span>
+                                                                            {item.start_time &&
+                                                                                item.end_time && (
+                                                                                    <>
+                                                                                        <br />
+                                                                                        <span
+                                                                                            style={{
+                                                                                                color: "green",
+                                                                                            }}
+                                                                                        >
+                                                                                            {"Start :" +
+                                                                                                item.start_time}
+                                                                                        </span>
+                                                                                        <br />
+                                                                                        <span
+                                                                                            style={{
+                                                                                                color: "red",
+                                                                                            }}
+                                                                                        >
+                                                                                            {"End   :" +
+                                                                                                item.end_time}
+                                                                                        </span>
+                                                                                    </>
+                                                                                )}
+                                                                        </>
+                                                                    )}
                                                                 </Td>
 
                                                                 <Td

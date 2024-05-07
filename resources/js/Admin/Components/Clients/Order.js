@@ -6,6 +6,7 @@ import axios from "axios";
 import Moment from "moment";
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
+import AddCreditCardModal from "../Modals/AddCreditCardModal";
 
 export default function Order() {
     const [loading, setLoading] = useState("Loading...");
@@ -16,6 +17,8 @@ export default function Order() {
     const [cancelDoc, setCancelDoc] = useState("");
     const [dtype, setDtype] = useState("");
     const [filtered, setFiltered] = useState("");
+    const [addCardModalOpen, setAddCardModalOpen] = useState(false);
+
     const params = useParams();
     const id = params.id;
 
@@ -78,33 +81,6 @@ export default function Order() {
         }
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Order!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .get(`/api/admin/delete-oders/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Order has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getOrders();
-                        }, 1000);
-                    });
-            }
-        });
-    };
-
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
@@ -120,6 +96,7 @@ export default function Order() {
                     setOrders(response.data.orders.data);
                     setPageCount(response.data.orders.last_page);
                 } else {
+                    setOrders([]);
                     setLoading("No Order Found");
                 }
             });
@@ -183,16 +160,27 @@ export default function Order() {
                             title: "Error!",
                             text: e.response.data.message,
                             icon: "error",
+                            showCancelButton: true,
+                            confirmButtonText: "Add New Credit Card",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                handleAddNewCard();
+                            }
                         });
                     });
             }
         });
     };
 
+    const handleAddNewCard = () => {
+        setAddCardModalOpen(true);
+    };
+
     useEffect(() => {
         setFiltered("f=all");
         getOrders("f=all");
     }, []);
+
     return (
         <div className="boxPanel">
             <div className="action-dropdown dropdown order_drop text-right mb-3">
@@ -292,115 +280,102 @@ export default function Order() {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {orders &&
-                                orders.map((item, index) => {
-                                    return (
-                                        <Tr key={index}>
-                                            <Td>#{item.order_id}</Td>
-                                            <Td>
-                                                {Moment(item.created_at).format(
-                                                    "DD, MMM Y"
-                                                )}
-                                            </Td>
-                                            <Td>
-                                                {item.client ? (
-                                                    <Link
-                                                        to={`/admin/view-client/${item.client.id}`}
-                                                    >
-                                                        {item.client.firstname +
-                                                            " " +
-                                                            item.client
-                                                                .lastname}
-                                                    </Link>
-                                                ) : (
-                                                    "NA"
-                                                )}
-                                            </Td>
-                                            <Td>{item.status}</Td>
-                                            <Td>
-                                                {item.invoice_status == "2"
-                                                    ? "Generated"
-                                                    : "Not Generated"}
-                                            </Td>
-                                            <Td>
-                                                <div className="action-dropdown dropdown">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-default dropdown-toggle"
-                                                        data-toggle="dropdown"
-                                                    >
-                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                    </button>
-                                                    <div className="dropdown-menu">
-                                                        {item.status ==
-                                                            "Open" && (
-                                                            <a
-                                                                target="_blank"
-                                                                href={
-                                                                    item.doc_url
-                                                                }
-                                                                className="dropdown-item"
-                                                            >
-                                                                View Order
-                                                            </a>
-                                                        )}
+                            {orders.map((item, index) => {
+                                return (
+                                    <Tr key={index}>
+                                        <Td>#{item.order_id}</Td>
+                                        <Td>
+                                            {Moment(item.created_at).format(
+                                                "DD, MMM Y"
+                                            )}
+                                        </Td>
+                                        <Td>
+                                            {item.client ? (
+                                                <Link
+                                                    to={`/admin/view-client/${item.client.id}`}
+                                                >
+                                                    {item.client.firstname +
+                                                        " " +
+                                                        item.client.lastname}
+                                                </Link>
+                                            ) : (
+                                                "NA"
+                                            )}
+                                        </Td>
+                                        <Td>{item.status}</Td>
+                                        <Td>
+                                            {item.invoice_status == "2"
+                                                ? "Generated"
+                                                : "Not Generated"}
+                                        </Td>
+                                        <Td>
+                                            <div className="action-dropdown dropdown">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                >
+                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                </button>
+                                                <div className="dropdown-menu">
+                                                    {item.status == "Open" && (
+                                                        <a
+                                                            target="_blank"
+                                                            href={item.doc_url}
+                                                            className="dropdown-item"
+                                                        >
+                                                            View Order
+                                                        </a>
+                                                    )}
 
-                                                        {item.status ==
-                                                            "Open" && (
-                                                            <button
-                                                                onClick={(e) =>
-                                                                    closeDoc(
-                                                                        item.order_id,
-                                                                        "order"
-                                                                    )
-                                                                }
-                                                                className="dropdown-item"
-                                                            >
-                                                                Close Doc
-                                                            </button>
-                                                        )}
-                                                        {item.status ==
-                                                            "Open" && (
-                                                            <button
-                                                                onClick={(e) =>
-                                                                    GenInvoice(
-                                                                        item.id
-                                                                    )
-                                                                }
-                                                                className="dropdown-item"
-                                                            >
-                                                                Generate Invoice
-                                                            </button>
-                                                        )}
-                                                        {item.status !=
-                                                            "Cancelled" && (
-                                                            <button
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    setCancelDoc(
-                                                                        item.order_id
-                                                                    );
-                                                                    setDtype(
-                                                                        "order"
-                                                                    );
-                                                                }}
-                                                                data-toggle="modal"
-                                                                data-target="#exampleModal1"
-                                                                className="dropdown-item"
-                                                            >
-                                                                Cancel Doc
-                                                            </button>
-                                                        )}
-
-                                                        {/*<button  onClick={e=>handleDelete(item.id)} className="dropdown-item"
-                                                    >Delete</button>*/}
-                                                    </div>
+                                                    {item.status == "Open" && (
+                                                        <button
+                                                            onClick={(e) =>
+                                                                closeDoc(
+                                                                    item.order_id,
+                                                                    "order"
+                                                                )
+                                                            }
+                                                            className="dropdown-item"
+                                                        >
+                                                            Close Doc
+                                                        </button>
+                                                    )}
+                                                    {item.status == "Open" && (
+                                                        <button
+                                                            onClick={(e) =>
+                                                                GenInvoice(
+                                                                    item.id
+                                                                )
+                                                            }
+                                                            className="dropdown-item"
+                                                        >
+                                                            Generate Invoice
+                                                        </button>
+                                                    )}
+                                                    {item.status == "Open" && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                setCancelDoc(
+                                                                    item.order_id
+                                                                );
+                                                                setDtype(
+                                                                    "order"
+                                                                );
+                                                            }}
+                                                            data-toggle="modal"
+                                                            data-target="#exampleModal1"
+                                                            className="dropdown-item"
+                                                        >
+                                                            Cancel Doc
+                                                        </button>
+                                                    )}
                                                 </div>
-                                            </Td>
-                                        </Tr>
-                                    );
-                                })}
+                                            </div>
+                                        </Td>
+                                    </Tr>
+                                );
+                            })}
                         </Tbody>
                     </Table>
                 ) : (
@@ -494,6 +469,15 @@ export default function Order() {
                     </div>
                 </div>
             </div>
+
+            {addCardModalOpen && (
+                <AddCreditCardModal
+                    isOpen={addCardModalOpen}
+                    setIsOpen={setAddCardModalOpen}
+                    onSuccess={() => getOrders("f=all")}
+                    clientId={id}
+                />
+            )}
         </div>
     );
 }

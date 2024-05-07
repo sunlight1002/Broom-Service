@@ -36,12 +36,13 @@ class Job extends Model
         'next_start_date',
         'is_next_job_created',
         'keep_prev_worker',
-        'is_one_time_job',
+        'is_one_time_in_month_job',
         'is_job_done',
         'is_paid',
         'is_worker_reminded',
         'worker_approved_at',
         'actual_time_taken_minutes',
+        'origin_job_id',
         'original_worker_id',
         'original_shifts',
         'previous_worker_id',
@@ -51,6 +52,8 @@ class Job extends Model
         'job_opening_timestamp',
         'rating',
         'review',
+        'review_request_sent',
+        'completed_at',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',
         'cancelled_by_role',
@@ -71,13 +74,15 @@ class Job extends Model
         'is_invoice_generated' => 'boolean',
         'next_start_date' => 'datetime',
         'is_next_job_created' => 'boolean',
-        'is_one_time_job' => 'boolean',
+        'is_one_time_in_month_job' => 'boolean',
         'is_job_done' => 'boolean',
         'is_paid' => 'boolean',
         'is_worker_reminded' => 'boolean',
         'previous_worker_after' => 'date:Y-m-d',
         'previous_shifts_after' => 'date:Y-m-d',
         'rating' => 'double',
+        'review_request_sent' => 'boolean',
+        'completed_at' => 'datetime',
         'cancellation_fee_percentage' => 'double',
         'cancellation_fee_amount' => 'double',
         'cancelled_at' => 'datetime',
@@ -163,5 +168,10 @@ class Job extends Model
     public function changeWorkerRequests()
     {
         return $this->hasMany(ChangeJobWorkerRequest::class, 'job_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(JobComments::class, 'job_id');
     }
 }

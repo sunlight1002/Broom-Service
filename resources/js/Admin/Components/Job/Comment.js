@@ -10,7 +10,7 @@ export default function Comment() {
     let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
     const [commentFor, setCommentFor] = useState("");
-    const [allClientComment, setAllClientComment] = useState([]);
+    const [comments, setComments] = useState([]);
     const [allWorkerComment, setAllWorkerComment] = useState([]);
     const param = useParams();
     const alert = useAlert();
@@ -94,7 +94,7 @@ export default function Comment() {
         axios
             .get(`/api/admin/job-comments?id=${param.id}`, { headers })
             .then((res) => {
-                setAllClientComment(res.data.client_comments);
+                setComments(res.data.comments);
                 setAllWorkerComment(res.data.worker_comments);
             });
     };
@@ -129,244 +129,92 @@ export default function Comment() {
                     {t("admin.schedule.jobs.comment.AddComment")}
                 </button>
             </div>
-            <ul className="nav nav-tabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-availability"
-                        className="nav-link active"
-                        data-toggle="tab"
-                        href="#tab-worker-availability"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        {t("admin.schedule.jobs.comment.ClientComment")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        {t("admin.schedule.jobs.comment.WorkerComment")}
-                    </a>
-                </li>
-            </ul>
-            <div className="tab-content" style={{ background: "#fff" }}>
-                <div
-                    id="tab-worker-availability"
-                    className="tab-pane active show"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    {allClientComment &&
-                        allClientComment.map((c, i) => {
-                            return (
-                                <div
-                                    className="card card-widget widget-user-2"
-                                    style={{ boxShadow: "none" }}
-                                    key={i}
-                                >
-                                    <div className="card-comments cardforResponsive"></div>
-                                    <div className="card-comment p-3">
-                                        <div className="row">
-                                            <div className="col-sm-10 col-10">
-                                                <p
-                                                    className="noteby p-1"
-                                                    style={{
-                                                        fontSize: "16px",
-                                                    }}
-                                                >
-                                                    {c.name} -
-                                                    <span
-                                                        className="noteDate"
-                                                        style={{
-                                                            fontWeight: "600",
-                                                        }}
-                                                    >
-                                                        {"" +
-                                                            Moment(
-                                                                c.created_at
-                                                            ).format(
-                                                                "DD-MM-Y h:sa"
-                                                            )}{" "}
-                                                        <br />
-                                                    </span>
-                                                </p>
-                                            </div>
-                                            <div className="col-sm-2 col-2">
-                                                <div className="float-right noteUser">
-                                                    <button
-                                                        className="ml-2 btn bg-red"
-                                                        onClick={(e) =>
-                                                            handleDelete(
-                                                                e,
-                                                                c.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <i className="fa fa-trash"></i>
-                                                    </button>
-                                                    &nbsp;
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-12">
-                                                {c.comment}
+            <div style={{ background: "#fff" }}>
+                {comments.map((c, i) => {
+                    return (
+                        <div
+                            className="card card-widget widget-user-2"
+                            style={{ boxShadow: "none" }}
+                            key={i}
+                        >
+                            <div className="card-comments cardforResponsive"></div>
+                            <div className="card-comment p-3">
+                                <div className="row">
+                                    <div className="col-sm-10 col-10">
+                                        <p
+                                            className="noteby p-1"
+                                            style={{
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            {c.name} -
+                                            <span
+                                                className="noteDate"
+                                                style={{
+                                                    fontWeight: "600",
+                                                }}
+                                            >
+                                                {"" +
+                                                    Moment(c.created_at).format(
+                                                        "DD-MM-Y hh:mm a"
+                                                    )}{" "}
                                                 <br />
-                                                {c.attachments &&
-                                                    c.attachments.length > 0 &&
-                                                    c.attachments.map(
-                                                        (cm, i) => {
-                                                            return (
-                                                                <span
-                                                                    className="badge badge-warning text-dark"
-                                                                    key={i}
-                                                                >
-                                                                    <a
-                                                                        onClick={(
-                                                                            e
-                                                                        ) => {
-                                                                            let show =
-                                                                                document.querySelector(
-                                                                                    ".showFile"
-                                                                                );
-
-                                                                            show.setAttribute(
-                                                                                "src",
-                                                                                `/storage/uploads/attachments/${cm.file}`
-                                                                            );
-                                                                            show.style.display =
-                                                                                "block";
-                                                                        }}
-                                                                        data-toggle="modal"
-                                                                        data-target="#exampleModalFile"
-                                                                        style={{
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                            cm.file
-                                                                        }
-                                                                    </a>
-                                                                </span>
-                                                            );
-                                                        }
-                                                    )}
-                                            </div>
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="col-sm-2 col-2">
+                                        <div className="float-right noteUser">
+                                            <button
+                                                className="ml-2 btn bg-red"
+                                                onClick={(e) =>
+                                                    handleDelete(e, c.id)
+                                                }
+                                            >
+                                                <i className="fa fa-trash"></i>
+                                            </button>
+                                            &nbsp;
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                </div>
-                <div
-                    id="tab-current-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    {allWorkerComment &&
-                        allWorkerComment.map((w, i) => {
-                            return (
-                                <div
-                                    className="card card-widget widget-user-2"
-                                    style={{ boxShadow: "none" }}
-                                    key={i}
-                                >
-                                    <div className="card-comments cardforResponsive"></div>
-                                    <div className="card-comment p-3">
-                                        <div className="row">
-                                            <div className="col-sm-10 col-10">
-                                                <p
-                                                    className="noteby p-1"
-                                                    style={{
-                                                        fontSize: "16px",
-                                                    }}
+                                    <div className="col-sm-12">
+                                        {c.comment}
+                                        <br />
+                                        {c.attachments.map((cm, i) => {
+                                            return (
+                                                <span
+                                                    className="badge badge-warning text-dark"
+                                                    key={i}
                                                 >
-                                                    {w.name} -
-                                                    <span
-                                                        className="noteDate"
+                                                    <a
+                                                        onClick={(e) => {
+                                                            let show =
+                                                                document.querySelector(
+                                                                    ".showFile"
+                                                                );
+
+                                                            show.setAttribute(
+                                                                "src",
+                                                                `/storage/uploads/attachments/${cm.file_name}`
+                                                            );
+                                                            show.style.display =
+                                                                "block";
+                                                        }}
+                                                        data-toggle="modal"
+                                                        data-target="#exampleModalFile"
                                                         style={{
-                                                            fontWeight: "600",
+                                                            cursor: "pointer",
                                                         }}
                                                     >
-                                                        {" " +
-                                                            Moment(
-                                                                w.created_at
-                                                            ).format(
-                                                                "DD-MM-Y h:sa"
-                                                            )}{" "}
-                                                        <br />
-                                                    </span>
-                                                </p>
-                                            </div>
-                                            <div className="col-sm-2 col-2">
-                                                <div className="float-right noteUser">
-                                                    <button
-                                                        className="ml-2 btn bg-red"
-                                                        onClick={(e) =>
-                                                            handleDelete(
-                                                                e,
-                                                                w.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <i className="fa fa-trash"></i>
-                                                    </button>
-                                                    &nbsp;
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-12">
-                                                <p>{w.comment}</p>
-                                                {w.attachments &&
-                                                    w.attachments.length > 0 &&
-                                                    w.attachments.map(
-                                                        (cm, i) => {
-                                                            return (
-                                                                <span
-                                                                    className="badge badge-warning text-dark"
-                                                                    key={i}
-                                                                >
-                                                                    <a
-                                                                        onClick={(
-                                                                            e
-                                                                        ) => {
-                                                                            let show =
-                                                                                document.querySelector(
-                                                                                    ".showFile"
-                                                                                );
-
-                                                                            show.setAttribute(
-                                                                                "src",
-                                                                                `/storage/uploads/attachments/${cm.file}`
-                                                                            );
-                                                                            show.style.display =
-                                                                                "block";
-                                                                        }}
-                                                                        data-toggle="modal"
-                                                                        data-target="#exampleModalFile"
-                                                                        style={{
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                            cm.file
-                                                                        }
-                                                                    </a>
-                                                                </span>
-                                                            );
-                                                        }
-                                                    )}
-                                            </div>
-                                        </div>
+                                                        {cm.original_name}
+                                                    </a>
+                                                </span>
+                                            );
+                                        })}
                                     </div>
                                 </div>
-                            );
-                        })}
-                </div>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             <div

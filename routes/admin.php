@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\InformationPageController;
@@ -26,7 +27,6 @@ use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
-use App\Http\Controllers\Admin\CronController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Api\LeadWebhookController;
@@ -46,7 +46,6 @@ use App\Http\Controllers\DocumentController;
 // Unauthenticated Routes
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-Route::get('weeklyjob', [CronController::class, 'WeeklyJob']);
 Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
@@ -69,10 +68,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
     // Jobs Api
-    Route::resource('jobs', JobController::class)->except(['create', 'edit']);
+    Route::resource('jobs', JobController::class)->only(['index', 'show']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::post('create-job', [JobController::class, 'createJob']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeJobWorker']);
+    Route::post('jobs/{id}/change-shift', [JobController::class, 'changeJobShift']);
     Route::post('clients/{id}/jobs', [JobController::class, 'getJobByClient']);
     Route::post('get-worker-jobs', [JobController::class, 'getJobWorker']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancelJob']);
@@ -94,14 +94,21 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
 
+    // Client Property Address Comments
+    Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
+    Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);
+    Route::delete('property-addresses/{service_id}/comments/{id}', [ClientPropertyAddressController::class, 'deleteComment']);
+
     // workers Api
     Route::resource('workers', WorkerController::class)->except(['create', 'show']);
     Route::get('all-workers', [WorkerController::class, 'AllWorkers']);
     Route::post('workers/{id}/freeze-shift', [WorkerController::class, 'updateFreezeShift']);
-    Route::get('all-workers/availability', [WorkerController::class, 'getALLWorkerAvailability']);
+    Route::post('workers/freeze-shift', [WorkerController::class, 'updateFreezeShiftWorkers']);
+    Route::get('workers/freeze-shift/{id}', [WorkerController::class, 'getFreezeShiftWorkers']);
+    Route::post('workers/{id}/leave-job', [WorkerController::class, 'updateLeaveJob']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
-    Route::post('upload/{id}', [WorkerController::class, 'upload']);
+    // Route::post('upload/{id}', [WorkerController::class, 'upload']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
 
     // not Available date
@@ -114,10 +121,20 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-clients', [ClientController::class, 'AllClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
 
+    // Client Comments
+    Route::get('clients/{id}/comments', [ClientController::class, 'getComments']);
+    Route::post('clients/{id}/comments', [ClientController::class, 'saveComment']);
+    Route::delete('clients/{client_id}/comments/{id}', [ClientController::class, 'deleteComment']);
+
     // Services Api
     Route::resource('services', ServicesController::class)->except('show');
     Route::get('all-services', [ServicesController::class, 'AllServices']);
     Route::post('all-services', [ServicesController::class, 'AllServicesByLng']);
+
+    // Services Comments
+    Route::get('services/{id}/comments', [ServicesController::class, 'getComments']);
+    Route::post('services/{id}/comments', [ServicesController::class, 'saveComment']);
+    Route::delete('services/{service_id}/comments/{id}', [ServicesController::class, 'deleteComment']);
 
     // Services schedule Api
     Route::resource('service-schedule', ServiceSchedulesController::class)->except(['create', 'show']);
@@ -139,8 +156,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
-    Route::post('teams/update-availability', [TeamMemberController::class, 'updateAvailability']);
+    Route::post('teams/{id}/availability', [TeamMemberController::class, 'updateAvailability']);
     Route::get('teams/availability/{id}', [TeamMemberController::class, 'availability']);
+    Route::get('teams/availability/{id}/date/{date}', [TeamMemberController::class, 'availabilityByDate']);
 
     // Notes
     Route::post('get-notes', [ClientController::class, 'getNotes']);
@@ -180,18 +198,22 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('income', [DashboardController::class, 'income'])->name('income');
 
     // Invoice
-    Route::post('add-invoice', [InvoiceController::class, 'AddInvoice']);
+    // Route::post('add-invoice', [InvoiceController::class, 'AddInvoice']);
     Route::get('invoices', [InvoiceController::class, 'index']);
     Route::get('get-invoice/{id}', [InvoiceController::class, 'getInvoice']);
     Route::post('update-invoice/{id}', [InvoiceController::class, 'updateInvoice']);
     Route::post('invoice-jobs', [InvoiceController::class, 'invoiceJobs']);
     Route::post('invoice-jobs-order', [InvoiceController::class, 'invoiceJobOrder']);
     Route::post('order-jobs', [InvoiceController::class, 'orderJobs']);
-    Route::get('delete-invoice/{id}', [InvoiceController::class, 'deleteInvoice']);
     Route::get('payments', [InvoiceController::class, 'payments']);
+    Route::get('client/{id}/unpaid-invoice', [InvoiceController::class, 'clientUnpaidInvoice']);
+    Route::post('client/{id}/update-invoice', [InvoiceController::class, 'closeClientInvoicesWithReceipt']);
+    Route::post('client/{id}/close-for-payment', [InvoiceController::class, 'closeClientForPayment']);
     Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
+    Route::post('client/{id}/initialize-card', [ClientController::class, 'createClientCardSession']);
+    Route::post('client/{id}/check-card-by-session', [ClientController::class, 'checkTranxBySessionId']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);
@@ -199,12 +221,12 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('order-manual-invoice/{id}', [InvoiceController::class, 'manualInvoice']);
     Route::get('client-invoices/{id}', [InvoiceController::class, 'getClientInvoices']);
 
+    Route::get('client-payments', [InvoiceController::class, 'paymentClientWise']);
     Route::get('client-payments/{id}', [InvoiceController::class, 'clientPayments']);
 
     // Orders
     Route::get('orders', [InvoiceController::class, 'getOrders']);
     Route::get('client-orders/{id}', [InvoiceController::class, 'getClientOrders']);
-    Route::get('delete-oders/{id}', [InvoiceController::class, 'deleteOrders']);
     Route::post('get-codes-order', [InvoiceController::class, 'getCodesOrders']);
     Route::post('create-order', [InvoiceController::class, 'createOrder']);
 
@@ -223,7 +245,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
 
     // View Password
-    Route::post('viewpass', [DashboardController::class, 'viewPass'])->name('viewpass');
+    Route::post('viewpass', [DashboardController::class, 'viewPass']);
 
     // ManageTime
     Route::post('update-time', [DashboardController::class, 'updateTime'])->name('update-time');
@@ -249,6 +271,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('chat-responses', [ChatController::class, 'chatResponses']);
     Route::post('chat-restart', [ChatController::class, 'chatRestart']);
     Route::get('chat-search', [ChatController::class, 'search'])->name('chat-search');
+    Route::post('delete-conversation', [ChatController::class, 'deleteConversation']);
 
     Route::get('messenger-participants', [ChatController::class, 'participants']);
     Route::get('messenger-message/{id}', [ChatController::class, 'messengerMessage']);
@@ -257,7 +280,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // settings
     Route::get('settings', [SettingController::class, 'allSettings']);
     Route::post('settings', [SettingController::class, 'updateSettings']);
-    Route::post('update-shift', [ClientController::class, 'updateShift']);
 
     //documents
     Route::get('documents/{id}', [DocumentController::class, 'documents']);

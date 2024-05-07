@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
-use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Order;
 use App\Models\Receipts;
 use App\Models\Refunds;
 use App\Models\Services;
 use App\Models\Transaction;
 use App\Traits\ClientCardTrait;
+use App\Traits\ICountDocument;
 use App\Traits\PaymentAPI;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -25,7 +27,7 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
-    use PaymentAPI, ClientCardTrait;
+    use PaymentAPI, ClientCardTrait, ICountDocument;
 
     public function index(Request $request)
     {
@@ -216,143 +218,143 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function AddInvoice(Request $request)
-    {
-        $data = $request->all();
+    // public function AddInvoice(Request $request)
+    // {
+    //     $data = $request->all();
 
-        $client = Client::find($data['client_id']);
+    //     $client = Client::find($data['client_id']);
 
-        if (empty($client->invoicename)) {
-            return response()->json([
-                'message' => "Client's invoice name is not set"
-            ], 403);
-        }
+    //     if (empty($client->invoicename)) {
+    //         return response()->json([
+    //             'message' => "Client's invoice name is not set"
+    //         ], 403);
+    //     }
 
-        $services = json_decode($data['services'], true);
-        $total = 0;
+    //     $services = json_decode($data['services'], true);
+    //     $total = 0;
 
-        $card = $this->getClientCard($client->id);
+    //     $card = $this->getClientCard($client->id);
 
-        $payment_method = $client->payment_method;
+    //     $payment_method = $client->payment_method;
 
-        $doctype = $data['doctype'];
+    //     $doctype = $data['doctype'];
 
-        $subtotal = $data['amount'];
-        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
-        $total = $tax + $subtotal;
+    //     $subtotal = $data['amount'];
+    //     $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
+    //     $total = $tax + $subtotal;
 
-        $isPaymentProcessed = false;
-        /* Auto payment */
-        if ($payment_method == 'cc') {
-            if (!$card) {
-                return response()->json([
-                    'message' => 'Card not added for this client'
-                ], 404);
-            }
+    //     $isPaymentProcessed = false;
+    //     /* Auto payment */
+    //     if ($payment_method == 'cc') {
+    //         if (!$card) {
+    //             return response()->json([
+    //                 'message' => 'Card not added for this client'
+    //             ], 404);
+    //         }
 
-            $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $total);
+    //         $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $total);
 
-            if ($paymentResponse['HasError'] == true) {
-                $doctype = 'invoice';
-            } else {
-                $isPaymentProcessed = true;
-            }
-        }
+    //         if ($paymentResponse['HasError'] == true) {
+    //             $doctype = 'invoice';
+    //         } else {
+    //             $isPaymentProcessed = true;
+    //         }
+    //     }
 
-        $duedate = ($data['due_date'] == null) ? Carbon::now()->endOfMonth()->toDateString() : $data['due_date'];
+    //     $duedate = ($data['due_date'] == null) ? Carbon::now()->endOfMonth()->toDateString() : $data['due_date'];
 
-        $url = "https://api.icount.co.il/api/v3.php/doc/create";
+    //     $url = "https://api.icount.co.il/api/v3.php/doc/create";
 
-        $params = array(
-            "cid"            => Helper::get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
-            "user"           => Helper::get_setting(SettingKeyEnum::ICOUNT_USERNAME),
-            "pass"           => Helper::get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
+    //     $params = array(
+    //         "cid"            => get_setting(SettingKeyEnum::ICOUNT_COMPANY_ID),
+    //         "user"           => get_setting(SettingKeyEnum::ICOUNT_USERNAME),
+    //         "pass"           => get_setting(SettingKeyEnum::ICOUNT_PASSWORD),
 
-            "doctype"        => $doctype,
-            "client_id"      => $client->id,
-            "client_name"    => $client->invoicename,
-            "client_address" => $client->geo_address,
-            "email"          => $client->email,
-            "lang"           => ($client->lng == 'heb') ? 'he' : 'en',
-            "currency_code"  => "ILS",
-            "doc_lang"       => ($client->lng == 'heb') ? 'he' : 'en',
-            "items"          => $services,
-            "duedate"        => $duedate,
+    //         "doctype"        => $doctype,
+    //         "client_id"      => $client->id,
+    //         "client_name"    => $client->invoicename,
+    //         "client_address" => $client->geo_address,
+    //         "email"          => $client->email,
+    //         "lang"           => ($client->lng == 'heb') ? 'he' : 'en',
+    //         "currency_code"  => "ILS",
+    //         "doc_lang"       => ($client->lng == 'heb') ? 'he' : 'en',
+    //         "items"          => $services,
+    //         "duedate"        => $duedate,
 
-            "send_email"      => 1,
-            "email_to_client" => 1,
-            "email_to"        => $client->email,
-        );
+    //         "send_email"      => 1,
+    //         "email_to_client" => 1,
+    //         "email_to"        => $client->email,
+    //     );
 
-        if ($payment_method == 'cc') {
-            $ex = explode('-', $card->valid);
-            $cc = ['cc' => [
-                "sum" => $total,
-                "card_type" => $card->card_type,
-                "card_number" => $card->card_number,
-                "exp_year" => $ex[0],
-                "exp_month" => $ex[1],
-                "holder_id" => "",
-                "confirmation_code" => ""
-            ]];
+    //     if ($payment_method == 'cc') {
+    //         $ex = explode('-', $card->valid);
+    //         $cc = ['cc' => [
+    //             "sum" => $total,
+    //             "card_type" => $card->card_type,
+    //             "card_number" => $card->card_number,
+    //             "exp_year" => $ex[0],
+    //             "exp_month" => $ex[1],
+    //             "holder_id" => "",
+    //             "confirmation_code" => ""
+    //         ]];
 
-            $_params = array_merge($params, $cc);
-        } else {
-            $_params = $params;
-        }
+    //         $_params = array_merge($params, $cc);
+    //     } else {
+    //         $_params = $params;
+    //     }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_params, null, '&'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($ch);
-        $info = curl_getinfo($ch);
+    //     $ch = curl_init($url);
+    //     curl_setopt($ch, CURLOPT_POST, 1);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_params, null, '&'));
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    //     $response = curl_exec($ch);
+    //     $info = curl_getinfo($ch);
 
-        //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
-        $json = json_decode($response, true);
+    //     //if(!$info["http_code"] || $info["http_code"]!=200) die("HTTP Error");
+    //     $json = json_decode($response, true);
 
-        //if(!$json["status"]) die($json["reason"]);
+    //     //if(!$json["status"]) die($json["reason"]);
 
-        Job::where('id', $data['job'])->update([
-            'invoice_no'    => $json["docnum"],
-            'invoice_url'   => $json["doc_url"],
-            'isOrdered'     => 2,
-            'status'        => JobStatusEnum::COMPLETED
-        ]);
+    //     Job::where('id', $data['job'])->update([
+    //         'invoice_no'    => $json["docnum"],
+    //         'invoice_url'   => $json["doc_url"],
+    //         'isOrdered'     => 2,
+    //         'status'        => JobStatusEnum::COMPLETED
+    //     ]);
 
-        $invoice = Invoices::create([
-            'invoice_id' => $json['docnum'],
-            'amount'     => $total,
-            'paid_amount' => $total,
-            'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
-            'client_id'   => $client->id,
-            'doc_url'    => $json['doc_url'],
-            'type'       => $doctype,
-            'invoice_icount_status' => 'Open',
-            'due_date'   => $duedate,
-            'txn_id'     => ($isPaymentProcessed) ? $paymentResponse['ReferenceNumber'] : '',
-            'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-            'status'     => ($isPaymentProcessed) ? 'Paid' : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : 'Unpaid'),
-        ]);
+    //     $invoice = Invoices::create([
+    //         'invoice_id' => $json['docnum'],
+    //         'amount'     => $total,
+    //         'paid_amount' => $total,
+    //         'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
+    //         'client_id'   => $client->id,
+    //         'doc_url'    => $json['doc_url'],
+    //         'type'       => $doctype,
+    //         'invoice_icount_status' => 'Open',
+    //         'due_date'   => $duedate,
+    //         'txn_id'     => ($isPaymentProcessed) ? $paymentResponse['ReferenceNumber'] : '',
+    //         'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
+    //         'status'     => ($isPaymentProcessed) ? 'Paid' : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : 'Unpaid'),
+    //     ]);
 
-        // if ($isPaymentProcessed && $doctype == 'invrec') {
-        //     //close invoice
-        //     $this->closeDoc($json['docnum'], 'invrec');
-        //     $invoice->update(['invoice_icount_status' => 'Closed']);
-        // }
-        /*Close Order */
-        if (!empty($data['codes'])) {
-            $codes = $data['codes'];
-            foreach ($codes as $code) {
-                $this->closeDoc($code, 'order');
-                Order::where('id', $code)->update(['status' => 'Closed', 'invoice_status' => 2]);
-            }
-        }
+    //     // if ($isPaymentProcessed && $doctype == 'invrec') {
+    //     //     //close invoice
+    //     //     $this->closeDoc($json['docnum'], 'invrec');
+    //     //     $invoice->update(['invoice_icount_status' => 'Closed']);
+    //     // }
+    //     /*Close Order */
+    //     if (!empty($data['codes'])) {
+    //         $codes = $data['codes'];
+    //         foreach ($codes as $code) {
+    //             $this->closeDoc($code, 'order');
+    //             Order::where('id', $code)->update(['status' => 'Closed', 'invoice_status' => 2]);
+    //         }
+    //     }
 
-        return response()->json([
-            'message' => 'Invoice created successfully'
-        ]);
-    }
+    //     return response()->json([
+    //         'message' => 'Invoice created successfully'
+    //     ]);
+    // }
 
     public function getInvoice($id)
     {
@@ -464,6 +466,10 @@ class InvoiceController extends Controller
             $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
 
             if ($paymentResponse['HasError'] == true) {
+                $order->update([
+                    'paid_status' => OrderPaidStatusEnum::PROBLEM
+                ]);
+
                 return response()->json([
                     'message' => 'Unable to pay from credit card'
                 ], 500);
@@ -522,6 +528,11 @@ class InvoiceController extends Controller
         ]);
 
         Job::where('order_id', $order->id)
+            ->update([
+                'is_paid' => true
+            ]);
+
+        JobCancellationFee::where('order_id', $order->id)
             ->update([
                 'is_paid' => true
             ]);
@@ -596,33 +607,6 @@ class InvoiceController extends Controller
         return view('thanks', compact('client'));
     }
 
-    public function deleteInvoice($id)
-    {
-        $invoice = Invoices::find($id);
-
-        $invoice->delete();
-    }
-
-    public function closeDoc($docnum, $type)
-    {
-        Log::info('close doc.' . $docnum . '-' . $type);
-        $closeDocResponse = $this->closeICountDocument($docnum, $type);
-
-        if (!$closeDocResponse["status"]) {
-            throw new Exception($closeDocResponse["reason"], 500);
-        }
-
-        if ($type == 'invoice') {
-            Invoices::where('invoice_id', $docnum)->update(['invoice_icount_status' => 'Closed']);
-        }
-
-        if ($type == 'order') {
-            Order::where('order_id', $docnum)->update(['status' => 'Closed']);
-        }
-
-        return response()->json(['message' => 'Doc closed successfully!']);
-    }
-
     public function cancelDoc(Request $request)
     {
         $data = $request->all();
@@ -660,65 +644,21 @@ class InvoiceController extends Controller
 
         if ($doctype == 'order') {
             $order = Order::where('order_id', $docnum)->first();
-            $order->jobs()->update(['isOrdered' => 'c']);
+            if ($order->status == 'Closed') {
+                return response()->json([
+                    'message' => 'Order is already closed',
+                ], 403);
+            }
+
+            $order->jobs()->update([
+                'isOrdered' => 'c',
+                'order_id' => NULL,
+                'is_order_generated' => false
+            ]);
             $order->update(['status' => 'Cancelled']);
         }
 
         return response()->json(['message' => 'Doc cancelled successfully!']);
-    }
-
-    public function commitInvoicePayment($client, $services, $token, $subtotal)
-    {
-        $address = $client->property_addresses()->first();
-
-        $pay_items = [];
-
-        foreach ($services as $k => $service) {
-            $pay_items[] = [
-                'ItemDescription' => $service['description'],
-                'ItemQuantity'    => $service['quantity'],
-                'ItemPrice'       => $service['unitprice'],
-                'IsTaxFree'       => "false"
-            ];
-        }
-
-        $transaction = Transaction::create([
-            'client_id' => $client->id,
-            'amount' => $subtotal,
-            'currency' => config('services.app.currency'),
-            'status' => TransactionStatusEnum::INITIATED,
-            'type' => 'deposit',
-            'description' => 'Pay for Invoice',
-            'source' => 'credit-card',
-            'destination' => 'merchant',
-            'gateway' => 'zcredit'
-        ]);
-
-        $captureChargeResponse = $this->captureCardCharge([
-            'card_number' => $token,
-            'amount' => $subtotal,
-            'client_name' => $client->firstname . ' ' . $client->lastname,
-            'client_address' => $address ? $address->geo_address : '',
-            'client_email' => $client->email,
-            'client_phone' => $client->phone,
-            'J' => 0,
-            'obeligo_action' => "",
-            'original_zcredit_reference_number' => "",
-            'items' => $pay_items
-        ]);
-
-        if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
-            $transaction->update([
-                'status' => TransactionStatusEnum::COMPLETED,
-                'transaction_id' => $captureChargeResponse['ReferenceNumber'],
-                'transaction_at' => now(),
-                'metadata' => ['card_number' => $token],
-            ]);
-
-            return $captureChargeResponse;
-        }
-
-        throw new Exception("Error Processing Charge Request", 500);
     }
 
     public function manualInvoice($id)
@@ -737,125 +677,15 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        $services = json_decode($order->items, true);
-
         $card = $this->getClientCard($client->id);
 
         $payment_method = $client->payment_method;
-
-        $doctype = ($payment_method == 'cc') ? "invrec" : "invoice";
 
         if ($payment_method == 'cc' && !$card) {
             throw new Exception("Card not added for this client", 1);
         }
 
-        $subtotal = 0;
-        foreach ($services as $key => $service) {
-            $subtotal += (int)$service['unitprice'];
-        }
-        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
-        $total = $tax + $subtotal;
-
-        $orderResponse = json_decode($order->response, true);
-
-        $duedate = Carbon::today()->endOfMonth()->toDateString();
-
-        $isPaymentProcessed = false;
-        /* Auto payment */
-        if ($payment_method == 'cc') {
-            $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
-
-            if ($paymentResponse['HasError'] == true) {
-                $doctype = 'invoice';
-            } else {
-                $isPaymentProcessed = true;
-            }
-        }
-
-        $iCountClientID = $orderResponse['client_id'];
-        $otherInvDocOptions = [
-            'based_on' => [
-                [
-                    'docnum'  => $order->order_id,
-                    'doctype' => 'order'
-                ]
-            ]
-        ];
-
-        if ($payment_method == 'cc') {
-            $otherInvDocOptions['cc'] = [
-                "sum" => $total,
-                "card_type" => $card->card_type,
-                "card_number" => $card->card_number,
-                "exp_year" => explode('/', $card->valid)[0],
-                "exp_month" => explode('/', $card->valid)[1],
-                "holder_id" => $card->card_holder_id,
-            ];
-        }
-
-        if ($doctype == 'invoice') {
-            $json = $this->generateInvoiceDocument(
-                $iCountClientID,
-                $client,
-                $services,
-                $duedate,
-                $otherInvDocOptions
-            );
-        } else {
-            $json = $this->generateInvRecDocument(
-                $iCountClientID,
-                $client,
-                $services,
-                $duedate,
-                $otherInvDocOptions
-            );
-        }
-
-        $invoice = Invoices::create([
-            'invoice_id' => $json['docnum'],
-            'order_id'  => $order->id,
-            'amount'     => $total,
-            'paid_amount' => $total,
-            'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
-            'client_id'   => $client->id,
-            'doc_url'    => $json['doc_url'],
-            'type'       => $doctype,
-            'invoice_icount_status' => 'Open',
-            'due_date'   => $duedate,
-            'txn_id'     => ($isPaymentProcessed) ? $paymentResponse['ReferenceNumber'] : '',
-            'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-            'status'     => ($isPaymentProcessed) ? 'Paid' : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : 'Unpaid'),
-        ]);
-
-        $order->jobs()->update([
-            'invoice_id'            => $invoice->id,
-            'is_invoice_generated'  => true,
-            'invoice_no'            => $json["docnum"],
-            'invoice_url'           => $json["doc_url"],
-            'isOrdered'             => 2,
-            'status'                => JobStatusEnum::COMPLETED
-        ]);
-
-        /*Close Order */
-        $this->closeDoc($order->order_id, 'order');
-
-        // if ($isPaymentProcessed && $doctype == 'invrec') {
-        //     //close invoice
-        //     $this->closeDoc($json['docnum'], 'invrec');
-        //     $invoice->update(['invoice_icount_status' => 'Closed']);
-        // }
-
-        $order->update([
-            'status' => 'Closed',
-            'invoice_status' => 2
-        ]);
-
-        if ($doctype == 'invrec') {
-            Job::where('order_id', $order->id)
-                ->update([
-                    'is_paid' => true
-                ]);
-        }
+        $this->generateOrderInvoice($client, $order, $card);
 
         return response()->json([
             'message' => 'Invoice generated successfully'
@@ -912,7 +742,9 @@ class InvoiceController extends Controller
     public function createOrder(Request $request)
     {
         $id = $request->job_id;
-        $job = Job::query()->with(['jobservice', 'client'])->find($id);
+        $job = Job::query()
+            ->with(['jobservice', 'client'])
+            ->find($id);
 
         if (!$job) {
             return response()->json([
@@ -920,10 +752,19 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        $client = $job->client;
-        if (!$job) {
+        if (
+            $job->status != JobStatusEnum::COMPLETED ||
+            !$job->is_job_done
+        ) {
             return response()->json([
-                'message' => 'Job not found'
+                'message' => 'Job not completed'
+            ], 403);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
             ], 404);
         }
 
@@ -942,7 +783,15 @@ class InvoiceController extends Controller
         $items = $request->services;
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-        $this->generateOrderDocument($client, [$job->id], $items, $dueDate, $job->is_one_time_job);
+        $this->generateOrderDocument(
+            $client,
+            $items,
+            $dueDate,
+            [
+                'job_ids' => [$job->id],
+                'is_one_time_in_month' => $job->is_one_time_in_month_job
+            ]
+        );
 
         return response()->json([
             'message' => 'Order generated successfully'
@@ -954,6 +803,7 @@ class InvoiceController extends Controller
         $jobs = Job::query()
             ->with(['jobservice'])
             ->whereHas('jobservice')
+            ->where('status', JobStatusEnum::COMPLETED)
             ->where('is_order_generated', false)
             ->find($request->all());
 
@@ -984,8 +834,8 @@ class InvoiceController extends Controller
             ], 403);
         }
 
-        $oneTimeJobs = $jobs->where('is_one_time_job', true)->values();
-        $notOneTimeJobs = $jobs->where('is_one_time_job', false)->values();
+        $oneTimeJobs = $jobs->where('is_one_time_in_month_job', true)->values();
+        $notOneTimeJobs = $jobs->where('is_one_time_in_month_job', false)->values();
 
         $not_one_time_job_ids = [];
         $items = [];
@@ -1003,7 +853,15 @@ class InvoiceController extends Controller
 
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
         if (count($not_one_time_job_ids) > 0) {
-            $this->generateOrderDocument($client, $not_one_time_job_ids, $items, $dueDate, false);
+            $this->generateOrderDocument(
+                $client,
+                $items,
+                $dueDate,
+                [
+                    'job_ids' => [$not_one_time_job_ids],
+                    'is_one_time_in_month' => false
+                ]
+            );
         }
 
         foreach ($oneTimeJobs as $job) {
@@ -1015,7 +873,15 @@ class InvoiceController extends Controller
                 "quantity"    => 1,
             ];
 
-            $this->generateOrderDocument($client, [$job->id], [$item], $dueDate, $job->is_one_time_job);
+            $this->generateOrderDocument(
+                $client,
+                [$item],
+                $dueDate,
+                [
+                    'job_ids' => [$job->id],
+                    'is_one_time_in_month' => $job->is_one_time_in_month_job
+                ]
+            );
         }
 
         return response()->json([
@@ -1077,13 +943,6 @@ class InvoiceController extends Controller
             'not_generated' => $ngen,
             'all'           => $all,
         ]);
-    }
-
-    public function deleteOrders($id)
-    {
-        $order = Order::find($id);
-
-        $order->delete();
     }
 
     public function payments(Request $request)
@@ -1192,5 +1051,450 @@ class InvoiceController extends Controller
                 'services' => $jservices
             ]);
         }
+    }
+
+    public function paymentClientWise(Request $request)
+    {
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+        $last_paid_status = $request->get('last_paid_status');
+
+        $jobVisits = Job::query()
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
+            ->select('jobs.client_id')
+            ->selectRaw('COUNT(jobs.id) AS visits')
+            ->selectRaw('MAX(start_date) AS last_activity_date')
+            ->groupBy('jobs.client_id');
+
+        $orderPaidStatus = Order::query()
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('created_at', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('created_at', '<=', $end_date);
+            })
+            ->select('order.client_id')
+            ->selectRaw('MAX(id) AS order_id')
+            ->groupBy('order.client_id');
+
+        $data = Client::query()
+            ->leftJoinSub($jobVisits, 'job_visits', function ($join) {
+                $join->on('clients.id', '=', 'job_visits.client_id');
+            })
+            ->leftJoinSub($orderPaidStatus, 'order_paid_status', function ($join) {
+                $join->on('clients.id', '=', 'order_paid_status.client_id');
+            })
+            ->leftJoin('order', 'order_paid_status.order_id', '=', 'order.id')
+            ->when($last_paid_status != 'all', function ($q) use ($last_paid_status) {
+                return $q->where('order.paid_status', $last_paid_status);
+            })
+            ->where('job_visits.visits', '>', 0)
+            ->select('clients.id AS client_id', 'job_visits.last_activity_date', 'order.doc_url AS last_order_doc_url', 'clients.payment_method')
+            ->selectRaw('IFNULL(job_visits.visits, 0) AS visits')
+            ->selectRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) AS client_name')
+            ->selectRaw('order.paid_status AS last_paid_status')
+            ->groupBy('clients.id')
+            // ->orderBy('clients.id', 'desc')
+            ->paginate(20);
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+    public function clientUnpaidInvoice(Request $request, $id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => "Client not found"
+            ], 404);
+        }
+
+        if (empty($client->invoicename)) {
+            return response()->json([
+                'message' => "Client's invoice name is not set"
+            ], 403);
+        }
+
+        $total_unpaid = Invoices::query()
+            ->where('client_id', $client->id)
+            ->where('type', 'invoice')
+            ->where('status', 'Unpaid')
+            ->sum('amount');
+
+        return response()->json([
+            'total_unpaid_amount' => number_format((float)$total_unpaid, 2, '.', '')
+        ]);
+    }
+
+    public function closeClientInvoicesWithReceipt(Request $request, $id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => "Client not found"
+            ], 404);
+        }
+
+        if (empty($client->invoicename)) {
+            return response()->json([
+                'message' => "Client's invoice name is not set"
+            ], 403);
+        }
+
+        $data = $request->all();
+
+        $invoices = Invoices::query()
+            ->with(['client', 'order'])
+            ->where('client_id', $client->id)
+            ->where('type', 'invoice')
+            ->where('status', 'Unpaid')
+            ->get();
+
+        if ($invoices->count() == 0) {
+            return response()->json([
+                'message' => "Invoice not found"
+            ], 404);
+        }
+
+        $mode = $data['pay_method'];
+        if ($mode == "Credit Card") {
+            $card = $this->getClientCard($client->id);
+            if (!$card) {
+                return response()->json([
+                    'message' => 'Card not found for this client'
+                ], 404);
+            }
+        }
+
+        // if ($invoice->amount != $data['paid_amount']) {
+        //     return response()->json([
+        //         'message' => 'Entered amount is equal to invoice amount'
+        //     ], 403);
+        // }
+
+        $order = $invoices[0]->order;
+        if (!$order) {
+            return response()->json([
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        $orderResponse = json_decode($order->response, true);
+
+        $iCountClientID = $orderResponse['client_id'];
+
+        $subtotal = 0;
+        $services = [];
+        $basedOns = [];
+        $items = [];
+        foreach ($invoices as $key => $invoice) {
+            $order = $invoice->order;
+            $iCountDocument = $this->getICountDocument($invoice->invoice_id, 'invoice');
+
+            if (!$iCountDocument["status"]) {
+                throw new Exception($iCountDocument["reason"], 500);
+            }
+
+            $invoiceItems = $iCountDocument['doc_info']['items'];
+            $items = array_merge($items, $invoiceItems);
+            foreach ($invoiceItems as $item) {
+                $subtotal += (int)$item['unitprice'];
+
+                $services[] = [
+                    'description' => $item['description'],
+                    'unitprice' => $item['unitprice'],
+                    'quantity' => $item['quantity'],
+                ];
+            }
+
+            $basedOns[] = [
+                'docnum'  => $order->order_id,
+                'doctype' => 'order'
+            ];
+
+            $basedOns[] = [
+                'docnum'  => $invoice->invoice_id,
+                'doctype' => 'invoice'
+            ];
+        }
+
+        $otherInvDocOptions = [
+            'based_on' => $basedOns,
+        ];
+
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
+        $total = $tax + $subtotal;
+
+        $txnID = $data['txn_id'];
+
+        if ($mode == "Credit Card") {
+            $otherInvDocOptions['cc'] = [
+                "sum" => $total,
+                "card_type" => $card->card_type,
+                "card_number" => $card->card_number,
+                "exp_year" => explode('/', $card->valid)[0],
+                "exp_month" => explode('/', $card->valid)[1],
+                "holder_id" => $card->card_holder_id,
+            ];
+
+            $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
+
+            if ($paymentResponse['HasError'] == true) {
+                foreach ($invoices as $key => $invoice) {
+                    $order = $invoice->order;
+
+                    $order->update([
+                        'paid_status' => OrderPaidStatusEnum::PROBLEM
+                    ]);
+                }
+
+                return response()->json([
+                    'message' => 'Unable to pay from credit card'
+                ], 500);
+            }
+
+            $txnID = $paymentResponse['ReferenceNumber'];
+        } else if ($mode == "Bank Transfer") {
+            $otherInvDocOptions['banktransfer'] = [
+                "sum" => $total,
+                "date"   => $data['date'],
+                "account" => $data['account'],
+            ];
+        } else if ($mode == "Cheque") {
+            $otherInvDocOptions['cheques'] = [
+                [
+                    "sum" => $total,
+                    "date"   => $data['date'],
+                    "bank"   => $data['bank'],
+                    "branch" => $data['branch'],
+                    "account" => $data['account'],
+                    "number" => $data['number']
+                ]
+            ];
+        } else if ($mode == "Cash") {
+            $otherInvDocOptions['cash'] = [
+                "sum" => $total,
+            ];
+        }
+
+        $duedate = Carbon::today()->endOfMonth()->toDateString();
+
+        $json = $this->generateInvRecDocument(
+            $iCountClientID,
+            $client,
+            $services,
+            $duedate,
+            $otherInvDocOptions
+        );
+
+        foreach ($invoices as $key => $invoice) {
+            $rcp = Receipts::create([
+                'invoice_id' => $invoice->id,
+                'invoice_icount_id' => $invoice->invoice_id,
+                'receipt_id' => $json['docnum'],
+                'docurl' => $json['doc_url'],
+            ]);
+
+            // $this->closeDoc($invoice->invoice_id, 'invoice');
+            $invoice->update([
+                'invoice_icount_status' => 'Closed',
+                'receipt_id' => $rcp->id,
+                'pay_method'  => $data['pay_method'],
+                'txn_id'      => $txnID,
+                'callback'    => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
+                'paid_amount' => $data['paid_amount'],
+                'status'      => $data['status']
+            ]);
+
+            $order = $invoice->order;
+            $order->update([
+                'paid_status' => OrderPaidStatusEnum::PAID
+            ]);
+
+            Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+
+            JobCancellationFee::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+        }
+
+        return response()->json([
+            'message' => 'Invoice updated successfully'
+        ]);
+    }
+
+    public function closeClientForPayment(Request $request, $id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => "Client not found"
+            ], 404);
+        }
+
+        if (empty($client->invoicename)) {
+            return response()->json([
+                'message' => "Client's invoice name is not set"
+            ], 403);
+        }
+
+        if ($client->payment_method != 'cc') {
+            return response()->json([
+                'message' => "Payment is not set to credit card"
+            ], 403);
+        }
+
+        $card = $this->getClientCard($client->id);
+        if (!$card) {
+            return response()->json([
+                'message' => "Client's credit card not found"
+            ], 404);
+        }
+
+        $orders = Order::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'Open')
+            ->get();
+
+        if ($orders->count() == 0) {
+            return response()->json([
+                'message' => "Invoice not found"
+            ], 404);
+        }
+
+        $subtotal = 0;
+        $basedOns = [];
+        foreach ($orders as $key => $order) {
+            $services = json_decode($order->items, true);
+
+            foreach ($services as $key => $service) {
+                $subtotal += (int)$service['unitprice'];
+            }
+
+            $basedOns[] = [
+                'docnum'  => $order->order_id,
+                'doctype' => 'order'
+            ];
+        }
+
+        $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
+        $total = $tax + $subtotal;
+
+        $orderResponse = json_decode($orders[0]->response, true);
+
+        $iCountClientID = $orderResponse['client_id'];
+
+        $otherInvDocOptions = [
+            'based_on' => $basedOns
+        ];
+
+        $otherInvDocOptions['cc'] = [
+            "sum" => $total,
+            "card_type" => $card->card_type,
+            "card_number" => $card->card_number,
+            "exp_year" => explode('/', $card->valid)[0],
+            "exp_month" => explode('/', $card->valid)[1],
+            "holder_id" => $card->card_holder_id,
+        ];
+
+        $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
+
+        if ($paymentResponse['HasError'] == true) {
+            foreach ($orders as $key => $order) {
+                $order->update([
+                    'paid_status' => OrderPaidStatusEnum::PROBLEM
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Unable to pay from credit card'
+            ], 500);
+        }
+
+        $duedate = Carbon::today()->endOfMonth()->toDateString();
+
+        $json = $this->generateInvRecDocument(
+            $iCountClientID,
+            $client,
+            $services,
+            $duedate,
+            $otherInvDocOptions
+        );
+
+        $invoice = Invoices::create([
+            'invoice_id' => $json['docnum'],
+            'order_id'  => $order->id,
+            'amount'     => $total,
+            'paid_amount' => $total,
+            'pay_method' => 'Credit Card',
+            'client_id'   => $client->id,
+            'doc_url'    => $json['doc_url'],
+            'type'       => 'invrec',
+            'invoice_icount_status' => 'Open',
+            'due_date'   => $duedate,
+            'txn_id'     => $paymentResponse['ReferenceNumber'],
+            'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
+            'status'     => 'Paid',
+        ]);
+
+        foreach ($orders as $order) {
+            $order->jobs()->update([
+                'invoice_id'            => $invoice->id,
+                'is_invoice_generated'  => true,
+                'invoice_no'            => $json["docnum"],
+                'invoice_url'           => $json["doc_url"],
+                'isOrdered'             => 2,
+            ]);
+
+            $order->jobCancellationFees()->update([
+                'invoice_id'            => $invoice->id,
+                'is_invoice_generated'  => true,
+            ]);
+
+            /*Close Order */
+            $this->closeDoc($order->order_id, 'order');
+
+            // if ($isPaymentProcessed && $doctype == 'invrec') {
+            //     //close invoice
+            //     $this->closeDoc($json['docnum'], 'invrec');
+            //     $invoice->update(['invoice_icount_status' => 'Closed']);
+            // }
+
+            $orderUpdateData = [
+                'status' => 'Closed',
+                'invoice_status' => 2
+            ];
+
+            $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PAID;
+            $order->update($orderUpdateData);
+
+            Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+
+            JobCancellationFee::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+        }
+
+        return response()->json([
+            'message' => 'Invoice updated successfully'
+        ]);
     }
 }

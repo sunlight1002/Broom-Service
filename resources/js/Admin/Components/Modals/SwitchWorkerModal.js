@@ -5,11 +5,12 @@ import moment from "moment";
 import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 export default function SwitchWorkerModal({
     setIsOpen,
     isOpen,
-    jobId,
+    job,
     onSuccess,
 }) {
     const alert = useAlert();
@@ -18,10 +19,12 @@ export default function SwitchWorkerModal({
         worker_id: "",
         repeatancy: "one_time",
         until_date: null,
+        fee: "0",
     });
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { t } = useTranslation();
     const flatpickrRef = useRef(null);
 
     const headers = {
@@ -46,6 +49,11 @@ export default function SwitchWorkerModal({
             return false;
         }
 
+        // if (!formValues.fee) {
+        //     alert.error("The fee is missing");
+        //     return false;
+        // }
+
         return true;
     };
 
@@ -59,7 +67,7 @@ export default function SwitchWorkerModal({
 
     const getWorkerToSwitch = () => {
         axios
-            .get(`/api/admin/jobs/${jobId}/worker-to-switch`, {
+            .get(`/api/admin/jobs/${job.id}/worker-to-switch`, {
                 headers,
             })
             .then((response) => {
@@ -76,7 +84,7 @@ export default function SwitchWorkerModal({
         if (!hasError) {
             setIsLoading(true);
             axios
-                .post(`/api/admin/jobs/${jobId}/switch-worker`, formValues, {
+                .post(`/api/admin/jobs/${job.id}/switch-worker`, formValues, {
                     headers,
                 })
                 .then((response) => {
@@ -102,13 +110,29 @@ export default function SwitchWorkerModal({
 
     useEffect(() => {
         getWorkerToSwitch();
-    }, [jobId]);
+    }, [job.id]);
+
+    const handleFeeChange = (_value) => {
+        if (formValues.fee == _value) {
+            setFormValues((values) => {
+                return { ...values, fee: "0" };
+            });
+        } else {
+            setFormValues((values) => {
+                return { ...values, fee: _value };
+            });
+        }
+    };
 
     useEffect(() => {
         setMinUntilDate(
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
         );
     }, []);
+
+    const feeInAmount = useMemo(() => {
+        return job.total_amount * (formValues.fee / 100);
+    }, [formValues.fee]);
 
     return (
         <Modal
@@ -200,6 +224,64 @@ export default function SwitchWorkerModal({
                             </div>
                         </div>
                     )}
+
+                    {/* <div className="col-sm-12">
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t(
+                                    "admin.schedule.jobs.CancelModal.CancellationFee"
+                                )}
+                            </label>
+                            <div className="form-check">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    name="fee"
+                                    id="fee50"
+                                    value={50}
+                                    checked={formValues.fee == 50}
+                                    onChange={(e) => {
+                                        handleFeeChange(e.target.value);
+                                    }}
+                                />
+                                <label
+                                    className="form-check-label"
+                                    htmlFor="fee50"
+                                >
+                                    50%
+                                </label>
+                            </div>
+                            <div className="form-check">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    name="fee"
+                                    id="fee100"
+                                    value={100}
+                                    checked={formValues.fee == 100}
+                                    onChange={(e) => {
+                                        handleFeeChange(e.target.value);
+                                    }}
+                                />
+                                <label
+                                    className="form-check-label"
+                                    htmlFor="fee100"
+                                >
+                                    100%
+                                </label>
+                            </div>
+
+                            {feeInAmount > 0 ? (
+                                <p>{feeInAmount} ILS will be charged.</p>
+                            ) : (
+                                <p>
+                                    {t(
+                                        "admin.schedule.jobs.CancelModal.NoCharge"
+                                    )}
+                                </p>
+                            )}
+                        </div>
+                    </div> */}
                 </div>
             </Modal.Body>
 

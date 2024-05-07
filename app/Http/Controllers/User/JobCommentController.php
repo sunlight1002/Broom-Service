@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\JobStatusEnum;
+use App\Events\JobReviewRequest;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
+use App\Jobs\CreateJobOrder;
+use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\User;
+use App\Traits\JobSchedule;
+use App\Traits\PaymentAPI;
+use App\Traits\PriceOffered;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -19,6 +27,8 @@ use Illuminate\Support\Facades\Storage;
 
 class JobCommentController extends Controller
 {
+    use PaymentAPI, JobSchedule, PriceOffered;
+
     /**
      * Display a listing of the resource.
      *
@@ -79,32 +89,58 @@ class JobCommentController extends Controller
         $comment = JobComments::create([
             'name' => $request->name,
             'job_id' => $job->id,
-            'comment_for' => 'client',
+            'comment_for' => 'admin',
             'comment' => $request->comment,
         ]);
-
-        if (isset($request->status) && $request->status != '') {
-            $job->update([
-                'status' => $request->status
-            ]);
-
-            event(new WorkerUpdatedJobStatus($job, $comment));
-        }
 
         $filesArr = $request->file('files');
         if ($request->hasFile('files') && count($filesArr) > 0) {
             if (!Storage::disk('public')->exists('uploads/attachments')) {
                 Storage::disk('public')->makeDirectory('uploads/attachments');
             }
+
             $resultArr = [];
             foreach ($filesArr as $key => $file) {
-                $file_name = $comment->job_id . "_" . date('s') . "_" . $file->getClientOriginalName();
+                $original_name = $file->getClientOriginalName();
+                $file_name = $comment->job_id . "_" . date('s') . "_" . $original_name;
+
                 if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
-                    array_push($resultArr, ['file' => $file_name]);
+                    array_push($resultArr, [
+                        'file_name' => $file_name,
+                        'original_name' => $original_name
+                    ]);
                 }
             }
+
             $comment->attachments()->createMany($resultArr);
         }
+
+        if (isset($request->status) && $request->status != '') {
+            $jobData = [
+                'status' => $request->status
+            ];
+
+            if ($request->status == JobStatusEnum::COMPLETED) {
+                $jobData['completed_at'] = now()->toDateTimeString();
+            }
+
+            $job->update($jobData);
+
+            event(new WorkerUpdatedJobStatus($job, $comment));
+
+            if ($job->status == JobStatusEnum::COMPLETED) {
+                $this->updateJobWorkerMinutes($job->id);
+                $this->updateJobAmount($job->id);
+
+                ScheduleNextJobOccurring::dispatch($job->id);
+                CreateJobOrder::dispatch($job->id);
+            }
+
+            if (now()->hour >= 17 && now()->minute >= 1) {
+                event(new JobReviewRequest($job));
+            }
+        }
+
         return response()->json([
             'message' => 'Comment has been created successfully'
         ]);
@@ -135,8 +171,8 @@ class JobCommentController extends Controller
         }
 
         foreach ($comment->attachments()->get() as $attachment) {
-            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file)) {
-                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file);
+            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file_name)) {
+                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file_name);
             }
             $attachment->delete();
         }

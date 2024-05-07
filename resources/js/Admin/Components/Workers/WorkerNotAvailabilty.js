@@ -1,13 +1,18 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
 export default function WorkerNotAvailabilty() {
     const [date, setDate] = useState("");
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
     const [AllDates, setAllDates] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+
     const param = useParams();
     const alert = useAlert();
     const headers = {
@@ -16,10 +21,34 @@ export default function WorkerNotAvailabilty() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
     const handleDate = (e) => {
         e.preventDefault();
+        console.log("startTime: ",startTime);
+        console.log("endTime: ",endTime);
+        
+        if ((startTime && !endTime) || (!startTime && endTime)) {
+            alert.error("Please select both Start Time and End Time, or leave both empty.");
+            return;
+        }
+
+        if (startTime && endTime) {
+            const startTimeMinutes = parseInt(startTime.split(":")[0]) * 60 + parseInt(startTime.split(":")[1]);
+            const endTimeMinutes = parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]);
+    
+            if (endTimeMinutes <= startTimeMinutes) {
+                alert.error("End Time must be greater than Start Time.");
+                return;
+            }
+        }
+
         const data = {
             date: date,
+            start_time: startTime,
+            end_time: endTime,
             worker_id: parseInt(param.id),
             status: 1,
         };
@@ -29,13 +58,16 @@ export default function WorkerNotAvailabilty() {
             .then((res) => {
                 if (res.data.errors) {
                     for (let e in res.data.errors) {
-                        window.alert(res.data.errors[e]);
+                        alert.error(res.data.errors[e]);
                     }
                 } else {
                     document.querySelector(".closeb1").click();
                     alert.success(res.data.message);
                     getDates();
                     setDate("");
+                    setStartTime("");
+                    setEndTime("");
+                    handleCloseModal();
                 }
             });
     };
@@ -72,6 +104,10 @@ export default function WorkerNotAvailabilty() {
         });
     };
 
+    const slots = useMemo(() => {
+        return createHourlyTimeArray("08:00", "24:00");
+    }, []);
+
     const getDates = () => {
         axios
             .post(
@@ -98,8 +134,9 @@ export default function WorkerNotAvailabilty() {
                 <button
                     type="button"
                     className="btn btn-pink"
-                    data-toggle="modal"
-                    data-target="#exampleModalNote"
+                    onClick={() => setShowModal(true)}
+                    // data-toggle="modal"
+                    // data-target="#exampleModalNote"
                 >
                     Add Date
                 </button>
@@ -121,7 +158,7 @@ export default function WorkerNotAvailabilty() {
                                 }}
                             >
                                 <div className="row">
-                                    <div className="col-sm-10 col-10">
+                                    <div className="col-sm-4 col-4">
                                         <p
                                             style={{
                                                 fontSize: "16px",
@@ -129,6 +166,26 @@ export default function WorkerNotAvailabilty() {
                                             }}
                                         >
                                             {n.date ? n.date : "NA"}
+                                        </p>
+                                    </div>
+                                    <div className="col-sm-3 col-3">
+                                        <p
+                                            style={{
+                                                fontSize: "16px",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {n.start_time ? n.start_time : "NA"}
+                                        </p>
+                                    </div>
+                                    <div className="col-sm-3 col-3">
+                                        <p
+                                            style={{
+                                                fontSize: "16px",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {n.end_time ? n.end_time : "NA"}
                                         </p>
                                     </div>
                                     <div className="col-sm-2 col-2">
@@ -151,7 +208,8 @@ export default function WorkerNotAvailabilty() {
                 })}
 
             <div
-                className="modal fade"
+                className={`modal fade ${showModal ? "show" : ""}`}
+                style={{ display: showModal ? "block" : "none" }}
                 id="exampleModalNote"
                 tabIndex="-1"
                 role="dialog"
@@ -190,6 +248,56 @@ export default function WorkerNotAvailabilty() {
                                             required
                                             placeholder="Enter Date"
                                         />
+                                    </div>
+                                </div>
+                                <div className="col-sm-12 row">
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Start Time
+                                            </label>
+                                            <select
+                                                name="startTime"
+                                                className="form-control"
+                                                onChange={(e) =>
+                                                    setStartTime(e.target.value)
+                                                }
+                                            >
+                                                <option value="">{"Start Time"}</option>
+                                                {slots.map((t, i) => {
+                                                    return (
+                                                        <option value={t} key={i}>
+                                                            {" "}
+                                                            {t}{" "}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                End Time
+                                            </label>
+                                            <select
+                                                name="endTime"
+                                                className="form-control"
+                                                onChange={(e) =>
+                                                    setEndTime(e.target.value)
+                                                }
+                                            >
+                                                <option value="">{"End Time"}</option>
+                                                {slots.map((t, i) => {
+                                                    return (
+                                                        <option value={t} key={i}>
+                                                            {" "}
+                                                            {t}{" "}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

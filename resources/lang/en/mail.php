@@ -2,6 +2,9 @@
 return [
     'meeting' => [
         'subject'     => 'Meeting schedule',
+        'resubject'     => 'Re-schedule Meeting',
+        'file'     => 'Files',
+        'file_content'     => "Added New files in below mentions metting details",
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
@@ -22,7 +25,7 @@ return [
         'tel'         => 'Telephone',
         'price_offer' => 'Price offer',
         'quality_check' => 'Quality check',
-        'upload_meeting_files' => 'Upload meeting files',
+        'upload_job_description' => 'Upload Job Description',
         'address_txt' => 'Address',
         'choose_slot' => 'Choose slot'
     ],
@@ -76,7 +79,7 @@ return [
         'tel'         => 'Telephone'
     ],
     'form_101' => [
-        'subject'     => 'Form 101 with',
+        'subject'     => 'Form 101 | Broom Service',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
@@ -97,16 +100,32 @@ return [
         'thanks_text'   => 'Thanks',
         'job'         => 'Job',
         'started_by'  => 'has been started by',
+        'cancelled'   => 'Cancelled',
+        'worker_changed'   => 'Worker Changed',
+        'shift_changed'   => 'Shift Changed',
     ],
     'worker_contract' => [
-        'subject'     => 'Contract with',
+        'subject'     => 'Contract Form | Broom Service',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
         'content'     => 'You have successfully registered on our portal. Please sign the contract form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the contract.',
-        'btn_txt'     => 'Check Contract',
+        'below_txt'   => 'Click the below button to check the contract form.',
+        'btn_txt'     => 'Contract Form',
+        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'regards'     => 'Best Regards',
+        'tel'         => 'Telephone'
+    ],
+    'worker_safe_gear' => [
+        'subject'     => 'Safety and Gear Form | Broom Service',
+        'hi'          => 'Hi',
+        'greetings'   => 'Greetings',
+        'from'        => 'from',
+        'company'     => 'Broom Service',
+        'content'     => 'You have successfully registered on our portal. Please sign the safety and gear form to start working on the job.',
+        'below_txt'   => 'Click the below button to check the Safety and Gear form.',
+        'btn_txt'     => 'Safety And Gear Form',
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone'
@@ -119,7 +138,6 @@ return [
         'btn_txt'     => 'Check Contract',
         'thanks_text'   => 'Thanks',
         'job_completed' => 'Your job has been completed',
-        'review_request' => 'Please, rate us and send your review',
         'review' => 'Review',
         'job_completed_subject'     => 'Job Completed | Broom Service',
     ],
@@ -218,5 +236,67 @@ return [
         'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'tel'         => 'Telephone',
-    ]
+    ],
+    'worker_job' => [
+        'shift_changed' => 'Job shift changed.',
+        'shift_changed_subject' => 'Job shift changed | Broom Service',
+    ],
+    'common' => [
+        'salutation' => 'Hi, :name',
+        'greetings' => 'Greetings from Broom Service',
+        'dont_hesitate_to_get_in_touch'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'regards'     => 'Best Regards',
+        'company'     => 'Broom Service',
+        'tel'         => 'Telephone',
+    ],
+    'admin' => [
+        'form101-signed' => [
+            'subject' => 'Form 101 Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.'
+        ],
+        'safety-and-gear-signed' => [
+            'subject' => 'Safety and Gear Form Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.'
+        ],
+        'contract-signed' => [
+            'subject' => 'Contract Form Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.'
+        ]
+    ],
+    'client' => [
+        'review-request' => [
+            'subject' => 'Job Review | Broom Service',
+            'message' => 'Please, rate us and send your review.',
+        ],
+    ],
+    'worker' => [
+        'form101-signed' => [
+            'subject' => 'Form 101 Signed | Broom Service',
+            'message' => 'You have completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.',
+        ],
+        'safety-and-gear-signed' => [
+            'subject' => 'Safety and Gear Form Signed | Broom Service',
+            'message' => 'You have completed the signing of Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.',
+        ],
+        'contract-signed' => [
+            'subject' => 'Contract Form Signed | Broom Service',
+            'message' => 'You have completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.',
+        ]
+    ],
+    'form101' => [
+        'form_name' => 'Form 101',
+    ],
+    'safety-and-gear-form' => [
+        'form_name' => 'Safety and Gear Form',
+    ],
+    'contract-form' => [
+        'form_name' => 'Contract Form',
+    ],
+    'client_credentials' => [
+        'credentials' => 'Client credentials from',
+        'content'   => 'Below is your login credentials.',
+        'btn_txt'   => 'Login',
+        'email' => 'Email',
+        'password'  => 'Password',
+    ],
 ];

@@ -2,17 +2,30 @@
 
 namespace App\Http\Controllers\User\Auth;
 
+use App\Enums\WorkerFormTypeEnum;
+use App\Events\ContractFormSigned;
+use App\Events\Form101Signed;
+use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\WorkerFormService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    protected $workerFormService;
+
+    public function __construct(WorkerFormService $workerFormService)
+    {
+        $this->workerFormService = $workerFormService;
+    }
+
     /** 
      * Login api 
      * 
@@ -114,7 +127,7 @@ class AuthController extends Controller
         $worker->firstname     = $request->firstname;
         $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;
-        $worker->email         = $request->email;
+        // $worker->email         = $request->email;
         $worker->address       = $request->address;
         $worker->renewal_visa  = $request->renewal_visa;
         $worker->gender        = $request->gender;
@@ -152,8 +165,10 @@ class AuthController extends Controller
         $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
         $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
         $pdf->move($path, $filename);
-        $worker->form_101 = $filename;
-        $worker->save();
+
+        $worker->update([
+            'form_101' => $filename
+        ]);
 
         return response()->json(['success' => true]);
     }
@@ -162,58 +177,250 @@ class AuthController extends Controller
     {
         $user = User::where('worker_id', $request->worker_id)->first();
 
+        $form = $user->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
         return response()->json([
-            'worker' => $user
+            'worker' => $user,
+            'form' => $form ? $form->data : NULL
         ]);
     }
 
-    public function WorkContract(Request $request)
+    public function WorkContract(Request $request, $id)
     {
-        try {
-            User::where('worker_id', $request->worker_id)->update($request->input());
-            return response()->json([
-                'message' => "Thanks, for accepting contract"
-            ]);
-        } catch (\Exception $e) {
+        $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
 
+        $worker = User::where('worker_id', $id)->first();
+        if (!$worker) {
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'message' => 'Worker not found',
+            ], 404);
         }
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Contract already signed.'
+            ], 403);
+        }
+
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+        $form = $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::CONTRACT,
+            'data' => $data,
+            'submitted_at' => now()->toDateString(),
+            'pdf_name' => $file_name
+        ]);
+
+        event(new ContractFormSigned($worker, $form));
+
+        return response()->json([
+            'message' => 'Contract signed successfully. Thanks, for signing the contract.'
+        ]);
     }
 
-    public function form101(Request $request)
+    public function form101(Request $request, $id)
     {
-        $data = json_encode($request->all());
+        $worker = User::find($id);
 
-        User::where('id', $request->id)->update(['form_101' => $data]);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+        $savingType = $data['savingType'];
+        unset($data['savingType']);
+
+        if (!Storage::disk('public')->exists('uploads/form101/documents')) {
+            Storage::disk('public')->makeDirectory('uploads/form101/documents');
+        }
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereYear('created_at', now()->year)
+            ->first();
+
+        $formOldData = $form ? $form->data : [];
+
+        $data = $this->saveForm101UploadedDocument($data, 'employeepassportCopy', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'employeeResidencePermit', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'employeeIdCardCopy', $formOldData);
+
+        if ($form && $form->submitted_at) {
+            return response()->json([
+                'message' => 'Form 101 already submitted for current year.'
+            ], 403);
+        }
+
+        if ($savingType == 'submit') {
+            $submittedAt = now()->toDateString();
+        } else {
+            $submittedAt = NULL;
+        }
+
+        if ($form) {
+            $form->update([
+                'data' => $data,
+                'submitted_at' => $submittedAt
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $data,
+                'submitted_at' => $submittedAt
+            ]);
+        }
+
+        if ($form->submitted_at) {
+            $file_name = Str::uuid()->toString() . '.pdf';
+            $this->workerFormService->generateForm101PDF($form, $file_name);
+
+            $form->update([
+                'pdf_name' => $file_name
+            ]);
+
+            event(new Form101Signed($worker, $form));
+        }
+
         return response()->json([
-            'success_code' => 200,
-            'msg' => 'Form 101 signed successfully.'
+            'message' => 'Form 101 signed successfully.'
+        ]);
+    }
+
+    private function saveForm101UploadedDocument($data, $key, $formOldData)
+    {
+        if (isset($data[$key]) && !is_string($data[$key]) && $data[$key]->isFile()) {
+            $file = $data[$key];
+
+            $file_name = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+            if (Storage::disk('public')->putFileAs("uploads/form101/documents", $file, $file_name)) {
+
+                if (isset($formOldData[$key])) {
+                    if (Storage::disk('public')->exists("uploads/form101/documents/" . $formOldData[$key])) {
+                        Storage::disk('public')->delete("uploads/form101/documents/" . $formOldData[$key]);
+                    }
+                }
+
+                $data[$key] = $file_name;
+            }
+        }
+
+        return $data;
+    }
+
+    public function safegear(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Safety and gear already signed.'
+            ], 403);
+        }
+
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+        $form = $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+            'data' => $data,
+            'submitted_at' => now()->toDateString(),
+            'pdf_name' => $file_name
+        ]);
+
+        event(new SafetyAndGearFormSigned($worker, $form));
+
+        return response()->json([
+            'message' => 'Safety and gear  signed successfully.'
+        ]);
+    }
+
+    public function getSafegear($id)
+    {
+        $worker = User::find($id);
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
+            ->first();
+
+        return response()->json([
+            'lng' => $worker->lng,
+            'worker' => $worker,
+            'form' => $form
         ]);
     }
 
     public function get101($id)
     {
-        $form = User::where('id', $id)->first();
+        $worker = User::find($id);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereYear('created_at', now()->year)
+            ->first();
 
         return response()->json([
-            'success_code' => 200,
-            'lng' => $form->lng,
-            'form' => [["form_101" => $form->form_101]]
+            'lng' => $worker->lng,
+            'form' => $form ? $form : NULL,
+            'worker' => $worker
         ]);
     }
 
-    public function pdf101($id)
+    public function getWorkContract($id)
     {
-        $user = User::where('id', base64_decode($id))->first()->toarray();
-        $form = json_decode($user['form_101'], true);
-        $form['data']['signed_on'] = $user['created_at'];
-        $f = $form['data'];
-        $pdf = Pdf::loadView('pdf101', compact('f'));
-        $paper_size = array(0, 0, 800, 1000);
-        $pdf->set_paper($paper_size);
+        $worker = User::find($id);
 
-        return $pdf->stream('form101_' . $user['id'] . '.pdf');
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::CONTRACT)
+            ->first();
+
+        return response()->json([
+            'worker' => $worker,
+            'form' => $form
+        ]);
     }
+    // public function pdf101($id)
+    // {
+    //     $user = User::find(base64_decode($id))->toArray();
+    //     $form = json_decode($user['form_101'], true);
+    //     $form['data']['signed_on'] = $user['created_at'];
+    //     $f = $form['data'];
+    //     $pdf = Pdf::loadView('pdf101', compact('f'));
+    //     $paper_size = array(0, 0, 800, 1000);
+    //     $pdf->set_paper($paper_size);
+
+    //     return $pdf->stream('form101_' . $user['id'] . '.pdf');
+    // }
 }

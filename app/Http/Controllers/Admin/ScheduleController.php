@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ScheduleMeeting;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+
 
 class ScheduleController extends Controller
 {
@@ -79,7 +83,8 @@ class ScheduleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'client_id'      => ['required'],
-            'start_date'     => ['required'],
+            'start_date'     => ['required_if:meet_via,on-site'],
+            'start_time'     => ['required_if:meet_via,on-site'],
             'booking_status' => ['required'],
             'address_id'     => ['required'],
             'team_id'        => ['required']
@@ -93,6 +98,10 @@ class ScheduleController extends Controller
         }
 
         $input = $request->input();
+
+        if ($input['start_time']) {
+            $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
+        }
 
         $client = Client::find($input['client_id']);
         if (!$client) {
@@ -116,6 +125,15 @@ class ScheduleController extends Controller
 
         $schedule->load(['client', 'propertyAddress']);
 
+        if (!$schedule->start_date) {
+            $this->sendMeetingMail($schedule);
+
+            return response()->json([
+                'data' => $schedule,
+                'message' => 'Meeting scheduled successfully',
+            ]);
+        }
+
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');
@@ -135,18 +153,18 @@ class ScheduleController extends Controller
         } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
+            $this->sendMeetingMail($schedule);
+
             $this->saveGoogleCalendarEvent($schedule);
 
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
                     'user_id' => $schedule->client_id,
-                    'type' => 'sent-meeting',
+                    'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status
                 ]);
             }
-
-            $this->sendMeetingMail($schedule);
 
             return response()->json([
                 'data' => $schedule,
@@ -178,7 +196,7 @@ class ScheduleController extends Controller
 
                 Notification::create([
                     'user_id' => $schedule->client_id,
-                    'type' => 'sent-meeting',
+                    'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status
                 ]);
@@ -291,6 +309,15 @@ class ScheduleController extends Controller
                 'end_time'       => ''
             ]);
             $change = 'date';
+        } else if ($request->name == 'start_time') {
+            if ($request->value) {
+                $endTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request->value)->addMinutes(30)->format('h:i A');
+
+                $schedule->update([
+                    'start_time' => $request->value,
+                    'end_time' => $endTime,
+                ]);
+            }
         } else {
             $schedule->update([
                 $request->name => $request->value
@@ -330,6 +357,12 @@ class ScheduleController extends Controller
         $scheduleArr = $schedule->toArray();
 
         App::setLocale($scheduleArr['client']['lng']);
+        if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::DELETE_MEETING,
+                "notificationData" => $scheduleArr
+            ]));
+        }
         Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
             $sub = __('mail.cancel_meeting.subject') . " " . __('mail.cancel_meeting.from') . " " . __('mail.cancel_meeting.company') . " #" . $scheduleArr['id'];

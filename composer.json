@@ -17,6 +17,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
+        "tecnickcom/tcpdf": "^6.5",
         "twilio/sdk": "^7.15"
     },
     "require-dev": {
@@ -34,7 +35,12 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/Helper.php"
+            "app/Helpers/Helper.php",
+            "app/Helpers/tcpdf_filters.php",
+            "app/Helpers/fpdf_tpl.php",
+            "app/Helpers/tcpdi_parser.php",
+            "app/Helpers/tcpdi.php",
+            "app/Helpers/PDF.php"
         ]
     },
     "autoload-dev": {

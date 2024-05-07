@@ -219,7 +219,7 @@ export default function Acc() {
                             className="form-control"
                             value={entrence}
                             onChange={(e) => setEntrence(e.target.value)}
-                            placeholder={t("client.settings.ecode")}
+                            placeholder={t("client.settings.e_code")}
                         />
                         {errors.entrence_code && (
                             <small className="text-danger mb-1">

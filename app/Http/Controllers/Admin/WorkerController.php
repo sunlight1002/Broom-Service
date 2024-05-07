@@ -11,12 +11,18 @@ use App\Models\User;
 use App\Models\WorkerAvailability;
 use App\Models\Job;
 use App\Models\Contract;
+use App\Models\WorkerFreezeDate;
 use App\Models\WorkerNotAvailableDate;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WorkerCreated;
+use Illuminate\Validation\Rule;
 
 class WorkerController extends Controller
 {
@@ -60,6 +66,7 @@ class WorkerController extends Controller
     public function AllWorkers(Request $request)
     {
         $service = '';
+        $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
         if ($request->service_id) {
             // $contract=Contract::with('offer','client')->find($request->contract_id);
@@ -82,7 +89,19 @@ class WorkerController extends Controller
         $prefer_type = $request->get('prefer_type');
 
         $workers = User::query()
-            ->with(['availabilities', 'jobs:worker_id,start_date,shifts', 'notAvailableDates:user_id,date'])
+            ->with([
+                'availabilities:user_id,day,date,start_time,end_time',
+                'defaultAvailabilities:user_id,weekday,start_time,end_time,until_date',
+                'jobs:worker_id,start_date,shifts,client_id',
+                'jobs.client:id,firstname,lastname',
+                'notAvailableDates:user_id,date,start_time,end_time'
+            ])
+            ->where(function ($query) {
+                $query->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
+            })
+            ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
+                return $q->whereIn('id', $onlyWorkerIDArr);
+            })
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
@@ -114,9 +133,80 @@ class WorkerController extends Controller
         if (isset($request->filter)) {
             $workers = $workers->map(function ($worker, $key) {
                 $workerArr = $worker->toArray();
-                $workerArr['aval'] = $this->workerAvl($worker->availabilities);
-                $workerArr['wjobs'] = $this->workerJobs($worker->jobs);
+
+                $defaultAvailabilities = $worker->defaultAvailabilities
+                    ->where('until_date', '>=', date('Y-m-d'))
+                    ->groupBy('weekday');
+
+                $workerAvailabilitiesByDate = $worker
+                    ->availabilities
+                    ->sortBy([
+                        ['date', 'asc'],
+                        ['start_time', 'asc'],
+                    ])
+                    ->groupBy('date');
+
+                $availabilities = [];
+                foreach ($workerAvailabilitiesByDate as $date => $times) {
+                    if (is_null($worker->last_work_date) || Carbon::parse($worker->last_work_date)->gte(Carbon::parse($date))) {
+                        $availabilities[$date] = $times->map(function ($item, $key) {
+                            return $item->only(['start_time', 'end_time']);
+                        });
+                    }
+                }
+
+                $available_dates = array_keys($availabilities);
+                $dates = [];
+
+                $currentDate = Carbon::now();
+
+                // Loop through the next 4 weeks (28 days)
+                for ($i = 0; $i < 28; $i++) {
+                    // Add the current date to the array
+                    $date_ = $currentDate->toDateString();
+
+                    if (!in_array($date_, $available_dates)) {
+                        $weekDay = $currentDate->weekday();
+                        if (isset($defaultAvailabilities[$weekDay])) {
+                            if (is_null($worker->last_work_date) || Carbon::parse($worker->last_work_date)->gte(Carbon::parse($date_))) {
+                                $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
+                                    return $item->only(['start_time', 'end_time']);
+                                });
+                            }
+                        }
+                    }
+
+                    // Move to the next day
+                    $currentDate->addDay();
+                }
+
+                $workerArr['availabilities'] = $availabilities;
+
+                $dates = array();
+                foreach ($worker->jobs as $job) {
+                    $slotInfo = [
+                        'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
+                        'slot' => $job->shifts
+                    ];
+
+                    $dates[$job->start_date][] = $slotInfo;
+                }
+
+                $freezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+                $workerArr['freeze_dates'] = $freezeDates;
+                $workerArr['booked_slots'] = $dates;
+                $workerArr['not_available_on'] = $worker
+                    ->notAvailableDates
+                    ->map(function ($item) {
+                        return $item->only([
+                            'date',
+                            'start_time',
+                            'end_time'
+                        ]);
+                    })
+                    ->toArray();
                 $workerArr['not_available_dates'] = $worker->notAvailableDates->pluck('date')->toArray();
+
                 return $workerArr;
             });
 
@@ -128,28 +218,6 @@ class WorkerController extends Controller
         return response()->json([
             'workers' => $workers,
         ]);
-    }
-
-    public function workerJobs($jobs)
-    {
-        $data = array();
-        foreach ($jobs as $job) {
-            if (array_key_exists($job->start_date, $data)) {
-                $data[$job->start_date] = $data[$job->start_date] . ',' . $job->shifts;
-            } else {
-                $data[$job->start_date] = $job->shifts;
-            }
-        }
-        return $data;
-    }
-
-    public function workerAvl($availabilities)
-    {
-        $data = array();
-        foreach ($availabilities as $avl) {
-            $data[$avl->date] = $avl->working;
-        }
-        return $data;
     }
 
     /**
@@ -169,6 +237,10 @@ class WorkerController extends Controller
             'password'  => ['required'],
             'email'     => ['nullable', 'unique:users'],
             'gender'    => ['required'],
+            'company_type'    => [
+                'required',
+                Rule::in(['my-company', 'manpower']),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -191,6 +263,7 @@ class WorkerController extends Controller
         $worker->passcode      = $request->password;
         $worker->password      = Hash::make($request->password);
         $worker->skill         = $request->skill;
+        $worker->company_type  = $request->company_type;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
@@ -209,7 +282,8 @@ class WorkerController extends Controller
                 $w_a = new WorkerAvailability;
                 $w_a->user_id = $worker->id;
                 $w_a->date = $day->toDateString();
-                $w_a->working = array('8am-16pm');
+                $w_a->start_time = '08:00:00';
+                $w_a->end_time = '17:00:00';
                 $w_a->status = 1;
                 $w_a->save();
             }
@@ -219,25 +293,7 @@ class WorkerController extends Controller
             }
         }
 
-        App::setLocale($worker->lng);
-        $worker = $worker->toArray();
-        if (!is_null($worker['email'])) {
-            Mail::send('/Mails/Form101Mail', $worker, function ($messages) use ($worker) {
-                $messages->to($worker['email']);
-                ($worker['lng'] == 'heb') ?
-                    $sub = $worker['id'] . "# " . __('mail.form_101.subject') . "  " . __('mail.form_101.company') :
-                    $sub = __('mail.form_101.subject') . "  " . __('mail.form_101.company') . " #" . $worker['id'];
-                $messages->subject($sub);
-            });
-
-            Mail::send('/Mails/WorkerContractMail', $worker, function ($messages) use ($worker) {
-                $messages->to($worker['email']);
-                ($worker['lng'] == 'heb') ?
-                    $sub = $worker['id'] . "# " . __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') :
-                    $sub = __('mail.worker_contract.subject') . "  " . __('mail.worker_contract.company') . " #" . $worker['id'];
-                $messages->subject($sub);
-            });
-        }
+        event(new WorkerCreated($worker));
 
         return response()->json([
             'message' => 'Worker updated successfully',
@@ -281,6 +337,10 @@ class WorkerController extends Controller
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
+            'company_type'    => [
+                'required',
+                Rule::in(['my-company', 'manpower']),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -291,7 +351,7 @@ class WorkerController extends Controller
         $worker->firstname     = $request->firstname;
         $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;
-        $worker->email         = $request->email;
+        // $worker->email         = $request->email;
         $worker->address       = $request->address;
         $worker->latitude      = $request->latitude;
         $worker->longitude     = $request->longitude;
@@ -303,6 +363,7 @@ class WorkerController extends Controller
         $worker->passcode     = $request->password;
         $worker->password      = Hash::make($request->password);
         $worker->skill         = $request->skill;
+        $worker->company_type  = $request->company_type;
         $worker->status        = $request->status;
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
@@ -330,17 +391,39 @@ class WorkerController extends Controller
 
     public function updateAvailability(Request $request, $id)
     {
+        $worker = User::find($id);
+
         $data = $request->all();
 
-        WorkerAvailability::where('user_id', $id)->delete();
+        $worker->availabilities()->delete();
 
-        foreach ($data as $key => $availabilty) {
-            WorkerAvailability::create([
-                'user_id' => $id,
-                'date' => trim($key),
-                'working' => $availabilty,
-                'status' => '1',
-            ]);
+        foreach ($data['time_slots'] as $key => $availabilties) {
+            $date = trim($key);
+
+            foreach ($availabilties as $key => $availabilty) {
+                WorkerAvailability::create([
+                    'user_id' => $id,
+                    'date' => $date,
+                    'start_time' => $availabilty['start_time'],
+                    'end_time' => $availabilty['end_time'],
+                    'status' => '1',
+                ]);
+            }
+        }
+
+        $worker->defaultAvailabilities()->delete();
+
+        if (isset($data['default']['time_slots'])) {
+            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
+                foreach ($availabilties as $key => $timeSlot) {
+                    $worker->defaultAvailabilities()->create([
+                        'weekday' => $weekday,
+                        'start_time' => $timeSlot['start_time'],
+                        'end_time' => $timeSlot['end_time'],
+                        'until_date' => $data['default']['until_date'],
+                    ]);
+                }
+            }
         }
 
         return response()->json([
@@ -350,131 +433,59 @@ class WorkerController extends Controller
 
     public function getWorkerAvailability($id)
     {
-        $worker_availabilities = WorkerAvailability::where('user_id', $id)
-            ->orderBy('id', 'asc')
-            ->get();
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $new_array[$w_a->date] = $w_a->working;
-        }
-
-        return response()->json([
-            'data' => $new_array,
-        ]);
-    }
-
-    public function getALLWorkerAvailability()
-    {
-        $allslot = [
-            '8am-16pm' => array('08:00', '16:00'),
-            '8am-10am' => array('08:00', '10:00'),
-            '10am-12pm' => array('10:00', '12:00'),
-            '8am-12pm' => array('08:00', '12:00'),
-            '12pm-14pm' => array('12:00', '14:00'),
-            '14pm-16pm' => array('14:00', '16:00'),
-            '12pm-16pm' => array('12:00', '16:00'),
-            '16pm-18pm' => array('16:00', '18:00'),
-            '18pm-20pm' => array('18:00', '20:00'),
-            '16pm-20pm' => array('16:00', '20:00'),
-            '20pm-22pm' => array('20:00', '22:00'),
-            '22pm-24am' => array('22:00', '00:00'),
-            '20pm-24am' => array('20:00', '00:00'),
-        ];
-
-        $sunday = Carbon::now()->startOfWeek()->subDays(1);
-        $worker_availabilities = WorkerAvailability::with('worker')->where('date', '>=', $sunday)->orderBy('id', 'asc')->get();
-        $new_array = array();
-        foreach ($worker_availabilities as $w_a) {
-            $working = $this->Slot($w_a->user_id, $w_a->date, $w_a->working[0]);
-            foreach ($working as $key => $slot) {
-                if ($allslot[$w_a->working[0]][1] != $slot) {
-                    $new_array[] = array(
-                        'id' => $w_a->id . '_' . $key,
-                        'worker_id' => $w_a->user_id,
-                        'date' => $w_a->date,
-                        'start_time' => $slot,
-                        'end_time' => $this->covertTime($slot),
-                        'name' => $w_a->worker['firstname'] . ' ' . $w_a->worker['lastname']
-                    );
-                }
-            }
-        }
-
-        return response()->json([
-            'availability' => $new_array,
-        ]);
-    }
-
-    public function covertTime($slot)
-    {
-        $time = str_replace(".", ":", ((float)str_replace(":", ".", $slot) + 0.30)) . '0';
-        $time1 = explode(':', $time);
-        if ($time1[1] == '60') {
-            $time = ((int)$time1[0] + 1) . ':00';
-        }
-        return $time;
-    }
-
-    public function Slot($w_id, $w_date, $slot)
-    {
-        $allslot = [
-            '8am-16pm' => array('08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'),
-            '8am-10am' => array('08:00', '08:30', '09:00', '09:30', '10:00'),
-            '10am-12pm' => array('10:00', '10:30', '11:00', '11:30', '12:00'),
-            '8am-12pm' => array('08:00', '08:30', '09:00', '09:30', '10:00', '10:00', '10:30', '11:00', '11:30', '12:00'),
-            '12pm-14pm' => array('12:00', '12:30', '13:00', '13:30', '14:00'),
-            '14pm-16pm' => array('14:00', '14:30', '15:00', '15:30', '16:00'),
-            '12pm-16pm' => array('12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'),
-            '16pm-18pm' => array('16:00', '16:30', '17:00', '17:30', '18:00'),
-            '18pm-20pm' => array('18:00', '18:30', '19:00', '19:30', '20:00'),
-            '16pm-20pm' => array('16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'),
-            '20pm-22pm' => array('20:00', '20:30', '21:00', '21:30', '22:00'),
-            '22pm-24am' => array('22:00', '22:30', '23:00', '23:30', '00:00'),
-            '20pm-24am' => array('20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30', '00:00'),
-        ];
-        $jobs = Job::Where('worker_id', $w_id)
-            ->where('start_date', $w_date)
-            ->get();
-        if (count($jobs)) {
-            $data = $allslot[$slot];
-            foreach ($jobs as $job) {
-                $unset = false;
-                foreach ($allslot[$slot] as $key => $item) {
-                    if ($job->start_time == $item) {
-                        $unset = true;
-                    }
-                    if ($job->end_time == $item) {
-                        $unset = false;
-                    }
-                    if ($unset) {
-                        unset($data[$key]);
-                    }
-                }
-            }
-            return $data;
-        } else {
-            return $allslot[$slot];
-        }
-    }
-
-    public function upload(Request $request, $id)
-    {
         $worker = User::find($id);
 
-        $pdf = $request->file('pdf');
-        $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
-        $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
-        $pdf->move($path, $filename);
-        $worker->form_101 = $filename;
-        $worker->save();
-        return response()->json(['success' => true]);
+        $worker_availabilities = $worker->availabilities()
+            ->orderBy('date', 'asc')
+            ->get(['date', 'start_time', 'end_time']);
+
+        $availabilities = [];
+        foreach ($worker_availabilities->groupBy('date') as $date => $times) {
+            $availabilities[$date] = $times->map(function ($item, $key) {
+                return $item->only(['start_time', 'end_time']);
+            });
+        }
+
+        $default_availabilities = $worker->defaultAvailabilities()
+            ->orderBy('id', 'asc')
+            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
+            ->groupBy('weekday');
+
+        return response()->json([
+            'data' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
+        ]);
     }
+
+    // public function upload(Request $request, $id)
+    // {
+    //     $worker = User::find($id);
+
+    //     $pdf = $request->file('pdf');
+    //     $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $pdf->getClientOriginalExtension();
+
+    //     if (!Storage::disk('public')->exists('uploads/worker/form101')) {
+    //         Storage::disk('public')->makeDirectory('uploads/worker/form101');
+    //     }
+
+    //     if (Storage::disk('public')->putFileAs("uploads/worker/form101", $pdf, $filename)) {
+    //         $worker->update([
+    //             'form_101' => $filename
+    //         ]);
+    //     }
+
+    //     return response()->json(['success' => true]);
+    // }
 
     public function addNotAvailableDates(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'date'     => 'required',
             'worker_id'  => 'required',
+            'start_time' => 'required_with:end_time',
+            'end_time' => 'required_with:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -485,6 +496,8 @@ class WorkerController extends Controller
             'user_id' => $request->worker_id,
             'date'    => $request->date,
             'status'  => $request->status,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time
         ]);
 
         return response()->json(['message' => 'Date added']);
@@ -565,6 +578,76 @@ class WorkerController extends Controller
 
         return response()->json([
             'message' => 'Freeze shift updated successfully'
+        ]);
+    }
+
+    public function updateFreezeShiftWorkers(Request $request)
+    {
+        if ($request->has('removedSlots')) {
+            $removedSlots = $request->get('removedSlots');
+            foreach ($removedSlots as $removedSlot) {
+                WorkerFreezeDate::where('user_id', $removedSlot['workerId'])->where('id', $removedSlot['id'])->delete();
+            }
+        }
+
+        if ($request->has('workers')) {
+            $workers = $request->get('workers');
+
+            foreach ($workers as $key => $worker) {
+                $times = explode(' - ', $worker['shifts']);
+                WorkerFreezeDate::updateOrCreate([
+                    'user_id' => $worker['workerId'],
+                    'date' => Carbon::parse($worker['date']),
+                    'start_time' => $times[0] . '.00',
+                    'end_time' => $times[1] . '.00',
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Freeze shifts updated successfully'
+        ]);
+    }
+
+    public function getFreezeShiftWorkers(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $workerFreezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+
+        return response()->json([
+            'data' => $workerFreezeDates,
+            'message' => 'Freeze shifts fetched successfully'
+        ]);
+    }
+
+    public function updateLeaveJob(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $data = $request->all();
+        $date = null;
+        if (isset($data['date']) && !empty($data['date'])) {
+            $date = $data['date'];
+        }
+        $worker->update([
+            'last_work_date' => $date,
+        ]);
+
+        return response()->json([
+            'message' => 'Leave job date updated successfully'
         ]);
     }
 }

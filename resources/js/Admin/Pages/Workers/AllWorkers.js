@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../Layouts/Sidebar";
 import FreezeWorkerShiftModal from "../../Components/Modals/FreezeWorkerShiftModal";
+import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
@@ -15,6 +16,7 @@ export default function AllWorkers() {
     const [loading, setLoading] = useState("Loading...");
     const [filter, setFilter] = useState("");
     const [isOpenFreezeWorker, setIsOpenFreezeWorker] = useState(false);
+    const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const navigate = useNavigate();
 
@@ -74,7 +76,12 @@ export default function AllWorkers() {
     const handleFreezeShift = (_workerID) => {
         setSelectedWorkerId(_workerID);
         setIsOpenFreezeWorker(true);
-    }
+    };
+
+    const handleLeaveJob = (_workerID) => {
+        setSelectedWorkerId(_workerID);
+        setIsOpenLeaveJobWorker(true);
+    };
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -355,16 +362,23 @@ export default function AllWorkers() {
                                                                     >
                                                                         View
                                                                     </Link>
+                                                                    <Link
+                                                                        to={`/admin/freeze-shift/${item.id}`}
+                                                                        className="dropdown-item"
+                                                                    >
+                                                                        Freeze
+                                                                        Shift
+                                                                    </Link>
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>
-                                                                            handleFreezeShift(
+                                                                            handleLeaveJob(
                                                                                 item.id
                                                                             )
                                                                         }
                                                                     >
-                                                                        Freeze
-                                                                        Shift
+                                                                        Leave
+                                                                        Job
                                                                     </button>
                                                                     <button
                                                                         className="dropdown-item"
@@ -421,6 +435,14 @@ export default function AllWorkers() {
                     <FreezeWorkerShiftModal
                         setIsOpen={setIsOpenFreezeWorker}
                         isOpen={isOpenFreezeWorker}
+                        workerId={selectedWorkerId}
+                    />
+                )}
+
+                {isOpenLeaveJobWorker && (
+                    <LeaveJobWorkerModal
+                        setIsOpen={setIsOpenLeaveJobWorker}
+                        isOpen={isOpenLeaveJobWorker}
                         workerId={selectedWorkerId}
                     />
                 )}

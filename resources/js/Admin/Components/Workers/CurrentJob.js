@@ -58,32 +58,6 @@ export default function CurrentJob() {
                 }
             });
     };
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Job!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(`/api/admin/jobs/${id}`, { headers })
-                    .then((response) => {
-                        Swal.fire(
-                            "Deleted!",
-                            "Job has been deleted.",
-                            "success"
-                        );
-                        setTimeout(() => {
-                            getWorkerJobs();
-                        }, 1000);
-                    });
-            }
-        });
-    };
 
     const copy = [...jobs];
     const [order, setOrder] = useState("ASC");
@@ -202,28 +176,11 @@ export default function CurrentJob() {
                                             <td>
                                                 <div className="d-flex">
                                                     <Link
-                                                        to={`/admin/edit-job/${item.id}`}
-                                                        className="btn bg-green"
-                                                    >
-                                                        <i className="fa fa-edit"></i>
-                                                    </Link>
-
-                                                    <Link
                                                         to={`/admin/view-job/${item.id}`}
                                                         className="ml-2 btn btn-warning"
                                                     >
                                                         <i className="fa fa-eye"></i>
                                                     </Link>
-                                                    <button
-                                                        className="ml-2 btn bg-red"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <i className="fa fa-trash"></i>
-                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

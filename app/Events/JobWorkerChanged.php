@@ -14,17 +14,17 @@ class JobWorkerChanged
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $job, $shiftsInHour, $old_job_data, $oldWorker;
+    public $job, $startTime, $old_job_data, $oldWorker;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($job, $shiftsInHour, $old_job_data, $oldWorker)
+    public function __construct($job, $startTime, $old_job_data, $oldWorker)
     {
         $this->job = $job;
-        $this->shiftsInHour = $shiftsInHour;
+        $this->startTime = $startTime;
         $this->old_job_data = $old_job_data;
         $this->oldWorker = $oldWorker;
     }

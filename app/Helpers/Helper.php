@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Helpers;
-
 use App\Mail\MailInvoiceToClient;
 use App\Models\Job;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
-class Helper
-{
-    public static function sendInvoicePayToClient($id, $docurl, $docnum, $inv_id)
+if (!function_exists('sendInvoicePayToClient')) {
+    function sendInvoicePayToClient($id, $docurl, $docnum, $inv_id)
     {
         $job = Job::query()->with('client')->find($id);
         $job = $job->toArray();
@@ -25,8 +24,10 @@ class Helper
 
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
     }
+}
 
-    public static function sendWhatsappMessage($number, $template = '', $data = array())
+if (!function_exists('sendWhatsappMessage')) {
+    function sendWhatsappMessage($number, $template = '', $data = array(), $lang = 'he')
     {
         $ch = curl_init();
 
@@ -43,7 +44,6 @@ class Helper
 
         if ($template == '') {
             $params = [
-
                 "messaging_product" => "whatsapp",
                 "recipient_type" => "individual",
                 "to" => $mobile_no,
@@ -51,9 +51,7 @@ class Helper
                 "preview_url" =>  true,
                 "text" => [
                     "body" =>  $data['message']
-
                 ],
-
             ];
         } else {
             $params = [
@@ -64,27 +62,29 @@ class Helper
                 "template" => [
                     "name" => $template,
                     "language" => [
-                        "code" => "he"
+                        "code" => $lang
                     ],
                 ]
             ];
         }
 
-        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v16.0/' . config('services.whatsapp_api.code') . '/messages');
+        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v18.0/' . config('services.whatsapp_api.from_id') . '/messages');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
 
         $headers = array();
-        $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.secret');
+        $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.auth_token');
         $headers[] = 'Content-Type: application/json';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
+            logger(curl_error($ch));
             echo 'Error:' . curl_error($ch);
         }
+        logger($result);
         $data = json_decode($result, 1);
 
         curl_close($ch);
@@ -94,8 +94,22 @@ class Helper
             return 'message sent successfully.';
         }
     }
+}
 
-    public static function get_setting($key)
+if (!function_exists('sendJobWANotification')) {
+    function sendJobWANotification($emailData)
+    {
+        if (isset($emailData['job']['worker']) && !empty($emailData['job']['worker']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::NEW_JOB,
+                "notificationData" => $emailData
+            ]));
+        }
+    }
+}
+
+if (!function_exists('get_setting')) {
+    function get_setting($key)
     {
         $value =  Setting::where('key', $key)->first();
 
@@ -103,4 +117,8 @@ class Helper
 
         return $return;
     }
+}
+
+class FPDF extends TCPDF
+{
 }

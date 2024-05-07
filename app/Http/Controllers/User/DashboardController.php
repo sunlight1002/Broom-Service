@@ -42,6 +42,8 @@ class DashboardController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'date'     => 'required',
+            'start_time' => 'required_with:end_time',
+            'end_time' => 'required_with:start_time', 
         ]);
 
         if ($validator->fails()) {
@@ -52,6 +54,8 @@ class DashboardController extends Controller
             'user_id' => Auth::user()->id,
             'date'    => $request->date,
             'status'  => $request->status,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time
         ]);
 
         return response()->json(['message' => 'Date added']);

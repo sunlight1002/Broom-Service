@@ -145,7 +145,7 @@ export default function card() {
                                 <Th scope="col">
                                     {t("work-contract.card_expiry")}
                                 </Th>
-                                <Th scope="col">Action</Th>
+                                <Th scope="col">{t("work-contract.action")}</Th>
                             </Tr>
                         </Thead>
                         <Tbody>

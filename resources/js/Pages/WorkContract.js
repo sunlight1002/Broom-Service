@@ -172,7 +172,6 @@ export default function WorkContract() {
                             {}
                         )
                         .then((response) => {
-                            console.log(response.data.card);
                             if (response.data.card) {
                                 setClientCard(response.data.card);
                                 setCheckingForCard(false);

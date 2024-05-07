@@ -161,24 +161,28 @@ export default function ScheduledMeeting() {
                                                     : "NA"}
                                             </td>
                                             <td>
-                                                {Moment(item.start_date).format(
-                                                    "DD/MM/Y"
+                                                {item.start_date && (
+                                                    <>
+                                                        {Moment(
+                                                            item.start_date
+                                                        ).format("DD/MM/Y")}
+                                                        <br />
+                                                        {Moment(
+                                                            item.start_date
+                                                        ).format("dddd")}
+                                                        {item.start_time &&
+                                                            item.end_time && (
+                                                                <>
+                                                                    <br />
+                                                                    {"Start : " +
+                                                                        item.start_time}
+                                                                    <br />
+                                                                    {"End : " +
+                                                                        item.end_time}
+                                                                </>
+                                                            )}
+                                                    </>
                                                 )}
-                                                <br />
-                                                {Moment(item.start_date).format(
-                                                    "dddd"
-                                                )}
-                                                {item.start_time &&
-                                                    item.end_time && (
-                                                        <>
-                                                            <br />
-                                                            {"Start : " +
-                                                                item.start_time}
-                                                            <br />
-                                                            {"End : " +
-                                                                item.end_time}
-                                                        </>
-                                                    )}
                                             </td>
                                             <td style={{ color }}>
                                                 {item.booking_status}

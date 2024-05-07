@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\CancellationActionEnum;
 use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
+use App\Jobs\CreateJobOrder;
+use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
-use App\Models\ChangeJobWorkerRequest;
 use App\Models\Job;
+use App\Models\JobCancellationFee;
 use App\Models\Notification;
+use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -17,6 +24,8 @@ use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
+    use JobSchedule;
+
     /**
      * Display a listing of the resource.
      *
@@ -61,8 +70,53 @@ class JobController extends Controller
             ->where('client_id', Auth::user()->id)
             ->find($id);
 
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
         $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
-        $feeAmount = ($feePercentage / 100) * $job->offer->total;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'client',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CANCELLATION,
+            'duration' => $request->repeatancy,
+            'until_date' => $request->until_date,
+        ]);
 
         $job->update([
             'status' => JobStatusEnum::CANCEL,
@@ -75,14 +129,17 @@ class JobController extends Controller
             'cancel_until_date' => $request->until_date,
         ]);
 
+        CreateJobOrder::dispatch($job->id);
+        ScheduleNextJobOccurring::dispatch($job->id);
+
         Notification::create([
             'user_id' => $job->client->id,
-            'type' => 'client-cancel-job',
+            'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
             'job_id' => $job->id,
             'status' => 'declined'
         ]);
 
-        $admin = Admin::find(1)->first();
+        $admin = Admin::where('role', 'admin')->first();
         App::setLocale('en');
         $data = array(
             'by'         => 'client',
@@ -90,7 +147,12 @@ class JobController extends Controller
             'admin'      => $admin->toArray(),
             'job'        => $job->toArray(),
         );
-
+        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                "notificationData" => $data
+            ]));
+        }
         Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             $messages->to($data['email']);
             $sub = __('mail.client_job_status.subject');
@@ -127,7 +189,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status == JobStatusEnum::COMPLETED) {
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job already completed',
             ], 403);
@@ -177,7 +242,6 @@ class JobController extends Controller
         $admins = Admin::where('role', 'admin')->get();
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-
         foreach ($admins as $key => $admin) {
             // App::setLocale($admin->lng);
 
@@ -186,7 +250,12 @@ class JobController extends Controller
                 'admin' => $admin->toArray(),
                 'job' => $job->toArray(),
             );
-
+            if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
+                    "notificationData" => $emailData
+                ]));
+            }
             Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $messages->subject(__('mail.change_worker_request.subject'));
@@ -210,7 +279,10 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->status != JobStatusEnum::COMPLETED) {
+        if (
+            $job->status != JobStatusEnum::COMPLETED ||
+            !$job->is_job_done
+        ) {
             return response()->json([
                 'message' => 'Job not completed yet',
             ], 403);

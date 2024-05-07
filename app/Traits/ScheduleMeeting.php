@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 trait ScheduleMeeting
 {
@@ -22,18 +23,12 @@ trait ScheduleMeeting
         App::setLocale($scheduleArr['client']['lng']);
         if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
             event(new WhatsappNotificationEvent([
-                "type" => 'client_meeting_schedule',
+                "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
                 "notificationData" => $scheduleArr
             ]));
         }
 
-        if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
-            $emailTemplate = '/Mails/MeetingMail';
-        } else {
-            $emailTemplate = '/Mails/ChooseMeetingSlotMail';
-        }
-
-        Mail::send($emailTemplate, $scheduleArr, function ($messages) use ($scheduleArr) {
+        Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
 
             if ($scheduleArr['client']['lng'] == 'en') {
@@ -50,6 +45,10 @@ trait ScheduleMeeting
 
     private function saveGoogleCalendarEvent($schedule)
     {
+        if (!$schedule->start_date) {
+            return NULL;
+        }
+
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');

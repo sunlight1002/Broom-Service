@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import WorkerNotAvailability from "../../Components/Availability/WorkerNotAvailability";
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import { useTranslation } from "react-i18next";
 
 export default function NotAvailability() {
     const { t } = useTranslation();
+
     return (
         <div id="container">
             <WorkerSidebar />
@@ -24,7 +25,7 @@ export default function NotAvailability() {
                                     data-toggle="modal"
                                     data-target="#exampleModalNote"
                                 >
-                                    Add Date
+                                    {t("worker.schedule.add_date")}
                                 </button>
                             </div>
                         </div>

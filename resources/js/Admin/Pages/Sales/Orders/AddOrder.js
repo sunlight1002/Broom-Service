@@ -166,7 +166,7 @@ export default function AddOrder() {
                 setLoading(false);
                 alert.success("Order created successfully");
                 setTimeout(() => {
-                    navigate("/admin/orders");
+                    navigate("/admin/payments");
                 }, 1000);
             })
             .catch((e) => {

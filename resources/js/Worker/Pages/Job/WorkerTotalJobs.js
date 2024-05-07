@@ -93,22 +93,6 @@ export default function WorkerTotalJobs() {
                                 {t("worker.jobs.title")}
                             </h1>
                         </div>
-                        <div className="col-sm-6" style={{ display: "none" }}>
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Search"
-                                />
-                                <Link
-                                    to="/admin/add-job"
-                                    className="btn btn-pink addButton"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
-                                </Link>
-                            </div>
-                        </div>
 
                         <div className="col-sm-7 hidden-xs">
                             <div className="job-buttons">
@@ -124,8 +108,7 @@ export default function WorkerTotalJobs() {
                                         borderColor: "#858282",
                                     }}
                                 >
-                                    {" "}
-                                    All Jobs
+                                    {t("worker.jobs.all_jobs")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-success"
@@ -133,8 +116,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("current");
                                     }}
                                 >
-                                    {" "}
-                                    Current week
+                                    {t("worker.jobs.current_week")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-pink"
@@ -142,8 +124,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("next");
                                     }}
                                 >
-                                    {" "}
-                                    Next week
+                                    {t("worker.jobs.next_week")}
                                 </button>
                                 <button
                                     className="ml-2 btn btn-primary"
@@ -151,8 +132,7 @@ export default function WorkerTotalJobs() {
                                         filterJobDate("nextnext");
                                     }}
                                 >
-                                    {" "}
-                                    Next Next week
+                                    {t("worker.jobs.next_next_week")}
                                 </button>
                             </div>
                         </div>

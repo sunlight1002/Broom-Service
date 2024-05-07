@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeWorkerCalender from "../../Components/Job/ChangeWorkerCalender";
+import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ChangeWorker() {
     const params = useParams();
@@ -77,7 +78,10 @@ export default function ChangeWorker() {
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 <p>
-                                                    {job.jobservice.jobHours}{" "}
+                                                    {convertMinsToDecimalHrs(
+                                                        job.jobservice
+                                                            .duration_minutes
+                                                    )}{" "}
                                                     hours
                                                 </p>
                                             </div>
@@ -162,18 +166,6 @@ export default function ChangeWorker() {
                                         </div>
                                     </div>
                                     <div className="row">
-                                        <div className="col-sm-12">
-                                            <div className="mt-3 mb-3">
-                                                <h3 className="text-center">
-                                                    Worker Availability
-                                                </h3>
-                                                <p className="text-center text-danger">
-                                                    Assign a specific worker
-                                                    only and choose a shift for
-                                                    a single date.
-                                                </p>
-                                            </div>
-                                        </div>
                                         <div className="col-sm-12">
                                             <ChangeWorkerCalender job={job} />
                                             <div className="mb-3">&nbsp;</div>

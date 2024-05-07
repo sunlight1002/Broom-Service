@@ -44,6 +44,10 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                 setLoading(false);
                 alert.success("Job cancelled successfully");
                 navigate(`/client/jobs`);
+            })
+            .catch((e) => {
+                setLoading(false);
+                alert.error(e.response.data.message);
             });
     };
 
@@ -61,7 +65,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
 
         const _feePercentage = diffInDays >= 1 ? 50 : 100;
 
-        return job.offer.total * (_feePercentage / 100);
+        return job.total_amount * (_feePercentage / 100);
     }, [job]);
 
     useEffect(() => {

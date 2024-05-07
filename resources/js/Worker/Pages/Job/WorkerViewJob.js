@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useAlert } from "react-alert";
@@ -9,6 +9,7 @@ import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import ClientDetails from "../../Components/Job/ClientDetails";
 import Services from "../../Components/Job/Services";
 import Comment from "../../Components/Job/Comment";
+import ChangeJobStatusModal from "../../Components/Modals/ChangeJobStatusModal";
 
 export default function WorkerViewJob() {
     const params = useParams();
@@ -24,8 +25,15 @@ export default function WorkerViewJob() {
     const [job_time, setJobTime] = useState([]);
     const [total_time, setTotalTime] = useState(0);
     const [address, setAddress] = useState({});
+    const [allComment, setAllComment] = useState([]);
+    const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
+    const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
+    const [isButtonEnabled, setIsButtonEnabled] = useState(true);
+
     const alert = useAlert();
     const { t } = useTranslation();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -42,6 +50,7 @@ export default function WorkerViewJob() {
                 setClient(r.client);
                 setWorker(r.worker);
                 setAddress(r.property_address ? r.property_address : {});
+                handleStartTime(res.data.job.start_date);
             })
             .catch((e) => {
                 Swal.fire({
@@ -54,16 +63,30 @@ export default function WorkerViewJob() {
     useEffect(() => {
         getJob();
     }, []);
-    const handleClick = () => {
-        navigate(`/worker/jobs`);
-    };
-    const HandleMarkComplete = () => {
+
+    const handleMarkComplete = () => {
         isRunning ? stopTimer() : "";
-        const cbtn = document.querySelector(".cmbtn");
-        cbtn.setAttribute("disabled", true);
-        cbtn.value = "please wait ...";
-        document.querySelector(".note-btn").click();
+        setIsCompleteBtnDisable(true);
+        setIsOpenChangeJobStatus(true);
     };
+
+    const handleApproveJob = (e) => {
+        e.preventDefault();
+
+        setIsApproving(true);
+        axios
+            .post(`/api/worker/${worker.id}/jobs/${params.id}/approve`)
+            .then((res) => {
+                getJob();
+                alert.success(res.data.data);
+                setIsApproving(false);
+            })
+            .catch((err) => {
+                setIsApproving(false);
+                alert.error(err.message);
+            });
+    };
+
     const handleOpeningTime = (e) => {
         e.preventDefault();
         e.target.setAttribute("disabled", true);
@@ -173,10 +196,13 @@ export default function WorkerViewJob() {
             setTotalTime(parseInt(t.total));
         });
     };
+
     useEffect(() => {
         getTimes();
         getTime();
+        getComments();
     }, []);
+
     useEffect(() => {
         const interval = setInterval(() => {
             let timeDiff =
@@ -208,6 +234,24 @@ export default function WorkerViewJob() {
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
+    const getComments = () => {
+        axios
+            .get(`/api/job-comments?id=${params.id}`, { headers })
+            .then((res) => {
+                setAllComment(res.data.comments);
+            });
+    };
+
+    const handleStartTime = (start_date) => {
+        const today = new Date();
+        const startDate = new Date(start_date);
+        if (startDate > today) {
+            setIsButtonEnabled(false);
+        } else {
+            setIsButtonEnabled(true);
+        }
+    };
+
     return (
         <div id="container">
             <WorkerSidebar />
@@ -226,12 +270,29 @@ export default function WorkerViewJob() {
                                             </h2>
                                         </div>
 
-                                        {job.job_opening_timestamp === null ? (
+                                        {job.job_opening_timestamp === null &&
+                                        job.worker_approved_at === null ? (
+                                            <div className="col-sm-2 col-6">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleApproveJob}
+                                                    disabled={isApproving}
+                                                    className="btn btn-primary"
+                                                >
+                                                    {t(
+                                                        "worker.jobs.view.approve"
+                                                    )}
+                                                </button>
+                                            </div>
+                                        ) : job.job_opening_timestamp ===
+                                              null &&
+                                          job.worker_approved_at !== null ? (
                                             <div className="col-sm-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleOpeningTime}
-                                                    className="btn btn-success cmbtn"
+                                                    className="btn btn-success"
+                                                    disabled={!isButtonEnabled}
                                                 >
                                                     {t(
                                                         "worker.jobs.view.going_to_start"
@@ -248,9 +309,12 @@ export default function WorkerViewJob() {
                                                             <button
                                                                 type="button"
                                                                 onClick={
-                                                                    HandleMarkComplete
+                                                                    handleMarkComplete
                                                                 }
-                                                                className="btn btn-success cmbtn"
+                                                                disabled={
+                                                                    isCompleteBtnDisable
+                                                                }
+                                                                className="btn btn-success"
                                                             >
                                                                 {t(
                                                                     "worker.jobs.view.completebtn"
@@ -333,7 +397,7 @@ export default function WorkerViewJob() {
                                     <h2 className="text-custom">
                                         {t("worker.jobs.view.w_time")}
                                     </h2>
-                                    <div className="dashBox p-4">
+                                    <div className="dashBox p-4 mb-4">
                                         <div className="table-responsive">
                                             {job_time.length > 0 ? (
                                                 <Table className="table table-bordered responsiveTable">
@@ -419,24 +483,30 @@ export default function WorkerViewJob() {
                                         </div>
                                     </div>
                                     <Comment
-                                        handleGetJob={getJob}
-                                        jobStatus={job_status}
+                                        allComment={allComment}
+                                        handleGetComments={() => getComments()}
                                     />
-                                </div>
-                                <div className="col-sm-12 text-center">
-                                    <button
-                                        type="button"
-                                        onClick={handleClick}
-                                        className="btn btn-pink addButton"
-                                    >
-                                        {t("worker.jobs.view.back")}
-                                    </button>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {isOpenChangeJobStatus && (
+                <ChangeJobStatusModal
+                    allComment={allComment}
+                    jobId={params.id}
+                    jobStatus={job_status}
+                    setIsOpen={setIsOpenChangeJobStatus}
+                    isOpen={isOpenChangeJobStatus}
+                    onSuccess={() => {
+                        getComments();
+                        getJob();
+                        setIsOpenChangeJobStatus(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

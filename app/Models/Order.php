@@ -16,6 +16,7 @@ class Order extends Model
         'items',
         'status',
         'invoice_status',
+        'paid_status',
     ];
 
     public function jobs()
@@ -26,5 +27,10 @@ class Order extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function jobCancellationFees()
+    {
+        return $this->hasMany(JobCancellationFee::class, 'order_id');
     }
 }

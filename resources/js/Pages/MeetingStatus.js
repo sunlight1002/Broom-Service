@@ -1,35 +1,20 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import Moment from "moment";
+import moment from "moment";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
 
 import logo from "../Assets/image/sample.svg";
+import CustomCalendar from "./Form101/inputElements/CustomCalendar";
 
 export default function MeetingStatus() {
     const { t } = useTranslation();
-    const [meeting, setMeeting] = useState([]);
+    const [meeting, setMeeting] = useState(null);
     const [teamName, setTeamName] = useState("");
     const param = useParams();
-
-    const updateMeeting = () => {
-        if (param.response == "re") {
-            axios
-                .post(`/api/client/reschedule-meeting`, {
-                    id: Base64.decode(param.id),
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response.data.message,
-                        icon: "error",
-                    });
-                });
-        }
-    };
 
     const getMeeting = () => {
         axios
@@ -45,15 +30,18 @@ export default function MeetingStatus() {
                 } else document.querySelector("html").removeAttribute("dir");
             });
     };
+
     useEffect(() => {
         getMeeting();
-        updateMeeting();
-        setTimeout(() => {
-            document.querySelector(".meeting").style.display = "block";
-        }, 1000);
     }, []);
 
-    const dt = Moment(meeting.start_date).format("DD-MM-Y");
+    const dt = useMemo(() => {
+        if (!meeting) {
+            return "-";
+        }
+
+        return moment(meeting.start_date).format("DD-MM-Y");
+    }, [meeting]);
 
     const timeFormat = (intime) => {
         if (intime != undefined) {
@@ -72,41 +60,41 @@ export default function MeetingStatus() {
         }
     };
     return (
-        <div className="container meeting" style={{ display: "none" }}>
-            <div className="thankyou meet-status dashBox maxWidthControl p-4">
-                <svg
-                    width="190"
-                    height="77"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                >
-                    <image xlinkHref={logo} width="190" height="77"></image>
-                </svg>
-                <h1>
-                    {t("meet_stat.with")} {teamName}
-                </h1>
-                <ul className="list-unstyled">
-                    <li>
-                        {t("meet_stat.date")}: <span>{dt}</span>
-                    </li>
-                    <li>
-                        {t("meet_stat.time")}:{" "}
-                        <span>
-                            {timeFormat(meeting.start_time)} {t("meet_stat.to")}{" "}
-                            {timeFormat(meeting.end_time)}
-                        </span>
-                    </li>
-                </ul>
-                <div className="cta">
-                    <p>{t("meet_stat.txt")}</p>
-                    <a
-                        className="btn btn-primary"
-                        href="mailto:office@broomservice.co.il"
+        <div className="container">
+            {meeting && (
+                <div className="thankyou meet-status dashBox p-4">
+                    <svg
+                        width="190"
+                        height="77"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
                     >
-                        {t("meet_stat.btn")}
-                    </a>
+                        <image xlinkHref={logo} width="190" height="77"></image>
+                    </svg>
+                    <h1>
+                        {t("meet_stat.with")} {teamName}
+                    </h1>
+                    <ul className="list-unstyled">
+                        <li>
+                            {t("meet_stat.date")}: <span>{dt}</span>
+                        </li>
+                        <li>
+                            {t("meet_stat.time")}:{" "}
+                            <span>
+                                {timeFormat(meeting.start_time)}{" "}
+                                {t("meet_stat.to")}{" "}
+                                {timeFormat(meeting.end_time)}
+                            </span>
+                        </li>
+                        <li>
+                            {t("meet_stat.address")}:{" "}
+                            <span>{meeting.property_address.address_name}</span>
+                        </li>
+                    </ul>
+
+                    <CustomCalendar meeting={meeting} />
                 </div>
-            </div>
+            )}
         </div>
     );
 }

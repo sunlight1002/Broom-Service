@@ -1,139 +1,174 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAlert } from "react-alert";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
+import Moment from "moment";
 import moment from "moment-timezone";
 
-export default function WorkerAvailabilty({ interval }) {
-    const [worker_aval, setWorkerAval] = useState([]);
-    const [errors, setErrors] = useState([]);
-    const [AllDates, setAllDates] = useState([]);
+import WeekCard from "./Components/WeekCard";
+import TimeSlot from "./Components/TimeSlot";
+import { createHourlyTimeArray } from "../../../Utils/job.utils";
+
+const tabList = [
+    {
+        key: "current-week",
+        label: "Current Week",
+    },
+    {
+        key: "first-next-week",
+        label: "Next Week",
+    },
+    {
+        key: "first-next-next-week",
+        label: "Next To Next Week",
+    },
+];
+
+export default function WorkerAvailabilty({ days }) {
+    const [notAvailableDates, setNotAvailableDates] = useState([]);
+    const [timeSlots, setTimeSlots] = useState([]);
+    const [activeTab, setActiveTab] = useState("current-week");
+    const [defaultTimeSlots, setDefaultTimeSlots] = useState([]);
+    const [formValues, setFormValues] = useState({
+        default_until_date: null,
+        custom_start_date: null,
+        custom_end_date: null,
+    });
+    const [customRange, setCustomRange] = useState([]);
+
     const params = useParams();
-    const navigate = useNavigate();
     const alert = useAlert();
+    const flatpickrRef = useRef(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    let handleChange = (event, w_date, slot) => {
-        let newworker = worker_aval;
-        if (not_available_date.includes(w_date)) {
-            alert.error("Worker Not Available this Date.");
-            return false;
-        }
 
-        Array.from(document.getElementsByClassName(w_date)).forEach(function (
-            element,
-            index,
-            array
-        ) {
-            element.childNodes[0].childNodes[1].classList.remove(
-                "checked_forcustom"
-            );
+    const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const slots = useMemo(() => {
+        return createHourlyTimeArray("08:00", "24:00");
+    }, []);
+
+    const calendarMinDate = useMemo(() => {
+        return moment().startOf("week").add(3, "week").format("YYYY-MM-DD");
+    }, []);
+
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
+            }
         });
-        if (event.target.name.toString() === "true") {
-            document
-                .getElementById(event.target.id)
-                .setAttribute("name", !event.target.checked);
-            document
-                .getElementById(event.target.id)
-                .parentNode.childNodes[1].classList.add("checked_forcustom");
-            if (newworker[w_date] === undefined) {
-                newworker[w_date] = [slot];
-            } else {
-                // if(!newworker[w_date].includes(slot)){
-                //   newworker[w_date].push(slot);
-                // }
-                newworker[w_date] = [slot];
-            }
-        } else {
-            document
-                .getElementById(event.target.id)
-                .setAttribute("name", !event.target.checked);
-            document
-                .getElementById(event.target.id)
-                .parentNode.childNodes[1].classList.remove("checked_forcustom");
-            let newarray = [];
-            newworker[`${w_date}`].filter((e) => {
-                if (e !== slot) {
-                    newarray.push(e);
-                }
-            });
-            newworker[w_date] = newarray;
-        }
-        setWorkerAval(newworker);
-    };
-    let handleSubmit = () => {
-        let worker_id = params.id;
-        let newworker = Object.assign({}, worker_aval);
-
-        axios
-            .post(`/api/admin/update_availability/${worker_id}`, newworker, {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.errors) {
-                    setErrors(response.data.errors);
-                } else {
-                    alert.success("Worker availabilty updated successfully");
-                    getWorkerAvailabilty();
-                }
-            });
+        return week;
     };
 
-    let curr = new Date();
-    let week = [];
-    let nextweek = [];
-    let nextnextweek = [];
-    for (let i = 0; i < 7; i++) {
-        let first = curr.getDate() - curr.getDay() + i;
-        if (first >= curr.getDate()) {
-            if (!interval.includes(i)) {
-                let day = new Date(curr.setDate(first))
-                    .toISOString()
-                    .slice(0, 10);
-                week.push(day);
-            }
-        }
-    }
+    const sundayOfCurrentWeek = moment().startOf("week");
 
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 7 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextweek.push(firstday);
-        }
-    }
-    for (let i = 0; i < 7; i++) {
-        if (!interval.includes(i)) {
-            var today = new Date();
-            var first = today.getDate() - today.getDay() + 14 + i;
-            var firstday = new Date(today.setDate(first))
-                .toISOString()
-                .slice(0, 10);
-            nextnextweek.push(firstday);
-        }
-    }
-    const slot = [
-        ["8am-16pm", "Full Day"],
-        ["8am-12pm", "Morning"],
-        ["12pm-16pm", "Afternoon"],
-        ["16pm-20pm", "Evening"],
-        ["20pm-24am", "Night"],
-    ];
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const getWorkerAvailabilty = () => {
         axios
             .get(`/api/admin/worker_availability/${params.id}`, { headers })
             .then((response) => {
                 if (response.data.data) {
-                    setWorkerAval(response.data.data);
+                    const next2WeekLastDate = moment()
+                        .endOf("week")
+                        .add(2, "week");
+
+                    let _timeslots = {};
+                    let _custom_start_date = null;
+                    let _custom_end_date = null;
+                    for (var key in response.data.data.regular) {
+                        _timeslots[key] = response.data.data.regular[key].map(
+                            (i) => {
+                                return {
+                                    start_time: i.start_time.slice(0, -3),
+                                    end_time: i.end_time.slice(0, -3),
+                                };
+                            }
+                        );
+
+                        if (next2WeekLastDate.isBefore(moment(key))) {
+                            if (!_custom_start_date) {
+                                _custom_start_date = key;
+                            }
+
+                            _custom_end_date = key;
+                        }
+                    }
+
+                    setTimeSlots(_timeslots);
+
+                    if (_custom_start_date && _custom_end_date) {
+                        setFormValues({
+                            ...formValues,
+                            custom_start_date: _custom_start_date,
+                            custom_end_date: _custom_end_date,
+                        });
+
+                        const startDate = Moment(_custom_start_date);
+                        const endDate = Moment(_custom_end_date);
+
+                        const diffInDays = endDate.diff(startDate, "days");
+
+                        let _currentDate = startDate;
+                        let _customRange = [];
+                        for (let i = 0; i <= diffInDays; i++) {
+                            _customRange.push(
+                                _currentDate.format("YYYY-MM-DD")
+                            );
+                            _currentDate = _currentDate.add(1, "day");
+                        }
+                        setCustomRange(_customRange);
+                    }
+
+                    const _defaultAvailSlots = response.data.data.default;
+                    let _defaultSlots = {};
+
+                    const _defaultAvailSlotsKeys =
+                        Object.keys(_defaultAvailSlots);
+                    if (_defaultAvailSlotsKeys.length) {
+                        setFormValues((values) => {
+                            return {
+                                ...values,
+                                default_until_date:
+                                    _defaultAvailSlots[
+                                        _defaultAvailSlotsKeys[0]
+                                    ][0].until_date,
+                            };
+                        });
+
+                        for (const [key, value] of Object.entries(
+                            _defaultAvailSlots
+                        )) {
+                            const _defaultWeekDaySlots = _defaultAvailSlots[
+                                key
+                            ].map((i) => {
+                                return {
+                                    start_time: i.start_time.slice(0, -3),
+                                    end_time: i.end_time.slice(0, -3),
+                                };
+                            });
+
+                            _defaultSlots[key] = _defaultWeekDaySlots;
+                        }
+                    }
+
+                    setDefaultTimeSlots(_defaultSlots);
                 }
             });
     };
+
     const getDates = () => {
         axios
             .post(
@@ -142,71 +177,198 @@ export default function WorkerAvailabilty({ interval }) {
                 { headers }
             )
             .then((res) => {
-                setAllDates(res.data.dates);
+                setNotAvailableDates(res.data.dates.map((i) => i.date));
             });
     };
+
+    const handleTab = (tabKey) => {
+        setActiveTab(tabKey);
+    };
+
+    let handleSubmit = (e) => {
+        e.preventDefault();
+        if (!Object.values(timeSlots).length) {
+            return false;
+        }
+
+        if (!formValues.default_until_date) {
+            alert.error("Default until date not selected");
+            return false;
+        }
+
+        axios
+            .post(
+                `/api/admin/update_availability/${params.id}`,
+                {
+                    time_slots: timeSlots,
+                    default: {
+                        time_slots: defaultTimeSlots,
+                        until_date: formValues.default_until_date,
+                    },
+                },
+                {
+                    headers,
+                }
+            )
+            .then((response) => {
+                alert.success("Worker availabilty updated successfully");
+                getWorkerAvailabilty();
+            })
+            .catch((err) => alert.error("Something went wrong!"));
+    };
+
+    const handleCustomDateSelect = (selectedDates, dateStr) => {
+        if (selectedDates.length == 2) {
+            const _dates = dateStr.split(" to ");
+
+            setFormValues({
+                ...formValues,
+                custom_start_date: _dates[0],
+                custom_end_date: _dates[1],
+            });
+
+            const startDate = Moment(selectedDates[0]);
+            const endDate = Moment(selectedDates[1]);
+
+            const diffInDays = endDate.diff(startDate, "days");
+
+            let _currentDate = startDate;
+            let _customRange = [];
+            for (let i = 0; i <= diffInDays; i++) {
+                _customRange.push(_currentDate.format("YYYY-MM-DD"));
+                _currentDate = _currentDate.add(1, "day");
+            }
+            setCustomRange(_customRange);
+        }
+    };
+
     useEffect(() => {
         getWorkerAvailabilty();
         getDates();
     }, []);
-    let not_available_date = [];
-    AllDates.map((d) => {
-        not_available_date.push(d.date);
-    });
+
     return (
         <div className="boxPanel">
             <ul className="nav nav-tabs" role="tablist">
+                {tabList.map((t) => {
+                    return (
+                        <li
+                            className="nav-item"
+                            role="presentation"
+                            key={t.key}
+                        >
+                            <a
+                                href="#"
+                                className={
+                                    "nav-link" +
+                                    (activeTab == t.key ? " active" : "")
+                                }
+                                aria-selected="true"
+                                role="tab"
+                                onClick={() => handleTab(t.key)}
+                            >
+                                {t.label}
+                            </a>
+                        </li>
+                    );
+                })}
                 <li className="nav-item" role="presentation">
                     <a
-                        id="current-week"
-                        className="nav-link active"
-                        data-toggle="tab"
-                        href="#tab-current-week"
+                        href="#"
+                        className={
+                            "nav-link" +
+                            (activeTab == "custom" ? " active" : "")
+                        }
                         aria-selected="true"
                         role="tab"
+                        onClick={() => handleTab("custom")}
                     >
-                        Current Week
+                        Custom
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
-                        id="first-next-week"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-first-next-week"
+                        href="#"
+                        className={
+                            "nav-link" +
+                            (activeTab == "default" ? " active" : "")
+                        }
                         aria-selected="true"
                         role="tab"
+                        onClick={() => handleTab("default")}
                     >
-                        Next Week
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="first-next-week"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-first-next-next-week"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        Next Next Week
+                        Default
                     </a>
                 </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
+                {tabList
+                    .filter((t) => activeTab == t.key)
+                    .map((t) => {
+                        const weekArr =
+                            t.key === "current-week"
+                                ? week
+                                : t.key === "first-next-week"
+                                ? nextweek
+                                : nextnextweek;
+                        return (
+                            <WeekCard
+                                key={t.key}
+                                tabName={t.label}
+                                week={weekArr}
+                                slots={slots}
+                                setTimeSlots={setTimeSlots}
+                                timeSlots={timeSlots}
+                                notAvailableDates={notAvailableDates}
+                            />
+                        );
+                    })}
+
                 <div
-                    id="tab-current-week"
-                    className="tab-pane active show"
+                    className={
+                        "tab-pane " +
+                        (activeTab == "custom" ? "active show" : "")
+                    }
                     role="tab-panel"
-                    aria-labelledby="current-week"
+                    aria-labelledby="Custom"
                 >
+                    <div className="offset-sm-4 col-sm-4">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Select Date Range
+                            </label>
+                            <Flatpickr
+                                name="date"
+                                className="form-control"
+                                onChange={(
+                                    selectedDates,
+                                    dateStr,
+                                    instance
+                                ) => {
+                                    handleCustomDateSelect(
+                                        selectedDates,
+                                        dateStr
+                                    );
+                                }}
+                                value={[
+                                    formValues.custom_start_date,
+                                    formValues.custom_end_date,
+                                ]}
+                                options={{
+                                    disableMobile: true,
+                                    minDate: calendarMinDate,
+                                    mode: "range",
+                                }}
+                            />
+                        </div>
+                    </div>
+
                     <div className="table-responsive">
                         <table className="timeslots table">
                             <thead>
                                 <tr>
-                                    {week.map((element, index) => (
+                                    {customRange.map((element, index) => (
                                         <th key={index}>
-                                            {" "}
                                             {moment(element)
                                                 .toString()
                                                 .slice(0, 15)}
@@ -215,224 +377,101 @@ export default function WorkerAvailabilty({ interval }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {slot.map((s, index) => (
-                                    <tr key={index}>
-                                        {week.map((w, index) => (
-                                            <td key={index}>
-                                                <div className={w}>
-                                                    <label>
-                                                        <input
-                                                            type="checkbox"
-                                                            data-day="Sunday"
-                                                            className="btn-check"
-                                                            id={
-                                                                w + "-" + s["0"]
-                                                            }
-                                                            data-value={w}
-                                                            value={s["0"]}
-                                                            onChange={(e) =>
-                                                                handleChange(
-                                                                    e,
-                                                                    w,
-                                                                    s["0"]
-                                                                )
-                                                            }
-                                                            name={(worker_aval[
-                                                                `${w}`
-                                                            ] !== undefined
-                                                                ? !worker_aval[
-                                                                      `${w}`
-                                                                  ].includes(
-                                                                      s["0"]
-                                                                  )
-                                                                : true
-                                                            ).toString()}
-                                                        />
-                                                        <span
-                                                            className={
-                                                                worker_aval[
-                                                                    `${w}`
-                                                                ] !== undefined
-                                                                    ? worker_aval[
-                                                                          `${w}`
-                                                                      ].includes(
-                                                                          s["0"]
-                                                                      )
-                                                                        ? "forcustom checked_forcustom"
-                                                                        : "forcustom"
-                                                                    : "forcustom"
-                                                            }
-                                                        >
-                                                            {s["1"]}
-                                                        </span>
-                                                    </label>
-                                                </div>
+                                <tr>
+                                    {customRange.map((w, _wIndex) => {
+                                        return (
+                                            <td key={_wIndex}>
+                                                {!notAvailableDates.includes(
+                                                    w
+                                                ) && (
+                                                    <TimeSlot
+                                                        clsName={w}
+                                                        slots={slots}
+                                                        setTimeSlots={
+                                                            setTimeSlots
+                                                        }
+                                                        timeSlots={timeSlots}
+                                                    />
+                                                )}
                                             </td>
-                                        ))}
-                                    </tr>
-                                ))}
+                                        );
+                                    })}
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
                 <div
-                    id="tab-first-next-week"
-                    className="tab-pane"
+                    className={
+                        "tab-pane " +
+                        (activeTab == "default" ? "active show" : "")
+                    }
                     role="tab-panel"
-                    aria-labelledby="first-next-week"
+                    aria-labelledby="Default"
                 >
                     <div className="table-responsive">
                         <table className="timeslots table">
                             <thead>
                                 <tr>
-                                    {nextweek.map((element, index) => (
-                                        <th key={index}>
-                                            {moment(element)
-                                                .toString()
-                                                .slice(0, 15)}
-                                        </th>
-                                    ))}
+                                    {[...Array(7).keys()].map(
+                                        (element, index) => (
+                                            <th key={index}>
+                                                {weekDays[element]}
+                                            </th>
+                                        )
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
-                                {slot.map((s, index) => (
-                                    <tr key={index}>
-                                        {nextweek.map((w, index) => (
-                                            <td key={index}>
-                                                <div className={w}>
-                                                    <label>
-                                                        <input
-                                                            type="checkbox"
-                                                            data-day="Sunday"
-                                                            className="btn-check"
-                                                            id={
-                                                                w + "-" + s["0"]
-                                                            }
-                                                            data-value={w}
-                                                            value={s["0"]}
-                                                            onChange={(e) =>
-                                                                handleChange(
-                                                                    e,
-                                                                    w,
-                                                                    s["0"]
-                                                                )
-                                                            }
-                                                            name={(worker_aval[
-                                                                `${w}`
-                                                            ] !== undefined
-                                                                ? !worker_aval[
-                                                                      `${w}`
-                                                                  ].includes(
-                                                                      s["0"]
-                                                                  )
-                                                                : true
-                                                            ).toString()}
-                                                        />
-                                                        <span
-                                                            className={
-                                                                worker_aval[
-                                                                    `${w}`
-                                                                ] !== undefined
-                                                                    ? worker_aval[
-                                                                          `${w}`
-                                                                      ].includes(
-                                                                          s["0"]
-                                                                      )
-                                                                        ? "forcustom checked_forcustom"
-                                                                        : "forcustom"
-                                                                    : "forcustom"
-                                                            }
-                                                        >
-                                                            {s["1"]}
-                                                        </span>
-                                                    </label>
-                                                </div>
+                                <tr>
+                                    {[...Array(7).keys()].map((w, _wIndex) => {
+                                        return (
+                                            <td key={_wIndex}>
+                                                <TimeSlot
+                                                    clsName={w}
+                                                    slots={slots}
+                                                    setTimeSlots={
+                                                        setDefaultTimeSlots
+                                                    }
+                                                    timeSlots={defaultTimeSlots}
+                                                    isDisabled={false}
+                                                />
                                             </td>
-                                        ))}
-                                    </tr>
-                                ))}
+                                        );
+                                    })}
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div
-                    id="tab-first-next-next-week"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="first-next-week"
-                >
-                    <div className="table-responsive">
-                        <table className="timeslots table">
-                            <thead>
-                                <tr>
-                                    {nextnextweek.map((element, index) => (
-                                        <th key={index}>
-                                            {moment(element)
-                                                .toString()
-                                                .slice(0, 15)}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {slot.map((s, index) => (
-                                    <tr key={index}>
-                                        {nextnextweek.map((w, index) => (
-                                            <td key={index}>
-                                                <div className={w}>
-                                                    <label>
-                                                        <input
-                                                            type="checkbox"
-                                                            data-day="Sunday"
-                                                            className="btn-check"
-                                                            id={
-                                                                w + "-" + s["0"]
-                                                            }
-                                                            data-value={w}
-                                                            value={s["0"]}
-                                                            onChange={(e) =>
-                                                                handleChange(
-                                                                    e,
-                                                                    w,
-                                                                    s["0"]
-                                                                )
-                                                            }
-                                                            name={(worker_aval[
-                                                                `${w}`
-                                                            ] !== undefined
-                                                                ? !worker_aval[
-                                                                      `${w}`
-                                                                  ].includes(
-                                                                      s["0"]
-                                                                  )
-                                                                : true
-                                                            ).toString()}
-                                                        />
-                                                        <span
-                                                            className={
-                                                                worker_aval[
-                                                                    `${w}`
-                                                                ] !== undefined
-                                                                    ? worker_aval[
-                                                                          `${w}`
-                                                                      ].includes(
-                                                                          s["0"]
-                                                                      )
-                                                                        ? "forcustom checked_forcustom"
-                                                                        : "forcustom"
-                                                                    : "forcustom"
-                                                            }
-                                                        >
-                                                            {s["1"]}
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+
+                    <div className="row">
+                        <div className="offset-sm-4 col-sm-4">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Until Date
+                                </label>
+                                <Flatpickr
+                                    name="date"
+                                    className="form-control"
+                                    onChange={(
+                                        selectedDates,
+                                        dateStr,
+                                        instance
+                                    ) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            default_until_date: dateStr,
+                                        });
+                                    }}
+                                    value={formValues.default_until_date}
+                                    options={{
+                                        disableMobile: true,
+                                    }}
+                                    ref={flatpickrRef}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
