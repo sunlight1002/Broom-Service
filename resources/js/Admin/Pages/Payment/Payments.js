@@ -10,6 +10,7 @@ import { Base64 } from "js-base64";
 
 import Sidebar from "../../Layouts/Sidebar";
 import AddPaymentModal from "../../Components/Modals/AddPaymentModal";
+import AddCreditCardModal from "../../Components/Modals/AddCreditCardModal";
 
 const thisMonthFilter = {
     start_date: Moment().startOf("month").format("YYYY-MM-DD"),
@@ -33,11 +34,8 @@ export default function Payments() {
     const [selectedDateFilter, setSelectedDateFilter] = useState("This month");
     const [paidStatusFilter, setPaidStatusFilter] = useState("all");
     const [addPaymentModalOpen, setAddPaymentModalOpen] = useState(false);
+    const [addCardModalOpen, setAddCardModalOpen] = useState(false);
     const [selectedClientID, setSelectedClientID] = useState(null);
-    const [clientCardSessionID, setClientCardSessionID] = useState(null);
-    const [sessionURL, setSessionURL] = useState("");
-    const [checkingClientIDForCard, setCheckingClientIDForCard] =
-        useState(null);
 
     const alert = useAlert();
 
@@ -118,6 +116,11 @@ export default function Payments() {
         setCurrentPage(currentPage + 1);
     };
 
+    const handleAddNewCard = (_clientID) => {
+        setSelectedClientID(_clientID);
+        setAddCardModalOpen(true);
+    };
+
     const handleCloseWithReceipt = (_clientID) => {
         setSelectedClientID(_clientID);
         setAddPaymentModalOpen(true);
@@ -151,82 +154,15 @@ export default function Payments() {
                     title: "Error!",
                     text: e.response.data.message,
                     icon: "error",
+                    showCancelButton: true,
+                    confirmButtonText: "Add New Credit Card",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleAddNewCard(_clientID);
+                    }
                 });
             });
     };
-
-    const handleAddingClientCard = (_clientID) => {
-        if (checkingClientIDForCard) {
-            alert.info("Adding card is already in-progress");
-            return false;
-        }
-
-        alert.info("Adding card in progress");
-
-        axios
-            .post(
-                `/api/admin/client/${_clientID}/initialize-card`,
-                {},
-                { headers }
-            )
-            .then((response) => {
-                setCheckingClientIDForCard(_clientID);
-
-                setClientCardSessionID(response.data.session_id);
-                setSessionURL(response.data.redirect_url);
-                $("#addCardModal").modal("show");
-            })
-            .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
-                });
-            });
-    };
-
-    useEffect(() => {
-        let _intervalID;
-
-        if (checkingClientIDForCard && clientCardSessionID) {
-            _intervalID = setInterval(() => {
-                if (checkingClientIDForCard) {
-                    axios
-                        .post(
-                            `/api/admin/client/${checkingClientIDForCard}/check-card-by-session`,
-                            { session_id: clientCardSessionID },
-                            { headers }
-                        )
-                        .then((response) => {
-                            if (response.data.status == "completed") {
-                                alert.success("Card added successfully");
-                                setCheckingClientIDForCard(null);
-                                setClientCardSessionID(null);
-                                clearInterval(_intervalID);
-                                getClientPayments();
-                            }
-                        })
-                        .catch((e) => {
-                            setCheckingClientIDForCard(null);
-                            setClientCardSessionID(null);
-                            clearInterval(_intervalID);
-
-                            Swal.fire({
-                                title: "Error!",
-                                text: e.response.data.message,
-                                icon: "error",
-                            });
-                        });
-                }
-            }, 2000);
-        }
-
-        return () => clearInterval(_intervalID);
-    }, [checkingClientIDForCard, clientCardSessionID]);
-
-    useEffect(() => {
-        console.log("clientCardSessionID", clientCardSessionID);
-    }, [clientCardSessionID]);
 
     return (
         <div id="container">
@@ -511,7 +447,7 @@ export default function Payments() {
                                                                         <button
                                                                             className="dropdown-item"
                                                                             onClick={() =>
-                                                                                handleAddingClientCard(
+                                                                                handleAddNewCard(
                                                                                     item.client_id
                                                                                 )
                                                                             }
@@ -602,49 +538,18 @@ export default function Payments() {
                     setIsOpen={setAddPaymentModalOpen}
                     onSuccess={() => getClientPayments()}
                     clientId={selectedClientID}
+                    handleAddNewCard={handleAddNewCard}
                 />
             )}
 
-            <div
-                className="modal fade"
-                id="addCardModal"
-                tabIndex="-1"
-                role="dialog"
-                aria-labelledby="addCardModalLabel"
-                aria-hidden="true"
-            >
-                <div
-                    className="modal-dialog modal-dialog-centered modal-lg"
-                    role="document"
-                >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                data-dismiss="modal"
-                                aria-label="Close"
-                            >
-                                Back
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <iframe
-                                            src={sessionURL}
-                                            title="Pay Card Transaction"
-                                            width="100%"
-                                            height="800"
-                                        ></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {addCardModalOpen && (
+                <AddCreditCardModal
+                    isOpen={addCardModalOpen}
+                    setIsOpen={setAddCardModalOpen}
+                    onSuccess={() => getClientPayments()}
+                    clientId={selectedClientID}
+                />
+            )}
         </div>
     );
 }

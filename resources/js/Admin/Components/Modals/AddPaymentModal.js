@@ -3,15 +3,13 @@ import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import moment from "moment";
 import Swal from "sweetalert2";
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/flatpickr.css";
 
 export default function AddPaymentModal({
     setIsOpen,
     isOpen,
-    jobId,
     clientId,
     onSuccess,
+    handleAddNewCard,
 }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
@@ -116,6 +114,12 @@ export default function AddPaymentModal({
                     title: "Error!",
                     text: e.response.data.message,
                     icon: "error",
+                    showCancelButton: true,
+                    confirmButtonText: "Add New Credit Card",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleAddNewCard(clientId);
+                    }
                 });
             });
     };

@@ -13,6 +13,8 @@ import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 
+import AddCreditCardModal from "../Modals/AddCreditCardModal";
+
 export default function Invoice() {
     const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
@@ -29,6 +31,7 @@ export default function Invoice() {
     const [cbvalue, setCbvalue] = useState("");
     const [filtered, setFiltered] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [addCardModalOpen, setAddCardModalOpen] = useState(false);
 
     const params = useParams();
     const id = params.id;
@@ -199,9 +202,19 @@ export default function Invoice() {
                     title: "Error!",
                     text: e.response.data.message,
                     icon: "error",
+                    showCancelButton: true,
+                    confirmButtonText: "Add New Credit Card",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleAddNewCard();
+                    }
                 });
                 setIsSubmitting(false);
             });
+    };
+
+    const handleAddNewCard = () => {
+        setAddCardModalOpen(true);
     };
 
     const closeDoc = (id, type) => {
@@ -281,6 +294,7 @@ export default function Invoice() {
         setFiltered("f=all");
         getInvoices("f=all");
     }, []);
+
     return (
         <>
             <div className="boxPanel">
@@ -1046,6 +1060,15 @@ export default function Invoice() {
                     </div>
                 </div>
             </div>
+
+            {addCardModalOpen && (
+                <AddCreditCardModal
+                    isOpen={addCardModalOpen}
+                    setIsOpen={setAddCardModalOpen}
+                    onSuccess={() => getInvoices("f=all")}
+                    clientId={id}
+                />
+            )}
         </>
     );
 }
