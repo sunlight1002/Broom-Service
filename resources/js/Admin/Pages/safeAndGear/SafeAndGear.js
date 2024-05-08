@@ -383,7 +383,7 @@ const SafeAndGear = () => {
                                     disabled={isSubmitting}
                                     className="btn btn-success"
                                 >
-                                    Submit
+                                    Accept
                                 </button>
                             )}
                         </form>

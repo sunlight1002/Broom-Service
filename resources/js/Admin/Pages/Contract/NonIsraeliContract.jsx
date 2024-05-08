@@ -907,7 +907,7 @@ export function NonIsraeliContract({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                Submit
+                                Accept
                             </button>
                         )}
                     </form>

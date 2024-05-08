@@ -1,31 +1,27 @@
-import { Fragment, createRef, useRef } from "react";
-
-const slotTimeArr = [
-    {
-        name: "Start Time",
-        key: "start_time",
-    },
-    {
-        name: "End Time",
-        key: "end_time",
-    },
-];
+import { useRef } from "react";
+import * as moment from "moment";
 
 const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
-    const elementsRef = useRef(slotTimeArr.map(() => createRef()));
+    const startTimeRef = useRef();
     const handleTimeSlotAdd = () => {
         let flag = true;
         const time = [];
-        elementsRef.current.map((ref) => {
-            if (ref.current.value) {
-                time.push(ref.current.value);
-                ref.current.value = "";
-            } else {
-                flag = false;
-            }
-        });
+
+        if (startTimeRef.current.value) {
+            const _endTime = moment(startTimeRef.current.value, "HH:mm")
+                .add(30, "minute")
+                .format("HH:mm");
+
+            time.push(startTimeRef.current.value);
+            time.push(_endTime);
+
+            startTimeRef.current.value = "";
+        } else {
+            flag = false;
+        }
+
         if (!flag) {
-            alert("Please add start & end time!");
+            alert("Please select time!");
             return false;
         }
 
@@ -50,27 +46,25 @@ const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
 
     return (
         <div className={clsName}>
-            <div className="d-flex flex-row bd-highlight align-content-center align-items-center justify-content-center">
-                <div className="d-flex flex-column bd-highlight mb-3 align-content-center flex-wrap align-items-center">
-                    {slotTimeArr.map((s, index) => (
-                        <div className="p-1 bd-highlight" key={s.key}>
-                            <select
-                                name={s.key}
-                                className="form-control"
-                                ref={elementsRef.current[index]}
-                            >
-                                <option value="">{s.name}</option>
-                                {slots.map((t, i) => {
-                                    return (
-                                        <option value={t} key={i}>
-                                            {" "}
-                                            {t}{" "}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-                    ))}
+            <div className="d-flex flex-row bd-highlight align-content-center align-items-center justify-content-center mb-3">
+                <div className="d-flex flex-column bd-highlight align-content-center flex-wrap align-items-center">
+                    <div className="p-1 bd-highlight">
+                        <select
+                            name="start_time"
+                            className="form-control"
+                            ref={startTimeRef}
+                        >
+                            <option value="">Time</option>
+                            {slots.map((t, i) => {
+                                return (
+                                    <option value={t} key={i}>
+                                        {" "}
+                                        {t}{" "}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
                 </div>
                 <div className="p-1 bd-highlight">
                     <button

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
@@ -175,7 +176,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('schedule', ScheduleController::class)->except(['create', 'edit']);
     Route::post('schedule/{id}/create-event', [ScheduleController::class, 'createScheduleCalendarEvent']);
     Route::post('client-schedules', [ScheduleController::class, 'clientSchedules']);
-    Route::post('schedule-events', [ScheduleController::class, 'getEvents']);
+    Route::get('teams/{id}/schedule-events', [ScheduleController::class, 'getTeamEvents']);
     Route::post('latest-client-schedule', [ScheduleController::class, 'latestClientSchedule']);
 
     // client files
@@ -210,11 +211,14 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('client/{id}/unpaid-invoice', [InvoiceController::class, 'clientUnpaidInvoice']);
     Route::post('client/{id}/update-invoice', [InvoiceController::class, 'closeClientInvoicesWithReceipt']);
     Route::post('client/{id}/close-for-payment', [InvoiceController::class, 'closeClientForPayment']);
-    Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
+
+    Route::get('client/{id}/cards', [ClientCardController::class, 'index']);
+    Route::post('client/{id}/initialize-card', [ClientCardController::class, 'createClientCardSession']);
+    Route::post('client/{id}/check-card-by-session', [ClientCardController::class, 'checkTranxBySessionId']);
+    Route::delete('client/{client_id}/cards/{id}', [ClientCardController::class, 'destroy']);
+    Route::put('client/{client_id}/cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
-    Route::post('client/{id}/initialize-card', [ClientController::class, 'createClientCardSession']);
-    Route::post('client/{id}/check-card-by-session', [ClientController::class, 'checkTranxBySessionId']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);

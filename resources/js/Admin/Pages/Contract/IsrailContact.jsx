@@ -700,7 +700,7 @@ export function IsrailContact({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                Submit
+                                Accept
                             </button>
                         )}
                     </form>

@@ -22,7 +22,6 @@ use App\Traits\ScheduleMeeting;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
-
 class ScheduleController extends Controller
 {
     use GoogleAPI, ScheduleMeeting;
@@ -250,10 +249,10 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function getEvents(Request $request)
+    public function getTeamEvents($id)
     {
         $schedules = Schedule::query()
-            ->where('team_id', $request->tid)
+            ->where('team_id', $id)
             ->where('start_time', '!=', '')
             ->where('end_time', '!=', '')
             ->whereNotNull('start_time')

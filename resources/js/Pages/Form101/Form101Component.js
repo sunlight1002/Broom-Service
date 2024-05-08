@@ -1036,7 +1036,7 @@ const Form101Component = () => {
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
                                 >
-                                    Submit
+                                    Accept
                                 </button>
                             </>
                         )}

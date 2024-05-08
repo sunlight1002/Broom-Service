@@ -8,7 +8,7 @@ import moment from "moment-timezone";
 
 import WeekCard from "./Components/WeekCard";
 import TimeSlot from "./Components/TimeSlot";
-import { createHourlyTimeArray } from "../../Utils/job.utils";
+import { createHalfHourlyTimeArray } from "../../Utils/job.utils";
 
 const tabList = [
     {
@@ -50,7 +50,7 @@ const AvailabilityForm = () => {
     const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     const slots = useMemo(() => {
-        return createHourlyTimeArray("08:00", "24:00");
+        return createHalfHourlyTimeArray("08:00", "24:00");
     }, []);
 
     const calendarMinDate = useMemo(() => {
