@@ -2258,6 +2258,10 @@ h1 {
   overflow: auto;
 }
 
+.pdf-dialog {
+  width: auto;
+  max-width: fit-content !important;
+}
 .page-item.active .page-link {
   color: black !important;
   background-color: white !important;
