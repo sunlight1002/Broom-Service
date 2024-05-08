@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User\Auth;
 use App\Enums\WorkerFormTypeEnum;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
+use App\Events\InsuranceFormSigned;
 use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -364,7 +365,7 @@ class AuthController extends Controller
         event(new SafetyAndGearFormSigned($worker, $form));
 
         return response()->json([
-            'message' => 'Safety and gear  signed successfully.'
+            'message' => 'Safety and gear signed successfully.'
         ]);
     }
 
@@ -411,16 +412,63 @@ class AuthController extends Controller
             'form' => $form
         ]);
     }
-    // public function pdf101($id)
-    // {
-    //     $user = User::find(base64_decode($id))->toArray();
-    //     $form = json_decode($user['form_101'], true);
-    //     $form['data']['signed_on'] = $user['created_at'];
-    //     $f = $form['data'];
-    //     $pdf = Pdf::loadView('pdf101', compact('f'));
-    //     $paper_size = array(0, 0, 800, 1000);
-    //     $pdf->set_paper($paper_size);
 
-    //     return $pdf->stream('form101_' . $user['id'] . '.pdf');
-    // }
+    public function getInsuranceForm($id)
+    {
+        $worker = User::find($id);
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::INSURANCE)
+            ->first();
+
+        return response()->json([
+            'lng' => $worker->lng,
+            'worker' => $worker,
+            'form' => $form
+        ]);
+    }
+
+    public function saveInsuranceForm(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::INSURANCE)
+            ->first();
+
+        if ($form) {
+            return response()->json([
+                'message' => 'Insurance form already signed.'
+            ], 403);
+        }
+
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+        $form = $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::INSURANCE,
+            'data' => $data,
+            'submitted_at' => now()->toDateString(),
+            'pdf_name' => $file_name
+        ]);
+
+        event(new InsuranceFormSigned($worker, $form));
+
+        return response()->json([
+            'message' => 'Insurance form signed successfully.'
+        ]);
+    }
 }

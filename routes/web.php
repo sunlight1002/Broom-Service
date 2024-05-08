@@ -30,7 +30,6 @@ Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive']
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 Route::any('/facebook/webhook', [LeadController::class, 'facebookWebhook']);
 
-// Route::get('/pdf/{id}', [AuthController::class, 'pdf101']);
 Route::get('/view-invoice/{id}', [InvoiceController::class, 'viewInvoice']);
 Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');

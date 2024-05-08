@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
-class SendJobNotApprovedNotification
+class SendJobNotApprovedNotification implements ShouldQueue
 {
     /**
      * Create the event listener.

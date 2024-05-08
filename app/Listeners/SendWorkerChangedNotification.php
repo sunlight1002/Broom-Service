@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
-class SendWorkerChangedNotification
+class SendWorkerChangedNotification implements ShouldQueue
 {
     /**
      * Create the event listener.

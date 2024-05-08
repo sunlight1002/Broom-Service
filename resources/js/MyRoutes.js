@@ -128,7 +128,7 @@ import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
-import TestPdfRoute from "./Pdf/TestPdfRoute";
+import InsuranceForm from "./Pages/InsuranceForm";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 
 TimeAgo.addDefaultLocale(en);
@@ -142,7 +142,6 @@ export default function MyRoutes() {
         <Provider template={AlertTemplate} {...options}>
             <Router>
                 <Routes>
-                    <Route exact path="/pdf" element={<TestPdfRoute />} />
                     {/* Home route  */}
                     <Route exact path="/" element={<ClientLogin />} />
                     <Route
@@ -200,6 +199,11 @@ export default function MyRoutes() {
                         exact
                         path="worker-safe-gear/:id"
                         element={<SafeAndGear />}
+                    />
+                    <Route
+                        exact
+                        path="insurance-form/:id"
+                        element={<InsuranceForm />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route

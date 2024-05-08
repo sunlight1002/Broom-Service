@@ -1,107 +1,117 @@
 import React, { useState, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
-import TestPdf from "./testPdf.pdf";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
+import i18next from "i18next";
+import { useParams } from "react-router-dom";
+import { Base64 } from "js-base64";
+import * as yup from "yup";
+import { useFormik } from "formik";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { objectToFormData } from "../Utils/common.utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
     import.meta.url
 ).toString();
 
-const TestPdfRoute = () => {
+const InsuranceForm = () => {
     const [show, setShow] = useState(false);
 
     const [pdfForm, setPdfForm] = useState(null);
     const [pdfDoc, setPdfDoc] = useState(null);
     const [pdfData, setPdfData] = useState(null);
 
-    // page 1
-    const [type, setType] = useState("New");
-    const [AgentName, setAgentName] = useState("");
-    const [AgentNo, setAgentNo] = useState("");
-    const [CompanyName, setCompanyName] = useState("");
-    const [CompanyNo, setCompanyNo] = useState("");
-    const [AgreementNo, setAgreementNo] = useState("");
-    const [IDNumber, setIDNumber] = useState("");
-    const [FirstName, setFirstName] = useState("");
-    const [LastName, setLastName] = useState("");
-    const [ZipCode, setZipCode] = useState("");
-    const [Town, setTown] = useState("");
-    const [HouseNumber, setHouseNumber] = useState("");
-    const [Street, setStreet] = useState("");
-    const [Email, setEmail] = useState("");
-    const [CellphoneNo, setCellphoneNo] = useState("");
-    const [TelephoneNo, setTelephoneNo] = useState("");
-    const [canFirstName, setCanFirstName] = useState("");
-    const [canLastName, setCanLastName] = useState("");
-    const [canPassport, setCanPassport] = useState("");
-    const [canOrigin, setCanOrigin] = useState("");
-    const [canDOB, setCanDOB] = useState("");
-    const [canFirstDateOfIns, setCanFirstDateOfIns] = useState("");
-    const [canZipcode, setCanZipcode] = useState("");
-    const [canTown, setCanTown] = useState("");
-    const [canHouseNo, setCanHouseNo] = useState("");
-    const [canStreet, setCanStreet] = useState("");
-    const [canTelephone, setCanTelephone] = useState("");
-    const [canCellPhone, setCanCellPhone] = useState("");
-    const [canEmail, setCanEmail] = useState("");
-    const [periodTo, setPeriodTo] = useState("");
-    const [periodFrom, setPeriodFrom] = useState("");
-    const [prevTo, setPrevTo] = useState("");
-    const [prevFrom, setPrevFrom] = useState("");
-    const [prevCompanyname, setPrevCompanyname] = useState("");
-    const [prevPolicy, setPrevPolicy] = useState("");
-    const [prevMemberShip, setPrevMemberShip] = useState("");
-    const [prevInsurance, setPrevInsurance] = useState("Yes");
-    const [occupasion, setOccupasion] = useState("other");
-    const [gender, setGender] = useState("Male");
+    const initialValues = {
+        // page 1
+        type: "New",
+        AgentName: "",
+        AgentNo: "",
+        CompanyName: "",
+        CompanyNo: "",
+        AgreementNo: "",
+        IDNumber: "",
+        FirstName: "",
+        LastName: "",
+        ZipCode: "",
+        Town: "",
+        HouseNumber: "",
+        Street: "",
+        Email: "",
+        CellphoneNo: "",
+        TelephoneNo: "",
+        canFirstName: "",
+        canLastName: "",
+        canPassport: "",
+        canOrigin: "",
+        canDOB: "",
+        canFirstDateOfIns: "",
+        canZipcode: "",
+        canTown: "",
+        canHouseNo: "",
+        canStreet: "",
+        canTelephone: "",
+        canCellPhone: "",
+        canEmail: "",
+        periodTo: "",
+        periodFrom: "",
+        prevTo: "",
+        prevFrom: "",
+        prevCompanyname: "",
+        prevPolicy: "",
+        prevMemberShip: "",
+        prevInsurance: "No",
+        occupasion: "other",
+        gender: "male",
+        // page 2
+        FFirstName: "",
+        FLastName: "",
+        FPasswordno: "",
+        FPId: "",
+        FPFirstName: "",
+        FPLastName: "",
+        FPZipCode: "",
+        FPtown: "",
+        FPhouseNo: "",
+        FPstreet: "",
+        FPexpDate: "",
+        FPcardNo: "",
+        FPcellphone: "",
+        FPemail: "",
+        FPdate: "",
+        employerdate: "",
+        employername: "",
+        Months: "6Months",
+        sixMonthPayment: "",
+        twelveMonthsPayment: "",
+        // page 3
+        GFirstname: "",
+        GLastname: "",
+        GPassportno: "",
+        GDetails: "",
+        GCandidatename: "",
+        GDate: "",
+        // page 4
+        Hname: "",
+        canPassportNo: "",
+        canName: "",
+        canDate: "",
+    };
 
-    // page 2
-    const [FFirstName, setFFirstName] = useState("");
-    const [FLastName, setFLastName] = useState("");
-    const [FPasswordno, setFPasswordno] = useState("");
-    const [FPId, setFPId] = useState("");
-    const [FPFirstName, setFPFirstName] = useState("");
-    const [FPLastName, setFPLastName] = useState("");
-    const [FPZipCode, setFPZipCode] = useState("");
-    const [FPtown, setFPtown] = useState("");
-    const [FPhouseNo, setFPhouseNo] = useState("");
-    const [FPstreet, setFPstreet] = useState("");
-    const [FPexpDate, setFPexpDate] = useState("");
-    const [FPcardNo, setFPcardNo] = useState("");
-    const [FPcellphone, setFPcellphone] = useState("");
-    const [FPemail, setFPemail] = useState("");
-    const [FPdate, setFPdate] = useState("");
-    const [employerdate, setEmployerdate] = useState("");
-    const [employername, setEmployername] = useState("");
-    const [Months, setMonths] = useState("6Months");
-    const [sixMonthPayment, setSixMonthPayment] = useState("");
-    const [twelveMonthsPayment, setTwelveMonthsPayment] = useState("");
+    const [formValues, setFormValues] = useState(null);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-    // page 3
-    const [GFirstname, setGFirstname] = useState("");
-    const [GLastname, setGLastname] = useState("");
-    const [GPassportno, setGPassportno] = useState("");
-    const [GDetails, setGDetails] = useState("");
-    const [GCandidatename, setGCandidatename] = useState("");
-    const [GDate, setGDate] = useState("");
-
-    // page 4
-    const [Hname, setHname] = useState("");
-    const [canPassportNo, setCanPassportNo] = useState("");
-    const [canName, setCanName] = useState("");
-    const [canDate, setCanDate] = useState("");
+    const params = useParams();
+    const id = Base64.decode(params.id);
 
     useEffect(() => {
         const fetchPdf = async () => {
-            const formPdfBytes = await fetch(TestPdf).then((res) =>
-                res.arrayBuffer()
+            const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
+                (res) => res.arrayBuffer()
             );
             const PdfDoc = await PDFDocument.load(formPdfBytes);
             setPdfDoc(PdfDoc);
@@ -110,105 +120,224 @@ const TestPdfRoute = () => {
             const allFields = form.getFields();
             for (let index = 0; index < allFields.length; index++) {
                 const element = allFields[index];
-                console.log(element.getName());
+                // console.log(element.getName());
             }
         };
         fetchPdf();
     }, []);
 
-    const saveFormData = async () => {
-        pdfForm.getRadioGroup("Type").select(type);
-        pdfForm.getTextField("AgentName").setText(AgentName);
-        pdfForm.getTextField("AgentNo").setText(AgentNo);
-        pdfForm.getTextField("CompanyName").setText(CompanyName);
-        pdfForm.getTextField("CompanyNo").setText(CompanyNo);
-        pdfForm.getTextField("AgreementNo").setText(AgreementNo);
-        pdfForm.getTextField("IDNumber").setText(IDNumber);
-        pdfForm.getTextField("FirstName").setText(FirstName);
-        pdfForm.getTextField("LastName").setText(LastName);
-        pdfForm.getTextField("ZipCode").setText(ZipCode);
-        pdfForm.getTextField("Town").setText(Town);
-        pdfForm.getTextField("HouseNumber").setText(HouseNumber);
-        pdfForm.getTextField("Street").setText(Street);
-        pdfForm.getTextField("Email").setText(Email);
-        pdfForm.getTextField("CellphoneNo").setText(CellphoneNo);
-        pdfForm.getTextField("TelephoneNo").setText(TelephoneNo);
-        pdfForm.getTextField("canFirstName").setText(canFirstName);
-        pdfForm.getTextField("canLastName").setText(canLastName);
-        pdfForm.getTextField("canPassport").setText(canPassport);
-        pdfForm.getTextField("canOrigin").setText(canOrigin);
-        pdfForm.getTextField("canDOB").setText(canDOB);
-        pdfForm.getTextField("canFirstDateOfIns").setText(canFirstDateOfIns);
-        pdfForm.getTextField("canZipcode").setText(canZipcode);
-        pdfForm.getTextField("canTown").setText(canTown);
-        pdfForm.getTextField("canHouseNo").setText(canHouseNo);
-        pdfForm.getTextField("canStreet").setText(canStreet);
-        pdfForm.getTextField("canTelephone").setText(canTelephone);
-        pdfForm.getTextField("canCellPhone").setText(canCellPhone);
-        pdfForm.getTextField("canEmail").setText(canEmail);
-        pdfForm.getTextField("periodTo").setText(periodTo);
-        pdfForm.getTextField("periodFrom").setText(periodFrom);
-        pdfForm.getTextField("prevTo").setText(prevTo);
-        pdfForm.getTextField("prevFrom").setText(prevFrom);
-        pdfForm.getTextField("prevCompanyname").setText(prevCompanyname);
-        pdfForm.getTextField("prevPolicy").setText(prevPolicy);
-        pdfForm.getTextField("prevMemberShip").setText(prevMemberShip);
-        pdfForm.getRadioGroup("prevInsurance").select(prevInsurance);
-        pdfForm.getRadioGroup("occupasion").select(occupasion);
-        pdfForm.getRadioGroup("gender").select(gender);
+    const {
+        errors,
+        touched,
+        handleBlur,
+        handleChange,
+        handleSubmit,
+        values,
+        setFieldValue,
+        isSubmitting,
+    } = useFormik({
+        initialValues: formValues ?? initialValues,
+        enableReinitialize: true,
+        // validationSchema: formSchema,
+        onSubmit: async (values) => {
+            console.log(values);
+            await saveFormData(true);
+        },
+    });
 
-        pdfForm.getRadioGroup("Months").select(Months);
-        pdfForm.getTextField("sixMonthPayment").setText(sixMonthPayment);
+    const saveFormData = async (isSubmit) => {
+        pdfForm.getRadioGroup("Type").select(values.type);
+        pdfForm.getTextField("AgentName").setText(values.AgentName);
+        pdfForm.getTextField("AgentNo").setText(values.AgentNo);
+        pdfForm.getTextField("CompanyName").setText(values.CompanyName);
+        pdfForm.getTextField("CompanyNo").setText(values.CompanyNo);
+        pdfForm.getTextField("AgreementNo").setText(values.AgreementNo);
+        pdfForm.getTextField("IDNumber").setText(values.IDNumber);
+        pdfForm.getTextField("FirstName").setText(values.FirstName);
+        pdfForm.getTextField("LastName").setText(values.LastName);
+        pdfForm.getTextField("ZipCode").setText(values.ZipCode);
+        pdfForm.getTextField("Town").setText(values.Town);
+        pdfForm.getTextField("HouseNumber").setText(values.HouseNumber);
+        pdfForm.getTextField("Street").setText(values.Street);
+        pdfForm.getTextField("Email").setText(values.Email);
+        pdfForm.getTextField("CellphoneNo").setText(values.CellphoneNo);
+        pdfForm.getTextField("TelephoneNo").setText(values.TelephoneNo);
+        pdfForm.getTextField("canFirstName").setText(values.canFirstName);
+        pdfForm.getTextField("canLastName").setText(values.canLastName);
+        pdfForm.getTextField("canPassport").setText(values.canPassport);
+        pdfForm.getTextField("canOrigin").setText(values.canOrigin);
+        pdfForm.getTextField("canDOB").setText(values.canDOB);
+        pdfForm
+            .getTextField("canFirstDateOfIns")
+            .setText(values.canFirstDateOfIns);
+        pdfForm.getTextField("canZipcode").setText(values.canZipcode);
+        pdfForm.getTextField("canTown").setText(values.canTown);
+        pdfForm.getTextField("canHouseNo").setText(values.canHouseNo);
+        pdfForm.getTextField("canStreet").setText(values.canStreet);
+        pdfForm.getTextField("canTelephone").setText(values.canTelephone);
+        pdfForm.getTextField("canCellPhone").setText(values.canCellPhone);
+        pdfForm.getTextField("canEmail").setText(values.canEmail);
+        pdfForm.getTextField("periodTo").setText(values.periodTo);
+        pdfForm.getTextField("periodFrom").setText(values.periodFrom);
+        pdfForm.getTextField("prevTo").setText(values.prevTo);
+        pdfForm.getTextField("prevFrom").setText(values.prevFrom);
+        pdfForm.getTextField("prevCompanyname").setText(values.prevCompanyname);
+        pdfForm.getTextField("prevPolicy").setText(values.prevPolicy);
+        pdfForm.getTextField("prevMemberShip").setText(values.prevMemberShip);
+        pdfForm.getRadioGroup("prevInsurance").select(values.prevInsurance);
+        pdfForm.getRadioGroup("occupasion").select(values.occupasion);
+        pdfForm.getRadioGroup("gender").select(values.gender);
+
+        pdfForm.getRadioGroup("Months").select(values.Months);
+        pdfForm.getTextField("sixMonthPayment").setText(values.sixMonthPayment);
         pdfForm
             .getTextField("twelveMonthsPayment")
-            .setText(twelveMonthsPayment);
-        pdfForm.getTextField("F-FirstName").setText(FFirstName);
-        pdfForm.getTextField("F-LastName").setText(FLastName);
-        pdfForm.getTextField("F-Passwordno").setText(FPasswordno);
-        pdfForm.getTextField("F-P-Id").setText(FPId);
-        pdfForm.getTextField("F-P-FirstName").setText(FPFirstName);
-        pdfForm.getTextField("F-P-LastName").setText(FPLastName);
-        pdfForm.getTextField("F-P-ZipCode").setText(FPZipCode);
-        pdfForm.getTextField("F-P-town").setText(FPtown);
-        pdfForm.getTextField("F-P-houseNo").setText(FPhouseNo);
-        pdfForm.getTextField("F-P-street").setText(FPstreet);
-        pdfForm.getTextField("F-P-expDate").setText(FPexpDate);
-        pdfForm.getTextField("F-P-cardNo").setText(FPcardNo);
-        pdfForm.getTextField("F-P-cellphone").setText(FPcellphone);
-        pdfForm.getTextField("F-P-email").setText(FPemail);
-        pdfForm.getTextField("F-P-date").setText(FPdate);
-        pdfForm.getTextField("employer-name").setText(employername);
-        pdfForm.getTextField("employer-date").setText(employerdate);
+            .setText(values.twelveMonthsPayment);
+        pdfForm.getTextField("F-FirstName").setText(values.FFirstName);
+        pdfForm.getTextField("F-LastName").setText(values.FLastName);
+        pdfForm.getTextField("F-Passwordno").setText(values.FPasswordno);
+        pdfForm.getTextField("F-P-Id").setText(values.FPId);
+        pdfForm.getTextField("F-P-FirstName").setText(values.FPFirstName);
+        pdfForm.getTextField("F-P-LastName").setText(values.FPLastName);
+        pdfForm.getTextField("F-P-ZipCode").setText(values.FPZipCode);
+        pdfForm.getTextField("F-P-town").setText(values.FPtown);
+        pdfForm.getTextField("F-P-houseNo").setText(values.FPhouseNo);
+        pdfForm.getTextField("F-P-street").setText(values.FPstreet);
+        pdfForm.getTextField("F-P-expDate").setText(values.FPexpDate);
+        pdfForm.getTextField("F-P-cardNo").setText(values.FPcardNo);
+        pdfForm.getTextField("F-P-cellphone").setText(values.FPcellphone);
+        pdfForm.getTextField("F-P-email").setText(values.FPemail);
+        pdfForm.getTextField("F-P-date").setText(values.FPdate);
+        pdfForm.getTextField("employer-name").setText(values.employername);
+        pdfForm.getTextField("employer-date").setText(values.employerdate);
 
-        pdfForm.getTextField("G-firstname").setText(GFirstname);
-        pdfForm.getTextField("G-lastname").setText(GLastname);
-        pdfForm.getTextField("G-passportno").setText(GPassportno);
-        pdfForm.getTextField("G-details").setText(GDetails);
-        pdfForm.getTextField("G-candidatename").setText(GCandidatename);
-        pdfForm.getTextField("G-date").setText(GDate);
-        pdfForm.getTextField("H-name").setText(Hname);
-        pdfForm.getTextField("candidate-passport-no").setText(canPassportNo);
-        pdfForm.getTextField("candidate-name").setText(canName);
-        pdfForm.getTextField("candidate-date").setText(canDate);
+        pdfForm.getTextField("G-firstname").setText(values.GFirstname);
+        pdfForm.getTextField("G-lastname").setText(values.GLastname);
+        pdfForm.getTextField("G-passportno").setText(values.GPassportno);
+        pdfForm.getTextField("G-details").setText(values.GDetails);
+        pdfForm.getTextField("G-candidatename").setText(values.GCandidatename);
+        pdfForm.getTextField("G-date").setText(values.GDate);
+        pdfForm.getTextField("H-name").setText(values.Hname);
+        pdfForm
+            .getTextField("candidate-passport-no")
+            .setText(values.canPassportNo);
+        pdfForm.getTextField("candidate-name").setText(values.canName);
+        pdfForm.getTextField("candidate-date").setText(values.canDate);
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
-        setPdfData(url);
-        console.log(pdfBytes, "arrayBytes");
+
+        if (!isSubmit) {
+            setPdfData(url);
+            setShow(true);
+        } else {
+            // Convert JSON object to FormData
+            let formData = objectToFormData(values);
+            formData.append("pdf_file", blob);
+
+            await axios
+                .post(`/api/worker/${id}/insurance-form`, formData, {
+                    headers: {
+                        Accept: "application/json, text/plain, */*",
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
+                .then((res) => {
+                    alert.success("Successfuly signed");
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                })
+                .catch((e) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
+        }
+        // console.log(pdfBytes, "arrayBytes");
         console.log(blob, "blob");
     };
 
-    const handleSubmit = async () => {
-        await saveFormData();
-    };
+    // const handleSubmit = async () => {
+    //     await saveFormData(true);
+    // };
 
     const handleShow = async () => {
-        await saveFormData();
-        setShow(true);
+        await saveFormData(false);
     };
 
     const handleClose = () => setShow(false);
+
+    const getForm = async () => {
+        await axios.get(`/api/worker/${id}/insurance-form`).then((res) => {
+            i18next.changeLanguage(res.data.lng);
+            if (res.data.lng == "heb") {
+                import("../Assets/css/rtl.css");
+                document.querySelector("html").setAttribute("dir", "rtl");
+            } else {
+                document.querySelector("html").removeAttribute("dir");
+            }
+
+            if (res.data.form) {
+                setFormValues(res.data.form.data);
+                if (res.data.form.submitted_at) {
+                    setTimeout(() => {
+                        disableInputs();
+                    }, 2000);
+                    setIsSubmitted(true);
+                }
+            } else if (res.data.worker) {
+                const _worker = res.data.worker;
+                setFieldValue("IDNumber", _worker.worker_id);
+                setFieldValue("FirstName", _worker.firstname);
+                setFieldValue("LastName", _worker.lastname);
+                setFieldValue("Email", _worker.email);
+                setFieldValue("CellphoneNo", _worker.phone);
+                setFieldValue("canFirstName", _worker.firstname);
+                setFieldValue("canLastName", _worker.lastname);
+                setFieldValue("canEmail", _worker.email);
+                setFieldValue("canCellPhone", _worker.phone);
+
+                const _gender = _worker.gender;
+                setFieldValue(
+                    "gender",
+                    _gender.charAt(0).toUpperCase() + _gender.slice(1)
+                );
+                setFieldValue("FFirstName", _worker.firstname);
+                setFieldValue("FLastName", _worker.lastname);
+                setFieldValue("GFirstname", _worker.firstname);
+                setFieldValue("GLastname", _worker.lastname);
+            }
+        });
+    };
+
+    const disableInputs = () => {
+        // Disable inputs within the div with the id "targetDiv"
+        const inputs = document.querySelectorAll("input ");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+        const selects = document.querySelectorAll("select");
+        selects.forEach((select) => {
+            select.disabled = true;
+        });
+    };
+
+    useEffect(() => {
+        getForm();
+    }, []);
+
+    useEffect(() => {
+        console.log(values.Months);
+        if (values.Months == "6Months") {
+            setFieldValue("twelveMonthsPayment", "");
+        } else {
+            setFieldValue("sixMonthPayment", "");
+        }
+    }, [values.Months]);
 
     return (
         <div className="my-2">
@@ -217,19 +346,21 @@ const TestPdfRoute = () => {
                     <label className="control-label">Type</label>
                     <Form.Check
                         label="a new candidate"
-                        name="group1"
-                        checked={type === "New"}
+                        name="type"
+                        checked={values.type === "New"}
+                        value={"New"}
                         type="radio"
                         id={`inline-1`}
-                        onClick={() => setType("New")}
+                        onChange={handleChange}
                     />
                     <Form.Check
-                        label="reneaewal/extention"
-                        name="group1"
-                        checked={type === "Renewal"}
+                        label="renewal/extention"
+                        name="type"
+                        checked={values.type === "Renewal"}
+                        value={"Renewal"}
                         type="radio"
-                        onClick={() => setType("Renewal")}
                         id={`inline-2`}
+                        onChange={handleChange}
                     />
                 </div>
             </div>
@@ -240,9 +371,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Agent Name</label>
                         <input
                             type="text"
+                            name={"AgentName"}
                             className="form-control"
-                            value={AgentName}
-                            onChange={(e) => setAgentName(e.target.value)}
+                            value={values.AgentName}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -251,9 +383,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Agent Number</label>
                         <input
                             type="text"
+                            name={"AgentNo"}
                             className="form-control"
-                            value={AgentNo}
-                            onChange={(e) => setAgentNo(e.target.value)}
+                            value={values.AgentNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -264,9 +397,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">CompanyName</label>
                         <input
                             type="text"
+                            name={"CompanyName"}
                             className="form-control"
-                            value={CompanyName}
-                            onChange={(e) => setCompanyName(e.target.value)}
+                            value={values.CompanyName}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -275,9 +409,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">CompanyNo</label>
                         <input
                             type="text"
+                            name={"CompanyNo"}
                             className="form-control"
-                            value={CompanyNo}
-                            onChange={(e) => setCompanyNo(e.target.value)}
+                            value={values.CompanyNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -288,9 +423,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">AgreementNo</label>
                         <input
                             type="text"
+                            name={"AgreementNo"}
                             className="form-control"
-                            value={AgreementNo}
-                            onChange={(e) => setAgreementNo(e.target.value)}
+                            value={values.AgreementNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -309,9 +445,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">ID Number</label>
                         <input
                             type="text"
+                            name={"IDNumber"}
                             className="form-control"
-                            value={IDNumber}
-                            onChange={(e) => setIDNumber(e.target.value)}
+                            value={values.IDNumber}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -320,9 +458,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">First Name</label>
                         <input
                             type="text"
+                            name={"FirstName"}
                             className="form-control"
-                            value={FirstName}
-                            onChange={(e) => setFirstName(e.target.value)}
+                            value={values.FirstName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -334,9 +474,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Last Name</label>
                         <input
                             type="text"
+                            name={"LastName"}
                             className="form-control"
-                            value={LastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            value={values.LastName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -345,9 +487,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Zip Code</label>
                         <input
                             type="text"
+                            name={"ZipCode"}
                             className="form-control"
-                            value={ZipCode}
-                            onChange={(e) => setZipCode(e.target.value)}
+                            value={values.ZipCode}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -359,9 +502,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Town</label>
                         <input
                             type="text"
+                            name={"Town"}
                             className="form-control"
-                            value={Town}
-                            onChange={(e) => setTown(e.target.value)}
+                            value={values.Town}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -370,9 +514,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">House Number</label>
                         <input
                             type="text"
+                            name={"HouseNumber"}
                             className="form-control"
-                            value={HouseNumber}
-                            onChange={(e) => setHouseNumber(e.target.value)}
+                            value={values.HouseNumber}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -384,9 +529,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Street</label>
                         <input
                             type="text"
+                            name={"Street"}
                             className="form-control"
-                            value={Street}
-                            onChange={(e) => setStreet(e.target.value)}
+                            value={values.Street}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -395,9 +541,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Email</label>
                         <input
                             type="text"
+                            name={"Email"}
                             className="form-control"
-                            value={Email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={values.Email}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -411,9 +559,11 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name={"CellphoneNo"}
                             className="form-control"
-                            value={CellphoneNo}
-                            onChange={(e) => setCellphoneNo(e.target.value)}
+                            value={values.CellphoneNo}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -424,9 +574,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name={"TelephoneNo"}
                             className="form-control"
-                            value={TelephoneNo}
-                            onChange={(e) => setTelephoneNo(e.target.value)}
+                            value={values.TelephoneNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -445,9 +596,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">First Name</label>
                         <input
                             type="text"
+                            name={"canFirstName"}
                             className="form-control"
-                            value={canFirstName}
-                            onChange={(e) => setCanFirstName(e.target.value)}
+                            value={values.canFirstName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -456,9 +609,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Last Name</label>
                         <input
                             type="text"
+                            name={"canLastName"}
                             className="form-control"
-                            value={canLastName}
-                            onChange={(e) => setCanLastName(e.target.value)}
+                            value={values.canLastName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -470,9 +625,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Passport</label>
                         <input
                             type="text"
+                            name={"canPassport"}
                             className="form-control"
-                            value={canPassport}
-                            onChange={(e) => setCanPassport(e.target.value)}
+                            value={values.canPassport}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -481,9 +637,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Origin</label>
                         <input
                             type="text"
+                            name={"canOrigin"}
                             className="form-control"
-                            value={canOrigin}
-                            onChange={(e) => setCanOrigin(e.target.value)}
+                            value={values.canOrigin}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -495,9 +652,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date of Birth</label>
                         <input
                             type="date"
+                            name={"canDOB"}
                             className="form-control"
-                            value={canDOB}
-                            onChange={(e) => setCanDOB(e.target.value)}
+                            value={values.canDOB}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -508,11 +666,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="date"
+                            name={"canFirstDateOfIns"}
                             className="form-control"
-                            value={canFirstDateOfIns}
-                            onChange={(e) =>
-                                setCanFirstDateOfIns(e.target.value)
-                            }
+                            value={values.canFirstDateOfIns}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -524,9 +681,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Zip Code</label>
                         <input
                             type="text"
+                            name={"canZipcode"}
                             className="form-control"
-                            value={canZipcode}
-                            onChange={(e) => setCanZipcode(e.target.value)}
+                            value={values.canZipcode}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -535,9 +693,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Town</label>
                         <input
                             type="text"
+                            name={"canTown"}
                             className="form-control"
-                            value={canTown}
-                            onChange={(e) => setCanTown(e.target.value)}
+                            value={values.canTown}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -549,9 +708,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">House Number</label>
                         <input
                             type="text"
+                            name={"canHouseNo"}
                             className="form-control"
-                            value={canHouseNo}
-                            onChange={(e) => setCanHouseNo(e.target.value)}
+                            value={values.canHouseNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -560,9 +720,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Street</label>
                         <input
                             type="text"
+                            name={"canStreet"}
                             className="form-control"
-                            value={canStreet}
-                            onChange={(e) => setCanStreet(e.target.value)}
+                            value={values.canStreet}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -574,9 +735,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Telephone</label>
                         <input
                             type="text"
+                            name={"canTelephone"}
                             className="form-control"
-                            value={canTelephone}
-                            onChange={(e) => setCanTelephone(e.target.value)}
+                            value={values.canTelephone}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -585,9 +747,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Cellphone</label>
                         <input
                             type="text"
+                            name={"canCellPhone"}
                             className="form-control"
-                            value={canCellPhone}
-                            onChange={(e) => setCanCellPhone(e.target.value)}
+                            value={values.canCellPhone}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -599,9 +763,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Email</label>
                         <input
                             type="text"
+                            name={"canEmail"}
                             className="form-control"
-                            value={canEmail}
-                            onChange={(e) => setCanEmail(e.target.value)}
+                            value={values.canEmail}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -609,19 +775,23 @@ const TestPdfRoute = () => {
                     <label className="control-label">Gender</label>
                     <Form.Check
                         label="Male"
-                        name="Male"
-                        checked={gender === "Male"}
+                        name="gender"
+                        value="Male"
+                        checked={values.gender === "Male"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setGender("Male")}
+                        id={`gender-1`}
+                        onChange={handleChange}
+                        disabled
                     />
                     <Form.Check
                         label="Female"
-                        name="Female"
-                        checked={gender === "Female"}
+                        name="gender"
+                        value="Female"
+                        checked={values.gender === "Female"}
                         type="radio"
-                        onClick={() => setGender("Female")}
-                        id={`inline-2`}
+                        onChange={handleChange}
+                        id={`gender-2`}
+                        disabled
                     />
                 </div>
             </div>
@@ -639,9 +809,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Period To</label>
                         <input
                             type="text"
+                            name="periodTo"
                             className="form-control"
-                            value={periodTo}
-                            onChange={(e) => setPeriodTo(e.target.value)}
+                            value={values.periodTo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -650,9 +821,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Period From</label>
                         <input
                             type="text"
+                            name="periodFrom"
                             className="form-control"
-                            value={periodFrom}
-                            onChange={(e) => setPeriodFrom(e.target.value)}
+                            value={values.periodFrom}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -669,35 +841,39 @@ const TestPdfRoute = () => {
                 <div className="col-md-8">
                     <Form.Check
                         label="nursing"
-                        name="nursing"
-                        checked={occupasion === "nursing"}
+                        name="occupasion"
+                        value="nursing"
+                        checked={values.occupasion === "nursing"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setOccupasion("nursing")}
+                        id={`occupasion-1`}
+                        onChange={handleChange}
                     />
                     <Form.Check
                         label="agriculture"
-                        name="agriculture"
-                        checked={occupasion === "agriculture"}
+                        name="occupasion"
+                        value="agriculture"
+                        checked={values.occupasion === "agriculture"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setOccupasion("agriculture")}
+                        id={`occupasion-2`}
+                        onChange={handleChange}
                     />
                     <Form.Check
                         label="construction"
-                        name="construction"
-                        checked={occupasion === "construction"}
+                        name="occupasion"
+                        value="construction"
+                        checked={values.occupasion === "construction"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setOccupasion("construction")}
+                        id={`occupasion-3`}
+                        onChange={handleChange}
                     />
                     <Form.Check
                         label="other"
-                        name="other"
-                        checked={occupasion === "other"}
+                        name="occupasion"
+                        value="other"
+                        checked={values.occupasion === "other"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setOccupasion("other")}
+                        id={`occupasion-4`}
+                        onChange={handleChange}
                     />
                 </div>
             </div>
@@ -717,9 +893,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="prevTo"
                             className="form-control"
-                            value={prevTo}
-                            onChange={(e) => setPrevTo(e.target.value)}
+                            value={values.prevTo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -730,9 +907,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="prevFrom"
                             className="form-control"
-                            value={prevFrom}
-                            onChange={(e) => setPrevFrom(e.target.value)}
+                            value={values.prevFrom}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -744,9 +922,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Company Name</label>
                         <input
                             type="text"
+                            name="prevCompanyname"
                             className="form-control"
-                            value={prevCompanyname}
-                            onChange={(e) => setPrevCompanyname(e.target.value)}
+                            value={values.prevCompanyname}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -755,9 +934,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Policy Number</label>
                         <input
                             type="text"
+                            name="prevPolicy"
                             className="form-control"
-                            value={prevPolicy}
-                            onChange={(e) => setPrevPolicy(e.target.value)}
+                            value={values.prevPolicy}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -770,19 +950,19 @@ const TestPdfRoute = () => {
                     </label>
                     <Form.Check
                         label="Yes"
-                        name="Yes"
-                        checked={prevInsurance === "Yes"}
+                        name="prevInsurance"
+                        checked={values.prevInsurance === "Yes"}
                         type="radio"
-                        id={`inline-1`}
-                        onClick={() => setPrevInsurance("Yes")}
+                        id={`prevInsurance-1`}
+                        onChange={handleChange}
                     />
                     <Form.Check
                         label="No"
-                        name="No"
-                        checked={prevInsurance === "No"}
+                        name="prevInsurance"
+                        checked={values.prevInsurance === "No"}
                         type="radio"
-                        onClick={() => setPrevInsurance("No")}
-                        id={`inline-2`}
+                        onChange={handleChange}
+                        id={`prevInsurance-2`}
                     />
                 </div>
                 <div className="col-md-4">
@@ -792,9 +972,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="prevMemberShip"
                             className="form-control"
-                            value={prevMemberShip}
-                            onChange={(e) => setPrevMemberShip(e.target.value)}
+                            value={values.prevMemberShip}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -811,20 +992,18 @@ const TestPdfRoute = () => {
                 <div className="col-md-4">
                     <Form.Check
                         label="6 Months"
-                        name="installment"
-                        checked={Months === "6Months"}
+                        name="Months"
+                        value={"6Months"}
+                        checked={values.Months === "6Months"}
                         type="radio"
-                        id={`inline-12`}
-                        onClick={() => {
-                            setMonths("6Months");
-                            setTwelveMonthsPayment("");
-                        }}
+                        id={`Months-1`}
+                        onChange={handleChange}
                     />
                 </div>
                 <div
                     className="col-md-4"
                     style={
-                        Months === "12Months"
+                        values.Months === "12Months"
                             ? { pointerEvents: "none", opacity: 0.5 }
                             : {}
                     }
@@ -835,9 +1014,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="sixMonthPayment"
                             className="form-control"
-                            value={sixMonthPayment}
-                            onChange={(e) => setSixMonthPayment(e.target.value)}
+                            value={values.sixMonthPayment}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -847,20 +1027,18 @@ const TestPdfRoute = () => {
                 <div className="col-md-4">
                     <Form.Check
                         label="12 Months"
-                        name="installment"
-                        checked={Months === "12Months"}
+                        name="Months"
+                        value={"12Months"}
+                        checked={values.Months === "12Months"}
                         type="radio"
-                        id={`inline-12`}
-                        onClick={() => {
-                            setMonths("12Months");
-                            setSixMonthPayment("");
-                        }}
+                        id={`Months-2`}
+                        onChange={handleChange}
                     />
                 </div>
                 <div
                     className="col-md-4"
                     style={
-                        Months === "6Months"
+                        values.Months === "6Months"
                             ? { pointerEvents: "none", opacity: 0.5 }
                             : {}
                     }
@@ -871,11 +1049,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="twelveMonthsPayment"
                             className="form-control"
-                            value={twelveMonthsPayment}
-                            onChange={(e) =>
-                                setTwelveMonthsPayment(e.target.value)
-                            }
+                            value={values.twelveMonthsPayment}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -887,9 +1064,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">First Name</label>
                         <input
                             type="text"
+                            name="FFirstName"
                             className="form-control"
-                            value={FFirstName}
-                            onChange={(e) => setFFirstName(e.target.value)}
+                            value={values.FFirstName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -898,9 +1077,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Last Name</label>
                         <input
                             type="text"
+                            name="FLastName"
                             className="form-control"
-                            value={FLastName}
-                            onChange={(e) => setFLastName(e.target.value)}
+                            value={values.FLastName}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -912,9 +1093,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Passport Number</label>
                         <input
                             type="text"
+                            name="FPasswordno"
                             className="form-control"
-                            value={FPasswordno}
-                            onChange={(e) => setFPasswordno(e.target.value)}
+                            value={values.FPasswordno}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -926,9 +1108,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">ID Number</label>
                         <input
                             type="text"
+                            name="FPId"
                             className="form-control"
-                            value={FPId}
-                            onChange={(e) => setFPId(e.target.value)}
+                            value={values.FPId}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -937,9 +1120,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">First Name</label>
                         <input
                             type="text"
+                            name="FPFirstName"
                             className="form-control"
-                            value={FPFirstName}
-                            onChange={(e) => setFPFirstName(e.target.value)}
+                            value={values.FPFirstName}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -951,9 +1135,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Last Name</label>
                         <input
                             type="text"
+                            name="FPLastName"
                             className="form-control"
-                            value={FPLastName}
-                            onChange={(e) => setFPLastName(e.target.value)}
+                            value={values.FPLastName}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -962,9 +1147,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Zip Code</label>
                         <input
                             type="text"
+                            name="FPZipCode"
                             className="form-control"
-                            value={FPZipCode}
-                            onChange={(e) => setFPZipCode(e.target.value)}
+                            value={values.FPZipCode}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -976,9 +1162,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Town</label>
                         <input
                             type="text"
+                            name="FPtown"
                             className="form-control"
-                            value={FPtown}
-                            onChange={(e) => setFPtown(e.target.value)}
+                            value={values.FPtown}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -987,9 +1174,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">House Number</label>
                         <input
                             type="text"
+                            name="FPhouseNo"
                             className="form-control"
-                            value={FPhouseNo}
-                            onChange={(e) => setFPhouseNo(e.target.value)}
+                            value={values.FPhouseNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1001,9 +1189,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Street</label>
                         <input
                             type="text"
+                            name="FPstreet"
                             className="form-control"
-                            value={FPstreet}
-                            onChange={(e) => setFPstreet(e.target.value)}
+                            value={values.FPstreet}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1012,9 +1201,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Expiry Date</label>
                         <input
                             type="date"
+                            name="FPexpDate"
                             className="form-control"
-                            value={FPexpDate}
-                            onChange={(e) => setFPexpDate(e.target.value)}
+                            value={values.FPexpDate}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1026,9 +1216,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Card Number</label>
                         <input
                             type="text"
+                            name="FPcardNo"
                             className="form-control"
-                            value={FPcardNo}
-                            onChange={(e) => setFPcardNo(e.target.value)}
+                            value={values.FPcardNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1037,9 +1228,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Cellphone</label>
                         <input
                             type="text"
+                            name="FPcellphone"
                             className="form-control"
-                            value={FPcellphone}
-                            onChange={(e) => setFPcellphone(e.target.value)}
+                            value={values.FPcellphone}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1051,9 +1243,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Email</label>
                         <input
                             type="text"
+                            name="FPemail"
                             className="form-control"
-                            value={FPemail}
-                            onChange={(e) => setFPemail(e.target.value)}
+                            value={values.FPemail}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1062,9 +1255,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date</label>
                         <input
                             type="date"
+                            name="FPdate"
                             className="form-control"
-                            value={FPdate}
-                            onChange={(e) => setFPdate(e.target.value)}
+                            value={values.FPdate}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1076,9 +1270,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Employer Name</label>
                         <input
                             type="text"
+                            name="employername"
                             className="form-control"
-                            value={employername}
-                            onChange={(e) => setEmployername(e.target.value)}
+                            value={values.employername}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1087,9 +1282,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date</label>
                         <input
                             type="date"
+                            name="employerdate"
                             className="form-control"
-                            value={employerdate}
-                            onChange={(e) => setEmployerdate(e.target.value)}
+                            value={values.employerdate}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1099,7 +1295,7 @@ const TestPdfRoute = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Health Delclaration
+                Health Declaration
             </div>
 
             <div className="row justify-content-center">
@@ -1108,9 +1304,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">First Name</label>
                         <input
                             type="text"
+                            name="GFirstname"
                             className="form-control"
-                            value={GFirstname}
-                            onChange={(e) => setGFirstname(e.target.value)}
+                            value={values.GFirstname}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -1119,9 +1317,11 @@ const TestPdfRoute = () => {
                         <label className="control-label">Last Name</label>
                         <input
                             type="text"
+                            name="GLastname"
                             className="form-control"
-                            value={GLastname}
-                            onChange={(e) => setGLastname(e.target.value)}
+                            value={values.GLastname}
+                            onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -1133,9 +1333,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Passport Number</label>
                         <input
                             type="text"
+                            name="GPassportno"
                             className="form-control"
-                            value={GPassportno}
-                            onChange={(e) => setGPassportno(e.target.value)}
+                            value={values.GPassportno}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1144,9 +1345,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Details</label>
                         <input
                             type="text"
+                            name="GDetails"
                             className="form-control"
-                            value={GDetails}
-                            onChange={(e) => setGDetails(e.target.value)}
+                            value={values.GDetails}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1158,9 +1360,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Candidate Name</label>
                         <input
                             type="text"
+                            name="GCandidatename"
                             className="form-control"
-                            value={GCandidatename}
-                            onChange={(e) => setGCandidatename(e.target.value)}
+                            value={values.GCandidatename}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1169,9 +1372,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date</label>
                         <input
                             type="date"
+                            name="GDate"
                             className="form-control"
-                            value={GDate}
-                            onChange={(e) => setGDate(e.target.value)}
+                            value={values.GDate}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1181,7 +1385,7 @@ const TestPdfRoute = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Reciept of all the information in the policy
+                Receipt of all the information in the policy
             </div>
 
             <div className="row justify-content-center">
@@ -1190,9 +1394,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date</label>
                         <input
                             type="text"
+                            name="Hname"
                             className="form-control"
-                            value={Hname}
-                            onChange={(e) => setHname(e.target.value)}
+                            value={values.Hname}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1211,9 +1416,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Passport No.</label>
                         <input
                             type="text"
+                            name="canPassportNo"
                             className="form-control"
-                            value={canPassportNo}
-                            onChange={(e) => setCanPassportNo(e.target.value)}
+                            value={values.canPassportNo}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1224,9 +1430,10 @@ const TestPdfRoute = () => {
                         </label>
                         <input
                             type="text"
+                            name="canName"
                             className="form-control"
-                            value={canName}
-                            onChange={(e) => setCanName(e.target.value)}
+                            value={values.canName}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1238,9 +1445,10 @@ const TestPdfRoute = () => {
                         <label className="control-label">Date</label>
                         <input
                             type="date"
+                            name="canDate"
                             className="form-control"
-                            value={canDate}
-                            onChange={(e) => setCanDate(e.target.value)}
+                            value={values.canDate}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -1253,16 +1461,20 @@ const TestPdfRoute = () => {
                         <button
                             className="btn btn-secondary"
                             onClick={handleShow}
+                            disabled={isSubmitting}
                         >
                             Preview
                         </button>
                         <div className="mx-2"></div>
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleSubmit}
-                        >
-                            Submit
-                        </button>
+                        {!isSubmitted && (
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                            >
+                                Submit
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -1330,4 +1542,4 @@ function PdfViewer({ url }) {
     );
 }
 
-export default TestPdfRoute;
+export default InsuranceForm;

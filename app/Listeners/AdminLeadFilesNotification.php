@@ -13,7 +13,7 @@ use Symfony\Component\Finder\Iterator\FilenameFilterIterator;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
-class AdminLeadFilesNotification
+class AdminLeadFilesNotification implements ShouldQueue
 {
     /**
      * Create the event listener.

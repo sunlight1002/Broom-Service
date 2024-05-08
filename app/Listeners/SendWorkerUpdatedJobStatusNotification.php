@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 
-class SendWorkerUpdatedJobStatusNotification
+class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
 {
     /**
      * Create the event listener.

@@ -296,7 +296,7 @@ class WorkerController extends Controller
         event(new WorkerCreated($worker));
 
         return response()->json([
-            'message' => 'Worker updated successfully',
+            'message' => 'Worker created successfully',
         ]);
     }
 

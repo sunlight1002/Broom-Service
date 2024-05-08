@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
-class SendShiftChangedNotification
+class SendShiftChangedNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
