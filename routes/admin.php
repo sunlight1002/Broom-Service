@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\ClientController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChangeWorkerController;
@@ -10,18 +9,10 @@ use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
-use App\Http\Controllers\Admin\InformationPageController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\JobCommentController;
-use App\Http\Controllers\Admin\JobProfileController;
 use App\Http\Controllers\Admin\LanguageController;
-use App\Http\Controllers\Admin\NationalityController;
-use App\Http\Controllers\Admin\PlanController;
-use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\SkillController;
-use App\Http\Controllers\Admin\SubscriptionController;
-use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\ServicesController;
 use App\Http\Controllers\Admin\ServiceSchedulesController;
 use App\Http\Controllers\Admin\OfferController;
@@ -186,15 +177,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Report
     Route::post('export_report', [JobController::class, 'exportReport'])->name('export_report');
-
-    // Reviews Api
-    Route::resource('reviews', ReviewController::class);
-
-    // Skills Api
-    Route::resource('skills', SkillController::class);
-
-    // Tasks Api
-    Route::resource('tasks', TaskController::class);
 
     // Income 
     Route::post('income', [DashboardController::class, 'income'])->name('income');
