@@ -49,7 +49,7 @@ export default function Payments() {
         let _filters = {};
 
         if (paidStatusFilter) {
-            _filters.last_paid_status = paidStatusFilter;
+            _filters.priority_paid_status = paidStatusFilter;
         }
 
         _filters.start_date = dateRange.start_date;
@@ -162,6 +162,12 @@ export default function Payments() {
                     }
                 });
             });
+    };
+
+    const priorityStatus = (_status) => {
+        const _statuses = ["", "", "paid", "undone", "unpaid", "problem"];
+
+        return _statuses[_status];
     };
 
     return (
@@ -387,7 +393,7 @@ export default function Payments() {
                                                             style={{
                                                                 color: "white",
                                                                 background:
-                                                                    item.last_paid_status
+                                                                    item.priority_paid_status
                                                                         ? "#2F4054"
                                                                         : "white",
                                                                 padding:
@@ -400,14 +406,14 @@ export default function Payments() {
                                                                 width: "max-content",
                                                             }}
                                                         >
-                                                            {item.last_paid_status ||
-                                                                "-"}
+                                                            {priorityStatus(
+                                                                item.priority_paid_status
+                                                            ) || "-"}
                                                         </div>
                                                     </Td>
                                                     <Td>{item.visits}</Td>
                                                     <Td>
-                                                        {(item.last_order_doc_url ||
-                                                            item.last_paid_status) && (
+                                                        {item.priority_paid_status && (
                                                             <div className="action-dropdown dropdown">
                                                                 <button
                                                                     type="button"
@@ -417,16 +423,16 @@ export default function Payments() {
                                                                     <i className="fa fa-ellipsis-vertical"></i>
                                                                 </button>
                                                                 <div className="dropdown-menu">
-                                                                    {item.last_order_doc_url && (
-                                                                        <Link
-                                                                            className="dropdown-item"
-                                                                            to={`/admin/view-client/${item.client_id}#tab-order`}
-                                                                        >
-                                                                            See
-                                                                            document
-                                                                        </Link>
-                                                                    )}
-                                                                    {item.last_paid_status ==
+                                                                    <Link
+                                                                        className="dropdown-item"
+                                                                        to={`/admin/view-client/${item.client_id}#tab-invoice`}
+                                                                    >
+                                                                        See
+                                                                        document
+                                                                    </Link>
+                                                                    {priorityStatus(
+                                                                        item.priority_paid_status
+                                                                    ) ==
                                                                         "unpaid" && (
                                                                         <button
                                                                             className="dropdown-item"
@@ -442,7 +448,9 @@ export default function Payments() {
                                                                             receipt
                                                                         </button>
                                                                     )}
-                                                                    {item.last_paid_status ==
+                                                                    {priorityStatus(
+                                                                        item.priority_paid_status
+                                                                    ) ==
                                                                         "problem" && (
                                                                         <button
                                                                             className="dropdown-item"
@@ -461,8 +469,10 @@ export default function Payments() {
                                                                     {
                                                                         (item.payment_method =
                                                                             "cc" &&
-                                                                                item.last_paid_status &&
-                                                                                item.last_paid_status !=
+                                                                                item.priority_paid_status &&
+                                                                                priorityStatus(
+                                                                                    item.priority_paid_status
+                                                                                ) !=
                                                                                     "paid" && (
                                                                                     <button
                                                                                         className="dropdown-item"

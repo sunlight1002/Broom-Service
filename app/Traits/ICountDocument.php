@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\InvoiceStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Models\Invoices;
 use App\Models\Job;
@@ -47,8 +48,6 @@ trait ICountDocument
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
 
-        $orderResponse = json_decode($order->response, true);
-
         $duedate = Carbon::today()->endOfMonth()->toDateString();
 
         $isPaymentProcessed = false;
@@ -67,7 +66,6 @@ trait ICountDocument
             }
         }
 
-        $iCountClientID = $orderResponse['client_id'];
         $otherInvDocOptions = [
             'based_on' => [
                 [
@@ -90,7 +88,6 @@ trait ICountDocument
 
         if ($doctype == 'invoice') {
             $json = $this->generateInvoiceDocument(
-                $iCountClientID,
                 $client,
                 $services,
                 $duedate,
@@ -98,7 +95,6 @@ trait ICountDocument
             );
         } else {
             $json = $this->generateInvRecDocument(
-                $iCountClientID,
                 $client,
                 $services,
                 $duedate,
@@ -109,8 +105,9 @@ trait ICountDocument
         $invoice = Invoices::create([
             'invoice_id' => $json['docnum'],
             'order_id'  => $order->id,
-            'amount'     => $total,
-            'paid_amount' => $total,
+            'amount'     => $subtotal,
+            'paid_amount' => $isPaymentProcessed ? $subtotal : 0,
+            'amount_with_tax'     => $total,
             'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
             'client_id'   => $client->id,
             'doc_url'    => $json['doc_url'],
@@ -119,7 +116,7 @@ trait ICountDocument
             'due_date'   => $duedate,
             'txn_id'     => ($isPaymentProcessed) ? $paymentResponse['ReferenceNumber'] : '',
             'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-            'status'     => ($isPaymentProcessed) ? 'Paid' : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : 'Unpaid'),
+            'status'     => ($isPaymentProcessed) ? InvoiceStatusEnum::PAID : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : InvoiceStatusEnum::UNPAID),
         ]);
 
         $order->jobs()->update([
@@ -146,15 +143,21 @@ trait ICountDocument
 
         $orderUpdateData = [
             'status' => 'Closed',
-            'invoice_status' => 2
+            'invoice_status' => 2,
         ];
 
         if ($isPaymentProcessed) {
             $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PAID;
+            $orderUpdateData['paid_amount'] = $subtotal;
+            $orderUpdateData['unpaid_amount'] = 0;
         } elseif ($payment_method != 'cc') {
             $orderUpdateData['paid_status'] = OrderPaidStatusEnum::UNPAID;
+            $orderUpdateData['paid_amount'] = 0;
+            $orderUpdateData['unpaid_amount'] = $subtotal;
         } else {
             $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PROBLEM;
+            $orderUpdateData['paid_amount'] = 0;
+            $orderUpdateData['unpaid_amount'] = $subtotal;
         }
 
         $order->update($orderUpdateData);

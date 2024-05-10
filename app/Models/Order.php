@@ -17,6 +17,26 @@ class Order extends Model
         'status',
         'invoice_status',
         'paid_status',
+        'amount',
+        'amount_with_tax',
+        'paid_amount',
+        'unpaid_amount',
+        'is_force_closed',
+        'force_closed_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'amount' => 'double',
+        'amount_with_tax' => 'double',
+        'paid_amount' => 'double',
+        'unpaid_amount' => 'double',
+        'is_force_closed' => 'boolean',
+        'force_closed_at' => 'datetime',
     ];
 
     public function jobs()

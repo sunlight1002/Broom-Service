@@ -24,6 +24,7 @@ export default function AddPaymentModal({
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [maxAmount, setMaxAmount] = useState(0);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -46,6 +47,11 @@ export default function AddPaymentModal({
             status: "Paid",
         };
         let data = {};
+
+        if (formValues.amount == "" || formValues.amount <= 0) {
+            alert.error("Please enter amount");
+            return false;
+        }
 
         if (formValues.method == "mt") {
             if (formValues.date == "") {
@@ -130,6 +136,7 @@ export default function AddPaymentModal({
                 headers,
             })
             .then((response) => {
+                setMaxAmount(response.data.total_unpaid_amount);
                 setFormValues({
                     ...formValues,
                     amount: response.data.total_unpaid_amount,
@@ -166,12 +173,22 @@ export default function AddPaymentModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Amount</label>
+                            <label className="control-label">
+                                Amount{" "}
+                                <small className="text-danger">
+                                    (max - {maxAmount})
+                                </small>
+                            </label>
                             <input
                                 type="number"
                                 value={formValues.amount}
+                                onChange={(e) =>
+                                    setFormValues({
+                                        ...formValues,
+                                        amount: e.target.value,
+                                    })
+                                }
                                 className="form-control"
-                                readOnly
                             ></input>
                         </div>
                     </div>

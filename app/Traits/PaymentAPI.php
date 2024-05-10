@@ -391,6 +391,8 @@ trait PaymentAPI
             throw new Exception($json["reason"], 500);
         }
 
+        $documentInfoJson = $this->getICountDocument($json['docnum'], 'order');
+
         $invoice_status = 1;
         $paid_status = NULL;
         if (isset($data['job_ids'])) {
@@ -418,7 +420,9 @@ trait PaymentAPI
             'items'             => json_encode($items),
             'status'            => 'Open',
             'invoice_status'    => $invoice_status,             // 1 = regular invoice, 0 = immediate invoice
-            'paid_status'       => $paid_status
+            'paid_status'       => $paid_status,
+            'amount'            => $documentInfoJson['doc_info']['totalsum'],
+            'amount_with_tax'   => $documentInfoJson['doc_info']['totalwithvat']
         ]);
 
         if (isset($data['job_ids'])) {
@@ -439,6 +443,8 @@ trait PaymentAPI
                     'is_order_generated' => true
                 ]);
         }
+
+        $client->update(['icount_client_id' => $json['client_id']]);
 
         return $order;
     }
@@ -569,7 +575,6 @@ trait PaymentAPI
     }
 
     private function generateInvoiceDocument(
-        $iCountClientID,
         $client,
         $items,
         $duedate,
@@ -598,7 +603,7 @@ trait PaymentAPI
             "pass" => $iCountPassword,
             "email" => $client->email,
             "doctype" => 'invoice',
-            "client_id" => $iCountClientID,
+            "client_id" => $client->icount_client_id,
             "client_name" => $client->invoicename,
             "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
@@ -634,7 +639,6 @@ trait PaymentAPI
     }
 
     private function generateInvRecDocument(
-        $iCountClientID,
         $client,
         $items,
         $duedate,
@@ -663,7 +667,7 @@ trait PaymentAPI
             "pass" => $iCountPassword,
             "email" => $client->email,
             "doctype" => 'invrec',
-            "client_id" => $iCountClientID,
+            "client_id" => $client->icount_client_id,
             "client_name" => $client->invoicename,
             "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
