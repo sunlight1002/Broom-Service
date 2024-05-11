@@ -174,6 +174,12 @@ export default function AllWorkers() {
                                     placeholder="Search"
                                 />
                                 <Link
+                                    to="/admin/workers/working-hours"
+                                    className="btn btn-pink addButton mr-2"
+                                >
+                                    Worker Hours
+                                </Link>
+                                <Link
                                     to="/admin/add-worker"
                                     className="btn btn-pink addButton"
                                 >
