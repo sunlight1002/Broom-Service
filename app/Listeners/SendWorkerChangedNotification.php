@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\JobNotificationToAdmin;
 
 class SendWorkerChangedNotification implements ShouldQueue
 {
@@ -46,6 +47,16 @@ class SendWorkerChangedNotification implements ShouldQueue
                 $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
                 $messages->subject($sub);
             });
+            //send notification to admin
+            $adminEmailData = [
+                'emailData'   => [
+                    'job'   =>  $event->job->toArray(),
+                ],
+                'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                'emailTitle'  => 'New Job',
+                'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
         }
 
         if (
@@ -71,6 +82,17 @@ class SendWorkerChangedNotification implements ShouldQueue
                 $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
                 $messages->subject($sub);
             });
+
+            //send notification to admin
+            $adminEmailData = [
+                'emailData'   => [
+                    'job'   =>  $event->job->toArray(),
+                ],
+                'emailSubject'  => __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
+                'emailTitle'  => 'Job Unassigned',
+                'emailContent'  => 'Worker'.$event->oldWorker['firstname'].' '.$event->oldWorker['lastname'].' unassigned from the job #' .$emailData['job']['id']. 'Below are the job details.'
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
         }
     }
 }

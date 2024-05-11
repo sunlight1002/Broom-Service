@@ -18,6 +18,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Events\JobNotificationToAdmin;
 
 class ScheduleNextJobOccurring implements ShouldQueue
 {
@@ -284,6 +285,18 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
                         $messages->subject($sub);
                     });
+
+                    //send notification to admin
+                    // $adminEmailData = [
+                    //     'emailData'   => [
+                    //         'job'   =>  $nextJob->toArray(),
+                    //     ],
+                    //     'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                    //     'emailTitle'  => 'New Job',
+                    //     'emailContent'  =>__('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                    // ];
+                    // event(new JobNotificationToAdmin($adminEmailData));
+
                 } catch (Exception $e) {
                     logger()->error($e);
                 }

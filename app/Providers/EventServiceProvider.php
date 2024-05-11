@@ -16,6 +16,7 @@ use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
+use App\Events\JobNotificationToAdmin;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForContractFormSigned;
@@ -30,6 +31,7 @@ use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
 use App\Listeners\SendWorkerFormsNotification;
 use App\Listeners\SendWorkerUpdatedJobStatusNotification;
+use App\Listeners\SendJobNotificationToAdmin;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -90,7 +92,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         JobReviewRequest::class => [
             SendJobReviewRequestNotification::class
-        ]
+        ],
+        JobNotificationToAdmin::class => [
+            SendJobNotificationToAdmin::class
+        ],
     ];
 
     /**

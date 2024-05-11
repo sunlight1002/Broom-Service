@@ -33,6 +33,7 @@ use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
 use App\Traits\PaymentAPI;
+use App\Events\JobNotificationToAdmin;
 
 class JobController extends Controller
 {
@@ -445,6 +446,16 @@ class JobController extends Controller
                             $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
                             $messages->subject($sub);
                         });
+                        //send notification to admin
+                        $adminEmailData = [
+                            'emailData'   => [
+                                'job'   =>  $job->toArray(),
+                            ],
+                            'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                            'emailTitle'  => 'New Job',
+                            'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                        ];
+                        event(new JobNotificationToAdmin($adminEmailData));
                     }
                 }
             }
@@ -909,7 +920,7 @@ class JobController extends Controller
     public function cancelJob(Request $request, $id)
     {
         $job = Job::query()
-            ->with(['worker', 'offer', 'client', 'jobservice'])
+            ->with(['worker', 'offer', 'client', 'jobservice', 'propertyAddress'])
             ->find($id);
 
         if (!$job) {
@@ -974,7 +985,7 @@ class JobController extends Controller
         CreateJobOrder::dispatch($job->id);
         ScheduleNextJobOccurring::dispatch($job->id);
 
-        $admin = Admin::find(1)->first();
+        $admin = Admin::where('role', 'admin')->first();
         App::setLocale('en');
         $data = array(
             'by'         => 'admin',
@@ -990,18 +1001,42 @@ class JobController extends Controller
             ]));
         }
 
-        Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            $messages->to($data['job']['client']['email']);
-            $ln = $data['job']['client']['lng'];
+        $ln = $data['job']['client']['lng'];
+        // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+        //     $messages->to($data['job']['client']['email']);
 
-            ($data['by'] == 'admin') ?
-                $sub = ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
+        //     ($data['by'] == 'admin') ?
+        //         $sub = ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
+        //         $data['job']['id'] . "# " . ('העבודה בוטלה')
+        //         :
+        //         $sub = __('mail.client_job_status.subject') . " #" . $data['job']['id'];
+
+        //     $messages->subject($sub);
+        // });
+
+        //send notification to admin
+        $emailContent = '';
+        if($data['by'] == 'client'){
+            $emailContent .=  __('mail.client_job_status.content').' '.ucfirst($data['job']['status']).'.';
+            if( $data['job']['cancellation_fee_amount'] ){
+                $emailContent .= __('mail.client_job_status.cancellation_fee').' '.$data['job']['cancellation_fee_amount'].'ILS.';
+            }
+        }else{
+            $emailContent .= 'Job is marked as '. ucfirst($data['job']['status']) .'by admin/team.';
+        }
+        $emailSubject = ($data['by'] == 'admin') ?
+                ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
                 $data['job']['id'] . "# " . ('העבודה בוטלה')
-                :
-                $sub = __('mail.client_job_status.subject') . " #" . $data['job']['id'];
-
-            $messages->subject($sub);
-        });
+                :__('mail.client_job_status.subject') . " #" . $data['job']['id'];
+        $adminEmailData = [
+            'emailData'   => [
+                'job'   =>  $job->toArray(),
+            ],
+            'emailSubject'  => $emailSubject,
+            'emailTitle'  => 'Job Status',
+            'emailContent'  => $emailContent
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
 
         return response()->json([
             'msg' => 'Job cancelled succesfully!'
@@ -1281,6 +1316,17 @@ class JobController extends Controller
                 $messages->subject($sub);
             });
         }
+
+        //send notification to admin
+        $adminEmailData = [
+            'emailData'   => [
+                'job'   =>  $jobArray,
+            ],
+            'emailSubject'  => 'Request to switch Worker | Broom Service',
+            'emailTitle'  => 'Worker switch by admin',
+            'emailContent'  => 'Admin has been switch worker to '.$jobArray['worker']['firstname'].' '.$jobArray['worker']['lastname'].' from '.$otherJobArray['worker']['firstname'].' '.$otherJobArray['worker']['lastname'].'.'
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
 
         return response()->json([
             'message' => "Worker switched successfully",
