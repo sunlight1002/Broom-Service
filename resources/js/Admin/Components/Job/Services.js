@@ -1,18 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import { useTranslation } from "react-i18next";
+import JobDiscountModal from "../Modals/JobDiscountModal";
 
-export default function Services({ job }) {
+export default function Services({ job, updateJob }) {
+    const [isOpenDiscountModal, setIsOpenDiscountModal] = useState(false);
+
     const { t } = useTranslation();
     const service = job.jobservice;
 
     return (
         <>
-            <h2 className="text-custom">
-                {t("admin.schedule.jobs.serviceDetailslabel")}
-            </h2>
+            <div className="row">
+                <div className="col-sm-12">
+                    <h2 className="text-custom float-left">
+                        {t("admin.schedule.jobs.serviceDetailslabel")}
+                    </h2>
+
+                    <button
+                        type="button"
+                        className="btn btn-primary float-right"
+                        onClick={() => setIsOpenDiscountModal(true)}
+                    >
+                        Discount
+                    </button>
+                </div>
+            </div>
+
             <div className="dashBox p-4 mb-3">
                 {service && (
                     <form>
@@ -114,6 +130,18 @@ export default function Services({ job }) {
                             </div>
                         </div>
                     </form>
+                )}
+
+                {isOpenDiscountModal && (
+                    <JobDiscountModal
+                        setIsOpen={setIsOpenDiscountModal}
+                        isOpen={isOpenDiscountModal}
+                        job={job}
+                        onSuccess={() => {
+                            updateJob();
+                            setIsOpenDiscountModal(false);
+                        }}
+                    />
                 )}
             </div>
         </>

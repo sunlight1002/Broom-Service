@@ -43,7 +43,7 @@ trait ICountDocument
 
         $subtotal = 0;
         foreach ($services as $key => $service) {
-            $subtotal += (int)$service['unitprice'];
+            $subtotal += (float)$service['unitprice'] * (int)$service['quantity'];
         }
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
@@ -89,7 +89,7 @@ trait ICountDocument
         if ($doctype == 'invoice') {
             $json = $this->generateInvoiceDocument(
                 $client,
-                $services,
+                $order,
                 $duedate,
                 $otherInvDocOptions
             );
@@ -98,19 +98,26 @@ trait ICountDocument
                 $client,
                 $services,
                 $duedate,
-                $otherInvDocOptions
+                $otherInvDocOptions,
+                $order->amount,
+                $order->discount_amount,
             );
         }
 
+        $discount = isset($json['doc_info']['discount']) ? $json['doc_info']['discount'] : NULL;
+        $totalAmount = isset($json['doc_info']['afterdiscount']) ? $json['doc_info']['afterdiscount'] : NULL;
+
         $invoice = Invoices::create([
-            'invoice_id' => $json['docnum'],
-            'order_id'  => $order->id,
-            'amount'     => $subtotal,
-            'paid_amount' => $isPaymentProcessed ? $subtotal : 0,
-            'amount_with_tax'     => $total,
-            'pay_method' => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
-            'client_id'   => $client->id,
-            'doc_url'    => $json['doc_url'],
+            'invoice_id'        => $json['docnum'],
+            'order_id'          => $order->id,
+            'amount'            => $json['doc_info']['totalsum'],
+            'paid_amount'       => $isPaymentProcessed ? $json['doc_info']['totalsum'] : 0,
+            'discount_amount'   => $discount,
+            'total_amount'      => $totalAmount,
+            'amount_with_tax'   => $json['doc_info']['totalwithvat'],
+            'pay_method'        => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
+            'client_id'         => $client->id,
+            'doc_url'    => $json['doc_info']['doc_url'],
             'type'       => $doctype,
             'invoice_icount_status' => 'Open',
             'due_date'   => $duedate,
@@ -123,7 +130,7 @@ trait ICountDocument
             'invoice_id'            => $invoice->id,
             'is_invoice_generated'  => true,
             'invoice_no'            => $json["docnum"],
-            'invoice_url'           => $json["doc_url"],
+            'invoice_url'           => $json['doc_info']['doc_url'],
             'isOrdered'             => 2,
         ]);
 

@@ -10,6 +10,8 @@ class Invoices extends Model
         'invoice_id',
         'order_id',
         'amount',
+        'discount_amount',
+        'total_amount',
         'paid_amount',
         'amount_with_tax',
         'doc_url',
@@ -32,6 +34,8 @@ class Invoices extends Model
      */
     protected $casts = [
         'amount' => 'double',
+        'discount_amount' => 'double',
+        'total_amount' => 'double',
         'amount_with_tax' => 'double',
         'paid_amount' => 'double',
     ];

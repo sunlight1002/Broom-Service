@@ -424,7 +424,7 @@ class InvoiceController extends Controller
         $services = [];
         $items = $iCountDocument['doc_info']['items'];
         foreach ($items as $item) {
-            $subtotal += (int)$item['unitprice'];
+            $subtotal += (float)$item['unitprice'] * (int)$item['quantity'];
 
             $services[] = [
                 'description' => $item['description'],
@@ -503,14 +503,16 @@ class InvoiceController extends Controller
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $subtotal,
+            0,
         );
 
         $rcp = Receipts::create([
             'invoice_id' => $invoice->id,
             'invoice_icount_id' => $invoice->invoice_id,
             'receipt_id' => $json['docnum'],
-            'docurl' => $json['doc_url'],
+            'docurl' => $json['doc_info']['doc_url'],
         ]);
 
         // $this->closeDoc($invoice->invoice_id, 'invoice');
@@ -542,12 +544,7 @@ class InvoiceController extends Controller
     public function invoiceJobs(Request $request)
     {
         $jobs = Job::where('client_id', $request->cid)
-            ->where('status', '!=', JobStatusEnum::COMPLETED)
-            ->where(function ($q) {
-                $q
-                    ->where('isOrdered', 0)
-                    ->orWhere('isOrdered', 'c');
-            })
+            ->where('is_order_generated', false)
             ->get();
 
         foreach ($jobs as $j => $job) {
@@ -786,7 +783,8 @@ class InvoiceController extends Controller
             $dueDate,
             [
                 'job_ids' => [$job->id],
-                'is_one_time_in_month' => $job->is_one_time_in_month_job
+                'is_one_time_in_month' => $job->is_one_time_in_month_job,
+                'discount_amount' => $job->discount_amount
             ]
         );
 
@@ -837,15 +835,17 @@ class InvoiceController extends Controller
         $not_one_time_job_ids = [];
         $items = [];
         $lang = $client->lng;
+        $discount_amount = 0;
         foreach ($notOneTimeJobs as $job) {
             $service = $job->jobservice;
 
             $not_one_time_job_ids[] = $job->id;
             $items[] = [
                 "description" => ($lang == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
-                "unitprice"   => $service->total,
+                "unitprice"   => $job->subtotal_amount,
                 "quantity"    => 1,
             ];
+            $discount_amount = $discount_amount + $job->discount_amount;
         }
 
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
@@ -856,7 +856,8 @@ class InvoiceController extends Controller
                 $dueDate,
                 [
                     'job_ids' => [$not_one_time_job_ids],
-                    'is_one_time_in_month' => false
+                    'is_one_time_in_month' => false,
+                    'discount_amount' => $discount_amount
                 ]
             );
         }
@@ -866,7 +867,7 @@ class InvoiceController extends Controller
 
             $item = [
                 "description" => ($lang == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
-                "unitprice"   => $service->total,
+                "unitprice"   => $job->subtotal_amount,
                 "quantity"    => 1,
             ];
 
@@ -876,7 +877,8 @@ class InvoiceController extends Controller
                 $dueDate,
                 [
                     'job_ids' => [$job->id],
-                    'is_one_time_in_month' => $job->is_one_time_in_month_job
+                    'is_one_time_in_month' => $job->is_one_time_in_month_job,
+                    'discount_amount' => $job->discount_amount
                 ]
             );
         }
@@ -1129,7 +1131,7 @@ class InvoiceController extends Controller
                 $q->where('status', InvoiceStatusEnum::UNPAID)
                     ->orWhere('status', InvoiceStatusEnum::PARTIALLY_PAID);
             })
-            ->selectRaw('SUM(amount - paid_amount) as amount')
+            ->selectRaw('SUM(total_amount - paid_amount) as amount')
             ->first();
 
         return response()->json([
@@ -1203,12 +1205,12 @@ class InvoiceController extends Controller
                 throw new Exception($iCountDocument["reason"], 500);
             }
 
-            $unpaidAmount = $invoice->amount - $invoice->paid_amount;
+            $unpaidAmount = $invoice->total_amount - $invoice->paid_amount;
 
             if ($unpaidAmount <= $pendingAmount) {
                 $invoiceItems = $iCountDocument['doc_info']['items'];
                 foreach ($invoiceItems as $item) {
-                    $subtotal += (float)$item['unitprice'];
+                    $subtotal += (float)$item['unitprice'] * (int)$item['quantity'];
 
                     $items[] = [
                         'description' => $item['description'],
@@ -1342,7 +1344,9 @@ class InvoiceController extends Controller
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $subtotal,
+            0,
         );
 
         foreach ($payForInvoices as $key => $_pinvoice) {
@@ -1352,17 +1356,19 @@ class InvoiceController extends Controller
                 'invoice_id' => $invoice->id,
                 'invoice_icount_id' => $invoice->invoice_id,
                 'receipt_id' => $json['docnum'],
-                'docurl' => $json['doc_url'],
+                'docurl' => $json['doc_info']['doc_url'],
             ]);
 
             // $this->closeDoc($invoice->invoice_id, 'invoice');
+            $paidAmount = (float)$invoice->paid_amount + (float)$_pinvoice['paying_amount'];
+
             $invoice->update([
                 'invoice_icount_status' => 'Closed',
                 'receipt_id' => $rcp->id,
                 'pay_method'  => $data['pay_method'],
                 'txn_id'      => $txnID,
                 'callback'    => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-                'paid_amount' => $_pinvoice['paying_amount'],
+                'paid_amount' => $paidAmount,
                 'status'      => $_pinvoice['is_full_payment'] ?
                     InvoiceStatusEnum::PAID : InvoiceStatusEnum::PARTIALLY_PAID
             ]);
@@ -1435,7 +1441,7 @@ class InvoiceController extends Controller
             $services = json_decode($order->items, true);
 
             foreach ($services as $key => $service) {
-                $subtotal += (int)$service['unitprice'];
+                $subtotal += (float)$service['unitprice'] * (int)$service['quantity'];
             }
 
             $basedOns[] = [
@@ -1480,18 +1486,25 @@ class InvoiceController extends Controller
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $order->amount,
+            $order->discount_amount,
         );
+
+        $discount = isset($json['doc_info']['discount']) ? $json['doc_info']['discount'] : NULL;
+        $totalAmount = isset($json['doc_info']['afterdiscount']) ? $json['doc_info']['afterdiscount'] : NULL;
 
         $invoice = Invoices::create([
             'invoice_id' => $json['docnum'],
             'order_id'  => $order->id,
-            'amount'     => $subtotal,
-            'paid_amount' => $subtotal,
-            'amount_with_tax' => $total,
+            'amount'            => $json['doc_info']['totalsum'],
+            'paid_amount'       => $json['doc_info']['totalsum'],
+            'discount_amount'   => $discount,
+            'total_amount'      => $totalAmount,
+            'amount_with_tax'   => $json['doc_info']['totalwithvat'],
             'pay_method' => 'Credit Card',
-            'client_id'   => $client->id,
-            'doc_url'    => $json['doc_url'],
+            'client_id'  => $client->id,
+            'doc_url'    => $json['doc_info']['doc_url'],
             'type'       => 'invrec',
             'invoice_icount_status' => 'Open',
             'due_date'   => $duedate,
@@ -1505,7 +1518,7 @@ class InvoiceController extends Controller
                 'invoice_id'            => $invoice->id,
                 'is_invoice_generated'  => true,
                 'invoice_no'            => $json["docnum"],
-                'invoice_url'           => $json["doc_url"],
+                'invoice_url'           => $json['doc_info']['doc_url'],
                 'isOrdered'             => 2,
             ]);
 
@@ -1529,7 +1542,7 @@ class InvoiceController extends Controller
             ];
 
             $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PAID;
-            $orderUpdateData['paid_amount'] = $order->amount;
+            $orderUpdateData['paid_amount'] = $order->total_amount;
             $orderUpdateData['unpaid_amount'] = 0;
 
             $order->update($orderUpdateData);

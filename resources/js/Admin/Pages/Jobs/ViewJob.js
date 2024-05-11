@@ -113,7 +113,7 @@ export default function ViewJob() {
                                     <WorkerDetails worker={worker} job={job} />
                                 </div>
                                 <div className="col-sm-12">
-                                    <Services job={job} />
+                                    <Services job={job} updateJob={getJob} />
                                     <WorkerTiming job={job} />
                                     <Comment />
                                 </div>

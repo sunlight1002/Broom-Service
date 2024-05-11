@@ -18,6 +18,8 @@ class Order extends Model
         'invoice_status',
         'paid_status',
         'amount',
+        'discount_amount',
+        'total_amount',
         'amount_with_tax',
         'paid_amount',
         'unpaid_amount',
@@ -32,6 +34,8 @@ class Order extends Model
      */
     protected $casts = [
         'amount' => 'double',
+        'discount_amount' => 'double',
+        'total_amount' => 'double',
         'amount_with_tax' => 'double',
         'paid_amount' => 'double',
         'unpaid_amount' => 'double',

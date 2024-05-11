@@ -364,9 +364,9 @@ class JobController extends Controller
 
                 if ($selectedService['type'] == 'hourly') {
                     $hours = ($minutes / 60);
-                    $total_amount = $selectedService['rateperhour'] * $hours;
+                    $total_amount = ($selectedService['rateperhour'] * $hours);
                 } else {
-                    $total_amount = $selectedService['fixed_price'];
+                    $total_amount = ($selectedService['fixed_price']);
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
@@ -390,6 +390,7 @@ class JobController extends Controller
                     'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
+                    'subtotal_amount'  => $total_amount,
                     'total_amount'  => $total_amount,
                     'next_start_date'   => $next_job_date,
                     'address_id'        => $selectedService['address']['id'],
@@ -1378,6 +1379,40 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job has been updated',
+        ]);
+    }
+
+    public function saveDiscount(Request $request, $id)
+    {
+        $job = Job::find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        if ($job->is_paid) {
+            return response()->json([
+                'message' => 'Job is already paid'
+            ], 403);
+        }
+
+        $data = $request->all();
+
+        $job->update([
+            'discount_type' => $data['discount_type'],
+            'discount_value' => $data['discount_value'],
+        ]);
+
+        return response()->json([
+            'message' => 'Discount saved successfully'
         ]);
     }
 }

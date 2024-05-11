@@ -353,6 +353,19 @@ trait PaymentAPI
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
 
+        $totalsum = 0;
+        foreach ($items as $key => $item) {
+            $totalsum = $totalsum + ($item['unitprice'] * $item['quantity']);
+        }
+
+        $discount = 0;
+        $total = $totalsum;
+        if ($data['discount_amount'] > 0) {
+            $discount = $data['discount_amount'];
+            $total = $totalsum - $discount;
+        }
+        $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
+
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 
         $postData = [
@@ -367,6 +380,10 @@ trait PaymentAPI
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
+            "totalsum" => $totalsum,
+            "discount" => $discount,
+            "roundup" => $roundup,
+            "afterdiscount" => $total,
             "duedate" => $duedate,
             "send_email" => 0,
             "email_to_client" => 0,
@@ -412,6 +429,8 @@ trait PaymentAPI
             $invoice_status = $data['is_one_time_in_month'] ? 0 : 1;
         }
 
+        $discount = isset($documentInfoJson['doc_info']['discount']) ? $documentInfoJson['doc_info']['discount'] : NULL;
+        $totalAmount = isset($documentInfoJson['doc_info']['afterdiscount']) ? $documentInfoJson['doc_info']['afterdiscount'] : NULL;
         $order = Order::create([
             'order_id'          => $json['docnum'],
             'doc_url'           => $json['doc_url'],
@@ -422,6 +441,8 @@ trait PaymentAPI
             'invoice_status'    => $invoice_status,             // 1 = regular invoice, 0 = immediate invoice
             'paid_status'       => $paid_status,
             'amount'            => $documentInfoJson['doc_info']['totalsum'],
+            'discount_amount'   => $discount,
+            'total_amount'      => $totalAmount,
             'amount_with_tax'   => $documentInfoJson['doc_info']['totalwithvat']
         ]);
 
@@ -576,7 +597,7 @@ trait PaymentAPI
 
     private function generateInvoiceDocument(
         $client,
-        $items,
+        $order,
         $duedate,
         $otherInvDocOptions
     ) {
@@ -594,6 +615,13 @@ trait PaymentAPI
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
 
+        $items = json_decode($order->items, true);
+        $totalsum = $order->amount;
+
+        $discount = $order->discount_amount;
+        $total = $totalsum - $discount;
+        $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
+
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 
         $postData = [
@@ -609,6 +637,10 @@ trait PaymentAPI
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
+            "totalsum" => $totalsum,
+            "discount" => $discount,
+            "roundup" => $roundup,
+            "afterdiscount" => $total,
             "duedate" => $duedate,
             "based_on" => $otherInvDocOptions['based_on'],
             "send_email" => 1,
@@ -635,14 +667,18 @@ trait PaymentAPI
             throw new Exception($json["reason"], 500);
         }
 
-        return $json;
+        $documentInfoJson = $this->getICountDocument($json['docnum'], 'invoice');
+
+        return $documentInfoJson;
     }
 
     private function generateInvRecDocument(
         $client,
         $items,
         $duedate,
-        $otherInvDocOptions
+        $otherInvDocOptions,
+        $totalsum,
+        $discount
     ) {
         $address = $client->property_addresses()->first();
 
@@ -657,6 +693,9 @@ trait PaymentAPI
         $iCountPassword = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
+
+        $total = $totalsum - $discount;
+        $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 
@@ -673,6 +712,10 @@ trait PaymentAPI
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
+            "totalsum" => $totalsum,
+            "discount" => $discount,
+            "roundup" => $roundup,
+            "afterdiscount" => $total,
             "duedate" => $duedate,
             "based_on" => $otherInvDocOptions['based_on'],
             "send_email" => 1,
@@ -703,7 +746,9 @@ trait PaymentAPI
             throw new Exception($json["reason"], 500);
         }
 
-        return $json;
+        $documentInfoJson = $this->getICountDocument($json['docnum'], 'invrec');
+
+        return $documentInfoJson;
     }
 
     private function commitInvoicePayment($client, $services, $token, $subtotal)

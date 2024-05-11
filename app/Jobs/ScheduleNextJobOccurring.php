@@ -202,10 +202,21 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             if ($selectedService['type'] == 'hourly') {
                 $hours = ($minutes / 60);
-                $total_amount = $selectedService['rateperhour'] * $hours;
+                $subtotal_amount = $selectedService['rateperhour'] * $hours;
             } else {
-                $total_amount = $selectedService['fixed_price'];
+                $subtotal_amount = $selectedService['fixed_price'];
             }
+
+            $discount_amount = NULL;
+            if ($job->discount_type == 'percentage') {
+                $discount_amount = (($job->discount_value / 100) * $subtotal_amount);
+            } else if ($job->discount_type == 'fixed') {
+                $discount_amount = $job->discount_value;
+            } else {
+                $discount_amount = 0;
+            }
+
+            $total_amount = $subtotal_amount - $discount_amount;
 
             $nextJob = Job::create([
                 'worker_id'     => $workerId,
@@ -217,12 +228,16 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'schedule'      => $job->schedule,
                 'schedule_id'   => $job->schedule_id,
                 'status'        => $status,
-                'total_amount'  => $total_amount,
+                'subtotal_amount'   => $subtotal_amount,
+                'discount_type'     => $job->discount_type,
+                'discount_value'    => $job->discount_value,
+                'discount_amount'   => $discount_amount,
+                'total_amount'      => $total_amount,
                 'next_start_date'   => $next_to_next_job_date,
                 'address_id'        => $job->address_id,
                 'keep_prev_worker'  => $job->keep_prev_worker,
                 'is_one_time_in_month_job'   => $is_one_time_in_month_job,
-                'origin_job_id'     => $job->origin_job_id,
+                'origin_job_id'         => $job->origin_job_id,
                 'original_worker_id'    => $job->original_worker_id,
                 'original_shifts'       => $job->original_shifts,
                 'previous_worker_id'    => $previous_worker_id,
