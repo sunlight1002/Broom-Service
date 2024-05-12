@@ -7,25 +7,8 @@ import moment from "moment";
 
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-
-const formSchema = yup.object({
-    fullName: yup.string().trim().required("Full name is required"),
-    role: yup.string().trim().required("Role is required"),
-    IdNumber: yup
-        .number()
-        .typeError("invalid number")
-        .required("ID Number is required"),
-    Address: yup.string().trim().required("Address is required"),
-    startDate: yup.date().required("Start date of job is required"),
-    signatureDate1: yup.date().required("Date is required"),
-    signatureDate2: yup.date().required("Date is required"),
-    signatureDate3: yup.date().required("Date is required"),
-    signatureDate4: yup.date().required("Date is required"),
-    signature1: yup.mixed().required("Signature is required"),
-    signature2: yup.mixed().required("Signature is required"),
-    signature3: yup.mixed().required("Signature is required"),
-    signature4: yup.mixed().required("Signature is required"),
-});
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 export function NonIsraeliContract({
     handleFormSubmit,
@@ -41,6 +24,7 @@ export function NonIsraeliContract({
     const sigRef4 = useRef();
     const companySigRef1 = useRef();
     const companySigRef2 = useRef();
+    const { t } = useTranslation();
     const [formValues, setFormValues] = useState(null);
 
     const currentDate = moment().format("YYYY-MM-DD");
@@ -62,6 +46,44 @@ export function NonIsraeliContract({
         companySignature2: "",
         role: "",
     };
+
+    const formSchema = yup.object({
+        fullName: yup
+            .string()
+            .trim()
+            .required(t("nonIsrailContract.errorMsg.FullName")),
+        role: yup
+            .string()
+            .trim()
+            .required(t("nonIsrailContract.errorMsg.Role")),
+        IdNumber: yup
+            .number()
+            .typeError(t("nonIsrailContract.errorMsg.invalidId"))
+            .required(t("nonIsrailContract.errorMsg.idRequired")),
+        Address: yup
+            .string()
+            .trim()
+            .required(t("nonIsrailContract.errorMsg.address")),
+        startDate: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.startDate")),
+        signatureDate1: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate2: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate3: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate4: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signature1: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature2: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature3: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature4: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+    });
 
     const {
         errors,
@@ -153,17 +175,12 @@ export function NonIsraeliContract({
                         <div className="text-center">
                             <h5>
                                 <strong>
-                                    <u>
-                                        The employment agreement as well as a
-                                        notice to the employee regarding
-                                        working conditions
-                                    </u>
+                                    <u>{t("nonIsrailContract.title1")}</u>
                                 </strong>
                             </h5>
 
                             <p className="mt-2">
-                                In accordance with Section 1 of the Notice to
-                                the Employee (Working Conditions) Law, 2002
+                                {t("nonIsrailContract.title2")}
                             </p>
                         </div>
                         <div>
@@ -173,9 +190,7 @@ export function NonIsraeliContract({
                             >
                                 <li>
                                     <strong>
-                                        The name of the employer Brom Service
-                                        L.M. Ltd. - private company number
-                                        515184208 Maan Amal 11, Rosh Ha'Ein
+                                        {t("nonIsrailContract.nic1")}
                                     </strong>
                                     <div className="row gap-3">
                                         <div className="col-6">
@@ -183,7 +198,9 @@ export function NonIsraeliContract({
                                                 name={"fullName"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Employee's name"}
+                                                label={t(
+                                                    "nonIsrailContract.empName"
+                                                )}
                                                 value={values.fullName}
                                                 required={true}
                                                 readonly={true}
@@ -198,7 +215,9 @@ export function NonIsraeliContract({
                                                 name={"IdNumber"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Passport Number"}
+                                                label={t(
+                                                    "nonIsrailContract.passport"
+                                                )}
                                                 value={values.IdNumber}
                                                 required={true}
                                                 error={
@@ -212,7 +231,7 @@ export function NonIsraeliContract({
                                         name={"Address"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"Address"}
+                                        label={t("nonIsrailContract.Address")}
                                         value={values.Address}
                                         readonly={true}
                                         required={true}
@@ -226,7 +245,7 @@ export function NonIsraeliContract({
                                         name={"startDate"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"The date of the start of"}
+                                        label={t("nonIsrailContract.dateStart")}
                                         value={values.startDate}
                                         required={true}
                                         error={
@@ -235,77 +254,47 @@ export function NonIsraeliContract({
                                         }
                                     />
                                     <p className="mb-2">
-                                        The contract period is not fixed. The
-                                        employee is hired as a new employee for
-                                        all intents and purposes.
+                                        {t("nonIsrailContract.nic2")}
                                     </p>
                                 </li>
                                 <li>
-                                    The main duties of the employee are the
-                                    position:
+                                    {t("nonIsrailContract.nic3-1")}
                                     <TextField
                                         name={"role"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"Role"}
+                                        label={t("nonIsrailContract.role")}
                                         value={values.role}
                                         required={true}
                                         error={touched.role && errors.role}
                                     />
                                     <p className="mb-2">
-                                        and any other job to which he will be
-                                        assigned by the company. Each party
-                                        reserves the right to terminate the
-                                        placement and employment while giving
-                                        advance notice to the other party in
-                                        accordance with the Law on Advance
-                                        Notice for Layoffs and
-                                        Resignations of 2016
+                                        {t("nonIsrailContract.nic3-2")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        The name of the employee's direct
-                                        supervisor: Alex Kane
+                                        {t("nonIsrailContract.nic4")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-4">
-                                        The basic salary of the cleaning workers
-                                        will be calculated on the basis of
-                                        minimum wage according to law, and in
-                                        addition they will be given a bonus for
-                                        persistence, which will supplement their
-                                        salary to a basic wage of NIS 45 per
-                                        hour plus social conditions, and this as
-                                        a reward for persistence at work for 3
-                                        full consecutive months in the company.
+                                        {t("nonIsrailContract.nic5")}
                                     </p>
                                     <ol>
                                         <li>
                                             <p style={{ marginBottom: "90px" }}>
-                                                If the employee decides to leave
-                                                the job before the end of the
-                                                foll three-month period, as
-                                                agreed upon in this agreement,
-                                                the employer will be entitled to
-                                                deduct the amount of the bonus
-                                                that exceeds the minimum wage
-                                                paid to the employee, and even
-                                                require the employee to return
-                                                the amount of the bonus already
-                                                paid to him during the first
-                                                three months of work, and often
-                                                by of deducting the excess
-                                                amount from his salary or from
-                                                any other payment due to him.
+                                                {t(
+                                                    "nonIsrailContract.nic5_sub.nic5_sub1"
+                                                )}
                                             </p>
                                             <div className="row mt-5">
                                                 <div className="col-4">
                                                     <p>
                                                         <strong>
-                                                            The worker's
-                                                            signature:*
+                                                            {t(
+                                                                "nonIsrailContract.nic5_sub.nic5_sub2"
+                                                            )}
                                                         </strong>
                                                     </p>
                                                     {formValues &&
@@ -345,7 +334,9 @@ export function NonIsraeliContract({
                                                                             clearSignature1
                                                                         }
                                                                     >
-                                                                        Clear
+                                                                        {t(
+                                                                            "nonIsrailContract.nic5_sub.clear"
+                                                                        )}
                                                                     </button>
                                                                 </div>
                                                             )}
@@ -358,7 +349,9 @@ export function NonIsraeliContract({
                                                         name={"signatureDate1"}
                                                         onBlur={handleBlur}
                                                         onChange={handleChange}
-                                                        label={"Date"}
+                                                        label={t(
+                                                            "nonIsrailContract.nic5_sub.Date"
+                                                        )}
                                                         value={
                                                             values.signatureDate1
                                                         }
@@ -377,78 +370,144 @@ export function NonIsraeliContract({
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
-                                                    Payments that are not fixed
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th1"
+                                                    )}
                                                 </th>
                                                 <th colSpan={2}>
-                                                    Regular payments
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th2"
+                                                    )}
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th>Payment Date***</th>
-                                                <th>Payment type**</th>
-                                                <th>Payment Date***</th>
-                                                <th>Payment type**</th>
+                                                <th>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th3"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th4"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th3"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.th.th4"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>according to law</td>
-                                                <td>Holiday</td>
-                                                <td>9 per month </td>
-                                                <td>Salary</td>
+                                                <td>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr1.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr1.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr1.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr1.td4"
+                                                    )}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td>duly</td>
-                                                <td>holidays</td>
-                                                <td>9 per month</td>
-                                                <td>travel</td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr2.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr2.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr2.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr2.td4"
+                                                    )}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td></td>
                                                 <td>
-                                                    9 per month in advance for
-                                                    the annual payment
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr3.td1"
+                                                    )}
                                                 </td>
-                                                <td>recovery</td>
+                                                <td>
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr3.td2"
+                                                    )}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td></td>
                                                 <td>
-                                                    9 per month as part of the
-                                                    basic salary{" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr4.td1"
+                                                    )}
                                                 </td>
-                                                <td>seniority allowance</td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic5_sub.table.tr4.td2"
+                                                    )}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </Table>
                                     <p>
-                                        ** Detail types of payments such as:
-                                        basic salary, equivalent to money -
-                                        non-intoxicating food and beverages for
-                                        consumption at the workplace and housing
-                                        that are not reimbursement of expenses,
-                                        seniority allowance, premiums and
-                                        incentives, overtime; Additional shifts,
-                                        recovery fees and any other payment in
-                                        favor of wages whether it
-                                        is fixed or not.
+                                        {t(
+                                            "nonIsrailContract.nic5_sub.nic5_sub3"
+                                        )}
                                     </p>
                                     <p>
-                                        Date & signature of the worker and his
-                                        confirmation to the said
+                                        {t(
+                                            "nonIsrailContract.nic5_sub.nic5_sub4"
+                                        )}
                                     </p>
                                     <p>
-                                        *** If the payment date is not fixed, or
-                                        the date will apply if a condition is
-                                        met, this must be stated.
+                                        {t(
+                                            "nonIsrailContract.nic5_sub.nic5_sub5"
+                                        )}
                                     </p>
                                     <div className="row mt-3">
                                         <div className="col-4">
                                             <p>
                                                 <strong>
-                                                    The worker's signature:*
+                                                    {t(
+                                                        "nonIsrailContract.workerSign"
+                                                    )}
                                                 </strong>
                                             </p>
                                             {formValues &&
@@ -486,7 +545,9 @@ export function NonIsraeliContract({
                                                                     clearSignature2
                                                                 }
                                                             >
-                                                                Clear
+                                                                {t(
+                                                                    "nonIsrailContract.clear"
+                                                                )}
                                                             </button>
                                                         </div>
                                                     )}
@@ -499,7 +560,9 @@ export function NonIsraeliContract({
                                                 name={"signatureDate2"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Date"}
+                                                label={t(
+                                                    "nonIsrailContract.date"
+                                                )}
                                                 value={values.signatureDate2}
                                                 required={true}
                                                 readOnly
@@ -513,104 +576,127 @@ export function NonIsraeliContract({
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        The length of the employee's normal
-                                        working day - 8 hours in practice. The
-                                        length of the employee's normal work
-                                        week is 42 hours.
+                                        {t("nonIsrailContract.nic6")}
                                     </p>
                                 </li>
                                 <li>
                                     <p style={{ marginBottom: "90px" }}>
-                                        The employee's weekly day of rest is
-                                        Saturday.
+                                        {t("nonIsrailContract.nic7")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        Payments for social conditions to which
-                                        the employee is entitled:
+                                        {t("nonIsrailContract.nic8")}
                                     </p>
                                     <Table bordered size="sm" className=" mt-3">
                                         <thead className="text-center">
                                             <tr>
-                                                <th>Payment start date</th>
                                                 <th>
-                                                    % contributions from
-                                                    employer
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.th.th1"
+                                                    )}
                                                 </th>
-                                                <th>% worker's allowances</th>
                                                 <th>
-                                                    The receiving body and the
-                                                    name of the program
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.th.th2"
+                                                    )}
                                                 </th>
-                                                <th>Payment Type</th>
+                                                <th>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.th.th3"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.th.th4"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.th.th5"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    or in the pay slip or at the
-                                                    end of the work according to
-                                                    the company's decision
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr1.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Employer contributions
-                                                    Directly to the employee 0
-                                                    8.33% passed severance pay
-                                                    subject to section 14 of the
-                                                    Law on Severance Pay and in
-                                                    accordance with the
-                                                    expansion order in the
-                                                    cleaning industry 7.5%
-                                                    passed employer's benefits
-                                                    either in the pay slip or at
-                                                    the end of the job according
-                                                    to the company's decision
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr1.td2"
+                                                    )}
                                                 </td>
-                                                <td>0</td>
                                                 <td>
-                                                    directly to the employee
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr1.td3"
+                                                    )}
                                                 </td>
-                                                <td>Employer contributions</td>
+                                                <td>
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr1.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr1.td5"
+                                                    )}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    or in the pay slip or at the
-                                                    end of the work according to
-                                                    the company's decision
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr2.td1"
+                                                    )}
                                                 </td>
-                                                <td>7.5% of wages</td>
-                                                <td>0</td>
                                                 <td>
-                                                    directly to the employee
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr2.td2"
+                                                    )}
                                                 </td>
-                                                <td>Education fund</td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr2.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr2.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.table.tr2.td5"
+                                                    )}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </Table>
                                     <p>
-                                        If the employer or an employers'
-                                        organization of which the employer is a
-                                        member, is a party to a collective
-                                        agreement that regulates the employee's
-                                        working conditions - the name of the
-                                        workers' organization that is a party to
-                                        that collective agreement is: the
-                                        Jerusalem Chamber of Commerce.
+                                        {t(
+                                            "nonIsrailContract.nic8Sub.nic8Sub_1"
+                                        )}
                                     </p>
                                     <p>
-                                        This notification is not an employment
-                                        agreement, but the employer's
-                                        notification regarding the main working
-                                        conditions; Nothing in this notice is
-                                        intended to derogate from any right
-                                        granted to the employee by virtue of any
-                                        law, extension order, collective
-                                        agreement or employment contract.
+                                        {t(
+                                            "nonIsrailContract.nic8Sub.nic8Sub_2"
+                                        )}
                                     </p>
                                     <p>
-                                        signature of the employee and his
-                                        permission to write of the employer{" "}
+                                        {t(
+                                            "nonIsrailContract.nic8Sub.nic8Sub_3"
+                                        )}
                                     </p>
                                     <div
                                         className="row gap-3"
@@ -619,7 +705,9 @@ export function NonIsraeliContract({
                                         <div className="col-6">
                                             <p>
                                                 <strong>
-                                                    The worker's signature:*
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.nic8Sub_4"
+                                                    )}
                                                 </strong>
                                             </p>
                                             {formValues &&
@@ -657,7 +745,9 @@ export function NonIsraeliContract({
                                                                     clearSignature3
                                                                 }
                                                             >
-                                                                Clear
+                                                                {t(
+                                                                    "nonIsrailContract.nic8Sub.nic8Sub_5"
+                                                                )}
                                                             </button>
                                                         </div>
                                                     )}
@@ -667,7 +757,9 @@ export function NonIsraeliContract({
                                         <div className="col-6">
                                             <p>
                                                 <strong>
-                                                    The Company's signature:
+                                                    {t(
+                                                        "nonIsrailContract.nic8Sub.nic8Sub_6"
+                                                    )}
                                                 </strong>
                                             </p>
                                             {formValues &&
@@ -707,7 +799,9 @@ export function NonIsraeliContract({
                                                                     clearCompanySignature1
                                                                 }
                                                             >
-                                                                Clear
+                                                                {t(
+                                                                    "nonIsrailContract.clear"
+                                                                )}
                                                             </button>
                                                         </div>
                                                     )}
@@ -721,7 +815,9 @@ export function NonIsraeliContract({
                                                 name={"signatureDate3"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Date"}
+                                                label={t(
+                                                    "nonIsrailContract.date"
+                                                )}
                                                 value={values.signatureDate3}
                                                 required={true}
                                                 readOnly
@@ -736,59 +832,56 @@ export function NonIsraeliContract({
                             </ol>
                             <ol className="mt-3">
                                 <li>
-                                    <u>Deductions:</u>
+                                    <u>
+                                        {t("nonIsrailContract.deduction.title")}
+                                    </u>
                                     <ol>
                                         <li>
-                                            The employer will deduct from the
-                                            employee's salary for national
-                                            insurance in accordance with the law
+                                            {t(
+                                                "nonIsrailContract.deduction.deduction1"
+                                            )}
                                         </li>
                                         <li>
-                                            The employer will deduct from the
-                                            employee's salary for income tax in
-                                            accordance with the law{" "}
+                                            {t(
+                                                "nonIsrailContract.deduction.deduction2"
+                                            )}
                                         </li>
                                         <li>
-                                            The employer will deduct from the
-                                            employee's salary for deposits to
-                                            foreign workers in accordance with
-                                            the provisions of Section 11 of the
-                                            Foreign Workers Law 5571-1991
+                                            {t(
+                                                "nonIsrailContract.deduction.deduction3"
+                                            )}
                                         </li>
                                     </ol>
                                 </li>
                                 <li className="mt-3">
-                                    <u>The employer's obligations:</u>
+                                    <u>
+                                        {" "}
+                                        {t(
+                                            "nonIsrailContract.obligations.title"
+                                        )}
+                                    </u>
                                     <p>
-                                        The employer is obliged to arrange, at
-                                        his own expense, medical insurance for
-                                        the employee for the entire period of
-                                        his employment with him, in accordance
-                                        with the provisions of Section 1d of the
-                                        Foreign Workers Law 5511-1991, while
-                                        deducting the amounts that can be
-                                        deducted according to law.
+                                        {t(
+                                            "nonIsrailContract.obligations.obligation1"
+                                        )}
                                     </p>
                                 </li>
                                 <li className="mt-3">
-                                    <u> The supervisor of foreign workers:</u>
+                                    <u>
+                                        {" "}
+                                        {t(
+                                            "nonIsrailContract.supervisor.title"
+                                        )}
+                                    </u>
                                     <p>
-                                        Details of the Commissioner for the
-                                        Rights of Foreign Workers: Adv. Iris
-                                        Maayan How to contact the Commissioner
-                                        for Foreign Workers: Derech Shlomo
-                                        (Selma) 53, Tel Aviv. Dew'. 03-7347230,
-                                        fax. 03-7347269
+                                        {t(
+                                            "nonIsrailContract.supervisor.supervisor1"
+                                        )}
                                     </p>
                                     <p>
-                                        In accordance with section 1 of the
-                                        Foreign Workers Law 1991-1991, any
-                                        person may submit a written complaint to
-                                        the Commissioner of Foreign Workers'
-                                        Rights due to a violation of a provision
-                                        under the Foreign Workers Law or failure
-                                        to fulfill an obligation towards
-                                        a foreign worker.
+                                        {t(
+                                            "nonIsrailContract.supervisor.supervisor2"
+                                        )}
                                     </p>
                                 </li>
                             </ol>
@@ -796,7 +889,7 @@ export function NonIsraeliContract({
                                 <div className="col-6">
                                     <p>
                                         <strong>
-                                            The worker's signature:*
+                                            {t("nonIsrailContract.workerSign")}
                                         </strong>
                                     </p>
                                     {formValues && formValues.signature4 ? (
@@ -829,7 +922,9 @@ export function NonIsraeliContract({
                                                             clearSignature4
                                                         }
                                                     >
-                                                        Clear
+                                                        {t(
+                                                            "nonIsrailContract.clear"
+                                                        )}
                                                     </button>
                                                 </div>
                                             )}
@@ -839,7 +934,7 @@ export function NonIsraeliContract({
                                 <div className="col-6">
                                     <p>
                                         <strong>
-                                            The Company's signature:
+                                            {t("nonIsrailContract.companySign")}
                                         </strong>
                                     </p>
                                     {formValues &&
@@ -877,7 +972,9 @@ export function NonIsraeliContract({
                                                             clearCompanySignature2
                                                         }
                                                     >
-                                                        Clear
+                                                        {t(
+                                                            "nonIsrailContract.clear"
+                                                        )}
                                                     </button>
                                                 </div>
                                             )}
@@ -889,7 +986,7 @@ export function NonIsraeliContract({
                                         name={"signatureDate4"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"Date"}
+                                        label={t("nonIsrailContract.date")}
                                         value={values.signatureDate4}
                                         required={true}
                                         readOnly
@@ -907,7 +1004,7 @@ export function NonIsraeliContract({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                Submit
+                                {t("nonIsrailContract.Submit")}
                             </button>
                         )}
                     </form>

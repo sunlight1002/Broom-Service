@@ -6,40 +6,6 @@ import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import { useTranslation } from "react-i18next";
 import { cityOption, countryOption } from "./cityCountry";
 
-const sexOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-];
-
-const maritalStatusOptions = [
-    { label: "Single", value: "Single" },
-    { label: "Married", value: "Married" },
-    { label: "Divorced", value: "Divorced" },
-    { label: "Widowed", value: "Widowed" },
-    { label: "Separated", value: "Separated" },
-];
-
-const isIsraeliResidentOptions = [
-    { label: "Yes", value: "Yes" },
-    { label: "No", value: "No" },
-];
-
-const isKibbutzMemberOptions = [
-    { label: "Yes", value: "Yes" },
-    { label: "No", value: "No" },
-];
-
-const isHealthFundMemberOptions = [
-    { label: "Yes", value: "Yes" },
-    { label: "No", value: "No" },
-];
-const HealthFundname = [
-    { label: "Clalit", value: "Clalit" },
-    { label: "Maccabi", value: "Maccabi" },
-    { label: "Meuhedet", value: "Meuhedet" },
-    { label: "Leumit", value: "Leumit" },
-];
-
 export default function EmployeeDetails({
     errors,
     values,
@@ -50,6 +16,39 @@ export default function EmployeeDetails({
 }) {
     const { t } = useTranslation();
 
+    const sexOptions = [
+        { label: t("form101.label_male"), value: "Male" },
+        { label: t("form101.label_female"), value: "Female" },
+    ];
+
+    const maritalStatusOptions = [
+        { label: t("form101.status_single"), value: "Single" },
+        { label: t("form101.status_married"), value: "Married" },
+        { label: t("form101.status_divorcee"), value: "Divorced" },
+        { label: t("form101.status_widower"), value: "Widowed" },
+        { label: t("form101.status_separated"), value: "Separated" },
+    ];
+
+    const isIsraeliResidentOptions = [
+        { label: t("form101.label_yes"), value: "Yes" },
+        { label: t("form101.label_no"), value: "No" },
+    ];
+
+    const isKibbutzMemberOptions = [
+        { label: t("form101.label_yes"), value: "Yes" },
+        { label: t("form101.label_no"), value: "No" },
+    ];
+
+    const isHealthFundMemberOptions = [
+        { label: t("form101.label_yes"), value: "Yes" },
+        { label: t("form101.label_no"), value: "No" },
+    ];
+    const HealthFundname = [
+        { label: "Clalit", value: "Clalit" },
+        { label: "Maccabi", value: "Maccabi" },
+        { label: "Meuhedet", value: "Meuhedet" },
+        { label: "Leumit", value: "Leumit" },
+    ];
     return (
         <div>
             <h2>{t("form101.employee_details")}</h2>
@@ -57,7 +56,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-6 col-xs-6">
                     <TextField
                         name="employeeFirstName"
-                        label="First Name"
+                        label={t("form101.label_firstName")}
                         value={values.employeeFirstName}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -74,7 +73,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-6 col-xs-6">
                     <TextField
                         name="employeeLastName"
-                        label="Last Name"
+                        label={t("form101.label_lastName")}
                         value={values.employeeLastName}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -89,7 +88,7 @@ export default function EmployeeDetails({
                 </div>
                 <div className="col-12">
                     <label className="control-label d-block">
-                        Identify by *
+                        {t("form101.idBy")} *
                     </label>
                     <label>
                         <input
@@ -100,7 +99,7 @@ export default function EmployeeDetails({
                             checked={values.employeeIdentityType === "IDNumber"}
                             onChange={handleChange}
                         />
-                        ID Number
+                        {t("form101.id_num")}
                     </label>
                     <label>
                         <input
@@ -111,7 +110,7 @@ export default function EmployeeDetails({
                             checked={values.employeeIdentityType === "Passport"}
                             onChange={handleChange}
                         />
-                        Passport
+                        {t("form101.passport_foreign")}
                     </label>
                     {touched.employeeIdentityType &&
                         errors.employeeIdentityType && (
@@ -125,7 +124,7 @@ export default function EmployeeDetails({
                         <div className="col-sm-4 col-xs-6">
                             <SelectElement
                                 name={"employeecountry"}
-                                label={"Country"}
+                                label={t("form101.country_passport")}
                                 value={values.employeecountry}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -142,7 +141,7 @@ export default function EmployeeDetails({
                             <div>
                                 <TextField
                                     name="employeePassportNumber"
-                                    label="Passport Number"
+                                    label={t("form101.passport_num")}
                                     value={values.employeePassportNumber}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -157,7 +156,7 @@ export default function EmployeeDetails({
                             </div>
                             <div>
                                 <label htmlFor="employeepassportCopy">
-                                    Photo copy of Passport
+                                    {t("form101.passport_photo")}
                                 </label>
                                 <br />
                                 <input
@@ -183,8 +182,7 @@ export default function EmployeeDetails({
                         </div>
                         <div className="col-sm-4 col-xs-6">
                             <label htmlFor="employeeResidencePermit">
-                                Photocopy of residence permit in Israel for a
-                                foreign employee{" "}
+                                {t("form101.PhotoCopyResident")}
                             </label>
                             <br />
                             <input
@@ -213,7 +211,7 @@ export default function EmployeeDetails({
                         <div className="col-sm-4 col-xs-6">
                             <TextField
                                 name="employeeIdNumber"
-                                label="ID Number"
+                                label={t("form101.id_num")}
                                 value={values.employeeIdNumber}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -228,7 +226,7 @@ export default function EmployeeDetails({
                         </div>
                         <div className="col-sm-4 col-xs-6">
                             <label htmlFor="employeeIdCardCopy">
-                                Photo copy of ID card
+                                {t("form101.id_photocopy")}
                             </label>
                             <br />
                             <input
@@ -258,7 +256,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-6 col-xs-6">
                     <DateField
                         name="employeeDob"
-                        label="Date of birth"
+                        label={t("form101.dob")}
                         value={values.employeeDob}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -274,7 +272,7 @@ export default function EmployeeDetails({
                     {values.employeeIdentityType === "IDNumber" && (
                         <DateField
                             name="employeeDateOfAliyah"
-                            label="Date of Aliyah"
+                            label={t("form101.dom")}
                             value={values.employeeDateOfAliyah}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -290,7 +288,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <SelectElement
                         name={"employeeCity"}
-                        label={"City"}
+                        label={t("form101.City")}
                         value={values.employeeCity}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -306,7 +304,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employeeStreet"
-                        label="Street"
+                        label={t("form101.street")}
                         value={values.employeeStreet}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -321,7 +319,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employeeHouseNo"
-                        label="House number"
+                        label={t("form101.ho_num")}
                         value={values.employeeHouseNo}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -336,7 +334,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employeePostalCode"
-                        label="Postal Code"
+                        label={t("form101.postal_code")}
                         value={values.employeePostalCode}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -352,7 +350,7 @@ export default function EmployeeDetails({
                 <div className="col-6">
                     <TextField
                         name="employeeMobileNo"
-                        label="Mobile number"
+                        label={t("form101.mob_num")}
                         value={values.employeeMobileNo}
                         onChange={handleChange}
                         readonly={true}
@@ -368,7 +366,7 @@ export default function EmployeeDetails({
                 <div className="col-6">
                     <TextField
                         name="employeePhoneNo"
-                        label="Phone number"
+                        label={t("form101.label_phNum")}
                         value={values.employeePhoneNo}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -382,7 +380,7 @@ export default function EmployeeDetails({
                 <div className="col-12">
                     <TextField
                         name="employeeEmail"
-                        label="Email"
+                        label={t("form101.label_email")}
                         value={values.employeeEmail}
                         onChange={handleChange}
                         readonly={true}
@@ -398,7 +396,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-2 col-xs-6">
                     <RadioButtonGroup
                         name="employeeSex"
-                        label="Sex"
+                        label={t("form101.label_sex")}
                         options={sexOptions}
                         value={values.employeeSex}
                         onChange={handleChange}
@@ -414,7 +412,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-2 col-xs-6">
                     <RadioButtonGroup
                         name="employeeMaritalStatus"
-                        label="Marital status"
+                        label={t("form101.martial_status")}
                         options={maritalStatusOptions}
                         value={values.employeeMaritalStatus}
                         onChange={handleChange}
@@ -431,7 +429,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-2 col-xs-6">
                     <RadioButtonGroup
                         name="employeeIsraeliResident"
-                        label="Israeli resident"
+                        label={t("form101.israeli_resident")}
                         options={isIsraeliResidentOptions}
                         value={values.employeeIsraeliResident}
                         onChange={handleChange}
@@ -448,7 +446,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <RadioButtonGroup
                         name="employeeCollectiveMoshavMember"
-                        label="Kibbutz / Collective moshav member"
+                        label={t("form101.cop_member")}
                         options={isKibbutzMemberOptions}
                         value={values.employeeCollectiveMoshavMember}
                         onChange={handleChange}
@@ -464,7 +462,7 @@ export default function EmployeeDetails({
                     {values.employeeCollectiveMoshavMember === "Yes" && (
                         <RadioButtonGroup
                             name="employeemyIncomeToKibbutz"
-                            label="My income from this employer is transferred to the Kibbutz"
+                            label={t("form101.myIncomeTrandfer")}
                             options={isKibbutzMemberOptions}
                             value={values.employeemyIncomeToKibbutz}
                             onChange={handleChange}
@@ -482,7 +480,7 @@ export default function EmployeeDetails({
                 <div className="col-sm-3 col-xs-6">
                     <RadioButtonGroup
                         name="employeeHealthFundMember"
-                        label="Health fund member"
+                        label={t("form101.healthFundMem")}
                         options={isHealthFundMemberOptions}
                         value={values.employeeHealthFundMember}
                         onChange={handleChange}
@@ -498,7 +496,7 @@ export default function EmployeeDetails({
                     {values.employeeHealthFundMember === "Yes" && (
                         <RadioButtonGroup
                             name="employeeHealthFundname"
-                            label="Health fund name"
+                            label={t("form101.HealthFundName")}
                             options={HealthFundname}
                             value={values.employeeHealthFundname}
                             onChange={handleChange}

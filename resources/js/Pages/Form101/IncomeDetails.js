@@ -24,7 +24,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"incomeType"}
-                        label="Monthly salary"
+                        label={t("form101.month_salary")}
                         value="Monthly salary"
                         checked={values.incomeType === "Monthly salary"}
                         onChange={handleIncomeChange}
@@ -39,7 +39,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"incomeType"}
-                        label="Salary for additional employment"
+                        label={t("form101.salary_ap")}
                         value="Salary for additional employment"
                         checked={
                             values.incomeType ===
@@ -57,7 +57,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"incomeType"}
-                        label="Partial salary"
+                        label={t("form101.partial_salary")}
                         value="Partial salary"
                         checked={values.incomeType === "Partial salary"}
                         onChange={handleIncomeChange}
@@ -74,7 +74,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"incomeType"}
-                        label="Wage (Daily rate of pay)"
+                        label={t("form101.daily_wages")}
                         value="Wage (Daily rate of pay)"
                         checked={
                             values.incomeType === "Wage (Daily rate of pay)"
@@ -91,7 +91,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"allowance"}
-                        label="Allowance"
+                        label={t("form101.allowance")}
                         checked={values.allowance}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -105,7 +105,7 @@ const IncomeDetails = ({
                 <div className="col-sm-4">
                     <CheckBox
                         name={"scholarship"}
-                        label="Scholarship"
+                        label={t("form101.scholarship")}
                         checked={values.scholarship}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -119,7 +119,7 @@ const IncomeDetails = ({
                 <div className="col-12">
                     <DateField
                         name="DateOfBeginningWork"
-                        label="Date of beginning of work in the tax year"
+                        label={t("form101.do_commencement")}
                         value={values.DateOfBeginningWork}
                         onChange={handleChange}
                         onBlur={handleBlur}

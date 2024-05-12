@@ -18,7 +18,7 @@ export default function Clients() {
     const [filter, setFilter] = useState("");
     const [loading, setLoading] = useState("Loading...");
 
-    const [stat, setStat] = useState(null);
+    const [stat, setStat] = useState("null");
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const alert = useAlert();
@@ -278,7 +278,16 @@ export default function Clients() {
                                         {t("admin.global.Import")}
                                     </button>
                                 </div>
-                                <div className="action-dropdown dropdown mt-4 mr-2">
+                                <div className="action-dropdown dropdown mt-4 mr-2 d-none d-lg-block">
+                                    <button
+                                        className="btn btn-pink ml-2"
+                                        onClick={(e) => handleReport(e)}
+                                    >
+                                        {t("admin.client.Export")}
+                                    </button>
+                                </div>
+
+                                <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
                                     <button
                                         type="button"
                                         className="btn btn-default dropdown-toggle"
@@ -360,6 +369,44 @@ export default function Clients() {
                                 {/* <option value="status">Status</option> */}
                             </select>
                         </div>
+                    </div>
+                </div>
+                <div className="row mb-2 d-none d-lg-block">
+                    <div className="col-sm-12 d-flex align-items-center">
+                        <div className="mr-3" style={{ fontWeight: "bold" }}>
+                            Status
+                        </div>
+                        <FilterButtons
+                            text={t("admin.global.All")}
+                            className="px-3 mr-1"
+                            value="null"
+                            onClick={() => {
+                                setStat("null");
+                                getclients();
+                            }}
+                            selectedFilter={stat}
+                        />
+
+                        <FilterButtons
+                            text={t("admin.client.BookedCustomer")}
+                            value="booked"
+                            className="px-3 mr-1"
+                            onClick={() => {
+                                setStat("booked");
+                                booknun("booked");
+                            }}
+                            selectedFilter={stat}
+                        />
+                        <FilterButtons
+                            text={t("admin.client.NotBookedCustomer")}
+                            className="px-3 mr-1"
+                            value="notbooked"
+                            onClick={() => {
+                                setStat("notbooked");
+                                booknun("notbooked");
+                            }}
+                            selectedFilter={stat}
+                        />
                     </div>
                 </div>
                 <div className="card">
@@ -660,3 +707,21 @@ export default function Clients() {
         </div>
     );
 }
+const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
+    <button
+        className={`btn border rounded ${className}`}
+        style={
+            selectedFilter === value
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+        }}
+    >
+        {text}
+    </button>
+);

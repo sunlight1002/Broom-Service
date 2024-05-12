@@ -3,6 +3,7 @@ import DateField from "./inputElements/DateField";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import SelectElement from "./inputElements/SelectElement";
 import TextField from "./inputElements/TextField";
+import { countryOption } from "./cityCountry";
 
 export default function SpouseDetail({
     errors,
@@ -21,7 +22,7 @@ export default function SpouseDetail({
                     <div className="col-6">
                         <TextField
                             name="Spouse.firstName"
-                            label="First Name"
+                            label={t("form101.label_firstName")}
                             value={values.Spouse.firstName}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -39,7 +40,7 @@ export default function SpouseDetail({
                     <div className="col-6">
                         <TextField
                             name="Spouse.lastName"
-                            label="Last Name"
+                            label={t("form101.label_lastName")}
                             value={values.Spouse.lastName}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -55,7 +56,7 @@ export default function SpouseDetail({
                         />
                     </div>
                     <div className="col-4">
-                        <label className="d-block">Identify by *</label>
+                        <label className="d-block">{t("form101.idBy")} *</label>
                         <label className="mr-3 ">
                             <input
                                 type="radio"
@@ -70,7 +71,7 @@ export default function SpouseDetail({
                                     setFieldValue("Spouse.IdNumber", "");
                                 }}
                             />
-                            ID Number
+                            {t("form101.id_num")}
                         </label>
                         <label>
                             <input
@@ -86,7 +87,7 @@ export default function SpouseDetail({
                                     setFieldValue("Spouse.IdNumber", "");
                                 }}
                             />
-                            Passport
+                            {t("form101.Passport")}
                         </label>
                         {touched.Spouse &&
                             errors.Spouse &&
@@ -103,7 +104,7 @@ export default function SpouseDetail({
                             <div className="col-4">
                                 <SelectElement
                                     name={"Spouse.Country"}
-                                    label={"Country"}
+                                    label={t("form101.country_passport")}
                                     value={values.Spouse.Country}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -115,13 +116,13 @@ export default function SpouseDetail({
                                             ? errors.Spouse.Country
                                             : ""
                                     }
-                                    options={[{ label: "abc", value: "xyz" }]}
+                                    options={countryOption}
                                 />
                             </div>
                             <div className="col-4">
                                 <TextField
                                     name="Spouse.passportNumber"
-                                    label="Passport Number"
+                                    label={t("form101.passport_num")}
                                     value={values.Spouse.passportNumber}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -141,7 +142,7 @@ export default function SpouseDetail({
                         <div className="col-4">
                             <TextField
                                 name="Spouse.IdNumber"
-                                label="ID Number"
+                                label={t("form101.id_num")}
                                 value={values.Spouse.IdNumber}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -160,7 +161,7 @@ export default function SpouseDetail({
                     <div className="col-4">
                         <DateField
                             name="Spouse.Dob"
-                            label="Date of birth"
+                            label={t("form101.dob")}
                             value={values.Spouse.Dob}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -179,7 +180,7 @@ export default function SpouseDetail({
                         <div className="col-4">
                             <DateField
                                 name="Spouse.DateOFAliyah"
-                                label="Date of Aliyah"
+                                label={t("form101.dom")}
                                 value={values.Spouse.DateOFAliyah}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -197,14 +198,14 @@ export default function SpouseDetail({
                     <div className="col-4">
                         <RadioButtonGroup
                             name="Spouse.hasIncome"
-                            label="Incomes of my spouse:"
+                            label={t("form101.incomeSpouse")}
                             options={[
                                 {
-                                    label: "My spouse has no income",
+                                    label: t("form101.NoIncomeSpouse"),
                                     value: "No",
                                 },
                                 {
-                                    label: "My spouse has an income",
+                                    label: t("form101.hasIncomeSpouse"),
                                     value: "Yes",
                                 },
                             ]}
@@ -227,13 +228,16 @@ export default function SpouseDetail({
                         {values.Spouse.hasIncome === "Yes" && (
                             <RadioButtonGroup
                                 name="Spouse.incomeType"
-                                label="Income types:"
+                                label={t("form101.IncomeTypes")}
                                 options={[
                                     {
-                                        label: "Work/Allowance/Business",
+                                        label: t("form101.incomeTypeOpt1"),
                                         value: "Work/Allowance/Business",
                                     },
-                                    { label: "Other", value: "Other" },
+                                    {
+                                        label: t("form101.incomeTypeOpt2"),
+                                        value: "Other",
+                                    },
                                 ]}
                                 value={values.Spouse.incomeType}
                                 onChange={handleChange}
@@ -253,7 +257,7 @@ export default function SpouseDetail({
                 </div>
             ) : (
                 <div className="bg-yellow rounded p-2">
-                    This section is only relevant if you're married.
+                    {t("form101.spouseWarning")}
                 </div>
             )}
         </div>

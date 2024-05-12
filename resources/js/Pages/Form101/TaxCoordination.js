@@ -27,7 +27,7 @@ const TaxCoordination = ({
             <h2>{t("form101.taxCordination")}</h2>
             <CheckBox
                 name={"TaxCoordination.hasTaxCoordination"}
-                label="Attachment of tax coordination"
+                label={t("form101.taxCordination")}
                 checked={
                     values.TaxCoordination &&
                     values.TaxCoordination.hasTaxCoordination
@@ -48,18 +48,18 @@ const TaxCoordination = ({
                     {values.TaxCoordination.hasTaxCoordination && (
                         <RadioButtonGroup
                             name="TaxCoordination.requestReason"
-                            label="Do you have other incomes?"
+                            label={t("form101.requestReason")}
                             options={[
                                 {
-                                    label: "The assessing officer has approved tax coordination by the attached confirmation.",
+                                    label: t("form101.requestReason1"),
                                     value: "reason1",
                                 },
                                 {
-                                    label: "I have additional incomes from salary as specified below.",
+                                    label: t("form101.requestReason2"),
                                     value: "reason2",
                                 },
                                 {
-                                    label: "The assessing officer has approved tax coordination by the attached confirmation..",
+                                    label: t("form101.requestReason3"),
                                     value: "reason3",
                                 },
                             ]}
@@ -81,7 +81,7 @@ const TaxCoordination = ({
                     {values.TaxCoordination.requestReason === "reason1" && (
                         <div>
                             <label htmlFor="TaxCoordination.requestReason1Certificate">
-                                Proofs for lack of previous incomes
+                                {t("form101.requestReason1Certificate")}
                             </label>
                             <br />
                             <input
@@ -115,8 +115,7 @@ const TaxCoordination = ({
                     {values.TaxCoordination.requestReason === "reason3" && (
                         <div>
                             <label htmlFor="TaxCoordination.requestReason3Certificate">
-                                Tax coordination certificate from the assessing
-                                officer
+                                {t("form101.requestReason3Certificate")}
                             </label>
                             <br />
                             <input
@@ -153,8 +152,8 @@ const TaxCoordination = ({
                                 (child, index) => (
                                     <div key={index}>
                                         <hr />
-                                        Employer/Payer of salary {index +
-                                            1}{" "}
+                                        {t("form101.employerPayerSalary")}{" "}
+                                        {index + 1}{" "}
                                         <button
                                             type="button"
                                             className="btn btn-sm btn-danger"
@@ -176,7 +175,9 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].firstName`}
-                                                    label="First Name"
+                                                    label={t(
+                                                        "form101.label_firstName"
+                                                    )}
                                                     value={child.firstName}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
@@ -202,7 +203,9 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].address`}
-                                                    label="Address"
+                                                    label={t(
+                                                        "form101.label_address"
+                                                    )}
                                                     value={child.address}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
@@ -228,7 +231,9 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].fileNumber`}
-                                                    label="Deductions file number"
+                                                    label={t(
+                                                        "form101.label_ddfileId"
+                                                    )}
                                                     value={child.fileNumber}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
@@ -254,22 +259,32 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <RadioButtonGroup
                                                     name={`TaxCoordination.employer[${index}].incomeType`}
-                                                    label="Type of income"
+                                                    label={t(
+                                                        "form101.IncomeTypes"
+                                                    )}
                                                     options={[
                                                         {
-                                                            label: "Work",
+                                                            label: t(
+                                                                "form101.incomeTypeOption1"
+                                                            ),
                                                             value: "work",
                                                         },
                                                         {
-                                                            label: "Allowance",
+                                                            label: t(
+                                                                "form101.incomeTypeOption2"
+                                                            ),
                                                             value: "allowance",
                                                         },
                                                         {
-                                                            label: "Scholarship",
+                                                            label: t(
+                                                                "form101.incomeTypeOption3"
+                                                            ),
                                                             value: "scholarship",
                                                         },
                                                         {
-                                                            label: "Other",
+                                                            label: t(
+                                                                "form101.incomeTypeOption4"
+                                                            ),
                                                             value: "other",
                                                         },
                                                     ]}
@@ -298,7 +313,9 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].MonthlyIncome`}
-                                                    label="Monthly income"
+                                                    label={t(
+                                                        "form101.MonthlyIncome"
+                                                    )}
                                                     value={child.MonthlyIncome}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
@@ -324,7 +341,9 @@ const TaxCoordination = ({
                                             <div className="col-4">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].Tax`}
-                                                    label="Tax deducted"
+                                                    label={t(
+                                                        "form101.taxDeducted"
+                                                    )}
                                                     value={child.Tax}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
@@ -350,7 +369,9 @@ const TaxCoordination = ({
                                                 <label
                                                     htmlFor={`TaxCoordination.employer[${index}].payslip`}
                                                 >
-                                                    Photocopy of payslip
+                                                    {t(
+                                                        "form101.photoCopyPayslip"
+                                                    )}
                                                 </label>
                                                 <input
                                                     type="file"
@@ -401,7 +422,7 @@ const TaxCoordination = ({
                                     ]);
                                 }}
                             >
-                                + ADD EMPLOYER/PAYER OF SALARY
+                                {t("form101.addEmployerPayer")}
                             </button>
                         </div>
                     )}

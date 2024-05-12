@@ -14,12 +14,10 @@ export default function TaxExemption({
     setFieldValue,
 }) {
     const { t } = useTranslation();
+
     return (
         <div>
-            <h2>
-                H. I request tax exemption or tax credit due to the following
-                reasons
-            </h2>
+            <h2>{t("form101.taxExemption")}</h2>
             {/* 1 */}
             <div className="border rounded p-3 m-2">
                 <CheckBox
@@ -55,9 +53,7 @@ export default function TaxExemption({
                                 htmlFor="employeepassportCopy"
                                 className="pt-2"
                             >
-                                Certificate from the Ministry of Defence/the
-                                Treasury/assessing officer/Certification of
-                                Blindness issued after 1/1/94.
+                                {t("form101.disabledCertificate")}
                             </label>
                             <br />
                             <input
@@ -87,9 +83,7 @@ export default function TaxExemption({
                             <div className="pt-2">
                                 <CheckBox
                                     name={"TaxExemption.disabledCompensation"}
-                                    label={
-                                        "2B. In addition, I receive a monthly compensation in accordance with Disabled Law (compensation and rehabilitation) the or the Compensation for Victims of Hostile Acts Law"
-                                    }
+                                    label={t("form101.disabledCompensation")}
                                     checked={
                                         values.TaxExemption.disabledCompensation
                                     }
@@ -111,8 +105,9 @@ export default function TaxExemption({
                                 values.TaxExemption.disabledCompensation && (
                                     <div className="row">
                                         <label htmlFor="disabledCompensationCertificate col-12">
-                                            Certificate for receiving the
-                                            monthly compensation
+                                            {t(
+                                                "form101.disabledCompensationCertificate"
+                                            )}
                                         </label>
                                         <input
                                             type="file"
@@ -169,7 +164,7 @@ export default function TaxExemption({
                         <div className="col-4">
                             <DateField
                                 name="TaxExemption.exm3Date"
-                                label="From date"
+                                label={t("form101.label_from_date")}
                                 value={values.TaxExemption.exm3Date}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -187,7 +182,7 @@ export default function TaxExemption({
                         <div className="col-4">
                             <SelectElement
                                 name={"TaxExemption.exm3Locality"}
-                                label={"Locality"}
+                                label={t("form101.Locality")}
                                 value={values.TaxExemption.exm3Locality}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -205,8 +200,7 @@ export default function TaxExemption({
                         </div>
                         <div className="col-12">
                             <label htmlFor="employeepassportCopy">
-                                Locality Certificate from the locality on Form
-                                1312-Aleph
+                                {t("form101.exm3Certificate")}
                             </label>
                             <br />
                             <input
@@ -257,7 +251,7 @@ export default function TaxExemption({
                         <div className="col-6">
                             <DateField
                                 name="exm4FromDate"
-                                label="From date"
+                                label={t("form101.label_from_date")}
                                 value={values.TaxExemption.exm4FromDate}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -274,7 +268,7 @@ export default function TaxExemption({
                         </div>
                         <div className="col-6">
                             <label htmlFor="exm4ImmigrationCertificate">
-                                New immigrant certificate *
+                                {t("form101.exm4ImmigrationCertificate")}
                             </label>
                             <br />
                             <input
@@ -307,7 +301,7 @@ export default function TaxExemption({
                         <div className="col-12">
                             <DateField
                                 name="exm4NoIncomeDate"
-                                label="I have had no income in Israel from the beginning of the tax year until the date"
+                                label={t("form101.exm4NoIncomeDate")}
                                 value={values.TaxExemption.exm4NoIncomeDate}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -321,12 +315,7 @@ export default function TaxExemption({
                                 }
                                 required
                             />
-                            <p>
-                                Someone whose period of entitlement is not
-                                continuous because of mandatory IDF service,
-                                higher studies or a period of time abroad - will
-                                refer to the assessing officer.
-                            </p>
+                            <p>{t("form101.exm4entitlemente")}</p>
                         </div>
                     </div>
                 )}
@@ -350,18 +339,14 @@ export default function TaxExemption({
                     }
                 />
                 {values.employeeMaritalStatus !== "Married" && (
-                    <p className="text-danger">
-                        Cannot check because you did not indicate in section B
-                        that you're married.
-                    </p>
+                    <p className="text-danger">{t("form101.exm5NOte")}</p>
                 )}
                 {values.TaxExemption && values.TaxExemption.exm5 && (
                     <div>
                         <div className="d-flex gap-5">
                             <div>
                                 <label htmlFor="exm5disabledCirtificate">
-                                    Disabled or blind certificate for the
-                                    employee or the spouse.
+                                    {t("form101.exm5disabledCirtificate")}
                                 </label>
                                 <br />
                                 <input
@@ -417,14 +402,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a parent who lives separately and
-                    requesting tax credits for his children, who are in his
-                    custody and for which he receives child allowance from the
-                    the National Insurance Institute (according to clause 7
-                    hereinafter) and who does not live in a shared household
-                    with another individual.
-                </p>
+                <p className="text-secondary">{t("form101.exm6Note")}</p>
 
                 {/* {Array.isArray(values.children) &&
                     (values.children?.length === 0 ||
@@ -500,11 +478,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a parent in a single-parent family who
-                    receives child allowance for them, or by a married woman or
-                    by a single parent
-                </p>
+                <p className="text-secondary">{t("form101.exm7Note")}</p>
 
                 {((Array.isArray(values.children) &&
                     values.children?.length > 0 &&
@@ -517,7 +491,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm7NoOfChild"
-                                    label="Number of children born in the tax year"
+                                    label={t("form101.exm7NoOfChild")}
                                     value={values.TaxExemption.exm7NoOfChild}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -535,7 +509,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm7NoOfChild1to5"
-                                    label="Number of children between the ages of 1 and 5 in the tax year"
+                                    label={t("form101.exm7NoOfChild1to5")}
                                     value={
                                         values.TaxExemption.exm7NoOfChild1to5
                                     }
@@ -557,7 +531,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm7NoOfChild6to17"
-                                    label="Number of children between the ages of 6 and 17 in the tax year"
+                                    label={t("form101.exm7NoOfChild6to17")}
                                     value={
                                         values.TaxExemption.exm7NoOfChild6to17
                                     }
@@ -579,7 +553,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm7NoOfChild18"
-                                    label="Number of children or who turn 18 years old in the tax year"
+                                    label={t("form101.exm7NoOfChild18")}
                                     value={values.TaxExemption.exm7NoOfChild18}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -617,11 +591,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a parent (excluding a parent who has
-                    checked clause 7 above), an unmarried woman who does not
-                    have custody of her children and a single parent
-                </p>
+                <p className="text-secondary">{t("form101.exm8Note")}</p>
 
                 {((Array.isArray(values.children) &&
                     values.children?.length > 0 &&
@@ -634,7 +604,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm8NoOfChild"
-                                    label="Number of children born in the tax year"
+                                    label={t("form101.exm7NoOfChild")}
                                     value={values.TaxExemption.exm8NoOfChild}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -652,7 +622,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm8NoOfChild1to5"
-                                    label="Number of children between the ages of 1 and 5 in the tax year"
+                                    label={t("form101.exm7NoOfChild1to5")}
                                     value={
                                         values.TaxExemption.exm8NoOfChild1to5
                                     }
@@ -674,7 +644,7 @@ export default function TaxExemption({
                             <div className="col-4">
                                 <TextField
                                     name="TaxExemption.exm8NoOfChild6to17"
-                                    label="Number of children between the ages of 6 and 17 in the tax year"
+                                    label={t("form101.exm7NoOfChild6to17")}
                                     value={
                                         values.TaxExemption.exm8NoOfChild6to17
                                     }
@@ -733,12 +703,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a parent who lives apart from his
-                    children, who is not eligible for tax credits for his
-                    children, who has presented a court order ordering him to
-                    pay child support.
-                </p>
+                <p className="text-secondary">{t("form101.exm10Note")}</p>
                 {values.TaxExemption.exm10 && (
                     <>
                         <div className="mb-2 mx-2">
@@ -746,7 +711,7 @@ export default function TaxExemption({
                                 htmlFor="employeepassportCopy"
                                 className="pt-2"
                             >
-                                Photocopy of a court order for child support
+                                {t("form101.employeepassportCopy")}
                             </label>
                             <br />
                             <input
@@ -792,15 +757,13 @@ export default function TaxExemption({
                     }
                 />
                 <p className="text-secondary">
-                    My spouse does not receive these tax credits. My children,
-                    for whom I request the tax credits, have no income in the
-                    year.
+                    {t("form101.spouseNotReceiveTaxCredit")}
                 </p>
                 {values.TaxExemption.exm11 && (
                     <>
                         <TextField
                             name="TaxExemption.exm11NoOfChildWithDisibility"
-                            label="Number of children with disability who are not yet 19 years old, for whom you receive children's disability benefit from the National Insurance Institute"
+                            label={t("form101.exm11NoOfChildWithDisibility")}
                             value={
                                 values.TaxExemption.exm11NoOfChildWithDisibility
                             }
@@ -823,9 +786,7 @@ export default function TaxExemption({
                                 htmlFor="TaxExemption.exm11Certificate"
                                 className="pt-2"
                             >
-                                Children's disability benefit certificate from
-                                the National Insurance Institute for the current
-                                tax year *
+                                {t("form101.exm11Certificate")}
                             </label>
                             <br />
                             <input
@@ -870,9 +831,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a person who has remarried.
-                </p>
+                <p className="text-secondary">{t("form101.exm12Note")}</p>
                 {values.TaxExemption.exm12 && (
                     <>
                         <div className="mb-2 mx-2">
@@ -880,7 +839,7 @@ export default function TaxExemption({
                                 htmlFor="employeepassportCopy"
                                 className="pt-2"
                             >
-                                Photocopy of a court order for alimony
+                                {t("form101.exm12Certificate")}
                             </label>
                             <br />
                             <input
@@ -930,9 +889,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a person who has remarried.
-                </p>
+                <p className="text-secondary">{t("form101.exm12Note")}</p>
             </div>
             {/* 14 */}
             <div className="border rounded p-3 m-2">
@@ -951,15 +908,13 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a person who has remarried.
-                </p>
+                <p className="text-secondary">{t("form101.exm12Note")}</p>
                 {values.TaxExemption.exm14 && (
                     <div className="row">
                         <div className="col-4">
                             <DateField
                                 name="TaxExemption.exm14BeginingDate"
-                                label="Date of beginning of service"
+                                label={t("form101.exm14BeginingDate")}
                                 value={values.TaxExemption.exm14BeginingDate}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -977,7 +932,7 @@ export default function TaxExemption({
                         <div className="col-4">
                             <DateField
                                 name="TaxExemption.exm14EndDate"
-                                label="Date of end of service"
+                                label={t("form101.exm14EndDate")}
                                 value={values.TaxExemption.exm14EndDate}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -997,7 +952,7 @@ export default function TaxExemption({
                                 htmlFor="TaxExemption.exm14Certificate"
                                 className="pt-2"
                             >
-                                Discharge / end of service certificate
+                                {t("form101.exm14Certificate")}
                             </label>
                             <br />
                             <input
@@ -1042,9 +997,7 @@ export default function TaxExemption({
                             : ""
                     }
                 />
-                <p className="text-secondary">
-                    To be completed by a person who has remarried.
-                </p>
+                <p className="text-secondary">{t("form101.exm12Note")}</p>
                 {values.TaxExemption.exm15 && (
                     <>
                         <div className="mb-2 mx-2">
@@ -1052,7 +1005,7 @@ export default function TaxExemption({
                                 htmlFor="TaxExemption.exm15Certificate"
                                 className="pt-2"
                             >
-                                Declaration in Form 119
+                                {t("form101.exm15Certificate")}
                             </label>
                             <br />
                             <input

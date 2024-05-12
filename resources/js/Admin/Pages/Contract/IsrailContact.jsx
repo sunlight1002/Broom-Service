@@ -7,25 +7,7 @@ import moment from "moment";
 
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
-
-const formSchema = yup.object({
-    fullName: yup.string().trim().required("Full name is required"),
-    role: yup.string().trim().required("Role is required"),
-    IdNumber: yup
-        .number()
-        .typeError("invalid number")
-        .required("Id Number is required"),
-    Address: yup.string().trim().required("Address  is required"),
-    startDate: yup.date().required("Start date of job is required"),
-    signatureDate: yup.date().required("Date  is required"),
-    PhoneNo: yup.string().trim().required("Phone number is required"),
-    MobileNo: yup
-        .string()
-        .trim()
-        .matches(/^\d{10}$/, "Invalid mobile number")
-        .required("Mobile number is required"),
-    signature: yup.mixed().required("Signature is required"),
-});
+import { useTranslation } from "react-i18next";
 
 export function IsrailContact({
     handleFormSubmit,
@@ -36,9 +18,13 @@ export function IsrailContact({
     contentRef,
 }) {
     const sigRef = useRef();
+    const {
+        t,
+        i18n: { language },
+    } = useTranslation();
     const [formValues, setFormValues] = useState(null);
     const currentDate = moment().format("YYYY-MM-DD");
-
+    console.log("language", language);
     const initialValues = {
         fullName: "",
         IdNumber: "",
@@ -50,7 +36,37 @@ export function IsrailContact({
         signature: "",
         role: "",
     };
-
+    const formSchema = yup.object({
+        fullName: yup
+            .string()
+            .trim()
+            .required(t("israilContract.errorMsg.FullName")),
+        role: yup.string().trim().required(t("israilContract.errorMsg.Role")),
+        IdNumber: yup
+            .number()
+            .typeError(t("israilContract.errorMsg.invalidNumber"))
+            .required(t("israilContract.errorMsg.idRequired")),
+        Address: yup
+            .string()
+            .trim()
+            .required(t("israilContract.errorMsg.Address")),
+        startDate: yup
+            .date()
+            .required(t("israilContract.errorMsg.StartDateOfJob")),
+        signatureDate: yup.date().required(t("israilContract.errorMsg.Date")),
+        PhoneNo: yup
+            .string()
+            .trim()
+            .required(t("israilContract.errorMsg.Phone")),
+        MobileNo: yup
+            .string()
+            .trim()
+            .matches(/^\d{10}$/, t("israilContract.errorMsg.mobile"))
+            .required(t("israilContract.errorMsg.mobileRequired")),
+        signature: yup
+            .mixed()
+            .required(t("israilContract.errorMsg.signRequired")),
+    });
     const {
         errors,
         touched,
@@ -98,6 +114,7 @@ export function IsrailContact({
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
+
     return (
         <div className="container targetDiv">
             <div id="content">
@@ -106,35 +123,27 @@ export function IsrailContact({
                         <div className="text-center">
                             <h5>
                                 <strong>
-                                    <u>
-                                        Notice to the employee regarding details
-                                        of working conditions
-                                    </u>
+                                    <u>{t("israilContract.title1")}</u>
                                 </strong>
                             </h5>
 
-                            <p className="mt-2">
-                                In accordance with the Notification to the
-                                Employee (Working Conditions) Law 2002
-                            </p>
+                            <p className="mt-2">{t("israilContract.title2")}</p>
                         </div>
+
                         <div>
                             <ol
                                 className="mt-5 lh-lg "
                                 style={{ fontSize: "16px" }}
                             >
                                 <li>
-                                    <strong>
-                                        Name of employer: Brom Service L.M. Ltd.
-                                        - private company number 515184208
-                                    </strong>
+                                    <strong>{t("israilContract.is1")}</strong>
                                     <div className="row gap-3">
                                         <div className="col-6">
                                             <TextField
                                                 name={"fullName"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={" Name of the employee"}
+                                                label={t("israilContract.name")}
                                                 value={values.fullName}
                                                 required={true}
                                                 readonly={true}
@@ -149,7 +158,9 @@ export function IsrailContact({
                                                 name={"IdNumber"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={" ID Number"}
+                                                label={t(
+                                                    "israilContract.IDNumber"
+                                                )}
                                                 value={values.IdNumber}
                                                 required={true}
                                                 readonly={true}
@@ -164,7 +175,7 @@ export function IsrailContact({
                                         name={"Address"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"Address"}
+                                        label={t("israilContract.Address")}
                                         value={values.Address}
                                         readonly={true}
                                         required={true}
@@ -178,7 +189,9 @@ export function IsrailContact({
                                         name={"startDate"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={" Start date of job:"}
+                                        label={t(
+                                            "israilContract.StartDateOfJob"
+                                        )}
                                         value={values.startDate}
                                         required={true}
                                         error={
@@ -192,7 +205,9 @@ export function IsrailContact({
                                                 name={"PhoneNo"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Home phone number:"}
+                                                label={t(
+                                                    "israilContract.HomePhone"
+                                                )}
                                                 value={values.PhoneNo}
                                                 required={true}
                                                 readonly={true}
@@ -207,7 +222,9 @@ export function IsrailContact({
                                                 name={"MobileNo"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={"Mobile number:"}
+                                                label={t(
+                                                    "israilContract.mobileNumber"
+                                                )}
                                                 value={values.MobileNo}
                                                 required={true}
                                                 error={
@@ -220,20 +237,18 @@ export function IsrailContact({
 
                                     <p className="mb-2">
                                         <strong>
-                                            Contract period: The contract period
-                                            is not fixed
+                                            {t("israilContract.is1NOte")}
                                         </strong>
                                     </p>
                                 </li>
                                 <li>
                                     <div className="mb-2">
-                                        The main duties of the employee are as
-                                        follows:
+                                        {t("israilContract.is3")}
                                         <TextField
                                             name={"role"}
                                             onBlur={handleBlur}
                                             onChange={handleChange}
-                                            label={"Role"}
+                                            label={t("israilContract.role")}
                                             value={values.role}
                                             required={true}
                                             error={touched.role && errors.role}
@@ -242,50 +257,17 @@ export function IsrailContact({
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        The name of the direct supervisorof the
-                                        employee or the job title of the direct
-                                        supervisor: Full name: Alex Kanev
+                                        {t("israilContract.is4")}
                                     </p>
                                 </li>
                                 <li>
-                                    <p>
-                                        The basic salary of the cleaning workers
-                                        will be calculated based on the minimum
-                                        wage according to law, and in addition
-                                        they will be given a bonus for
-                                        perseverance, which will supplement
-                                        their salary to a basic salary of NIS 45
-                                        per hour plus social conditions, and
-                                        this as a reward for perseverance at
-                                        work for 3 full months in a row in the
-                                        company.
-                                    </p>
+                                    <p>{t("israilContract.is5-1")}</p>
                                     <p style={{ marginBottom: "145px" }}>
-                                        If the employee decides to leave the job
-                                        before the end of the full three-month
-                                        period, as agreed upon in this
-                                        agreement, the employer will be entitled
-                                        to deduct the amount of the bonus that
-                                        exceeds the minimum wage paid to the
-                                        employee, and even require the employee
-                                        to return the amount of the bonus
-                                        already paid to him during the first
-                                        three months of work, and often by of
-                                        deducting the excess amount from his
-                                        salary or from any other payment due to
-                                        him. The employee's salary is the
-                                        industry minimum wage according to the
-                                        collective agreement in the cleaning
-                                        industry, which currently amounts to
-                                        NIS 32.3 per hour.
+                                        {t("israilContract.is5-2")}
                                     </p>
                                 </li>
                                 <li>
-                                    <p>
-                                        A breakdown of all the payments that
-                                        will be paid to the employee as wages
-                                        are as follows:
-                                    </p>
+                                    <p>{t("israilContract.is6")}</p>
                                     <Table
                                         bordered
                                         className="mt-3 mb-2"
@@ -294,109 +276,164 @@ export function IsrailContact({
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
-                                                    Payments that are not fixed
+                                                    {t(
+                                                        "israilContract.is6Table.paymentNotFixed"
+                                                    )}
                                                 </th>
                                                 <th colSpan={2}>
-                                                    Regular payments
+                                                    {t(
+                                                        "israilContract.is6Table.RegularPayments"
+                                                    )}
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th>Payment Date</th>
-                                                <th>Payment type</th>
-                                                <th>Payment Date</th>
-                                                <th>Payment type</th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is6Table.PaymentDate"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is6Table.PaymentType"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is6Table.PaymentDate"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is6Table.PaymentType"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    According to the customer's
-                                                    custom of charging the value
-                                                    of meals
-                                                </td>
-                                                <td>Subsidized meals</td>
-                                                <td>B–9 per month</td>
-                                                <td>Salary</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    In accordance with the
-                                                    collective agreement in the
-                                                    cleaning industry
+                                                    {t(
+                                                        "israilContract.is6Table.tr1.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Leave for a family party for
-                                                    cleaning workers
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is6Table.tr1.td2"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    On the 9th of the month,
-                                                    except in cases where the
-                                                    employee will use
-                                                    transportation, in which
-                                                    case he is not entitled to
-                                                    travel reimbursement.
-                                                </td>
-                                                <td>Travel</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    In accordance with the law
-                                                    and the collective agreement
-                                                    in the cleaning industry and
-                                                    according to the leave
-                                                    procedure at the employer.
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is6Table.tr1.td3"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Vacation for cleaning
-                                                    workers
-                                                </td>
-                                                <td>On the 9th of the month</td>
-                                                <td>
-                                                    recovery (hourly worker)
+                                                    {t(
+                                                        "israilContract.is6Table.tr1.td4"
+                                                    )}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    In the month in which the
-                                                    holidays of Tishrei and
-                                                    Sivan fall (usually October
-                                                    and April)
+                                                    {t(
+                                                        "israilContract.is6Table.tr2.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    A holiday gift for cleaning
-                                                    workers
-                                                </td>
-                                                <td>annual</td>
-                                                <td>
-                                                    recovery (monthly employee)
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    In accordance with the law
-                                                    on sick pay and the
-                                                    collective agreement in the
-                                                    cleaning industry
+                                                    {t(
+                                                        "israilContract.is6Table.tr2.td2"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Sick pay for cleaning
-                                                    workers
+                                                    {t(
+                                                        "israilContract.is6Table.tr2.td3"
+                                                    )}
                                                 </td>
-                                                <td>after a year of work</td>
                                                 <td>
-                                                    Seniority bonus for cleaning
-                                                    workers
+                                                    {t(
+                                                        "israilContract.is6Table.tr2.td4"
+                                                    )}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    In accordance with the
-                                                    collective agreement in the
-                                                    cleaning industry
+                                                    {t(
+                                                        "israilContract.is6Table.tr3.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Holiday pay for cleaning
-                                                    workers
+                                                    {t(
+                                                        "israilContract.is6Table.tr3.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr3.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr3.td4"
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr4.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr4.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is6Table.tr4.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr4.td4"
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr5.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr5.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is6Table.tr5.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr5.td4"
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr6.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is6Table.tr6.td2"
+                                                    )}
                                                 </td>
                                                 <td></td>
                                                 <td></td>
@@ -407,88 +444,40 @@ export function IsrailContact({
 
                                 <li>
                                     <p className="mb-2">
-                                        The employee's rights, including time
-                                        off, recovery, illness, holidays, etc.,
-                                        are calculated and paid according to the
-                                        scope of the actual position and in
-                                        accordance with the relevant legal
-                                        provisions.
+                                        {t("israilContract.is7")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        Reimbursement of travel expenses in
-                                        accordance with the provisions of the
-                                        general collective agreement, and
-                                        according to the cheapest cost in public
-                                        transportation: 11 NIS per day or a
-                                        maximum of 225 NIS monthly free for a
-                                        full month of work.
+                                        {t("israilContract.is8")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        Hereby, I agree to deduct the wages of
-                                        participation in meals/the value of
-                                        meals according to the custom at the
-                                        site where I work (to be circled).
+                                        {t("israilContract.is9")}
                                     </p>
                                 </li>
                                 <li>
                                     <p style={{ marginBottom: "30px" }}>
-                                        The length of the employee's normal
-                                        working day is: 8 hours per day (6 days)
-                                        / 8.4 hours per day (5 days) / beyond
-                                        that he will be paid additional hours in
-                                        accordance with the law. It is known to
-                                        the employee that during a shift of over
-                                        6 hours he went on an unpaid meal break.
+                                        {t("israilContract.is10-1")}
                                     </p>
                                     <p className="mb-2">
-                                        The length of the employee's normal work
-                                        week is 42 hours as well as: 5 days / 6
-                                        days / according to the work arrangement
-                                        that will be determined in advance
+                                        {t("israilContract.is10-2")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        The employee's weekly day of rest: for a
-                                        Jewish employee: Saturday / day of rest
-                                        for a non-Jewish employee if he
-                                        chooses: Sunday or
+                                        {t("israilContract.is11")}
                                     </p>
                                 </li>
                                 <li>
                                     <p className="mb-2">
-                                        As part of your work at the company, the
-                                        company will be entitled to place you on
-                                        various sites at its discretion and
-                                        according to the regional service
-                                        manager. The service manager as well as
-                                        the operations manager will be at your
-                                        disposal at any time for any question /
-                                        ambiguity on any subject
+                                        {t("israilContract.is12")}
                                     </p>
                                 </li>
                                 <li>
-                                    <p>
-                                        Payments for social conditions to which
-                                        the employee is entitled shall be paid
-                                        according to the expansion orders and
-                                        the relevant collective agreements
-                                        applicable to him.
-                                    </p>
-                                    <p>
-                                        The type of payment:
-                                        flashlights/insurance, etc. Training.
-                                        The receiving body and the name of the
-                                        program: according to the employee's
-                                        choice and in accordance with the
-                                        provisions of the expansion
-                                        order/collective agreement applicable
-                                        to the employee.
-                                    </p>
+                                    <p>{t("israilContract.is13-1")}</p>
+                                    <p>{t("israilContract.is13-2")}</p>
                                     <Table
                                         bordered
                                         size="sm"
@@ -497,143 +486,160 @@ export function IsrailContact({
                                     >
                                         <thead className="text-center">
                                             <tr>
-                                                <th>Payment start date</th>
-                                                <th>employer's provision %</th>
                                                 <th>
-                                                    deductions from the employee
-                                                    %
+                                                    {t(
+                                                        "israilContract.is13Table.th.td1"
+                                                    )}
                                                 </th>
                                                 <th>
-                                                    The receiving body and the
-                                                    name of the program
+                                                    {t(
+                                                        "israilContract.is13Table.th.td2"
+                                                    )}
                                                 </th>
-                                                <th>Payment Type</th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is13Table.th.td3"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is13Table.th.td4"
+                                                    )}
+                                                </th>
+                                                <th>
+                                                    {t(
+                                                        "israilContract.is13Table.th.td5"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    from the actual start date
-                                                    of the work
+                                                    {t(
+                                                        "israilContract.is13Table.tr1.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    7.5% rewards + 8.33%
-                                                    severance pay (according to
-                                                    the collective agreement in
-                                                    the cleaning industry)
-                                                </td>
-                                                <td>7%</td>
-                                                <td>
-                                                    "Meitav Dash" POS (unless
-                                                    otherwise stated on the
-                                                    payslip) unless the employee
-                                                    requested otherwise
-                                                </td>
-                                                <td>Pension provisions</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    from the actual start date
-                                                    of the work
+                                                    {t(
+                                                        "israilContract.is13Table.tr1.td2"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    7.5% rewards + 6% severance
-                                                    pay (according to the
-                                                    collective agreement in the
-                                                    cleaning industry)
-                                                </td>
-                                                <td>7%</td>
-                                                <td>
-                                                    "Meitav Dash" POS (unless
-                                                    otherwise stated on the pay
-                                                    slip) unless the employee
-                                                    requested otherwise
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is13Table.tr1.td3"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Pension provision for a
-                                                    slave working
-                                                    overtime/rest day
+                                                    {t(
+                                                        "israilContract.is13Table.tr1.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is13Table.tr1.td5"
+                                                    )}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    from the actual start date
-                                                    of the work
+                                                    {t(
+                                                        "israilContract.is13Table.tr2.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    5% (in accordance with the
-                                                    collective agreement in the
-                                                    cleaning industry)
-                                                </td>
-                                                <td>5%</td>
-                                                <td>
-                                                    "Meitav Dash" POS (unless
-                                                    otherwise stated on the
-                                                    payslip) unless the employee
-                                                    requested otherwise
+                                                    {t(
+                                                        "israilContract.is13Table.tr2.td2"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Pension provision in favor
-                                                    of travel
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is13Table.tr2.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr2.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr2.td5"
+                                                    )}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    from the actual start date
-                                                    of the work
+                                                    {t(
+                                                        "israilContract.is13Table.tr3.td1"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    7.5% (in accordance with the
-                                                    collective agreement in the
-                                                    cleaning industry)
-                                                </td>
-                                                <td>2.5%</td>
-                                                <td>
-                                                    "Meitav Dash" POS (unless
-                                                    otherwise stated on the
-                                                    payslip) unless the employee
-                                                    requested otherwise
+                                                    {t(
+                                                        "israilContract.is13Table.tr3.td2"
+                                                    )}
                                                 </td>
                                                 <td>
-                                                    Appropriation for a further
-                                                    education fund
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is13Table.tr3.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr3.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr3.td5"
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr4.td1"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr4.td2"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {" "}
+                                                    {t(
+                                                        "israilContract.is13Table.tr4.td3"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr4.td4"
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {t(
+                                                        "israilContract.is13Table.tr4.td5"
+                                                    )}
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </Table>
                                     <p className="mb-2">
-                                        You are requested to notify your direct
-                                        supervisor in writing of the name of the
-                                        fund and/or training and/or pension fund
-                                        you wish to join, by the end of the
-                                        first month of your employment. I am
-                                        aware that as long as I terminate my
-                                        employment without giving the company
-                                        prior notice, the company will exercise
-                                        its right by law to offset the payment
-                                        of the notice from any amount due to me,
-                                        which includes vacation pay and various
-                                        account settlement payments.
+                                        {t("israilContract.is13-3")}
                                     </p>
                                 </li>
-                                <li>
-                                    The name of the workers' organization that
-                                    is a party to that collective agreement that
-                                    regulates the worker's working conditions
-                                    is: the Jerusalem Chamber of Commerce. This
-                                    notice is a notice from the employer
-                                    regarding the main working conditions:
-                                    nothing in this notice is intended to
-                                    derogate from any right to an employee by
-                                    virtue of any law, expansion order,
-                                    collective agreement or employment contract.
-                                </li>
+                                <li>{t("israilContract.is14")}</li>
                             </ol>
                             <div className="row mt-3">
                                 <div className="col-4">
                                     <p>
                                         <strong>
-                                            The employee's signature:*
+                                            {t("israilContract.sign")}
                                         </strong>
                                         <span className="text-danger">
                                             {touched.signature &&
@@ -661,7 +667,9 @@ export function IsrailContact({
                                                         type="button"
                                                         onClick={clearSignature}
                                                     >
-                                                        Clear
+                                                        {t(
+                                                            "israilContract.Clear"
+                                                        )}
                                                     </button>
                                                 </div>
                                             )}
@@ -686,12 +694,11 @@ export function IsrailContact({
                                 </div>
                             </div>
                             <p className="text-right">
-                                (What is stated in the singular and/or masculine
-                                in this document is also feminine in meaning)
+                                {t("israilContract.signNote")}
                             </p>
                             <div className="text-center mt-5">
-                                <p>Best regards</p>
-                                <strong>Broom Service L.M. Ltd</strong>
+                                <p>{t("israilContract.BestRegards")}</p>
+                                <strong>{t("israilContract.Broom")}</strong>
                             </div>
                         </div>
                         {!isSubmitted && !isGeneratingPDF && (
@@ -700,7 +707,7 @@ export function IsrailContact({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                Submit
+                                {t("israilContract.Submit")}
                             </button>
                         )}
                     </form>

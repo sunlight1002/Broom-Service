@@ -17,7 +17,7 @@ export default function EmployerDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employerName"
-                        label="Name"
+                        label={t("form101.label_name")}
                         value={values.employerName}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -32,7 +32,7 @@ export default function EmployerDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employerAddress"
-                        label="Address"
+                        label={t("form101.label_address")}
                         value={values.employerAddress}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -47,7 +47,7 @@ export default function EmployerDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employerPhone"
-                        label="Phone number"
+                        label={t("form101.label_phNum")}
                         value={values.employerPhone}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -62,7 +62,7 @@ export default function EmployerDetails({
                 <div className="col-sm-3 col-xs-6">
                     <TextField
                         name="employerDeductionsFileNo"
-                        label="Deductions file number"
+                        label={t("form101.label_ddfileId")}
                         value={values.employerDeductionsFileNo}
                         onChange={handleChange}
                         onBlur={handleBlur}

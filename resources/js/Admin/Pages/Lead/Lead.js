@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 export default function Lead() {
     const [leads, setLeads] = useState([]);
     const [pageCount, setPageCount] = useState(0);
-    const [filter, setFilter] = useState("");
+    const [filter, setFilter] = useState("all");
     const [condition, setCondition] = useState("");
     const [loading, setLoading] = useState("Loading...");
 
@@ -220,7 +220,7 @@ export default function Lead() {
 
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <div className="action-dropdown dropdown mt-4 mr-2">
+                                <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
                                     <button
                                         type="button"
                                         className="btn btn-default dropdown-toggle"
@@ -299,6 +299,35 @@ export default function Lead() {
                                 </option>
                             </select>
                         </div>
+                    </div>
+                </div>
+                <div className="row mb-2 d-none d-lg-block">
+                    <div className="col-sm-12  row align-items-center">
+                        <FilterButtons
+                            text={t("admin.leads.All")}
+                            className="px-3 mr-1"
+                            value={"all"}
+                            onClick={() => {
+                                setCondition("filter");
+                                setFilter("all");
+                                getleads();
+                            }}
+                            selectedFilter={filter}
+                        />
+                        {leadStatuses.map((_status, _index) => {
+                            return (
+                                <FilterButtons
+                                    text={_status}
+                                    className="px-3 mr-1"
+                                    value={_status}
+                                    onClick={() => {
+                                        filterLeadsStat(_status);
+                                    }}
+                                    key={_index}
+                                    selectedFilter={filter}
+                                />
+                            );
+                        })}
                     </div>
                 </div>
                 <div className="card">
@@ -496,3 +525,21 @@ export default function Lead() {
         </div>
     );
 }
+const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
+    <button
+        className={`btn border  rounded ${className}`}
+        style={
+            selectedFilter === value
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+        }}
+    >
+        {text}
+    </button>
+);

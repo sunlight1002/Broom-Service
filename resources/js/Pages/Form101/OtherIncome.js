@@ -26,13 +26,13 @@ const OtherIncome = ({
             <h2>{t("form101.other_income_details")}</h2>
             <RadioButtonGroup
                 name="otherIncome.haveincome"
-                label="Do you have other incomes?"
+                label={t("form101.if_other_income")}
                 options={[
                     {
-                        label: "I have no other income including scholarships",
+                        label: t("form101.if_income_no"),
                         value: "No",
                     },
-                    { label: "I have other incomes as follows", value: "Yes" },
+                    { label: t("form101.if_income_yes"), value: "Yes" },
                 ]}
                 value={values.otherIncome.haveincome}
                 onChange={handleChange}
@@ -54,7 +54,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.incomeType"}
-                            label="Monthly salary"
+                            label={t("form101.month_salary")}
                             value="Monthly salary"
                             checked={
                                 values.otherIncome.incomeType &&
@@ -77,7 +77,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.incomeType"}
-                            label="Salary for additional employment"
+                            label={t("form101.salary_ap")}
                             value="Salary for additional employment"
                             checked={
                                 values.otherIncome.incomeType &&
@@ -100,7 +100,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.incomeType"}
-                            label="Partial salary"
+                            label={t("form101.partial_salary")}
                             value="Partial salary"
                             checked={
                                 values.otherIncome.incomeType &&
@@ -123,7 +123,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.incomeType"}
-                            label="Wage (Daily rate of pay)"
+                            label={t("form101.daily_wages")}
                             value="Wage (Daily rate of pay)"
                             checked={
                                 values.otherIncome.incomeType &&
@@ -146,7 +146,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.allowance"}
-                            label="Allowance"
+                            label={t("form101.allowance")}
                             checked={values.otherIncome.allowance}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -163,7 +163,7 @@ const OtherIncome = ({
                     <div className="col-4">
                         <CheckBox
                             name={"otherIncome.scholarship"}
-                            label="Scholarship"
+                            label={t("form101.scholarship")}
                             checked={values.otherIncome.scholarship}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -180,14 +180,14 @@ const OtherIncome = ({
                     <div className="col-12 mt-3">
                         <RadioButtonGroup
                             name="otherIncome.taxCreditsAtOtherIncome"
-                            label="Receives tax credits at other income"
+                            label={t("form101.receiveTaxCredit")}
                             options={[
                                 {
-                                    label: "I request to receive tax credits and tax bracket for this income (section D). I do not receive them against any other income.",
+                                    label: t("form101.requestReceiveTax"),
                                     value: "request",
                                 },
                                 {
-                                    label: "I receive tax credits and tax bracket against another income, therefore I'm not entitled to them against this income",
+                                    label: t("form101.receiveTax"),
                                     value: "receive",
                                 },
                             ]}
@@ -208,7 +208,7 @@ const OtherIncome = ({
                     <div className="col-12">
                         <CheckBox
                             name="otherIncome.studyFund"
-                            label="No payments are made on my behalf to a Study fund from another income, or all the employer contributions made to a Study fund from another income are attached to my other income"
+                            label={t("form101.NoPaymentMade")}
                             value={values.otherIncome.studyFund}
                             checked={values.otherIncome.studyFund}
                             onChange={handleChange}
@@ -226,7 +226,7 @@ const OtherIncome = ({
                     <div className="col-12">
                         <CheckBox
                             name="otherIncome.pensionInsurance"
-                            label="No payments are made on my behalf to pension / loss of working capacity insurance / severance pay from another income, or all the employer contributions to pension / loss of working capacity insurance / severance pay from my other income are attached to my other income."
+                            label={t("form101.NoPaymentMadebehalf")}
                             value={values.otherIncome.pensionInsurance}
                             checked={values.otherIncome.pensionInsurance}
                             onChange={handleChange}

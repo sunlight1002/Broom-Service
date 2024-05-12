@@ -135,504 +135,6 @@ const initialValues = {
     signature: "",
 };
 
-const formSchema = yup.object({
-    employerName: yup.string().trim().nullable(),
-    employerAddress: yup.string().trim().nullable(),
-    employerPhone: yup
-        .string()
-        .trim()
-        .matches(/^\d{10}$/, "Invalid phone number")
-        .nullable(),
-    employerDeductionsFileNo: yup
-        .number()
-        .typeError("Deductions file number must be a number")
-        .nullable(),
-    employeeFirstName: yup.string().required("Name is required"),
-    employeeLastName: yup.string().required("Name is required"),
-    employeeIdentityType: yup.string().required("Identity type is required"),
-    employeeIdNumber: yup.string().when("employeeIdentityType", {
-        is: "IDNumber",
-        then: () => yup.string().required("ID Number is required"),
-        otherwise: () => yup.string(),
-    }),
-    employeeIdCardCopy: yup.mixed().when("employeeIdentityType", {
-        is: "IDNumber",
-        then: () => yup.mixed().required("ID card copy is required"),
-        otherwise: () => yup.mixed().nullable(),
-    }),
-    employeecountry: yup.string().when("employeeIdentityType", {
-        is: "Passport",
-        then: () => yup.string().required("Country is required"),
-        otherwise: () => yup.string().nullable(),
-    }),
-    employeePassportNumber: yup.string().when("employeeIdentityType", {
-        is: "Passport",
-        then: () => yup.string().required("Passport number is required"),
-        otherwise: () => yup.string().nullable(),
-    }),
-    employeepassportCopy: yup.mixed().when("employeeIdentityType", {
-        is: "Passport",
-        then: () => yup.mixed().required("Passport copy is required"),
-        otherwise: () => yup.mixed().nullable(),
-    }),
-    employeeResidencePermit: yup.mixed().nullable(),
-    employeeDob: yup.date().required("Date of birth is required"),
-    employeeDateOfAliyah: yup.date().nullable(),
-    employeeCity: yup.string().required("City is required"),
-    employeeStreet: yup.string().required("Street is required"),
-    employeeHouseNo: yup.string().required("House number is required"),
-    employeePostalCode: yup.string().required("Postal Code is required"),
-    employeeMobileNo: yup.string().required("Mobile number is required"),
-    employeePhoneNo: yup.string().nullable(),
-    employeeEmail: yup
-        .string()
-        .email("Invalid email")
-        .required("Email is required"),
-    employeeSex: yup.string().required("Sex is required"),
-    employeeMaritalStatus: yup.string().required("Marital status is required"),
-    employeeIsraeliResident: yup
-        .string()
-        .required("Israeli resident is required"),
-    employeeCollectiveMoshavMember: yup
-        .string()
-        .required("Kibbutz / Collective moshav member is required"),
-    employeeHealthFundMember: yup
-        .string()
-        .required("Health fund member is required"),
-    employeeHealthFundname: yup
-        .string()
-        .when("employeeHealthFundMember", {
-            is: "Yes",
-            then: () => yup.string().required("Health fund name is required"),
-        })
-        .nullable(),
-    employeemyIncomeToKibbutz: yup
-        .string()
-        .when("employeeCollectiveMoshavMember", {
-            is: "Yes",
-            then: () => yup.string().required("this field is required"),
-        })
-        .nullable(),
-    children: yup.array().of(
-        yup.object().shape({
-            firstName: yup.string().required("Name is required"),
-            IdNumber: yup.string().required("Name is required"),
-            Dob: yup.date().required("Date of birth is required"),
-            inCustody: yup.boolean(),
-            haveChildAllowance: yup.boolean(),
-        })
-    ),
-    incomeType: yup
-        .string()
-        .oneOf(
-            [
-                "Monthly salary",
-                "Salary for additional employment",
-                "Partial salary",
-                "Wage (Daily rate of pay)",
-            ],
-            "Please select one type of income"
-        ),
-    allowance: yup.boolean(),
-    scholarship: yup.boolean(),
-    DateOfBeginningWork: yup
-        .date()
-        .required("Date of beginning of work is required"),
-    otherIncome: yup.object().shape({
-        haveincome: yup.string().required(),
-        incomeType: yup
-            .array()
-            .of(yup.string())
-            .when("haveincome", {
-                is: "Yes",
-                then: () =>
-                    yup
-                        .array()
-                        .of(yup.string())
-                        .min(1, "Please select at least one type of income")
-                        .required("Please select at least one type of income"),
-            }),
-        scholarship: yup.boolean(),
-        taxCreditsAtOtherIncome: yup
-            .string()
-            .when("haveincome", {
-                is: "Yes",
-                then: () =>
-                    yup
-                        .string()
-                        .required("Tax credits at other income is required"),
-            })
-            .nullable(),
-        studyFund: yup.boolean(),
-        pensionInsurance: yup.boolean(),
-    }),
-    Spouse: yup.mixed().when("employeeMaritalStatus", {
-        is: "Married",
-        then: () =>
-            yup.object().shape({
-                firstName: yup.string().required("First Name is required"),
-                lastName: yup.string().required("Last Name is required"),
-                Identity: yup
-                    .string()
-                    .required("Please select an option")
-                    .oneOf(["IDNumber", "Passport"], "Invalid option"),
-                Country: yup
-                    .string()
-                    .when("Identity", {
-                        is: "Passport",
-                        then: () =>
-                            yup.string().required("Country is required"),
-                    })
-                    .nullable(),
-                passportNumber: yup
-                    .string()
-                    .when("Identity", {
-                        is: "Passport",
-                        then: () =>
-                            yup
-                                .string()
-                                .required("Passport Number is required"),
-                    })
-                    .nullable(),
-                IdNumber: yup.string().when("Identity", {
-                    is: "IDNumber",
-                    then: () => yup.string().required("ID Number is required"),
-                }),
-                Dob: yup.date().required("Date of birth is required"),
-                DateOFAliyah: yup.date(),
-                hasIncome: yup.string().required("Income is required"),
-                incomeType: yup
-                    .string()
-                    .when("hasIncome", {
-                        is: "Yes",
-                        then: () =>
-                            yup.string().required("Income Type is required"),
-                    })
-                    .nullable(),
-            }),
-        otherwise: () => yup.mixed().nullable(),
-    }),
-    TaxExemption: yup.object().shape({
-        isIsraelResident: yup.string().nullable(), // Add validation rules if needed
-        disabled: yup.boolean(),
-        disabledCertificate: yup.mixed().when("disabled", {
-            is: true,
-            then: () => yup.mixed().required("Certificate is required"),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        disabledCompensation: yup.boolean(),
-        disabledCompensationCertificate: yup
-            .mixed()
-            .when("disabledCompensation", {
-                is: true,
-                then: () =>
-                    yup
-                        .mixed()
-                        .required(
-                            "Certificate for receiving monthly compensation is required"
-                        ),
-                otherwise: () => yup.mixed().nullable(),
-            }),
-        exm3: yup.boolean(),
-        exm3Date: yup.date().when("exm3", {
-            is: true,
-            then: () => yup.date().required("From date is required"),
-            otherwise: () => yup.date().nullable(),
-        }),
-        exm3Locality: yup.string().when("exm3", {
-            is: true,
-            then: () => yup.string().required("Locality is required"),
-            otherwise: () => yup.string().nullable(),
-        }),
-        exm3Certificate: yup.mixed().when("exm3", {
-            is: true,
-            then: () => yup.mixed().required("Certificate is required"),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm4: yup.boolean(),
-        exm4FromDate: yup.date().when("TaxExemption.exm4", {
-            is: true,
-            then: () => yup.date().required("From date is required for exm4"),
-            otherwise: () => yup.date().nullable(),
-        }),
-        exm4ImmigrationCertificate: yup.mixed().when("TaxExemption.exm4", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required("Immigration certificate is required for exm4"),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm4NoIncomeDate: yup.date().when("exm4", {
-            is: true,
-            then: () =>
-                yup.date().required("No income date is required for exm4"),
-            otherwise: () => yup.date().nullable(),
-        }),
-        exm5: yup.boolean(),
-        exm5disabledCirtificate: yup.mixed().when("exm5", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required(
-                        "Disabled or blind certificate is required for exm5"
-                    ),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm6: yup.boolean(),
-        exm7: yup.boolean(),
-        exm7NoOfChild: yup.number().when(["exm7", "children"], {
-            is: (exm7, children) =>
-                exm7 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children born in the tax year is required for exm7"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm7NoOfChild1to5: yup.number().when(["exm7", "children"], {
-            is: (exm7, children) =>
-                exm7 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children between the ages of 1 and 5 in the tax year is required for exm7"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm7NoOfChild6to17: yup.number().when(["exm7", "children"], {
-            is: (exm7, children) =>
-                exm7 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children between the ages of 6 and 17 in the tax year is required for exm7"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm7NoOfChild18: yup.number().when(["exm7", "children"], {
-            is: (exm7, children) =>
-                exm7 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children or who turn 18 years old in the tax year is required for exm7"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm8: yup.boolean(),
-        exm8NoOfChild: yup.number().when(["exm8", "children"], {
-            is: (exm8, children) =>
-                exm8 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children born in the tax year is required for exm8"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm8NoOfChild1to5: yup.number().when(["exm8", "children"], {
-            is: (exm8, children) =>
-                exm8 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children between the ages of 1 and 5 in the tax year is required for exm8"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm8NoOfChild6to17: yup.number().when(["exm8", "children"], {
-            is: (exm8, children) =>
-                exm8 && Array.isArray(children) && children.length > 0,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children between the ages of 6 and 17 in the tax year is required for exm8"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm9: yup.boolean(),
-        // No need to specify validation for exm9
-        exm10: yup.boolean(),
-        exm10Certificate: yup.mixed().when("exm10", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required(
-                        "Photocopy of a court order for child support is required for exm10"
-                    ),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm11: yup.boolean(),
-        exm11NoOfChildWithDisibility: yup.number().when("exm11", {
-            is: true,
-            then: () =>
-                yup
-                    .number()
-                    .required(
-                        "Number of children with disability is required for exm11"
-                    ),
-            otherwise: () => yup.number(),
-        }),
-        exm11Certificate: yup.mixed().when("exm11", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required(
-                        "Children's disability benefit certificate is required for exm11"
-                    ),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm12: yup.boolean(),
-        exm12Certificate: yup.mixed().when("exm12", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required(
-                        "Photocopy of a court order for alimony is required for exm12"
-                    ),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm13: yup.boolean(),
-        // No need to specify validation for exm13
-        exm14: yup.boolean(),
-        exm14BeginingDate: yup.date().when("exm14", {
-            is: true,
-            then: () =>
-                yup
-                    .date()
-                    .required(
-                        "Date of beginning of service is required for exm14"
-                    ),
-            otherwise: () => yup.date().nullable(),
-        }),
-        exm14EndDate: yup.date().when("exm14", {
-            is: true,
-            then: () =>
-                yup
-                    .date()
-                    .required("Date of end of service is required for exm14"),
-            otherwise: () => yup.date().nullable(),
-        }),
-        exm14Certificate: yup.mixed().when("exm14", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required(
-                        "Discharge/end of service certificate is required for exm14"
-                    ),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-        exm15: yup.boolean(),
-        exm15Certificate: yup.mixed().when("exm15", {
-            is: true,
-            then: () =>
-                yup
-                    .mixed()
-                    .required("Declaration in Form 119 is required for exm15"),
-            otherwise: () => yup.mixed().nullable(),
-        }),
-    }),
-    TaxCoordination: yup.object().shape({
-        hasTaxCoordination: yup.boolean(),
-        requestReason: yup
-            .string()
-            .when("hasTaxCoordination", {
-                is: true,
-                then: () =>
-                    yup
-                        .string()
-                        .required(
-                            "Reason for tax coordination request is required"
-                        ),
-            })
-            .nullable(),
-        requestReason1Certificate: yup
-            .mixed()
-            .nullable()
-            .when("requestReason", {
-                is: "reason1",
-                then: () =>
-                    yup
-                        .mixed()
-                        .required(
-                            "Proofs for lack of previous incomes is required"
-                        ),
-            }),
-        requestReason3Certificate: yup
-            .mixed()
-            .nullable()
-            .when("requestReason", {
-                is: "reason3",
-                then: () =>
-                    yup
-                        .mixed()
-                        .required(
-                            "Tax coordination certificate from the assessing officer is required"
-                        ),
-            }),
-        employer: yup.array().when("requestReason", {
-            is: "reason2",
-            then: () =>
-                yup
-                    .array()
-                    .of(
-                        yup.object().shape({
-                            firstName: yup
-                                .string()
-                                .required("First Name is required"),
-                            address: yup
-                                .string()
-                                .required("Address is required"),
-                            fileNumber: yup
-                                .string()
-                                .required("Deductions file number is required"),
-                            MonthlyIncome: yup
-                                .number()
-                                .required("Monthly income is required"),
-                            Tax: yup
-                                .number()
-                                .required("Tax deducted is required"),
-                            incomeType: yup
-                                .string()
-                                .required("Type of income is required"),
-                            payslip: yup
-                                .mixed()
-                                .required("Photocopy of payslip is required"),
-                        })
-                    )
-                    .required(
-                        "At least one employer/payer of salary is required"
-                    ),
-        }),
-    }),
-    date: yup.date().required("Date is required"),
-    sender: yup.object().shape({
-        employeeEmail: yup
-            .string()
-            .email()
-            .required("Employee email is required"),
-        employerEmail: yup
-            .string()
-            .email()
-            .required("Employer email is required"),
-    }),
-    signature: yup.mixed().required(),
-});
-
 const Form101Component = () => {
     const sigRef = useRef();
     const { t } = useTranslation();
@@ -646,6 +148,519 @@ const Form101Component = () => {
 
     const currentYear = new Date().getFullYear();
 
+    const formSchema = yup.object({
+        employerName: yup.string().trim().nullable(),
+        employerAddress: yup.string().trim().nullable(),
+        employerPhone: yup
+            .string()
+            .trim()
+            .matches(/^\d{10}$/, t("form101.errorMsg.invalidPhone"))
+            .nullable(),
+        employerDeductionsFileNo: yup
+            .number()
+            .typeError(t("form101.errorMsg.deductionsFileNumber"))
+            .nullable(),
+        employeeFirstName: yup
+            .string()
+            .required(t("form101.errorMsg.NameRequired")),
+        employeeLastName: yup
+            .string()
+            .required(t("form101.errorMsg.NameRequired")),
+        employeeIdentityType: yup
+            .string()
+            .required(t("form101.errorMsg.IdentityType")),
+        employeeIdNumber: yup.string().when("employeeIdentityType", {
+            is: "IDNumber",
+            then: () =>
+                yup.string().required(t("form101.errorMsg.IdNumberReq")),
+            otherwise: () => yup.string(),
+        }),
+        employeeIdCardCopy: yup.mixed().when("employeeIdentityType", {
+            is: "IDNumber",
+            then: () =>
+                yup.mixed().required(t("form101.errorMsg.IdCardCopyReq")),
+            otherwise: () => yup.mixed().nullable(),
+        }),
+        employeecountry: yup.string().when("employeeIdentityType", {
+            is: "Passport",
+            then: () => yup.string().required(t("form101.errorMsg.countryReq")),
+            otherwise: () => yup.string().nullable(),
+        }),
+        employeePassportNumber: yup.string().when("employeeIdentityType", {
+            is: "Passport",
+            then: () =>
+                yup.string().required(t("form101.errorMsg.passportNumReq")),
+            otherwise: () => yup.string().nullable(),
+        }),
+        employeepassportCopy: yup.mixed().when("employeeIdentityType", {
+            is: "Passport",
+            then: () =>
+                yup.mixed().required(t("form101.errorMsg.passpoerCopyReq")),
+            otherwise: () => yup.mixed().nullable(),
+        }),
+        employeeResidencePermit: yup.mixed().nullable(),
+        employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
+        employeeDateOfAliyah: yup.date().nullable(),
+        employeeCity: yup.string().required(t("form101.errorMsg.CityReq")),
+        employeeStreet: yup.string().required(t("form101.errorMsg.StreetReq")),
+        employeeHouseNo: yup
+            .string()
+            .required(t("form101.errorMsg.HouseNoReq")),
+        employeePostalCode: yup
+            .string()
+            .required(t("form101.errorMsg.PostalCodeReq")),
+        employeeMobileNo: yup
+            .string()
+            .required(t("form101.errorMsg.MobileNoReq")),
+        employeePhoneNo: yup.string().nullable(),
+        employeeEmail: yup
+            .string()
+            .email(t("form101.errorMsg.EmailInvalid"))
+            .required(t("form101.errorMsg.EmailReq")),
+        employeeSex: yup.string().required(t("form101.errorMsg.SexReq")),
+        employeeMaritalStatus: yup
+            .string()
+            .required(t("form101.errorMsg.MaritalStatusReq")),
+        employeeIsraeliResident: yup
+            .string()
+            .required(t("form101.errorMsg.IsraeliResidentReq")),
+        employeeCollectiveMoshavMember: yup
+            .string()
+            .required(t("form101.errorMsg.CollectiveMoshavMemberReq")),
+        employeeHealthFundMember: yup
+            .string()
+            .required(t("form101.errorMsg.HealthFundMemberReq")),
+        employeeHealthFundname: yup
+            .string()
+            .when("employeeHealthFundMember", {
+                is: "Yes",
+                then: () =>
+                    yup
+                        .string()
+                        .required(t("form101.errorMsg.HealthFundnameReq")),
+            })
+            .nullable(),
+        employeemyIncomeToKibbutz: yup
+            .string()
+            .when("employeeCollectiveMoshavMember", {
+                is: "Yes",
+                then: () =>
+                    yup.string().required(t("form101.errorMsg.thisFieldReq")),
+            })
+            .nullable(),
+        children: yup.array().of(
+            yup.object().shape({
+                firstName: yup
+                    .string()
+                    .required(t("form101.errorMsg.NameRequired")),
+                IdNumber: yup
+                    .string()
+                    .required(t("form101.errorMsg.NameRequired")),
+                Dob: yup.date().required(t("form101.errorMsg.dobReq")),
+                inCustody: yup.boolean(),
+                haveChildAllowance: yup.boolean(),
+            })
+        ),
+        incomeType: yup
+            .string()
+            .oneOf(
+                [
+                    "Monthly salary",
+                    "Salary for additional employment",
+                    "Partial salary",
+                    "Wage (Daily rate of pay)",
+                ],
+                t("form101.errorMsg.incomeTypeReq")
+            ),
+        allowance: yup.boolean(),
+        scholarship: yup.boolean(),
+        DateOfBeginningWork: yup
+            .date()
+            .required(t("form101.errorMsg.dateOfBeginReq")),
+        otherIncome: yup.object().shape({
+            haveincome: yup
+                .string()
+                .required(t("form101.errorMsg.thisFieldReq")),
+            incomeType: yup
+                .array()
+                .of(yup.string())
+                .when("haveincome", {
+                    is: "Yes",
+                    then: () =>
+                        yup
+                            .array()
+                            .of(yup.string())
+                            .min(1, t("form101.errorMsg.incomeTypeReq"))
+                            .required(t("form101.errorMsg.incomeTypeReq")),
+                }),
+            scholarship: yup.boolean(),
+            taxCreditsAtOtherIncome: yup
+                .string()
+                .when("haveincome", {
+                    is: "Yes",
+                    then: () =>
+                        yup
+                            .string()
+                            .required(t("form101.errorMsg.taxCreditReq")),
+                })
+                .nullable(),
+            studyFund: yup.boolean(),
+            pensionInsurance: yup.boolean(),
+        }),
+        Spouse: yup.mixed().when("employeeMaritalStatus", {
+            is: "Married",
+            then: () =>
+                yup.object().shape({
+                    firstName: yup
+                        .string()
+                        .required(t("form101.errorMsg.fNameReq")),
+                    lastName: yup
+                        .string()
+                        .required(t("form101.errorMsg.lNameReq")),
+                    Identity: yup
+                        .string()
+                        .required(t("form101.errorMsg.SelectOpt"))
+                        .oneOf(
+                            ["IDNumber", "Passport"],
+                            t("form101.errorMsg.invalidopt")
+                        ),
+                    Country: yup
+                        .string()
+                        .when("Identity", {
+                            is: "Passport",
+                            then: () =>
+                                yup
+                                    .string()
+                                    .required(t("form101.errorMsg.countryReq")),
+                        })
+                        .nullable(),
+                    passportNumber: yup
+                        .string()
+                        .when("Identity", {
+                            is: "Passport",
+                            then: () =>
+                                yup
+                                    .string()
+                                    .required(
+                                        t("form101.errorMsg.passportNumReq")
+                                    ),
+                        })
+                        .nullable(),
+                    IdNumber: yup.string().when("Identity", {
+                        is: "IDNumber",
+                        then: () =>
+                            yup
+                                .string()
+                                .required(t("form101.errorMsg.IdNumberReq")),
+                    }),
+                    Dob: yup.date().required(t("form101.errorMsg.dobReq")),
+                    DateOFAliyah: yup.date(),
+                    hasIncome: yup
+                        .string()
+                        .required(t("form101.errorMsg.incomeReq")),
+                    incomeType: yup
+                        .string()
+                        .when("hasIncome", {
+                            is: "Yes",
+                            then: () =>
+                                yup
+                                    .string()
+                                    .required(
+                                        t("form101.errorMsg.incomeTypeReq")
+                                    ),
+                        })
+                        .nullable(),
+                }),
+            otherwise: () => yup.mixed().nullable(),
+        }),
+        TaxExemption: yup.object().shape({
+            isIsraelResident: yup.string().nullable(), // Add validation rules if needed
+            disabled: yup.boolean(),
+            disabledCertificate: yup.mixed().when("disabled", {
+                is: true,
+                then: () =>
+                    yup.mixed().required(t("form101.errorMsg.certificateReq")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            disabledCompensation: yup.boolean(),
+            disabledCompensationCertificate: yup
+                .mixed()
+                .when("disabledCompensation", {
+                    is: true,
+                    then: () =>
+                        yup
+                            .mixed()
+                            .required(
+                                t(
+                                    "form101.errorMsg.certificateOfMonthlyCompensation"
+                                )
+                            ),
+                    otherwise: () => yup.mixed().nullable(),
+                }),
+            exm3: yup.boolean(),
+            exm3Date: yup.date().when("exm3", {
+                is: true,
+                then: () =>
+                    yup.date().required(t("form101.errorMsg.FromDateReq")),
+                otherwise: () => yup.date().nullable(),
+            }),
+            exm3Locality: yup.string().when("exm3", {
+                is: true,
+                then: () =>
+                    yup.string().required(t("form101.errorMsg.LocalityReq")),
+                otherwise: () => yup.string().nullable(),
+            }),
+            exm3Certificate: yup.mixed().when("exm3", {
+                is: true,
+                then: () =>
+                    yup.mixed().required(t("form101.errorMsg.certificateReq")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm4: yup.boolean(),
+            exm4FromDate: yup.date().when("TaxExemption.exm4", {
+                is: true,
+                then: () =>
+                    yup.date().required(t("form101.errorMsg.FromDateReq")),
+                otherwise: () => yup.date().nullable(),
+            }),
+            exm4ImmigrationCertificate: yup.mixed().when("TaxExemption.exm4", {
+                is: true,
+                then: () =>
+                    yup
+                        .mixed()
+                        .required(
+                            t("form101.errorMsg.ImmegrationCertificateExm4")
+                        ),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm4NoIncomeDate: yup.date().when("exm4", {
+                is: true,
+                then: () =>
+                    yup
+                        .date()
+                        .required(t("form101.errorMsg.noIncomeDateReqExam4")),
+                otherwise: () => yup.date().nullable(),
+            }),
+            exm5: yup.boolean(),
+            exm5disabledCirtificate: yup.mixed().when("exm5", {
+                is: true,
+                then: () =>
+                    yup
+                        .mixed()
+                        .required(t("form101.errorMsg.disableCertificateReq")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm6: yup.boolean(),
+            exm7: yup.boolean(),
+            exm7NoOfChild: yup.number().when(["exm7", "children"], {
+                is: (exm7, children) =>
+                    exm7 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOfBorn")),
+                otherwise: () => yup.number(),
+            }),
+            exm7NoOfChild1to5: yup.number().when(["exm7", "children"], {
+                is: (exm7, children) =>
+                    exm7 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOdBorn1to5")),
+                otherwise: () => yup.number(),
+            }),
+            exm7NoOfChild6to17: yup.number().when(["exm7", "children"], {
+                is: (exm7, children) =>
+                    exm7 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOdBorn6to17")),
+                otherwise: () => yup.number(),
+            }),
+            exm7NoOfChild18: yup.number().when(["exm7", "children"], {
+                is: (exm7, children) =>
+                    exm7 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOfBor18")),
+                otherwise: () => yup.number(),
+            }),
+            exm8: yup.boolean(),
+            exm8NoOfChild: yup.number().when(["exm8", "children"], {
+                is: (exm8, children) =>
+                    exm8 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOfBorn")),
+                otherwise: () => yup.number(),
+            }),
+            exm8NoOfChild1to5: yup.number().when(["exm8", "children"], {
+                is: (exm8, children) =>
+                    exm8 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOdBorn1to5")),
+                otherwise: () => yup.number(),
+            }),
+            exm8NoOfChild6to17: yup.number().when(["exm8", "children"], {
+                is: (exm8, children) =>
+                    exm8 && Array.isArray(children) && children.length > 0,
+                then: () =>
+                    yup.number().required(t("form101.errorMsg.noOdBorn6to17")),
+                otherwise: () => yup.number(),
+            }),
+            exm9: yup.boolean(),
+            // No need to specify validation for exm9
+            exm10: yup.boolean(),
+            exm10Certificate: yup.mixed().when("exm10", {
+                is: true,
+                then: () =>
+                    yup.mixed().required(t("form101.errorMsg.courtOrder")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm11: yup.boolean(),
+            exm11NoOfChildWithDisibility: yup.number().when("exm11", {
+                is: true,
+                then: () =>
+                    yup
+                        .number()
+                        .required(t("form101.errorMsg.NoOfChilDisability")),
+                otherwise: () => yup.number(),
+            }),
+            exm11Certificate: yup.mixed().when("exm11", {
+                is: true,
+                then: () =>
+                    yup
+                        .mixed()
+                        .required(
+                            t("form101.errorMsg.NoOfChilDisabilityCertificate")
+                        ),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm12: yup.boolean(),
+            exm12Certificate: yup.mixed().when("exm12", {
+                is: true,
+                then: () =>
+                    yup
+                        .mixed()
+                        .required(t("form101.errorMsg.photocopyCourtOrder")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm13: yup.boolean(),
+            // No need to specify validation for exm13
+            exm14: yup.boolean(),
+            exm14BeginingDate: yup.date().when("exm14", {
+                is: true,
+                then: () =>
+                    yup
+                        .date()
+                        .required(t("form101.errorMsg.dateOfBeginService")),
+                otherwise: () => yup.date().nullable(),
+            }),
+            exm14EndDate: yup.date().when("exm14", {
+                is: true,
+                then: () =>
+                    yup.date().required(t("form101.errorMsg.dateOfEndService")),
+                otherwise: () => yup.date().nullable(),
+            }),
+            exm14Certificate: yup.mixed().when("exm14", {
+                is: true,
+                then: () =>
+                    yup
+                        .mixed()
+                        .required(t("form101.errorMsg.dischargeCertificate")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+            exm15: yup.boolean(),
+            exm15Certificate: yup.mixed().when("exm15", {
+                is: true,
+                then: () => yup.mixed().required(t("form101.errorMsg.form119")),
+                otherwise: () => yup.mixed().nullable(),
+            }),
+        }),
+        TaxCoordination: yup.object().shape({
+            hasTaxCoordination: yup.boolean(),
+            requestReason: yup
+                .string()
+                .when("hasTaxCoordination", {
+                    is: true,
+                    then: () =>
+                        yup
+                            .string()
+                            .required(
+                                t("form101.errorMsg.ReasonTaxCordination")
+                            ),
+                })
+                .nullable(),
+            requestReason1Certificate: yup
+                .mixed()
+                .nullable()
+                .when("requestReason", {
+                    is: "reason1",
+                    then: () =>
+                        yup
+                            .mixed()
+                            .required(t("form101.errorMsg.proofPreIncome")),
+                }),
+            requestReason3Certificate: yup
+                .mixed()
+                .nullable()
+                .when("requestReason", {
+                    is: "reason3",
+                    then: () =>
+                        yup
+                            .mixed()
+                            .required(
+                                t("form101.errorMsg.taxCoordinationCerti")
+                            ),
+                }),
+            employer: yup.array().when("requestReason", {
+                is: "reason2",
+                then: () =>
+                    yup
+                        .array()
+                        .of(
+                            yup.object().shape({
+                                firstName: yup
+                                    .string()
+                                    .required(t("form101.errorMsg.fNameReq")),
+                                address: yup
+                                    .string()
+                                    .required(t("form101.errorMsg.addressReq")),
+                                fileNumber: yup
+                                    .string()
+                                    .required(
+                                        t("form101.errorMsg.deductionFileReq")
+                                    ),
+                                MonthlyIncome: yup
+                                    .number()
+                                    .required(
+                                        t("form101.errorMsg.MonthlyIncomeReq")
+                                    ),
+                                Tax: yup
+                                    .number()
+                                    .required(
+                                        t("form101.errorMsg.taxDeductionReq")
+                                    ),
+                                incomeType: yup
+                                    .string()
+                                    .required(
+                                        t("form101.errorMsg.TypeIncomeReq")
+                                    ),
+                                payslip: yup
+                                    .mixed()
+                                    .required(t("form101.errorMsg.paySlipReq")),
+                            })
+                        )
+                        .required(t("form101.errorMsg.oneEmployer")),
+            }),
+        }),
+        date: yup.date().required(t("form101.errorMsg.dateReq")),
+        sender: yup.object().shape({
+            employeeEmail: yup
+                .string()
+                .email()
+                .required(t("form101.errorMsg.employeeEmail")),
+            employerEmail: yup
+                .string()
+                .email()
+                .required(t("form101.errorMsg.employerEmail")),
+        }),
+        signature: yup.mixed().required(t("form101.errorMsg.sign")),
+    });
     const {
         values,
         touched,
@@ -970,7 +985,7 @@ const Form101Component = () => {
                                 )}
                                 <div className="form-group">
                                     <DateField
-                                        label={"Date"}
+                                        label={t("form101.Date")}
                                         name={"date"}
                                         required={true}
                                         onBlur={handleBlur}
@@ -982,11 +997,11 @@ const Form101Component = () => {
                             </div>
                         </div>
                         <div className="box-heading">
-                            <h2>Send the form to you and the employer</h2>
+                            <h2> {t("form101.sendTOYouAndEmployer")}</h2>
 
                             <TextField
                                 name="sender.employerEmail"
-                                label="Employer's email address"
+                                label={t("form101.employerEmail")}
                                 value={values.sender.employerEmail}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -1003,7 +1018,7 @@ const Form101Component = () => {
                             />
                             <TextField
                                 name="sender.employeeEmail"
-                                label="Employee's email address"
+                                label={t("form101.employesEmail")}
                                 value={values.sender.employeeEmail}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -1029,14 +1044,14 @@ const Form101Component = () => {
                                         handleSaveAsDraft();
                                     }}
                                 >
-                                    Save
+                                    {t("form101.save")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
                                 >
-                                    Submit
+                                    {t("form101.button_submit")}
                                 </button>
                             </>
                         )}

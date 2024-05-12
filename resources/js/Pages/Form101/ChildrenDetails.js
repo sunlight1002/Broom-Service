@@ -29,7 +29,7 @@ const ChildrenDetails = ({
                 values.children.map((child, index) => (
                     <div key={index}>
                         <hr />
-                        child {index + 1}{" "}
+                        {t("form101.child")} {index + 1}{" "}
                         <button
                             type="button"
                             className="btn btn-sm btn-danger "
@@ -45,7 +45,7 @@ const ChildrenDetails = ({
                             <div className="col-sm-4">
                                 <TextField
                                     name={`children[${index}].firstName`}
-                                    label="First Name"
+                                    label={t("form101.label_firstName")}
                                     value={child.firstName}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -63,7 +63,7 @@ const ChildrenDetails = ({
                             <div className="col-sm-4">
                                 <TextField
                                     name={`children[${index}].IdNumber`}
-                                    label="ID Number"
+                                    label={t("form101.id_num")}
                                     value={child.IdNumber}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -81,7 +81,7 @@ const ChildrenDetails = ({
                             <div className="col-sm-4">
                                 <DateField
                                     name={`children[${index}].Dob`}
-                                    label="Date of birth"
+                                    label={t("form101.dob")}
                                     value={child.Dob}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -101,7 +101,7 @@ const ChildrenDetails = ({
                             <div className="col-sm-4">
                                 <CheckBox
                                     name={`children[${index}].inCustody`}
-                                    label="The child is in my custody"
+                                    label={t("form101.child_custody")}
                                     value={child.inCustody}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -119,7 +119,7 @@ const ChildrenDetails = ({
                             <div className="col-sm-4">
                                 <CheckBox
                                     name={`children[${index}].haveChildAllowance`}
-                                    label="I receive child allowance for the child from the National Insurance Institute"
+                                    label={t("form101.child_insurance")}
                                     value={child.haveChildAllowance}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
@@ -149,7 +149,7 @@ const ChildrenDetails = ({
                     ]);
                 }}
             >
-                + Add Child
+                {t("form101.button_addChild")}
             </button>
         </div>
     );
