@@ -707,7 +707,7 @@ export function IsrailContact({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                {t("israilContract.Submit")}
+                                {t("israilContract.Accept")}
                             </button>
                         )}
                     </form>

@@ -24,6 +24,10 @@ class Job extends Model
         'end_time',
         'shifts',
         'comment',
+        'subtotal_amount',
+        'discount_type',
+        'discount_value',
+        'discount_amount',
         'total_amount',
         'order_id',
         'is_order_generated',
@@ -69,6 +73,9 @@ class Job extends Model
      * @var array
      */
     protected $casts = [
+        'subtotal_amount' => 'double',
+        'discount_value' => 'double',
+        'discount_amount' => 'double',
         'total_amount' => 'double',
         'is_order_generated' => 'boolean',
         'is_invoice_generated' => 'boolean',

@@ -6,6 +6,7 @@ use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
+use App\Events\InsuranceFormSigned;
 use App\Events\JobReviewRequest;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
@@ -15,10 +16,12 @@ use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
+use App\Events\JobNotificationToAdmin;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForContractFormSigned;
 use App\Listeners\NotifyForForm101Signed;
+use App\Listeners\NotifyForInsuranceFormSigned;
 use App\Listeners\NotifyForSafetyAndGearFormSigned;
 use App\Listeners\ReScheduleMettingNotification;
 use App\Listeners\SendJobApprovedNotification;
@@ -28,6 +31,7 @@ use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
 use App\Listeners\SendWorkerFormsNotification;
 use App\Listeners\SendWorkerUpdatedJobStatusNotification;
+use App\Listeners\SendJobNotificationToAdmin;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -83,9 +87,15 @@ class EventServiceProvider extends ServiceProvider
         ContractFormSigned::class => [
             NotifyForContractFormSigned::class
         ],
+        InsuranceFormSigned::class => [
+            NotifyForInsuranceFormSigned::class
+        ],
         JobReviewRequest::class => [
             SendJobReviewRequestNotification::class
-        ]
+        ],
+        JobNotificationToAdmin::class => [
+            SendJobNotificationToAdmin::class
+        ],
     ];
 
     /**

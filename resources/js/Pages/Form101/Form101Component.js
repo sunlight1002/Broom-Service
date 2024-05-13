@@ -1051,7 +1051,7 @@ const Form101Component = () => {
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
                                 >
-                                    {t("form101.button_submit")}
+                                    {t("form101.Accept")}
                                 </button>
                             </>
                         )}

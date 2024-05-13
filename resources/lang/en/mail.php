@@ -261,7 +261,11 @@ return [
         'contract-signed' => [
             'subject' => 'Contract Form Signed | Broom Service',
             'message' => ':worker_name has completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.'
-        ]
+        ],
+        'insurance-signed' => [
+            'subject' => 'Insurance Form Signed | Broom Service',
+            'message' => ':worker_name has completed the signing of Insurance Form. Kindly find the signed document attached in PDF format for your reference.'
+        ],
     ],
     'client' => [
         'review-request' => [
@@ -270,6 +274,12 @@ return [
         ],
     ],
     'worker' => [
+        'insurance-form' => [
+            'subject' => 'Insurance Form | Broom Service',
+            'message' => 'You have successfully registered on our portal. Please sign the insurance form to start working on the job.',
+            'secondary_message' => 'Click the below button to check the Insurance form.',
+            'btn_txt' => 'Insurance Form',
+        ],
         'form101-signed' => [
             'subject' => 'Form 101 Signed | Broom Service',
             'message' => 'You have completed the signing of Form 101. Kindly find the signed document attached in PDF format for your reference.',
@@ -281,7 +291,14 @@ return [
         'contract-signed' => [
             'subject' => 'Contract Form Signed | Broom Service',
             'message' => 'You have completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.',
-        ]
+        ],
+        'insurance-signed' => [
+            'subject' => 'Insurance Form Signed | Broom Service',
+            'message' => 'You have completed the signing of Insurance Form. Kindly find the signed document attached in PDF format for your reference.',
+        ],
+    ],
+    'insurance-form' => [
+        'form_name' => 'Insurance Form',
     ],
     'form101' => [
         'form_name' => 'Form 101',

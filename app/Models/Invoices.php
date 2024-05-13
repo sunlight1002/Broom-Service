@@ -10,7 +10,10 @@ class Invoices extends Model
         'invoice_id',
         'order_id',
         'amount',
+        'discount_amount',
+        'total_amount',
         'paid_amount',
+        'amount_with_tax',
         'doc_url',
         'type',
         'client_id',
@@ -22,6 +25,19 @@ class Invoices extends Model
         'receipt_id',
         'status',
         'invoice_icount_status',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'amount' => 'double',
+        'discount_amount' => 'double',
+        'total_amount' => 'double',
+        'amount_with_tax' => 'double',
+        'paid_amount' => 'double',
     ];
 
     public function client()

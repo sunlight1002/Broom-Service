@@ -16,6 +16,7 @@ export default function ClientHistory({
     setContracts,
     latestContract,
     client,
+    fetchContract,
 }) {
     const { hash } = useLocation();
 
@@ -88,7 +89,7 @@ export default function ClientHistory({
                     </a>
                 </li>
 
-                <li className="nav-item" role="presentation">
+                {/* <li className="nav-item" role="presentation">
                     <a
                         id="order-tab"
                         className={
@@ -105,7 +106,7 @@ export default function ClientHistory({
                     >
                         Orders{" "}
                     </a>
-                </li>
+                </li> */}
 
                 <li className="nav-item" role="presentation">
                     <a
@@ -124,7 +125,7 @@ export default function ClientHistory({
                         Invoice
                     </a>
                 </li>
-                <li className="nav-item" role="presentation">
+                {/* <li className="nav-item" role="presentation">
                     <a
                         id="payment-tab"
                         className={
@@ -140,7 +141,7 @@ export default function ClientHistory({
                     >
                         Payment
                     </a>
-                </li>
+                </li> */}
                 <li className="nav-item" role="presentation">
                     <a
                         id="creditCard-tab"
@@ -155,7 +156,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Card Details
+                        Cards
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -211,6 +212,7 @@ export default function ClientHistory({
                     <Contract
                         contracts={contracts}
                         setContracts={setContracts}
+                        fetchContract={fetchContract}
                     />
                 </div>
                 <div
@@ -224,7 +226,7 @@ export default function ClientHistory({
                 >
                     <Jobs contracts={contracts} client={client} />
                 </div>
-                <div
+                {/* <div
                     id="tab-order"
                     className={
                         `tab-pane ` +
@@ -234,7 +236,7 @@ export default function ClientHistory({
                     aria-labelledby="order-tab"
                 >
                     <Order />
-                </div>
+                </div> */}
                 <div
                     id="tab-invoice"
                     className={
@@ -246,7 +248,7 @@ export default function ClientHistory({
                 >
                     <Invoice />
                 </div>
-                <div
+                {/* <div
                     id="tab-payment"
                     className={
                         `tab-pane ` +
@@ -256,7 +258,7 @@ export default function ClientHistory({
                     aria-labelledby="payment-tab"
                 >
                     <Payment />
-                </div>
+                </div> */}
                 <div
                     id="tab-creditCard"
                     className={

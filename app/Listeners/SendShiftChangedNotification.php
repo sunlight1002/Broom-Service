@@ -7,8 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Events\JobNotificationToAdmin;
 
-class SendShiftChangedNotification
+class SendShiftChangedNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -44,6 +45,16 @@ class SendShiftChangedNotification
                 $sub = __('mail.worker_job.shift_changed_subject');
                 $messages->subject($sub);
             });
+            //send notification to admin
+            $adminEmailData = [
+                'emailData'   => [
+                    'job'   =>  $event->job->toArray(),
+                ],
+                'emailSubject'  => __('mail.worker_job.shift_changed_subject'),
+                'emailTitle'  => 'New Job',
+                'emailContent'  => __('mail.worker_job.shift_changed') . " " . __('mail.worker_new_job.please_check')
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
         }
     }
 }

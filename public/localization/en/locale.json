@@ -1322,6 +1322,7 @@
         "disclaimer_details2": "I undertake to inform the employer of any change that will apply to my personal details and the details above within a week from the date of the change.",
         "button_clear": "Clear",
         "button_submit": "Submit",
+        "Accept": "Accept",
         "Date": "Date",
         "sendTOYouAndEmployer": "Send the form to you and the employer",
         "employerEmail": "Employer's email address",
@@ -1419,7 +1420,6 @@
             "HealthFundMemberReq": "Health fund member is required",
             "HealthFundnameReq": "Health fund name is required",
             "thisFieldReq": "This field is required",
-            "incomeTypeReq": "Please select one type of income",
             "dateOfBeginReq": "Date of beginning of work is required",
             "taxCreditReq": "Tax credits at other income is required",
             "fNameReq": "First Name is require",
@@ -1500,6 +1500,7 @@
         "sign": "Worker's Signature:",
         "Clear": "Clear",
         "Submit": "Submit",
+        "Accept": "Accept",
         "errorMsg": "Signature is required"
     },
     "israilContract": {
@@ -1613,6 +1614,7 @@
         "BestRegards": "Best regards",
         "Broom": "Broom Service L.M. Ltd",
         "Submit": "Submit",
+        "Accept": "Accept",
         "errorMsg": {
             "FullName": "Full name is required",
             "Role": "Role is required",
@@ -1731,6 +1733,7 @@
         "companySign": "The Company's signature:",
         "clear": "Clear",
         "Submit": "Submit",
+        "Accept": "Accept",
         "date": "Date",
         "errorMsg": {
             "FullName": "Full name is required",

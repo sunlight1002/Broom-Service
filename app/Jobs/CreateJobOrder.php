@@ -67,7 +67,7 @@ class CreateJobOrder implements ShouldQueue
             if ($job->is_job_done) {
                 $items[] = [
                     'description' => $client->lng == 'heb' ? $service->heb_name : $service->name,
-                    'unitprice' => $service->total,
+                    'unitprice' => $job->subtotal_amount,
                     'quantity' => 1
                 ];
             }
@@ -101,7 +101,8 @@ class CreateJobOrder implements ShouldQueue
                 $dueDate,
                 [
                     'job_ids' => [$job->id],
-                    'is_one_time_in_month' => $job->is_one_time_in_month_job
+                    'is_one_time_in_month' => $job->is_one_time_in_month_job,
+                    'discount_amount' => $job->discount_amount
                 ]
             );
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\InvoiceStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
@@ -89,9 +90,9 @@ class InvoiceController extends Controller
         $partial    = 0;
 
         $get_ta  = Invoices::get();
-        $get_pa  = Invoices::where('status', 'Paid')->get();
-        $get_ua  = Invoices::where('status', 'Unpaid')->get();
-        $get_ppa = Invoices::where('status', 'Partially Paid')->get();
+        $get_pa  = Invoices::where('status', InvoiceStatusEnum::PAID)->get();
+        $get_ua  = Invoices::where('status', InvoiceStatusEnum::UNPAID)->get();
+        $get_ppa = Invoices::where('status', InvoiceStatusEnum::PARTIALLY_PAID)->get();
 
         if (!empty($get_ta)) {
             foreach ($get_ta as $inv) {
@@ -164,9 +165,9 @@ class InvoiceController extends Controller
 
         $open       = Invoices::where('client_id', $id)->where('invoice_icount_status', 'Open')->count();
         $closed     = Invoices::where('client_id', $id)->where('invoice_icount_status', 'Closed')->count();
-        $paid       = Invoices::where('client_id', $id)->where('status', 'Paid')->count();
-        $unpaid     = Invoices::where('client_id', $id)->where('status', 'Unpaid')->count();
-        $partial    = Invoices::where('client_id', $id)->where('status', 'Partially Paid')->count();
+        $paid       = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::PAID)->count();
+        $unpaid     = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::UNPAID)->count();
+        $partial    = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::PARTIALLY_PAID)->count();
         $all        = Invoices::where('client_id', $id)->count();
 
         $ta         = 0;
@@ -181,9 +182,9 @@ class InvoiceController extends Controller
             }
         }
 
-        $get_pa  = Invoices::where('client_id', $id)->where('status', 'Paid')->get();
-        $get_ua  = Invoices::where('client_id', $id)->where('status', 'Unpaid')->get();
-        $get_ppa = Invoices::where('client_id', $id)->where('status', 'Partially Paid')->get();
+        $get_pa  = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::PAID)->get();
+        $get_ua  = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::UNPAID)->get();
+        $get_ppa = Invoices::where('client_id', $id)->where('status', InvoiceStatusEnum::PARTIALLY_PAID)->get();
 
         if (!empty($get_pa)) {
             foreach ($get_pa as $gpa) {
@@ -413,9 +414,6 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        $orderResponse = json_decode($order->response, true);
-
-        $iCountClientID = $orderResponse['client_id'];
         $iCountDocument = $this->getICountDocument($invoice->invoice_id, 'invoice');
 
         if (!$iCountDocument["status"]) {
@@ -426,7 +424,7 @@ class InvoiceController extends Controller
         $services = [];
         $items = $iCountDocument['doc_info']['items'];
         foreach ($items as $item) {
-            $subtotal += (int)$item['unitprice'];
+            $subtotal += (float)$item['unitprice'] * (int)$item['quantity'];
 
             $services[] = [
                 'description' => $item['description'],
@@ -502,18 +500,19 @@ class InvoiceController extends Controller
         $duedate = Carbon::today()->endOfMonth()->toDateString();
 
         $json = $this->generateInvRecDocument(
-            $iCountClientID,
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $subtotal,
+            0,
         );
 
         $rcp = Receipts::create([
             'invoice_id' => $invoice->id,
             'invoice_icount_id' => $invoice->invoice_id,
             'receipt_id' => $json['docnum'],
-            'docurl' => $json['doc_url'],
+            'docurl' => $json['doc_info']['doc_url'],
         ]);
 
         // $this->closeDoc($invoice->invoice_id, 'invoice');
@@ -545,12 +544,7 @@ class InvoiceController extends Controller
     public function invoiceJobs(Request $request)
     {
         $jobs = Job::where('client_id', $request->cid)
-            ->where('status', '!=', JobStatusEnum::COMPLETED)
-            ->where(function ($q) {
-                $q
-                    ->where('isOrdered', 0)
-                    ->orWhere('isOrdered', 'c');
-            })
+            ->where('is_order_generated', false)
             ->get();
 
         foreach ($jobs as $j => $job) {
@@ -627,7 +621,7 @@ class InvoiceController extends Controller
             //initiate refund 
             $invoice = Invoices::where('invoice_id', $docnum)->first();
             if ($invoice->txn_id != null && $invoice->callback != null) {
-                $refundResponse = $this->refundByReferenceID($invoice->txn_id, $invoice->amount);
+                $refundResponse = $this->refundByReferenceID($invoice->txn_id, $invoice->amount_with_tax);
 
                 if ($refundResponse && !$refundResponse['HasError']) {
                     Refunds::create([
@@ -789,7 +783,8 @@ class InvoiceController extends Controller
             $dueDate,
             [
                 'job_ids' => [$job->id],
-                'is_one_time_in_month' => $job->is_one_time_in_month_job
+                'is_one_time_in_month' => $job->is_one_time_in_month_job,
+                'discount_amount' => $job->discount_amount
             ]
         );
 
@@ -840,15 +835,17 @@ class InvoiceController extends Controller
         $not_one_time_job_ids = [];
         $items = [];
         $lang = $client->lng;
+        $discount_amount = 0;
         foreach ($notOneTimeJobs as $job) {
             $service = $job->jobservice;
 
             $not_one_time_job_ids[] = $job->id;
             $items[] = [
                 "description" => ($lang == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
-                "unitprice"   => $service->total,
+                "unitprice"   => $job->subtotal_amount,
                 "quantity"    => 1,
             ];
+            $discount_amount = $discount_amount + $job->discount_amount;
         }
 
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
@@ -859,7 +856,8 @@ class InvoiceController extends Controller
                 $dueDate,
                 [
                     'job_ids' => [$not_one_time_job_ids],
-                    'is_one_time_in_month' => false
+                    'is_one_time_in_month' => false,
+                    'discount_amount' => $discount_amount
                 ]
             );
         }
@@ -869,7 +867,7 @@ class InvoiceController extends Controller
 
             $item = [
                 "description" => ($lang == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
-                "unitprice"   => $service->total,
+                "unitprice"   => $job->subtotal_amount,
                 "quantity"    => 1,
             ];
 
@@ -879,7 +877,8 @@ class InvoiceController extends Controller
                 $dueDate,
                 [
                     'job_ids' => [$job->id],
-                    'is_one_time_in_month' => $job->is_one_time_in_month_job
+                    'is_one_time_in_month' => $job->is_one_time_in_month_job,
+                    'discount_amount' => $job->discount_amount
                 ]
             );
         }
@@ -981,8 +980,8 @@ class InvoiceController extends Controller
 
         $payments = $payments
             ->where(function ($q) {
-                $q->where('status', 'Paid')
-                    ->orWhere('status', 'Partial Paid');
+                $q->where('status', InvoiceStatusEnum::PAID)
+                    ->orWhere('status', InvoiceStatusEnum::PARTIALLY_PAID);
             })
             ->orderBy('id', 'desc')
             ->paginate(20);
@@ -998,8 +997,8 @@ class InvoiceController extends Controller
             ->with('jobs', 'client')
             ->where('client_id', $id)
             ->where(function ($q) {
-                $q->where('status', 'Paid')
-                    ->orWhere('status', 'Partial Paid');
+                $q->where('status', InvoiceStatusEnum::PAID)
+                    ->orWhere('status', InvoiceStatusEnum::PARTIALLY_PAID);
             })
             ->orderBy('id', 'desc')
             ->paginate(20);
@@ -1057,7 +1056,10 @@ class InvoiceController extends Controller
     {
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
-        $last_paid_status = $request->get('last_paid_status');
+        $priority_paid_status = $request->get('priority_paid_status');
+
+        $priority_statuses = ['', '', 'paid', 'undone', 'unpaid', 'problem'];
+        $priority_paid_status = array_search($priority_paid_status, $priority_statuses);
 
         $jobVisits = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -1079,7 +1081,7 @@ class InvoiceController extends Controller
                 return $q->whereDate('created_at', '<=', $end_date);
             })
             ->select('order.client_id')
-            ->selectRaw('MAX(id) AS order_id')
+            ->selectRaw("MAX(CASE WHEN order.paid_status = 'problem' THEN 5 WHEN order.paid_status = 'unpaid' THEN 4 WHEN order.paid_status = 'undone' THEN 3 WHEN order.paid_status = 'paid' THEN 2 ELSE 1 END) AS priority")
             ->groupBy('order.client_id');
 
         $data = Client::query()
@@ -1089,15 +1091,14 @@ class InvoiceController extends Controller
             ->leftJoinSub($orderPaidStatus, 'order_paid_status', function ($join) {
                 $join->on('clients.id', '=', 'order_paid_status.client_id');
             })
-            ->leftJoin('order', 'order_paid_status.order_id', '=', 'order.id')
-            ->when($last_paid_status != 'all', function ($q) use ($last_paid_status) {
-                return $q->where('order.paid_status', $last_paid_status);
+            ->when($priority_paid_status, function ($q) use ($priority_paid_status) {
+                return $q->where('order_paid_status.priority', $priority_paid_status);
             })
             ->where('job_visits.visits', '>', 0)
-            ->select('clients.id AS client_id', 'job_visits.last_activity_date', 'order.doc_url AS last_order_doc_url', 'clients.payment_method')
+            ->select('clients.id AS client_id', 'job_visits.last_activity_date', 'clients.payment_method')
             ->selectRaw('IFNULL(job_visits.visits, 0) AS visits')
             ->selectRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) AS client_name')
-            ->selectRaw('order.paid_status AS last_paid_status')
+            ->selectRaw('order_paid_status.priority AS priority_paid_status')
             ->groupBy('clients.id')
             // ->orderBy('clients.id', 'desc')
             ->paginate(20);
@@ -1126,11 +1127,15 @@ class InvoiceController extends Controller
         $total_unpaid = Invoices::query()
             ->where('client_id', $client->id)
             ->where('type', 'invoice')
-            ->where('status', 'Unpaid')
-            ->sum('amount');
+            ->where(function ($q) {
+                $q->where('status', InvoiceStatusEnum::UNPAID)
+                    ->orWhere('status', InvoiceStatusEnum::PARTIALLY_PAID);
+            })
+            ->selectRaw('SUM(total_amount - paid_amount) as amount')
+            ->first();
 
         return response()->json([
-            'total_unpaid_amount' => number_format((float)$total_unpaid, 2, '.', '')
+            'total_unpaid_amount' => number_format((float)$total_unpaid->amount, 2, '.', '')
         ]);
     }
 
@@ -1156,7 +1161,10 @@ class InvoiceController extends Controller
             ->with(['client', 'order'])
             ->where('client_id', $client->id)
             ->where('type', 'invoice')
-            ->where('status', 'Unpaid')
+            ->where(function ($q) {
+                $q->where('status', InvoiceStatusEnum::UNPAID)
+                    ->orWhere('status', InvoiceStatusEnum::PARTIALLY_PAID);
+            })
             ->get();
 
         if ($invoices->count() == 0) {
@@ -1175,12 +1183,6 @@ class InvoiceController extends Controller
             }
         }
 
-        // if ($invoice->amount != $data['paid_amount']) {
-        //     return response()->json([
-        //         'message' => 'Entered amount is equal to invoice amount'
-        //     ], 403);
-        // }
-
         $order = $invoices[0]->order;
         if (!$order) {
             return response()->json([
@@ -1188,15 +1190,14 @@ class InvoiceController extends Controller
             ], 404);
         }
 
-        $orderResponse = json_decode($order->response, true);
-
-        $iCountClientID = $orderResponse['client_id'];
-
         $subtotal = 0;
-        $services = [];
         $basedOns = [];
-        $items = [];
+        $pendingAmount = $amountToPay = (float)$data['paid_amount'];
+        $payForInvoices = [];
+        $services = [];
         foreach ($invoices as $key => $invoice) {
+            $items = [];
+            $isPartialPayment = false;
             $order = $invoice->order;
             $iCountDocument = $this->getICountDocument($invoice->invoice_id, 'invoice');
 
@@ -1204,27 +1205,77 @@ class InvoiceController extends Controller
                 throw new Exception($iCountDocument["reason"], 500);
             }
 
-            $invoiceItems = $iCountDocument['doc_info']['items'];
-            $items = array_merge($items, $invoiceItems);
-            foreach ($invoiceItems as $item) {
-                $subtotal += (int)$item['unitprice'];
+            $unpaidAmount = $invoice->total_amount - $invoice->paid_amount;
 
-                $services[] = [
-                    'description' => $item['description'],
-                    'unitprice' => $item['unitprice'],
-                    'quantity' => $item['quantity'],
+            if ($unpaidAmount <= $pendingAmount) {
+                $invoiceItems = $iCountDocument['doc_info']['items'];
+                foreach ($invoiceItems as $item) {
+                    $subtotal += (float)$item['unitprice'] * (int)$item['quantity'];
+
+                    $items[] = [
+                        'description' => $item['description'],
+                        'unitprice' => $item['unitprice'],
+                        'quantity' => $item['quantity'],
+                    ];
+                }
+
+                $basedOns[] = [
+                    'docnum'  => $order->order_id,
+                    'doctype' => 'order'
                 ];
+
+                $basedOns[] = [
+                    'docnum'  => $invoice->invoice_id,
+                    'doctype' => 'invoice'
+                ];
+
+                $pendingAmount = $pendingAmount - $unpaidAmount;
+            } else {
+                $isPartialPayment = true;
+                $unpaidAmount = $pendingAmount - $invoice->paid_amount;
+                $invoiceItems = $iCountDocument['doc_info']['items'];
+
+                foreach ($invoiceItems as $item) {
+                    $subtotal += $unpaidAmount;
+
+                    $items[] = [
+                        'description' => $item['description'],
+                        'unitprice' => $unpaidAmount,
+                        'quantity' => $item['quantity'],
+                    ];
+                }
+
+                $basedOns[] = [
+                    'docnum'  => $order->order_id,
+                    'doctype' => 'order'
+                ];
+
+                $basedOns[] = [
+                    'docnum'  => $invoice->invoice_id,
+                    'doctype' => 'invoice'
+                ];
+
+                $pendingAmount = $pendingAmount - $unpaidAmount;
             }
 
-            $basedOns[] = [
-                'docnum'  => $order->order_id,
-                'doctype' => 'order'
+            $payForInvoices[] = [
+                'invoice_id' => $invoice->id,
+                'items' => $items,
+                'paying_amount' => $unpaidAmount,
+                'is_full_payment' => !$isPartialPayment
             ];
 
-            $basedOns[] = [
-                'docnum'  => $invoice->invoice_id,
-                'doctype' => 'invoice'
-            ];
+            $services = array_merge($services, $items);
+
+            if ($pendingAmount == 0) {
+                break;
+            }
+        }
+
+        if ($pendingAmount > 0) {
+            return response()->json([
+                'message' => 'Entered amount is more than invoice amount'
+            ], 403);
         }
 
         $otherInvDocOptions = [
@@ -1246,10 +1297,11 @@ class InvoiceController extends Controller
                 "holder_id" => $card->card_holder_id,
             ];
 
-            $paymentResponse = $this->commitInvoicePayment($client, $items, $card->card_token, $subtotal);
+            $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
 
             if ($paymentResponse['HasError'] == true) {
-                foreach ($invoices as $key => $invoice) {
+                foreach ($payForInvoices as $key => $_pinvoice) {
+                    $invoice = $invoices->where('id', $_pinvoice['invoice_id'])->first();
                     $order = $invoice->order;
 
                     $order->update([
@@ -1289,35 +1341,42 @@ class InvoiceController extends Controller
         $duedate = Carbon::today()->endOfMonth()->toDateString();
 
         $json = $this->generateInvRecDocument(
-            $iCountClientID,
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $subtotal,
+            0,
         );
 
-        foreach ($invoices as $key => $invoice) {
+        foreach ($payForInvoices as $key => $_pinvoice) {
+            $invoice = $invoices->where('id', $_pinvoice['invoice_id'])->first();
+
             $rcp = Receipts::create([
                 'invoice_id' => $invoice->id,
                 'invoice_icount_id' => $invoice->invoice_id,
                 'receipt_id' => $json['docnum'],
-                'docurl' => $json['doc_url'],
+                'docurl' => $json['doc_info']['doc_url'],
             ]);
 
             // $this->closeDoc($invoice->invoice_id, 'invoice');
+            $paidAmount = (float)$invoice->paid_amount + (float)$_pinvoice['paying_amount'];
+
             $invoice->update([
                 'invoice_icount_status' => 'Closed',
                 'receipt_id' => $rcp->id,
                 'pay_method'  => $data['pay_method'],
                 'txn_id'      => $txnID,
                 'callback'    => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-                'paid_amount' => $data['paid_amount'],
-                'status'      => $data['status']
+                'paid_amount' => $paidAmount,
+                'status'      => $_pinvoice['is_full_payment'] ?
+                    InvoiceStatusEnum::PAID : InvoiceStatusEnum::PARTIALLY_PAID
             ]);
 
             $order = $invoice->order;
             $order->update([
-                'paid_status' => OrderPaidStatusEnum::PAID
+                'paid_status' => $_pinvoice['is_full_payment'] ?
+                    OrderPaidStatusEnum::PAID : OrderPaidStatusEnum::UNPAID
             ]);
 
             Job::where('order_id', $order->id)
@@ -1382,7 +1441,7 @@ class InvoiceController extends Controller
             $services = json_decode($order->items, true);
 
             foreach ($services as $key => $service) {
-                $subtotal += (int)$service['unitprice'];
+                $subtotal += (float)$service['unitprice'] * (int)$service['quantity'];
             }
 
             $basedOns[] = [
@@ -1393,10 +1452,6 @@ class InvoiceController extends Controller
 
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
-
-        $orderResponse = json_decode($orders[0]->response, true);
-
-        $iCountClientID = $orderResponse['client_id'];
 
         $otherInvDocOptions = [
             'based_on' => $basedOns
@@ -1428,27 +1483,34 @@ class InvoiceController extends Controller
         $duedate = Carbon::today()->endOfMonth()->toDateString();
 
         $json = $this->generateInvRecDocument(
-            $iCountClientID,
             $client,
             $services,
             $duedate,
-            $otherInvDocOptions
+            $otherInvDocOptions,
+            $order->amount,
+            $order->discount_amount,
         );
+
+        $discount = isset($json['doc_info']['discount']) ? $json['doc_info']['discount'] : NULL;
+        $totalAmount = isset($json['doc_info']['afterdiscount']) ? $json['doc_info']['afterdiscount'] : NULL;
 
         $invoice = Invoices::create([
             'invoice_id' => $json['docnum'],
             'order_id'  => $order->id,
-            'amount'     => $total,
-            'paid_amount' => $total,
+            'amount'            => $json['doc_info']['totalsum'],
+            'paid_amount'       => $json['doc_info']['totalsum'],
+            'discount_amount'   => $discount,
+            'total_amount'      => $totalAmount,
+            'amount_with_tax'   => $json['doc_info']['totalwithvat'],
             'pay_method' => 'Credit Card',
-            'client_id'   => $client->id,
-            'doc_url'    => $json['doc_url'],
+            'client_id'  => $client->id,
+            'doc_url'    => $json['doc_info']['doc_url'],
             'type'       => 'invrec',
             'invoice_icount_status' => 'Open',
             'due_date'   => $duedate,
             'txn_id'     => $paymentResponse['ReferenceNumber'],
             'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-            'status'     => 'Paid',
+            'status'     => InvoiceStatusEnum::PAID,
         ]);
 
         foreach ($orders as $order) {
@@ -1456,7 +1518,7 @@ class InvoiceController extends Controller
                 'invoice_id'            => $invoice->id,
                 'is_invoice_generated'  => true,
                 'invoice_no'            => $json["docnum"],
-                'invoice_url'           => $json["doc_url"],
+                'invoice_url'           => $json['doc_info']['doc_url'],
                 'isOrdered'             => 2,
             ]);
 
@@ -1480,6 +1542,9 @@ class InvoiceController extends Controller
             ];
 
             $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PAID;
+            $orderUpdateData['paid_amount'] = $order->total_amount;
+            $orderUpdateData['unpaid_amount'] = 0;
+
             $order->update($orderUpdateData);
 
             Job::where('order_id', $order->id)

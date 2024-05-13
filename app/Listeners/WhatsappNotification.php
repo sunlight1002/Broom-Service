@@ -94,7 +94,7 @@ class WhatsappNotification
                                 "parameters"=> [
                                     [
                                         "type"=> "text",
-                                        "text"=> "meeting-schedule/".base64_encode($clientData['id'])
+                                        "text"=> "meeting-schedule/".base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],

@@ -20,6 +20,7 @@ use App\Models\Notification;
 use App\Traits\JobSchedule;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\JobNotificationToAdmin;
 
 class JobController extends Controller
 {
@@ -253,8 +254,22 @@ class JobController extends Controller
                 'status' => 'going to start'
             ]);
 
-            $admin = Admin::where('role', 'admin')->first();
             App::setLocale('en');
+
+            //send notification to admin
+            $adminEmailData = [
+                'emailData'   => [
+                    'job'   =>  $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray(),
+                ],
+                'emailSubject'  => __('mail.job_status.subject'),
+                'emailTitle'  => 'Job Status',
+                'emailContent'  => 'Below is the Job Details. Please check it.',
+                'isJobOpen' => true
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
+
+            //old
+            $admin = Admin::where('role', 'admin')->first();
             $data = array(
                 'email'      => $admin->email,
                 'admin'      => $admin->toArray(),
@@ -267,11 +282,11 @@ class JobController extends Controller
                     "notificationData" => $data
                 ]));
             }
-            Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
-                $messages->to($data['email']);
-                $sub = __('mail.job_status.subject');
-                $messages->subject($sub);
-            });
+            // Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
+            //     $messages->to($data['email']);
+            //     $sub = __('mail.job_status.subject');
+            //     $messages->subject($sub);
+            // });
             return response()->json([
                 'message' => 'Job opening time has been updated!'
             ]);

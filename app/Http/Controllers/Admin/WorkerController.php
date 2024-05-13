@@ -296,7 +296,7 @@ class WorkerController extends Controller
         event(new WorkerCreated($worker));
 
         return response()->json([
-            'message' => 'Worker updated successfully',
+            'message' => 'Worker created successfully',
         ]);
     }
 
@@ -648,6 +648,36 @@ class WorkerController extends Controller
 
         return response()->json([
             'message' => 'Leave job date updated successfully'
+        ]);
+    }
+
+    public function workingHoursReport(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $jobHours = Job::query()
+            ->select('jobs.worker_id')
+            ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS minutes')
+            ->groupBy('jobs.worker_id');
+
+        $data = User::query()
+            ->leftJoinSub($jobHours, 'job_hours', function ($join) {
+                $join->on('users.id', '=', 'job_hours.worker_id');
+            })
+            ->when($keyword, function ($query, $keyword) {
+                $query
+                    ->where('users.firstname',  'like', '%' . $keyword . '%')
+                    ->orWhere('users.lastname', 'like', '%' . $keyword . '%')
+                    ->orWhere('users.phone',    'like', '%' . $keyword . '%')
+                    ->orWhere('users.address',  'like', '%' . $keyword . '%')
+                    ->orWhere('users.email',  'like', '%' . $keyword . '%');
+            })
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'job_hours.minutes', 'users.created_at')
+            ->orderBy('users.id', 'desc')
+            ->paginate(20);
+
+        return response()->json([
+            'workers' => $data,
         ]);
     }
 }

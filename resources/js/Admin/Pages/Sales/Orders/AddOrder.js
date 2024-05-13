@@ -55,22 +55,21 @@ export default function AddOrder() {
         axios
             .post(`/api/admin/order-jobs`, { id: sel }, { headers })
             .then((res) => {
-                let _service = res.data.data.jobservice;
-                let lng = res.data.data.client.lng;
+                const _job = res.data.data;
+                let _service = _job.jobservice;
+                let lng = _job.client.lng;
 
                 if (_service) {
                     setjService(_service);
                     setTimeout(() => {
-                        let d = Moment(res.data.data.start_date).format(
-                            "DD MMM, Y"
-                        );
+                        let d = Moment(_job.start_date).format("DD MMM, Y");
 
                         setFormValues({
                             description:
                                 lng == "heb"
                                     ? _service.heb_name + " - " + d
                                     : _service.name + " - " + d,
-                            unitprice: _service.total,
+                            unitprice: _job.subtotal_amount,
                             quantity: 1,
                         });
                     }, 200);

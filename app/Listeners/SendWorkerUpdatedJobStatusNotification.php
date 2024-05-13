@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
+use App\Events\JobNotificationToAdmin;
 
-class SendWorkerUpdatedJobStatusNotification
+class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -56,11 +57,26 @@ class SendWorkerUpdatedJobStatusNotification
                 "notificationData" => $data
             ]));
         }
-        Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            $messages->to($data['email']);
-            $sub = __('mail.job_status.subject');
-            $messages->subject($sub);
-        });
+        // Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+        //     $messages->to($data['email']);
+        //     $sub = __('mail.job_status.subject');
+        //     $messages->subject($sub);
+        // });
+        
+        //send notification to admin
+        $emailContent = __('mail.job_status.content').''.ucfirst($data['job']['status']).'.' ;
+		if($data['job']['status'] != 'completed') {
+            $emailContent .=__('mail.job_status.reason').' '.$event->comment->comment.'.';
+        }
+        $adminEmailData = [
+            'emailData'   => [
+                'job'   =>  $event->job->toArray(),
+            ],
+            'emailSubject'  => __('mail.job_status.subject'),
+            'emailTitle'  => 'Job Status',
+            'emailContent'  => $emailContent
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
 
         if ($event->job->status == JobStatusEnum::COMPLETED) {
             App::setLocale($event->job->client->lng);
@@ -75,12 +91,23 @@ class SendWorkerUpdatedJobStatusNotification
                     "notificationData" => $emailData
                 ]));
             }
-
+            
             Mail::send('/Mails/ClientJobUpdated', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.client_job_status.job_completed_subject');
                 $messages->subject($sub);
             });
+            
+            //send notification to admin
+            $adminEmailData = [
+                'emailData'   => [
+                    'job'   =>  $event->job->toArray(),
+                ],
+                'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
+                'emailTitle'  => 'Job Details',
+                'emailContent'  => 'Job has been completed by '.$event->job->worker->firstname. '  '.$event->job->worker->lastname.'. Check below job details.'
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
         }
     }
 }

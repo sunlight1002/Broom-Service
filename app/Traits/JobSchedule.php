@@ -469,12 +469,25 @@ trait JobSchedule
                 }
 
                 $hours = ($minutes / 60);
-                $total_amount = $selectedService['rateperhour'] * $hours;
+                $subtotal_amount = $selectedService['rateperhour'] * $hours;
             } else {
-                $total_amount = $selectedService['fixed_price'];
+                $subtotal_amount = $selectedService['fixed_price'];
             }
 
+            $discount_amount = NULL;
+            if ($job->discount_type == 'percentage') {
+                $discount_amount = (($job->discount_value / 100) * $subtotal_amount);
+            } else if ($job->discount_type == 'fixed') {
+                $discount_amount = $job->discount_value;
+            } else {
+                $discount_amount = 0;
+            }
+
+            $total_amount = $subtotal_amount - $discount_amount;
+
             $job->update([
+                'subtotal_amount' => $subtotal_amount,
+                'discount_amount' => $discount_amount,
                 'total_amount' => $total_amount
             ]);
 

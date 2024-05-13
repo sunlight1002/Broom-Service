@@ -1004,7 +1004,7 @@ export function NonIsraeliContract({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                {t("nonIsrailContract.Submit")}
+                                {t("nonIsrailContract.Accept")}
                             </button>
                         )}
                     </form>

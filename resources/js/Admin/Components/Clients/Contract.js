@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import ContractFileModal from "./ContractFileModal";
+import { useAlert } from "react-alert";
 
-export default function Contract({ contracts, setContracts }) {
+export default function Contract({ contracts, setContracts, fetchContract }) {
+    const [isOpenContractFileModal, setIsOpenContractFileModal] =
+        useState(false);
+    const [contractId, setContractId] = useState(0);
+    const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -73,7 +79,36 @@ export default function Contract({ contracts, setContracts }) {
             setOrder("ASC");
         }
     };
-
+    const handleContractFileSubmit = (formData) => {
+        save(formData);
+    };
+    const save = (data) => {
+        const header = {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+        };
+        axios
+            .post(`/api/admin/contract-file/save`, data, { headers: header })
+            .then((res) => {
+                if (res.data.errors) {
+                    for (let e in res.data.errors) {
+                        alert.error(res.data.errors[e][0]);
+                    }
+                } else {
+                    alert.success(res.data.message);
+                    fetchContract();
+                    setIsOpenContractFileModal(false);
+                }
+            })
+            .catch((err) => {
+                alert.error("Error!");
+            });
+    };
+    const handleToggleModal = (id) => {
+        setIsOpenContractFileModal((prev) => !prev);
+        setContractId(id);
+    };
     return (
         <div className="boxPanel">
             <div className="table-responsive">
@@ -153,12 +188,24 @@ export default function Contract({ contracts, setContracts }) {
                                                             <i className="fa fa-plus"></i>
                                                         </Link>
                                                     )}
-                                                    <Link
-                                                        to={`/admin/view-contract/${c.id}`}
-                                                        className="btn bg-yellow"
-                                                    >
-                                                        <i className="fa fa-eye"></i>
-                                                    </Link>
+                                                    {c.signature === null &&
+                                                    c.status === "verified" &&
+                                                    c.file !== null ? (
+                                                        <Link
+                                                            to={`/storage/uploads/client/contract/${c.file}`}
+                                                            className="btn bg-yellow"
+                                                            target={"_blank"}
+                                                        >
+                                                            <i className="fa fa-eye"></i>
+                                                        </Link>
+                                                    ) : (
+                                                        <Link
+                                                            to={`/admin/view-contract/${c.id}`}
+                                                            className="btn bg-yellow"
+                                                        >
+                                                            <i className="fa fa-eye"></i>
+                                                        </Link>
+                                                    )}
                                                     <button
                                                         className="ml-2 btn bg-red"
                                                         onClick={() =>
@@ -167,6 +214,20 @@ export default function Contract({ contracts, setContracts }) {
                                                     >
                                                         <i className="fa fa-trash"></i>
                                                     </button>
+                                                    {c.signature === null &&
+                                                        c.status ===
+                                                            "verified" && (
+                                                            <button
+                                                                className="ml-2 btn bg-blue"
+                                                                onClick={() =>
+                                                                    handleToggleModal(
+                                                                        c.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <i className="fa fa-upload"></i>
+                                                            </button>
+                                                        )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -181,6 +242,14 @@ export default function Contract({ contracts, setContracts }) {
                     </div>
                 )}
             </div>
+            {isOpenContractFileModal && (
+                <ContractFileModal
+                    isOpen={isOpenContractFileModal}
+                    setIsOpen={setIsOpenContractFileModal}
+                    contractId={contractId}
+                    handleContractSubmit={handleContractFileSubmit}
+                />
+            )}
         </div>
     );
 }

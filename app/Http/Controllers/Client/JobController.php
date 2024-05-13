@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Events\JobNotificationToAdmin;
 
 class JobController extends Controller
 {
@@ -153,12 +154,36 @@ class JobController extends Controller
                 "notificationData" => $data
             ]));
         }
-        Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            $messages->to($data['email']);
-            $sub = __('mail.client_job_status.subject');
-            $messages->subject($sub);
-        });
+        // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+        //     $messages->to($data['email']);
+        //     $sub = __('mail.client_job_status.subject');
+        //     $messages->subject($sub);
+        // });
 
+        //send notification to admin
+        $emailContent = '';
+        if($data['by'] == 'client'){
+            $emailContent .=  __('mail.client_job_status.content').' '.ucfirst($data['job']['status']).'.';
+            if( $data['job']['cancellation_fee_amount'] ){
+                $emailContent .= __('mail.client_job_status.cancellation_fee').' '.$data['job']['cancellation_fee_amount'].'ILS.';
+            }
+        }else{
+            $emailContent .= 'Job is marked as'. ucfirst($data['job']['status']) .'by admin/team.';
+        }
+        $emailSubject = ($data['by'] == 'admin') ?
+                ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
+                $data['job']['id'] . "# " . ('העבודה בוטלה')
+                :__('mail.client_job_status.subject') . " #" . $data['job']['id'];
+        $adminEmailData = [
+            'emailData'   => [
+                'job'   =>  $job->toArray(),
+            ],
+            'emailSubject'  => $emailSubject,
+            'emailTitle'  => 'Job Status',
+            'emailContent'  => $emailContent
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
+        
         return response()->json([
             'job' => $job,
         ]);
@@ -238,10 +263,21 @@ class JobController extends Controller
             'repeat_until_date' => $data['until_date'],
             'status' => ChangeWorkerRequestStatusEnum::PENDING
         ]);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        
+        //send notification to admin
+        $adminEmailData = [
+            'emailData'   => [
+                'job'   =>  $job->toArray(),
+            ],
+            'emailSubject'  => __('mail.change_worker_request.subject'),
+            'emailTitle'  => 'Change Worker Request',
+            'emailContent'  => __('mail.change_worker_request.content') .' '.__('mail.change_worker_request.please_check')
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
 
         $admins = Admin::where('role', 'admin')->get();
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
         foreach ($admins as $key => $admin) {
             // App::setLocale($admin->lng);
 
@@ -256,10 +292,10 @@ class JobController extends Controller
                     "notificationData" => $emailData
                 ]));
             }
-            Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $messages->subject(__('mail.change_worker_request.subject'));
-            });
+            // Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $messages->subject(__('mail.change_worker_request.subject'));
+            // });
         }
 
         return response()->json([

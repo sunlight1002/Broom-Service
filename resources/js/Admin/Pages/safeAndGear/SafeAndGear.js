@@ -296,7 +296,7 @@ const SafeAndGear = () => {
                                     disabled={isSubmitting}
                                     className="btn btn-success"
                                 >
-                                    {t("safeAndGear.Submit")}
+                                    {t("safeAndGear.Accept")}
                                 </button>
                             )}
                         </form>

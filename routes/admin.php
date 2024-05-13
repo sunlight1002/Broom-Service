@@ -1,26 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\ClientController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
-use App\Http\Controllers\Admin\InformationPageController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\JobCommentController;
-use App\Http\Controllers\Admin\JobProfileController;
 use App\Http\Controllers\Admin\LanguageController;
-use App\Http\Controllers\Admin\NationalityController;
-use App\Http\Controllers\Admin\PlanController;
-use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\SkillController;
-use App\Http\Controllers\Admin\SubscriptionController;
-use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\ServicesController;
 use App\Http\Controllers\Admin\ServiceSchedulesController;
 use App\Http\Controllers\Admin\OfferController;
@@ -88,6 +80,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/{id}/switch-worker', [JobController::class, 'switchWorker']);
     Route::post('jobs/{id}/update-worker-actual-time', [JobController::class, 'updateWorkerActualTime']);
     Route::post('jobs/{id}/update-job-done', [JobController::class, 'updateJobDone']);
+    Route::post('jobs/{id}/discount', [JobController::class, 'saveDiscount']);
 
     // Lead Api
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
@@ -110,6 +103,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
     // Route::post('upload/{id}', [WorkerController::class, 'upload']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
+    Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);
@@ -153,6 +147,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('verify-contract', [ContractController::class, 'verify']);
     Route::get('get-contract-by-client/{id}', [ContractController::class, 'getContractByClient']);
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
+    Route::post('contract-file/save', [ContractController::class, 'saveContractFile']);
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
@@ -174,7 +169,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('schedule', ScheduleController::class)->except(['create', 'edit']);
     Route::post('schedule/{id}/create-event', [ScheduleController::class, 'createScheduleCalendarEvent']);
     Route::post('client-schedules', [ScheduleController::class, 'clientSchedules']);
-    Route::post('schedule-events', [ScheduleController::class, 'getEvents']);
+    Route::get('teams/{id}/schedule-events', [ScheduleController::class, 'getTeamEvents']);
     Route::post('latest-client-schedule', [ScheduleController::class, 'latestClientSchedule']);
 
     // client files
@@ -184,15 +179,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Report
     Route::post('export_report', [JobController::class, 'exportReport'])->name('export_report');
-
-    // Reviews Api
-    Route::resource('reviews', ReviewController::class);
-
-    // Skills Api
-    Route::resource('skills', SkillController::class);
-
-    // Tasks Api
-    Route::resource('tasks', TaskController::class);
 
     // Income 
     Route::post('income', [DashboardController::class, 'income'])->name('income');
@@ -209,11 +195,14 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('client/{id}/unpaid-invoice', [InvoiceController::class, 'clientUnpaidInvoice']);
     Route::post('client/{id}/update-invoice', [InvoiceController::class, 'closeClientInvoicesWithReceipt']);
     Route::post('client/{id}/close-for-payment', [InvoiceController::class, 'closeClientForPayment']);
-    Route::get('card_token/{id}', [ClientController::class, 'cardToken']);
+
+    Route::get('client/{id}/cards', [ClientCardController::class, 'index']);
+    Route::post('client/{id}/initialize-card', [ClientCardController::class, 'createClientCardSession']);
+    Route::post('client/{id}/check-card-by-session', [ClientCardController::class, 'checkTranxBySessionId']);
+    Route::delete('client/{client_id}/cards/{id}', [ClientCardController::class, 'destroy']);
+    Route::put('client/{client_id}/cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
-    Route::post('client/{id}/initialize-card', [ClientController::class, 'createClientCardSession']);
-    Route::post('client/{id}/check-card-by-session', [ClientController::class, 'checkTranxBySessionId']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);

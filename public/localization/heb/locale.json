@@ -1316,6 +1316,7 @@
         "disclaimer_details2": "אני מתחייב/ת להודיע למעסיק על כל שינוי שיחול בפרטיי האישיים ובפרטים דלעיל תוך שבוע ימים מתאריך השינוי.",
         "button_clear": "נקה",
         "button_submit": "שלח",
+        "Accept": "לְקַבֵּל",
         "Date": "תאריך",
         "sendTOYouAndEmployer": "שלח את הטופס אליך ולמעסיק",
         "employerEmail": "כתובת הדוא\"ל של המעסיק",
@@ -1493,6 +1494,7 @@
         "sign": "חתימת העובד:",
         "Clear": "נקה",
         "Submit": "שלח",
+        "Accept": "לְקַבֵּל",
         "errorMsg": "חתימה נדרשת"
     },
     "israilContract": {
@@ -1606,6 +1608,7 @@
         "BestRegards": "בברכה",
         "Broom": "Broom Service L.M. Ltd",
         "Submit": "שלח",
+        "Accept": "לְקַבֵּל",
         "errorMsg": {
             "FullName": "שם מלא נדרש",
             "Role": "תפקיד נדרש",
@@ -1620,7 +1623,6 @@
             "signRequired": "חתימה נדרשת"
         }
     },
-
     "nonIsrailContract": {
         "title1": "ההסכם העבודה כמו גם הודעה לעובד בנוגע לתנאי עבודה",
         "title2": "לפי סעיף 1 של חוק הודעה לעובד (תנאי עבודה), 2002",
@@ -1725,6 +1727,7 @@
         "companySign": "חתימת החברה:",
         "clear": "נקה",
         "Submit": "שלח",
+        "Accept": "לְקַבֵּל",
         "date": "תאריך",
         "errorMsg": {
             "FullName": "שם מלא נדרש",

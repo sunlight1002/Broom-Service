@@ -128,7 +128,9 @@ import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
+import InsuranceForm from "./Pages/InsuranceForm";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
+import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -198,6 +200,11 @@ export default function MyRoutes() {
                         exact
                         path="worker-safe-gear/:id"
                         element={<SafeAndGear />}
+                    />
+                    <Route
+                        exact
+                        path="insurance-form/:id"
+                        element={<InsuranceForm />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
@@ -414,6 +421,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers"
                                 element={<AllWorkers />}
+                            />
+                            <Route
+                                exact
+                                path="workers/working-hours"
+                                element={<WorkerHours />}
                             />
                             <Route
                                 exact

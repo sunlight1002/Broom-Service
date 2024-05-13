@@ -8,7 +8,7 @@ export default function AdminLogin() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
 
-    const HandleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
         const data = {
@@ -16,7 +16,7 @@ export default function AdminLogin() {
             password: password,
         };
 
-        axios.post(`/api/admin/login`, data).then((result) => {
+        await axios.post(`/api/admin/login`, data).then((result) => {
             if (result.data.errors) {
                 setErrors(result.data.errors);
             } else {
@@ -61,7 +61,7 @@ export default function AdminLogin() {
                         </svg>
                     </div>
                     <h1 className="page-title">Admin Login</h1>
-                    <form onClick={HandleLogin}>
+                    <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <div className="input-group mt-2">
                                 <div className="input-group-prepend">
@@ -119,7 +119,6 @@ export default function AdminLogin() {
                             <button
                                 type="submit"
                                 className="btn btn-danger btn-block"
-                                
                             >
                                 Login
                             </button>

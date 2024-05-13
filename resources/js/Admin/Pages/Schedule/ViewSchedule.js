@@ -22,7 +22,6 @@ export default function ViewSchedule() {
     const [team, setTeam] = useState("");
     const [bstatus, setBstatus] = useState("");
     const [events, setEvents] = useState([]);
-    const [lang, setLang] = useState("");
     const [meetVia, setMeetVia] = useState("on-site");
     const [meetLink, setMeetLink] = useState("");
     const [startSlot, setStartSlot] = useState([]);
@@ -164,7 +163,8 @@ export default function ViewSchedule() {
             );
         });
     };
-    const getTeam = () => {
+
+    const getTeams = () => {
         axios.get(`/api/admin/teams`, { headers }).then((res) => {
             let team = res.data.team.data
                 ? res.data.team.data.filter((e) => {
@@ -179,7 +179,7 @@ export default function ViewSchedule() {
         axios.get(`/api/admin/schedule/${sid}`, { headers }).then((res) => {
             const d = res.data.schedule;
             setSchedule(d);
-            setTeam(d.team_id ? d.team_id.toString() : "0");
+            setTeam(d.team_id ? d.team_id.toString() : "");
             setBstatus(d.booking_status);
             setSelectedDate(Moment(d.start_date).toDate());
 
@@ -198,9 +198,9 @@ export default function ViewSchedule() {
         });
     };
 
-    const getEvents = (tm) => {
-        axios
-            .post(`/api/admin/schedule-events`, { tid: tm }, { headers })
+    const getTeamEvents = async (_teamID) => {
+        await axios
+            .get(`/api/admin/teams/${_teamID}/schedule-events`, { headers })
             .then((res) => {
                 setEvents(res.data.events);
             });
@@ -225,7 +225,7 @@ export default function ViewSchedule() {
     useEffect(() => {
         getClient();
         getTime();
-        getTeam();
+        getTeams();
         if (sid != "" && sid != null) {
             setTimeout(() => {
                 getSchedule();
@@ -234,10 +234,6 @@ export default function ViewSchedule() {
                     createAndSendMeeting(sid);
                 }
             }, 500);
-            setTimeout(() => {
-                const tm = document.querySelector("#team").value;
-                getEvents(tm);
-            }, 1000);
         }
     }, []);
 
@@ -326,10 +322,6 @@ export default function ViewSchedule() {
         }
     };
 
-    const handleTeamChange = (_id) => {
-        getEvents(_id);
-    };
-
     const handleDateChange = (_date) => {
         setSelectedDate(_date);
 
@@ -403,6 +395,12 @@ export default function ViewSchedule() {
     useEffect(() => {
         getTeamAvailibality();
     }, [team, selectedDate]);
+
+    useEffect(() => {
+        if (team) {
+            getTeamEvents(team);
+        }
+    }, [team]);
 
     const handlePurpose = (e) => {
         let pt = document.querySelector("#purpose_text");
@@ -520,10 +518,9 @@ export default function ViewSchedule() {
                                     onChange={(e) => {
                                         setTeam(e.target.value);
                                         handleFieldValueChange(e);
-                                        handleTeamChange(e.target.value);
                                     }}
                                 >
-                                    <option value="0">
+                                    <option value="">
                                         {t(
                                             "admin.schedule.options.pleaseSelect"
                                         )}

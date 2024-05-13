@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\JobNotificationToAdmin;
 
-class SendJobApprovedNotification
+class SendJobApprovedNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -31,6 +32,18 @@ class SendJobApprovedNotification
      */
     public function handle(WorkerApprovedJob $event)
     {
+        //send notification to admin
+        $adminEmailData = [
+            'emailData'   => [
+                'job' => $event->job->toArray(),
+            ],
+            'emailSubject'  => 'Job Approved | Broom Service',
+            'emailTitle'  => 'Worker Approved Job',
+            'emailContent'  => 'Worker has approved the job.'
+        ];
+        event(new JobNotificationToAdmin($adminEmailData));
+
+        //old
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -49,10 +62,10 @@ class SendJobApprovedNotification
                     "notificationData" => $emailData
                 ]));
             }
-            Mail::send('/Mails/WorkerJobApprovalMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $messages->subject('Job Approved | Broom Service');
-            });
+            // Mail::send('/Mails/WorkerJobApprovalMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $messages->subject('Job Approved | Broom Service');
+            // });
         }
     }
 }

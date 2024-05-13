@@ -43,6 +43,7 @@ class Client extends Authenticatable
         'password',
         'extra',
         'payment_method',
+        'icount_client_id',
         'avatar',
     ];
 

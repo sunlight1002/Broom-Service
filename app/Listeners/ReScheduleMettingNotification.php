@@ -13,7 +13,7 @@ use App\Models\Notification;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
-class ReScheduleMettingNotification
+class ReScheduleMettingNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
