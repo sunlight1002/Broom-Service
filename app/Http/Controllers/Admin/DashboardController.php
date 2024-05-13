@@ -215,26 +215,19 @@ class DashboardController extends Controller
 
   public function income(Request $request)
   {
+    $requestData = $request->all();
     $tasks = Job::query()
       ->with(['client', 'worker', 'offer', 'hours'])
       ->where('status', JobStatusEnum::COMPLETED);
 
-    if (empty($request->duration) || $request->duration == 'all') {
+    $startDate = $requestData['dateRange']['start_date'];
+    $endDate = $requestData['dateRange']['end_date'];
+
+    if (empty($startDate) || empty($endDate)) {
       $tasks = $tasks->get();
+    }else{
+      $tasks = $tasks->whereBetween('created_at', [$startDate, $endDate])->get();
     }
-
-    if ($request->duration == 'day') {
-      $tasks = $tasks->whereDate('created_at', Carbon::today())->get();
-    }
-
-    if ($request->duration == 'month') {
-      $tasks = $tasks->whereMonth('created_at', Carbon::now()->month)->get();
-    }
-
-    if ($request->duration == 'week') {
-      $tasks = $tasks->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
-    }
-
     $inc = 0;
     foreach ($tasks as $t1 => $task) {
       if (isset($task->hours)) {
