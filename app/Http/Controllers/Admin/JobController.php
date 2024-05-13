@@ -433,19 +433,19 @@ class JobController extends Controller
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
                         App::setLocale($job->worker->lng);
 
-                        $emailData = array(
-                            'email' => $job['worker']['email'],
-                            'job' => $job->toArray(),
-                            'start_time' => $mergedContinuousTime[0]['starting_at'],
-                            'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                            'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-                        );
-                        sendJobWANotification($emailData);
-                        Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                            $messages->to($emailData['email']);
-                            $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                            $messages->subject($sub);
-                        });
+                        // $emailData = array(
+                        //     'email' => $job['worker']['email'],
+                        //     'job' => $job->toArray(),
+                        //     'start_time' => $mergedContinuousTime[0]['starting_at'],
+                        //     'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                        //     'content_data'  => __('mail.worker_new_job.new_job_assigned'),
+                        // );
+                        // sendJobWANotification($emailData);
+                        // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                        //     $messages->to($emailData['email']);
+                        //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                        //     $messages->subject($sub);
+                        // });
                         //send notification to admin
                         $adminEmailData = [
                             'emailData'   => [
