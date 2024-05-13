@@ -13,6 +13,7 @@ import Form from "react-bootstrap/Form";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { objectToFormData } from "../Utils/common.utils";
+import { useTranslation } from "react-i18next";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
@@ -25,7 +26,7 @@ const InsuranceForm = () => {
     const [pdfForm, setPdfForm] = useState(null);
     const [pdfDoc, setPdfDoc] = useState(null);
     const [pdfData, setPdfData] = useState(null);
-
+    const { t } = useTranslation();
     const initialValues = {
         // page 1
         type: "New",
@@ -44,6 +45,7 @@ const InsuranceForm = () => {
         Email: "",
         CellphoneNo: "",
         TelephoneNo: "",
+        // section-2
         canFirstName: "",
         canLastName: "",
         canPassport: "",
@@ -57,6 +59,7 @@ const InsuranceForm = () => {
         canTelephone: "",
         canCellPhone: "",
         canEmail: "",
+        gender: "male",
         periodTo: "",
         periodFrom: "",
         prevTo: "",
@@ -66,7 +69,6 @@ const InsuranceForm = () => {
         prevMemberShip: "",
         prevInsurance: "No",
         occupasion: "other",
-        gender: "male",
         // page 2
         FFirstName: "",
         FLastName: "",
@@ -102,6 +104,34 @@ const InsuranceForm = () => {
         canDate: "",
     };
 
+    const formSchema = yup.object({
+        canFirstName: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.fname2CharLong"))
+            .required(t("insurance.fnameReq")),
+        canLastName: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.lname2CharLong"))
+            .required(t("insurance.lnameReq")),
+        canPassport: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.passport2CharLong"))
+            .required(t("insurance.passportReq")),
+        canOrigin: yup.string().trim().required(t("insurance.originReq")),
+        canDOB: yup.date().required(t("insurance.dobReq")),
+        canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
+        canZipcode: yup.string().trim().required(t("insurance.zipReq")),
+        canTown: yup.string().trim().required(t("insurance.townReq")),
+        canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
+        canStreet: yup.string().trim().required(t("insurance.streetReq")),
+        canTelephone: yup.number().required(t("insurance.telReq")),
+        canCellPhone: yup.number().required(t("insurance.phoneReq")),
+        canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
+        gender: yup.string().trim().required(t("insurance.genderReq")),
+    });
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -138,7 +168,7 @@ const InsuranceForm = () => {
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
-        // validationSchema: formSchema,
+        validationSchema: formSchema,
         onSubmit: async (values) => {
             console.log(values);
             await saveFormData(true);
@@ -244,7 +274,7 @@ const InsuranceForm = () => {
                     },
                 })
                 .then((res) => {
-                    alert.success("Successfuly signed");
+                    alert.success(t("insurance.signedSuccess"));
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
@@ -339,12 +369,14 @@ const InsuranceForm = () => {
     }, [values.Months]);
 
     return (
-        <div className="my-2">
+        <form className="my-2" onSubmit={handleSubmit}>
             <div className="row justify-content-center">
                 <div className="col-md-8">
-                    <label className="control-label">Type</label>
+                    <label className="control-label">
+                        {t("insurance.type")}
+                    </label>
                     <Form.Check
-                        label="a new candidate"
+                        label={t("insurance.newCandidate")}
                         name="type"
                         checked={values.type === "New"}
                         value={"New"}
@@ -353,7 +385,7 @@ const InsuranceForm = () => {
                         onChange={handleChange}
                     />
                     <Form.Check
-                        label="renewal/extention"
+                        label={t("insurance.renewal")}
                         name="type"
                         checked={values.type === "Renewal"}
                         value={"Renewal"}
@@ -367,7 +399,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Agent Name</label>
+                        <label className="control-label">
+                            {t("insurance.agentName")}
+                        </label>
                         <input
                             type="text"
                             name={"AgentName"}
@@ -379,7 +413,9 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Agent Number</label>
+                        <label className="control-label">
+                            {t("insurance.agentNo")}
+                        </label>
                         <input
                             type="text"
                             name={"AgentNo"}
@@ -393,7 +429,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">CompanyName</label>
+                        <label className="control-label">
+                            {t("insurance.CompanyName")}
+                        </label>
                         <input
                             type="text"
                             name={"CompanyName"}
@@ -405,7 +443,9 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">CompanyNo</label>
+                        <label className="control-label">
+                            {t("insurance.CompanyNo")}
+                        </label>
                         <input
                             type="text"
                             name={"CompanyNo"}
@@ -419,7 +459,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="form-group">
-                        <label className="control-label">AgreementNo</label>
+                        <label className="control-label">
+                            {t("insurance.AgreementNo")}
+                        </label>
                         <input
                             type="text"
                             name={"AgreementNo"}
@@ -586,34 +628,46 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Insurance Candidate details
+                {t("insurance.insuraceDetailCandidate")}
             </div>
 
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">First Name</label>
+                        <label className="control-label">
+                            {t("insurance.fN")}
+                        </label>
                         <input
                             type="text"
                             name={"canFirstName"}
                             className="form-control"
                             value={values.canFirstName}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             readOnly
                         />
+                        <span className="text-danger">
+                            {touched.canFirstName && errors.canFirstName}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Last Name</label>
+                        <label className="control-label">
+                            {t("insurance.LN")}
+                        </label>
                         <input
                             type="text"
                             name={"canLastName"}
                             className="form-control"
                             value={values.canLastName}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             readOnly
                         />
+                        <span className="text-danger">
+                            {touched.canLastName && errors.canLastName}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -621,26 +675,38 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Passport</label>
+                        <label className="control-label">
+                            {t("insurance.Passport")}
+                        </label>
                         <input
                             type="text"
                             name={"canPassport"}
                             className="form-control"
                             value={values.canPassport}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canPassport && errors.canPassport}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Origin</label>
+                        <label className="control-label">
+                            {t("insurance.Origin")}
+                        </label>
                         <input
                             type="text"
                             name={"canOrigin"}
                             className="form-control"
                             value={values.canOrigin}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canOrigin && errors.canOrigin}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -648,20 +714,26 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Date of Birth</label>
+                        <label className="control-label">
+                            {t("insurance.DOB")}
+                        </label>
                         <input
                             type="date"
                             name={"canDOB"}
                             className="form-control"
                             value={values.canDOB}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canDOB && errors.canDOB}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
                         <label className="control-label">
-                            First Date of Insurance
+                            {t("insurance.FirstDateIns")}
                         </label>
                         <input
                             type="date"
@@ -669,7 +741,12 @@ const InsuranceForm = () => {
                             className="form-control"
                             value={values.canFirstDateOfIns}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canFirstDateOfIns &&
+                                errors.canFirstDateOfIns}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -677,26 +754,38 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Zip Code</label>
+                        <label className="control-label">
+                            {t("insurance.zipCode")}
+                        </label>
                         <input
                             type="text"
                             name={"canZipcode"}
                             className="form-control"
                             value={values.canZipcode}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canZipcode && errors.canZipcode}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Town</label>
+                        <label className="control-label">
+                            {t("insurance.Town")}
+                        </label>
                         <input
                             type="text"
                             name={"canTown"}
                             className="form-control"
                             value={values.canTown}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canTown && errors.canTown}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -704,26 +793,38 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">House Number</label>
+                        <label className="control-label">
+                            {t("insurance.HouseNumber")}
+                        </label>
                         <input
                             type="text"
                             name={"canHouseNo"}
                             className="form-control"
                             value={values.canHouseNo}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canHouseNo && errors.canHouseNo}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Street</label>
+                        <label className="control-label">
+                            {t("insurance.Street")}
+                        </label>
                         <input
                             type="text"
                             name={"canStreet"}
                             className="form-control"
                             value={values.canStreet}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canStreet && errors.canStreet}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -731,27 +832,39 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Telephone</label>
+                        <label className="control-label">
+                            {t("insurance.Telephone")}
+                        </label>
                         <input
                             type="text"
                             name={"canTelephone"}
                             className="form-control"
                             value={values.canTelephone}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
+                        <span className="text-danger">
+                            {touched.canTelephone && errors.canTelephone}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Cellphone</label>
+                        <label className="control-label">
+                            {t("insurance.Cellphone")}
+                        </label>
                         <input
                             type="text"
                             name={"canCellPhone"}
                             className="form-control"
                             value={values.canCellPhone}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             readOnly
                         />
+                        <span className="text-danger">
+                            {touched.canCellPhone && errors.canCellPhone}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -759,39 +872,52 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Email</label>
+                        <label className="control-label">
+                            {t("insurance.Email")}
+                        </label>
                         <input
                             type="text"
                             name={"canEmail"}
                             className="form-control"
                             value={values.canEmail}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             readOnly
                         />
+                        <span className="text-danger">
+                            {touched.canEmail && errors.canEmail}
+                        </span>
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <label className="control-label">Gender</label>
+                    <label className="control-label">
+                        {t("insurance.Gender")}
+                    </label>
                     <Form.Check
-                        label="Male"
+                        label={t("insurance.Male")}
                         name="gender"
                         value="Male"
                         checked={values.gender === "Male"}
                         type="radio"
                         id={`gender-1`}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         disabled
                     />
                     <Form.Check
-                        label="Female"
+                        label={t("insurance.Female")}
                         name="gender"
                         value="Female"
                         checked={values.gender === "Female"}
                         type="radio"
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         id={`gender-2`}
                         disabled
                     />
+                    <span className="text-danger">
+                        {touched.gender && errors.gender}
+                    </span>
                 </div>
             </div>
 
@@ -1294,13 +1420,15 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Health Declaration
+                {t("insurance.HealthDeclaration")}
             </div>
 
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">First Name</label>
+                        <label className="control-label">
+                            {t("insurance.fN")}
+                        </label>
                         <input
                             type="text"
                             name="GFirstname"
@@ -1313,7 +1441,9 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Last Name</label>
+                        <label className="control-label">
+                            {t("insurance.LN")}
+                        </label>
                         <input
                             type="text"
                             name="GLastname"
@@ -1329,7 +1459,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Passport Number</label>
+                        <label className="control-label">
+                            {t("insurance.Passport")}
+                        </label>
                         <input
                             type="text"
                             name="GPassportno"
@@ -1341,7 +1473,9 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Details</label>
+                        <label className="control-label">
+                            {t("insurance.Details")}
+                        </label>
                         <input
                             type="text"
                             name="GDetails"
@@ -1356,7 +1490,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Candidate Name</label>
+                        <label className="control-label">
+                            {t("insurance.CandidateName")}
+                        </label>
                         <input
                             type="text"
                             name="GCandidatename"
@@ -1368,7 +1504,9 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Date</label>
+                        <label className="control-label">
+                            {t("insurance.Date")}
+                        </label>
                         <input
                             type="date"
                             name="GDate"
@@ -1384,13 +1522,15 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Receipt of all the information in the policy
+                {t("insurance.receipt")}
             </div>
 
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="form-group">
-                        <label className="control-label">Date</label>
+                        <label className="control-label">
+                            {t("insurance.Date")}
+                        </label>
                         <input
                             type="text"
                             name="Hname"
@@ -1406,13 +1546,15 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
-                Signature for the Insurance Candidate
+                {t("insurance.signCanidate")}
             </div>
 
             <div className="row justify-content-center">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label className="control-label">Passport No.</label>
+                        <label className="control-label">
+                            {t("insurance.PassportNo")}
+                        </label>
                         <input
                             type="text"
                             name="canPassportNo"
@@ -1425,7 +1567,7 @@ const InsuranceForm = () => {
                 <div className="col-md-4">
                     <div className="form-group">
                         <label className="control-label">
-                            Insurance Candidate Name
+                            {t("insurance.InsuranceCandidateName")}
                         </label>
                         <input
                             type="text"
@@ -1441,7 +1583,9 @@ const InsuranceForm = () => {
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="form-group">
-                        <label className="control-label">Date</label>
+                        <label className="control-label">
+                            {t("insurance.Date")}
+                        </label>
                         <input
                             type="date"
                             name="canDate"
@@ -1463,7 +1607,7 @@ const InsuranceForm = () => {
                                 onClick={handleShow}
                                 disabled={isSubmitting}
                             >
-                                Preview
+                                {t("insurance.Preview")}
                             </button>
                             <div className="mx-2"></div>
                             <button
@@ -1471,7 +1615,7 @@ const InsuranceForm = () => {
                                 onClick={handleSubmit}
                                 disabled={isSubmitting}
                             >
-                                Submit
+                                {t("insurance.Submit")}
                             </button>
                         </div>
                     </div>
@@ -1487,25 +1631,26 @@ const InsuranceForm = () => {
                     onHide={handleClose}
                 >
                     <Modal.Header closeButton>
-                        <Modal.Title>Preview</Modal.Title>
+                        <Modal.Title>{t("insurance.Preview")}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {!!pdfData && <PdfViewer url={pdfData} />}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>
-                            Close
+                            {t("insurance.Close")}
                         </Button>
                     </Modal.Footer>
                 </Modal>
             </div>
-        </div>
+        </form>
     );
 };
 
 function PdfViewer({ url }) {
     const [numPages, setNumPages] = useState();
     const [pageNumber, setPageNumber] = useState(1);
+    const { t } = useTranslation();
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -1523,10 +1668,10 @@ function PdfViewer({ url }) {
                     disabled={pageNumber <= 1}
                     onClick={() => setPageNumber(pageNumber - 1)}
                 >
-                    Previous
+                    {t("insurance.Previous")}
                 </button>
                 <div className="mx-2">
-                    Page {pageNumber} of {numPages}
+                    {t("insurance.Page")} {pageNumber} of {numPages}
                 </div>
                 <button
                     className="btn btn-primary"
@@ -1534,7 +1679,7 @@ function PdfViewer({ url }) {
                     disabled={pageNumber >= numPages}
                     onClick={() => setPageNumber(pageNumber + 1)}
                 >
-                    Next
+                    {t("insurance.Next")}
                 </button>
             </div>
         </div>
