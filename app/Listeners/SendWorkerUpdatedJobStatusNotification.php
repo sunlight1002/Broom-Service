@@ -40,7 +40,7 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
         $data = array(
             'email'      => $admin->email,
             'admin'      => $admin->toArray(),
-            'comment'    => $event->comment->comment,
+            'comment'    => $event->comment && $event->comment->comment ? $event->comment->comment: '-',
             'job'        => $event->job->toArray(),
         );
 
