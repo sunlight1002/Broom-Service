@@ -524,7 +524,7 @@
             "transaction_id_ref": "Transaction ID/Ref.",
             "payment_mode": "Payment Mode",
             "action": "Action",
-            "no_invoice_found": "No offer found",
+            "no_invoice_found": "No invoice found",
             "view_invoice": "View Invoice",
             "view_receipt": "View Receipt"
         },
@@ -892,7 +892,8 @@
                     "Pending": "Pending",
                     "Confirmed": "Confirmed",
                     "Declined": "Declined",
-                    "Completed": "Completed"
+                    "Completed": "Completed",
+                    "rescheduled": "Rescheduled"
                 },
                 "meetingPurpose": {
                     "priceOffer": "Price offer",

@@ -38,7 +38,7 @@ export default function ViewSchedule() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(null);
 
-    const param = useParams();
+    const params = useParams();
     const alert = useAlert();
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -52,7 +52,7 @@ export default function ViewSchedule() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const sendMeeting = () => {
+    const sendMeeting = async () => {
         if (meetVia === "on-site") {
             if (!selectedDate) {
                 alert.error("Date not selected");
@@ -76,7 +76,7 @@ export default function ViewSchedule() {
 
         let st = document.querySelector("#status").value;
         const data = {
-            client_id: param.id,
+            client_id: params.id,
             team_id: team.length > 0 ? team : team == 0 ? "" : "",
             start_date: selectedDate,
             start_time: selectedTime,
@@ -89,32 +89,60 @@ export default function ViewSchedule() {
 
         setIsLoading(true);
 
-        axios
-            .post(`/api/admin/schedule`, data, { headers })
-            .then((res) => {
-                if (res.data.errors) {
-                    for (let e in res.data.errors) {
-                        alert.error(res.data.errors[e]);
-                    }
-                    setIsLoading(false);
-                } else {
-                    if (res.data.action == "redirect") {
-                        window.location = res.data.url;
+        if (sid) {
+            await axios
+                .put(`/api/admin/schedule/${sid}`, data, {
+                    headers,
+                })
+                .then((res) => {
+                    if (res.data.errors) {
+                        for (let e in res.data.errors) {
+                            alert.error(res.data.errors[e]);
+                        }
+                        setIsLoading(false);
                     } else {
                         alert.success(res.data.message);
-                        createAndSendMeeting(res.data.data.id);
                     }
-                }
-            })
-            .catch((e) => {
-                setIsLoading(false);
+                })
+                .catch((e) => {
+                    setIsLoading(false);
 
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
                 });
-            });
+        } else {
+            await axios
+                .post(`/api/admin/schedule`, data, {
+                    headers,
+                })
+                .then((res) => {
+                    if (res.data.errors) {
+                        for (let e in res.data.errors) {
+                            alert.error(res.data.errors[e]);
+                        }
+                        setIsLoading(false);
+                    } else {
+                        if (res.data.action == "redirect") {
+                            window.location = res.data.url;
+                        } else {
+                            alert.success(res.data.message);
+                            createAndSendMeeting(res.data.data.id);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    setIsLoading(false);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
+        }
     };
 
     const createAndSendMeeting = (_scheduleID) => {
@@ -155,13 +183,15 @@ export default function ViewSchedule() {
     };
 
     const getClient = () => {
-        axios.get(`/api/admin/clients/${param.id}`, { headers }).then((res) => {
-            const { client } = res.data;
-            setClient(client);
-            setAddresses(
-                client.property_addresses ? client.property_addresses : []
-            );
-        });
+        axios
+            .get(`/api/admin/clients/${params.id}`, { headers })
+            .then((res) => {
+                const { client } = res.data;
+                setClient(client);
+                setAddresses(
+                    client.property_addresses ? client.property_addresses : []
+                );
+            });
     };
 
     const getTeams = () => {
@@ -226,7 +256,7 @@ export default function ViewSchedule() {
         getClient();
         getTime();
         getTeams();
-        if (sid != "" && sid != null) {
+        if (sid != null) {
             setTimeout(() => {
                 getSchedule();
 
@@ -244,54 +274,11 @@ export default function ViewSchedule() {
         }
     }, [meetVia]);
 
-    const handleUpdate = (_data) => {
-        if (
-            sid != "" &&
-            sid != null &&
-            urlParamAction !== "create-calendar-event"
-        ) {
-            axios
-                .put(`/api/admin/schedule/${sid}`, _data, { headers })
-                .then((res) => {
-                    alert.success(res.data.message);
-                    if (res.data.change == "date") {
-                        setTimeout(() => {
-                            window.location.reload(true);
-                        }, 2000);
-                    }
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response.data.message,
-                        icon: "error",
-                    });
-                });
-        }
-    };
-
-    const handleFieldValueChange = () => {
-        if (sid != "" && sid != null) {
-            let _data = {};
-
-            if (e.target.value == "Other") {
-                _data.name = e.target.name;
-                _data.value = document.querySelector("#purpose_text").value;
-            } else {
-                _data.name =
-                    e.target.name == "purpose_text" ? "purpose" : e.target.name;
-                _data.value = e.target.value;
-            }
-
-            handleUpdate(_data);
-        }
-    };
-
-    const getTeamAvailibality = () => {
+    const getTeamAvailibality = async () => {
         if (team && team != "0" && team != "" && selectedDate) {
             const _date = Moment(selectedDate).format("Y-MM-DD");
 
-            axios
+            await axios
                 .get(`/api/admin/teams/availability/${team}/date/${_date}`, {
                     headers,
                 })
@@ -324,24 +311,10 @@ export default function ViewSchedule() {
 
     const handleDateChange = (_date) => {
         setSelectedDate(_date);
-
-        if (sid != "" && sid != null) {
-            handleUpdate({
-                name: "start_date",
-                value: _date,
-            });
-        }
     };
 
     const handleTimeChange = (_time) => {
         setSelectedTime(_time);
-
-        if (sid != "" && sid != null) {
-            handleUpdate({
-                name: "start_time",
-                value: _time,
-            });
-        }
     };
 
     const timeOptions = useMemo(() => {
@@ -479,7 +452,6 @@ export default function ViewSchedule() {
                                     value={bstatus}
                                     onChange={(e) => {
                                         setBstatus(e.target.value);
-                                        handleFieldValueChange(e);
                                     }}
                                 >
                                     <option value="pending">
@@ -502,6 +474,11 @@ export default function ViewSchedule() {
                                             "admin.schedule.options.meetingStatus.Completed"
                                         )}
                                     </option>
+                                    <option value="rescheduled">
+                                        {t(
+                                            "admin.schedule.options.meetingStatus.rescheduled"
+                                        )}
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -517,7 +494,6 @@ export default function ViewSchedule() {
                                     value={team}
                                     onChange={(e) => {
                                         setTeam(e.target.value);
-                                        handleFieldValueChange(e);
                                     }}
                                 >
                                     <option value="">
@@ -552,7 +528,6 @@ export default function ViewSchedule() {
                                     onChange={(e) => {
                                         setPurpose(e.target.value);
                                         handlePurpose(e);
-                                        handleFieldValueChange(e);
                                     }}
                                 >
                                     <option value="Price offer">
@@ -592,9 +567,6 @@ export default function ViewSchedule() {
                                         onChange={(e) => {
                                             setPurposeText(e.target.value);
                                         }}
-                                        onBlur={(e) =>
-                                            handleFieldValueChange(e)
-                                        }
                                         placeholder="Enter purpose please"
                                         className="form-control"
                                     />
@@ -612,7 +584,6 @@ export default function ViewSchedule() {
                                     value={meetVia}
                                     onChange={(e) => {
                                         setMeetVia(e.target.value);
-                                        handleFieldValueChange(e);
                                     }}
                                     className="form-control"
                                 >
@@ -639,7 +610,6 @@ export default function ViewSchedule() {
                                     value={meetLink}
                                     onChange={(e) => {
                                         setMeetLink(e.target.value);
-                                        handleFieldValueChange(e);
                                     }}
                                     className="form-control"
                                     placeholder="Insert Meeting Link"
@@ -655,7 +625,6 @@ export default function ViewSchedule() {
                                     value={address}
                                     onChange={(e) => {
                                         setAddress(e.target.value);
-                                        handleFieldValueChange(e);
                                     }}
                                     className="form-control"
                                 >

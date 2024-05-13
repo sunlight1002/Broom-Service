@@ -132,8 +132,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Services schedule Api
     Route::resource('service-schedule', ServiceSchedulesController::class)->except(['create', 'show']);
-    Route::get('all-service-schedule', [ServiceSchedulesController::class, 'allSchedules'])->name('all-service-schedule');
-    Route::post('all-service-schedule', [ServiceSchedulesController::class, 'allSchedulesByLng'])->name('all-service-schedule');
+    Route::get('all-service-schedule', [ServiceSchedulesController::class, 'allSchedules']);
+    Route::post('all-service-schedule', [ServiceSchedulesController::class, 'allSchedulesByLng']);
 
     // Offer Api
     Route::resource('offers', OfferController::class)->except('create');

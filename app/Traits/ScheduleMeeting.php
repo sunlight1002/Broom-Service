@@ -170,7 +170,7 @@ trait ScheduleMeeting
         return $data['value'];
     }
 
-    private function deleteGoogleCalendarEvent($eventId)
+    private function deleteGoogleCalendarEvent($schedule)
     {
         $googleCalendarID = config('services.google.calendar_id');
 
@@ -178,12 +178,17 @@ trait ScheduleMeeting
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');
 
-        $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $eventId;
+        $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $googleAccessToken,
             'Content-Type' => 'application/json',
         ])->delete($url);
+
+        $schedule->update([
+            'is_calendar_event_created' => false,
+            'google_calendar_event_id' => NULL
+        ]);
 
         // $data = $response->json();
         // $http_code = $response->status();

@@ -251,6 +251,14 @@ class ScheduleController extends Controller
 
     public function getTeamEvents($id)
     {
+        $statusColors = [
+            'pending' => '#800080',     // purple
+            'confirmed' => '#008000',
+            'declined' => '#ff0000',
+            'completed' => '#008000',
+            'rescheduled' => '#ff0000',
+        ];
+
         $schedules = Schedule::query()
             ->where('team_id', $id)
             ->where('start_time', '!=', '')
@@ -273,6 +281,8 @@ class ScheduleController extends Controller
             $eventArr["start"]      = Carbon::createFromFormat('Y-m-d H:i A', $startAt)->toDateTimeString();
             $eventArr["end"]        = Carbon::createFromFormat('Y-m-d H:i A', $endAt)->toDateTimeString();
             $eventArr["start_time"] = $schedule['start_time'];
+            $eventArr["backgroundColor"] = $statusColors[$schedule['booking_status']];
+            $eventArr["borderColor"] = $statusColors[$schedule['booking_status']];
 
             array_push($events, $eventArr);
         }
@@ -291,6 +301,21 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'start_date'     => ['required_if:meet_via,on-site'],
+            'start_time'     => ['required_if:meet_via,on-site'],
+            'booking_status' => ['required'],
+            'address_id'     => ['required'],
+            'team_id'        => ['required']
+        ], [], [
+            'address_id'     => 'Property',
+            'team_id'        => 'Attender'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
         $schedule = Schedule::find($id);
 
         if (!$schedule) {
@@ -299,38 +324,38 @@ class ScheduleController extends Controller
             ], 404);
         }
 
-        $change = '';
-        if ($request->name == 'start_date') {
-            $schedule->update([
-                'booking_status' => 'pending',
-                'start_date'     => $request->value,
-                'start_time'     => '',
-                'end_time'       => ''
-            ]);
-            $change = 'date';
-        } else if ($request->name == 'start_time') {
-            if ($request->value) {
-                $endTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request->value)->addMinutes(30)->format('h:i A');
+        $input = $request->input();
 
-                $schedule->update([
-                    'start_time' => $request->value,
-                    'end_time' => $endTime,
-                ]);
-            }
+        if ($input['start_time']) {
+            $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
         } else {
-            $schedule->update([
-                $request->name => $request->value
-            ]);
-            $change = "other";
+            $input['end_time'] = NULL;
         }
+
+        $schedule->update([
+            'team_id'   => $input['team_id'],
+            'meet_via'  => $input['meet_via'],
+            'meet_link' => $input['meet_link'],
+            'purpose'   => $input['purpose'],
+            'address_id'        => $input['address_id'],
+            'booking_status'    => $input['booking_status'],
+            'start_date' => $input['start_date'],
+            'start_time' => $input['start_time'],
+            'end_time'   => $input['end_time']
+        ]);
 
         $schedule->load(['client', 'team', 'propertyAddress']);
 
-        $this->saveGoogleCalendarEvent($schedule);
+        if ($schedule->is_calendar_event_created) {
+            if ($schedule->booking_status == 'declined') {
+                $this->deleteGoogleCalendarEvent($schedule);
+            } else {
+                $this->saveGoogleCalendarEvent($schedule);
+            }
+        }
 
         return response()->json([
-            'message' => str_replace('_', ' ', $request->name) . " has been updated",
-            'change'  => $change
+            'message' => "Schedule has been updated",
         ]);
     }
 
@@ -351,7 +376,7 @@ class ScheduleController extends Controller
         }
 
         if ($schedule->is_calendar_event_created) {
-            $this->deleteGoogleCalendarEvent($schedule->google_calendar_event_id);
+            $this->deleteGoogleCalendarEvent($schedule);
         }
         $scheduleArr = $schedule->toArray();
 

@@ -121,8 +121,8 @@ class ClientEmailController extends Controller
 
     if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
       event(new WhatsappNotificationEvent([
-          "type" => WhatsappMessageTemplateEnum::CONTRACT,
-          "notificationData" => $ofr
+        "type" => WhatsappMessageTemplateEnum::CONTRACT,
+        "notificationData" => $ofr
       ]));
     }
     Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
@@ -245,7 +245,9 @@ class ClientEmailController extends Controller
 
     $schedule->load(['client', 'team', 'propertyAddress']);
 
-    $this->saveGoogleCalendarEvent($schedule);
+    if ($schedule->is_calendar_event_created) {
+      $this->deleteGoogleCalendarEvent($schedule);
+    }
 
     Notification::create([
       'user_id' => $schedule->client_id,
@@ -286,12 +288,12 @@ class ClientEmailController extends Controller
       'booking_status' => 'rescheduled'
     ]);
 
-    
-   $this->saveGoogleCalendarEvent($schedule);
 
-    $schedule->load(['client', 'team', 'propertyAddress']);    
+    $this->saveGoogleCalendarEvent($schedule);
+
+    $schedule->load(['client', 'team', 'propertyAddress']);
     event(new ReScheduleMettingJob($schedule));
-    
+
     return response()->json([
       'message' => 'Thanks, your meeting is rescheduled'
     ]);

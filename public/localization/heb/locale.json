@@ -524,7 +524,7 @@
             "transaction_id_ref": "מזהה עסקה/נ.צ.",
             "payment_mode": "מצב תשלום",
             "action": "פעולה",
-            "no_invoice_found": "לא נמצאה הצעה",
+            "no_invoice_found": "לא נמצאה חשבונית",
             "view_invoice": "צפה בחשבונית",
             "view_receipt": "צפה בקבלה"
         },
@@ -891,7 +891,8 @@
                     "Pending": "ממתין",
                     "Confirmed": "מאושר",
                     "Declined": "נדחה",
-                    "Completed": "הושלם"
+                    "Completed": "הושלם",
+                    "rescheduled": "נקבע מחדש"
                 },
                 "meetingPurpose": {
                     "priceOffer": "הצעת מחיר",
