@@ -328,7 +328,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Payment Per Hour (NIS)
+                                                Payment Per Hour (ILS)
                                             </label>
                                             <input
                                                 type="text"

@@ -261,7 +261,12 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    <p>{t("israilContract.is5-1")}</p>
+                                    <p>
+                                        {t("israilContract.is5-1", {
+                                            payment_per_hour:
+                                                workerDetail.payment_per_hour,
+                                        })}
+                                    </p>
                                     <p style={{ marginBottom: "145px" }}>
                                         {t("israilContract.is5-2")}
                                     </p>

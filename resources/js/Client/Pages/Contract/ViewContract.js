@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
-export default function WorkContract() {
+export default function ViewContract() {
     const [offer, setOffer] = useState();
     const [contract, setContract] = useState([]);
     const [client, setClient] = useState([]);

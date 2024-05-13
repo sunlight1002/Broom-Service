@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import ContractEng from "../../Components/contract/ContractEng";
 import ContractHeb from "../../Components/contract/ContractHeb";
 
-export default function WorkContract() {
+export default function ViewContract() {
     const param = useParams();
     const [lng, setLng] = useState("en");
 

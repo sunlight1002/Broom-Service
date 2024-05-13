@@ -418,6 +418,7 @@ class AuthController extends Controller
         $worker = User::find($id);
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
+            ->whereYear('created_at', now()->year)
             ->first();
 
         return response()->json([
@@ -443,6 +444,7 @@ class AuthController extends Controller
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
+            ->whereYear('created_at', now()->year)
             ->first();
 
         if ($form) {

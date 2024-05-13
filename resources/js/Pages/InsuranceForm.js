@@ -331,7 +331,6 @@ const InsuranceForm = () => {
     }, []);
 
     useEffect(() => {
-        console.log(values.Months);
         if (values.Months == "6Months") {
             setFieldValue("twelveMonthsPayment", "");
         } else {
@@ -432,7 +431,7 @@ const InsuranceForm = () => {
                 </div>
             </div>
 
-            <div
+            {/* <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
@@ -581,7 +580,7 @@ const InsuranceForm = () => {
                         />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div
                 className="row justify-content-center my-2"
@@ -796,7 +795,7 @@ const InsuranceForm = () => {
                 </div>
             </div>
 
-            <div
+            {/* <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "22px", fontWeight: "bold" }}
             >
@@ -1289,7 +1288,7 @@ const InsuranceForm = () => {
                         />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div
                 className="row justify-content-center my-2"
@@ -1456,17 +1455,17 @@ const InsuranceForm = () => {
 
             {/* Buttons */}
             <div>
-                <div className="row justify-content-center">
-                    <div className="col-md-8 d-flex">
-                        <button
-                            className="btn btn-secondary"
-                            onClick={handleShow}
-                            disabled={isSubmitting}
-                        >
-                            Preview
-                        </button>
-                        <div className="mx-2"></div>
-                        {!isSubmitted && (
+                {!isSubmitted && (
+                    <div className="row justify-content-center">
+                        <div className="col-md-8 d-flex">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={handleShow}
+                                disabled={isSubmitting}
+                            >
+                                Preview
+                            </button>
+                            <div className="mx-2"></div>
                             <button
                                 className="btn btn-primary"
                                 onClick={handleSubmit}
@@ -1474,9 +1473,9 @@ const InsuranceForm = () => {
                             >
                                 Submit
                             </button>
-                        )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <Modal
                     dialogClassName="pdf-dialog"

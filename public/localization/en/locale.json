@@ -1517,7 +1517,7 @@
         "is3": " The main duties of the employee are as follows:",
         "role": "Role",
         "is4": "The name of the direct supervisorof the employee or the job title of the direct supervisor: Full name: Alex Kanev",
-        "is5-1": " The basic salary of the cleaning workers will be calculated based on the minimum wage according to law, and in addition they will be given a bonus for perseverance, which will supplement their salary to a basic salary of NIS 45 per hour plus social conditions, and this as a reward for perseverance at work for 3 full months in a row in the company.",
+        "is5-1": " The basic salary of the cleaning workers will be calculated based on the minimum wage according to law, and in addition they will be given a bonus for perseverance, which will supplement their salary to a basic salary of ILS {{payment_per_hour}} per hour plus social conditions, and this as a reward for perseverance at work for 3 full months in a row in the company.",
         "is5-2": " If the employee decides to leave the job before the end of the full three-month period, as agreed upon in this agreement, the employer will be entitled to deduct the amount of the bonus that exceeds the minimum wage paid to the employee, and even require the employee to return the amount of the bonus already paid to him during the first three months of work, and often by of deducting the excess amount from his salary or from any other payment due to him. The employee's salary is the industry minimum wage according to the collective agreement in the cleaning industry, which currently amounts to NIS 32.3 per hour.",
         "is6": " A breakdown of all the payments that will be paid to the employee as wages are as follows:",
         "is6Table": {
@@ -1561,7 +1561,7 @@
             }
         },
         "is7": "The employee's rights, including time off, recovery, illness, holidays, etc., are calculated and paid according to the scope of the actual position and in accordance with the relevant legal provisions.",
-        "is8": "Reimbursement of travel expenses in accordance with the provisions of the general collective agreement, and according to the cheapest cost in public transportation: 11 NIS per day or a maximum of 225 NIS monthly free for a full month of work.",
+        "is8": "Reimbursement of travel expenses in accordance with the provisions of the general collective agreement, and according to the cheapest cost in public transportation: 11 ILS per day or a maximum of 225 ILS monthly free for a full month of work.",
         "is9": "Hereby, I agree to deduct the wages of participation in meals/the value of meals according to the custom at the site where I work (to be circled).",
         "is10-1": "The length of the employee's normal working day is: 8 hours per day (6 days) / 8.4 hours per day (5 days) / beyond that he will be paid additional hours in accordance with the law. It is known to the employee that during a shift of over 6 hours he went on an unpaid meal break.",
         "is10-2": "The length of the employee's normal work week is 42 hours as well as: 5 days / 6 days / according to the work arrangement that will be determined in advance.",
@@ -1642,7 +1642,7 @@
         "nic3-2": "and any other job to which he will be assigned by the company. Each party reserves the right to terminate the placement and employment while giving advance notice to the other party in accordance with the Law on Advance Notice for Layoffs and Resignations of 2016",
         "role": "Role",
         "nic4": "  The name of the employee's direct supervisor: Alex Kane",
-        "nic5": "  The basic salary of the cleaning workers will be calculated on the basis of minimum wage according to law, and in addition they will be given a bonus for persistence, which will supplement their salary to a basic wage of NIS 45 per hour plus social conditions, and this as a reward for persistence at work for 3 full consecutive months in the company.",
+        "nic5": "  The basic salary of the cleaning workers will be calculated on the basis of minimum wage according to law, and in addition they will be given a bonus for persistence, which will supplement their salary to a basic wage of ILS {{payment_per_hour}} per hour plus social conditions, and this as a reward for persistence at work for 3 full consecutive months in the company.",
         "nic5_sub": {
             "nic5_sub1": " If the employee decides to leave the job before the end of the foll three-month period, as agreed upon in this agreement, the employer will be entitled to deduct the amount of the bonus that exceeds the minimum wage paid to the employee, and even require the employee to return the amount of the bonus already paid to him during the first three months of work, and often by of deducting the excess amount from his salary or from any other payment due to him.",
             "nic5_sub2": "The worker's signature:*",

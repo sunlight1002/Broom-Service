@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:failed-to-approve-job')->dailyAt('20:00');
         $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
         $schedule->command('regular-invoice:generate')->dailyAt('12:00');
+        $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
     }
 
     /**
@@ -31,7 +32,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

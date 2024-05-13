@@ -152,7 +152,7 @@ export default function OfferedPrice() {
                                             <td style={{ color }}>
                                                 {ofr.status}
                                             </td>
-                                            <td>{ofr.subtotal} NIS + VAT</td>
+                                            <td>{ofr.subtotal} ILS + VAT</td>
                                             <td>
                                                 <div className="d-flex">
                                                     <Link

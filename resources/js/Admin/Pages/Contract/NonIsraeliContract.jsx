@@ -279,7 +279,10 @@ export function NonIsraeliContract({
                                 </li>
                                 <li>
                                     <p className="mb-4">
-                                        {t("nonIsrailContract.nic5")}
+                                        {t("nonIsrailContract.nic5", {
+                                            payment_per_hour:
+                                                workerDetail.payment_per_hour,
+                                        })}
                                     </p>
                                     <ol>
                                         <li>

@@ -12,7 +12,7 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
-export default function WorkContract() {
+export default function ContractEng() {
     const [contract, setContract] = useState([]);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState([]);
