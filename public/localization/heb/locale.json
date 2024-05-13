@@ -1,4 +1,7 @@
 {
+    "common": {
+        "loading": "טוען..."
+    },
     "global": {
         "vat": "מע'מ",
         "currency": "ש'ח",
@@ -370,6 +373,7 @@
             "ofr_price": "הצעות מחיר",
             "contracts": "הסכמי התקשרות",
             "jobs": "שירותים שהזמנתי",
+            "invoices": "חשבוניות",
             "settings": "הגדרות"
         },
         "dashboard": {
@@ -377,9 +381,9 @@
             "offered_price": "הצעת מחיר",
             "meetings": "פגישות",
             "jobs": "שירותים שהזמנתי",
-            "recent_jobs": "שירותים אחרונים",
-            "client_name": "שם הלקוח",
-            "service_name": "שם השירות",
+            "upcoming_jobs": "מקומות עבודה קרובים",
+            "client": "לָקוּחַ",
+            "service": "שֵׁרוּת",
             "date": "תאריך",
             "start_time": "שעת התחלה",
             "end_time": "שעת סיום",
@@ -505,8 +509,24 @@
                 "confirm_cancel_btn": "כן, בטל עבודה",
                 "updated_msg": "איוב עודכן.",
                 "updated": "מעודכן!",
-                "with_cancel": "עם דמי ביטול של"
+                "with_cancel": "עם דמי ביטול של",
+                "file": "העלה קבצים"
             }
+        },
+        "invoice": {
+            "title": "חשבוניות",
+            "#invoice_id": "#מזהה חשבונית",
+            "total_amount": "הכמות הכוללת",
+            "paid_amount": "סכום ששולם",
+            "created_date": "תאריך יצירה",
+            "due_date": "תאריך להגשה",
+            "status": "סטָטוּס",
+            "transaction_id_ref": "מזהה עסקה/נ.צ.",
+            "payment_mode": "מצב תשלום",
+            "action": "פעולה",
+            "no_invoice_found": "לא נמצאה הצעה",
+            "view_invoice": "צפה בחשבונית",
+            "view_receipt": "צפה בקבלה"
         },
         "settings": {
             "title": "הגדרות",
@@ -979,9 +999,9 @@
             "not_available": "תאריכים לא זמינים"
         },
         "dashboard": {
-            "recent_jobs": "משרות אחרונות",
-            "client_name": "שם הלקוח",
-            "service_name": "שם השירות",
+            "upcoming_jobs": "מקומות עבודה קרובים",
+            "client": "לָקוּחַ",
+            "service": "שֵׁרוּת",
             "date": "תַאֲרִיך",
             "shift": "Shift",
             "start_time": "שעת התחלה",

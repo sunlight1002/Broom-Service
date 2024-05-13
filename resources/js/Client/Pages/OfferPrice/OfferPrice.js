@@ -8,8 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
 import Moment from "moment";
 export default function ClientOfferPrice() {
-    const [offers, setOffers] = useState();
-    const [totalOffers, setTotalOffers] = useState([]);
+    const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const { t } = useTranslation();
@@ -22,10 +21,10 @@ export default function ClientOfferPrice() {
     const getOffers = () => {
         axios.post("/api/client/offers", {}, { headers }).then((response) => {
             if (response.data.offers.data.length > 0) {
-                setTotalOffers(response.data.offers.data);
                 setOffers(response.data.offers.data);
                 setPageCount(response.data.offers.last_page);
             } else {
+                setOffers([]);
                 setLoading("No offer found");
             }
         });
@@ -37,10 +36,10 @@ export default function ClientOfferPrice() {
             .post("/api/client/offers?page=" + currentPage, {}, { headers })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
                     setOffers(response.data.offers.data);
                     setPageCount(response.data.offers.last_page);
                 } else {
+                    setOffers([]);
                     setLoading("No offer found");
                 }
             });
@@ -51,11 +50,9 @@ export default function ClientOfferPrice() {
             .post(`/api/client/offers?q=${e.target.value}`, {}, { headers })
             .then((response) => {
                 if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
                     setOffers(response.data.offers.data);
                     setPageCount(response.data.offers.last_page);
                 } else {
-                    setTotalOffers([]);
                     setPageCount(response.data.offers.last_page);
                     setLoading("No offer found");
                 }
@@ -93,7 +90,7 @@ export default function ClientOfferPrice() {
                     <div className="card-body">
                         <div className="boxPanel">
                             <div className="table-responsive">
-                                {totalOffers.length > 0 ? (
+                                {offers.length > 0 ? (
                                     <Table className="table table-bordered responsiveTable">
                                         <Thead>
                                             <Tr>
@@ -115,64 +112,54 @@ export default function ClientOfferPrice() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {offers &&
-                                                offers.map((ofr, i) => {
-                                                    let services = ofr.services
-                                                        ? JSON.parse(
-                                                              ofr.services
-                                                          )
-                                                        : "";
-                                                    return (
-                                                        <Tr key={i}>
-                                                            <Td>
-                                                                {Moment(
-                                                                    ofr.created_at
-                                                                ).format(
-                                                                    "D MMM, Y"
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {services &&
-                                                                    services.map(
-                                                                        (
-                                                                            s,
+                                            {offers.map((ofr, i) => {
+                                                let services = ofr.services
+                                                    ? JSON.parse(ofr.services)
+                                                    : "";
+                                                return (
+                                                    <Tr key={i}>
+                                                        <Td>
+                                                            {Moment(
+                                                                ofr.created_at
+                                                            ).format(
+                                                                "D MMM, Y"
+                                                            )}
+                                                        </Td>
+                                                        <Td>
+                                                            {services &&
+                                                                services.map(
+                                                                    (s, i) => {
+                                                                        return services.length -
+                                                                            1 !=
                                                                             i
-                                                                        ) => {
-                                                                            return services.length -
-                                                                                1 !=
-                                                                                i
-                                                                                ? s.name +
-                                                                                      " | "
-                                                                                : s.name;
-                                                                        }
-                                                                    )}
-                                                            </Td>
-                                                            <Td>
-                                                                {ofr.status}
-                                                            </Td>
-                                                            <Td>
-                                                                {ofr.subtotal}{" "}
-                                                                {t(
-                                                                    "global.currency"
-                                                                ) +
-                                                                    " + " +
-                                                                    t(
-                                                                        "global.vat"
-                                                                    )}
-                                                            </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/client/view-offer/${Base64.encode(
-                                                                        ofr.id.toString()
-                                                                    )}`}
-                                                                    className="ml-2 btn bg-yellow"
-                                                                >
-                                                                    <i className="fa fa-eye"></i>
-                                                                </Link>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
+                                                                            ? s.name +
+                                                                                  " | "
+                                                                            : s.name;
+                                                                    }
+                                                                )}
+                                                        </Td>
+                                                        <Td>{ofr.status}</Td>
+                                                        <Td>
+                                                            {ofr.subtotal}{" "}
+                                                            {t(
+                                                                "global.currency"
+                                                            ) +
+                                                                " + " +
+                                                                t("global.vat")}
+                                                        </Td>
+                                                        <Td>
+                                                            <Link
+                                                                to={`/client/view-offer/${Base64.encode(
+                                                                    ofr.id.toString()
+                                                                )}`}
+                                                                className="ml-2 btn bg-yellow"
+                                                            >
+                                                                <i className="fa fa-eye"></i>
+                                                            </Link>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (
@@ -182,7 +169,7 @@ export default function ClientOfferPrice() {
                                 )}
                             </div>
 
-                            {totalOffers.length > 0 ? (
+                            {offers.length > 0 ? (
                                 <ReactPaginate
                                     previousLabel={t("client.previous")}
                                     nextLabel={t("client.next")}

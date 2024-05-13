@@ -131,6 +131,7 @@ import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import InsuranceForm from "./Pages/InsuranceForm";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
+import Invoices from "./Client/Pages/Invoices/Invoices";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -266,6 +267,11 @@ export default function MyRoutes() {
                                 exact
                                 path="/client/jobs"
                                 element={<ClientJobs />}
+                            />
+                            <Route
+                                exact
+                                path="/client/invoices"
+                                element={<Invoices />}
                             />
                             <Route
                                 exact
@@ -476,6 +482,11 @@ export default function MyRoutes() {
                                 exact
                                 path="teams/:id/edit"
                                 element={<EditTeam />}
+                            />
+                            <Route
+                                exact
+                                path="my-availability"
+                                element={<Availibility />}
                             />
                             <Route
                                 exact

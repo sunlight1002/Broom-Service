@@ -37,7 +37,7 @@ const AvailabilityForm = () => {
     });
     const [customRange, setCustomRange] = useState([]);
 
-    const param = useParams();
+    const params = useParams();
     const alert = useAlert();
     const flatpickrRef = useRef(null);
 
@@ -85,99 +85,97 @@ const AvailabilityForm = () => {
         });
     };
 
+    const setAvailability = (_data) => {
+        const next2WeekLastDate = moment().endOf("week").add(2, "week");
+
+        let _timeslots = {};
+        let _custom_start_date = null;
+        let _custom_end_date = null;
+        for (var key in _data.regular) {
+            _timeslots[key] = _data.regular[key].map((i) => {
+                return {
+                    start_time: i.start_time.slice(0, -3),
+                    end_time: i.end_time.slice(0, -3),
+                };
+            });
+
+            if (next2WeekLastDate.isBefore(moment(key))) {
+                if (!_custom_start_date) {
+                    _custom_start_date = key;
+                }
+
+                _custom_end_date = key;
+            }
+        }
+
+        setTimeSlots(_timeslots);
+
+        if (_custom_start_date && _custom_end_date) {
+            setFormValues({
+                ...formValues,
+                custom_start_date: _custom_start_date,
+                custom_end_date: _custom_end_date,
+            });
+
+            const startDate = Moment(_custom_start_date);
+            const endDate = Moment(_custom_end_date);
+
+            const diffInDays = endDate.diff(startDate, "days");
+
+            let _currentDate = startDate;
+            let _customRange = [];
+            for (let i = 0; i <= diffInDays; i++) {
+                _customRange.push(_currentDate.format("YYYY-MM-DD"));
+                _currentDate = _currentDate.add(1, "day");
+            }
+            setCustomRange(_customRange);
+        }
+
+        const _defaultAvailSlots = _data.default;
+        let _defaultSlots = {};
+
+        const _defaultAvailSlotsKeys = Object.keys(_defaultAvailSlots);
+        if (_defaultAvailSlotsKeys.length) {
+            setFormValues((values) => {
+                return {
+                    ...values,
+                    default_until_date:
+                        _defaultAvailSlots[_defaultAvailSlotsKeys[0]][0]
+                            .until_date,
+                };
+            });
+
+            for (const [key, value] of Object.entries(_defaultAvailSlots)) {
+                const _defaultWeekDaySlots = _defaultAvailSlots[key].map(
+                    (i) => {
+                        return {
+                            start_time: i.start_time.slice(0, -3),
+                            end_time: i.end_time.slice(0, -3),
+                        };
+                    }
+                );
+
+                _defaultSlots[key] = _defaultWeekDaySlots;
+            }
+        }
+
+        setDefaultTimeSlots(_defaultSlots);
+    };
+
     const getTeamAvailabilityTime = () => {
         axios
-            .get(`/api/admin/teams/availability/${param.id}`, { headers })
+            .get(
+                params.id
+                    ? `/api/admin/teams/${params.id}/availability`
+                    : `/api/admin/my-availability`,
+                { headers }
+            )
             .then((response) => {
                 if (response.data.data) {
-                    const next2WeekLastDate = moment()
-                        .endOf("week")
-                        .add(2, "week");
-
-                    let _timeslots = {};
-                    let _custom_start_date = null;
-                    let _custom_end_date = null;
-                    for (var key in response.data.data.regular) {
-                        _timeslots[key] = response.data.data.regular[key].map(
-                            (i) => {
-                                return {
-                                    start_time: i.start_time.slice(0, -3),
-                                    end_time: i.end_time.slice(0, -3),
-                                };
-                            }
-                        );
-
-                        if (next2WeekLastDate.isBefore(moment(key))) {
-                            if (!_custom_start_date) {
-                                _custom_start_date = key;
-                            }
-
-                            _custom_end_date = key;
-                        }
-                    }
-
-                    setTimeSlots(_timeslots);
-
-                    if (_custom_start_date && _custom_end_date) {
-                        setFormValues({
-                            ...formValues,
-                            custom_start_date: _custom_start_date,
-                            custom_end_date: _custom_end_date,
-                        });
-
-                        const startDate = Moment(_custom_start_date);
-                        const endDate = Moment(_custom_end_date);
-
-                        const diffInDays = endDate.diff(startDate, "days");
-
-                        let _currentDate = startDate;
-                        let _customRange = [];
-                        for (let i = 0; i <= diffInDays; i++) {
-                            _customRange.push(
-                                _currentDate.format("YYYY-MM-DD")
-                            );
-                            _currentDate = _currentDate.add(1, "day");
-                        }
-                        setCustomRange(_customRange);
-                    }
-
-                    const _defaultAvailSlots = response.data.data.default;
-                    let _defaultSlots = {};
-
-                    const _defaultAvailSlotsKeys =
-                        Object.keys(_defaultAvailSlots);
-                    if (_defaultAvailSlotsKeys.length) {
-                        setFormValues((values) => {
-                            return {
-                                ...values,
-                                default_until_date:
-                                    _defaultAvailSlots[
-                                        _defaultAvailSlotsKeys[0]
-                                    ][0].until_date,
-                            };
-                        });
-
-                        for (const [key, value] of Object.entries(
-                            _defaultAvailSlots
-                        )) {
-                            const _defaultWeekDaySlots = _defaultAvailSlots[
-                                key
-                            ].map((i) => {
-                                return {
-                                    start_time: i.start_time.slice(0, -3),
-                                    end_time: i.end_time.slice(0, -3),
-                                };
-                            });
-
-                            _defaultSlots[key] = _defaultWeekDaySlots;
-                        }
-                    }
-
-                    setDefaultTimeSlots(_defaultSlots);
+                    setAvailability(response.data.data);
                 }
             })
             .catch((err) => {
-                console.log(err);
                 alert.error("Something went wrong!");
             });
     };
@@ -185,7 +183,7 @@ const AvailabilityForm = () => {
     useEffect(() => {
         getTime();
         getTeamAvailabilityTime();
-    }, []);
+    }, [params]);
 
     const handleTab = (tabKey) => {
         setActiveTab(tabKey);
@@ -204,7 +202,9 @@ const AvailabilityForm = () => {
 
         axios
             .post(
-                `/api/admin/teams/${param.id}/availability`,
+                params.id
+                    ? `/api/admin/teams/${params.id}/availability`
+                    : `/api/admin/my-availability`,
                 {
                     time_slots: timeSlots,
                     default: {

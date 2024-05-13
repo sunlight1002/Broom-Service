@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
-import WorkerSidebar from "./Layouts/WorkerSidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useTranslation } from "react-i18next";
+
+import WorkerSidebar from "./Layouts/WorkerSidebar";
+
 export default function WorkerDashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
-    const [totalOffers, setTotalOffers] = useState([0]);
-    const [totalSchedules, setTotalSchedules] = useState([0]);
     const [latestJobs, setlatestJobs] = useState([]);
-    const [contracts, setContract] = useState([]);
     const [loading, setLoading] = useState("Loading...");
-    const id = localStorage.getItem("worker-id");
     const { t, i18n } = useTranslation();
     const w_lng = i18n.language;
 
@@ -22,16 +20,14 @@ export default function WorkerDashboard() {
     };
 
     const GetDashboardData = () => {
-        axios
-            .post("/api/dashboard", { id: id }, { headers })
-            .then((response) => {
-                setTotalJobs(response.data.total_jobs);
-                if (response.data.latest_jobs.length > 0) {
-                    setlatestJobs(response.data.latest_jobs);
-                } else {
-                    setLoading("No job found");
-                }
-            });
+        axios.get("/api/dashboard", { headers }).then((response) => {
+            setTotalJobs(response.data.total_jobs);
+            if (response.data.latest_jobs.length > 0) {
+                setlatestJobs(response.data.latest_jobs);
+            } else {
+                setLoading("No job found");
+            }
+        });
     };
 
     useEffect(() => {
@@ -65,7 +61,7 @@ export default function WorkerDashboard() {
                     </div>
                     <div className="latest-users">
                         <h2 className="page-title">
-                            {t("worker.dashboard.recent_jobs")}
+                            {t("worker.dashboard.upcoming_jobs")}
                         </h2>
                         <div className="boxPanel">
                             <div className="table-responsive">
@@ -75,12 +71,12 @@ export default function WorkerDashboard() {
                                             <Tr>
                                                 <Th>
                                                     {t(
-                                                        "worker.dashboard.client_name"
+                                                        "worker.dashboard.client"
                                                     )}
                                                 </Th>
                                                 <Th>
                                                     {t(
-                                                        "worker.dashboard.service_name"
+                                                        "worker.dashboard.service"
                                                     )}
                                                 </Th>
                                                 <Th>
@@ -104,68 +100,54 @@ export default function WorkerDashboard() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {latestJobs &&
-                                                latestJobs.map(
-                                                    (item, index) => {
-                                                        return (
-                                                            <Tr key={index}>
-                                                                <Td>
-                                                                    {item.client
-                                                                        ? item
-                                                                              .client
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .client
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </Td>
-                                                                <Td>
-                                                                    {item.jobservice &&
-                                                                        (w_lng ==
-                                                                        "en"
-                                                                            ? item
-                                                                                  .jobservice
-                                                                                  .name
-                                                                            : item
-                                                                                  .jobservice
-                                                                                  .heb_name)}
-                                                                </Td>
-                                                                <Td>
-                                                                    {
-                                                                        item.start_date
-                                                                    }
-                                                                </Td>
-                                                                <Td>
-                                                                    {
-                                                                        item.shifts
-                                                                    }
-                                                                </Td>
+                                            {latestJobs.map((item, index) => {
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            {item.client
+                                                                ? item.client
+                                                                      .firstname +
+                                                                  " " +
+                                                                  item.client
+                                                                      .lastname
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                (w_lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.start_date}
+                                                        </Td>
+                                                        <Td>{item.shifts}</Td>
 
-                                                                <Td
-                                                                    style={{
-                                                                        textTransform:
-                                                                            "capitalize",
-                                                                    }}
+                                                        <Td
+                                                            style={{
+                                                                textTransform:
+                                                                    "capitalize",
+                                                            }}
+                                                        >
+                                                            {item.status}
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex">
+                                                                <Link
+                                                                    to={`/worker/view-job/${item.id}`}
+                                                                    className="ml-2 btn bg-yellow"
                                                                 >
-                                                                    {
-                                                                        item.status
-                                                                    }
-                                                                </Td>
-                                                                <Td>
-                                                                    <div className="d-flex">
-                                                                        <Link
-                                                                            to={`/worker/view-job/${item.id}`}
-                                                                            className="ml-2 btn bg-yellow"
-                                                                        >
-                                                                            <i className="fa fa-eye"></i>
-                                                                        </Link>
-                                                                    </div>
-                                                                </Td>
-                                                            </Tr>
-                                                        );
-                                                    }
-                                                )}
+                                                                    <i className="fa fa-eye"></i>
+                                                                </Link>
+                                                            </div>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (

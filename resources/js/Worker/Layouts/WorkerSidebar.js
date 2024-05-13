@@ -7,18 +7,17 @@ import { useTranslation } from "react-i18next";
 
 export default function WorkerSidebar() {
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const HandleLogout = (e) => {
-        fetch("/api/logout", {
-            method: "POST",
-            headers: {
-                Accept: "application/json, text/plain, */*",
-                "Content-Type": "application/json",
-                Authorization: `Bearer ` + localStorage.getItem("worker-token"),
-            },
-        }).then((res) => {
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
+    };
+
+    const HandleLogout = async (e) => {
+        await axios.post("/api/logout", {}, { headers }).then((res) => {
             if (res.status === 200) {
                 localStorage.removeItem("worker-token");
                 localStorage.removeItem("worker-name");
@@ -27,11 +26,6 @@ export default function WorkerSidebar() {
                 alert.success("Logged Out Successfully");
             }
         });
-        localStorage.removeItem("worker-token");
-        localStorage.removeItem("worker-name");
-        localStorage.removeItem("worker-id");
-        navigate("/worker/login");
-        alert.success("Logged Out Successfully");
     };
 
     return (

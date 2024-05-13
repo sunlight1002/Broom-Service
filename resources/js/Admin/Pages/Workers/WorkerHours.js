@@ -52,7 +52,7 @@ export default function WorkerHours() {
 
     useEffect(() => {
         getWorkers();
-    }, [searchVal]);
+    }, [currentPage, searchVal]);
 
     const copy = [...workers];
     const [order, setOrder] = useState("ASC");

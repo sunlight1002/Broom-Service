@@ -39,7 +39,7 @@ Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'av
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
-    Route::post('dashboard', [DashboardController::class, 'dashboard']);
+    Route::get('dashboard', [DashboardController::class, 'dashboard']);
     Route::get('get-time', [DashboardController::class, 'getTime']);
     // not Available date
     Route::get('not-available-dates', [DashboardController::class, 'notAvailableDates']);

@@ -25,16 +25,17 @@ class DashboardController extends Controller
 {
     use PriceOffered;
 
-    public function dashboard(Request $request)
+    public function dashboard()
     {
         $total_jobs      = Job::where('client_id', Auth::user()->id)->count();
         $total_offers    = Offer::where('client_id', Auth::user()->id)->count();
         $total_schedules = Schedule::where('client_id', Auth::user()->id)->count();
         $total_contracts = Contract::where('client_id', Auth::user()->id)->count();
         $latest_jobs     = Job::query()
-            ->where('client_id', Auth::user()->id)
             ->with(['client', 'service', 'worker', 'jobservice'])
-            ->orderBy('id', 'desc')
+            ->where('client_id', Auth::user()->id)
+            ->whereDate('start_date', '>=', today()->toDateString())
+            ->orderBy('start_date', 'asc')
             ->take(10)
             ->get();
 
@@ -175,7 +176,7 @@ class DashboardController extends Controller
 
     public function addfile(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'role'   => 'required',
             'user_id' => 'required'
@@ -186,8 +187,8 @@ class DashboardController extends Controller
         }
 
         $schedule = Schedule::find($request->meeting);
-        $schedule->load(['client', 'team', 'propertyAddress']);  
-        
+        $schedule->load(['client', 'team', 'propertyAddress']);
+
         $file_nm = '';
         if ($request->type == 'video') {
 
@@ -211,7 +212,7 @@ class DashboardController extends Controller
             }
         }
 
-        $files=Files::create([
+        $files = Files::create([
             'user_id'   => $request->user_id,
             'meeting'   => $request->meeting,
             'note'      => $request->note,
@@ -219,8 +220,8 @@ class DashboardController extends Controller
             'type'      => $request->type,
             'file'      => $file_nm
         ]);
-        event(new AdminLeadFilesNotificationJob($schedule,$files));
-        
+        event(new AdminLeadFilesNotificationJob($schedule, $files));
+
         return response()->json([
             'message' => 'File uploaded',
         ]);

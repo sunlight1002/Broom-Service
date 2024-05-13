@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Schedule;
 use App\Models\TeamMemberAvailability;
+use App\Traits\TeamTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
 class TeamMemberController extends Controller
 {
+    use TeamTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -20,32 +24,24 @@ class TeamMemberController extends Controller
      */
     public function index(Request $request)
     {
-        /*$team = Admin::query()->where('role','admin')->orWhere('role','member');
-        $team = $team->orderBy('id','desc')->paginate(10);
-        return response()->json([
-            'team' => $team
-        ]);*/
-        $q = $request->q;
-        $result = Admin::query();
-        /* $result->where('name',    'like','%'.$q.'%');
-        $result->orWhere('phone',      'like','%'.$q.'%');
-        $result->orWhere('status',     'like','%'.$q.'%');
-        $result->orWhere('email',      'like','%'.$q.'%');*/
-        if (isset($request->q)) {
-            $q = $request->q;
-            $result->orWhere(function ($qry) use ($q) {
-                $qry->where('name', 'like', '%' . $q . '%')
-                    ->orWhere('phone',   'like', '%' . $q . '%')
-                    ->orWhere('status', 'like', '%' . $q . '%')
-                    ->orWhere('email', 'like', '%' . $q . '%')
+        $keyword = $request->q;
+
+        $data = Admin::query()
+            ->when($keyword, function ($query, $keyword) {
+                $query
+                    ->where('name', 'like', '%' . $keyword . '%')
+                    ->orWhere('phone',   'like', '%' . $keyword . '%')
+                    ->orWhere('status', 'like', '%' . $keyword . '%')
+                    ->orWhere('email', 'like', '%' . $keyword . '%')
                     ->where('name', '!=', 'superadmin');
-            });
-        }
-
-        $result = $result->orderBy('id', 'desc')->where('name', '!=', 'superadmin')->paginate(20);
+            })
+            ->where('id', '!=', Auth::id())
+            ->where('name', '!=', 'superadmin')
+            ->orderBy('id', 'desc')
+            ->paginate(20);
 
         return response()->json([
-            'team' => $result,
+            'team' => $data,
         ]);
     }
 
@@ -167,42 +163,36 @@ class TeamMemberController extends Controller
         ]);
     }
 
+    public function updateMyAvailability(Request $request)
+    {
+        $teamMember = Auth::user();
+
+        $this->saveTeamAvailabilities($teamMember, $request->all());
+
+        return response()->json([
+            'message' => 'Availability updated successfully'
+        ]);
+    }
+
+    public function myAvailability()
+    {
+        $teamMember = Auth::user();
+
+        [$availabilities, $default_availabilities] = $this->getAvailabilities($teamMember);
+
+        return response()->json([
+            'data' => [
+                'regular' => $availabilities,
+                'default' => $default_availabilities
+            ],
+        ]);
+    }
+
     public function updateAvailability(Request $request, $id)
     {
         $teamMember = Admin::find($id);
 
-        $data = $request->all();
-
-        $teamMember->availabilities()->delete();
-
-        foreach ($data['time_slots'] as $key => $availabilties) {
-            $date = trim($key);
-
-            foreach ($availabilties as $key => $availabilty) {
-                TeamMemberAvailability::create([
-                    'team_member_id' => $id,
-                    'date' => $date,
-                    'start_time' => $availabilty['start_time'],
-                    'end_time' => $availabilty['end_time'],
-                    'status' => '1',
-                ]);
-            }
-        }
-
-        $teamMember->defaultAvailabilities()->delete();
-
-        if (isset($data['default']['time_slots'])) {
-            foreach ($data['default']['time_slots'] as $weekday => $availabilties) {
-                foreach ($availabilties as $key => $timeSlot) {
-                    $teamMember->defaultAvailabilities()->create([
-                        'weekday' => $weekday,
-                        'start_time' => $timeSlot['start_time'],
-                        'end_time' => $timeSlot['end_time'],
-                        'until_date' => $data['default']['until_date'],
-                    ]);
-                }
-            }
-        }
+        $this->saveTeamAvailabilities($teamMember, $request->all());
 
         return response()->json([
             'message' => 'Availability updated successfully'
@@ -213,21 +203,7 @@ class TeamMemberController extends Controller
     {
         $teamMember = Admin::find($id);
 
-        $team_member_availabilities = $teamMember->availabilities()
-            ->orderBy('date', 'asc')
-            ->get(['date', 'start_time', 'end_time']);
-
-        $availabilities = [];
-        foreach ($team_member_availabilities->groupBy('date') as $date => $times) {
-            $availabilities[$date] = $times->map(function ($item, $key) {
-                return $item->only(['start_time', 'end_time']);
-            });
-        }
-
-        $default_availabilities = $teamMember->defaultAvailabilities()
-            ->orderBy('id', 'asc')
-            ->get(['weekday', 'start_time', 'end_time', 'until_date'])
-            ->groupBy('weekday');
+        [$availabilities, $default_availabilities] = $this->getAvailabilities($teamMember);
 
         return response()->json([
             'data' => [

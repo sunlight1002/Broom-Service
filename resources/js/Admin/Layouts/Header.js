@@ -10,6 +10,7 @@ import i18next from "i18next";
 export default function AdminHeader() {
     const alert = useAlert();
     const navigate = useNavigate();
+    const [me, setMe] = useState(null);
     const [file, setFile] = useState("");
     const [notices, setNotices] = useState([]);
     const [count, setCount] = useState(0);
@@ -39,6 +40,7 @@ export default function AdminHeader() {
 
     const getSetting = () => {
         axios.get("/api/admin/my-account", { headers }).then((response) => {
+            setMe(response.data.account);
             response.data.account.avatar
                 ? setFile(response.data.account.avatar)
                 : setFile(User);
@@ -101,55 +103,54 @@ export default function AdminHeader() {
                                         <i className="fas fa-bell"></i>
                                     </button>
                                     <ul className="dropdown-menu">
-                                        {notices &&
-                                            notices.map((n, i) => {
-                                                return (
-                                                    <li
-                                                        key={i}
-                                                        onClick={(e) =>
-                                                            redirectNotice(e)
+                                        {notices.map((n, i) => {
+                                            return (
+                                                <li
+                                                    key={i}
+                                                    onClick={(e) =>
+                                                        redirectNotice(e)
+                                                    }
+                                                    className="dropdown-item"
+                                                >
+                                                    <div
+                                                        style={
+                                                            n.seen == 0
+                                                                ? {
+                                                                      background:
+                                                                          "#eee",
+                                                                      padding:
+                                                                          "2%",
+                                                                      cursor: "pointer",
+                                                                  }
+                                                                : {
+                                                                      padding:
+                                                                          "2%",
+                                                                      cursor: "pointer",
+                                                                  }
                                                         }
-                                                        className="dropdown-item"
+                                                        className="agg-list"
                                                     >
-                                                        <div
-                                                            style={
-                                                                n.seen == 0
-                                                                    ? {
-                                                                          background:
-                                                                              "#eee",
-                                                                          padding:
-                                                                              "2%",
-                                                                          cursor: "pointer",
-                                                                      }
-                                                                    : {
-                                                                          padding:
-                                                                              "2%",
-                                                                          cursor: "pointer",
-                                                                      }
-                                                            }
-                                                            className="agg-list"
-                                                        >
-                                                            <div className="icons">
-                                                                <i className="fas fa-check-circle"></i>
-                                                            </div>
-                                                            <div className="agg-text">
-                                                                <h6
-                                                                    dangerouslySetInnerHTML={{
-                                                                        __html: n.data,
-                                                                    }}
-                                                                />
-                                                                <p>
-                                                                    {Moment(
-                                                                        n.created_at
-                                                                    ).format(
-                                                                        "DD MMM Y, HH:MM A"
-                                                                    )}
-                                                                </p>
-                                                            </div>
+                                                        <div className="icons">
+                                                            <i className="fas fa-check-circle"></i>
                                                         </div>
-                                                    </li>
-                                                );
-                                            })}
+                                                        <div className="agg-text">
+                                                            <h6
+                                                                dangerouslySetInnerHTML={{
+                                                                    __html: n.data,
+                                                                }}
+                                                            />
+                                                            <p>
+                                                                {Moment(
+                                                                    n.created_at
+                                                                ).format(
+                                                                    "DD MMM Y, HH:MM A"
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            );
+                                        })}
 
                                         {/* View all notification button */}
 
@@ -195,6 +196,14 @@ export default function AdminHeader() {
                                         >
                                             My Account
                                         </Link>
+                                        {me && me.role !== "superadmin" && (
+                                            <Link
+                                                className="dropdown-item"
+                                                to="/admin/my-availability"
+                                            >
+                                                My Availability
+                                            </Link>
+                                        )}
                                         <Link
                                             className="dropdown-item"
                                             onClick={HandleLogout}

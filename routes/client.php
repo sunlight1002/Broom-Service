@@ -6,6 +6,7 @@ use App\Http\Controllers\Client\Auth\AuthController;
 use App\Http\Controllers\Client\ClientCardController;
 use App\Http\Controllers\Client\ClientEmailController;
 use App\Http\Controllers\Client\DashboardController;
+use App\Http\Controllers\Client\InvoiceController;
 use App\Http\Controllers\Client\JobCommentController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\WorkerController;
@@ -27,7 +28,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('get-time', [DashboardController::class, 'getTime']);
 
     // Dashboard Routes
-    Route::post('dashboard', [DashboardController::class, 'dashboard']);
+    Route::get('dashboard', [DashboardController::class, 'dashboard']);
     Route::post('schedule', [DashboardController::class, 'meetings'])->name('schedule');
     Route::post('offers', [DashboardController::class, 'offers'])->name('offers');
     Route::post('view-offer', [DashboardController::class, 'viewOffer'])->name('view-offer');
@@ -57,6 +58,8 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::put('cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 
     Route::get('workers', [WorkerController::class, 'index']);
+
+    Route::get('invoices', [InvoiceController::class, 'index']);
 });
 
 Route::post('login', [AuthController::class, 'login']);

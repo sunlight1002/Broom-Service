@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
 {
-    public function dashboard(Request $request)
+    public function dashboard()
     {
-        $id              = $request->id;
-        $total_jobs      = Job::where('worker_id', $id)->count();
+        $total_jobs      = Job::where('worker_id', Auth::id())->count();
         $latest_jobs     = Job::query()
             ->with(['client', 'offer', 'worker', 'jobservice'])
-            ->where('worker_id', $id)
-            ->orderBy('id', 'desc')
+            ->where('worker_id', Auth::id())
+            ->whereDate('start_date', '>=', today()->toDateString())
+            ->orderBy('start_date', 'asc')
             ->take(10)
             ->get();
 
@@ -43,7 +43,7 @@ class DashboardController extends Controller
         $validator = Validator::make($request->all(), [
             'date'     => 'required',
             'start_time' => 'required_with:end_time',
-            'end_time' => 'required_with:start_time', 
+            'end_time' => 'required_with:start_time',
         ]);
 
         if ($validator->fails()) {

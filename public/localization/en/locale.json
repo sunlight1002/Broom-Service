@@ -1,4 +1,7 @@
 {
+    "common": {
+        "loading": "Loading..."
+    },
     "global": {
         "vat": "VAT",
         "currency": "ILS",
@@ -369,6 +372,7 @@
             "ofr_price": "Offered Prices",
             "contracts": "Contracts",
             "jobs": "Jobs",
+            "invoices": "Invoices",
             "settings": "Settings"
         },
         "dashboard": {
@@ -376,9 +380,9 @@
             "offered_price": "Offered Price",
             "meetings": "Meetings",
             "jobs": "Jobs",
-            "recent_jobs": "Recent Jobs",
-            "client_name": "Client Name",
-            "service_name": "Service Name",
+            "upcoming_jobs": "Upcoming Jobs",
+            "client": "Client",
+            "service": "Service",
             "date": "Date",
             "shift": "Shifts",
             "start_time": "Start Time",
@@ -508,6 +512,21 @@
                 "with_cancel": "with cancellation fees of",
                 "file": "Upload files"
             }
+        },
+        "invoice": {
+            "title": "Invoices",
+            "#invoice_id": "#Invoice ID",
+            "total_amount": "Total Amount",
+            "paid_amount": "Paid Amount",
+            "created_date": "Created Date",
+            "due_date": "Due Date",
+            "status": "Status",
+            "transaction_id_ref": "Transaction ID/Ref.",
+            "payment_mode": "Payment Mode",
+            "action": "Action",
+            "no_invoice_found": "No offer found",
+            "view_invoice": "View Invoice",
+            "view_receipt": "View Receipt"
         },
         "settings": {
             "title": "Settings",
@@ -978,9 +997,9 @@
             "not_available": "Not Available Dates"
         },
         "dashboard": {
-            "recent_jobs": "Recent Jobs",
-            "client_name": "Client Name",
-            "service_name": "Service Name",
+            "upcoming_jobs": "Upcoming Jobs",
+            "client": "Client",
+            "service": "Service",
             "date": "Date",
             "shift": "Shift",
             "start_time": "Start Time",

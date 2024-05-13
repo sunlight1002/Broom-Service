@@ -7,18 +7,17 @@ import { useTranslation } from "react-i18next";
 
 export default function ClientSidebar() {
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const HandleLogout = (e) => {
-        fetch("/api/client/logout", {
-            method: "POST",
-            headers: {
-                Accept: "application/json, text/plain, */*",
-                "Content-Type": "application/json",
-                Authorization: `Bearer ` + localStorage.getItem("client-token"),
-            },
-        }).then((res) => {
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("client-token"),
+    };
+
+    const HandleLogout = async (e) => {
+        await axios.post("/api/client/logout", {}, { headers }).then((res) => {
             if (res.status === 200) {
                 localStorage.removeItem("client-token");
                 localStorage.removeItem("client-name");
@@ -27,11 +26,6 @@ export default function ClientSidebar() {
                 alert.success("Logged Out Successfully");
             }
         });
-        localStorage.removeItem("client-token");
-        localStorage.removeItem("client-name");
-        localStorage.removeItem("client-id");
-        navigate("/client/login");
-        alert.success("Logged Out Successfully");
     };
 
     return (
@@ -77,6 +71,12 @@ export default function ClientSidebar() {
                     <NavLink to="/client/jobs">
                         <i className="fa-solid fa-briefcase"></i>
                         {t("client.sidebar.jobs")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/client/invoices">
+                        <i className="fa-solid fa-file-invoice"></i>
+                        {t("client.sidebar.invoices")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">

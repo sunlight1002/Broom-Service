@@ -22,59 +22,22 @@ export default function ClientDashboard() {
     };
 
     const GetDashboardData = () => {
-        axios
-            .post("/api/client/dashboard", {}, { headers })
-            .then((response) => {
-                setTotalJobs(response.data.total_jobs);
-                setTotalOffers(response.data.total_offers);
-                setTotalSchedules(response.data.total_schedules);
-                setContract(response.data.total_contracts);
-                if (response.data.latest_jobs.length > 0) {
-                    setlatestJobs(response.data.latest_jobs);
-                } else {
-                    setLoading("No job found");
-                }
-            });
+        axios.get("/api/client/dashboard", { headers }).then((response) => {
+            setTotalJobs(response.data.total_jobs);
+            setTotalOffers(response.data.total_offers);
+            setTotalSchedules(response.data.total_schedules);
+            setContract(response.data.total_contracts);
+            if (response.data.latest_jobs.length > 0) {
+                setlatestJobs(response.data.latest_jobs);
+            } else {
+                setLoading("No job found");
+            }
+        });
     };
 
     useEffect(() => {
         GetDashboardData();
     }, []);
-    // const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
-    // const getShift = (shifts) => {
-    //     if (shifts != null) {
-    //         let s = shifts.split(",");
-    //         let check = "";
-    //         let new_shift = "";
-    //         show_shift.map((p) => {
-    //             if (p == "Afternoon") {
-    //                 check = "noon";
-    //             } else {
-    //                 check = p;
-    //             }
-    //             s.map((sh) => {
-    //                 if (sh.includes(check.toLowerCase())) {
-    //                     if (new_shift == "") {
-    //                         new_shift = p;
-    //                     } else {
-    //                         if (!new_shift.includes(p)) {
-    //                             new_shift =
-    //                                 t("global." + new_shift.toLowerCase()) +
-    //                                 " | " +
-    //                                 t("global." + p.toLowerCase());
-    //                         }
-    //                     }
-    //                 }
-    //             });
-    //         });
-    //         if (new_shift == "Full Day") return t("global.fullday");
-    //         if (new_shift == "Morning") return t("global.morning");
-    //         if (new_shift == "Noon") return t("global.noon");
-    //         if (new_shift == "Afternoon") return t("global.afternoon");
-    //         if (new_shift == "Evening") return t("global.evening");
-    //         return new_shift;
-    //     }
-    // };
 
     return (
         <div id="container">
@@ -147,7 +110,7 @@ export default function ClientDashboard() {
                     </div>
                     <div className="latest-users">
                         <h2 className="page-title">
-                            {t("client.dashboard.recent_jobs")}
+                            {t("client.dashboard.upcoming_jobs")}
                         </h2>
                         <div className="boxPanel">
                             <div className="table-responsive">
@@ -155,14 +118,9 @@ export default function ClientDashboard() {
                                     <Table className="table table-bordered responsiveTable">
                                         <Thead>
                                             <Tr>
-                                                <Th style={{ display: "none" }}>
-                                                    {t(
-                                                        "client.dashboard.client_name"
-                                                    )}
-                                                </Th>
                                                 <Th>
                                                     {t(
-                                                        "client.dashboard.service_name"
+                                                        "client.dashboard.service"
                                                     )}
                                                 </Th>
                                                 <Th>
@@ -196,160 +154,104 @@ export default function ClientDashboard() {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {latestJobs &&
-                                                latestJobs.map(
-                                                    (item, index) => {
-                                                        let status =
-                                                            item.status;
-                                                        if (
-                                                            status ==
-                                                            "not-started"
-                                                        ) {
-                                                            status = t(
-                                                                "j_status.not-started"
-                                                            );
-                                                        }
-                                                        if (
-                                                            status == "progress"
-                                                        ) {
-                                                            status =
-                                                                t(
-                                                                    "j_status.progress"
-                                                                );
-                                                        }
-                                                        if (
-                                                            status ==
-                                                            "completed"
-                                                        ) {
-                                                            status =
-                                                                t(
-                                                                    "j_status.completed"
-                                                                );
-                                                        }
-                                                        if (
-                                                            status ==
-                                                            "scheduled"
-                                                        ) {
-                                                            status =
-                                                                t(
-                                                                    "j_status.scheduled"
-                                                                );
-                                                        }
-                                                        if (
-                                                            status ==
-                                                            "unscheduled"
-                                                        ) {
-                                                            status = t(
-                                                                "j_status.unscheduled"
-                                                            );
-                                                        }
-                                                        if (
-                                                            status ==
-                                                            "re-scheduled"
-                                                        ) {
-                                                            status = t(
-                                                                "j_status.re-scheduled"
-                                                            );
-                                                        }
-                                                        if (
-                                                            status == "cancel"
-                                                        ) {
-                                                            status =
-                                                                t(
-                                                                    "j_status.cancel"
-                                                                );
-                                                        }
+                                            {latestJobs.map((item, index) => {
+                                                let status = item.status;
+                                                if (status == "not-started") {
+                                                    status = t(
+                                                        "j_status.not-started"
+                                                    );
+                                                }
+                                                if (status == "progress") {
+                                                    status =
+                                                        t("j_status.progress");
+                                                }
+                                                if (status == "completed") {
+                                                    status =
+                                                        t("j_status.completed");
+                                                }
+                                                if (status == "scheduled") {
+                                                    status =
+                                                        t("j_status.scheduled");
+                                                }
+                                                if (status == "unscheduled") {
+                                                    status = t(
+                                                        "j_status.unscheduled"
+                                                    );
+                                                }
+                                                if (status == "re-scheduled") {
+                                                    status = t(
+                                                        "j_status.re-scheduled"
+                                                    );
+                                                }
+                                                if (status == "cancel") {
+                                                    status =
+                                                        t("j_status.cancel");
+                                                }
 
-                                                        return (
-                                                            <Tr key={index}>
-                                                                <Td
-                                                                    style={{
-                                                                        display:
-                                                                            "none",
-                                                                    }}
-                                                                >
-                                                                    {item.client
-                                                                        ? item
-                                                                              .client
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .client
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </Td>
-                                                                <Td>
-                                                                    {item.jobservice &&
-                                                                        (c_lng ==
-                                                                        "en"
-                                                                            ? item
-                                                                                  .jobservice
-                                                                                  .name
-                                                                            : item
-                                                                                  .jobservice
-                                                                                  .heb_name)}
-                                                                </Td>
-                                                                <Td>
-                                                                    {status}
-                                                                </Td>
-                                                                <Td>
-                                                                    {
-                                                                        item.shifts
-                                                                    }
-                                                                </Td>
-                                                                <Td
-                                                                    style={{
-                                                                        display:
-                                                                            "none",
-                                                                    }}
-                                                                >
-                                                                    {item.worker
-                                                                        ? item
-                                                                              .worker
-                                                                              .firstname +
-                                                                          " " +
-                                                                          item
-                                                                              .worker
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </Td>
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                (c_lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.start_date}
+                                                        </Td>
+                                                        <Td>{item.shifts}</Td>
+                                                        <Td
+                                                            style={{
+                                                                display: "none",
+                                                            }}
+                                                        >
+                                                            {item.worker
+                                                                ? item.worker
+                                                                      .firstname +
+                                                                  " " +
+                                                                  item.worker
+                                                                      .lastname
+                                                                : "NA"}
+                                                        </Td>
 
-                                                                <Td>
-                                                                    {status}
-                                                                    {item.status ==
-                                                                        "cancel" &&
-                                                                        ` (with cancellation fees of ${
-                                                                            item.cancellation_fee_amount
-                                                                        } ${t(
-                                                                            "global.currency"
-                                                                        )} )`}
-                                                                </Td>
-                                                                <Td>
-                                                                    {item.jobservice &&
-                                                                        item
-                                                                            .jobservice
-                                                                            .total +
-                                                                            " " +
-                                                                            t(
-                                                                                "global.currency"
-                                                                            )}
-                                                                </Td>
-                                                                <Td>
-                                                                    <div className="d-flex">
-                                                                        <Link
-                                                                            to={`/client/view-job/${Base64.encode(
-                                                                                item.id.toString()
-                                                                            )}`}
-                                                                            className="ml-2 btn bg-yellow"
-                                                                        >
-                                                                            <i className="fa fa-eye"></i>
-                                                                        </Link>
-                                                                    </div>
-                                                                </Td>
-                                                            </Tr>
-                                                        );
-                                                    }
-                                                )}
+                                                        <Td>
+                                                            {status}
+                                                            {item.status ==
+                                                                "cancel" &&
+                                                                ` (with cancellation fees of ${
+                                                                    item.cancellation_fee_amount
+                                                                } ${t(
+                                                                    "global.currency"
+                                                                )} )`}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                item.jobservice
+                                                                    .total +
+                                                                    " " +
+                                                                    t(
+                                                                        "global.currency"
+                                                                    )}
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex">
+                                                                <Link
+                                                                    to={`/client/view-job/${Base64.encode(
+                                                                        item.id.toString()
+                                                                    )}`}
+                                                                    className="ml-2 btn bg-yellow"
+                                                                >
+                                                                    <i className="fa fa-eye"></i>
+                                                                </Link>
+                                                            </div>
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
                                         </Tbody>
                                     </Table>
                                 ) : (
