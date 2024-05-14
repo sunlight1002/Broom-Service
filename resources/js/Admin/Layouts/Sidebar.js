@@ -255,6 +255,12 @@ export default function Sidebar() {
                                         </Link>
                                     </li>
                                     <li className="list-group-item">
+                                        <Link to="/admin/manpower-companies">
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            Manpower Companies
+                                        </Link>
+                                    </li>
+                                    <li className="list-group-item">
                                         <Link to="/admin/manage-time">
                                             <i className="fa fa-angle-right"></i>{" "}
                                             Manage Time

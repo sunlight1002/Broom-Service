@@ -132,6 +132,7 @@ import InsuranceForm from "./Pages/InsuranceForm";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 import Invoices from "./Client/Pages/Invoices/Invoices";
+import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -497,6 +498,11 @@ export default function MyRoutes() {
                                 exact
                                 path="services"
                                 element={<Services />}
+                            />
+                            <Route
+                                exact
+                                path="manpower-companies"
+                                element={<ManpowerCompanies />}
                             />
                             <Route
                                 exact

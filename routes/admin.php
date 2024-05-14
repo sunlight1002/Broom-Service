@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
+use App\Http\Controllers\Admin\ManpowerCompaniesController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\DocumentController;
 
@@ -253,6 +254,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Languages
     Route::resource('languages', LanguageController::class);
+
+    // Manpower Companies
+    Route::resource('manpower-companies', ManpowerCompaniesController::class)->except(['create', 'show', 'edit']);
 
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);

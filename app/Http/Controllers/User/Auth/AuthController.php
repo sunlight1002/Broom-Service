@@ -212,6 +212,10 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if (!Storage::drive('public')->exists('signed-docs')) {
+            Storage::drive('public')->makeDirectory('signed-docs');
+        }
+
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
@@ -348,6 +352,10 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if (!Storage::drive('public')->exists('signed-docs')) {
+            Storage::drive('public')->makeDirectory('signed-docs');
+        }
+
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
@@ -451,6 +459,10 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Insurance form already signed.'
             ], 403);
+        }
+
+        if (!Storage::drive('public')->exists('signed-docs')) {
+            Storage::drive('public')->makeDirectory('signed-docs');
         }
 
         $file_name = Str::uuid()->toString() . '.pdf';

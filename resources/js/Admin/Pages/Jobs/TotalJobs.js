@@ -45,21 +45,6 @@ export default function TotalJobs() {
     const [loading, setLoading] = useState("Loading...");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
-    const [cshift, setCshift] = useState({
-        contract: "",
-        client: "",
-        repetency: "",
-        job: "",
-        from: "",
-        to: "",
-        worker: "",
-        service: "",
-        shift_date: "",
-        frequency: "",
-        cycle: "",
-        period: "",
-        shift_time: "",
-    });
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
