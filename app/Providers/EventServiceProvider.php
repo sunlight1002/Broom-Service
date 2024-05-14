@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
+use App\Events\ClientPaymentFailed;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
 use App\Events\InsuranceFormSigned;
@@ -19,6 +20,7 @@ use App\Events\WorkerUpdatedJobStatus;
 use App\Events\JobNotificationToAdmin;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
+use App\Listeners\NotifyForClientPaymentFailed;
 use App\Listeners\NotifyForContractFormSigned;
 use App\Listeners\NotifyForForm101Signed;
 use App\Listeners\NotifyForInsuranceFormSigned;
@@ -96,6 +98,9 @@ class EventServiceProvider extends ServiceProvider
         JobNotificationToAdmin::class => [
             SendJobNotificationToAdmin::class
         ],
+        ClientPaymentFailed::class => [
+            NotifyForClientPaymentFailed::class
+        ]
     ];
 
     /**

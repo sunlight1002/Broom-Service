@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
+use App\Events\ClientPaymentFailed;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
@@ -59,6 +60,8 @@ trait ICountDocument
                 $order->update([
                     'paid_status' => OrderPaidStatusEnum::PROBLEM
                 ]);
+
+                event(new ClientPaymentFailed($client, $card));
 
                 $doctype = 'invoice';
             } else {

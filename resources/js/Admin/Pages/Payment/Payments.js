@@ -36,6 +36,7 @@ export default function Payments() {
     const [addPaymentModalOpen, setAddPaymentModalOpen] = useState(false);
     const [addCardModalOpen, setAddCardModalOpen] = useState(false);
     const [selectedClientID, setSelectedClientID] = useState(null);
+    const [searchVal, setSearchVal] = useState("");
 
     const alert = useAlert();
 
@@ -50,6 +51,10 @@ export default function Payments() {
 
         if (paidStatusFilter) {
             _filters.priority_paid_status = paidStatusFilter;
+        }
+
+        if (searchVal) {
+            _filters.keyword = searchVal;
         }
 
         _filters.start_date = dateRange.start_date;
@@ -128,7 +133,7 @@ export default function Payments() {
 
     useEffect(() => {
         getClientPayments();
-    }, [currentPage, dateRange, paidStatusFilter]);
+    }, [currentPage, dateRange, paidStatusFilter, searchVal]);
 
     const handleCloseForPayment = (_clientID) => {
         axios
@@ -178,6 +183,18 @@ export default function Payments() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">Payments</h1>
+                        </div>
+                        <div className="col-sm-6">
+                            <div className="search-data">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    onChange={(e) => {
+                                        setSearchVal(e.target.value);
+                                    }}
+                                    placeholder="Search"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

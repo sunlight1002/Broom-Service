@@ -61,7 +61,6 @@ export default function TotalJobs() {
         shift_time: "",
     });
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
-    const [selectedJobId, setSelectedJobId] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
         start_date: currentWeekFilter.start_date,

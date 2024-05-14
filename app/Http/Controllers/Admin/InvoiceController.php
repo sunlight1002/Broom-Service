@@ -7,6 +7,7 @@ use App\Enums\JobStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
+use App\Events\ClientPaymentFailed;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
@@ -467,6 +468,8 @@ class InvoiceController extends Controller
                 $order->update([
                     'paid_status' => OrderPaidStatusEnum::PROBLEM
                 ]);
+
+                event(new ClientPaymentFailed($client, $card));
 
                 return response()->json([
                     'message' => 'Unable to pay from credit card'
@@ -1054,6 +1057,7 @@ class InvoiceController extends Controller
 
     public function paymentClientWise(Request $request)
     {
+        $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $priority_paid_status = $request->get('priority_paid_status');
@@ -1093,6 +1097,9 @@ class InvoiceController extends Controller
             })
             ->when($priority_paid_status, function ($q) use ($priority_paid_status) {
                 return $q->where('order_paid_status.priority', $priority_paid_status);
+            })
+            ->when($keyword, function ($q) use ($keyword) {
+                return $q->whereRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) like "%' . $keyword . '%"');
             })
             ->where('job_visits.visits', '>', 0)
             ->select('clients.id AS client_id', 'job_visits.last_activity_date', 'clients.payment_method')
@@ -1309,6 +1316,8 @@ class InvoiceController extends Controller
                     ]);
                 }
 
+                event(new ClientPaymentFailed($client, $card));
+
                 return response()->json([
                     'message' => 'Unable to pay from credit card'
                 ], 500);
@@ -1474,6 +1483,8 @@ class InvoiceController extends Controller
                     'paid_status' => OrderPaidStatusEnum::PROBLEM
                 ]);
             }
+
+            event(new ClientPaymentFailed($client, $card));
 
             return response()->json([
                 'message' => 'Unable to pay from credit card'

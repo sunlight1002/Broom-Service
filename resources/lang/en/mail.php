@@ -266,11 +266,19 @@ return [
             'subject' => 'Insurance Form Signed | Broom Service',
             'message' => ':worker_name has completed the signing of Insurance Form. Kindly find the signed document attached in PDF format for your reference.'
         ],
+        'client-payment-failed' => [
+            'subject' => 'Client Payment Failed | Broom Service',
+            'message' => ':client_name\'s payment with card [**** **** **** :card_number] has been failed.'
+        ],
     ],
     'client' => [
         'review-request' => [
             'subject' => 'Job Review | Broom Service',
             'message' => 'Please, rate us and send your review.',
+        ],
+        'payment-failed' => [
+            'subject' => 'Payment Failed | Broom Service',
+            'message' => 'Your payment with card [**** **** **** :card_number] has been failed. Please add a new card.'
         ],
     ],
     'worker' => [

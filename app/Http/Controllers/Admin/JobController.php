@@ -193,26 +193,38 @@ class JobController extends Controller
 
     public function getJobByClient(Request $request, $id)
     {
-        $jobQuery = Job::query()
+        $status = $request->get('status');
+        $qType = $request->get('q');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+        $jobs = Job::query()
             ->with(['offer', 'worker', 'jobservice', 'order', 'invoice'])
-            ->where('client_id', $id);
+            ->where('client_id', $id)
+            ->when($status, function ($q) use ($status) {
+                return $q->where('status', $status);
+            })
+            ->when($qType == 'ordered', function ($q) {
+                return $q->where('is_order_generated', true);
+            })
+            ->when($qType == 'unordered', function ($q) {
+                return $q->where('is_order_generated', false);
+            })
+            ->when($qType == 'invoiced', function ($q) {
+                return $q->where('is_invoice_generated', true);
+            })
+            ->when($qType == 'uninvoiced', function ($q) {
+                return $q->where('is_invoice_generated', false);
+            })
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
+            ->orderBy('start_date', 'desc')
+            ->paginate(20);
 
-        if (isset($request->status)) {
-            $jobQuery->where('status', $request->status);
-        }
-
-        if (isset($request->q)) {
-            $q = $request->q;
-            if ($q == 'ordered') {
-                $jobQuery->where('is_order_generated', true);
-            } else if ($q == 'unordered') {
-                $jobQuery->where('is_order_generated', false);
-            } else if ($q == 'invoiced') {
-                $jobQuery->where('is_invoice_generated', true);
-            } else if ($q == 'uninvoiced') {
-                $jobQuery->where('is_invoice_generated', false);
-            }
-        }
 
         $sch        = Job::where('status', JobStatusEnum::SCHEDULED)->where('client_id', $id)->count();
         $un_sch     = Job::where('status', JobStatusEnum::UNSCHEDULED)->where('client_id', $id)->count();
@@ -224,10 +236,6 @@ class JobController extends Controller
         $unordered  = Job::where('client_id', $id)->where('is_order_generated', false)->count();
         $invoiced   = Job::where('client_id', $id)->where('is_invoice_generated', true)->count();
         $unordered  = Job::where('client_id', $id)->where('is_invoice_generated', false)->count();
-
-        $jobs = $jobQuery
-            ->orderBy('start_date', 'desc')
-            ->paginate(20);
 
         $all = Job::where('client_id', $id)->count();
 
@@ -1016,18 +1024,18 @@ class JobController extends Controller
 
         //send notification to admin
         $emailContent = '';
-        if($data['by'] == 'client'){
-            $emailContent .=  __('mail.client_job_status.content').' '.ucfirst($data['job']['status']).'.';
-            if( $data['job']['cancellation_fee_amount'] ){
-                $emailContent .= __('mail.client_job_status.cancellation_fee').' '.$data['job']['cancellation_fee_amount'].'ILS.';
+        if ($data['by'] == 'client') {
+            $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($data['job']['status']) . '.';
+            if ($data['job']['cancellation_fee_amount']) {
+                $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $data['job']['cancellation_fee_amount'] . 'ILS.';
             }
-        }else{
-            $emailContent .= 'Job is marked as '. ucfirst($data['job']['status']) .'by admin/team.';
+        } else {
+            $emailContent .= 'Job is marked as ' . ucfirst($data['job']['status']) . 'by admin/team.';
         }
         $emailSubject = ($data['by'] == 'admin') ?
-                ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
-                $data['job']['id'] . "# " . ('העבודה בוטלה')
-                :__('mail.client_job_status.subject') . " #" . $data['job']['id'];
+            ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
+            $data['job']['id'] . "# " . ('העבודה בוטלה')
+            : __('mail.client_job_status.subject') . " #" . $data['job']['id'];
         $adminEmailData = [
             'emailData'   => [
                 'job'   =>  $job->toArray(),
@@ -1294,7 +1302,7 @@ class JobController extends Controller
             ],
             'emailSubject'  => 'Request to switch Worker | Broom Service',
             'emailTitle'  => 'Worker switch by admin',
-            'emailContent'  => 'Admin has been switch worker to '.$jobArray['worker']['firstname'].' '.$jobArray['worker']['lastname'].' from '.$otherJobArray['worker']['firstname'].' '.$otherJobArray['worker']['lastname'].'.'
+            'emailContent'  => 'Admin has been switch worker to ' . $jobArray['worker']['firstname'] . ' ' . $jobArray['worker']['lastname'] . ' from ' . $otherJobArray['worker']['firstname'] . ' ' . $otherJobArray['worker']['lastname'] . '.'
         ];
         event(new JobNotificationToAdmin($adminEmailData));
 

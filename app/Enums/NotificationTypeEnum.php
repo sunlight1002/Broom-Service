@@ -18,4 +18,5 @@ final class NotificationTypeEnum extends AbstractEnum
     public const OPENING_JOB = 'opening-job';
     public const RESCHEDULE_MEETING = 'reschedule-meeting';
     public const FILES = 'files';
+    public const PAYMENT_FAILED = 'payment-failed';
 }

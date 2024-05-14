@@ -9,14 +9,49 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 
 export default function Jobs({ contracts, client }) {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [jres, setJres] = useState("");
-
-    const [filtered, setFiltered] = useState("");
     const [pageCount, setPageCount] = useState(0);
     const params = useParams();
     const [wait, setWait] = useState(true);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
+    });
+    const [filters, setFilters] = useState({
+        status: "",
+        q: "",
+    });
+    const [selectedFilter, setselectedFilter] = useState("Week");
+
     const alert = useAlert();
 
     const headers = {
@@ -25,13 +60,28 @@ export default function Jobs({ contracts, client }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getJobs = (filter) => {
+    const getJobs = () => {
+        let _filters = {};
+
+        if (filters.status) {
+            _filters.status = filters.status;
+        }
+
+        if (filters.q) {
+            _filters.q = filters.q;
+        }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
         axios
-            .post(
-                `/api/admin/clients/${params.id}/jobs?` + filter,
-                {},
-                { headers }
-            )
+            .get(`/api/admin/clients/${params.id}/jobs`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((res) => {
                 setWait(true);
                 setJres(res.data);
@@ -47,32 +97,9 @@ export default function Jobs({ contracts, client }) {
             });
     };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .post(
-                `/api/admin/clients/${params.id}/jobs?` +
-                    filtered +
-                    "&page=" +
-                    currentPage,
-                {},
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setJobs([]);
-                    setLoading("No Job Found");
-                }
-            });
-    };
-
     useEffect(() => {
-        setFiltered("f=all");
-        getJobs("f=all");
-    }, []);
+        getJobs();
+    }, [currentPage, dateRange, filters]);
 
     const copy = [...jobs];
     const [order, setOrder] = useState("ASC");
@@ -141,7 +168,7 @@ export default function Jobs({ contracts, client }) {
     //     axios
     //         .post(`/api/admin/multiple-orders`, job_id_arr, { headers })
     //         .then((res) => {
-    //             getJobs(filtered);
+    //             getJobs();
     //             alert.success("Job Order(s) created successfully");
     //         })
     //         .catch((e) => {
@@ -170,7 +197,7 @@ export default function Jobs({ contracts, client }) {
         axios
             .post(`/api/admin/multiple-invoices`, order_id_arr, { headers })
             .then((res) => {
-                getJobs(filtered);
+                getJobs();
                 alert.success("Job Invoice(s) created successfully");
             })
             .catch((e) => {
@@ -184,6 +211,101 @@ export default function Jobs({ contracts, client }) {
 
     return (
         <div className="boxPanel">
+            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                <div className="d-flex align-items-center">
+                    <div style={{ fontWeight: "bold" }} className="mr-2">
+                        Date Period
+                    </div>
+                    <FilterButtons
+                        text="Day"
+                        className="px-4 mr-1"
+                        onClick={() =>
+                            setDateRange({
+                                start_date: todayFilter.start_date,
+                                end_date: todayFilter.end_date,
+                            })
+                        }
+                        selectedFilter={selectedFilter}
+                        setselectedFilter={setselectedFilter}
+                    />
+                    <FilterButtons
+                        text="Week"
+                        className="px-4 mr-3"
+                        onClick={() =>
+                            setDateRange({
+                                start_date: currentWeekFilter.start_date,
+                                end_date: currentWeekFilter.end_date,
+                            })
+                        }
+                        selectedFilter={selectedFilter}
+                        setselectedFilter={setselectedFilter}
+                    />
+                    <FilterButtons
+                        text="Previous Week"
+                        className="px-3 mr-1"
+                        onClick={() =>
+                            setDateRange({
+                                start_date: previousWeekFilter.start_date,
+                                end_date: previousWeekFilter.end_date,
+                            })
+                        }
+                        selectedFilter={selectedFilter}
+                        setselectedFilter={setselectedFilter}
+                    />
+                    <FilterButtons
+                        text="Next Week"
+                        className="px-3"
+                        onClick={() =>
+                            setDateRange({
+                                start_date: nextWeekFilter.start_date,
+                                end_date: nextWeekFilter.end_date,
+                            })
+                        }
+                        selectedFilter={selectedFilter}
+                        setselectedFilter={setselectedFilter}
+                    />
+                </div>
+            </div>
+            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                <div className="d-flex align-items-center">
+                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                        Custom Date Range
+                    </div>
+
+                    <input
+                        className="form-control"
+                        type="date"
+                        placeholder="From date"
+                        name="from filter"
+                        style={{ width: "fit-content" }}
+                        value={dateRange.start_date}
+                        onChange={(e) => {
+                            setselectedFilter("Custom Range");
+                            setDateRange({
+                                start_date: e.target.value,
+                                end_date: dateRange.end_date,
+                            });
+                        }}
+                    />
+                    <div className="mx-2">to</div>
+                    <input
+                        className="form-control"
+                        type="date"
+                        placeholder="To date"
+                        name="to filter"
+                        style={{ width: "fit-content" }}
+                        value={dateRange.end_date}
+                        onChange={(e) => {
+                            setselectedFilter("Custom Range");
+                            setDateRange({
+                                start_date: dateRange.start_date,
+                                end_date: e.target.value,
+                            });
+                        }}
+                    />
+                </div>
+            </div>
+
             <div className="action-dropdown dropdown order_drop text-right mb-3">
                 {/* <button
                     className="btn btn-pink mr-3"
@@ -208,8 +330,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("f=all");
-                            getJobs("f=all");
+                            setFilters({
+                                status: "",
+                                q: "",
+                            });
                         }}
                     >
                         All - {jres.all}
@@ -217,8 +341,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("status=scheduled");
-                            getJobs("status=scheduled");
+                            setFilters({
+                                status: "scheduled",
+                                q: "",
+                            });
                         }}
                     >
                         Scheduled - {jres.scheduled}
@@ -226,8 +352,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("status=unscheduled");
-                            getJobs("status=unscheduled");
+                            setFilters({
+                                status: "unscheduled",
+                                q: "",
+                            });
                         }}
                     >
                         Unscheduled - {jres.unscheduled}
@@ -235,8 +363,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("status=progress");
-                            getJobs("status=progress");
+                            setFilters({
+                                status: "progress",
+                                q: "",
+                            });
                         }}
                     >
                         Progress - {jres.progress}
@@ -244,8 +374,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("status=completed");
-                            getJobs("status=completed");
+                            setFilters({
+                                status: "completed",
+                                q: "",
+                            });
                         }}
                     >
                         completed - {jres.completed}
@@ -253,8 +385,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("status=canceled");
-                            getJobs("status=canceled");
+                            setFilters({
+                                status: "canceled",
+                                q: "",
+                            });
                         }}
                     >
                         Canceled - {jres.canceled}
@@ -262,8 +396,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("q=ordered");
-                            getJobs("q=ordered");
+                            setFilters({
+                                status: "",
+                                q: "ordered",
+                            });
                         }}
                     >
                         Ordered - {jres.ordered}
@@ -271,8 +407,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("q=unordered");
-                            getJobs("q=unordered");
+                            setFilters({
+                                status: "",
+                                q: "unordered",
+                            });
                         }}
                     >
                         unordered - {jres.unordered}
@@ -280,8 +418,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("q=invoiced");
-                            getJobs("q=invoiced");
+                            setFilters({
+                                status: "",
+                                q: "invoiced",
+                            });
                         }}
                     >
                         Invoiced - {jres.invoiced}
@@ -289,8 +429,10 @@ export default function Jobs({ contracts, client }) {
                     <button
                         className="dropdown-item"
                         onClick={(e) => {
-                            setFiltered("q=uninvoiced");
-                            getJobs("q=uninvoiced");
+                            setFilters({
+                                status: "",
+                                q: "uninvoiced",
+                            });
                         }}
                     >
                         UnInvoiced - {jres.uninvoiced}
@@ -344,110 +486,95 @@ export default function Jobs({ contracts, client }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {jobs &&
-                                jobs.map((j, i) => {
-                                    // let services = (j.offer.services) ? JSON.parse(j.offer.services) : [];
-                                    let pstatus = null;
+                            {jobs.map((j, i) => {
+                                return (
+                                    <tr key={i}>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                name="cb"
+                                                value={j.id}
+                                                oid={j.order ? j.order.id : ""}
+                                                className="form-control cb"
+                                            />
+                                        </td>
+                                        <td>#{j.id}</td>
+                                        <td>
+                                            {j.jobservice && j.jobservice.name
+                                                ? j.jobservice.name + " "
+                                                : "NA"}
+                                        </td>
+                                        <td>
+                                            {j.worker
+                                                ? j.worker.firstname +
+                                                  " " +
+                                                  j.worker.lastname
+                                                : "NA"}
+                                        </td>
+                                        <td>
+                                            {" "}
+                                            {j.jobservice &&
+                                                j.jobservice.total +
+                                                    " ILS + VAT"}
+                                        </td>
+                                        <td>
+                                            {Moment(j.start_date).format(
+                                                "DD MMM, Y"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {j.status}
 
-                                    return (
-                                        <tr key={i}>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    name="cb"
-                                                    value={j.id}
-                                                    oid={
-                                                        j.order
-                                                            ? j.order.id
-                                                            : ""
-                                                    }
-                                                    className="form-control cb"
-                                                />
-                                            </td>
-                                            <td>#{j.id}</td>
-                                            <td>
-                                                {j.jobservice &&
-                                                j.jobservice.name
-                                                    ? j.jobservice.name + " "
-                                                    : "NA"}
-                                            </td>
-                                            <td>
-                                                {j.worker
-                                                    ? j.worker.firstname +
-                                                      " " +
-                                                      j.worker.lastname
-                                                    : "NA"}
-                                            </td>
-                                            <td>
-                                                {" "}
-                                                {j.jobservice &&
-                                                    j.jobservice.total +
-                                                        " ILS + VAT"}
-                                            </td>
-                                            <td>
-                                                {Moment(j.start_date).format(
-                                                    "DD MMM, Y"
-                                                )}
-                                            </td>
-                                            <td>
-                                                {j.status}
-
-                                                {j.order && (
-                                                    <React.Fragment>
-                                                        <br />
-                                                        <Link
-                                                            target="_blank"
-                                                            to={j.order.doc_url}
-                                                            className="jorder"
-                                                        >
-                                                            order -
-                                                            {j.order.order_id}
-                                                        </Link>
-                                                    </React.Fragment>
-                                                )}
-
-                                                {j.invoice && (
-                                                    <React.Fragment>
-                                                        <br />
-                                                        <Link
-                                                            target="_blank"
-                                                            to={
-                                                                j.invoice
-                                                                    .doc_url
-                                                            }
-                                                            className="jinv"
-                                                        >
-                                                            Invoice -
-                                                            {
-                                                                j.invoice
-                                                                    .invoice_id
-                                                            }
-                                                        </Link>
-                                                    </React.Fragment>
-                                                )}
-
-                                                {j.invoice && (
-                                                    <>
-                                                        {" "}
-                                                        <br />
-                                                        <span className="jorder">
-                                                            {j.invoice.status}
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </td>
-                                            <td className="text-center">
-                                                <div className="action-dropdown dropdown pb-2">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-default dropdown-toggle"
-                                                        data-toggle="dropdown"
+                                            {j.order && (
+                                                <React.Fragment>
+                                                    <br />
+                                                    <Link
+                                                        target="_blank"
+                                                        to={j.order.doc_url}
+                                                        className="jorder"
                                                     >
-                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                    </button>
+                                                        order -
+                                                        {j.order.order_id}
+                                                    </Link>
+                                                </React.Fragment>
+                                            )}
 
-                                                    <div className="dropdown-menu">
-                                                        {/* {!j.worker && (
+                                            {j.invoice && (
+                                                <React.Fragment>
+                                                    <br />
+                                                    <Link
+                                                        target="_blank"
+                                                        to={j.invoice.doc_url}
+                                                        className="jinv"
+                                                    >
+                                                        Invoice -
+                                                        {j.invoice.invoice_id}
+                                                    </Link>
+                                                </React.Fragment>
+                                            )}
+
+                                            {j.invoice && (
+                                                <>
+                                                    {" "}
+                                                    <br />
+                                                    <span className="jorder">
+                                                        {j.invoice.status}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </td>
+                                        <td className="text-center">
+                                            <div className="action-dropdown dropdown pb-2">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                >
+                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                </button>
+
+                                                <div className="dropdown-menu">
+                                                    {/* {!j.worker && (
                                                             <Link
                                                                 to={`/admin/create-job/${j.contract_id}`}
                                                                 className="dropdown-item"
@@ -455,22 +582,22 @@ export default function Jobs({ contracts, client }) {
                                                                 Create Job
                                                             </Link>
                                                         )} */}
+                                                    <Link
+                                                        to={`/admin/view-job/${j.id}`}
+                                                        className="dropdown-item"
+                                                    >
+                                                        View Job
+                                                    </Link>
+
+                                                    {!j.is_order_generated && (
                                                         <Link
-                                                            to={`/admin/view-job/${j.id}`}
+                                                            to={`/admin/add-order/?j=${j.id}&c=${params.id}`}
                                                             className="dropdown-item"
                                                         >
-                                                            View Job
+                                                            Create Order
                                                         </Link>
-
-                                                        {!j.is_order_generated && (
-                                                            <Link
-                                                                to={`/admin/add-order/?j=${j.id}&c=${params.id}`}
-                                                                className="dropdown-item"
-                                                            >
-                                                                Create Order
-                                                            </Link>
-                                                        )}
-                                                        {/* {!j.is_invoice_generated && (
+                                                    )}
+                                                    {/* {!j.is_invoice_generated && (
                                                             <Link
                                                                 to={`/admin/add-invoice/?j=${j.id}&c=${params.id}`}
                                                                 className="dropdown-item"
@@ -478,12 +605,12 @@ export default function Jobs({ contracts, client }) {
                                                                 Create Invoice
                                                             </Link>
                                                         )} */}
-                                                    </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 ) : (
@@ -498,7 +625,9 @@ export default function Jobs({ contracts, client }) {
                         pageCount={pageCount}
                         marginPagesDisplayed={2}
                         pageRangeDisplayed={3}
-                        onPageChange={handlePageClick}
+                        onPageChange={() => {
+                            setCurrentPage(currentPage + 1);
+                        }}
                         containerClassName={
                             "pagination justify-content-end mt-3"
                         }
@@ -517,3 +646,29 @@ export default function Jobs({ contracts, client }) {
         </div>
     );
 }
+
+const FilterButtons = ({
+    text,
+    className,
+    selectedFilter,
+    setselectedFilter,
+    onClick,
+}) => (
+    <button
+        className={`btn border rounded ${className}`}
+        style={
+            selectedFilter === text
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+            setselectedFilter(text);
+        }}
+    >
+        {text}
+    </button>
+);
