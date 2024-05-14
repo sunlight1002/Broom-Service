@@ -1095,6 +1095,10 @@ class InvoiceController extends Controller
             ->leftJoinSub($orderPaidStatus, 'order_paid_status', function ($join) {
                 $join->on('clients.id', '=', 'order_paid_status.client_id');
             })
+            ->leftJoin('jobs as completed_jobs', function ($join) {
+                $join->on('completed_jobs.client_id', '=', 'clients.id')
+                    ->where('completed_jobs.status', '=', JobStatusEnum::COMPLETED);
+            })
             ->when($priority_paid_status, function ($q) use ($priority_paid_status) {
                 return $q->where('order_paid_status.priority', $priority_paid_status);
             })
@@ -1106,6 +1110,7 @@ class InvoiceController extends Controller
             ->selectRaw('IFNULL(job_visits.visits, 0) AS visits')
             ->selectRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) AS client_name')
             ->selectRaw('order_paid_status.priority AS priority_paid_status')
+            ->selectRaw('COUNT(completed_jobs.id) as completed_jobs')
             ->groupBy('clients.id')
             // ->orderBy('clients.id', 'desc')
             ->paginate(20);

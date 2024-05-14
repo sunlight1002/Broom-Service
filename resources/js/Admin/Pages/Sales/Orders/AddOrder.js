@@ -30,7 +30,7 @@ export default function AddOrder() {
     };
 
     const [clients, setClients] = useState();
-    const [cjobs, setCjobs] = useState();
+    const [cjobs, setCjobs] = useState([]);
     const [jservice, setjService] = useState(null);
 
     const alert = useAlert();
@@ -220,22 +220,21 @@ export default function AddOrder() {
                                             <option value={0}>
                                                 --- Select Job ---
                                             </option>
-                                            {cjobs &&
-                                                cjobs.map((j, i) => {
-                                                    return (
-                                                        <option
-                                                            value={j.id}
-                                                            key={i}
-                                                        >
-                                                            {" "}
-                                                            {j.start_date +
-                                                                " | " +
-                                                                j.shifts +
-                                                                " | " +
-                                                                j.service_name}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {cjobs.map((j, i) => {
+                                                return (
+                                                    <option
+                                                        value={j.id}
+                                                        key={i}
+                                                    >
+                                                        {" "}
+                                                        {j.start_date +
+                                                            " | " +
+                                                            j.shifts +
+                                                            " | " +
+                                                            j.service_name}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>

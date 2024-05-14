@@ -1061,48 +1061,60 @@ class JobController extends Controller
         ]);
     }
 
-    public function exportReport(Request $request)
+    public function exportTimeReport(Request $request)
     {
-        if ($request->type == 'single') {
-            $jobs = JobHours::query()
-                ->with('worker')
-                ->where('job_id', $request->id)
-                ->get();
-
-            $fileName = 'job_report_' . $request->id . '.csv';
-        } else {
-            $jobs = JobHours::query()
-                ->whereDate('created_at', '>=', $request->from)
-                ->whereDate('created_at', '<=', $request->to)
-                ->get();
-
-            $fileName = 'AllJob_report.csv';
-        }
+        $jobs = Job::query()
+            ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
+            ->leftJoin('services', 'jobs.schedule_id', '=', 'services.id')
+            ->whereNotNull('jobs.worker_id')
+            ->whereDate('jobs.created_at', '>=', $request->from)
+            ->whereDate('jobs.created_at', '<=', $request->to)
+            ->select('users.worker_id', 'jobs.actual_time_taken_minutes')
+            ->selectRaw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name')
+            ->selectRaw('CONCAT(jobs.start_date, " | ", jobs.shifts, " | ", services.name) as job')
+            ->get();
 
         if ($jobs->isEmpty()) {
             return response()->json([
-                'status_code' => 404,
-                'msg' => 'No work log is found!'
-            ]);
+                'message' => 'No work log is found!'
+            ], 404);
         }
 
-        $report = [];
-        foreach ($jobs as $job) {
-            $row['worker_name']      = $job->worker ? $job->worker->firstname . " " . $job->worker->lastname : 'NA';
-            $row['worker_id']        = $job->worker ? $job->worker->worker_id : 'NA';
-            $row['start_time']       = $job->start_time;
-            $row['end_time']         = $job->end_time;
-            $row['time_diffrence']   = $job->time_diff;
-            $row['job_id']           = $job->job_id;
-            $row['time_total']       = (int)$job->time_diff;
+        $jobs = $jobs->map(function ($item, $key) {
+            $item->hours = (float) number_format((float)($item->actual_time_taken_minutes / 60), 2, '.', '');
 
-            array_push($report, $row);
-        }
+            return $item;
+        });
 
         return response()->json([
-            'status_code' => 200,
-            'filename' => $fileName,
-            'report' => $report
+            'jobs' => $jobs
+        ]);
+    }
+
+    public function exportJobTrackedReport($id)
+    {
+        $jobHours = JobHours::query()
+            ->leftJoin('users', 'job_hours.worker_id', '=', 'users.id')
+            ->leftJoin('jobs', 'jobs.id', '=', 'job_hours.job_id')
+            ->where('jobs.id', $id)
+            ->select('users.worker_id', 'job_hours.start_time', 'job_hours.end_time', 'job_hours.time_diff')
+            ->selectRaw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name')
+            ->get();
+
+        if ($jobHours->isEmpty()) {
+            return response()->json([
+                'message' => 'No work log is found!'
+            ], 404);
+        }
+
+        $jobHours = $jobHours->map(function ($item, $key) {
+            $item->hours = (float) number_format((float)($item->time_diff / 3600), 2, '.', '');
+
+            return $item;
+        });
+
+        return response()->json([
+            'job_hours' => $jobHours
         ]);
     }
 

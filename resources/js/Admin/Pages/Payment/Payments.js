@@ -359,6 +359,7 @@ export default function Payments() {
                                                     &darr;
                                                 </span>
                                             </Th>
+                                            <Th scope="col">Done</Th>
                                             <Th scope="col">Visits</Th>
                                             <Th scope="col">Action</Th>
                                         </Tr>
@@ -427,6 +428,9 @@ export default function Payments() {
                                                                 item.priority_paid_status
                                                             ) || "-"}
                                                         </div>
+                                                    </Td>
+                                                    <Td>
+                                                        {item.completed_jobs}
                                                     </Td>
                                                     <Td>{item.visits}</Td>
                                                     <Td>

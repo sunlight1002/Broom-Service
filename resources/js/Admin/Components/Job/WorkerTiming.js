@@ -140,27 +140,12 @@ export default function WorkerTiming({ job }) {
             });
     };
 
-    function toHoursAndMinutes(totalSeconds) {
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return decimalHours(h, m, s);
-    }
-
-    function decimalHours(h, m, s) {
-        var hours = parseInt(h, 10);
-        var minutes = m ? parseInt(m, 10) : 0;
-        var min = minutes / 60;
-        return hours + ":" + min.toString().substring(0, 4);
-    }
-
     const header = [
         { label: "Worker Name", key: "worker_name" },
         { label: "Worker ID", key: "worker_id" },
         { label: "Start Time", key: "start_time" },
         { label: "End Time", key: "end_time" },
-        { label: "Total Time", key: "time_diffrence" },
+        { label: "Total Time", key: "hours" },
     ];
 
     const [Alldata, setAllData] = useState([]);
@@ -169,24 +154,23 @@ export default function WorkerTiming({ job }) {
         e.preventDefault();
         axios
             .post(
-                `/api/admin/export_report`,
-                { id: params.id, type: "single" },
+                `/api/admin/jobs/${params.id}/worker/hours/export`,
+                {},
                 { headers }
             )
             .then((res) => {
-                if (res.data.status_code == 404) {
-                    alert.error(res.data.msg);
-                } else {
-                    setFilename(res.data.filename);
-                    let rep = res.data.report;
-                    for (let r in rep) {
-                        rep[r].time_diffrence = toHoursAndMinutes(
-                            rep[r].time_total
-                        );
-                    }
-                    setAllData(rep);
-                    document.querySelector("#csv").click();
-                }
+                setFilename(
+                    job.start_date +
+                        " | " +
+                        job.shifts +
+                        " | " +
+                        job.jobservice.name
+                );
+                setAllData(res.data.job_hours);
+                document.querySelector("#csv").click();
+            })
+            .catch((e) => {
+                alert.error(e.response.data.message);
             });
     };
 

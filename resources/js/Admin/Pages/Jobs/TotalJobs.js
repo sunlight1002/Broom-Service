@@ -178,27 +178,11 @@ export default function TotalJobs() {
         navigate(`/admin/view-job/${id}`);
     };
 
-    function toHoursAndMinutes(totalSeconds) {
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return decimalHours(h, m, s);
-    }
-
-    function decimalHours(h, m, s) {
-        var hours = parseInt(h, 10);
-        var minutes = m ? parseInt(m, 10) : 0;
-        var min = minutes / 60;
-        return hours + ":" + min.toString().substring(0, 4);
-    }
-
     const header = [
         { label: "Worker Name", key: "worker_name" },
         { label: "Worker ID", key: "worker_id" },
-        { label: "Start Time", key: "start_time" },
-        { label: "End Time", key: "end_time" },
-        { label: "Total Time", key: "time_diffrence" },
+        { label: "Job", key: "job" },
+        { label: "Total Actual Time", key: "hours" },
     ];
 
     const [Alldata, setAllData] = useState([]);
@@ -217,25 +201,17 @@ export default function TotalJobs() {
 
         axios
             .post(
-                `/api/admin/export_report`,
-                { type: "all", from: from, to: to },
+                `/api/admin/worker/hours/export`,
+                { from: from, to: to },
                 { headers }
             )
-            .then((res) => {
-                if (res.data.status_code == 404) {
-                    alert.error(res.data.msg);
-                } else {
-                    setFilename(res.data.filename);
-                    let rep = res.data.report;
-                    for (let r in rep) {
-                        rep[r].time_diffrence = toHoursAndMinutes(
-                            rep[r].time_total
-                        );
-                    }
-
-                    setAllData(rep);
-                    document.querySelector("#csv").click();
-                }
+            .then((response) => {
+                setFilename("Job worker hours - (" + from + " - " + to + ")");
+                setAllData(response.data.jobs);
+                document.querySelector("#csv").click();
+            })
+            .catch((e) => {
+                alert.error(e.response.data.message);
             });
     };
 
@@ -319,24 +295,6 @@ export default function TotalJobs() {
             end: "16:00",
         },
     ];
-
-    const resetShift = () => {
-        setCshift({
-            contract: "",
-            client: "",
-            repetency: "",
-            job: "",
-            from: "",
-            to: "",
-            worker: "",
-            service: "",
-            shift_date: "",
-            frequency: "",
-            cycle: "",
-            period: "",
-            shift_time: "",
-        });
-    };
 
     const handleSwitchWorker = (_job) => {
         setSelectedJob(_job);
@@ -1067,7 +1025,7 @@ export default function TotalJobs() {
                                             className="modal-title"
                                             id="exampleModalLabel"
                                         >
-                                            Export Records
+                                            Worker Hours Report
                                         </h5>
                                         <button
                                             type="button"
@@ -1203,9 +1161,9 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
 
     const handleChangeHours = (_isIncrement) => {
         if (_isIncrement) {
-            setCount((_count) => _count + 0.25);
+            setCount((_count) => (parseFloat(_count) + 0.25).toFixed(2));
         } else {
-            setCount((_count) => _count - 0.25);
+            setCount((_count) => (parseFloat(_count) - 0.25).toFixed(2));
         }
         setIsChanged(true);
     };
@@ -1229,6 +1187,19 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
         );
     }, [data.order]);
 
+    const timeBGColor = useMemo(() => {
+        let _color = "white";
+        if (isOrderClosed) {
+            _color = "#e7e7e7";
+        } else if (
+            data.actual_time_taken_minutes > data.jobservice.duration_minutes
+        ) {
+            _color = "#ff0000";
+        }
+
+        return _color;
+    }, [isOrderClosed, data]);
+
     return (
         <div className="d-flex align-items-center">
             <button
@@ -1248,7 +1219,7 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
                 className="mx-1"
                 style={{
                     ...divStyle,
-                    background: isOrderClosed ? "#e7e7e7" : "white",
+                    background: timeBGColor,
                 }}
             >
                 {count}

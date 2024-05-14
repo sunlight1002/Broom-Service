@@ -180,7 +180,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('delete-file', [ClientController::class, 'deletefile']);
 
     // Report
-    Route::post('export_report', [JobController::class, 'exportReport']);
+    Route::post('worker/hours/export', [JobController::class, 'exportTimeReport']);
+    Route::post('jobs/{id}/worker/hours/export', [JobController::class, 'exportJobTrackedReport']);
 
     // Income 
     Route::post('income', [DashboardController::class, 'income'])->name('income');
