@@ -36,6 +36,8 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         $q = $request->q;
+        $statusCode = $request->status;
+
         $result = User::query();
 
         $status = '';
@@ -55,7 +57,15 @@ class WorkerController extends Controller
         if ($status != '') {
             $result->orWhere('status',   'like', '%' . $status . '%');
         }
-
+        $result->when($statusCode == "active", function ($q)  {
+            return $q->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
+        });
+        $result->when($statusCode == "past", function ($q)  {
+            return $q->whereNotNull('last_work_date')->orWhereDate('last_work_date', '<', now());
+        });
+        $result->when($statusCode == "manpower_company", function ($q)  {
+            return $q->whereNotNull('manpower_company_id');
+        });
         $result = $result->orderBy('id', 'desc')->paginate(20);
 
         return response()->json([
@@ -241,6 +251,9 @@ class WorkerController extends Controller
                 'required',
                 Rule::in(['my-company', 'manpower']),
             ],
+            'manpower_company_id' => ['required_if:company_type,manpower']
+        ], [], [
+            'manpower_company_id' => 'Manpower'
         ]);
 
         if ($validator->fails()) {
@@ -268,6 +281,7 @@ class WorkerController extends Controller
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
+        $worker->manpower_company_id       = $request->company_type == "manpower" ?$request->manpower_company_id: NULL;
         $worker->save();
 
         $i = 1;
@@ -341,6 +355,9 @@ class WorkerController extends Controller
                 'required',
                 Rule::in(['my-company', 'manpower']),
             ],
+            'manpower_company_id' => ['required_if:company_type,manpower']
+        ],[], [
+            'manpower_company_id' => 'Manpower'
         ]);
 
         if ($validator->fails()) {
@@ -368,6 +385,7 @@ class WorkerController extends Controller
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
+        $worker->manpower_company_id       = $request->company_type == "manpower" ?$request->manpower_company_id: NULL;
         $worker->save();
 
         return response()->json([

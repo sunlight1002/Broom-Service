@@ -256,6 +256,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('languages', LanguageController::class);
 
     // Manpower Companies
+    Route::get('manpower-companies-list', [ManpowerCompaniesController::class, 'allCompanies']);
     Route::post('manpower-companies/{id}', [ManpowerCompaniesController::class, 'update']);
     Route::resource('manpower-companies', ManpowerCompaniesController::class)->except(['create', 'show', 'edit', 'update']);
 

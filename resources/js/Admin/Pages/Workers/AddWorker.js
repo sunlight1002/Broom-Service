@@ -36,6 +36,7 @@ export default function AddWorker() {
         worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
         renewal_date: "",
         company_type: "",
+        manpower_company_id: "",
     });
     const [isLoading, setIsLoading] = useState(false);
     const [password, setPassword] = useState("");
@@ -49,6 +50,7 @@ export default function AddWorker() {
     const [countries, setCountries] = useState([]);
 
     const [errors, setErrors] = useState([]);
+    const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -110,6 +112,7 @@ export default function AddWorker() {
             company_type: formValues.company_type,
             latitude: latitude,
             longitude: longitude,
+            manpower_company_id: formValues.manpower_company_id,
         };
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
@@ -152,9 +155,23 @@ export default function AddWorker() {
             setCountries(response.data.countries);
         });
     };
+    const getManpowerCompanies = async () => {
+        await axios
+            .get("/api/admin/manpower-companies-list", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.companies?.length > 0) {
+                    setManpowerCompanies(response.data.companies);
+                } else {
+                    setManpowerCompanies([]);
+                }
+            });
+    };
     useEffect(() => {
         getAvailableSkill();
         getCountries();
+        getManpowerCompanies();
     }, []);
     return (
         <div id="container">
@@ -493,6 +510,8 @@ export default function AddWorker() {
                                                             ...formValues,
                                                             company_type:
                                                                 e.target.value,
+                                                            manpower_company_id:
+                                                                "",
                                                         });
                                                     }}
                                                     checked={
@@ -534,6 +553,58 @@ export default function AddWorker() {
                                             )}
                                         </div>
                                     </div>
+                                    {formValues.company_type === "manpower" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Manpower
+                                                </label>
+
+                                                <select
+                                                    name="manpower-id"
+                                                    className="form-control"
+                                                    value={
+                                                        formValues.manpower_company_id
+                                                    }
+                                                    onChange={(e) =>
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            manpower_company_id:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                >
+                                                    <option value="">
+                                                        --Select Manpower---
+                                                    </option>
+                                                    {manpowerCompanies &&
+                                                        manpowerCompanies.map(
+                                                            (mpc, index) => (
+                                                                <option
+                                                                    value={
+                                                                        mpc.id
+                                                                    }
+                                                                    key={mpc.id}
+                                                                >
+                                                                    {mpc.name}
+                                                                </option>
+                                                            )
+                                                        )}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                {errors.manpower_company_id ? (
+                                                    <small className="text-danger mb-1">
+                                                        {
+                                                            errors.manpower_company_id
+                                                        }
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="form-group">
