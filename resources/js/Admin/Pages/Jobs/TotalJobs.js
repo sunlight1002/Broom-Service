@@ -375,12 +375,12 @@ export default function TotalJobs() {
                                     Change Worker Requests
                                 </Link>
                             </div>
-                            <div className="App" style={{ display: "none" }}>
-                                <CSVLink {...csvReport} id="csv">
-                                    Export to CSV
-                                </CSVLink>
-                            </div>
                         </div> */}
+                        <div className="App" style={{ display: "none" }}>
+                            <CSVLink {...csvReport} id="csv">
+                                Export to CSV
+                            </CSVLink>
+                        </div>
                         {/* <div className="col-sm-2 hidden-xs">
                             <div className="search-data">
                                 <input
@@ -1218,7 +1218,7 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
     useEffect(() => {
         setCount(
             data.actual_time_taken_minutes
-                ? data.actual_time_taken_minutes / 60
+                ? (data.actual_time_taken_minutes / 60).toFixed(2)
                 : 0
         );
     }, [data]);

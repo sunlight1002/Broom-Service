@@ -4,6 +4,22 @@ import Sidebar from "../Layouts/Sidebar";
 import ReactPaginate from "react-paginate";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import axios from "axios";
+import Moment from "moment";
+
+const thisMonthFilter = {
+    start_date: Moment().startOf("month").format("YYYY-MM-DD"),
+    end_date: Moment().endOf("month").format("YYYY-MM-DD"),
+};
+
+const todayFilter = {
+    start_date: Moment().format("YYYY-MM-DD"),
+    end_date: Moment().format("YYYY-MM-DD"),
+};
+
+const thisWeekFilter = {
+    start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+    end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+};
 
 export default function income() {
     const [tasks, setTasks] = useState([]);
@@ -11,15 +27,23 @@ export default function income() {
     const [totalTask, setTotalTask] = useState(0);
     const [income, setIncome] = useState(0);
     const [role, setRole] = useState();
+
     const navigate = useNavigate();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    const getTasks = (duration) => {
+
+    const [dateRange, setDateRange] = useState({
+        start_date: null,
+        end_date: null,
+    });
+
+    const getTasks = () => {
         axios
-            .post("/api/admin/income", { duration }, { headers })
+            .post("/api/admin/income", { dateRange }, { headers })
             .then((res) => {
                 if (res.data.tasks.length > 0) {
                     setTasks(res.data.tasks);
@@ -31,6 +55,7 @@ export default function income() {
                 }
             });
     };
+
     function toHoursAndMinutes(totalSeconds) {
         const totalMinutes = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
@@ -45,17 +70,18 @@ export default function income() {
         var min = minutes / 60;
         return hours + ":" + min.toString().substring(0, 4);
     }
-    const filter = (e, duration) => {
-        e.preventDefault();
-        getTasks(duration);
-    };
+
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
     };
+
     useEffect(() => {
         getTasks();
+    }, [dateRange]);
+
+    useEffect(() => {
         getAdmin();
         if (role == "member") {
             navigate("/admin/dashboard");
@@ -82,29 +108,94 @@ export default function income() {
                             >
                                 <span
                                     className="p-2"
-                                    onClick={(e) => filter(e, "day")}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setDateRange({
+                                            start_date: todayFilter.start_date,
+                                            end_date: todayFilter.end_date,
+                                        });
+                                    }}
                                 >
                                     Day
                                 </span>
                                 <span
                                     className="p-2"
-                                    onClick={(e) => filter(e, "week")}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setDateRange({
+                                            start_date:
+                                                thisWeekFilter.start_date,
+                                            end_date: thisWeekFilter.end_date,
+                                        });
+                                    }}
                                 >
                                     Week
                                 </span>
                                 <span
                                     className="p-2"
-                                    onClick={(e) => filter(e, "month")}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setDateRange({
+                                            start_date:
+                                                thisMonthFilter.start_date,
+                                            end_date: thisMonthFilter.end_date,
+                                        });
+                                    }}
                                 >
                                     Month
                                 </span>
                                 <span
                                     className="p-2"
-                                    onClick={(e) => filter(e, "all")}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setDateRange({
+                                            start_date: null,
+                                            end_date: null,
+                                        });
+                                    }}
                                 >
                                     All
                                 </span>
                             </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-12 d-flex align-items-center">
+                            <div
+                                className="mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                Date Period
+                            </div>
+                            <input
+                                className="form-control"
+                                type="date"
+                                placeholder="From date"
+                                name="from filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.start_date}
+                                onChange={(e) => {
+                                    setDateRange({
+                                        start_date: e.target.value,
+                                        end_date: dateRange.end_date,
+                                    });
+                                }}
+                            />
+                            <div className="mx-2">to</div>
+                            <input
+                                className="form-control mr-2"
+                                type="date"
+                                placeholder="To date"
+                                name="to filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.end_date}
+                                onChange={(e) => {
+                                    setDateRange({
+                                        start_date: dateRange.start_date,
+                                        end_date: e.target.value,
+                                    });
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -117,8 +208,8 @@ export default function income() {
                                     <Thead>
                                         <Tr style={{ cursor: "pointer" }}>
                                             <Th>ID</Th>
-                                            <Th>Worker Name</Th>
-                                            <Th>Client Name</Th>
+                                            <Th>Worker</Th>
+                                            <Th>Client</Th>
                                             <Th>Time Takes</Th>
                                             <Th>Income</Th>
                                             <Th>Outcome</Th>

@@ -268,23 +268,23 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             if ($nextJob->worker_id && !empty($nextJob['worker']['email'])) {
                 try {
-                    App::setLocale($nextJob->worker->lng);
+                    // App::setLocale($nextJob->worker->lng);
 
-                    $emailData = array(
-                        'email' => $nextJob['worker']['email'],
-                        'job' => $nextJob->toArray(),
-                        'start_time' => $mergedContinuousTime[0]['starting_at'],
-                        'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                        'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-                    );
+                    // $emailData = array(
+                    //     'email' => $nextJob['worker']['email'],
+                    //     'job' => $nextJob->toArray(),
+                    //     'start_time' => $mergedContinuousTime[0]['starting_at'],
+                    //     'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                    //     'content_data'  => __('mail.worker_new_job.new_job_assigned'),
+                    // );
 
-                    sendJobWANotification($emailData);
+                    // sendJobWANotification($emailData);
 
-                    Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                        $messages->to($emailData['email']);
-                        $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                        $messages->subject($sub);
-                    });
+                    // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                    //     $messages->to($emailData['email']);
+                    //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                    //     $messages->subject($sub);
+                    // });
 
                     //send notification to admin
                     // $adminEmailData = [

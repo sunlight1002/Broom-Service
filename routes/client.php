@@ -81,7 +81,7 @@ Route::post('contracts/{hash}/initialize-card', [ClientCardController::class, 'c
 Route::post('contracts/{hash}/check-card', [ClientCardController::class, 'checkContractCard']);
 Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract']);
 Route::post('reject-contract', [ClientEmailController::class, 'RejectContract']);
-Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate'])->name('get-service-template');
-Route::post('add-file', [DashboardController::class, 'addfile'])->name('add-file');
-Route::post('delete-file', [DashboardController::class, 'deletefile'])->name('delete-file');
-Route::post('get-files', [DashboardController::class, 'getfiles'])->name('get-files');
+Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate']);
+Route::post('add-file', [DashboardController::class, 'addfile']);
+Route::post('delete-file', [DashboardController::class, 'deletefile']);
+Route::post('get-files', [DashboardController::class, 'getfiles']);

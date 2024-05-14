@@ -31,10 +31,6 @@ export default function ChangeJobStatusModal({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (comment == "") {
-            window.alert("Please Enter Comment");
-            return;
-        }
         if (allComment.length > 0 && !allCommentsChecked) {
             window.alert("Please select all comments");
             return;

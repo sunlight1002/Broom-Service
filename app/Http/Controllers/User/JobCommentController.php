@@ -79,7 +79,6 @@ class JobCommentController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'job_id' => ['required'],
-            'comment' => ['required']
         ]);
 
         if ($validator->fails()) {
@@ -90,7 +89,7 @@ class JobCommentController extends Controller
             'name' => $request->name,
             'job_id' => $job->id,
             'comment_for' => 'admin',
-            'comment' => $request->comment,
+            'comment' => $request->comment?$request->comment:NULL,
         ]);
 
         $filesArr = $request->file('files');

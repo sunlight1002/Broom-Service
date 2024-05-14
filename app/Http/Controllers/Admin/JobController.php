@@ -431,21 +431,21 @@ class JobController extends Controller
                     $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
-                        App::setLocale($job->worker->lng);
+                        // App::setLocale($job->worker->lng);
 
-                        $emailData = array(
-                            'email' => $job['worker']['email'],
-                            'job' => $job->toArray(),
-                            'start_time' => $mergedContinuousTime[0]['starting_at'],
-                            'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                            'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-                        );
-                        sendJobWANotification($emailData);
-                        Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                            $messages->to($emailData['email']);
-                            $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                            $messages->subject($sub);
-                        });
+                        // $emailData = array(
+                        //     'email' => $job['worker']['email'],
+                        //     'job' => $job->toArray(),
+                        //     'start_time' => $mergedContinuousTime[0]['starting_at'],
+                        //     'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
+                        //     'content_data'  => __('mail.worker_new_job.new_job_assigned'),
+                        // );
+                        // sendJobWANotification($emailData);
+                        // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+                        //     $messages->to($emailData['email']);
+                        //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+                        //     $messages->subject($sub);
+                        // });
                         //send notification to admin
                         $adminEmailData = [
                             'emailData'   => [
@@ -1096,36 +1096,6 @@ class JobController extends Controller
             'filename' => $fileName,
             'report' => $report
         ]);
-    }
-
-    public function sendWorkerEmail($job_id)
-    {
-        $job = Job::query()
-            ->with(['client', 'worker', 'jobservice', 'propertyAddress'])
-            ->find($job_id);
-
-        if (
-            isset($job['worker']['email']) &&
-            $job['worker']['email'] != null &&
-            $job['worker']['email'] != 'Null'
-        ) {
-            App::setLocale($job->worker->lng);
-
-            $data = array(
-                'email' => $job['worker']['email'],
-                'job'  => $job->toArray(),
-                'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-            );
-            sendJobWANotification($data);
-            Mail::send('/Mails/NewJobMail', $data, function ($messages) use ($data) {
-                $messages->to($data['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
-        }
-
-        return true;
     }
 
     public function workersToSwitch(Request $request, $id)
