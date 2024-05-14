@@ -84,34 +84,33 @@ class JobCommentController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-
-        $comment = JobComments::create([
-            'name' => $request->name,
-            'job_id' => $job->id,
-            'comment_for' => 'admin',
-            'comment' => $request->comment?$request->comment:NULL,
-        ]);
-
+        $comment = '';
         $filesArr = $request->file('files');
-        if ($request->hasFile('files') && count($filesArr) > 0) {
-            if (!Storage::disk('public')->exists('uploads/attachments')) {
-                Storage::disk('public')->makeDirectory('uploads/attachments');
-            }
-
-            $resultArr = [];
-            foreach ($filesArr as $key => $file) {
-                $original_name = $file->getClientOriginalName();
-                $file_name = $comment->job_id . "_" . date('s') . "_" . $original_name;
-
-                if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
-                    array_push($resultArr, [
-                        'file_name' => $file_name,
-                        'original_name' => $original_name
-                    ]);
+        $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
+        if ($isFiles || $request->comment) {
+            $comment = JobComments::create([
+                'name' => $request->name,
+                'job_id' => $job->id,
+                'comment_for' => 'admin',
+                'comment' => $request->comment?$request->comment:NULL,
+            ]);
+            if ($isFiles) {
+                if (!Storage::disk('public')->exists('uploads/attachments')) {
+                    Storage::disk('public')->makeDirectory('uploads/attachments');
                 }
+                $resultArr = [];
+                foreach ($filesArr as $key => $file) {
+                    $original_name = $file->getClientOriginalName();
+                    $file_name = $comment->job_id . "_" . date('s') . "_" . $original_name;
+                    if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
+                        array_push($resultArr, [
+                            'file_name' => $file_name,
+                            'original_name' => $original_name
+                        ]);
+                    }
+                }
+                $comment->attachments()->createMany($resultArr);
             }
-
-            $comment->attachments()->createMany($resultArr);
         }
 
         if (isset($request->status) && $request->status != '') {

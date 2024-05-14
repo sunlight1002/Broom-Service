@@ -43,7 +43,6 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
             'comment'    => $event->comment && $event->comment->comment ? $event->comment->comment: '-',
             'job'        => $event->job->toArray(),
         );
-
         Notification::create([
             'user_id' => $event->job->client->id,
             'type' => NotificationTypeEnum::WORKER_RESCHEDULE,
