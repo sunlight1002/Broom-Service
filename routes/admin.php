@@ -175,12 +175,12 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('latest-client-schedule', [ScheduleController::class, 'latestClientSchedule']);
 
     // client files
-    Route::post('add-file', [ClientController::class, 'addfile'])->name('add-file');
+    Route::post('add-file', [ClientController::class, 'addfile']);
     Route::get('clients/{id}/files', [ClientController::class, 'files']);
-    Route::post('delete-file', [ClientController::class, 'deletefile'])->name('delete-file');
+    Route::post('delete-file', [ClientController::class, 'deletefile']);
 
     // Report
-    Route::post('export_report', [JobController::class, 'exportReport'])->name('export_report');
+    Route::post('export_report', [JobController::class, 'exportReport']);
 
     // Income 
     Route::post('income', [DashboardController::class, 'income'])->name('income');

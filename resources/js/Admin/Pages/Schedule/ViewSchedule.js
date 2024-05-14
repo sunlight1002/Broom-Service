@@ -667,6 +667,7 @@ export default function ViewSchedule() {
                                                     autoFocus
                                                     shouldCloseOnSelect={false}
                                                     inline
+                                                    minDate={new Date()}
                                                 />
                                             </div>
                                             <div className="mt-1 ">

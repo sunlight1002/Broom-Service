@@ -27,16 +27,20 @@ export default function income() {
     const [totalTask, setTotalTask] = useState(0);
     const [income, setIncome] = useState(0);
     const [role, setRole] = useState();
+
     const navigate = useNavigate();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
     const [dateRange, setDateRange] = useState({
         start_date: null,
         end_date: null,
     });
+
     const getTasks = () => {
         axios
             .post("/api/admin/income", { dateRange }, { headers })
@@ -51,6 +55,7 @@ export default function income() {
                 }
             });
     };
+
     function toHoursAndMinutes(totalSeconds) {
         const totalMinutes = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
@@ -65,16 +70,18 @@ export default function income() {
         var min = minutes / 60;
         return hours + ":" + min.toString().substring(0, 4);
     }
+
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
     };
+
     useEffect(() => {
         getTasks();
     }, [dateRange]);
+
     useEffect(() => {
-        getTasks();
         getAdmin();
         if (role == "member") {
             navigate("/admin/dashboard");
@@ -201,8 +208,8 @@ export default function income() {
                                     <Thead>
                                         <Tr style={{ cursor: "pointer" }}>
                                             <Th>ID</Th>
-                                            <Th>Worker Name</Th>
-                                            <Th>Client Name</Th>
+                                            <Th>Worker</Th>
+                                            <Th>Client</Th>
                                             <Th>Time Takes</Th>
                                             <Th>Income</Th>
                                             <Th>Outcome</Th>
