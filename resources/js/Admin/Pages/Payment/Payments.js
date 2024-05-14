@@ -135,8 +135,8 @@ export default function Payments() {
         getClientPayments();
     }, [currentPage, dateRange, paidStatusFilter, searchVal]);
 
-    const handleCloseForPayment = (_clientID) => {
-        axios
+    const handleCloseForPayment = async (_clientID) => {
+        await axios
             .post(
                 `/api/admin/client/${_clientID}/close-for-payment`,
                 {},
@@ -167,6 +167,39 @@ export default function Payments() {
                     }
                 });
             });
+    };
+
+    const handleCloseWithoutPayment = async (_clientID) => {
+        Swal.fire({
+            title: "Are you sure to close without payment?",
+            showDenyButton: true,
+            confirmButtonText: "Yes",
+            denyButtonText: `No`,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await axios
+                    .post(
+                        `/api/admin/client/${_clientID}/close-without-payment`,
+                        {},
+                        {
+                            headers,
+                        }
+                    )
+                    .then((response) => {
+                        Swal.fire("Closed without payment!", "", "success");
+                        getClientPayments();
+                    })
+                    .catch((e) => {
+                        getClientPayments();
+
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
+                    });
+            }
+        });
     };
 
     const priorityStatus = (_status) => {
@@ -366,6 +399,12 @@ export default function Payments() {
                                     </Thead>
                                     <Tbody>
                                         {clients.map((item, index) => {
+                                            const _statusName =
+                                                item.priority_paid_status &&
+                                                priorityStatus(
+                                                    item.priority_paid_status
+                                                );
+
                                             return (
                                                 <Tr key={index}>
                                                     <Td>
@@ -424,9 +463,7 @@ export default function Payments() {
                                                                 width: "max-content",
                                                             }}
                                                         >
-                                                            {priorityStatus(
-                                                                item.priority_paid_status
-                                                            ) || "-"}
+                                                            {_statusName || "-"}
                                                         </div>
                                                     </Td>
                                                     <Td>
@@ -451,9 +488,7 @@ export default function Payments() {
                                                                         See
                                                                         document
                                                                     </Link>
-                                                                    {priorityStatus(
-                                                                        item.priority_paid_status
-                                                                    ) ==
+                                                                    {_statusName ==
                                                                         "unpaid" && (
                                                                         <button
                                                                             className="dropdown-item"
@@ -469,9 +504,7 @@ export default function Payments() {
                                                                             receipt
                                                                         </button>
                                                                     )}
-                                                                    {priorityStatus(
-                                                                        item.priority_paid_status
-                                                                    ) ==
+                                                                    {_statusName ==
                                                                         "problem" && (
                                                                         <button
                                                                             className="dropdown-item"
@@ -491,9 +524,7 @@ export default function Payments() {
                                                                         (item.payment_method =
                                                                             "cc" &&
                                                                                 item.priority_paid_status &&
-                                                                                priorityStatus(
-                                                                                    item.priority_paid_status
-                                                                                ) !=
+                                                                                _statusName !=
                                                                                     "paid" && (
                                                                                     <button
                                                                                         className="dropdown-item"
@@ -509,6 +540,22 @@ export default function Payments() {
                                                                                     </button>
                                                                                 ))
                                                                     }
+                                                                    {_statusName &&
+                                                                        _statusName !=
+                                                                            "paid" && (
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() =>
+                                                                                    handleCloseWithoutPayment(
+                                                                                        item.client_id
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                Close
+                                                                                without
+                                                                                payment
+                                                                            </button>
+                                                                        )}
                                                                 </div>
                                                             </div>
                                                         )}

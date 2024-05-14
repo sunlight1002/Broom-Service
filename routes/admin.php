@@ -198,6 +198,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('client/{id}/unpaid-invoice', [InvoiceController::class, 'clientUnpaidInvoice']);
     Route::post('client/{id}/update-invoice', [InvoiceController::class, 'closeClientInvoicesWithReceipt']);
     Route::post('client/{id}/close-for-payment', [InvoiceController::class, 'closeClientForPayment']);
+    Route::post('client/{id}/close-without-payment', [InvoiceController::class, 'closeClientWithoutPayment']);
 
     Route::get('client/{id}/cards', [ClientCardController::class, 'index']);
     Route::post('client/{id}/initialize-card', [ClientCardController::class, 'createClientCardSession']);

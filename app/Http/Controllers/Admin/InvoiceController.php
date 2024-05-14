@@ -1578,4 +1578,48 @@ class InvoiceController extends Controller
             'message' => 'Invoice updated successfully'
         ]);
     }
+
+    public function closeClientWithoutPayment(Request $request, $id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => "Client not found"
+            ], 404);
+        }
+
+        $orders = Order::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'Open')
+            ->get();
+
+        if ($orders->count() == 0) {
+            return response()->json([
+                'message' => "Open order not found"
+            ], 404);
+        }
+
+        foreach ($orders as $order) {
+            /*Close Order */
+            $this->closeDoc($order->order_id, 'order');
+
+            $order->update([
+                'status' => 'Closed',
+                'invoice_status' => 2,
+                'paid_status' => OrderPaidStatusEnum::PAID,
+                'is_force_closed' => true,
+                'force_closed_at' => now()->toDateTimeString()
+            ]);
+
+            Job::where('order_id', $order->id)
+                ->update([
+                    'is_paid' => true
+                ]);
+        }
+
+        return response()->json([
+            'message' => 'Order closed successfully'
+        ]);
+    }
 }
