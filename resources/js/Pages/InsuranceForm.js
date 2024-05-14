@@ -164,13 +164,12 @@ const InsuranceForm = () => {
         handleSubmit,
         values,
         setFieldValue,
-        isSubmitting,
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: async (values) => {
-            console.log(values);
+            setIsSubmitted(true);
             await saveFormData(true);
         },
     });
@@ -266,7 +265,7 @@ const InsuranceForm = () => {
             let formData = objectToFormData(values);
             formData.append("pdf_file", blob);
 
-            await axios
+            axios
                 .post(`/api/worker/${id}/insurance-form`, formData, {
                     headers: {
                         Accept: "application/json, text/plain, */*",
@@ -274,12 +273,16 @@ const InsuranceForm = () => {
                     },
                 })
                 .then((res) => {
-                    alert.success(t("insurance.signedSuccess"));
+                    Swal.fire({
+                        text: t("insurance.signedSuccess"),
+                        icon: "success",
+                    });
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                 })
                 .catch((e) => {
+                    setIsSubmitted(false);
                     Swal.fire({
                         title: "Error!",
                         text: e.response.data.message,
@@ -288,7 +291,6 @@ const InsuranceForm = () => {
                 });
         }
         // console.log(pdfBytes, "arrayBytes");
-        console.log(blob, "blob");
     };
 
     // const handleSubmit = async () => {
@@ -369,7 +371,7 @@ const InsuranceForm = () => {
     }, [values.Months]);
 
     return (
-        <form className="my-2" onSubmit={handleSubmit}>
+        <form className="my-2 mx-4" onSubmit={handleSubmit}>
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <label className="control-label">
@@ -626,7 +628,7 @@ const InsuranceForm = () => {
 
             <div
                 className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
+                style={{ fontSize: "18px", fontWeight: "bold" }}
             >
                 {t("insurance.insuraceDetailCandidate")}
             </div>
@@ -1418,7 +1420,7 @@ const InsuranceForm = () => {
 
             <div
                 className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
+                style={{ fontSize: "18px", fontWeight: "bold" }}
             >
                 {t("insurance.HealthDeclaration")}
             </div>
@@ -1520,7 +1522,7 @@ const InsuranceForm = () => {
 
             <div
                 className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
+                style={{ fontSize: "18px", fontWeight: "bold" }}
             >
                 {t("insurance.receipt")}
             </div>
@@ -1544,7 +1546,7 @@ const InsuranceForm = () => {
 
             <div
                 className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
+                style={{ fontSize: "18px", fontWeight: "bold" }}
             >
                 {t("insurance.signCanidate")}
             </div>
@@ -1599,21 +1601,22 @@ const InsuranceForm = () => {
 
             {/* Buttons */}
             <div>
-                {!isSubmitted && (
+                {!formValues && (
                     <div className="row justify-content-center">
                         <div className="col-md-8 d-flex">
                             <button
                                 className="btn btn-secondary"
                                 onClick={handleShow}
-                                disabled={isSubmitting}
+                                disabled={isSubmitted}
                             >
                                 {t("insurance.Preview")}
                             </button>
                             <div className="mx-2"></div>
                             <button
+                                type="submit"
                                 className="btn btn-primary"
                                 onClick={handleSubmit}
-                                disabled={isSubmitting}
+                                disabled={isSubmitted}
                             >
                                 {t("insurance.Submit")}
                             </button>
