@@ -49,70 +49,43 @@ export default function ManpowerCompanyModal({
                 formData.append("file", element);
             }
 
-            if (company) {
-                await axios
-                    .put(
-                        `/api/admin/manpower-companies/${company.id}`,
-                        formData,
-                        {
-                            headers,
-                        }
-                    )
-                    .then((response) => {
-                        if (response.data.errors) {
-                            for (let e in response.data.errors) {
-                                alert.error(response.data.errors[e]);
-                            }
-                        } else {
-                            setIsOpen(false);
-                            onSuccess();
-                            Swal.fire(
-                                "Updated!",
-                                "Comment updated successfully.",
-                                "success"
-                            );
-                        }
-                        setIsLoading(false);
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                        Swal.fire({
-                            title: "Error!",
-                            text: e.response.data.message,
-                            icon: "error",
-                        });
-                        setIsLoading(false);
-                    });
-            } else {
-                await axios
-                    .post(`/api/admin/manpower-companies`, formData, {
+            await axios
+                .post(
+                    company
+                        ? `/api/admin/manpower-companies/${company.id}`
+                        : `/api/admin/manpower-companies`,
+                    formData,
+                    {
                         headers,
-                    })
-                    .then((response) => {
-                        if (response.data.errors) {
-                            for (let e in response.data.errors) {
-                                alert.error(response.data.errors[e]);
-                            }
-                        } else {
-                            setIsOpen(false);
-                            onSuccess();
-                            Swal.fire(
-                                "Added!",
-                                "Comment added successfully.",
-                                "success"
-                            );
+                    }
+                )
+                .then((response) => {
+                    if (response.data.errors) {
+                        for (let e in response.data.errors) {
+                            alert.error(response.data.errors[e]);
                         }
-                        setIsLoading(false);
-                    })
-                    .catch((e) => {
-                        Swal.fire({
-                            title: "Error!",
-                            text: e.response.data.message,
-                            icon: "error",
-                        });
-                        setIsLoading(false);
+                    } else {
+                        setIsOpen(false);
+                        onSuccess();
+                        Swal.fire(
+                            company ? "Updated!" : "Added!",
+                            company
+                                ? "Company updated successfully."
+                                : "Company added successfully.",
+                            "success"
+                        );
+                    }
+                    setIsLoading(false);
+                })
+                .catch((e) => {
+                    console.log(e);
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
                     });
-            }
+                    setIsLoading(false);
+                });
         }
     };
 
