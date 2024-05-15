@@ -35,41 +35,47 @@ class WorkerController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
+        $keyword = $request->q;
         $statusCode = $request->status;
 
-        $result = User::query();
-
         $status = '';
-        if (strtolower($q) === "active") {
+        if (strtolower($keyword) === "active") {
             $status = 1;
         }
-        if (strtolower($q) === "inactive") {
+        if (strtolower($keyword) === "inactive") {
             $status = 0;
         }
 
-        $result->where('firstname',  'like', '%' . $q . '%');
-        $result->orWhere('lastname', 'like', '%' . $q . '%');
-        $result->orWhere('phone',    'like', '%' . $q . '%');
-        $result->orWhere('address',  'like', '%' . $q . '%');
-
-        // $result->orWhere('email',    'like','%'.$q.'%');
-        if ($status != '') {
-            $result->orWhere('status',   'like', '%' . $status . '%');
-        }
-        $result->when($statusCode == "active", function ($q) {
-            return $q->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
-        });
-        $result->when($statusCode == "past", function ($q) {
-            return $q->whereNotNull('last_work_date')->orWhereDate('last_work_date', '<', now());
-        });
-        $result->when($statusCode == "manpower_company", function ($q) {
-            return $q->whereNotNull('manpower_company_id');
-        });
-        $result = $result->orderBy('id', 'desc')->paginate(20);
+        $data = User::query()
+            ->when($keyword, function ($q) use ($keyword) {
+                return $q
+                    ->where('firstname',  'like', '%' . $keyword . '%')
+                    ->orWhere('lastname', 'like', '%' . $keyword . '%')
+                    ->orWhere('phone',    'like', '%' . $keyword . '%')
+                    ->orWhere('address',  'like', '%' . $keyword . '%');
+            })
+            ->when($status != "", function ($q) use ($status) {
+                return $q
+                    ->orWhere('status',   'like', '%' . $status . '%');
+            })
+            ->when($statusCode == "active", function ($q) {
+                return $q
+                    ->whereNull('last_work_date')
+                    ->orWhereDate('last_work_date', '>=', today()->toDateString());
+            })
+            ->when($statusCode == "past", function ($q) {
+                return $q
+                    ->whereNotNull('last_work_date')
+                    ->whereDate('last_work_date', '<', today()->toDateString());
+            })
+            ->when($statusCode == "manpower_company", function ($q) {
+                return $q->where('company_type', 'manpower');
+            })
+            ->latest()
+            ->paginate(20);
 
         return response()->json([
-            'workers' => $result,
+            'workers' => $data,
         ]);
     }
 

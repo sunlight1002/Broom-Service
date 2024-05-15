@@ -7,7 +7,6 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../Layouts/Sidebar";
-import FreezeWorkerShiftModal from "../../Components/Modals/FreezeWorkerShiftModal";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 const filterStatus = {
@@ -25,11 +24,14 @@ export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
-    const [isOpenFreezeWorker, setIsOpenFreezeWorker] = useState(false);
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
-    const [selectedFilter, setSelectedFilter] = useState("active");
+    const [currentPage, setCurrentPage] = useState(0);
+    const [filters, setFilters] = useState({
+        status: "",
+        q: "",
+    });
+
     const navigate = useNavigate();
 
     const headers = {
@@ -38,9 +40,25 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getWorkers = () => {
-        axios
-            .get("/api/admin/workers?status=" + selectedFilter, { headers })
+    const getWorkers = async () => {
+        let _filters = {};
+
+        if (filters.status) {
+            _filters.status = filters.status;
+        }
+
+        if (filters.q) {
+            _filters.q = filters.q;
+        }
+
+        await axios
+            .get("/api/admin/workers", {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((response) => {
                 if (response.data.workers.data.length > 0) {
                     setWorkers(response.data.workers.data);
@@ -51,54 +69,10 @@ export default function AllWorkers() {
                 }
             });
     };
+
     useEffect(() => {
         getWorkers();
-    }, [selectedFilter]);
-
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get(
-                "/api/admin/workers?status=" +
-                    selectedFilter +
-                    "&page=" +
-                    currentPage +
-                    "&q=" +
-                    filter,
-                {
-                    headers,
-                }
-            )
-            .then((response) => {
-                if (response.data.workers.data.length > 0) {
-                    setWorkers(response.data.workers.data);
-                    setPageCount(response.data.workers.last_page);
-                } else {
-                    setWorkers([]);
-                    setLoading("No Workers found");
-                }
-            });
-    };
-
-    const filterWorker = (e) => {
-        axios
-            .get(`/api/admin/workers?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.workers.data.length > 0) {
-                    setWorkers(response.data.workers.data);
-                    setPageCount(response.data.workers.last_page);
-                } else {
-                    setWorkers([]);
-                    setPageCount(response.data.workers.last_page);
-                    setLoading("No Workers found");
-                }
-            });
-    };
-
-    const handleFreezeShift = (_workerID) => {
-        setSelectedWorkerId(_workerID);
-        setIsOpenFreezeWorker(true);
-    };
+    }, [currentPage, filters]);
 
     const handleLeaveJob = (_workerID) => {
         setSelectedWorkerId(_workerID);
@@ -190,8 +164,10 @@ export default function AllWorkers() {
                                     type="text"
                                     className="form-control"
                                     onChange={(e) => {
-                                        filterWorker(e);
-                                        filterWorker(e.target.value);
+                                        setFilters({
+                                            status: "",
+                                            q: e.target.value,
+                                        });
                                     }}
                                     placeholder="Search"
                                 />
@@ -235,14 +211,19 @@ export default function AllWorkers() {
                                 key={item}
                                 className={`btn border rounded px-3 mr-1`}
                                 style={
-                                    selectedFilter === item
+                                    filters.status === item
                                         ? { background: "white" }
                                         : {
                                               background: "#2c3f51",
                                               color: "white",
                                           }
                                 }
-                                onClick={() => setSelectedFilter(item)}
+                                onClick={() => {
+                                    setFilters({
+                                        status: item,
+                                        q: "",
+                                    });
+                                }}
                             >
                                 {filterStatus[item].name}
                             </button>
@@ -463,7 +444,9 @@ export default function AllWorkers() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={() => {
+                                            setCurrentPage(currentPage + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }
@@ -482,14 +465,6 @@ export default function AllWorkers() {
                         </div>
                     </div>
                 </div>
-
-                {isOpenFreezeWorker && (
-                    <FreezeWorkerShiftModal
-                        setIsOpen={setIsOpenFreezeWorker}
-                        isOpen={isOpenFreezeWorker}
-                        workerId={selectedWorkerId}
-                    />
-                )}
 
                 {isOpenLeaveJobWorker && (
                     <LeaveJobWorkerModal
