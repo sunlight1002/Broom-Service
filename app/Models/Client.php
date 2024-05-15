@@ -42,6 +42,7 @@ class Client extends Authenticatable
         'status',
         'password',
         'extra',
+        'verify_last_address_with_wa_bot',
         'payment_method',
         'icount_client_id',
         'avatar',
@@ -64,6 +65,7 @@ class Client extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'verify_last_address_with_wa_bot' => 'array',
     ];
 
     public static function boot()

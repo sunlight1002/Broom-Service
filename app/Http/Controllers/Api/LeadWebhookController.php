@@ -257,7 +257,7 @@ class LeadWebhookController extends Controller
                     }
 
                     // Cancel job one time
-                    if($last_menu == 'cancel_one_time' && (str_contains($message, 'yes') || str_contains($message, 'כן'))) {
+                    if ($last_menu == 'cancel_one_time' && (str_contains($message, 'yes') || str_contains($message, 'כן'))) {
                         $msg = ($client->lng == 'heb' ? `נציג מהצוות שלנו ייצור איתך קשר בהקדם.` : 'A representative from our team will contact you shortly.');
                         WebhookResponse::create([
                             'status'        => 1,
@@ -515,9 +515,8 @@ If you would like to speak to a human representative, please send a message with
                                     }
                                 }
 
-                                ClientPropertyAddress::create(
-                                    [
-                                        'client_id' => $client->id,
+                                $client->update([
+                                    'verify_last_address_with_wa_bot' => [
                                         'address_name' => $result->formatted_address ?? null,
                                         'city' => $city ?? NULL,
                                         'floor' => NULL,
@@ -528,17 +527,92 @@ If you would like to speak to a human representative, please send a message with
                                         'latitude' => $result->geometry->location->lat ?? NULL,
                                         'longitude' => $result->geometry->location->lng ?? NULL,
                                     ]
-                                );
-                            }
-                        }
+                                ]);
 
-                        WhatsAppBotClientState::updateOrCreate([
-                            'client_id' => $client->id,
-                        ], [
-                            'menu_option' => 'main_menu->appointment->full_address',
-                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                        ]);
-                        die("Store address");
+                                $msg = null;
+                                if ($client->lng == 'heb') {
+                                    $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם אנא אשר אם הכתובת הבאה נכונה על ידי תשובה בכן או לא:' . $result->formatted_address;
+                                } else {
+                                    $msg = "Please confirm if this address is correct by replying with Yes or No:\n\n" . $result->formatted_address;
+                                }
+                                WebhookResponse::create([
+                                    'status'        => 1,
+                                    'name'          => 'whatsapp',
+                                    'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                    'message'       => $msg,
+                                    'number'        => $from,
+                                    'flex'          => 'A',
+                                    'read'          => 1,
+                                    'data'          => json_encode($get_data)
+                                ]);
+                                WhatsAppBotClientState::updateOrCreate([
+                                    'client_id' => $client->id,
+                                ], [
+                                    'menu_option' => 'main_menu->appointment->verify_address',
+                                    'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                                ]);
+                                $result = sendWhatsappMessage($from, '', array('message' => $msg));
+
+                                die("Verify address");
+                            } else {
+                                $client->update([
+                                    'verify_last_address_with_wa_bot' => NULL
+                                ]);
+                            }
+                        } else {
+                            $client->update([
+                                'verify_last_address_with_wa_bot' => NULL
+                            ]);
+                        }
+                    }
+
+                    if ($last_menu == 'verify_address') {
+                        if (
+                            ($client->lng == 'heb' && $message == 'כן') ||
+                            ($client->lng == 'en' && $message == 'Yes')
+                        ) {
+                            $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
+
+                            ClientPropertyAddress::create(
+                                [
+                                    'client_id' => $client->id,
+                                    'address_name' => $lastEnteredAddress['address_name'],
+                                    'city' => $lastEnteredAddress['city'],
+                                    'floor' => $lastEnteredAddress['floor'],
+                                    'apt_no' => $lastEnteredAddress['apt_no'],
+                                    'entrence_code' => $lastEnteredAddress['entrence_code'],
+                                    'zipcode' => $lastEnteredAddress['zipcode'],
+                                    'geo_address' => $lastEnteredAddress['geo_address'],
+                                    'latitude' => $lastEnteredAddress['latitude'],
+                                    'longitude' => $lastEnteredAddress['longitude'],
+                                ]
+                            );
+
+                            $client->update([
+                                'verify_last_address_with_wa_bot' => NULL
+                            ]);
+
+                            WhatsAppBotClientState::updateOrCreate([
+                                'client_id' => $client->id,
+                            ], [
+                                'menu_option' => 'main_menu->appointment->full_address',
+                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                            ]);
+                            die("Store address");
+                        } else {
+                            $client->update([
+                                'verify_last_address_with_wa_bot' => NULL
+                            ]);
+
+                            WhatsAppBotClientState::updateOrCreate([
+                                'client_id' => $client->id,
+                            ], [
+                                'menu_option' => 'main_menu->appointment->full_name',
+                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                            ]);
+
+                            die("Re-enter address");
+                        }
                     }
 
                     // Store lead email
@@ -726,7 +800,7 @@ If you would like to speak to a human representative, please send a message with
                             $auth = Client::find($client_menus->auth_id);
                             $msg = 'Dear customer, according to the terms of service, cancellation of the service may be subject to cancellation fees. Are you sure you want to cancel the service?';
 
-                            if($auth->lng == 'heb') {
+                            if ($auth->lng == 'heb') {
                                 $msg = 'לקוח יקר, בהתאם לתנאי השירות, על ביטול השירות עלולים לחול דמי ביטול. האם אתה בטוח שברצונך לבטל את השירות?';
                             }
 
@@ -758,7 +832,7 @@ If you would like to speak to a human representative, please send a message with
                             $auth = Client::find($client_menus->auth_id);
                             $msg = "A representative from our team will contact you shortly. \nIs there anything else I can help you with today? 👋";
 
-                            if($auth->lng == 'heb') {
+                            if ($auth->lng == 'heb') {
                                 $msg = "נציג מהצוות שלנו ייצור איתך קשר בהקדם. \n האם יש משהו נוסף שאני יכול לעזור לך בו היום? 👋";
                             }
 
@@ -790,7 +864,7 @@ If you would like to speak to a human representative, please send a message with
                             $auth = Client::find($client_menus->auth_id);
                             $msg = "Who would you like to speak to? \n 1. Office manager and scheduling \n 2. Customer service \n 3. Accounting and billing";
 
-                            if($auth->lng == 'heb') {
+                            if ($auth->lng == 'heb') {
                                 $msg = "עם מי תרצה לדבר? \n 1. מנהל משרד ותזמון \n 2. שירות לקוחות \n 3. הנהלת חשבונות וחיוב";
                             }
 
@@ -851,7 +925,7 @@ If you would like to speak to a human representative, please send a message with
                     }
 
                     // Send customer service menu
-                    if(($message == 0 && ($prev_step == 'customer_service' || $prev_step == 'customer_menu'))) {
+                    if (($message == 0 && ($prev_step == 'customer_service' || $prev_step == 'customer_menu'))) {
                         if (isset($client_menus->auth_id)) {
                             $auth = Client::find($client_menus->auth_id);
                             $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
