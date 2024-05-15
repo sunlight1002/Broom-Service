@@ -87,7 +87,7 @@ export default function ChangeWorkerRequest() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        {/* <div className="col-sm-2">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -102,7 +102,7 @@ export default function ChangeWorkerRequest() {
                                                     hours
                                                 </p>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>

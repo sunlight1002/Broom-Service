@@ -438,13 +438,19 @@ trait JobSchedule
         $job = Job::find($jobID);
 
         if ($job) {
-            $hours = JobHours::query()
-                ->where('job_id', $job->id)
-                ->selectRaw('SUM(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60) as minutes')
-                ->first();
+            if (!JobHours::query()->where('job_id', $job->id)->exists()) {
+                $actual_minutes = $job->jobservice->duration_minutes;
+            } else {
+                $hours = JobHours::query()
+                    ->where('job_id', $job->id)
+                    ->selectRaw('SUM(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60) as minutes')
+                    ->first();
+
+                $actual_minutes = (int)$hours->minutes;
+            }
 
             $job->update([
-                'actual_time_taken_minutes' => (int)$hours->minutes
+                'actual_time_taken_minutes' => $actual_minutes
             ]);
         }
     }

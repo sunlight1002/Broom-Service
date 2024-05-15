@@ -30,6 +30,7 @@ export default function EditWorker() {
         phone: "",
         email: "",
         gender: "",
+        role: "",
         payment_hour: "",
         worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
         renewal_date: "",
@@ -103,23 +104,16 @@ export default function EditWorker() {
         e.preventDefault();
 
         const data = {
-            firstname: formValues.firstname,
-            lastname: formValues.lastname,
-            phone: formValues.phone,
+            ...formValues,
             address: address,
             renewal_visa: formValues.renewal_date,
-            gender: formValues.gender,
-            payment_hour: formValues.payment_hour,
             lng: !lng ? "en" : lng,
-            worker_id: formValues.worker_id,
             password: password,
             skill: skill,
             status: !itemStatus ? 1 : parseInt(itemStatus),
             country: country,
-            company_type: formValues.company_type,
             latitude: latitude,
             longitude: longitude,
-            manpower_company_id: formValues.manpower_company_id,
         };
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
@@ -164,6 +158,7 @@ export default function EditWorker() {
                     phone: _worker.phone,
                     renewal_date: _worker.renewal_visa,
                     gender: _worker.gender,
+                    role: _worker.role,
                     payment_hour: _worker.payment_per_hour,
                     worker_id: _worker.worker_id,
                     company_type: _worker.company_type,
@@ -370,6 +365,30 @@ export default function EditWorker() {
                                             />
                                             Female
                                         </label>
+                                    </div>
+                                </div>
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Role
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formValues.role}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    role: e.target.value,
+                                                });
+                                            }}
+                                            className="form-control"
+                                            placeholder="Role"
+                                        />
+                                        {errors.role && (
+                                            <small className="text-danger mb-1">
+                                                {errors.role}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="col-sm-6">

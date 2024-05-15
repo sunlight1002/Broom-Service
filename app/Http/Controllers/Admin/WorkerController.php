@@ -265,6 +265,7 @@ class WorkerController extends Controller
             'password'  => ['required'],
             'email'     => ['nullable', 'unique:users'],
             'gender'    => ['required'],
+            'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
                 Rule::in(['my-company', 'manpower']),
@@ -278,29 +279,30 @@ class WorkerController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $worker                = new User;
-        $worker->firstname     = $request->firstname;
-        $worker->lastname      = ($request->lastname) ? $request->lastname : '';
-        $worker->phone         = $request->phone;
-        $worker->email         = $request->email;
-        $worker->address       = $request->address;
-        $worker->latitude      = $request->latitude;
-        $worker->longitude     = $request->longitude;
-        $worker->renewal_visa  = $request->renewal_visa;
-        $worker->gender        = $request->gender;
-        $worker->payment_per_hour  = $request->payment_hour;
-        $worker->worker_id     = $request->worker_id;
-        $worker->lng           = $request->lng;
-        $worker->passcode      = $request->password;
-        $worker->password      = Hash::make($request->password);
-        $worker->skill         = $request->skill;
-        $worker->company_type  = $request->company_type;
-        $worker->status        = $request->status;
-        $worker->country       = $request->country;
-        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
-        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
-        $worker->manpower_company_id       = $request->company_type == "manpower" ? $request->manpower_company_id : NULL;
-        $worker->save();
+        $worker = User::create([
+            'firstname'     => $request->firstname,
+            'lastname'      => ($request->lastname) ? $request->lastname : '',
+            'phone'         => $request->phone,
+            'email'         => $request->email,
+            'address'       => $request->address,
+            'latitude'      => $request->latitude,
+            'longitude'     => $request->longitude,
+            'renewal_visa'  => $request->renewal_visa,
+            'gender'        => $request->gender,
+            'role'          => $request->role,
+            'payment_per_hour'  => $request->payment_hour,
+            'worker_id'     => $request->worker_id,
+            'lng'           => $request->lng,
+            'passcode'      => $request->password,
+            'password'      => Hash::make($request->password),
+            'skill'         => $request->skill,
+            'company_type'  => $request->company_type,
+            'status'        => $request->status,
+            'country'       => $request->country,
+            'is_afraid_by_cat'          => $request->is_afraid_by_cat,
+            'is_afraid_by_dog'          => $request->is_afraid_by_dog,
+            'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
+        ]);
 
         $i = 1;
         $j = 0;
@@ -369,6 +371,7 @@ class WorkerController extends Controller
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
+            'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
                 Rule::in(['my-company', 'manpower']),
@@ -382,29 +385,37 @@ class WorkerController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $worker                = User::find($id);
-        $worker->firstname     = $request->firstname;
-        $worker->lastname      = ($request->lastname) ? $request->lastname : '';
-        $worker->phone         = $request->phone;
-        // $worker->email         = $request->email;
-        $worker->address       = $request->address;
-        $worker->latitude      = $request->latitude;
-        $worker->longitude     = $request->longitude;
-        $worker->renewal_visa  = $request->renewal_visa;
-        $worker->gender        = $request->gender;
-        $worker->payment_per_hour  = $request->payment_hour;
-        $worker->worker_id     = $request->worker_id;
-        $worker->lng           = $request->lng;
-        $worker->passcode     = $request->password;
-        $worker->password      = Hash::make($request->password);
-        $worker->skill         = $request->skill;
-        $worker->company_type  = $request->company_type;
-        $worker->status        = $request->status;
-        $worker->country       = $request->country;
-        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
-        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
-        $worker->manpower_company_id       = $request->company_type == "manpower" ? $request->manpower_company_id : NULL;
-        $worker->save();
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $worker->update([
+            'firstname'     => $request->firstname,
+            'lastname'      => ($request->lastname) ? $request->lastname : '',
+            'phone'         => $request->phone,
+            'address'       => $request->address,
+            'latitude'      => $request->latitude,
+            'longitude'     => $request->longitude,
+            'renewal_visa'  => $request->renewal_visa,
+            'gender'        => $request->gender,
+            'role'          => $request->role,
+            'payment_per_hour'  => $request->payment_hour,
+            'worker_id'     => $request->worker_id,
+            'lng'           => $request->lng,
+            'passcode'      => $request->password,
+            'password'      => Hash::make($request->password),
+            'skill'         => $request->skill,
+            'company_type'  => $request->company_type,
+            'status'        => $request->status,
+            'country'       => $request->country,
+            'is_afraid_by_cat'          => $request->is_afraid_by_cat,
+            'is_afraid_by_dog'          => $request->is_afraid_by_dog,
+            'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
+        ]);
 
         return response()->json([
             'message' => 'Worker updated successfully',

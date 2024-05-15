@@ -487,9 +487,9 @@ export default function ChangeWorkerCalender({ job }) {
                                             <tr>
                                                 <th scope="col">Service</th>
                                                 <th scope="col">Frequency</th>
-                                                <th scope="col">
+                                                {/* <th scope="col">
                                                     Time to Complete
-                                                </th>
+                                                </th> */}
                                                 <th scope="col">Property</th>
                                                 <th scope="col">
                                                     Gender preference
@@ -511,7 +511,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                         }
                                                     </p>
                                                 </td>
-                                                <td>
+                                                {/* <td>
                                                     <p>
                                                         {convertMinsToDecimalHrs(
                                                             job.jobservice
@@ -519,7 +519,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                         )}{" "}
                                                         hours
                                                     </p>
-                                                </td>
+                                                </td> */}
                                                 <td>
                                                     <p>
                                                         {
