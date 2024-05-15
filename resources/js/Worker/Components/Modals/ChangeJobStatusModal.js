@@ -206,7 +206,7 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
                                     setModifiedComments((prev) => {
                                         const updatedComments = [...prev];
                                         updatedComments[i].checked =
-                                            e.target.checked;
+                                            e.currentTarget.checked;
                                         return updatedComments;
                                     })
                                 }

@@ -10,6 +10,17 @@ import Sidebar from "../../Layouts/Sidebar";
 import FreezeWorkerShiftModal from "../../Components/Modals/FreezeWorkerShiftModal";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
+const filterStatus = {
+    active: {
+        name: "Active",
+    },
+    past: {
+        name: "Past",
+    },
+    manpower_company: {
+        name: "Manpower company",
+    },
+};
 export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
@@ -18,6 +29,7 @@ export default function AllWorkers() {
     const [isOpenFreezeWorker, setIsOpenFreezeWorker] = useState(false);
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
+    const [selectedFilter, setSelectedFilter] = useState("active");
     const navigate = useNavigate();
 
     const headers = {
@@ -27,26 +39,36 @@ export default function AllWorkers() {
     };
 
     const getWorkers = () => {
-        axios.get("/api/admin/workers", { headers }).then((response) => {
-            if (response.data.workers.data.length > 0) {
-                setWorkers(response.data.workers.data);
-                setPageCount(response.data.workers.last_page);
-            } else {
-                setWorkers([]);
-                setLoading("No Workers found");
-            }
-        });
+        axios
+            .get("/api/admin/workers?status=" + selectedFilter, { headers })
+            .then((response) => {
+                if (response.data.workers.data.length > 0) {
+                    setWorkers(response.data.workers.data);
+                    setPageCount(response.data.workers.last_page);
+                } else {
+                    setWorkers([]);
+                    setLoading("No Workers found");
+                }
+            });
     };
     useEffect(() => {
         getWorkers();
-    }, []);
+    }, [selectedFilter]);
 
     const handlePageClick = async (data) => {
         let currentPage = data.selected + 1;
         axios
-            .get("/api/admin/workers?page=" + currentPage + "&q=" + filter, {
-                headers,
-            })
+            .get(
+                "/api/admin/workers?status=" +
+                    selectedFilter +
+                    "&page=" +
+                    currentPage +
+                    "&q=" +
+                    filter,
+                {
+                    headers,
+                }
+            )
             .then((response) => {
                 if (response.data.workers.data.length > 0) {
                     setWorkers(response.data.workers.data);
@@ -201,6 +223,30 @@ export default function AllWorkers() {
                                 <option value="phone">Phone</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+                <div className="row mb-2 d-none d-lg-block">
+                    <div className="col-sm-12 d-flex align-items-center">
+                        <div className="mr-3" style={{ fontWeight: "bold" }}>
+                            Status
+                        </div>
+                        {Object.keys(filterStatus).map((item) => (
+                            <button
+                                key={item}
+                                className={`btn border rounded px-3 mr-1`}
+                                style={
+                                    selectedFilter === item
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => setSelectedFilter(item)}
+                            >
+                                {filterStatus[item].name}
+                            </button>
+                        ))}
                     </div>
                 </div>
                 <div className="card">
