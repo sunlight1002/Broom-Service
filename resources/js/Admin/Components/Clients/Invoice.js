@@ -29,9 +29,14 @@ export default function Invoice() {
     const [dtype, setDtype] = useState("");
     const [reason, setReason] = useState("");
     const [cbvalue, setCbvalue] = useState("");
-    const [filtered, setFiltered] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [addCardModalOpen, setAddCardModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [filters, setFilters] = useState({
+        status: "",
+        icount_status: "",
+        type: "",
+    });
 
     const params = useParams();
     const id = params.id;
@@ -41,9 +46,29 @@ export default function Invoice() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getInvoices = (filter) => {
+    const getInvoices = () => {
+        let _filters = {};
+
+        if (filters.type) {
+            _filters.type = filters.type;
+        }
+
+        if (filters.status) {
+            _filters.status = filters.status;
+        }
+
+        if (filters.icount_status) {
+            _filters.icount_status = filters.icount_status;
+        }
+
         axios
-            .get(`/api/admin/client-invoices/${id}?` + filter, { headers })
+            .get(`/api/admin/client/${id}/invoices`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
             .then((res) => {
                 setRes(res.data);
                 if (res.data.invoices.data.length > 0) {
@@ -92,27 +117,6 @@ export default function Invoice() {
             setInvoices(sortData);
             setOrder("ASC");
         }
-    };
-
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get(
-                `/api/admin/client-invoices/${id}?page=` +
-                    currentPage +
-                    "&" +
-                    filtered,
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.invoices.data.length > 0) {
-                    setInvoices(response.data.invoices.data);
-                    setPageCount(response.data.invoices.last_page);
-                } else {
-                    setInvoices([]);
-                    setLoading("No Invoice Found");
-                }
-            });
     };
 
     const handlePayment = () => {
@@ -193,7 +197,7 @@ export default function Invoice() {
             .post(`/api/admin/update-invoice/${payId}`, data, { headers })
             .then((res) => {
                 document.querySelector(".closeb1").click();
-                getInvoices("");
+                getInvoices();
                 setPayID(0);
                 setIsSubmitting(false);
             })
@@ -233,7 +237,7 @@ export default function Invoice() {
                     .then((response) => {
                         Swal.fire("Closed", response.data.message, "success");
                         setTimeout(() => {
-                            getInvoices("f=all");
+                            getInvoices();
                         }, 1000);
                     })
                     .catch((e) => {
@@ -291,9 +295,8 @@ export default function Invoice() {
     };
 
     useEffect(() => {
-        setFiltered("f=all");
-        getInvoices("f=all");
-    }, []);
+        getInvoices();
+    }, [currentPage, filters]);
 
     return (
         <>
@@ -305,8 +308,11 @@ export default function Invoice() {
                     <div className="row">
                         <div
                             onClick={(e) => {
-                                setFiltered("f=all");
-                                getInvoices("f=all");
+                                setFilters({
+                                    ...filters,
+                                    status: "",
+                                    icount_status: "",
+                                });
                             }}
                             className="col-sm-2 bg-secondary p-1 m-1 text-white rounded text-center"
                         >
@@ -319,8 +325,11 @@ export default function Invoice() {
 
                         <div
                             onClick={(e) => {
-                                setFiltered("status=Paid");
-                                getInvoices("status=Paid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Paid",
+                                    icount_status: "",
+                                });
                             }}
                             className="col-sm-3 bg-success p-1 m-1 text-white rounded text-center"
                         >
@@ -333,8 +342,11 @@ export default function Invoice() {
 
                         <div
                             onClick={(e) => {
-                                setFiltered("status=Unpaid");
-                                getInvoices("status=Unpaid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Unpaid",
+                                    icount_status: "",
+                                });
                             }}
                             className="col-sm-3 bg-dark p-1 m-1 text-white rounded text-center"
                         >
@@ -347,8 +359,11 @@ export default function Invoice() {
 
                         <div
                             onClick={(e) => {
-                                setFiltered("status=Partially Paid");
-                                getInvoices("status=Partially Paid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Partially Paid",
+                                    icount_status: "",
+                                });
                             }}
                             className="col-sm-3 bg-warning p-1 m-1 text-white rounded text-center"
                         >
@@ -363,7 +378,30 @@ export default function Invoice() {
                     </div>
                 </div>
 
-                <div className="action-dropdown dropdown order_drop  mb-3 text-right">
+                <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                    <div className="d-flex align-items-center">
+                        <div style={{ fontWeight: "bold" }}>Filter</div>
+                        <div className="mx-3 d-flex align-items-center border rounded">
+                            <div className="mx-2 text-nowrap">By Type</div>
+                            <select
+                                className="form-control"
+                                value={filters.type}
+                                onChange={(e) => {
+                                    setFilters({
+                                        ...filters,
+                                        type: e.target.value,
+                                    });
+                                }}
+                            >
+                                <option value="">All</option>
+                                <option value="invoice">Invoice</option>
+                                <option value="invrec">Receipt</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="action-dropdown dropdown order_drop mb-3 text-right">
                     <button
                         type="button"
                         className="btn btn-default dropdown-toggle"
@@ -375,8 +413,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("f=all");
-                                getInvoices("f=all");
+                                setFilters({
+                                    ...filters,
+                                    status: "",
+                                    icount_status: "",
+                                });
                             }}
                         >
                             All - {res.all}
@@ -384,8 +425,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("icount_status=Open");
-                                getInvoices("icount_status=Open");
+                                setFilters({
+                                    ...filters,
+                                    status: "",
+                                    icount_status: "Open",
+                                });
                             }}
                         >
                             Open - {res.open}
@@ -393,8 +437,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("icount_status=Closed");
-                                getInvoices("icount_status=Closed");
+                                setFilters({
+                                    ...filters,
+                                    status: "",
+                                    icount_status: "Closed",
+                                });
                             }}
                         >
                             Closed - {res.closed}
@@ -402,8 +449,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("status=Paid");
-                                getInvoices("status=Paid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Paid",
+                                    icount_status: "",
+                                });
                             }}
                         >
                             Paid - {res.paid}
@@ -411,8 +461,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("status=Unpaid");
-                                getInvoices("status=Unpaid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Unpaid",
+                                    icount_status: "",
+                                });
                             }}
                         >
                             Unpaid - {res.unpaid}{" "}
@@ -420,8 +473,11 @@ export default function Invoice() {
                         <button
                             className="dropdown-item"
                             onClick={(e) => {
-                                setFiltered("status=Partially Paid");
-                                getInvoices("status=Partially Paid");
+                                setFilters({
+                                    ...filters,
+                                    status: "Partially Paid",
+                                    icount_status: "",
+                                });
                             }}
                         >
                             Partial paid - {res.partial}{" "}
@@ -672,7 +728,9 @@ export default function Invoice() {
                             pageCount={pageCount}
                             marginPagesDisplayed={2}
                             pageRangeDisplayed={3}
-                            onPageChange={handlePageClick}
+                            onPageChange={() => {
+                                setCurrentPage(currentPage + 1);
+                            }}
                             containerClassName={
                                 "pagination justify-content-end mt-3"
                             }
@@ -1065,7 +1123,7 @@ export default function Invoice() {
                 <AddCreditCardModal
                     isOpen={addCardModalOpen}
                     setIsOpen={setAddCardModalOpen}
-                    onSuccess={() => getInvoices("f=all")}
+                    onSuccess={() => getInvoices()}
                     clientId={id}
                 />
             )}

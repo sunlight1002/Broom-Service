@@ -279,25 +279,22 @@ export default function files() {
                                                     "admin.leads.leadDetails.File.selectDefault"
                                                 )}
                                             </option>
-                                            {schedules &&
-                                                schedules.map((m, i) => {
-                                                    return (
-                                                        <option
-                                                            value={m.id}
-                                                            key={i}
-                                                        >
-                                                            {Moment(
-                                                                m.start_date
-                                                            ).format(
-                                                                "DD/MM/Y"
-                                                            ) +
-                                                                " | " +
-                                                                m.start_time +
-                                                                " - " +
-                                                                m.end_time}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {schedules.map((m, i) => {
+                                                return (
+                                                    <option
+                                                        value={m.id}
+                                                        key={i}
+                                                    >
+                                                        {Moment(
+                                                            m.start_date
+                                                        ).format("DD/MM/Y") +
+                                                            " | " +
+                                                            m.start_time +
+                                                            " - " +
+                                                            m.end_time}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>

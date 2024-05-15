@@ -140,29 +140,31 @@ class InvoiceController extends Controller
 
     public function getClientInvoices(Request $request, $id)
     {
-        if ($request->f == 'all') {
-            $invoices = Invoices::query()
-                ->with('client')
-                ->where('client_id', $id)
-                ->orderBy('id', 'desc')
-                ->paginate(20);
-        }
-        if (isset($request->status)) {
-            $invoices = Invoices::query()
-                ->with('client')
-                ->where('status', $request->status)
-                ->where('client_id', $id)
-                ->orderBy('id', 'desc')
-                ->paginate(20);
-        }
-        if (isset($request->icount_status)) {
-            $invoices = Invoices::query()
-                ->with('client')
-                ->where('invoice_icount_status', $request->icount_status)
-                ->where('client_id', $id)
-                ->orderBy('id', 'desc')
-                ->paginate(20);
-        }
+        $status = $request->get('status');
+        $icountStatus = $request->get('icount_status');
+        $type = $request->get('type');
+
+        $invoices = Invoices::query()
+            ->with('client')
+            ->where('client_id', $id)
+            ->when($status, function ($q) use ($status) {
+                return $q->where('status', $status);
+            })
+            ->when($icountStatus, function ($q) use ($icountStatus) {
+                return $q->where('invoice_icount_status', $icountStatus);
+            })
+            ->when($type == 'invoice', function ($q) use ($type) {
+                return $q
+                    ->where('type', $type)
+                    ->whereDoesntHave('receipt');
+            })
+            ->when($type == 'invrec', function ($q) use ($type) {
+                return $q
+                    ->where('type', $type)
+                    ->orWhereHas('receipt');
+            })
+            ->latest()
+            ->paginate(20);
 
         $open       = Invoices::where('client_id', $id)->where('invoice_icount_status', 'Open')->count();
         $closed     = Invoices::where('client_id', $id)->where('invoice_icount_status', 'Closed')->count();

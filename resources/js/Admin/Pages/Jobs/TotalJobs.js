@@ -1174,12 +1174,10 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
 
     const timeBGColor = useMemo(() => {
         let _color = "white";
-        if (isOrderClosed) {
-            _color = "#e7e7e7";
-        } else if (
-            data.actual_time_taken_minutes > data.jobservice.duration_minutes
-        ) {
+        if (data.actual_time_taken_minutes > data.jobservice.duration_minutes) {
             _color = "#ff0000";
+        } else if (isOrderClosed) {
+            _color = "#e7e7e7";
         }
 
         return _color;

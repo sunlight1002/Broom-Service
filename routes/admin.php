@@ -213,7 +213,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);
 
     Route::get('order-manual-invoice/{id}', [InvoiceController::class, 'manualInvoice']);
-    Route::get('client-invoices/{id}', [InvoiceController::class, 'getClientInvoices']);
+    Route::get('client/{id}/invoices', [InvoiceController::class, 'getClientInvoices']);
 
     Route::get('client-payments', [InvoiceController::class, 'paymentClientWise']);
     Route::get('client-payments/{id}', [InvoiceController::class, 'clientPayments']);

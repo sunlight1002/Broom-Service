@@ -122,7 +122,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Invoice
+                        Invoices
                     </a>
                 </li>
                 {/* <li className="nav-item" role="presentation">
