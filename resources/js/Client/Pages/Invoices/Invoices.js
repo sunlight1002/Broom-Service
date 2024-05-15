@@ -58,10 +58,6 @@ export default function Invoices() {
             });
     };
 
-    const handlePageClick = async () => {
-        setCurrentPage(currentPage + 1);
-    };
-
     useEffect(() => {
         getInvoices();
     }, [currentPage, searchVal]);
@@ -317,7 +313,9 @@ export default function Invoices() {
                                     pageCount={pageCount}
                                     marginPagesDisplayed={2}
                                     pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
+                                    onPageChange={(data) => {
+                                        setCurrentPage(data.selected + 1);
+                                    }}
                                     containerClassName={
                                         "pagination justify-content-end mt-3"
                                     }

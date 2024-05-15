@@ -3,16 +3,51 @@ import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import Moment from "moment";
+import { CSVLink } from "react-csv";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import FilterButtons from "../../Components/common/FilterButton";
 
 export default function WorkerHours() {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
     const [searchVal, setSearchVal] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
+    });
+    const [selectedFilter, setselectedFilter] = useState("Week");
+    const [exportData, setExportData] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -26,6 +61,9 @@ export default function WorkerHours() {
         if (searchVal) {
             _filters.keyword = searchVal;
         }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
 
         axios
             .get("/api/admin/workers/working-hours", {
@@ -46,13 +84,52 @@ export default function WorkerHours() {
             });
     };
 
-    const handlePageClick = async (data) => {
-        setCurrentPage(currentPage + 1);
+    const handleExport = async () => {
+        console.log("handleExport");
+
+        let _filters = {};
+
+        if (searchVal) {
+            _filters.keyword = searchVal;
+        }
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
+        await axios
+            .get("/api/admin/workers/working-hours/export", {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
+            .then((response) => {
+                setExportData(response.data.workers);
+                document.querySelector("#csv").click();
+            });
     };
 
     useEffect(() => {
         getWorkers();
-    }, [currentPage, searchVal]);
+    }, [currentPage, searchVal, dateRange]);
+
+    const header = [
+        { label: "Worker Name", key: "worker_name" },
+        { label: "Worker ID", key: "worker_id" },
+        { label: "Hours", key: "hours" },
+    ];
+
+    const csvReport = {
+        data: exportData,
+        headers: header,
+        filename:
+            "Worker Hours - (" +
+            dateRange.start_date +
+            " - " +
+            dateRange.end_date +
+            ")",
+    };
 
     const copy = [...workers];
     const [order, setOrder] = useState("ASC");
@@ -131,6 +208,135 @@ export default function WorkerHours() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
+                            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                                <div className="d-flex align-items-center">
+                                    <div
+                                        style={{ fontWeight: "bold" }}
+                                        className="mr-2"
+                                    >
+                                        Date Period
+                                    </div>
+                                    <FilterButtons
+                                        text="Day"
+                                        className="px-4 mr-1"
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    todayFilter.start_date,
+                                                end_date: todayFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text="Week"
+                                        className="px-4 mr-3"
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    currentWeekFilter.start_date,
+                                                end_date:
+                                                    currentWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text="Previous Week"
+                                        className="px-3 mr-1"
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    previousWeekFilter.start_date,
+                                                end_date:
+                                                    previousWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text="Next Week"
+                                        className="px-3"
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    nextWeekFilter.start_date,
+                                                end_date:
+                                                    nextWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                                <div className="d-flex align-items-center">
+                                    <div
+                                        className="mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        Custom Date Range
+                                    </div>
+
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setselectedFilter("Custom Range");
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">to</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setselectedFilter("Custom Range");
+                                            setDateRange({
+                                                start_date:
+                                                    dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="m-0 ml-4 btn border rounded px-3"
+                                        onClick={handleExport}
+                                        style={{
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }}
+                                    >
+                                        Export
+                                    </button>
+                                </div>
+
+                                <div
+                                    className="App"
+                                    style={{ display: "none" }}
+                                >
+                                    <CSVLink {...csvReport} id="csv">
+                                        Export to CSV
+                                    </CSVLink>
+                                </div>
+                            </div>
+
                             <div className="Table-responsive">
                                 {workers.length > 0 ? (
                                     <Table className="table table-bordered">
@@ -219,7 +425,9 @@ export default function WorkerHours() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }

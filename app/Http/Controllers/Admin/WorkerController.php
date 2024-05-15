@@ -35,10 +35,11 @@ class WorkerController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->q;
-        $statusCode = $request->status;
+        $keyword = $request->get('q');
+        $statusCode = $request->get('status');
+        $manpowerCompanyID = $request->get('manpower_company_id');
 
-        $status = '';
+        $status = NULL;
         if (strtolower($keyword) === "active") {
             $status = 1;
         }
@@ -49,27 +50,32 @@ class WorkerController extends Controller
         $data = User::query()
             ->when($keyword, function ($q) use ($keyword) {
                 return $q
-                    ->where('firstname',  'like', '%' . $keyword . '%')
-                    ->orWhere('lastname', 'like', '%' . $keyword . '%')
-                    ->orWhere('phone',    'like', '%' . $keyword . '%')
-                    ->orWhere('address',  'like', '%' . $keyword . '%');
+                    ->where(function ($q) use ($keyword) {
+                        $q
+                            ->where('firstname', 'like', '%' . $keyword . '%')
+                            ->orWhere('lastname', 'like', '%' . $keyword . '%')
+                            ->orWhere('phone', 'like', '%' . $keyword . '%')
+                            ->orWhere('address', 'like', '%' . $keyword . '%');
+                    });
             })
-            ->when($status != "", function ($q) use ($status) {
-                return $q
-                    ->orWhere('status',   'like', '%' . $status . '%');
+            ->when(!is_null($status), function ($q) use ($status) {
+                return $q->where('status', $status);
             })
             ->when($statusCode == "active", function ($q) {
                 return $q
-                    ->whereNull('last_work_date')
-                    ->orWhereDate('last_work_date', '>=', today()->toDateString());
+                    ->where(function ($q) {
+                        $q
+                            ->whereNull('last_work_date')
+                            ->orWhereDate('last_work_date', '>=', today()->toDateString());
+                    });
             })
             ->when($statusCode == "past", function ($q) {
                 return $q
                     ->whereNotNull('last_work_date')
                     ->whereDate('last_work_date', '<', today()->toDateString());
             })
-            ->when($statusCode == "manpower_company", function ($q) {
-                return $q->where('company_type', 'manpower');
+            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
+                return $q->where('manpower_company_id', $manpowerCompanyID);
             })
             ->latest()
             ->paginate(20);
@@ -683,9 +689,17 @@ class WorkerController extends Controller
 
     public function workingHoursReport(Request $request)
     {
-        $keyword = $request->keyword;
+        $keyword = $request->get('keyword');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
 
         $jobHours = Job::query()
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
             ->select('jobs.worker_id')
             ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS minutes')
             ->groupBy('jobs.worker_id');
@@ -702,9 +716,64 @@ class WorkerController extends Controller
                     ->orWhere('users.address',  'like', '%' . $keyword . '%')
                     ->orWhere('users.email',  'like', '%' . $keyword . '%');
             })
+            ->where(function ($q) {
+                $q
+                    ->whereNull('last_work_date')
+                    ->orWhereDate('last_work_date', '>=', today()->toDateString());
+            })
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'job_hours.minutes', 'users.created_at')
             ->orderBy('users.id', 'desc')
             ->paginate(20);
+
+        return response()->json([
+            'workers' => $data,
+        ]);
+    }
+
+    public function exportWorkingHoursReport(Request $request)
+    {
+        $keyword = $request->get('keyword');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+        $jobHours = Job::query()
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
+            ->select('jobs.worker_id')
+            ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS minutes')
+            ->groupBy('jobs.worker_id');
+
+        $data = User::query()
+            ->leftJoinSub($jobHours, 'job_hours', function ($join) {
+                $join->on('users.id', '=', 'job_hours.worker_id');
+            })
+            ->when($keyword, function ($query, $keyword) {
+                $query
+                    ->where('users.firstname',  'like', '%' . $keyword . '%')
+                    ->orWhere('users.lastname', 'like', '%' . $keyword . '%')
+                    ->orWhere('users.phone',    'like', '%' . $keyword . '%')
+                    ->orWhere('users.address',  'like', '%' . $keyword . '%')
+                    ->orWhere('users.email',  'like', '%' . $keyword . '%');
+            })
+            ->where(function ($q) {
+                $q
+                    ->whereNull('last_work_date')
+                    ->orWhereDate('last_work_date', '>=', today()->toDateString());
+            })
+            ->select('users.worker_id', 'job_hours.minutes')
+            ->selectRaw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name')
+            ->latest()
+            ->get();
+
+        $data = $data->map(function ($item, $key) {
+            $item->hours = (float) number_format((float)($item->minutes / 60), 2, '.', '');
+
+            return $item;
+        });
 
         return response()->json([
             'workers' => $data,

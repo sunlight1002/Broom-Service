@@ -975,8 +975,8 @@ export default function TotalJobs() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={() => {
-                                            setCurrentPage(currentPage + 1);
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
                                         }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"

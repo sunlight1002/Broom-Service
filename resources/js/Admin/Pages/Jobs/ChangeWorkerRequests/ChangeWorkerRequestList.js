@@ -44,12 +44,7 @@ export default function ChangeWorkerRequestList() {
 
     useEffect(() => {
         getRequests();
-    }, []);
-
-    const handlePageClick = async (data) => {
-        setCurrentPage(currentPage + 1);
-        getRequests();
-    };
+    }, [currentPage]);
 
     const copy = [...requests];
     const [order, setOrder] = useState("ASC");
@@ -295,7 +290,9 @@ export default function ChangeWorkerRequestList() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }

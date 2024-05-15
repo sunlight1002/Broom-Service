@@ -9,17 +9,6 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
-const filterStatus = {
-    active: {
-        name: "Active",
-    },
-    past: {
-        name: "Past",
-    },
-    manpower_company: {
-        name: "Manpower company",
-    },
-};
 export default function AllWorkers() {
     const [workers, setWorkers] = useState([]);
     const [pageCount, setPageCount] = useState(0);
@@ -30,7 +19,9 @@ export default function AllWorkers() {
     const [filters, setFilters] = useState({
         status: "",
         q: "",
+        manpower_company_id: null,
     });
+    const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
     const navigate = useNavigate();
 
@@ -49,6 +40,10 @@ export default function AllWorkers() {
 
         if (filters.q) {
             _filters.q = filters.q;
+        }
+
+        if (filters.manpower_company_id) {
+            _filters.manpower_company_id = filters.manpower_company_id;
         }
 
         await axios
@@ -105,6 +100,24 @@ export default function AllWorkers() {
             }
         });
     };
+
+    const getManpowerCompanies = async () => {
+        await axios
+            .get("/api/admin/manpower-companies-list", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.companies?.length > 0) {
+                    setManpowerCompanies(response.data.companies);
+                } else {
+                    setManpowerCompanies([]);
+                }
+            });
+    };
+
+    useEffect(() => {
+        getManpowerCompanies();
+    }, []);
 
     const handleNavigate = (e, id) => {
         e.preventDefault();
@@ -206,12 +219,52 @@ export default function AllWorkers() {
                         <div className="mr-3" style={{ fontWeight: "bold" }}>
                             Status
                         </div>
-                        {Object.keys(filterStatus).map((item) => (
+                        <button
+                            className={`btn border rounded px-3 mr-1`}
+                            style={
+                                filters.status === "active"
+                                    ? { background: "white" }
+                                    : {
+                                          background: "#2c3f51",
+                                          color: "white",
+                                      }
+                            }
+                            onClick={() => {
+                                setFilters({
+                                    status: "active",
+                                    q: "",
+                                });
+                            }}
+                        >
+                            Active
+                        </button>
+                        <button
+                            className={`btn border rounded px-3 mr-1`}
+                            style={
+                                filters.status === "past"
+                                    ? { background: "white" }
+                                    : {
+                                          background: "#2c3f51",
+                                          color: "white",
+                                      }
+                            }
+                            onClick={() => {
+                                setFilters({
+                                    status: "past",
+                                    q: "",
+                                });
+                            }}
+                        >
+                            Past
+                        </button>
+                    </div>
+                    <div className="col-sm-12">
+                        {manpowerCompanies.map((company, _index) => (
                             <button
-                                key={item}
+                                key={_index}
                                 className={`btn border rounded px-3 mr-1`}
                                 style={
-                                    filters.status === item
+                                    filters.manpower_company_id === company.id
                                         ? { background: "white" }
                                         : {
                                               background: "#2c3f51",
@@ -220,12 +273,12 @@ export default function AllWorkers() {
                                 }
                                 onClick={() => {
                                     setFilters({
-                                        status: item,
-                                        q: "",
+                                        ...filters,
+                                        manpower_company_id: company.id,
                                     });
                                 }}
                             >
-                                {filterStatus[item].name}
+                                {company.name}
                             </button>
                         ))}
                     </div>
@@ -444,8 +497,8 @@ export default function AllWorkers() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={() => {
-                                            setCurrentPage(currentPage + 1);
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
                                         }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"

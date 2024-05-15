@@ -117,10 +117,6 @@ export default function Payments() {
         }
     };
 
-    const handlePageClick = async (data) => {
-        setCurrentPage(currentPage + 1);
-    };
-
     const handleAddNewCard = (_clientID) => {
         setSelectedClientID(_clientID);
         setAddCardModalOpen(true);
@@ -584,7 +580,9 @@ export default function Payments() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }

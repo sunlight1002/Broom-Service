@@ -604,6 +604,26 @@ If you would like to speak to a human representative, please send a message with
                                 'verify_last_address_with_wa_bot' => NULL
                             ]);
 
+                            $msg = null;
+                            if ($client->lng == 'heb') {
+                                $msg = 'אנא הזן את כתובתך בפירוט רב יותר.';
+                            } else {
+                                $msg = "Please provide more details for your address.";
+                            }
+
+                            WebhookResponse::create([
+                                'status'        => 1,
+                                'name'          => 'whatsapp',
+                                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                'message'       => $msg,
+                                'number'        => $from,
+                                'flex'          => 'A',
+                                'read'          => 1,
+                                'data'          => json_encode($get_data)
+                            ]);
+
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
+
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [

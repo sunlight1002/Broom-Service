@@ -105,6 +105,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Route::post('upload/{id}', [WorkerController::class, 'upload']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
     Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
+    Route::get('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);
