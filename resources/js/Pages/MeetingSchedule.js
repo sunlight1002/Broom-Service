@@ -149,7 +149,7 @@ export default function MeetingSchedule() {
                                     {t("front_meet.reject")}
                                 </Link>
                             </div>
-                            <div className="col">
+                            {/* <div className="col">
                                 <Link
                                     target="_blank"
                                     className="btn btn-primary"
@@ -166,7 +166,7 @@ export default function MeetingSchedule() {
                                 >
                                     {t("front_meet.upload_job_description")}
                                 </Link>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

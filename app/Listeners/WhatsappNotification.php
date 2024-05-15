@@ -98,6 +98,17 @@ class WhatsappNotification
                                     ]
                                 ]
                             ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "1",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "meeting-files/".base64_encode($eventData['id'])
+                                    ]
+                                ]
+                            ],
                         ]
                     ]
                 ];
