@@ -774,6 +774,8 @@ export default function WorkContract() {
                                         <SignatureCanvas
                                             penColor="black"
                                             canvasProps={{
+                                                width: 250,
+                                                height: 100,
                                                 className: "sigCanvas",
                                             }}
                                             ref={sigRef}

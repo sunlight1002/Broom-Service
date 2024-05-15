@@ -562,6 +562,8 @@ export default function ContractHeb() {
                                                                     <SignatureCanvas
                                                                         penColor="black"
                                                                         canvasProps={{
+                                                                            width: 250,
+                                                                            height: 100,
                                                                             className:
                                                                                 "sigCanvas",
                                                                         }}
@@ -791,6 +793,8 @@ export default function ContractHeb() {
                                                         <SignatureCanvas
                                                             penColor="black"
                                                             canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
                                                                 className:
                                                                     "sigCanvas",
                                                             }}

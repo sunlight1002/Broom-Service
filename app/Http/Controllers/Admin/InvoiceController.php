@@ -1099,7 +1099,11 @@ class InvoiceController extends Controller
             })
             ->leftJoin('jobs as completed_jobs', function ($join) {
                 $join->on('completed_jobs.client_id', '=', 'clients.id')
-                    ->where('completed_jobs.status', '=', JobStatusEnum::COMPLETED);
+                    ->where(function ($q) {
+                        $q
+                            ->where('completed_jobs.status', '=', JobStatusEnum::COMPLETED)
+                            ->orWhere('completed_jobs.is_job_done', true);
+                    });
             })
             ->when($priority_paid_status, function ($q) use ($priority_paid_status) {
                 return $q->where('order_paid_status.priority', $priority_paid_status);

@@ -27,8 +27,9 @@ class DashboardController extends Controller
 
   public function dashboard()
   {
-    $total_workers   = User::all()->count();
-    $total_clients   = Client::all()->count();
+    $total_workers   = User::count();
+    $total_clients   = Client::where('status', 2)->count();
+    $total_leads   = Client::where('status', '!=', 2)->count();
     $total_jobs      = Job::count();
     $total_offers    = Offer::count();
     $total_schedules  = Schedule::count();
@@ -42,6 +43,7 @@ class DashboardController extends Controller
     return response()->json([
       'total_workers'      => $total_workers,
       'total_clients'      => $total_clients,
+      'total_leads'        => $total_leads,
       'total_jobs'         => $total_jobs,
       'total_offers'       => $total_offers,
       'total_schedules'    => $total_schedules,

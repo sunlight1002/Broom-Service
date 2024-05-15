@@ -67,7 +67,6 @@ export default function EditWorker() {
 
     const handlePlaceChanged = () => {
         if (place) {
-            console.log(place);
             // setCity(place.getPlace().vicinity);
             setAddress(place.getPlace().formatted_address);
             setLatitude(place.getPlace().geometry.location.lat());
@@ -76,14 +75,24 @@ export default function EditWorker() {
     };
 
     const handleSkills = (e) => {
-        const value = e.target.value;
+        const _value = e.target.value;
         const checked = e.target.checked;
         if (checked) {
-            setSkill([...skill, value]);
+            setSkill((_skill) => [..._skill, _value]);
         } else {
-            setSkill(skill.filter((e) => e !== value));
+            setSkill((_skill) => _skill.filter((i) => i !== _value));
         }
     };
+
+    const handleAllSkills = (e) => {
+        const checked = e.target.checked;
+        if (checked) {
+            setSkill(avl_skill.map((i) => i.id.toString()));
+        } else {
+            setSkill([]);
+        }
+    };
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -92,12 +101,6 @@ export default function EditWorker() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
-
-        let skr = [];
-        let ski = document.querySelectorAll(".ski:checked");
-        ski.forEach((s, i) => {
-            skr.push(s.value);
-        });
 
         const data = {
             firstname: formValues.firstname,
@@ -110,7 +113,7 @@ export default function EditWorker() {
             lng: !lng ? "en" : lng,
             worker_id: formValues.worker_id,
             password: password,
-            skill: skr,
+            skill: skill,
             status: !itemStatus ? 1 : parseInt(itemStatus),
             country: country,
             company_type: formValues.company_type,
@@ -168,7 +171,7 @@ export default function EditWorker() {
                 });
 
                 setPassword(passcode);
-                setSkill(skill);
+                setSkill(skill ? JSON.parse(skill) : []);
                 setAddress(address);
                 setItemStatus(status);
                 setLng(lng);
@@ -182,15 +185,6 @@ export default function EditWorker() {
                                 ? is_afraid_by_dog
                                 : is_afraid_by_cat)
                 );
-                setTimeout(() => {
-                    let skl = skill.length > 0 ? JSON.parse(skill) : [];
-                    let el = document.querySelectorAll(".ski");
-
-                    el.forEach((e, i) => {
-                        skl.includes(e.value) &&
-                            e.setAttribute("checked", true);
-                    });
-                }, 1000);
             });
     };
     const getAvailableSkill = () => {
@@ -592,17 +586,16 @@ export default function EditWorker() {
                                                 <option value="">
                                                     --Select Manpower---
                                                 </option>
-                                                {manpowerCompanies &&
-                                                    manpowerCompanies.map(
-                                                        (mpc, index) => (
-                                                            <option
-                                                                value={mpc.id}
-                                                                key={mpc.id}
-                                                            >
-                                                                {mpc.name}
-                                                            </option>
-                                                        )
-                                                    )}
+                                                {manpowerCompanies.map(
+                                                    (mpc, index) => (
+                                                        <option
+                                                            value={mpc.id}
+                                                            key={mpc.id}
+                                                        >
+                                                            {mpc.name}
+                                                        </option>
+                                                    )
+                                                )}
                                             </select>
                                         </div>
                                         <div>
@@ -698,21 +691,34 @@ export default function EditWorker() {
                                         Skills
                                     </label>
                                 </div>
-                                {avl_skill &&
-                                    avl_skill.map((item, index) => (
-                                        <div className="form-check" key={index}>
-                                            <label className="form-check-label">
-                                                {/* CHECKED FROM API ABOVE*/}
-                                                <input
-                                                    type="checkbox"
-                                                    className="form-check-input ski"
-                                                    name="skills"
-                                                    value={item.id}
-                                                />
-                                                {item.name}
-                                            </label>
-                                        </div>
-                                    ))}
+                                <div className="form-check mb-3">
+                                    <label className="form-check-label">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            onChange={handleAllSkills}
+                                        />
+                                        <strong>Select All</strong>
+                                    </label>
+                                </div>
+
+                                {avl_skill.map((item, index) => (
+                                    <div className="form-check" key={index}>
+                                        <label className="form-check-label">
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                name="skills"
+                                                value={item.id}
+                                                onChange={handleSkills}
+                                                checked={skill.includes(
+                                                    item.id.toString()
+                                                )}
+                                            />
+                                            {item.name}
+                                        </label>
+                                    </div>
+                                ))}
                             </div>
                             <div className="col-sm-12 mt-4">
                                 <div className="form-group">

@@ -301,7 +301,7 @@ export default function Invoice() {
     return (
         <>
             <div className="boxPanel">
-                <div
+                {/* <div
                     className="InCards container mb-3"
                     style={{ cursor: "pointer" }}
                 >
@@ -376,7 +376,7 @@ export default function Invoice() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                     <div className="d-flex align-items-center">

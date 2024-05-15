@@ -627,6 +627,8 @@ export default function ViewContract() {
                                         <SignatureCanvas
                                             penColor="black"
                                             canvasProps={{
+                                                width: 250,
+                                                height: 100,
                                                 className: "sigCanvas",
                                             }}
                                             ref={sigRef}

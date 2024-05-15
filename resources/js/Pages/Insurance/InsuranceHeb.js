@@ -1017,6 +1017,8 @@ export default function InsuranceHeb() {
                                             <SignatureCanvas
                                                 penColor="black"
                                                 canvasProps={{
+                                                    width: 250,
+                                                    height: 100,
                                                     className: "sigCanvas",
                                                 }}
                                                 ref={sigRef2}
@@ -1069,6 +1071,8 @@ export default function InsuranceHeb() {
                                             <SignatureCanvas
                                                 penColor="black"
                                                 canvasProps={{
+                                                    width: 250,
+                                                    height: 100,
                                                     className: "sigCanvas",
                                                 }}
                                                 ref={sigRef3}
@@ -1511,6 +1515,8 @@ export default function InsuranceHeb() {
                                             <SignatureCanvas
                                                 penColor="black"
                                                 canvasProps={{
+                                                    width: 250,
+                                                    height: 100,
                                                     className: "sigCanvas",
                                                 }}
                                                 ref={sigRef4}
@@ -1581,6 +1587,8 @@ export default function InsuranceHeb() {
                                                 <SignatureCanvas
                                                     penColor="black"
                                                     canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
                                                         className: "sigCanvas",
                                                     }}
                                                     ref={sigRef5}
@@ -1757,6 +1765,8 @@ export default function InsuranceHeb() {
                                             <SignatureCanvas
                                                 penColor="black"
                                                 canvasProps={{
+                                                    width: 250,
+                                                    height: 100,
                                                     className: "sigCanvas",
                                                 }}
                                                 ref={sigRef6}

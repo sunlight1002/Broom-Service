@@ -968,7 +968,10 @@ const Form101Component = () => {
                                         <SignatureCanvas
                                             penColor="black"
                                             canvasProps={{
-                                                className: "sign101",
+                                                width: 250,
+                                                height: 100,
+                                                className:
+                                                    "sign101 border mt-1",
                                             }}
                                             ref={sigRef}
                                             onEnd={handleSignatureEnd}

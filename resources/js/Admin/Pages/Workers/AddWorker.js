@@ -70,7 +70,6 @@ export default function AddWorker() {
 
     const handlePlaceChanged = () => {
         if (place) {
-            console.log(place);
             // setCity(place.getPlace().vicinity);
             setAddress(place.getPlace().formatted_address);
             setLatitude(place.getPlace().geometry.location.lat());
@@ -79,14 +78,24 @@ export default function AddWorker() {
     };
 
     const handleSkills = (e) => {
-        const value = e.target.value;
+        const _value = e.target.value;
         const checked = e.target.checked;
         if (checked) {
-            setSkill([...skill, value]);
+            setSkill((_skill) => [..._skill, _value]);
         } else {
-            setSkill(skill.filter((e) => e !== value));
+            setSkill((_skill) => _skill.filter((i) => i !== _value));
         }
     };
+
+    const handleAllSkills = (e) => {
+        const checked = e.target.checked;
+        if (checked) {
+            setSkill(avl_skill.map((i) => i.id.toString()));
+        } else {
+            setSkill([]);
+        }
+    };
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -577,19 +586,16 @@ export default function AddWorker() {
                                                     <option value="">
                                                         --Select Manpower---
                                                     </option>
-                                                    {manpowerCompanies &&
-                                                        manpowerCompanies.map(
-                                                            (mpc, index) => (
-                                                                <option
-                                                                    value={
-                                                                        mpc.id
-                                                                    }
-                                                                    key={mpc.id}
-                                                                >
-                                                                    {mpc.name}
-                                                                </option>
-                                                            )
-                                                        )}
+                                                    {manpowerCompanies.map(
+                                                        (mpc, index) => (
+                                                            <option
+                                                                value={mpc.id}
+                                                                key={mpc.id}
+                                                            >
+                                                                {mpc.name}
+                                                            </option>
+                                                        )
+                                                    )}
                                                 </select>
                                             </div>
                                             <div>
@@ -697,24 +703,34 @@ export default function AddWorker() {
                                             Skills
                                         </label>
                                     </div>
-                                    {avl_skill &&
-                                        avl_skill.map((item, index) => (
-                                            <div
-                                                className="form-check"
-                                                key={index}
-                                            >
-                                                <label className="form-check-label">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        name="skills"
-                                                        value={item.id}
-                                                        onChange={handleSkills}
-                                                    />
-                                                    {item.name}
-                                                </label>
-                                            </div>
-                                        ))}
+                                    <div className="form-check mb-3">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                onChange={handleAllSkills}
+                                            />
+                                            <strong>Select All</strong>
+                                        </label>
+                                    </div>
+
+                                    {avl_skill.map((item, index) => (
+                                        <div className="form-check" key={index}>
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    name="skills"
+                                                    value={item.id}
+                                                    onChange={handleSkills}
+                                                    checked={skill.includes(
+                                                        item.id.toString()
+                                                    )}
+                                                />
+                                                {item.name}
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
                                 <div className="col-sm-12 mt-4">
                                     <div className="form-group">
@@ -723,28 +739,27 @@ export default function AddWorker() {
                                             animals ?
                                         </label>
                                     </div>
-                                    {animalArray &&
-                                        animalArray.map((item, index) => (
-                                            <div
-                                                className="form-check"
-                                                key={item.key}
-                                            >
-                                                <label className="form-check-label">
-                                                    <input
-                                                        ref={
-                                                            elementsRef.current[
-                                                                index
-                                                            ]
-                                                        }
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        name={item.key}
-                                                        value={item.key}
-                                                    />
-                                                    {item.name}
-                                                </label>
-                                            </div>
-                                        ))}
+                                    {animalArray.map((item, index) => (
+                                        <div
+                                            className="form-check"
+                                            key={item.key}
+                                        >
+                                            <label className="form-check-label">
+                                                <input
+                                                    ref={
+                                                        elementsRef.current[
+                                                            index
+                                                        ]
+                                                    }
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    name={item.key}
+                                                    value={item.key}
+                                                />
+                                                {item.name}
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
                                 <div className="form-group mt-4">
                                     <label className="control-label">

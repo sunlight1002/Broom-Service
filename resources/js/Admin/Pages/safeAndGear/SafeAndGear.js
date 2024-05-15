@@ -263,6 +263,8 @@ const SafeAndGear = () => {
                                                 <SignatureCanvas
                                                     penColor="black"
                                                     canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
                                                         className:
                                                             "sign101 border mt-1",
                                                     }}

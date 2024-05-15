@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
     const [totalClients, setTotalClients] = useState([0]);
+    const [totalLeads, setTotalLeads] = useState([0]);
     const [totalWorkers, setTotalWorkers] = useState([0]);
     const [totalOffers, setTotalOffers] = useState([0]);
     const [totalSchedules, setTotalSchedules] = useState([0]);
@@ -37,6 +38,7 @@ export default function Dashboard() {
         axios.get("/api/admin/dashboard", { headers }).then((response) => {
             setTotalJobs(response.data.total_jobs);
             setTotalClients(response.data.total_clients);
+            setTotalLeads(response.data.total_leads);
             setTotalWorkers(response.data.total_workers);
             setTotalOffers(response.data.total_offers);
             setContracts(response.data.total_contracts);
@@ -123,7 +125,7 @@ export default function Dashboard() {
                     </div>
                     <div className="row">
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/jobs">
+                            <Link to="/admin/jobs">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-solid fa-suitcase"></i>
@@ -133,10 +135,10 @@ export default function Dashboard() {
                                         <p> {t("admin.dashboard.jobPosted")}</p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/clients">
+                            <Link to="/admin/clients">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-regular fa-user"></i>
@@ -146,10 +148,23 @@ export default function Dashboard() {
                                         <p> {t("admin.dashboard.clients")}</p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/workers">
+                            <Link to="/admin/leads">
+                                <div className="dashBox">
+                                    <div className="dashIcon">
+                                        <i className="fa-regular fa-user"></i>
+                                    </div>
+                                    <div className="dashText">
+                                        <h3>{totalLeads}</h3>
+                                        <p> Leads</p>
+                                    </div>
+                                </div>
+                            </Link>
+                        </div>
+                        <div className="col-sm-4 col-xs-6">
+                            <Link to="/admin/workers">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-solid fa-user"></i>
@@ -159,10 +174,10 @@ export default function Dashboard() {
                                         <p> {t("admin.dashboard.workers")}</p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/schedule">
+                            <Link to="/admin/schedule">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-solid fa-handshake"></i>
@@ -172,10 +187,10 @@ export default function Dashboard() {
                                         <p> {t("admin.dashboard.meetings")}</p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/offered-price">
+                            <Link to="/admin/offered-price">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-solid fa-dollar-sign"></i>
@@ -188,10 +203,10 @@ export default function Dashboard() {
                                         </p>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-sm-4 col-xs-6">
-                            <a href="/admin/contracts">
+                            <Link to="/admin/contracts">
                                 <div className="dashBox">
                                     <div className="dashIcon">
                                         <i className="fa-solid fa-file-contract"></i>
@@ -200,7 +215,7 @@ export default function Dashboard() {
                                         <h3>{contracts}</h3>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div className="row">
