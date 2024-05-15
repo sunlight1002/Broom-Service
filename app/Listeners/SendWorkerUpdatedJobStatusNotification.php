@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToWorker;
 
 class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
 {
@@ -97,14 +98,22 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
                 $messages->subject($sub);
             });
             
+            //send notification to worker
+            $emailData = [
+                'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
+                'emailTitle'  => __('mail.client_job_status.job_details'),
+                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname. '  '.$event->job->worker->lastname])
+            ];
+            event(new JobNotificationToWorker($event->job->worker->toArray(), $event->job->toArray(), $emailData));
+
             //send notification to admin
             $adminEmailData = [
                 'emailData'   => [
                     'job'   =>  $event->job->toArray(),
                 ],
                 'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
-                'emailTitle'  => 'Job Details',
-                'emailContent'  => 'Job has been completed by '.$event->job->worker->firstname. '  '.$event->job->worker->lastname.'. Check below job details.'
+                'emailTitle'  => __('mail.client_job_status.job_details'),
+                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname. '  '.$event->job->worker->lastname])
             ];
             event(new JobNotificationToAdmin($adminEmailData));
         }

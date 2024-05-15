@@ -18,6 +18,8 @@ use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToWorker;
+use App\Events\JobNotificationToClient;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
@@ -34,6 +36,8 @@ use App\Listeners\SendWorkerChangedNotification;
 use App\Listeners\SendWorkerFormsNotification;
 use App\Listeners\SendWorkerUpdatedJobStatusNotification;
 use App\Listeners\SendJobNotificationToAdmin;
+use App\Listeners\SendJobNotificationToWorker;
+use App\Listeners\SendJobNotificationToClient;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -100,7 +104,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientPaymentFailed::class => [
             NotifyForClientPaymentFailed::class
-        ]
+        ],
+        JobNotificationToWorker::class => [
+            SendJobNotificationToWorker::class
+        ],
+        JobNotificationToClient::class => [
+            SendJobNotificationToClient::class
+        ],
     ];
 
     /**

@@ -21,6 +21,7 @@ use App\Traits\JobSchedule;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToWorker;
 
 class JobController extends Controller
 {
@@ -267,6 +268,17 @@ class JobController extends Controller
                 'isJobOpen' => true
             ];
             event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to worker
+            $job = $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
+            $worker = $job['worker'];
+            $emailData = [
+                'emailSubject'  => __('mail.job_status.subject'),
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => '',
+                'isJobOpen' => true
+            ];
+            event(new JobNotificationToWorker($worker, $job, $emailData));
 
             //old
             $admin = Admin::where('role', 'admin')->first();

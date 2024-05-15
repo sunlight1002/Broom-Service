@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToWorker;
 
 class SendJobApprovedNotification implements ShouldQueue
 {
@@ -42,6 +43,16 @@ class SendJobApprovedNotification implements ShouldQueue
             'emailContent'  => 'Worker has approved the job.'
         ];
         event(new JobNotificationToAdmin($adminEmailData));
+
+        //send notification to worker
+        $job = $event->job->toArray();
+        $worker = $job['worker'];
+        $emailData = [
+            'emailSubject'  => __('mail.job_common.approve_subject'),
+            'emailTitle'  => __('mail.job_common.approve_title'),
+            'emailContent'  => __('mail.job_common.approve_content')
+        ];
+        event(new JobNotificationToWorker($worker, $job, $emailData));
 
         //old
         $admins = Admin::query()

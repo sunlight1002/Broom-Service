@@ -34,6 +34,7 @@ use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
 use App\Traits\PaymentAPI;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToClient;
 
 class JobController extends Controller
 {
@@ -435,9 +436,8 @@ class JobController extends Controller
 
                 $this->copyDefaultCommentsToJob($job);
 
+                $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 if ($workerIndex == 0) {
-                    $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-
                     if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
                         // App::setLocale($job->worker->lng);
 
@@ -466,6 +466,17 @@ class JobController extends Controller
                         event(new JobNotificationToAdmin($adminEmailData));
                     }
                 }
+                //send notification to client
+                $job = $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $client = $job['client'];
+                $worker = $job['worker'];
+                $emailData = [
+                    'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                    'emailTitle'  => __('mail.worker_new_job.new_job_assigned'),
+                    'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                ];
+                event(new JobNotificationToClient($worker, $client, $job, $emailData));
+
             }
         }
 
