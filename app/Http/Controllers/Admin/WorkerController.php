@@ -57,13 +57,13 @@ class WorkerController extends Controller
         if ($status != '') {
             $result->orWhere('status',   'like', '%' . $status . '%');
         }
-        $result->when($statusCode == "active", function ($q)  {
+        $result->when($statusCode == "active", function ($q) {
             return $q->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
         });
-        $result->when($statusCode == "past", function ($q)  {
+        $result->when($statusCode == "past", function ($q) {
             return $q->whereNotNull('last_work_date')->orWhereDate('last_work_date', '<', now());
         });
-        $result->when($statusCode == "manpower_company", function ($q)  {
+        $result->when($statusCode == "manpower_company", function ($q) {
             return $q->whereNotNull('manpower_company_id');
         });
         $result = $result->orderBy('id', 'desc')->paginate(20);
@@ -117,8 +117,14 @@ class WorkerController extends Controller
             })
             ->when($service != '', function ($q) use ($service) {
                 return $q
-                    ->whereHas('availabilities', function ($query) {
-                        $query->where('date', '>=', Carbon::now()->toDateString());
+                    ->where(function ($qu) {
+                        $qu->whereHas('availabilities', function ($query) {
+                            $query->where('date', '>=', Carbon::now()->toDateString());
+                        });
+                        $qu->orWhereHas('defaultAvailabilities', function ($query) {
+                            $query->where('until_date', '>=', Carbon::now()->toDateString());
+                            $query->orWhereNull('until_date');
+                        });
                     })
                     // ->whereRelation('jobs', function ($query) {
                     //     $query->where('start_date', '>=', Carbon::now()->toDateString());
@@ -281,7 +287,7 @@ class WorkerController extends Controller
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
-        $worker->manpower_company_id       = $request->company_type == "manpower" ?$request->manpower_company_id: NULL;
+        $worker->manpower_company_id       = $request->company_type == "manpower" ? $request->manpower_company_id : NULL;
         $worker->save();
 
         $i = 1;
@@ -356,7 +362,7 @@ class WorkerController extends Controller
                 Rule::in(['my-company', 'manpower']),
             ],
             'manpower_company_id' => ['required_if:company_type,manpower']
-        ],[], [
+        ], [], [
             'manpower_company_id' => 'Manpower'
         ]);
 
@@ -385,7 +391,7 @@ class WorkerController extends Controller
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
-        $worker->manpower_company_id       = $request->company_type == "manpower" ?$request->manpower_company_id: NULL;
+        $worker->manpower_company_id       = $request->company_type == "manpower" ? $request->manpower_company_id : NULL;
         $worker->save();
 
         return response()->json([

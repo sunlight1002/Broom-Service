@@ -213,6 +213,8 @@ export const getAvailableSlots = async (
             } catch (error) {
                 return [];
             }
+        } else {
+            return [];
         }
     }
 

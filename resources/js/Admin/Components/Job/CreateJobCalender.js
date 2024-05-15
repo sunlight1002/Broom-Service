@@ -25,6 +25,7 @@ export default function CreateJobCalender({
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
     const [selectedService, setSelectedService] = useState(0);
+    const [isAdded, setIsAdded] = useState(false);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -66,15 +67,20 @@ export default function CreateJobCalender({
         setServices([_service]);
         setSelectedService(_service);
 
-        setSelectedHours(
-            _service?.workers?.map((worker) => {
-                return {
-                    jobHours: worker?.jobHours,
-                    slots: null,
-                    formattedSlots: null,
-                };
-            })
-        );
+        const hours = [];
+        if (_service?.cycle) {
+            for (let index = 0; index < parseInt(_service?.cycle); index++) {
+                _service?.workers?.forEach((worker) => {
+                    hours.push({
+                        jobHours: worker?.jobHours,
+                        slots: null,
+                        formattedSlots: null,
+                    });
+                });
+            }
+        }
+
+        setSelectedHours(hours);
 
         getWorkers(_service);
         $("#edit-work-time").modal("hide");
@@ -172,13 +178,12 @@ export default function CreateJobCalender({
     let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        let added = false;
+        let isSlotChecked = false; // Initialize a flag variable
+
         const promises = selectedHours.map(async (worker, index) => {
-            if (
-                (worker.slots == null ||
-                    worker?.slots[0]?.workerId == w_id) &&
-                !added
-            ) {
+            if (!isSlotChecked && worker.slots == null) {
+                isSlotChecked = true; // Set the flag to true after the first call
+
                 const slots = await getAvailableSlots(
                     workerAvailabilities,
                     w_id,
@@ -186,20 +191,15 @@ export default function CreateJobCalender({
                     e,
                     worker.jobHours,
                     false,
-                    alert,
+                    alert
                 );
-                added = true;
+
                 return {
                     jobHours: worker.jobHours,
                     slots: slots.length > 0 ? slots : null,
                     formattedSlots:
-                        slots.length > 0
-                            ? convertShiftsFormat(slots)
-                            : null,
+                        slots.length > 0 ? convertShiftsFormat(slots) : null,
                 };
-            }
-            if (!added && selectedHours.length === index + 1) {
-                alert.error("Already other workers selected.");
             }
             return worker;
         });
@@ -207,6 +207,12 @@ export default function CreateJobCalender({
         // Wait for all promises to resolve
         Promise.all(promises).then((updatedData) => {
             // Update the state with the resolved values
+            var isExist = selectedHours.filter((w) => w.slots == null);
+            if (!isExist.length) {
+                alert.error(
+                    "Other slots have already been selected. Please deselect and reselect."
+                );
+            }
             setSelectedHours(updatedData);
         });
     };
