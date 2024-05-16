@@ -306,11 +306,11 @@ export default function TotalJobs() {
                                                                     <Link
                                                                         to={`/client/jobs/${Base64.encode(
                                                                             item.id.toString()
-                                                                        )}/change-worker-request`}
+                                                                        )}/change-worker`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         {t(
-                                                                            "client.jobs.change_worker_request"
+                                                                            "client.jobs.change_worker"
                                                                         )}
                                                                     </Link>
                                                                 </div>

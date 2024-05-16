@@ -467,7 +467,7 @@
             "total": "סה'כ",
             "action": "פעולה",
             "view_btn": "צפה",
-            "change_worker_request": "שנה בקשת עובד",
+            "change_worker": "שנה עובד",
             "change": {
                 "title": "שינוי בקשת עובד",
                 "worker_availability": "זמינות עובדים",

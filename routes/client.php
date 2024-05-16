@@ -40,7 +40,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('jobs', [JobController::class, 'index']);
     Route::get('jobs/{id}', [JobController::class, 'show']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
-    Route::post('jobs/{id}/change-worker-request', [JobController::class, 'changeWorkerRequest']);
+    Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
     Route::post('jobs/{id}/review', [JobController::class, 'saveReview']);
 
     // My Account Api

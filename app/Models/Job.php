@@ -172,11 +172,6 @@ class Job extends Model
         return $this->hasMany(JobWorkerShift::class, 'job_id');
     }
 
-    public function changeWorkerRequests()
-    {
-        return $this->hasMany(ChangeJobWorkerRequest::class, 'job_id');
-    }
-
     public function comments()
     {
         return $this->hasMany(JobComments::class, 'job_id');

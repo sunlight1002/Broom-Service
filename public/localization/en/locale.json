@@ -467,9 +467,9 @@
             "total": "Total",
             "action": "Action",
             "view_btn": "View",
-            "change_worker_request": "Change Worker Request",
+            "change_worker": "Change Worker",
             "change": {
-                "title": "Change Worker Request",
+                "title": "Change Worker",
                 "worker_availability": "Worker Availability",
                 "desc": "Assign a specific worker only and choose a shift for a single date.",
                 "services": "Services",

@@ -310,12 +310,6 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
-                                <Link
-                                    className="ml-2 btn btn-warning addButton"
-                                    to={`/admin/jobs/change-worker-requests`}
-                                >
-                                    Change Worker Requests
-                                </Link>
                             </div>
                         </div> */}
                         <div className="App" style={{ display: "none" }}>
@@ -469,16 +463,6 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
-                                <Link
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    to={`/admin/jobs/change-worker-requests`}
-                                    style={{
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }}
-                                >
-                                    Change Worker Requests
-                                </Link>
                             </div>
                         </div>
                         {/* Mobile */}
@@ -491,12 +475,6 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
-                                <Link
-                                    className="ml-2 btn btn-warning addButton"
-                                    to={`/admin/jobs/change-worker-requests`}
-                                >
-                                    Change Worker Requests
-                                </Link>
                             </div>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">

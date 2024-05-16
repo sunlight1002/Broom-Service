@@ -137,7 +137,7 @@ export default function ChangeWorkerCalender({ job }) {
 
                     axios
                         .post(
-                            `/api/client/jobs/${jobId}/change-worker-request`,
+                            `/api/client/jobs/${jobId}/change-worker`,
                             formdata,
                             {
                                 headers,
@@ -188,8 +188,7 @@ export default function ChangeWorkerCalender({ job }) {
         let added = false;
         const promises = selectedHours.map(async (worker, index) => {
             if (
-                (worker.slots == null ||
-                    worker?.slots[0]?.workerId == w_id) &&
+                (worker.slots == null || worker?.slots[0]?.workerId == w_id) &&
                 !added
             ) {
                 const slots = await getAvailableSlots(
@@ -206,9 +205,7 @@ export default function ChangeWorkerCalender({ job }) {
                     jobHours: worker.jobHours,
                     slots: slots.length > 0 ? slots : null,
                     formattedSlots:
-                        slots.length > 0
-                            ? convertShiftsFormat(slots)
-                            : null,
+                        slots.length > 0 ? convertShiftsFormat(slots) : null,
                 };
             }
             if (!added && selectedHours.length === index + 1) {

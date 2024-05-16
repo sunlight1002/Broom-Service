@@ -5,16 +5,15 @@ import moment from "moment";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
+import { useTranslation } from "react-i18next";
 
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import ChangeWorkerCalender from "../../Component/Job/ChangeWorkerCalender";
-import { useTranslation } from "react-i18next";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
-export default function ChangeWorkerRequest() {
+export default function ChangeWorker() {
     const params = useParams();
     const [job, setJob] = useState(null);
-    const [hasPendingRequest, setHasPendingRequest] = useState(false);
     const { t } = useTranslation();
 
     const jobId = Base64.decode(params.id);
@@ -31,12 +30,6 @@ export default function ChangeWorkerRequest() {
             .then((response) => {
                 const _job = response.data.job;
                 setJob(_job);
-
-                const _hasPendingRequest = _job.change_worker_requests.filter(
-                    (i) => i.status == "pending"
-                ).length;
-
-                setHasPendingRequest(_hasPendingRequest);
             })
             .catch((e) => {
                 Swal.fire({
@@ -206,28 +199,13 @@ export default function ChangeWorkerRequest() {
                                             </div>
                                         </div>
                                     </div>
-                                    {!hasPendingRequest ? (
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <ChangeWorkerCalender
-                                                    job={job}
-                                                />
-                                                <div className="mb-3">
-                                                    &nbsp;
-                                                </div>
-                                            </div>
+
+                                    <div className="row">
+                                        <div className="col-sm-12">
+                                            <ChangeWorkerCalender job={job} />
+                                            <div className="mb-3">&nbsp;</div>
                                         </div>
-                                    ) : (
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <p className="text-center text-info">
-                                                    {t(
-                                                        "client.jobs.change.pending"
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
+                                    </div>
                                 </form>
                             </div>
                         )}

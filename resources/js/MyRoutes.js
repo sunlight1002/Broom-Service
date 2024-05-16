@@ -42,7 +42,6 @@ import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
 import Admin from "./Admin/Admin";
 import AdminDashboard from "./Admin/Dashboard";
 import TotalJobs from "./Admin/Pages/Jobs/TotalJobs";
-import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/ChangeWorkerRequestList";
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
 import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
@@ -125,7 +124,7 @@ import Messenger from "./Admin/Pages/Chat/messenger";
 import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
-import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
+import ClientChangeWorker from "./Client/Pages/Jobs/ChangeWorker";
 import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import InsuranceForm from "./Pages/InsuranceForm";
@@ -286,8 +285,8 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="/client/jobs/:id/change-worker-request"
-                                element={<ChangeWorkerRequest />}
+                                path="/client/jobs/:id/change-worker"
+                                element={<ClientChangeWorker />}
                             />
                             <Route
                                 exact
@@ -357,11 +356,6 @@ export default function MyRoutes() {
                                 element={<AdminDashboard />}
                             />
                             <Route exact path="jobs" element={<TotalJobs />} />
-                            <Route
-                                exact
-                                path="jobs/change-worker-requests"
-                                element={<ChangeWorkerRequestList />}
-                            />
                             <Route
                                 exact
                                 path="create-job/:id"

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Client;
 
 use App\Enums\CancellationActionEnum;
-use App\Enums\ChangeWorkerRequestStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
@@ -22,6 +21,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobWorkerChanged;
+use App\Models\ManageTime;
 
 class JobController extends Controller
 {
@@ -54,8 +55,7 @@ class JobController extends Controller
                 'service',
                 'offer',
                 'jobservice',
-                'propertyAddress',
-                'changeWorkerRequests'
+                'propertyAddress'
             ])
             ->where('client_id', Auth::user()->id)
             ->find($id);
@@ -162,18 +162,19 @@ class JobController extends Controller
 
         //send notification to admin
         $emailContent = '';
-        if($data['by'] == 'client'){
-            $emailContent .=  __('mail.client_job_status.content').' '.ucfirst($data['job']['status']).'.';
-            if( $data['job']['cancellation_fee_amount'] ){
-                $emailContent .= __('mail.client_job_status.cancellation_fee').' '.$data['job']['cancellation_fee_amount'].'ILS.';
+        if ($data['by'] == 'client') {
+            $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($data['job']['status']) . '.';
+            if ($data['job']['cancellation_fee_amount']) {
+                $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $data['job']['cancellation_fee_amount'] . 'ILS.';
             }
-        }else{
-            $emailContent .= 'Job is marked as'. ucfirst($data['job']['status']) .'by admin/team.';
+        } else {
+            $emailContent .= 'Job is marked as' . ucfirst($data['job']['status']) . 'by admin/team.';
         }
+
         $emailSubject = ($data['by'] == 'admin') ?
-                ($ln == 'en') ? ('Job has been cancelled') . " #" . $data['job']['id'] :
-                $data['job']['id'] . "# " . ('העבודה בוטלה')
-                :__('mail.client_job_status.subject') . " #" . $data['job']['id'];
+            ('Job has been cancelled') . " #" . $data['job']['id'] :
+            __('mail.client_job_status.subject') . " #" . $data['job']['id'];
+
         $adminEmailData = [
             'emailData'   => [
                 'job'   =>  $job->toArray(),
@@ -183,13 +184,13 @@ class JobController extends Controller
             'emailContent'  => $emailContent
         ];
         event(new JobNotificationToAdmin($adminEmailData));
-        
+
         return response()->json([
             'job' => $job,
         ]);
     }
 
-    public function changeWorkerRequest(Request $request, $id)
+    public function changeWorker(Request $request, $id)
     {
         $data = $request->all();
 
@@ -242,64 +243,167 @@ class JobController extends Controller
             ], 404);
         }
 
-        if ($job->changeWorkerRequests()->where('status', ChangeWorkerRequestStatusEnum::PENDING)->exists()) {
-            return response()->json([
-                'message' => 'Change worker request already pending'
-            ], 403);
-        }
-
         if (Carbon::parse($data['worker']['date'])->isPast()) {
             return response()->json([
                 'message' => 'New date should be in future'
             ], 403);
         }
 
-        $job->changeWorkerRequests()->create([
-            'client_id' => $client->id,
-            'worker_id' => $data['worker']['worker_id'],
-            'date' => $data['worker']['date'],
-            'shifts' => $data['worker']['shifts'],
-            'repeatancy' => $data['repeatancy'],
-            'repeat_until_date' => $data['until_date'],
-            'status' => ChangeWorkerRequestStatusEnum::PENDING
-        ]);
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-        
-        //send notification to admin
-        $adminEmailData = [
-            'emailData'   => [
-                'job'   =>  $job->toArray(),
-            ],
-            'emailSubject'  => __('mail.change_worker_request.subject'),
-            'emailTitle'  => 'Change Worker Request',
-            'emailContent'  => __('mail.change_worker_request.content') .' '.__('mail.change_worker_request.please_check')
+        $oldWorker = $job->worker;
+
+        $old_job_data = [
+            'start_date' => $job->start_date,
+            'shifts' => $job->shifts,
         ];
-        event(new JobNotificationToAdmin($adminEmailData));
 
-        $admins = Admin::where('role', 'admin')->get();
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
 
-        foreach ($admins as $key => $admin) {
-            // App::setLocale($admin->lng);
+        $repeat_value = $job->jobservice->period;
 
-            $emailData = array(
-                'email' => $admin->email,
-                'admin' => $admin->toArray(),
-                'job' => $job->toArray(),
-            );
-            if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
-                    "notificationData" => $emailData
-                ]));
-            }
-            // Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['email']);
-            //     $messages->subject(__('mail.change_worker_request.subject'));
-            // });
+        $job_date = Carbon::parse($data['worker']['date']);
+        $preferredWeekDay = strtolower($job_date->format('l'));
+        $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+        $job_date = $job_date->toDateString();
+
+        $slots = explode(',', $data['worker']['shifts']);
+        // sort slots in ascending order of time before merging for continuous time
+        sort($slots);
+
+        foreach ($slots as $key => $shift) {
+            $timing = explode('-', $shift);
+
+            $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            $shiftFormattedArr[$key] = [
+                'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            ];
         }
 
+        $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+        $slotsInString = '';
+        foreach ($mergedContinuousTime as $key => $slot) {
+            if (!empty($slotsInString)) {
+                $slotsInString .= ',';
+            }
+            $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+        }
+
+        $minutes = 0;
+        foreach ($mergedContinuousTime as $key => $value) {
+            $minutes += Carbon::parse($value['ending_at'])->diffInMinutes(Carbon::parse($value['starting_at']));
+        }
+
+        $status = JobStatusEnum::SCHEDULED;
+
+        if (
+            Job::where('start_date', $job_date)
+            ->where('worker_id', $data['worker']['worker_id'])
+            ->exists()
+        ) {
+            $status = JobStatusEnum::UNSCHEDULED;
+        }
+
+        $jobData = [
+            'worker_id'     => $data['worker']['worker_id'],
+            'start_date'    => $job_date,
+            'shifts'        => $slotsInString,
+            'status'        => $status,
+            'next_start_date'   => $next_job_date,
+        ];
+
+        if ($data['repeatancy'] == 'one_time') {
+            $jobData['previous_worker_id'] = $job->worker_id;
+            $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = NULL;
+        } else if ($data['repeatancy'] == 'until_date') {
+            $jobData['previous_worker_id'] = $job->worker_id;
+            $jobData['previous_worker_after'] = $data['until_date'];
+            $jobData['previous_shifts'] = $job->shifts;
+            $jobData['previous_shifts_after'] = $data['until_date'];
+        } else if ($data['repeatancy'] == 'forever') {
+            $jobData['previous_worker_id'] = NULL;
+            $jobData['previous_worker_after'] = NULL;
+            $jobData['previous_shifts'] = NULL;
+            $jobData['previous_shifts_after'] = NULL;
+        }
+
+        $job->update($jobData);
+
+        $job->jobservice()->update([
+            'duration_minutes'  => $minutes,
+            'config'            => [
+                'cycle'             => $job->jobservice->cycle,
+                'period'            => $job->jobservice->period,
+                'preferred_weekday' => $preferredWeekDay
+            ]
+        ]);
+
+        $job->workerShifts()->delete();
+        foreach ($mergedContinuousTime as $key => $shift) {
+            $job->workerShifts()->create($shift);
+        }
+
+        $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        JobCancellationFee::create([
+            'job_id' => $job->id,
+            'cancellation_fee_percentage' => $feePercentage,
+            'cancellation_fee_amount' => $feeAmount,
+            'cancelled_user_role' => 'admin',
+            'cancelled_by' => Auth::user()->id,
+            'action' => CancellationActionEnum::CHANGE_WORKER,
+            'duration' => $data['repeatancy'],
+            'until_date' => $data['until_date'],
+        ]);
+
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+        event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
+
+        // $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+        // //send notification to admin
+        // $adminEmailData = [
+        //     'emailData'   => [
+        //         'job'   =>  $job->toArray(),
+        //     ],
+        //     'emailSubject'  => __('mail.change_worker_request.subject'),
+        //     'emailTitle'  => 'Change Worker Request',
+        //     'emailContent'  => __('mail.change_worker_request.content') . ' ' . __('mail.change_worker_request.please_check')
+        // ];
+        // event(new JobNotificationToAdmin($adminEmailData));
+
+        // $admins = Admin::where('role', 'admin')->get();
+
+        // foreach ($admins as $key => $admin) {
+        //     // App::setLocale($admin->lng);
+
+        //     $emailData = array(
+        //         'email' => $admin->email,
+        //         'admin' => $admin->toArray(),
+        //         'job' => $job->toArray(),
+        //     );
+        //     if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
+        //         event(new WhatsappNotificationEvent([
+        //             "type" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
+        //             "notificationData" => $emailData
+        //         ]));
+        //     }
+        //     // Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
+        //     //     $messages->to($emailData['email']);
+        //     //     $messages->subject(__('mail.change_worker_request.subject'));
+        //     // });
+        // }
+
         return response()->json([
-            'message' => 'Change worker request sent successfully'
+            'message' => 'Worker changed successfully'
         ]);
     }
 

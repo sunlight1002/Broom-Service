@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
-use App\Http\Controllers\Admin\ChangeWorkerController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
@@ -55,10 +54,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard']);
     Route::get('pending-data/{for}', [DashboardController::class, 'pendingData']);
     Route::get('latest-clients', [ClientController::class, 'latestClients']);
-
-    Route::get('jobs/change-worker-requests', [ChangeWorkerController::class, 'index']);
-    Route::post('jobs/change-worker-requests/{id}/accept', [ChangeWorkerController::class, 'accept']);
-    Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
     // Jobs Api
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
