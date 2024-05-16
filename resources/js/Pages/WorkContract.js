@@ -19,7 +19,7 @@ export default function WorkContract() {
     const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState([]);
-    const [contract, setContract] = useState([]);
+    const [contract, setContract] = useState(null);
     const param = useParams();
     const sigRef = useRef();
     const [signature, setSignature] = useState(null);
@@ -28,10 +28,12 @@ export default function WorkContract() {
     const [sessionURL, setSessionURL] = useState("");
     const [addCardBtnDisabled, setAddCardBtnDisabled] = useState(false);
     const [checkingForCard, setCheckingForCard] = useState(false);
-    const [clientCard, setClientCard] = useState(null);
+    const [clientCards, setClientCards] = useState([]);
+    const [selectedClientCardID, setSelectedClientCardID] = useState(null);
+    const [isCardAdded, setIsCardAdded] = useState(false);
 
     const handleAccept = (e) => {
-        if (!clientCard) {
+        if (!selectedClientCardID) {
             swal(t("work-contract.messages.card_err"), "", "error");
             return false;
         }
@@ -45,7 +47,7 @@ export default function WorkContract() {
             unique_hash: param.id,
             offer_id: offer.id,
             client_id: offer.client.id,
-            card_id: clientCard.id,
+            card_id: selectedClientCardID,
             additional_address: Aaddress,
             status: "un-verified",
             signature: signature,
@@ -83,34 +85,52 @@ export default function WorkContract() {
     };
 
     const getOffer = () => {
-        axios.post(`/api/client/contracts/${param.id}`).then((res) => {
-            if (res.data.offer) {
-                setOffer(res.data.offer);
-                setServices(JSON.parse(res.data.offer.services));
-                setClient(res.data.offer.client);
-                setContract(res.data.contract);
-                setStatus(res.data.contract.status);
+        axios
+            .post(`/api/client/contracts/${param.id}`)
+            .then((res) => {
+                if (res.data.offer) {
+                    const _contract = res.data.contract;
+                    setOffer(res.data.offer);
+                    setServices(JSON.parse(res.data.offer.services));
+                    setClient(res.data.offer.client);
+                    setContract(_contract);
+                    setStatus(_contract.status);
 
-                setClientCard(res.data.card);
-                i18next.changeLanguage(res.data.offer.client.lng);
+                    setClientCards(res.data.cards);
+                    setSelectedClientCardID(_contract.card_id);
+                    if (_contract.status != "not-signed") {
+                        setIsCardAdded(true);
+                    }
+                    i18next.changeLanguage(res.data.offer.client.lng);
 
-                if (res.data.offer.client.lng == "heb") {
-                    import("../Assets/css/rtl.css");
-                    document.querySelector("html").setAttribute("dir", "rtl");
+                    if (res.data.offer.client.lng == "heb") {
+                        import("../Assets/css/rtl.css");
+                        document
+                            .querySelector("html")
+                            .setAttribute("dir", "rtl");
+                    } else {
+                        document.querySelector("html").removeAttribute("dir");
+                    }
+
+                    if (res.data.offer.client.lng == "heb") {
+                        document
+                            .querySelector("html")
+                            .setAttribute("dir", "rtl");
+                    }
                 } else {
-                    document.querySelector("html").removeAttribute("dir");
+                    setOffer({});
+                    setServices([]);
+                    setClient([]);
+                    setContract(null);
                 }
-
-                if (res.data.offer.client.lng == "heb") {
-                    document.querySelector("html").setAttribute("dir", "rtl");
-                }
-            } else {
-                setOffer({});
-                setServices([]);
-                setClient([]);
-                setContract([]);
-            }
-        });
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
     };
 
     const RejectContract = (e, id) => {
@@ -134,6 +154,9 @@ export default function WorkContract() {
                             t("work-contract.messages.reject_msg"),
                             "success"
                         );
+                        setTimeout(() => {
+                            window.location.reload(true);
+                        }, 2000);
                     });
                 setStatus("declined");
             }
@@ -160,6 +183,14 @@ export default function WorkContract() {
             });
     };
 
+    const handleCardSelect = (e) => {
+        if (e.target.checked) {
+            setSelectedClientCardID(e.target.value);
+        } else {
+            setSelectedClientCardID(null);
+        }
+    };
+
     useEffect(() => {
         let _intervalID;
 
@@ -173,8 +204,10 @@ export default function WorkContract() {
                         )
                         .then((response) => {
                             if (response.data.card) {
-                                setClientCard(response.data.card);
+                                setClientCards([response.data.card]);
+                                setSelectedClientCardID(response.data.card.id);
                                 setCheckingForCard(false);
+                                setIsCardAdded(true);
                                 clearInterval(_intervalID);
                             }
                         })
@@ -230,20 +263,22 @@ export default function WorkContract() {
                         <div className="col-sm-6">
                             {status == "not-signed" ? (
                                 <div className="mt-2 float-right">
-                                    <input
+                                    <button
+                                        type="button"
                                         className="btn btn-pink"
                                         onClick={handleAccept}
-                                        value={t(
-                                            "work-contract.accept_contract"
-                                        )}
-                                    />
-                                    <input
-                                        className="btn btn-danger mt-2"
+                                    >
+                                        {t("work-contract.accept_contract")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger ml-2"
                                         onClick={(e) =>
                                             RejectContract(e, contract.id)
                                         }
-                                        value={t("work-contract.button_reject")}
-                                    />
+                                    >
+                                        {t("work-contract.button_reject")}
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="mt-2 float-right headMsg">
@@ -268,11 +303,13 @@ export default function WorkContract() {
                         <p>
                             {t("work-contract.signed")}{" "}
                             <span>{client.city ? client.city : "NA"}</span> on{" "}
-                            <span>
-                                {Moment(contract.created_at).format(
-                                    "DD MMMM,Y"
-                                )}
-                            </span>
+                            {contract && (
+                                <span>
+                                    {Moment(contract.created_at).format(
+                                        "DD MMMM,Y"
+                                    )}
+                                </span>
+                            )}
                         </p>
                     </div>
                     <div className="between">
@@ -536,19 +573,41 @@ export default function WorkContract() {
                                         {/* <td>&nbsp;</td> */}
                                     </tr>
 
-                                    {clientCard ? (
-                                        <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t("credit-card.added-card")}
-                                            </td>
-                                            <td>
-                                                **** **** ****{" "}
-                                                {clientCard.card_number} -{" "}
-                                                {clientCard.valid} (
-                                                {clientCard.card_type})
-                                            </td>
-                                        </tr>
-                                    ) : (
+                                    {clientCards.map((_card, _index) => {
+                                        return (
+                                            <tr key={_index}>
+                                                <td colSpan={2}>
+                                                    <div className="form-check">
+                                                        <label className="form-check-label">
+                                                            <input
+                                                                type="checkbox"
+                                                                className="form-check-input"
+                                                                value={_card.id}
+                                                                onChange={
+                                                                    handleCardSelect
+                                                                }
+                                                                checked={
+                                                                    _card.id ==
+                                                                    selectedClientCardID
+                                                                }
+                                                                disabled={
+                                                                    contract &&
+                                                                    contract.status !=
+                                                                        "not-signed"
+                                                                }
+                                                            />
+                                                            **** **** ****{" "}
+                                                            {_card.card_number}{" "}
+                                                            - {_card.valid} (
+                                                            {_card.card_type})
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+
+                                    {!isCardAdded && (
                                         <tr>
                                             <td style={{ width: "60%" }}>
                                                 {t(
@@ -556,28 +615,20 @@ export default function WorkContract() {
                                                 )}
                                             </td>
                                             <td>
-                                                {status == "not-signed" && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-success ac"
-                                                        onClick={(e) =>
-                                                            handleCard(e)
-                                                        }
-                                                        disabled={
-                                                            addCardBtnDisabled
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "work-contract.add_card_btn"
-                                                        )}
-                                                    </button>
-                                                )}
-                                                {status != "not-signed" && (
-                                                    <span className="text text-success font-weight-bold">
-                                                        {" "}
-                                                        Verified{" "}
-                                                    </span>
-                                                )}
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-success ac"
+                                                    onClick={(e) =>
+                                                        handleCard(e)
+                                                    }
+                                                    disabled={
+                                                        addCardBtnDisabled
+                                                    }
+                                                >
+                                                    {t(
+                                                        "work-contract.add_card_btn"
+                                                    )}
+                                                </button>
                                             </td>
                                         </tr>
                                     )}
@@ -804,18 +855,16 @@ export default function WorkContract() {
                                     />
                                 </div>
                             </div>
-                            {status == "not-signed" ? (
+                            {status == "not-signed" && (
                                 <div className=" col-sm-12 mt-2 float-right">
-                                    <input
+                                    <button
+                                        type="button"
                                         className="btn btn-pink"
                                         onClick={handleAccept}
-                                        value={t(
-                                            "work-contract.accept_contract"
-                                        )}
-                                    />
+                                    >
+                                        {t("work-contract.accept_contract")}
+                                    </button>
                                 </div>
-                            ) : (
-                                ""
                             )}
                         </div>
 

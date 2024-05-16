@@ -79,6 +79,7 @@ class Client extends Authenticatable
             Job::where('client_id', $model->id)->delete();
             Order::where('client_id', $model->id)->delete();
 
+            $model->cards()->delete();
             $comments = $model->comments()->get();
             foreach ($comments as $key => $comment) {
                 $comment->delete();
@@ -104,11 +105,6 @@ class Client extends Authenticatable
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'client_id', 'id');
-    }
-
-    public function subscription()
-    {
-        return $this->hasOne(Subscription::class);
     }
 
     public function contract()
@@ -145,5 +141,10 @@ class Client extends Authenticatable
             ->where('clients.phone', '!=', '')
             ->where('clients.phone', '!=', 0)
             ->where('clients.phone', '!=', NULL);
+    }
+
+    public function cards()
+    {
+        return $this->hasMany(ClientCard::class, 'client_id');
     }
 }

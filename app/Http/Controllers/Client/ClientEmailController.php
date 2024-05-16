@@ -388,19 +388,41 @@ class ClientEmailController extends Controller
   public function contractByHash($hash)
   {
     $contract = Contract::with('card')->where('unique_hash', $hash)->latest()->first();
-    $offer = Offer::query()->with('client')->find($contract->offer_id);
-
-    $card = $contract->card;
-    if (!$card) {
-      $card = $this->getClientCard($contract->client_id);
+    if (!$contract) {
+      return response()->json([
+        'message' => 'Contract not found',
+      ], 404);
     }
+
+    $client = Client::find($contract->client_id);
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found',
+      ], 404);
+    }
+
+    $offer = Offer::query()->with('client')->find($contract->offer_id);
+    if (!$offer) {
+      return response()->json([
+        'message' => 'Offer not found',
+      ], 404);
+    }
+
+    $cards = $client->cards()
+      ->when(
+        $contract->status != ContractStatusEnum::NOT_SIGNED,
+        function ($q) use ($contract) {
+          return $q->where('id', $contract->card_id);
+        }
+      )
+      ->get(['id', 'card_number', 'valid', 'card_type']);
 
     $offer['services'] = $this->formatServices($offer);
 
     return response()->json([
       'offer' => $offer,
       'contract' => $contract,
-      'card' => $card,
+      'cards' => $cards,
     ]);
   }
 
