@@ -165,6 +165,34 @@ export default function Payments() {
             });
     };
 
+    const handleGenerateInvoice = async (_clientID) => {
+        await axios
+            .post(
+                `/api/admin/client/${_clientID}/generate-invoice`,
+                {},
+                {
+                    headers,
+                }
+            )
+            .then((response) => {
+                Swal.fire(
+                    "Invoice Generated!",
+                    "Invoice has been created.",
+                    "success"
+                );
+                getClientPayments();
+            })
+            .catch((e) => {
+                getClientPayments();
+
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+
     const handleCloseWithoutPayment = async (_clientID) => {
         Swal.fire({
             title: "Are you sure to close without payment?",
@@ -516,12 +544,12 @@ export default function Payments() {
                                                                             Card
                                                                         </button>
                                                                     )}
-                                                                    {
-                                                                        (item.payment_method =
-                                                                            "cc" &&
-                                                                                item.priority_paid_status &&
-                                                                                _statusName !=
-                                                                                    "paid" && (
+                                                                    {item.priority_paid_status &&
+                                                                        _statusName !=
+                                                                            "paid" && (
+                                                                            <>
+                                                                                {item.payment_method ==
+                                                                                "cc" ? (
                                                                                     <button
                                                                                         className="dropdown-item"
                                                                                         onClick={() =>
@@ -534,8 +562,27 @@ export default function Payments() {
                                                                                         for
                                                                                         payment
                                                                                     </button>
-                                                                                ))
-                                                                    }
+                                                                                ) : (
+                                                                                    <>
+                                                                                        {item.priority_paid_status &&
+                                                                                            _statusName !=
+                                                                                                "unpaid" && (
+                                                                                                <button
+                                                                                                    className="dropdown-item"
+                                                                                                    onClick={() =>
+                                                                                                        handleGenerateInvoice(
+                                                                                                            item.client_id
+                                                                                                        )
+                                                                                                    }
+                                                                                                >
+                                                                                                    Generate
+                                                                                                    Invoice
+                                                                                                </button>
+                                                                                            )}
+                                                                                    </>
+                                                                                )}
+                                                                            </>
+                                                                        )}
                                                                     {_statusName &&
                                                                         _statusName !=
                                                                             "paid" && (

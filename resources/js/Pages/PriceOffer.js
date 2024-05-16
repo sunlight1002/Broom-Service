@@ -160,22 +160,24 @@ export default function PriceOffer() {
                             <div className="col-sm-6">
                                 {status == "sent" ? (
                                     <div className="mt-2 float-right headBtns">
-                                        <input
+                                        <button
+                                            type="button"
                                             className="btn btn-pink acpt"
                                             onClick={(e) =>
                                                 handleOffer(e, offer.id)
                                             }
-                                            value={t("price_offer.button")}
-                                        />
-                                        <input
-                                            className="btn btn-danger mt-2 rjct"
+                                        >
+                                            {t("price_offer.button")}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger ml-2 rjct"
                                             onClick={(e) =>
                                                 RejectOffer(offer.id)
                                             }
-                                            value={t(
-                                                "price_offer.button_reject"
-                                            )}
-                                        />
+                                        >
+                                            {t("price_offer.button_reject")}
+                                        </button>
                                     </div>
                                 ) : (
                                     <div className="mt-2 float-right headMsg">
@@ -1056,13 +1058,15 @@ export default function PriceOffer() {
                         {status == "sent" && (
                             <>
                                 <div className="text-center mt-3 mb-3">
-                                    <input
+                                    <button
+                                        type="button"
                                         className="btn btn-pink acpt"
                                         onClick={(e) =>
                                             handleOffer(e, offer.id)
                                         }
-                                        value={t("price_offer.button")}
-                                    />
+                                    >
+                                        {t("price_offer.button")}
+                                    </button>
                                 </div>
                             </>
                         )}

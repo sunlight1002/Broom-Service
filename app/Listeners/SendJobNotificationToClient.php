@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\JobNotificationToClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
 
 class SendJobNotificationToClient implements ShouldQueue
 {
@@ -30,8 +32,14 @@ class SendJobNotificationToClient implements ShouldQueue
         $client = $event->client;
         $job = $event->job;
         $emailData = $event->emailData;
+
         App::setLocale($client['lng']);
-        Mail::send('/Mails/client/JobNotification', ['job' => $job,'worker' =>  $worker, 'emailData' => $emailData, 'client' => $client], function ($messages) use ($client, $emailData) {
+        Mail::send('/Mails/client/JobNotification', [
+            'job'       => $job, 
+            'worker'    => $worker, 
+            'emailData' => $emailData, 
+            'client'    => $client
+        ], function ($messages) use ($client, $emailData) {
             $messages->to($client['email']);
             $messages->subject($emailData['emailSubject']);
         });

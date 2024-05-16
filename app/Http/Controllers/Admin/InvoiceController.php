@@ -1451,7 +1451,7 @@ class InvoiceController extends Controller
 
         if ($orders->count() == 0) {
             return response()->json([
-                'message' => "Invoice not found"
+                'message' => "Open order not found"
             ], 404);
         }
 
@@ -1582,6 +1582,50 @@ class InvoiceController extends Controller
 
         return response()->json([
             'message' => 'Invoice updated successfully'
+        ]);
+    }
+
+    public function generateClientInvoices(Request $request, $id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => "Client not found"
+            ], 404);
+        }
+
+        if (empty($client->invoicename)) {
+            return response()->json([
+                'message' => "Client's invoice name is not set"
+            ], 403);
+        }
+
+        if ($client->payment_method == 'cc') {
+            return response()->json([
+                'message' => "Payment is set to credit card"
+            ], 403);
+        }
+
+        $card = $this->getClientCard($client->id);
+
+        $orders = Order::query()
+            ->where('client_id', $client->id)
+            ->where('status', 'Open')
+            ->get();
+
+        if ($orders->count() == 0) {
+            return response()->json([
+                'message' => "Open order not found"
+            ], 404);
+        }
+
+        foreach ($orders as $key => $order) {
+            $this->generateOrderInvoice($client, $order, $card);
+        }
+
+        return response()->json([
+            'message' => 'Invoice created successfully'
         ]);
     }
 

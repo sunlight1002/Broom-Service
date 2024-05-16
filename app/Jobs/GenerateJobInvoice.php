@@ -3,13 +3,10 @@
 namespace App\Jobs;
 
 use App\Enums\OrderPaidStatusEnum;
-use App\Models\Invoices;
-use App\Models\Job;
 use App\Models\Order;
 use App\Traits\ClientCardTrait;
 use App\Traits\ICountDocument;
 use App\Traits\PaymentAPI;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;

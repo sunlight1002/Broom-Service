@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\GenerateJobInvoice;
-use App\Models\Invoices;
-use App\Models\Job;
 use App\Models\Order;
 use App\Traits\PaymentAPI;
 use Carbon\Carbon;
