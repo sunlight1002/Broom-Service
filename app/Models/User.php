@@ -50,6 +50,7 @@ class User extends Authenticatable
         'visa', 
         'passport',
         'last_work_date',
+        'is_exist',
     ];
 
     /**

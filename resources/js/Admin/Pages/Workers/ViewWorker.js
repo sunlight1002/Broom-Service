@@ -51,7 +51,10 @@ export default function ViewWorker() {
                 {worker && (
                     <div className="view-applicant">
                         <WorkerProfile worker={worker} />
-                        <WorkerHistory worker={worker} />
+                        <WorkerHistory
+                            worker={worker}
+                            getWorkerDetails={getWorker}
+                        />
                     </div>
                 )}
             </div>

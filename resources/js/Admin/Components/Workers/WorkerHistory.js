@@ -6,7 +6,7 @@ import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
 
-export default function WorkerHistory({ worker }) {
+export default function WorkerHistory({ worker, getWorkerDetails }) {
     const [days, setDays] = useState([]);
 
     const headers = {
@@ -140,7 +140,10 @@ export default function WorkerHistory({ worker }) {
                             role="tab-panel"
                             aria-labelledby="worker-forms"
                         >
-                            <WorkerForms worker={worker} />
+                            <WorkerForms
+                                worker={worker}
+                                getWorkerDetails={getWorkerDetails}
+                            />
                         </div>
                     )}
                 {/* <div

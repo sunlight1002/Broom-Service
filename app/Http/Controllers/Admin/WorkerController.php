@@ -506,25 +506,63 @@ class WorkerController extends Controller
         ]);
     }
 
-    // public function upload(Request $request, $id)
-    // {
-    //     $worker = User::find($id);
-
-    //     $pdf = $request->file('pdf');
-    //     $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $pdf->getClientOriginalExtension();
-
-    //     if (!Storage::disk('public')->exists('uploads/worker/form101')) {
-    //         Storage::disk('public')->makeDirectory('uploads/worker/form101');
-    //     }
-
-    //     if (Storage::disk('public')->putFileAs("uploads/worker/form101", $pdf, $filename)) {
-    //         $worker->update([
-    //             'form_101' => $filename
-    //         ]);
-    //     }
-
-    //     return response()->json(['success' => true]);
-    // }
+    public function formSave(Request $request)
+    {
+        try {
+            $workerId = $request->id;
+            $worker = User::find($workerId);
+            $worker_contract = $request->file('worker_contract');
+            if ($worker_contract) {
+                $filename = 'contract_' . $worker->id . '_' . date('s') . "_." . $worker_contract->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/contract')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/contract');
+                }
+                if(!empty($worker->worker_contract) && Storage::drive('public')->exists('uploads/worker/contract/' . $worker->worker_contract)){
+                    Storage::drive('public')->delete('uploads/worker/contract/' . $worker->worker_contract);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/contract", $worker_contract, $filename)) {
+                    $worker->update([
+                        'worker_contract' => $filename
+                    ]);
+                }
+            }
+    
+            $form_101 = $request->file('form_101');
+            if($form_101){
+                $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $form_101->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/form101')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/form101');
+                }
+                if(!empty($worker->form_101) && Storage::drive('public')->exists('uploads/worker/form101/' . $worker->form_101)){
+                    Storage::drive('public')->delete('uploads/worker/form101/' . $worker->form_101);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/form101", $form_101, $filename)) {
+                    $worker->update([
+                        'form_101' => $filename
+                    ]);
+                }
+            }
+            
+            $form_insurance = $request->file('form_insurance');
+            if($form_insurance){
+                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/safetygear')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/safetygear');
+                }
+                if(!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)){
+                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->form_insurance);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $form_insurance, $filename)) {
+                    $worker->update([
+                        'form_insurance' => $filename
+                    ]);
+                }
+            }
+            return response()->json(['success' => true]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function addNotAvailableDates(Request $request)
     {

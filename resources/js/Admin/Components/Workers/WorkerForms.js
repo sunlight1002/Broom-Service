@@ -4,11 +4,18 @@ import { Link, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 
-export default function WorkerForms({ worker }) {
+export default function WorkerForms({ worker, getWorkerDetails }) {
     const [form, setForm] = useState(false);
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [workerId, setWorkerId] = useState("");
+    const alert = useAlert();
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
 
     const getForm = () => {
         axios.get(`/api/work-contract/${worker.id}`).then((res) => {
@@ -36,6 +43,59 @@ export default function WorkerForms({ worker }) {
     useEffect(() => {
         getForm();
     }, []);
+
+    const save = (data) => {
+        axios
+            .post(`/api/admin/form/save`, data, { headers })
+            .then((res) => {
+                alert.success("File Uploaded");
+                getWorkerDetails();
+                getForm();
+            })
+            .catch((err) => {
+                alert.error("Error!");
+            });
+    };
+
+    const handleFileChange = (e, type) => {
+        const data = new FormData();
+        data.append("id", worker.id);
+        if (e.target.files.length > 0) {
+            data.append(`${type}`, e.target.files[0]);
+        }
+        save(data);
+    };
+
+    const btnSelect = (type) => {
+        document.getElementById(`${type}`).click();
+    };
+
+    const uploadFormDiv = (type) => {
+        return (
+            <div className="col-sm-2 col-2">
+                <div>
+                    <button
+                        type="button"
+                        className="ml-2 btn bg-blue m-3"
+                        onClick={() => btnSelect(type)}
+                    >
+                        <i className="fa fa-upload"></i>
+                    </button>
+
+                    <input
+                        className="form-control d-none"
+                        id={type}
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => {
+                            e.preventDefault();
+                            handleFileChange(e, type);
+                        }}
+                    ></input>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div
@@ -65,8 +125,9 @@ export default function WorkerForms({ worker }) {
                                 Contract
                             </span>
                         </div>
-                        <div className="col-sm-4 col-4">
-                            {contractForm && workerId ? (
+                        <div className="col-sm-2 col-2">
+                            {(contractForm && workerId) ||
+                            worker.worker_contract ? (
                                 <div>
                                     <span className="btn btn-success m-3">
                                         Signed
@@ -79,13 +140,16 @@ export default function WorkerForms({ worker }) {
                             )}
                         </div>
                         <div className="col-sm-4 col-4">
-                            {contractForm && workerId ? (
+                            {(contractForm && workerId) ||
+                            worker.worker_contract ? (
                                 <div>
                                     <Link
                                         target="_blank"
                                         to={
-                                            `/worker-contract/` +
-                                            Base64.encode(workerId)
+                                            worker.worker_contract
+                                                ? `/storage/uploads/worker/contract/${worker.worker_contract}`
+                                                : `/worker-contract/` +
+                                                  Base64.encode(workerId)
                                         }
                                         className="m-2 btn btn-pink"
                                     >
@@ -96,6 +160,10 @@ export default function WorkerForms({ worker }) {
                                 <span className="btn btn-warning m-3">-</span>
                             )}
                         </div>
+                        {Object.is(worker.worker_contract, null) &&
+                        worker.is_exist
+                            ? uploadFormDiv("worker_contract")
+                            : ""}
                     </div>
                 </div>
             </div>
@@ -120,8 +188,8 @@ export default function WorkerForms({ worker }) {
                                 Form 101
                             </span>
                         </div>
-                        <div className="col-sm-4 col-4">
-                            {form ? (
+                        <div className="col-sm-2 col-2">
+                            {form || worker.form_101 ? (
                                 <div>
                                     <span className="btn btn-success m-3">
                                         Signed{" "}
@@ -134,13 +202,17 @@ export default function WorkerForms({ worker }) {
                             )}
                         </div>
                         <div className="col-sm-4 col-4">
-                            {form ? (
+                            {form || worker.form_101 ? (
                                 <div>
                                     <Link
                                         target="_blank"
                                         to={
-                                            `/form101/` +
-                                            Base64.encode(worker.id.toString())
+                                            worker.form_101
+                                                ? `/storage/uploads/worker/form101/${worker.form_101}`
+                                                : `/form101/` +
+                                                  Base64.encode(
+                                                      worker.id.toString()
+                                                  )
                                         }
                                         className="m-2 m-2 btn btn-pink"
                                     >
@@ -151,6 +223,9 @@ export default function WorkerForms({ worker }) {
                                 <span className="btn btn-warning m-3">-</span>
                             )}
                         </div>
+                        {Object.is(worker.form_101, null) && worker.is_exist
+                            ? uploadFormDiv("form_101")
+                            : ""}
                     </div>
                 </div>
             </div>
@@ -175,8 +250,8 @@ export default function WorkerForms({ worker }) {
                                 Safety and Gear
                             </span>
                         </div>
-                        <div className="col-sm-4 col-4">
-                            {safetyAndGearForm ? (
+                        <div className="col-sm-2 col-2">
+                            {safetyAndGearForm || worker.form_insurance ? (
                                 <div>
                                     <span className="btn btn-success m-3">
                                         Signed
@@ -189,13 +264,17 @@ export default function WorkerForms({ worker }) {
                             )}
                         </div>
                         <div className="col-sm-4 col-4">
-                            {safetyAndGearForm ? (
+                            {safetyAndGearForm || worker.form_insurance ? (
                                 <div>
                                     <Link
                                         target="_blank"
                                         to={
-                                            `/worker-safe-gear/` +
-                                            Base64.encode(worker.id.toString())
+                                            worker.form_insurance
+                                                ? `/storage/uploads/worker/safetygear/${worker.form_insurance}`
+                                                : `/worker-safe-gear/` +
+                                                  Base64.encode(
+                                                      worker.id.toString()
+                                                  )
                                         }
                                         className="m-2 m-2 btn btn-pink"
                                     >
@@ -206,6 +285,10 @@ export default function WorkerForms({ worker }) {
                                 <span className="btn btn-warning m-3">-</span>
                             )}
                         </div>
+                        {Object.is(worker.form_insurance, null) &&
+                        worker.is_exist
+                            ? uploadFormDiv("form_insurance")
+                            : ""}
                     </div>
                 </div>
             </div>

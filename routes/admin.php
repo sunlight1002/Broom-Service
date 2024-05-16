@@ -97,7 +97,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('workers/{id}/leave-job', [WorkerController::class, 'updateLeaveJob']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);
-    // Route::post('upload/{id}', [WorkerController::class, 'upload']);
+    Route::post('form/save', [WorkerController::class, 'formSave']);
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
     Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
     Route::get('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
