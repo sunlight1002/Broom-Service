@@ -25,7 +25,6 @@ export default function CreateJobCalender({
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
     const [selectedService, setSelectedService] = useState(0);
-    const [isAdded, setIsAdded] = useState(false);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -109,6 +108,11 @@ export default function CreateJobCalender({
 
     const handleSubmit = () => {
         if (selectedHours) {
+            if (selectedHours.length != getWorkersData(selectedHours).length) {
+                alert.error("Please select all frequency dates.");
+                return false;
+            }
+
             const unfilled = selectedHours.find((worker) => {
                 return worker.slots == null;
             });
