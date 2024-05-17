@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
+use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Fblead;
 use App\Models\Client;
@@ -14,6 +16,11 @@ use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
 use App\Models\ClientPropertyAddress;
+use App\Models\LeadStatus;
+use App\Models\Notification;
+use App\Models\Schedule;
+use App\Models\Setting;
+use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,6 +31,8 @@ use Illuminate\Support\Facades\Http;
 
 class LeadWebhookController extends Controller
 {
+    use ScheduleMeeting;
+
     public function saveLead(Request $request)
     {
         $challenge = $request->hub_challenge;
@@ -646,18 +655,82 @@ If you would like to speak to a human representative, please send a message with
                                 $client->email = trim($message);
                                 $client->save();
                                 $client->refresh();
+
+                                $nextAvailableSlot = $this->nextAvailableMeetingSlot();
+                                if (!$nextAvailableSlot) {
+                                    $address = $client->property_addresses()->first();
+
+                                    $scheduleData = [
+                                        'address_id'    => $address->id,
+                                        'booking_status'    => 'pending',
+                                        'client_id'     => $client->id,
+                                        'meet_via'      => 'on-site',
+                                        'purpose'       => 'Price offer',
+                                        'start_date'    => $nextAvailableSlot['date'],
+                                        'start_time_standard_format' => $nextAvailableSlot['start_time'],
+                                        'team_id'       => $nextAvailableSlot['team_member_id']
+                                    ];
+
+                                    $scheduleData['start_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->format('h:i A');
+                                    $scheduleData['end_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->addMinutes(30)->format('h:i A');
+
+                                    $schedule = Schedule::create($scheduleData);
+
+                                    LeadStatus::updateOrCreate(
+                                        ['client_id' => $client->id],
+                                        ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
+                                    );
+
+                                    $googleAccessToken = Setting::query()
+                                        ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+                                        ->value('value');
+
+                                    if ($googleAccessToken) {
+                                        $schedule->load(['client', 'team', 'propertyAddress']);
+
+                                        try {
+                                            // Initializes Google Client object
+                                            $googleClient = $this->getClient();
+
+                                            $this->sendMeetingMail($schedule);
+
+                                            $this->saveGoogleCalendarEvent($schedule);
+                                        } catch (\Throwable $th) {
+                                            //throw $th;
+                                        }
+                                    }
+
+                                    Notification::create([
+                                        'user_id' => $schedule->client_id,
+                                        'type' => NotificationTypeEnum::SENT_MEETING,
+                                        'meet_id' => $schedule->id,
+                                        'status' => $schedule->booking_status
+                                    ]);
+
+                                    $dateHumanFormat = Carbon::parse($nextAvailableSlot['date'])->format('d/m/Y');
+
+                                    if ($client->lng == 'heb') {
+                                        $startTime24Format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $schedule->start_time)->format('H:i');
+                                        $endTime24Format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $schedule->start_time)->addMinutes(30)->format('H:i');
+
+                                        $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם מצטערים, אין התור שלך נקבע ל-' . $dateHumanFormat . ' בין השעות ' . $startTime24Format . ' ל-' . $endTime24Format . '. יש משהו אחר שאני יכול לעזור לך בו היום? 😊';
+                                    } else {
+                                        $msg = 'Your appointment is scheduled for ' . $dateHumanFormat . ' between ' . $schedule->start_time . ' to ' . $schedule->end_time . '. Is there anything else I can help you with today? 😊';
+                                    }
+                                } else {
+                                    if ($client->lng == 'heb') {
+                                        $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם מצטערים, אין כרגע זמינות לתורים. יש משהו אחר שאני יכול לעזור לך בו היום? 😊';
+                                    } else {
+                                        $msg = 'Sorry, there are no available slots for an appointment at the moment. Is there anything else I can help you with today? 😊';
+                                    }
+                                }
+
                                 WhatsAppBotClientState::updateOrCreate([
                                     'client_id' => $client->id,
                                 ], [
                                     'menu_option' => 'main_menu->appointment->email',
                                     'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                                 ]);
-                                if ($client->lng == 'heb') {
-                                    $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
-                                } else {
-                                    $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
-                                }
                             }
                         } else {
                             $msg = ($client->lng == 'heb' ? `כתובת הדוא"ל '` . $message . `' נחשבת לא חוקית.

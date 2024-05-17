@@ -52,6 +52,7 @@ class ClientEmailController extends Controller
 
     $bookedSlots = Schedule::query()
       ->whereDate('start_date', $startDate)
+      ->where('team_id', $schedule->team_id)
       ->whereNotNull('start_time')
       ->where('start_time', '!=', '')
       ->whereNotNull('end_time')
@@ -280,11 +281,13 @@ class ClientEmailController extends Controller
     }
 
     $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->addMinutes(30)->format('h:i A');
+    $data['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->toTimeString();
 
     $schedule->update([
       'start_date' => $data['start_date'],
       'start_time' => $data['start_time'],
       'end_time' => $data['end_time'],
+      'start_time_standard_format' => $data['start_time_standard_format'],
       'booking_status' => 'rescheduled'
     ]);
 
@@ -446,11 +449,14 @@ class ClientEmailController extends Controller
 
   public function addMeet(Request $request)
   {
+    $start_time_standard_format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request['data']['startDate'])->toTimeString();
+
     $schedule = Schedule::create([
       'booking_status' => 'pending',
       'start_date'     => $request['data']['startDate'],
       'start_time'     => $request['data']['startTime'],
       'end_time'       => $request['data']['endTime'],
+      'start_time_standard_format'       => $start_time_standard_format,
       'client_id'      => $request['data']['client']['id'],
     ]);
 

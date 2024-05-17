@@ -78,7 +78,9 @@ export default function ViewSchedule() {
         const data = {
             client_id: params.id,
             team_id: team.length > 0 ? team : team == 0 ? "" : "",
-            start_date: selectedDate,
+            start_date: selectedDate
+                ? Moment(selectedDate).format("YYYY-MM-DD")
+                : null,
             start_time: selectedTime,
             meet_via: meetVia,
             meet_link: meetLink,

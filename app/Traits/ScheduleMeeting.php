@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Models\Admin;
+use App\Models\ManageTime;
+use App\Models\Schedule;
+use App\Models\TeamMemberAvailability;
+use App\Models\TeamMemberDefaultAvailability;
 
 trait ScheduleMeeting
 {
@@ -198,5 +203,83 @@ trait ScheduleMeeting
 
         //     throw new Exception('Error : Failed to delete calendar event');
         // }
+    }
+
+    private function nextAvailableMeetingSlot($inDays = 4)
+    {
+        $nextAvailableSlot = NULL;
+
+        $manageTime = ManageTime::first();
+
+        $workingWeekDays = array_map('intval', json_decode($manageTime->days, true));
+
+        $teamMembers = Admin::query()
+            ->where('name', '!=', 'superadmin')
+            ->where('status', 1)
+            ->get(['id']);
+
+        $today = today();
+        foreach ($teamMembers as $key => $teamMember) {
+            if (!is_null($nextAvailableSlot)) {
+                break;
+            }
+
+            $currentDate = $today->clone();
+
+            $availabilities = TeamMemberAvailability::query()
+                ->where('team_member_id', $teamMember->id)
+                ->whereDate('date', '>=', date('Y-m-d'))
+                ->orderBy('date', 'asc')
+                ->orderBy('start_time', 'asc')
+                ->get(['team_member_id', 'date', 'start_time', 'end_time']);
+
+            $defaultAvailabilities = TeamMemberDefaultAvailability::query()
+                ->where('team_member_id', $teamMember->id)
+                ->whereIn('weekday', $workingWeekDays)
+                ->whereDate('until_date', '>=', date('Y-m-d'))
+                ->get(['team_member_id', 'weekday', 'start_time', 'end_time', 'until_date']);
+
+            $schedules = Schedule::query()
+                ->where('team_id', $teamMember->id)
+                ->where('booking_status', '!=', 'declined')
+                ->whereNotNull('start_date')
+                ->whereNotNull('start_time')
+                ->whereDate('start_date', '>=', date('Y-m-d'))
+                ->orderBy('start_date', 'asc')
+                ->select(['team_id', 'start_date', 'start_time_standard_format'])
+                ->get();
+
+            for ($i = 0; $i < $inDays; $i++) {
+                $currentDateStr = $currentDate->toDateString();
+
+                $currentDayAvails = $availabilities->where('date', $currentDateStr)->values();
+
+                if ($currentDayAvails->count() == 0) {
+                    $currentDayAvails = $defaultAvailabilities
+                        ->where('weekday', $currentDate->weekday())
+                        ->where('until_date', '>=', $currentDateStr)
+                        ->values();
+                }
+
+                $teamStartTimeArr = $currentDayAvails->pluck('start_time')->toArray();
+                $scheduleStartTimeArr = $schedules->where('start_date', $currentDateStr)->pluck('start_time_standard_format')->toArray();
+
+                $timeDiffArr = array_values(array_diff($teamStartTimeArr, $scheduleStartTimeArr));
+
+                if (count($timeDiffArr) > 0) {
+                    $nextAvailableSlot = [
+                        'team_member_id' => $teamMember->id,
+                        'date' => $currentDateStr,
+                        'start_time' => $timeDiffArr[0]
+                    ];
+
+                    break;
+                }
+
+                $currentDate->addDay(1);
+            }
+        }
+
+        return $nextAvailableSlot;
     }
 }

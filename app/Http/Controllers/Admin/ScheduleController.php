@@ -100,6 +100,7 @@ class ScheduleController extends Controller
 
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
+            $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
         }
 
         $client = Client::find($input['client_id']);
@@ -328,8 +329,10 @@ class ScheduleController extends Controller
 
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
+            $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
         } else {
             $input['end_time'] = NULL;
+            $input['start_time_standard_format'] = NULL;
         }
 
         $schedule->update([
@@ -341,7 +344,8 @@ class ScheduleController extends Controller
             'booking_status'    => $input['booking_status'],
             'start_date' => $input['start_date'],
             'start_time' => $input['start_time'],
-            'end_time'   => $input['end_time']
+            'end_time'   => $input['end_time'],
+            'start_time_standard_format'   => $input['start_time_standard_format']
         ]);
 
         $schedule->load(['client', 'team', 'propertyAddress']);
