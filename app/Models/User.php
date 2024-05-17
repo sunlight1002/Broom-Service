@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -47,7 +48,7 @@ class User extends Authenticatable
         'longitude',
         'freeze_shift_start_time',
         'freeze_shift_end_time',
-        'visa', 
+        'visa',
         'passport',
         'last_work_date',
         'is_exist',
@@ -72,6 +73,30 @@ class User extends Authenticatable
         'is_afraid_by_cat' => 'boolean',
         'is_afraid_by_dog' => 'boolean',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($model) {
+            $forms = $model->forms()->get();
+            foreach ($forms as $key => $form) {
+                if ($form->pdf_name && Storage::drive('public')->exists('signed-docs/' . $form->pdf_name)) {
+                    Storage::drive('public')->delete('signed-docs/' . $form->pdf_name);
+                }
+
+                $form->delete();
+            }
+
+            $documents = $model->documents()->get();
+            foreach ($documents as $key => $document) {
+                if ($document->file && Storage::drive('public')->exists('uploads/documents/' . $document->file)) {
+                    Storage::drive('public')->delete('uploads/documents/' . $document->file);
+                }
+
+                $document->delete();
+            }
+        });
+    }
 
     public function setSkillAttribute($value)
     {
@@ -100,7 +125,7 @@ class User extends Authenticatable
 
     public function documents()
     {
-        return $this->morphMany(Document::class, 'userable')->orderBy('created_at','DESC');
+        return $this->morphMany(Document::class, 'userable')->orderBy('created_at', 'DESC');
     }
 
     public function forms()

@@ -525,6 +525,18 @@ table tr td .dropdown-item {
   font-weight: 400;
 }
 
+.titleBox .add-btn {
+  display: ruby;
+  max-height: 40px;
+  margin-top: 27px;
+}
+
+@media (max-width: 767px) {
+  .titleBox .add-btn {
+    margin-top: 0;
+  }
+}
+
 .btn-icon {
   margin-right: 0.4rem !important;
 }

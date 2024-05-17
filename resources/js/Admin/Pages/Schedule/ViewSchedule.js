@@ -35,7 +35,7 @@ export default function ViewSchedule() {
     const [bookedSlots, setBookedSlots] = useState([]);
     const [schedule, setSchedule] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
 
     const params = useParams();
@@ -211,7 +211,11 @@ export default function ViewSchedule() {
             setSchedule(d);
             setTeam(d.team_id ? d.team_id.toString() : "");
             setBstatus(d.booking_status);
-            setSelectedDate(Moment(d.start_date).toDate());
+            if (d.start_date) {
+                setSelectedDate(Moment(d.start_date).toDate());
+            } else {
+                setSelectedDate(null);
+            }
 
             if (d.start_time) {
                 setSelectedTime(d.start_time);
@@ -219,7 +223,7 @@ export default function ViewSchedule() {
                 setSelectedTime("");
             }
             setMeetVia(d.meet_via);
-            setMeetLink(d.meet_link);
+            setMeetLink(d.meet_link ?? "");
             setPurpose(d.purpose);
             setAddress(d.address_id);
             if (d.purpose != "Price offer" && d.purpose != "Quality check") {
@@ -384,15 +388,23 @@ export default function ViewSchedule() {
         }
     };
 
-    const dayName = new Date(selectedDate)?.toLocaleDateString("en-US", {
-        month: "long",
-    });
+    const formattedSelectedDate = useMemo(() => {
+        if (selectedDate) {
+            const _date = new Date(selectedDate);
+            const dayName = _date.toLocaleDateString("en-US", {
+                month: "long",
+            });
 
-    const monthName = new Date(selectedDate).toLocaleDateString("en-US", {
-        weekday: "long",
-    });
+            const monthName = _date.toLocaleDateString("en-US", {
+                weekday: "long",
+            });
 
-    const date = new Date(selectedDate)?.getDate();
+            const date = _date.getDate();
+
+            return `${dayName}, ${monthName}, ${date}`;
+        }
+        return "";
+    }, [selectedDate]);
 
     const timeSlots = useMemo(() => {
         return startTimeOptions.map((i) =>
@@ -672,9 +684,7 @@ export default function ViewSchedule() {
                                             </div>
                                             <div className="mt-1 ">
                                                 <h6 className="time-slot-date">
-                                                    {dayName ?? ""},{" "}
-                                                    {monthName ?? ""},{" "}
-                                                    {date ?? ""}
+                                                    {formattedSelectedDate}
                                                 </h6>
                                                 <ul className="list-unstyled mt-4 timeslot">
                                                     {timeSlots.length > 0 ? (

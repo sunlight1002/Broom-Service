@@ -430,7 +430,14 @@ class WorkerController extends Controller
      */
     public function destroy($id)
     {
-        User::find($id)->delete();
+        $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => "Worker not found"
+            ], 404);
+        }
+
+        $worker->delete();
         return response()->json([
             'message' => "Worker has been deleted"
         ]);
@@ -517,7 +524,7 @@ class WorkerController extends Controller
                 if (!Storage::disk('public')->exists('uploads/worker/contract')) {
                     Storage::disk('public')->makeDirectory('uploads/worker/contract');
                 }
-                if(!empty($worker->worker_contract) && Storage::drive('public')->exists('uploads/worker/contract/' . $worker->worker_contract)){
+                if (!empty($worker->worker_contract) && Storage::drive('public')->exists('uploads/worker/contract/' . $worker->worker_contract)) {
                     Storage::drive('public')->delete('uploads/worker/contract/' . $worker->worker_contract);
                 }
                 if (Storage::disk('public')->putFileAs("uploads/worker/contract", $worker_contract, $filename)) {
@@ -526,14 +533,14 @@ class WorkerController extends Controller
                     ]);
                 }
             }
-    
+
             $form_101 = $request->file('form_101');
-            if($form_101){
+            if ($form_101) {
                 $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $form_101->getClientOriginalExtension();
                 if (!Storage::disk('public')->exists('uploads/worker/form101')) {
                     Storage::disk('public')->makeDirectory('uploads/worker/form101');
                 }
-                if(!empty($worker->form_101) && Storage::drive('public')->exists('uploads/worker/form101/' . $worker->form_101)){
+                if (!empty($worker->form_101) && Storage::drive('public')->exists('uploads/worker/form101/' . $worker->form_101)) {
                     Storage::drive('public')->delete('uploads/worker/form101/' . $worker->form_101);
                 }
                 if (Storage::disk('public')->putFileAs("uploads/worker/form101", $form_101, $filename)) {
@@ -542,14 +549,14 @@ class WorkerController extends Controller
                     ]);
                 }
             }
-            
+
             $form_insurance = $request->file('form_insurance');
-            if($form_insurance){
+            if ($form_insurance) {
                 $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
                 if (!Storage::disk('public')->exists('uploads/worker/safetygear')) {
                     Storage::disk('public')->makeDirectory('uploads/worker/safetygear');
                 }
-                if(!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)){
+                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)) {
                     Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->form_insurance);
                 }
                 if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $form_insurance, $filename)) {

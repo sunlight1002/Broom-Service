@@ -55,8 +55,6 @@ const initialValues = {
     employeeHealthFundname: "",
     employeemyIncomeToKibbutz: "",
     incomeType: "",
-    allowance: false,
-    scholarship: false,
     DateOfBeginningWork: "",
     children: [],
     otherIncome: {
@@ -269,11 +267,11 @@ const Form101Component = () => {
                     "Salary for additional employment",
                     "Partial salary",
                     "Wage (Daily rate of pay)",
+                    "Allowance",
+                    "Scholarship",
                 ],
                 t("form101.errorMsg.incomeTypeReq")
             ),
-        allowance: yup.boolean(),
-        scholarship: yup.boolean(),
         DateOfBeginningWork: yup
             .date()
             .required(t("form101.errorMsg.dateOfBeginReq")),

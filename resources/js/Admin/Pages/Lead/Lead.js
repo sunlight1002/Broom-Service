@@ -220,7 +220,7 @@ export default function Lead() {
 
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
+                                <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
                                     <button
                                         type="button"
                                         className="btn btn-default dropdown-toggle"
@@ -267,10 +267,10 @@ export default function Lead() {
                                 />
                                 <Link
                                     to="/admin/leads/create"
-                                    className="btn btn-pink addButton"
+                                    className="btn btn-pink add-btn"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    {t("admin.leads.AddNew")}
+                                    <span className="d-lg-block d-none">{t("admin.leads.AddNew")}</span>
                                 </Link>
                             </div>
                         </div>
@@ -302,7 +302,7 @@ export default function Lead() {
                     </div>
                 </div>
                 <div className="row mb-2 d-none d-lg-block">
-                    <div className="col-sm-12  row align-items-center">
+                    <div className="col-sm-12">
                         <FilterButtons
                             text={t("admin.leads.All")}
                             className="px-3 mr-1"

@@ -246,7 +246,7 @@ const InsuranceForm = () => {
         pdfForm.getTextField("G-details").setText(values.GDetails);
         pdfForm.getTextField("G-candidatename").setText(values.GCandidatename);
         pdfForm.getTextField("G-date").setText(values.GDate);
-        pdfForm.getTextField("H-name").setText(values.Hname);
+        pdfForm.getTextField("H-name").setText(values.AgentName);
         pdfForm
             .getTextField("candidate-passport-no")
             .setText(values.canPassportNo);
@@ -1520,7 +1520,7 @@ const InsuranceForm = () => {
                 </div>
             </div>
 
-            <div
+            {/* <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
             >
@@ -1542,7 +1542,7 @@ const InsuranceForm = () => {
                         />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div
                 className="row justify-content-center my-2"
