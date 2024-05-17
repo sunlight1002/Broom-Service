@@ -258,29 +258,38 @@ export default function AllWorkers() {
                             Past
                         </button>
                     </div>
-                    <div className="col-sm-12">
-                        {manpowerCompanies.map((company, _index) => (
-                            <button
-                                key={_index}
-                                className={`btn border rounded px-3 mr-1`}
-                                style={
-                                    filters.manpower_company_id === company.id
-                                        ? { background: "white" }
-                                        : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
-                                }
-                                onClick={() => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: company.id,
-                                    });
-                                }}
-                            >
-                                {company.name}
-                            </button>
-                        ))}
+                    <div className="col-sm-12 d-flex mt-2">
+                        <div
+                            className="mr-3 align-items-center"
+                            style={{ fontWeight: "bold" }}
+                        >
+                            Manpower Company
+                        </div>
+                        <div>
+                            {manpowerCompanies.map((company, _index) => (
+                                <button
+                                    key={_index}
+                                    className={`btn border rounded px-3 mr-1 float-left`}
+                                    style={
+                                        filters.manpower_company_id ===
+                                        company.id
+                                            ? { background: "white" }
+                                            : {
+                                                  background: "#2c3f51",
+                                                  color: "white",
+                                              }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            manpower_company_id: company.id,
+                                        });
+                                    }}
+                                >
+                                    {company.name}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
                 <div className="card">

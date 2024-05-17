@@ -748,6 +748,7 @@ class WorkerController extends Controller
         $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
+        $manpowerCompanyID = $request->get('manpower_company_id');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -771,6 +772,9 @@ class WorkerController extends Controller
                     ->orWhere('users.phone',    'like', '%' . $keyword . '%')
                     ->orWhere('users.address',  'like', '%' . $keyword . '%')
                     ->orWhere('users.email',  'like', '%' . $keyword . '%');
+            })
+            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
+                return $q->where('manpower_company_id', $manpowerCompanyID);
             })
             ->where(function ($q) {
                 $q
@@ -791,6 +795,7 @@ class WorkerController extends Controller
         $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
+        $manpowerCompanyID = $request->get('manpower_company_id');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -814,6 +819,9 @@ class WorkerController extends Controller
                     ->orWhere('users.phone',    'like', '%' . $keyword . '%')
                     ->orWhere('users.address',  'like', '%' . $keyword . '%')
                     ->orWhere('users.email',  'like', '%' . $keyword . '%');
+            })
+            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
+                return $q->where('manpower_company_id', $manpowerCompanyID);
             })
             ->where(function ($q) {
                 $q
