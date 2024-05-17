@@ -657,7 +657,7 @@ If you would like to speak to a human representative, please send a message with
                                 $client->refresh();
 
                                 $nextAvailableSlot = $this->nextAvailableMeetingSlot();
-                                if (!$nextAvailableSlot) {
+                                if ($nextAvailableSlot) {
                                     $address = $client->property_addresses()->first();
 
                                     $scheduleData = [
