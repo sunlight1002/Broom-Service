@@ -253,14 +253,25 @@ export default function Clients() {
             <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <h1 className="page-title">
+                    <div className="d-flex flex-column flex-lg-row">
+
+                        <div className="d-flex mt-2 d-lg-none justify-content-between">
+                            <h1 className="page-title p-0">
                                 {t("admin.sidebar.Clients")}
                             </h1>
+                            <Link
+                                to="/admin/clients/create"
+                                className="btn btn-pink addButton"
+                            >
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                Add New
+                            </Link>
                         </div>
 
-                        <div className="col-sm-6">
+                        <div className="d-flex w-100 justify-content-between align-items-center">
+                            <h1 className="page-title d-none d-lg-block">
+                                {t("admin.sidebar.Clients")}
+                            </h1>
                             <div className="search-data">
                                 <div
                                     className="App"
@@ -339,7 +350,7 @@ export default function Clients() {
 
                                 <input
                                     type="text"
-                                    className="form-control"
+                                    className="form-control action-dropdown dropdown mt-4 mr-2"
                                     onChange={(e) => {
                                         filterClients(e);
                                         setFilter(e.target.value);
@@ -348,14 +359,14 @@ export default function Clients() {
                                 />
                                 <Link
                                     to="/admin/clients/create"
-                                    className="btn btn-pink addButton"
+                                    className="btn btn-pink addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New
                                 </Link>
                             </div>
                         </div>
-                        <div className="col-sm-6 hidden-xl mt-4">
+                        <div className="hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e, e.target.value)}
