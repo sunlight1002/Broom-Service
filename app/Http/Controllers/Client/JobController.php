@@ -151,7 +151,7 @@ class JobController extends Controller
                 'cancelled_for' => $repeatancy,
                 'cancel_until_date' => $until_date,
             ]);
-
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
             CreateJobOrder::dispatch($job->id);
             ScheduleNextJobOccurring::dispatch($job->id);
 
