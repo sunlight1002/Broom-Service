@@ -114,6 +114,7 @@ export function NonIsraeliContract({
             );
             setFieldValue("Address", workerDetail.address);
             setFieldValue("PhoneNo", workerDetail.phone);
+            setFieldValue("role", workerDetail.role);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 

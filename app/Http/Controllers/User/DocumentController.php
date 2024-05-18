@@ -27,6 +27,11 @@ class DocumentController extends Controller
     {
         $worker = Auth::user();
 
+        if($worker->is_exist){
+            return response()->json([
+                'exist_user_forms' => $worker
+            ]);
+        }
         $forms = $worker->forms()
             ->get(['id', 'type', 'pdf_name', 'submitted_at']);
 
