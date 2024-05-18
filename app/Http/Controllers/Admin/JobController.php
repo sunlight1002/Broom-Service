@@ -1030,6 +1030,7 @@ class JobController extends Controller
             ScheduleNextJobOccurring::dispatch($job->id);
 
             App::setLocale('en');
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
             $data = array(
                 'by'         => 'admin',
                 'email'      => $admin->email,

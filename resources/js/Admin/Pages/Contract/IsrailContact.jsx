@@ -97,6 +97,7 @@ export function IsrailContact({
             setFieldValue("IdNumber", workerDetail.worker_id);
             setFieldValue("Address", workerDetail.address);
             setFieldValue("PhoneNo", workerDetail.phone);
+            setFieldValue("role", workerDetail.role);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 

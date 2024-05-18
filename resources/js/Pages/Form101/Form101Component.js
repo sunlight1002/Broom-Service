@@ -23,7 +23,9 @@ import check from "../../Assets/image/icons/check-mark.png";
 import TextField from "./inputElements/TextField";
 import ChangeYear from "./ChangeYear";
 import { objectToFormData } from "../../Utils/common.utils";
+import moment from "moment";
 
+const currentDate = moment().format("YYYY-MM-DD");
 const initialValues = {
     employerName: "",
     employerAddress: "",
@@ -125,7 +127,7 @@ const initialValues = {
         requestReason3Certificate: null,
         employer: [employerInitial],
     },
-    date: "",
+    date: currentDate,
     sender: {
         employeeEmail: "",
         employerEmail: "office@broomservice.co.il",
@@ -992,6 +994,7 @@ const Form101Component = () => {
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         value={values.date}
+                                        readOnly
                                         error={touched.date && errors.date}
                                     />
                                 </div>
