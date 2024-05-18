@@ -667,11 +667,11 @@ export default function ViewSchedule() {
                                 </h4>
 
                                 <div className="mx-auto mt-5 row custom-calendar">
-                                    <div className="col-8 border">
+                                    <div className="col-12 col-md-8 border">
                                         <h5 className="mt-3">
                                             Select a Date & Time
                                         </h5>
-                                        <div className="d-flex gap-3 p-3">
+                                        <div className="d-flex gap-3 p-3" style={{overflowX: 'auto'}}>
                                             <div>
                                                 <DatePicker
                                                     selected={selectedDate}
