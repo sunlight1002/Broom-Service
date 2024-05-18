@@ -1457,12 +1457,15 @@ class InvoiceController extends Controller
 
         $subtotal = 0;
         $basedOns = [];
+        $services = [];
         foreach ($orders as $key => $order) {
-            $services = json_decode($order->items, true);
+            $items = json_decode($order->items, true);
 
-            foreach ($services as $key => $service) {
+            foreach ($items as $key => $service) {
                 $subtotal += (float)$service['unitprice'] * (int)$service['quantity'];
             }
+
+            $services = array_merge($services, $items);
 
             $basedOns[] = [
                 'docnum'  => $order->order_id,
