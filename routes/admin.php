@@ -67,6 +67,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('job-worker/{id}', [JobController::class, 'AvlWorker']);
     Route::get('shift-change-worker/{sid}/{date}', [JobController::class, 'shiftChangeWorker']);
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
+    Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
 
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
     Route::post('add-job-time', [JobController::class, 'addJobTime']);

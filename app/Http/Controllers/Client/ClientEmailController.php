@@ -203,7 +203,12 @@ class ClientEmailController extends Controller
 
     $schedule->load(['client', 'team', 'propertyAddress']);
 
-    $this->saveGoogleCalendarEvent($schedule);
+    if ($schedule->is_calendar_event_created) {
+      // Initializes Google Client object
+      $googleClient = $this->getClient();
+
+      $this->saveGoogleCalendarEvent($schedule);
+    }
 
     Notification::create([
       'user_id' => $schedule->client_id,
@@ -247,6 +252,9 @@ class ClientEmailController extends Controller
     $schedule->load(['client', 'team', 'propertyAddress']);
 
     if ($schedule->is_calendar_event_created) {
+      // Initializes Google Client object
+      $googleClient = $this->getClient();
+
       $this->deleteGoogleCalendarEvent($schedule);
     }
 
@@ -291,6 +299,8 @@ class ClientEmailController extends Controller
       'booking_status' => 'rescheduled'
     ]);
 
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
 
@@ -438,9 +448,9 @@ class ClientEmailController extends Controller
     return response()->json(['template' => $template]);
   }
 
-  public function getClient(Request $request)
+  public function getClientInfo($id)
   {
-    $client = Client::find($request->id);
+    $client = Client::find($id);
 
     return response()->json([
       'client' => $client
@@ -461,6 +471,9 @@ class ClientEmailController extends Controller
     ]);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
+
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
 
@@ -525,14 +538,19 @@ class ClientEmailController extends Controller
 
     $startTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['start_time'])->format('h:i A');
     $endTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['end_time'])->format('h:i A');
+    $startTimeStandardFormat = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['start_time'])->toTimeString();
 
     $schedule->update([
       'start_time' => $startTime,
       'end_time' => $endTime,
+      'start_time_standard_format' => $startTimeStandardFormat,
       'booking_status' => 'confirmed'
     ]);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
+
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
     $this->sendMeetingMail($schedule);

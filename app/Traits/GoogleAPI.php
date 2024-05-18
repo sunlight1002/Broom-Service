@@ -53,6 +53,12 @@ trait GoogleAPI
                     $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
 
                     if (isset($response['error'])) {
+                        // Remove google token from DB, to re-initiate.
+                        Setting::query()->whereIn('key', [
+                                SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+                                SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+                            ])->delete();
+
                         Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
                             $message->to(config('services.app.notify_failed_process_to'))
                                 ->subject(config('app.name') . ' : Google API Error (Access Token)');

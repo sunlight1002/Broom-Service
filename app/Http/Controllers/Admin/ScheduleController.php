@@ -153,9 +153,9 @@ class ScheduleController extends Controller
         } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            $this->sendMeetingMail($schedule);
-
             $this->saveGoogleCalendarEvent($schedule);
+
+            $this->sendMeetingMail($schedule);
 
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
@@ -351,6 +351,9 @@ class ScheduleController extends Controller
         $schedule->load(['client', 'team', 'propertyAddress']);
 
         if ($schedule->is_calendar_event_created) {
+            // Initializes Google Client object
+            $googleClient = $this->getClient();
+
             if ($schedule->booking_status == 'declined') {
                 $this->deleteGoogleCalendarEvent($schedule);
             } else {
@@ -380,6 +383,9 @@ class ScheduleController extends Controller
         }
 
         if ($schedule->is_calendar_event_created) {
+            // Initializes Google Client object
+            $googleClient = $this->getClient();
+
             $this->deleteGoogleCalendarEvent($schedule);
         }
         $scheduleArr = $schedule->toArray();

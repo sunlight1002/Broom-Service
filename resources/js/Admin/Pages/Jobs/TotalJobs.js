@@ -1077,6 +1077,10 @@ export default function TotalJobs() {
                     setIsOpen={setIsOpenCancelModal}
                     isOpen={isOpenCancelModal}
                     job={selectedJob}
+                    onSuccess={() => {
+                        getJobs();
+                        setIsOpenCancelModal(false);
+                    }}
                 />
             )}
         </div>

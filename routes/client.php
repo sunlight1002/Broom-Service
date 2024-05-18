@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
     Route::post('jobs/{id}/review', [JobController::class, 'saveReview']);
+    Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
@@ -65,7 +66,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 Route::post('login', [AuthController::class, 'login']);
 
 // Emails Routes
-Route::post('get-client', [ClientEmailController::class, 'getClient'])->name('get-client');
+Route::get('{id}/info', [ClientEmailController::class, 'getClientInfo']);
 Route::get('get-schedule/{id}', [ClientEmailController::class, 'getSchedule'])->name('get-schedule');
 Route::post('add-meet', [ClientEmailController::class, 'addMeet'])->name('add-meet');
 Route::post('meeting', [ClientEmailController::class, 'ShowMeeting']);

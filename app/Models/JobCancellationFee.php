@@ -10,6 +10,7 @@ class JobCancellationFee extends Model
 
     protected $fillable = [
         'job_id',
+        'job_group_id',
         'is_paid',
         'cancellation_fee_percentage',
         'cancellation_fee_amount',

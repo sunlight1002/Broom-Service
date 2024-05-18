@@ -73,7 +73,7 @@ class CreateJobOrder implements ShouldQueue
             }
 
             $cancellationFees = JobCancellationFee::query()
-                ->where('job_id', $job->id)
+                ->where('job_group_id', $job->job_group_id)
                 ->where('is_order_generated', false)
                 ->get(['cancellation_fee_amount', 'action']);
 

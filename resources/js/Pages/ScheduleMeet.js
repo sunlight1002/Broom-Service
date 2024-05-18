@@ -49,7 +49,7 @@ export default function ScheduleMeet() {
 
     const getClient = () => {
         axios
-            .post(`/api/client/get-client`, { id: Base64.decode(param.id) })
+            .get(`/api/client/${Base64.decode(param.id)}/info`)
             .then((res) => {
                 let c = res.data.client;
 

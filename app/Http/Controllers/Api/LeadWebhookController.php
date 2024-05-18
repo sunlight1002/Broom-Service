@@ -692,9 +692,9 @@ If you would like to speak to a human representative, please send a message with
                                             // Initializes Google Client object
                                             $googleClient = $this->getClient();
 
-                                            $this->sendMeetingMail($schedule);
-
                                             $this->saveGoogleCalendarEvent($schedule);
+
+                                            $this->sendMeetingMail($schedule);
                                         } catch (\Throwable $th) {
                                             //throw $th;
                                         }
