@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobNotificationToAdmin;
+use App\Events\JobNotificationToClient;
 
 class SendWorkerChangedNotification implements ShouldQueue
 {
@@ -53,10 +54,21 @@ class SendWorkerChangedNotification implements ShouldQueue
                     'job'   =>  $event->job->toArray(),
                 ],
                 'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-                'emailTitle'  => 'New Job',
+                'emailTitle'  => __('mail.job_common.new_job_title'),
                 'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
             ];
             event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to client
+            $jobData = $event->job->toArray();
+            $client = $jobData['client'];
+            $worker = $jobData['worker'];
+            $emailData = [
+                'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                'emailTitle'  => __('mail.job_common.new_job_title'),
+                'emailContent'  => __('mail.worker_new_job.new_job_assigned')
+            ];
+            event(new JobNotificationToClient($worker, $client, $jobData, $emailData));
         }
 
         if (
@@ -93,6 +105,17 @@ class SendWorkerChangedNotification implements ShouldQueue
                 'emailContent'  => 'Worker'.$event->oldWorker['firstname'].' '.$event->oldWorker['lastname'].' unassigned from the job #' .$emailData['job']['id']. 'Below are the job details.'
             ];
             event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to client
+            $jobData = $event->job->toArray();
+            $client = $jobData['client'];
+            $worker = $event->oldWorker;
+            $emailData = [
+                'emailSubject'  =>  __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
+                'emailTitle'  => __('mail.job_common.job_unassigned_title'),
+                'emailContent'  =>  __('mail.job_common.admin_change_worker_content', ['workerName' => $event->oldWorker['firstname'].' '.$event->oldWorker['lastname'], 'jobId' => $emailData['job']['id'] ])
+            ];
+            event(new JobNotificationToClient($worker, $client, $jobData, $emailData));
         }
     }
 }

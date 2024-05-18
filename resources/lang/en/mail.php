@@ -335,6 +335,12 @@ return [
         'not_approve_subject' => 'Job Not Approved | Broom Service',
         'not_approve_title' => 'Worker Not Approved Job',
         'not_approve_content' => 'You have not approved the job.',
-        'job_status'  => 'Job Status'
+        'job_status'  => 'Job Status',
+        'admin_switch_worker_subject' => 'Request to switch Worker | Broom Service',
+        'admin_switch_worker_title' => 'Worker switch by admin',
+        'admin_switch_worker_content'  =>  'Admin has been switch worker to :w1, from :w2.',
+        'new_job_title' => 'New Job',
+        'job_unassigned_title' => 'Job Unassigned',
+        'admin_change_worker_content'  =>  'Worker :workerName unassigned from the job# :jobId.',
     ],
 ];

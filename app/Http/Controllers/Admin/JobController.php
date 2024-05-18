@@ -35,6 +35,7 @@ use App\Models\ManageTime;
 use App\Traits\PaymentAPI;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToClient;
+use App\Events\JobNotificationToWorker;
 
 class JobController extends Controller
 {
@@ -471,15 +472,14 @@ class JobController extends Controller
                     }
                 }
                 //send notification to client
-                $job = $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 $client = $job['client'];
                 $worker = $job['worker'];
                 $emailData = [
                     'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
                     'emailTitle'  => __('mail.worker_new_job.new_job_assigned'),
-                    'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                    'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
-                event(new JobNotificationToClient($worker, $client, $job, $emailData));
+                event(new JobNotificationToClient($worker, $client, $job->toArray(), $emailData));
             }
         }
 
@@ -1030,7 +1030,6 @@ class JobController extends Controller
             ScheduleNextJobOccurring::dispatch($job->id);
 
             App::setLocale('en');
-            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
             $data = array(
                 'by'         => 'admin',
                 'email'      => $admin->email,
@@ -1082,6 +1081,16 @@ class JobController extends Controller
                 'emailContent'  => $emailContent
             ];
             event(new JobNotificationToAdmin($adminEmailData));
+            
+            //send notification to worker
+            $job = $job->toArray();
+            $worker = $job['worker'];
+            $emailData = [
+                'emailSubject'  => $emailSubject,
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => $emailContent
+            ];
+            event(new JobNotificationToWorker($worker, $job, $emailData));
         }
 
         return response()->json([
@@ -1355,6 +1364,16 @@ class JobController extends Controller
             'emailContent'  => 'Admin has been switch worker to ' . $jobArray['worker']['firstname'] . ' ' . $jobArray['worker']['lastname'] . ' from ' . $otherJobArray['worker']['firstname'] . ' ' . $otherJobArray['worker']['lastname'] . '.'
         ];
         event(new JobNotificationToAdmin($adminEmailData));
+
+        //send notification to client
+        $client = $jobArray['client'];
+        $worker = $jobArray['worker'];
+        $emailData = [
+            'emailSubject'  => __('mail.job_common.admin_switch_worker_subject'),
+            'emailTitle'  => __('mail.job_common.admin_switch_worker_title'),
+            'emailContent'  => __('mail.job_common.admin_switch_worker_content', ['w1' => $jobArray['worker']['firstname'] . ' ' . $jobArray['worker']['lastname'], 'w2' => $otherJobArray['worker']['firstname'] . ' ' . $otherJobArray['worker']['lastname']])
+        ];
+        event(new JobNotificationToClient($worker, $client, $jobArray, $emailData));
 
         return response()->json([
             'message' => "Worker switched successfully",
