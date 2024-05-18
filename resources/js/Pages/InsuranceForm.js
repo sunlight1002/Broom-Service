@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PDFDocument } from "pdf-lib";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
@@ -14,6 +14,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { objectToFormData } from "../Utils/common.utils";
 import { useTranslation } from "react-i18next";
+import SignatureCanvas from "react-signature-canvas";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
@@ -22,6 +23,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const InsuranceForm = () => {
     const [show, setShow] = useState(false);
+    const sigRef = useRef();
 
     const [pdfForm, setPdfForm] = useState(null);
     const [pdfDoc, setPdfDoc] = useState(null);
@@ -30,21 +32,6 @@ const InsuranceForm = () => {
     const initialValues = {
         // page 1
         type: "New",
-        AgentName: "",
-        AgentNo: "",
-        CompanyName: "",
-        CompanyNo: "",
-        AgreementNo: "",
-        IDNumber: "",
-        FirstName: "",
-        LastName: "",
-        ZipCode: "",
-        Town: "",
-        HouseNumber: "",
-        Street: "",
-        Email: "",
-        CellphoneNo: "",
-        TelephoneNo: "",
         // section-2
         canFirstName: "",
         canLastName: "",
@@ -60,36 +47,6 @@ const InsuranceForm = () => {
         canCellPhone: "",
         canEmail: "",
         gender: "male",
-        periodTo: "",
-        periodFrom: "",
-        prevTo: "",
-        prevFrom: "",
-        prevCompanyname: "",
-        prevPolicy: "",
-        prevMemberShip: "",
-        prevInsurance: "No",
-        occupasion: "other",
-        // page 2
-        FFirstName: "",
-        FLastName: "",
-        FPasswordno: "",
-        FPId: "",
-        FPFirstName: "",
-        FPLastName: "",
-        FPZipCode: "",
-        FPtown: "",
-        FPhouseNo: "",
-        FPstreet: "",
-        FPexpDate: "",
-        FPcardNo: "",
-        FPcellphone: "",
-        FPemail: "",
-        FPdate: "",
-        employerdate: "",
-        employername: "",
-        Months: "6Months",
-        sixMonthPayment: "",
-        twelveMonthsPayment: "",
         // page 3
         GFirstname: "",
         GLastname: "",
@@ -97,11 +54,36 @@ const InsuranceForm = () => {
         GDetails: "",
         GCandidatename: "",
         GDate: "",
+        g1: "",
+        g2: "",
+        g3: "",
+        g4: "",
+        g5: "",
+        g6: "",
+        g7: "",
+        g8: "",
+        g9: "",
+        g10: "",
+        g11: "",
+        g12: "",
+        g13: "",
+        g14: "",
+        g15: "",
+        g16: "",
+        g17: "",
+        g18: "",
+        g19: "",
+        g20: "",
+        g21: "",
+        g22: "",
+        g23: "",
+        g24: "",
         // page 4
         Hname: "",
         canPassportNo: "",
         canName: "",
         canDate: "",
+        signature: "",
     };
 
     const formSchema = yup.object({
@@ -131,6 +113,7 @@ const InsuranceForm = () => {
         canCellPhone: yup.number().required(t("insurance.phoneReq")),
         canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
         gender: yup.string().trim().required(t("insurance.genderReq")),
+        signature: yup.mixed().required(t("form101.errorMsg.sign")),
     });
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -175,22 +158,6 @@ const InsuranceForm = () => {
     });
 
     const saveFormData = async (isSubmit) => {
-        pdfForm.getRadioGroup("Type").select(values.type);
-        pdfForm.getTextField("AgentName").setText(values.AgentName);
-        pdfForm.getTextField("AgentNo").setText(values.AgentNo);
-        pdfForm.getTextField("CompanyName").setText(values.CompanyName);
-        pdfForm.getTextField("CompanyNo").setText(values.CompanyNo);
-        pdfForm.getTextField("AgreementNo").setText(values.AgreementNo);
-        pdfForm.getTextField("IDNumber").setText(values.IDNumber);
-        pdfForm.getTextField("FirstName").setText(values.FirstName);
-        pdfForm.getTextField("LastName").setText(values.LastName);
-        pdfForm.getTextField("ZipCode").setText(values.ZipCode);
-        pdfForm.getTextField("Town").setText(values.Town);
-        pdfForm.getTextField("HouseNumber").setText(values.HouseNumber);
-        pdfForm.getTextField("Street").setText(values.Street);
-        pdfForm.getTextField("Email").setText(values.Email);
-        pdfForm.getTextField("CellphoneNo").setText(values.CellphoneNo);
-        pdfForm.getTextField("TelephoneNo").setText(values.TelephoneNo);
         pdfForm.getTextField("canFirstName").setText(values.canFirstName);
         pdfForm.getTextField("canLastName").setText(values.canLastName);
         pdfForm.getTextField("canPassport").setText(values.canPassport);
@@ -206,39 +173,7 @@ const InsuranceForm = () => {
         pdfForm.getTextField("canTelephone").setText(values.canTelephone);
         pdfForm.getTextField("canCellPhone").setText(values.canCellPhone);
         pdfForm.getTextField("canEmail").setText(values.canEmail);
-        pdfForm.getTextField("periodTo").setText(values.periodTo);
-        pdfForm.getTextField("periodFrom").setText(values.periodFrom);
-        pdfForm.getTextField("prevTo").setText(values.prevTo);
-        pdfForm.getTextField("prevFrom").setText(values.prevFrom);
-        pdfForm.getTextField("prevCompanyname").setText(values.prevCompanyname);
-        pdfForm.getTextField("prevPolicy").setText(values.prevPolicy);
-        pdfForm.getTextField("prevMemberShip").setText(values.prevMemberShip);
-        pdfForm.getRadioGroup("prevInsurance").select(values.prevInsurance);
-        pdfForm.getRadioGroup("occupasion").select(values.occupasion);
         pdfForm.getRadioGroup("gender").select(values.gender);
-
-        pdfForm.getRadioGroup("Months").select(values.Months);
-        pdfForm.getTextField("sixMonthPayment").setText(values.sixMonthPayment);
-        pdfForm
-            .getTextField("twelveMonthsPayment")
-            .setText(values.twelveMonthsPayment);
-        pdfForm.getTextField("F-FirstName").setText(values.FFirstName);
-        pdfForm.getTextField("F-LastName").setText(values.FLastName);
-        pdfForm.getTextField("F-Passwordno").setText(values.FPasswordno);
-        pdfForm.getTextField("F-P-Id").setText(values.FPId);
-        pdfForm.getTextField("F-P-FirstName").setText(values.FPFirstName);
-        pdfForm.getTextField("F-P-LastName").setText(values.FPLastName);
-        pdfForm.getTextField("F-P-ZipCode").setText(values.FPZipCode);
-        pdfForm.getTextField("F-P-town").setText(values.FPtown);
-        pdfForm.getTextField("F-P-houseNo").setText(values.FPhouseNo);
-        pdfForm.getTextField("F-P-street").setText(values.FPstreet);
-        pdfForm.getTextField("F-P-expDate").setText(values.FPexpDate);
-        pdfForm.getTextField("F-P-cardNo").setText(values.FPcardNo);
-        pdfForm.getTextField("F-P-cellphone").setText(values.FPcellphone);
-        pdfForm.getTextField("F-P-email").setText(values.FPemail);
-        pdfForm.getTextField("F-P-date").setText(values.FPdate);
-        pdfForm.getTextField("employer-name").setText(values.employername);
-        pdfForm.getTextField("employer-date").setText(values.employerdate);
 
         pdfForm.getTextField("G-firstname").setText(values.GFirstname);
         pdfForm.getTextField("G-lastname").setText(values.GLastname);
@@ -370,262 +305,16 @@ const InsuranceForm = () => {
         }
     }, [values.Months]);
 
+    const handleSignatureEnd = () => {
+        setFieldValue("signature", sigRef.current.toDataURL());
+    };
+    const clearSignature = () => {
+        sigRef.current.clear();
+        setFieldValue("signature", "");
+    };
+
     return (
         <form className="my-2 mx-4" onSubmit={handleSubmit}>
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <label className="control-label">
-                        {t("insurance.type")}
-                    </label>
-                    <Form.Check
-                        label={t("insurance.newCandidate")}
-                        name="type"
-                        checked={values.type === "New"}
-                        value={"New"}
-                        type="radio"
-                        id={`inline-1`}
-                        onChange={handleChange}
-                    />
-                    <Form.Check
-                        label={t("insurance.renewal")}
-                        name="type"
-                        checked={values.type === "Renewal"}
-                        value={"Renewal"}
-                        type="radio"
-                        id={`inline-2`}
-                        onChange={handleChange}
-                    />
-                </div>
-            </div>
-            <br />
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.agentName")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"AgentName"}
-                            className="form-control"
-                            value={values.AgentName}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.agentNo")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"AgentNo"}
-                            className="form-control"
-                            value={values.AgentNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.CompanyName")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"CompanyName"}
-                            className="form-control"
-                            value={values.CompanyName}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.CompanyNo")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"CompanyNo"}
-                            className="form-control"
-                            value={values.CompanyNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.AgreementNo")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"AgreementNo"}
-                            className="form-control"
-                            value={values.AgreementNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
-            >
-                Details of policyholder
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">ID Number</label>
-                        <input
-                            type="text"
-                            name={"IDNumber"}
-                            className="form-control"
-                            value={values.IDNumber}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">First Name</label>
-                        <input
-                            type="text"
-                            name={"FirstName"}
-                            className="form-control"
-                            value={values.FirstName}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Last Name</label>
-                        <input
-                            type="text"
-                            name={"LastName"}
-                            className="form-control"
-                            value={values.LastName}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Zip Code</label>
-                        <input
-                            type="text"
-                            name={"ZipCode"}
-                            className="form-control"
-                            value={values.ZipCode}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Town</label>
-                        <input
-                            type="text"
-                            name={"Town"}
-                            className="form-control"
-                            value={values.Town}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">House Number</label>
-                        <input
-                            type="text"
-                            name={"HouseNumber"}
-                            className="form-control"
-                            value={values.HouseNumber}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Street</label>
-                        <input
-                            type="text"
-                            name={"Street"}
-                            className="form-control"
-                            value={values.Street}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Email</label>
-                        <input
-                            type="text"
-                            name={"Email"}
-                            className="form-control"
-                            value={values.Email}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            Cellphone Number
-                        </label>
-                        <input
-                            type="text"
-                            name={"CellphoneNo"}
-                            className="form-control"
-                            value={values.CellphoneNo}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            Telephone Number
-                        </label>
-                        <input
-                            type="text"
-                            name={"TelephoneNo"}
-                            className="form-control"
-                            value={values.TelephoneNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div> */}
-
             <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
@@ -923,500 +612,7 @@ const InsuranceForm = () => {
                 </div>
             </div>
 
-            {/* <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
-            >
-                Insurance Candidate's requested
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Period To</label>
-                        <input
-                            type="text"
-                            name="periodTo"
-                            className="form-control"
-                            value={values.periodTo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Period From</label>
-                        <input
-                            type="text"
-                            name="periodFrom"
-                            className="form-control"
-                            value={values.periodFrom}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
-            >
-                Insurance Candidate's occupation
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <Form.Check
-                        label="nursing"
-                        name="occupasion"
-                        value="nursing"
-                        checked={values.occupasion === "nursing"}
-                        type="radio"
-                        id={`occupasion-1`}
-                        onChange={handleChange}
-                    />
-                    <Form.Check
-                        label="agriculture"
-                        name="occupasion"
-                        value="agriculture"
-                        checked={values.occupasion === "agriculture"}
-                        type="radio"
-                        id={`occupasion-2`}
-                        onChange={handleChange}
-                    />
-                    <Form.Check
-                        label="construction"
-                        name="occupasion"
-                        value="construction"
-                        checked={values.occupasion === "construction"}
-                        type="radio"
-                        id={`occupasion-3`}
-                        onChange={handleChange}
-                    />
-                    <Form.Check
-                        label="other"
-                        name="occupasion"
-                        value="other"
-                        checked={values.occupasion === "other"}
-                        type="radio"
-                        id={`occupasion-4`}
-                        onChange={handleChange}
-                    />
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
-            >
-                Details of previous insurance policies
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            Insurance Period To
-                        </label>
-                        <input
-                            type="text"
-                            name="prevTo"
-                            className="form-control"
-                            value={values.prevTo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            Insurance Period From
-                        </label>
-                        <input
-                            type="text"
-                            name="prevFrom"
-                            className="form-control"
-                            value={values.prevFrom}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Company Name</label>
-                        <input
-                            type="text"
-                            name="prevCompanyname"
-                            className="form-control"
-                            value={values.prevCompanyname}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Policy Number</label>
-                        <input
-                            type="text"
-                            name="prevPolicy"
-                            className="form-control"
-                            value={values.prevPolicy}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <label className="control-label">
-                        Have you ever insurance from previous Company?
-                    </label>
-                    <Form.Check
-                        label="Yes"
-                        name="prevInsurance"
-                        checked={values.prevInsurance === "Yes"}
-                        type="radio"
-                        id={`prevInsurance-1`}
-                        onChange={handleChange}
-                    />
-                    <Form.Check
-                        label="No"
-                        name="prevInsurance"
-                        checked={values.prevInsurance === "No"}
-                        type="radio"
-                        onChange={handleChange}
-                        id={`prevInsurance-2`}
-                    />
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            Membership Number
-                        </label>
-                        <input
-                            type="text"
-                            name="prevMemberShip"
-                            className="form-control"
-                            value={values.prevMemberShip}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "22px", fontWeight: "bold" }}
-            >
-                Payment By Credit Card
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <Form.Check
-                        label="6 Months"
-                        name="Months"
-                        value={"6Months"}
-                        checked={values.Months === "6Months"}
-                        type="radio"
-                        id={`Months-1`}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div
-                    className="col-md-4"
-                    style={
-                        values.Months === "12Months"
-                            ? { pointerEvents: "none", opacity: 0.5 }
-                            : {}
-                    }
-                >
-                    <div className="form-group">
-                        <label className="control-label">
-                            Six Month Payment No.
-                        </label>
-                        <input
-                            type="text"
-                            name="sixMonthPayment"
-                            className="form-control"
-                            value={values.sixMonthPayment}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <Form.Check
-                        label="12 Months"
-                        name="Months"
-                        value={"12Months"}
-                        checked={values.Months === "12Months"}
-                        type="radio"
-                        id={`Months-2`}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div
-                    className="col-md-4"
-                    style={
-                        values.Months === "6Months"
-                            ? { pointerEvents: "none", opacity: 0.5 }
-                            : {}
-                    }
-                >
-                    <div className="form-group">
-                        <label className="control-label">
-                            Twelve Month Payment No.
-                        </label>
-                        <input
-                            type="text"
-                            name="twelveMonthsPayment"
-                            className="form-control"
-                            value={values.twelveMonthsPayment}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">First Name</label>
-                        <input
-                            type="text"
-                            name="FFirstName"
-                            className="form-control"
-                            value={values.FFirstName}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Last Name</label>
-                        <input
-                            type="text"
-                            name="FLastName"
-                            className="form-control"
-                            value={values.FLastName}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="form-group">
-                        <label className="control-label">Passport Number</label>
-                        <input
-                            type="text"
-                            name="FPasswordno"
-                            className="form-control"
-                            value={values.FPasswordno}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">ID Number</label>
-                        <input
-                            type="text"
-                            name="FPId"
-                            className="form-control"
-                            value={values.FPId}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">First Name</label>
-                        <input
-                            type="text"
-                            name="FPFirstName"
-                            className="form-control"
-                            value={values.FPFirstName}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Last Name</label>
-                        <input
-                            type="text"
-                            name="FPLastName"
-                            className="form-control"
-                            value={values.FPLastName}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Zip Code</label>
-                        <input
-                            type="text"
-                            name="FPZipCode"
-                            className="form-control"
-                            value={values.FPZipCode}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Town</label>
-                        <input
-                            type="text"
-                            name="FPtown"
-                            className="form-control"
-                            value={values.FPtown}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">House Number</label>
-                        <input
-                            type="text"
-                            name="FPhouseNo"
-                            className="form-control"
-                            value={values.FPhouseNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Street</label>
-                        <input
-                            type="text"
-                            name="FPstreet"
-                            className="form-control"
-                            value={values.FPstreet}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Expiry Date</label>
-                        <input
-                            type="date"
-                            name="FPexpDate"
-                            className="form-control"
-                            value={values.FPexpDate}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Card Number</label>
-                        <input
-                            type="text"
-                            name="FPcardNo"
-                            className="form-control"
-                            value={values.FPcardNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Cellphone</label>
-                        <input
-                            type="text"
-                            name="FPcellphone"
-                            className="form-control"
-                            value={values.FPcellphone}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Email</label>
-                        <input
-                            type="text"
-                            name="FPemail"
-                            className="form-control"
-                            value={values.FPemail}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Date</label>
-                        <input
-                            type="date"
-                            name="FPdate"
-                            className="form-control"
-                            value={values.FPdate}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Employer Name</label>
-                        <input
-                            type="text"
-                            name="employername"
-                            className="form-control"
-                            value={values.employername}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">Date</label>
-                        <input
-                            type="date"
-                            name="employerdate"
-                            className="form-control"
-                            value={values.employerdate}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div> */}
+            {/* Section G */}
 
             <div
                 className="row justify-content-center my-2"
@@ -1520,30 +716,1261 @@ const InsuranceForm = () => {
                 </div>
             </div>
 
-            {/* <div
+            <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
             >
-                {t("insurance.receipt")}
+                General questions on the medical state
             </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Date")}
-                        </label>
-                        <input
-                            type="text"
-                            name="Hname"
-                            className="form-control"
-                            value={values.Hname}
-                            onChange={handleChange}
-                        />
+            <div>
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Height and Width
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        checked={values.g1 === "yes"}
+                                        name="Height and Width"
+                                        id="g1yes"
+                                        onChange={(e) =>
+                                            setFieldValue("g1", e.target.value)
+                                        }
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g1yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="Height and Width"
+                                        checked={values.g1 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g1", e.target.value)
+                                        }
+                                        id="g1no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g1no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div> */}
 
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Has there been any change in your weight (5 kg
+                                and more) in the course of the last twelve
+                                months (not as a result of a diet)?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        checked={values.g2 === "yes"}
+                                        name="g2yn"
+                                        id="g2yes"
+                                        onChange={(e) =>
+                                            setFieldValue("g2", e.target.value)
+                                        }
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g2yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g2yn"
+                                        checked={values.g2 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g2", e.target.value)
+                                        }
+                                        id="g2no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g2no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Do you now, or did you in the past, consume
+                                alcohol – more than one glass a day of beer/
+                                wine or another alcoholic beverage?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        checked={values.g3 === "yes"}
+                                        name="g3yn"
+                                        id="g3yes"
+                                        onChange={(e) =>
+                                            setFieldValue("g3", e.target.value)
+                                        }
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g3yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g3yn"
+                                        checked={values.g3 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g3", e.target.value)
+                                        }
+                                        id="g3no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g3no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Do you smoke or have you smoked in the past?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        checked={values.g4 === "yes"}
+                                        name="g4yn"
+                                        id="g4yes"
+                                        onChange={(e) =>
+                                            setFieldValue("g4", e.target.value)
+                                        }
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g4yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g4yn"
+                                        checked={values.g4 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g4", e.target.value)
+                                        }
+                                        id="g4no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g4no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Do you now, or have you in the past, consumed
+                                Drugs?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g5"
+                                        id="g5yes"
+                                        value="yes"
+                                        checked={values.g5 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g5", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g5yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g5"
+                                        id="g5no"
+                                        value="no"
+                                        checked={values.g5 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g5", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g5no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Did you undergo surgery in the course of the
+                                last 10 years or was surgery recommended to you?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g6"
+                                        id="g6yes"
+                                        value="yes"
+                                        checked={values.g6 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g6", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g6yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g6"
+                                        id="g6no"
+                                        value="no"
+                                        checked={values.g6 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g6", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g6no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Were you hospitalized in the course of the last
+                                10 years at a hospital or a medical institution?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g7"
+                                        id="g7yes"
+                                        value="yes"
+                                        checked={values.g7 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g7", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g7yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g7"
+                                        id="g7no"
+                                        value="no"
+                                        checked={values.g7 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g7", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g7no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Do you regularly take medication for a chronic
+                                condition?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g8"
+                                        id="g8yes"
+                                        value="yes"
+                                        checked={values.g8 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g8", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g8yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g8"
+                                        id="g8no"
+                                        value="no"
+                                        checked={values.g8 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g8", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g8no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Have you undergone in the course of the last 10
+                                years or have you been given a recommendation to
+                                undergo one or more of the following tests:
+                                catheterization, a cardiac scan, echocardiogram,
+                                MRI, CT, endoscopy, tests for detection of a
+                                cancerous tumor, biopsy and occult blood?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g9"
+                                        id="g9yes"
+                                        value="yes"
+                                        checked={values.g9 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g9", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g9yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g9"
+                                        id="g9no"
+                                        value="no"
+                                        checked={values.g9 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g9", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g9no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2 w-75 mx-auto"
+                style={{ fontSize: "18px", fontWeight: "bold" }}
+            >
+                Questions about diseases Were you ever diagnosed with the
+                diseases and/or disorders and/or medical problems listed below?
+            </div>
+
+            <div>
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Heart and blood Heart disease, angina pectoris,
+                                myocardial infarction, arrhythmias, heart valve
+                                problems, congenital heart disease,
+                                cardiomyopathy or pericardial disorders. High
+                                blood pressure, blood vessel, blood clots,
+                                varicose roses, circulation problems, narrowing
+                                of the arteries.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g10"
+                                        id="g10yes"
+                                        value="yes"
+                                        checked={values.g10 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g10", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g10yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g10"
+                                        id="g10no"
+                                        value="no"
+                                        checked={values.g10 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g10", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g10no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                The nervous system and the brain Multiple
+                                sclerosis, muscular dystrophy, paralysis, spasms
+                                (epilepsy), T.I.A, stroke, brain hemorrhage
+                                (c.v.a), tremor, ataxia, Parkinson.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g11"
+                                        id="g11yes"
+                                        value="yes"
+                                        checked={values.g11 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g11", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g11yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g11"
+                                        id="g11no"
+                                        value="no"
+                                        checked={values.g11 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g11", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g11no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Diagnosed mental disorders and attempted suicide
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g12"
+                                        id="g12yes"
+                                        value="yes"
+                                        checked={values.g12 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g12", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g12yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g12"
+                                        id="g12no"
+                                        value="no"
+                                        checked={values.g12 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g12", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g12no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Respiratory system Asthma, chronic bronchitis,
+                                emphysema, tuberculosis, hemoptysis, repeat
+                                respiratory tract infections.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g13"
+                                        id="g13yes"
+                                        value="yes"
+                                        checked={values.g13 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g13", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g13yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g13"
+                                        id="g13no"
+                                        value="no"
+                                        checked={values.g13 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g13", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g13no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Gastrointestinal tract and liver Ulcer (gastric
+                                or duodenal ulcers), heartburn, chronic
+                                inflammatory intestinal infection,
+                                gastrointestinal bleeding, hemorrhoids, rectal
+                                problems, chronic liver disease, hepatitis,
+                                gallstones, pancreatitis, hepatitis (viral or
+                                otherwise).
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g14"
+                                        id="g14yes"
+                                        value="yes"
+                                        checked={values.g14 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g14", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g14yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g14"
+                                        id="g14no"
+                                        value="no"
+                                        checked={values.g14 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g14", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g14no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Kidneys and urinary tract Kidney stones, kidney
+                                infections, urinary tract defects, blood or
+                                protein in the urine, renal cysts, renal
+                                dysfunction, Prostate.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g15"
+                                        id="g15yes"
+                                        value="yes"
+                                        checked={values.g15 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g15", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g15yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g15"
+                                        id="g15no"
+                                        value="no"
+                                        checked={values.g15 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g15", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g15no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Metabolic and endocrine diseases Diabetes,
+                                thyroid disorder, adrenal 16. disorder, kidney
+                                cysts, pituitary and other glands, high blood
+                                lipids.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g16"
+                                        id="g16yes"
+                                        value="yes"
+                                        checked={values.g16 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g16", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g16yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g16"
+                                        id="g16no"
+                                        value="no"
+                                        checked={values.g16 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g16", e.target.value)
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g16no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Dermatology and Venereology Syphilis, herpes,
+                                skin tumors, moles, warts and/or infertility
+                                and/or fertility problems.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g17"
+                                        id="g17yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g17yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g17"
+                                        id="g17no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g17no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Malignant diseases, malignant or precancerous
+                                tumor/s, polyps Detail 18. the type and method
+                                of treatment
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g18"
+                                        id="g18yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g18yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g18"
+                                        id="g18no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g18no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Infectious diseases, autoimmune diseases, polio,
+                                venereal diseases and AIDS/ HIV. Enclose medical
+                                documents
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g19"
+                                        id="g19yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g19yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g19"
+                                        id="g19no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g19no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Joints and bones - arthritis, rheumatism (Galt),
+                                neck or back pain, herniated disc, dislocation
+                                of shoulder, knee, bone disease.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g20"
+                                        id="g20yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g20yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g20"
+                                        id="g20no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g20no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Eyes - cataract, glaucoma, strabismus,
+                                blindness, retinal disease, cornea disease,
+                                visual disturbances, diopter number.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g21"
+                                        id="g21-yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g21-yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g21"
+                                        id="g21-no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g21-no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Otolaryngology (nose/ ear/ throat) - ear
+                                recurrent or throat infections, sinusitis,
+                                hearing disorders, sleep apnea syndrome.
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g22"
+                                        id="g22-yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g22-yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g22"
+                                        id="g22-no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g22-no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Hernia (hernia break) - of the abdominal wall,
+                                groin, surgical scars, navel and solar plexus.
+                                Medical documents must be enclosed
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g23"
+                                        id="g23-yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g23-yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g23"
+                                        id="g23-no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g23-no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                For women only: Do you suffer or have you
+                                suffered from any women’s illnesses: irregular
+                                menstruation, fertility problems, bleeding and
+                                breast cysts, problems in the uterus and
+                                ovaries, irregular findings in a gynecological
+                                exam (such as PAP)?
+                            </label>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g24"
+                                        id="g24-yes"
+                                        value="yes"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g24-yes"
+                                    >
+                                        Yes
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g24"
+                                        id="g24-no"
+                                        value="no"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g24-no"
+                                    >
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label className="control-label">
+                                Details of positive findings
+                            </label>
+                            <input
+                                type="text"
+                                name="DetailsOfPositiveFindings"
+                                className="form-control"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="row justify-content-center my-2"
+                style={{ fontSize: "18px", fontWeight: "bold" }}
+            >
+                Receipt of all the information in the Policy
+            </div>
+            <div className="row justify-content-center">
+                <div className="col-md-8">
+                    <div>
+                        I hereby permit my insurance agent for the Policy,
+                    </div>
+                    <div className="d-flex align-items-center">
+                        Mr/Ms,
+                        <input
+                            type="text"
+                            name="mr/ms"
+                            className="form-control ml-2"
+                        />
+                    </div>
+                    <div>
+                        to handle on my behalf and for me all matters related to
+                        this claim, including submitting to Menora and receiving
+                        from Menora on my behalf and for me all correspondence
+                        and/or documents. related to a claim, and to serve as my
+                        representative for all intents and purposes related to
+                        this claim.
+                    </div>
+                </div>
+            </div>
+
+            {/* LAST section */}
             <div
                 className="row justify-content-center my-2"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
@@ -1583,7 +2010,7 @@ const InsuranceForm = () => {
             </div>
 
             <div className="row justify-content-center">
-                <div className="col-md-8">
+                <div className="col-md-4">
                     <div className="form-group">
                         <label className="control-label">
                             {t("insurance.Date")}
@@ -1596,6 +2023,27 @@ const InsuranceForm = () => {
                             onChange={handleChange}
                         />
                     </div>
+                </div>
+                <div className="col-md-4">
+                    <label className="control-label">Signature</label>
+                    <SignatureCanvas
+                        penColor="black"
+                        canvasProps={{
+                            width: 250,
+                            height: 100,
+                            className: "sign101 border mt-1",
+                        }}
+                        ref={sigRef}
+                        onEnd={handleSignatureEnd}
+                    />
+                    <p>
+                        <button
+                            className="btn btn-warning mb-2"
+                            onClick={clearSignature}
+                        >
+                            {t("form101.button_clear")}
+                        </button>
+                    </p>
                 </div>
             </div>
 
