@@ -147,6 +147,7 @@ const OtherIncome = ({
                         <CheckBox
                             name={"otherIncome.allowance"}
                             label={t("form101.allowance")}
+                            value="Allowance"
                             checked={values.otherIncome.allowance}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -164,6 +165,7 @@ const OtherIncome = ({
                         <CheckBox
                             name={"otherIncome.scholarship"}
                             label={t("form101.scholarship")}
+                            value="Scholarship"
                             checked={values.otherIncome.scholarship}
                             onChange={handleChange}
                             onBlur={handleBlur}

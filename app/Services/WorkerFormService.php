@@ -27,6 +27,8 @@ class WorkerFormService
         $pdf->numPages = $pdf->setSourceFile($filePath);
         $pdf->SetTextColor(0, 7, 224);
 
+        $lng = $form->lng;
+
         $total_page = 0;
         foreach (range(1, $pdf->numPages, 1) as $page) {
             $pdf->_tplIdx = $pdf->importPage($page);
@@ -39,9 +41,9 @@ class WorkerFormService
                 $text = $this->addWhiteSpaceBetweenChars($text, ' &nbsp;');
                 $w = 198;
                 $h = 25;
-                $x = 222;
+                $x = 224;
                 $y = 83;
-                $fontsize = 14;
+                $fontsize = 15;
 
                 $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
 
@@ -60,9 +62,9 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 117;
+                        $x = 119;
                         $y = 220;
-                        $fontsize = 14;
+                        $fontsize = 15;
 
                         $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                     }
@@ -72,7 +74,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeFirstName'];
                     $w = 198;
                     $h = 98;
-                    $x = 237;
+                    $x = $lng == "heb" ? 277 : 212;
                     $y = 220;
                     $fontsize = 14;
 
@@ -83,7 +85,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeLastName'];
                     $w = 198;
                     $h = 98;
-                    $x = 347;
+                    $x = $lng == "heb" ? 374 : 316;
                     $y = 220;
                     $fontsize = 14;
 
@@ -130,9 +132,9 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 26;
+                    $x = 29;
                     $y = 243;
-                    $fontsize = 14;
+                    $fontsize = 15;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
@@ -141,7 +143,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeCity'];
                     $w = 198;
                     $h = 98;
-                    $x = 108;
+                    $x = $lng == "heb" ? 156 : 109;
                     $y = 246;
                     $fontsize = 12;
 
@@ -163,7 +165,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeStreet'];
                     $w = 198;
                     $h = 98;
-                    $x = 234;
+                    $x = $lng == "heb" ? 360 : 233;
                     $y = 246;
                     $fontsize = 12;
 
@@ -175,21 +177,9 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 391;
+                    $x = 393;
                     $y = 250;
-                    $fontsize = 14;
-
-                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
-                }
-
-                if (isset($formData['employeePassportNumber'])) {
-                    $text = (string)$formData['employeePassportNumber'];
-                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
-                    $w = 198;
-                    $h = 98;
-                    $x = 391;
-                    $y = 250;
-                    $fontsize = 14;
+                    $fontsize = 15;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
@@ -209,8 +199,8 @@ class WorkerFormService
                         $text = (string)$formData['employeeHealthFundname'];
                         $w = 150;
                         $h = 50;
-                        $x = 25;
-                        $y = 289;
+                        $x = $lng == "heb" ? 40 : 29;
+                        $y = 291;
                         $fontsize = 10;
 
                         $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
@@ -345,6 +335,39 @@ class WorkerFormService
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                 }
 
+                if (isset($formData['employeeMobileNo'])) {
+                    $text = (string)$formData['employeeMobileNo'];
+                    $w = 198;
+                    $h = 98;
+                    $x = 74;
+                    $y = 312;
+                    $fontsize = 14;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['employeePhoneNo'])) {
+                    $text = (string)$formData['employeePhoneNo'];
+                    $w = 198;
+                    $h = 98;
+                    $x = 240;
+                    $y = 312;
+                    $fontsize = 14;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['employeeEmail'])) {
+                    $text = (string)$formData['employeeEmail'];
+                    $w = 198;
+                    $h = 98;
+                    $x = 364;
+                    $y = 312;
+                    $fontsize = 14;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
                 if (isset($formData['DateOfBeginningWork'])) {
                     $isDate = true;
 
@@ -360,9 +383,9 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 28;
-                        $y = 377;
-                        $fontsize = 14;
+                        $x = 30;
+                        $y = 376;
+                        $fontsize = 15;
 
                         $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                     }
@@ -439,6 +462,286 @@ class WorkerFormService
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                 }
+
+                if (isset($formData['otherIncome']['haveincome'])) {
+
+                    if($formData['otherIncome']['haveincome'] == "No") {
+                        $w = 4;
+                        $h = 4;
+                        $x = 238;
+                        $y = 457;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    } else {
+                        $w = 4;
+                        $h = 4;
+                        $x = 238;
+                        $y = 481;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                        if(in_array('Monthly salary', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 238;
+                            $y = 493;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(in_array('Salary for additional employment', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 238;
+                            $y = 504;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(in_array('Salary for additional employment', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 238;
+                            $y = 515;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(in_array('Wage (Daily rate of pay)', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 120;
+                            $y = 493;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(in_array('Allowance', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 120;
+                            $y = 504;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(in_array('Scholarship', $formData['otherIncome']['incomeType']))
+                        {
+                            $w = 4;
+                            $h = 4;
+                            $x = 120;
+                            $y = 515;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+                    }
+                }
+
+                if(isset($formData['otherIncome']['taxCreditsAtOtherIncome'])) {
+
+                    if($formData['otherIncome']['taxCreditsAtOtherIncome'] == "request") {
+                        $w = 4;
+                        $h = 4;
+                        $x = 237;
+                        $y = 539;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    } elseif($formData['otherIncome']['taxCreditsAtOtherIncome'] == "receive") {
+                        $w = 4;
+                        $h = 4;
+                        $x = 237;
+                        $y = 562;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    }
+                }
+
+                if(isset($formData['otherIncome']['studyFund'])) {
+                    $w = 4;
+                    $h = 4;
+                    $x = 237;
+                    $y = 586;
+
+                    $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                }
+
+                if(isset($formData['otherIncome']['pensionInsurance'])) {
+                    $w = 4;
+                    $h = 4;
+                    $x = 237;
+                    $y = 621;
+
+                    $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                }
+
+                if (isset($formData['children'])) {
+                    foreach ($formData['children'] as $key => $value) {
+                        $ypos = 22 * $key;
+                        if (isset($value['Dob'])) {
+                            $text = (string)Carbon::parse($value['Dob'])->format('dmY');
+                            $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                            $w = 198;
+                            $h = 98;
+                            $x = 256;
+                            $y = 386 + $ypos;
+                            $fontsize = 15;
+
+                            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                        }
+
+                        if (isset($value['IdNumber'])) {
+                            $text = (string)$value['IdNumber'];
+                            $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                            $w = 198;
+                            $h = 98;
+                            $x = 348;
+                            $y = 386 + $ypos;
+                            $fontsize = 13;
+
+                            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                        }
+
+                        if (isset($value['firstName'])) {
+                            $text = $value['firstName'];
+                            $w = 198;
+                            $h = 98;
+                            $x = $lng == "heb" ? 477 : 450;
+                            $y = 386 + $ypos;
+                            $fontsize = 13;
+
+                            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                        }
+                    }
+                }
+
+                // Details of Spouse Start
+                if (isset($formData['Spouse']['DateOFAliyah'])) {
+                    try {
+                        $text = (string)Carbon::parse($formData['Spouse']['DateOFAliyah'])->format('dmY');
+                        $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                        $w = 198;
+                        $h = 98;
+                        $x = 28;
+                        $y = 694;
+                        $fontsize = 15;
+
+                        $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                    } catch (\Throwable $th) {
+                        //throw $th;
+                    }
+                }
+
+                if (isset($formData['Spouse']['Dob'])) {
+                    $text = (string)Carbon::parse($formData['Spouse']['Dob'])->format('dmY');
+                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                    $w = 198;
+                    $h = 98;
+                    $x = 119;
+                    $y = 694;
+                    $fontsize = 15;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['Spouse']['firstName'])) {
+                    $text = (string)$formData['Spouse']['firstName'];
+                    $w = 198;
+                    $h = 98;
+                    $x = $lng == "heb" ? 278 : 210;
+                    $y = 694;
+                    $fontsize = 14;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['Spouse']['lastName'])) {
+                    $text = (string)$formData['Spouse']['lastName'];
+                    $w = 198;
+                    $h = 98;
+                    $x = $lng == "heb" ? 384 : 315;
+                    $y = 694;
+                    $fontsize = 14;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['Spouse']['IdNumber'])) {
+                    $text = (string)$formData['Spouse']['IdNumber'];
+                    $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                    $w = 198;
+                    $h = 98;
+                    $x = 439;
+                    $y = 694;
+                    $fontsize = 13;
+
+                    $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                }
+
+                if (isset($formData['Spouse']['hasIncome'])) {
+                    if($formData['Spouse']['hasIncome'] == "No") {
+                        $w = 4;
+                        $h = 4;
+                        $x = 412;
+                        $y = 719;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    } else {
+                        $w = 4;
+                        $h = 4;
+                        $x = 284;
+                        $y = 719;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                        if (isset($formData['Spouse']['incomeTypeOpt1'])) {
+                            $w = 4;
+                            $h = 4;
+                            $x = 162;
+                            $y = 720;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if(isset($formData['Spouse']['incomeTypeOpt2'])) {
+                            $w = 4;
+                            $h = 4;
+                            $x = 82;
+                            $y = 720;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+                    }
+                }
+
+                if (isset($formData['Spouse']['Identity'])) {
+                    if($formData['Spouse']['Identity'] == "Passport") {
+                        $text = (string)$formData['Spouse']['Country'];
+                        $w = 198;
+                        $h = 98;
+                        $x = $lng == "heb" ? 505 : 422;
+                        $y = 718;
+                        $fontsize = 8;
+
+                        $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                        $text = (string)$formData['Spouse']['passportNumber'];
+                        $text = $this->addWhiteSpaceBetweenChars($text, ' ');
+                        $w = 198;
+                        $h = 98;
+                        $x = 420;
+                        $y = 724;
+                        $fontsize = 12;
+
+                        $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                    }
+                }
+                // Details of Spouse End
+
             } else if ($page == 2) {
                 if (isset($formData['employeeIdNumber'])) {
                     $text = (string)$formData['employeeIdNumber'];
@@ -533,8 +836,8 @@ class WorkerFormService
 
         $total_page += (int)$pdf->numPages;
 
-        $output = $pdf->Output('', 'S');
-        Storage::disk('public')->put("signed-docs/{$outputName}", $output);
+        $output = $pdf->Output('', 'I');
+        // Storage::disk('public')->put("signed-docs/{$outputName}", $output);
 
         return $output;
     }
@@ -553,7 +856,8 @@ class WorkerFormService
 
     public function addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y)
     {
-        $font = 'helvetica';
+        // $font = 'helvetica';
+        $font = 'freeserif';
 
         $pdf->SetFont($font, '', $fontsize);
         $pdf->setCellHeightRatio(1.1);

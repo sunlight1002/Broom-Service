@@ -77,6 +77,8 @@ const initialValues = {
         DateOFAliyah: "",
         hasIncome: "",
         incomeType: "",
+        incomeTypeOpt1: false,
+        incomeTypeOpt2: false,
     },
     TaxExemption: {
         isIsraelResident: "", // Initial value for isIsraelResident
@@ -358,18 +360,19 @@ const Form101Component = () => {
                     hasIncome: yup
                         .string()
                         .required(t("form101.errorMsg.incomeReq")),
-                    incomeType: yup
-                        .string()
-                        .when("hasIncome", {
-                            is: "Yes",
-                            then: () =>
-                                yup
-                                    .string()
-                                    .required(
-                                        t("form101.errorMsg.incomeTypeReq")
-                                    ),
-                        })
-                        .nullable(),
+                    incomeTypeOpt1: yup.boolean(),
+                    incomeTypeOpt2: yup.boolean(),
+                }).test({
+                    name: 'atLeastOneCheckbox',
+                    test: function(value) {
+                      if (value.hasIncome === 'Yes' && !value.incomeTypeOpt1 && !value.incomeTypeOpt2) {
+                        throw this.createError({
+                          path: 'Spouse.hasIncome',
+                          message: 'Please select at least one income type',
+                        });
+                      }
+                      return true;
+                    }
                 }),
             otherwise: () => yup.mixed().nullable(),
         }),

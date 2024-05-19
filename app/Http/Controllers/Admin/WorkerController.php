@@ -21,12 +21,23 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\WorkerFormTypeEnum;
+use App\Events\Form101Signed;
 use App\Events\WorkerCreated;
+use App\Services\WorkerFormService;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class WorkerController extends Controller
 {
     use JobSchedule;
+
+    protected $workerFormService;
+
+    public function __construct(WorkerFormService $workerFormService)
+    {
+        $this->workerFormService = $workerFormService;
+    }
 
     /**
      * Display a listing of the resource.
@@ -430,7 +441,14 @@ class WorkerController extends Controller
      */
     public function destroy($id)
     {
-        User::find($id)->delete();
+        $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => "Worker not found"
+            ], 404);
+        }
+
+        $worker->delete();
         return response()->json([
             'message' => "Worker has been deleted"
         ]);
@@ -506,25 +524,63 @@ class WorkerController extends Controller
         ]);
     }
 
-    // public function upload(Request $request, $id)
-    // {
-    //     $worker = User::find($id);
+    public function formSave(Request $request)
+    {
+        try {
+            $workerId = $request->id;
+            $worker = User::find($workerId);
+            $worker_contract = $request->file('worker_contract');
+            if ($worker_contract) {
+                $filename = 'contract_' . $worker->id . '_' . date('s') . "_." . $worker_contract->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/contract')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/contract');
+                }
+                if (!empty($worker->worker_contract) && Storage::drive('public')->exists('uploads/worker/contract/' . $worker->worker_contract)) {
+                    Storage::drive('public')->delete('uploads/worker/contract/' . $worker->worker_contract);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/contract", $worker_contract, $filename)) {
+                    $worker->update([
+                        'worker_contract' => $filename
+                    ]);
+                }
+            }
 
-    //     $pdf = $request->file('pdf');
-    //     $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $pdf->getClientOriginalExtension();
+            $form_101 = $request->file('form_101');
+            if ($form_101) {
+                $filename = 'form101_' . $worker->id . '_' . date('s') . "_." . $form_101->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/form101')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/form101');
+                }
+                if (!empty($worker->form_101) && Storage::drive('public')->exists('uploads/worker/form101/' . $worker->form_101)) {
+                    Storage::drive('public')->delete('uploads/worker/form101/' . $worker->form_101);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/form101", $form_101, $filename)) {
+                    $worker->update([
+                        'form_101' => $filename
+                    ]);
+                }
+            }
 
-    //     if (!Storage::disk('public')->exists('uploads/worker/form101')) {
-    //         Storage::disk('public')->makeDirectory('uploads/worker/form101');
-    //     }
-
-    //     if (Storage::disk('public')->putFileAs("uploads/worker/form101", $pdf, $filename)) {
-    //         $worker->update([
-    //             'form_101' => $filename
-    //         ]);
-    //     }
-
-    //     return response()->json(['success' => true]);
-    // }
+            $form_insurance = $request->file('form_insurance');
+            if ($form_insurance) {
+                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/safetygear')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/safetygear');
+                }
+                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)) {
+                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->form_insurance);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $form_insurance, $filename)) {
+                    $worker->update([
+                        'form_insurance' => $filename
+                    ]);
+                }
+            }
+            return response()->json(['success' => true]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function addNotAvailableDates(Request $request)
     {
@@ -703,6 +759,7 @@ class WorkerController extends Controller
         $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
+        $manpowerCompanyID = $request->get('manpower_company_id');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -726,6 +783,9 @@ class WorkerController extends Controller
                     ->orWhere('users.phone',    'like', '%' . $keyword . '%')
                     ->orWhere('users.address',  'like', '%' . $keyword . '%')
                     ->orWhere('users.email',  'like', '%' . $keyword . '%');
+            })
+            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
+                return $q->where('manpower_company_id', $manpowerCompanyID);
             })
             ->where(function ($q) {
                 $q
@@ -746,6 +806,7 @@ class WorkerController extends Controller
         $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
+        $manpowerCompanyID = $request->get('manpower_company_id');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -770,6 +831,9 @@ class WorkerController extends Controller
                     ->orWhere('users.address',  'like', '%' . $keyword . '%')
                     ->orWhere('users.email',  'like', '%' . $keyword . '%');
             })
+            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
+                return $q->where('manpower_company_id', $manpowerCompanyID);
+            })
             ->where(function ($q) {
                 $q
                     ->whereNull('last_work_date')
@@ -789,5 +853,33 @@ class WorkerController extends Controller
         return response()->json([
             'workers' => $data,
         ]);
+    }
+
+    public function testForm101(Request $request)
+    {
+        $worker = User::find(43);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found'
+            ], 404);
+        }
+
+        $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)->first();
+        $form->lng = $worker->lng;
+
+        if (!$form) {
+            return response()->json([
+                'message' => 'Form not found'
+            ], 404);
+        }
+
+        $file_name = Str::uuid()->toString() . '.pdf';
+        return $this->workerFormService->generateForm101PDF($form, $file_name);
+
+        // $form->update([
+        //     'pdf_name' => $file_name
+        // ]);
+
+        // event(new Form101Signed($worker, $form));
     }
 }
