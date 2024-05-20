@@ -48,9 +48,6 @@ const InsuranceForm = () => {
         canEmail: "",
         gender: "male",
         // page 3
-        GFirstname: "",
-        GLastname: "",
-        GPassportno: "",
         GDetails: "",
         GCandidatename: "",
         GDate: "",
@@ -80,8 +77,6 @@ const InsuranceForm = () => {
         g24: "",
         // page 4
         Hname: "",
-        canPassportNo: "",
-        canName: "",
         canDate: "",
         signature: "",
     };
@@ -133,7 +128,7 @@ const InsuranceForm = () => {
             const allFields = form.getFields();
             for (let index = 0; index < allFields.length; index++) {
                 const element = allFields[index];
-                // console.log(element.getName());
+                console.log(element.getName());
             }
         };
         fetchPdf();
@@ -622,71 +617,7 @@ const InsuranceForm = () => {
             </div>
 
             <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.fN")}
-                        </label>
-                        <input
-                            type="text"
-                            name="GFirstname"
-                            className="form-control"
-                            value={values.GFirstname}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.LN")}
-                        </label>
-                        <input
-                            type="text"
-                            name="GLastname"
-                            className="form-control"
-                            value={values.GLastname}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Passport")}
-                        </label>
-                        <input
-                            type="text"
-                            name="GPassportno"
-                            className="form-control"
-                            value={values.GPassportno}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Details")}
-                        </label>
-                        <input
-                            type="text"
-                            name="GDetails"
-                            className="form-control"
-                            value={values.GDetails}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
+                <div className="col-md-8">
                     <div className="form-group">
                         <label className="control-label">
                             {t("insurance.CandidateName")}
@@ -696,20 +627,6 @@ const InsuranceForm = () => {
                             name="GCandidatename"
                             className="form-control"
                             value={values.GCandidatename}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Date")}
-                        </label>
-                        <input
-                            type="date"
-                            name="GDate"
-                            className="form-control"
-                            value={values.GDate}
                             onChange={handleChange}
                         />
                     </div>
@@ -726,8 +643,26 @@ const InsuranceForm = () => {
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <div className="form-group">
-                            <label className="control-label">
-                                Height and Width
+                            <label className="control-label d-flex align-items-center">
+                                <div className="mr-2">Height</div>
+                                <input
+                                    type="text"
+                                    name="height"
+                                    className="form-control"
+                                />{" "}
+                                <div
+                                    style={{
+                                        whiteSpace: "nowrap",
+                                        margin: "0 5px",
+                                    }}
+                                >
+                                    and Width
+                                </div>
+                                <input
+                                    type="text"
+                                    name="width"
+                                    className="form-control"
+                                />
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -770,9 +705,9 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
-
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <div className="form-group">
@@ -822,6 +757,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -874,6 +810,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -924,6 +861,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -975,6 +913,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1026,6 +965,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1077,6 +1017,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1128,6 +1069,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1183,6 +1125,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
             </div>
@@ -1249,6 +1192,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1302,6 +1246,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1352,6 +1297,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1404,6 +1350,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1460,6 +1407,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1513,6 +1461,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1566,6 +1515,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1610,6 +1560,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1654,6 +1605,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1698,6 +1650,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1742,6 +1695,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1786,6 +1740,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1830,6 +1785,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1874,6 +1830,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1921,6 +1878,7 @@ const InsuranceForm = () => {
                                 </div>
                             </div>
                         </div>
+                        <hr />
                     </div>
                 </div>
 
@@ -1982,37 +1940,6 @@ const InsuranceForm = () => {
                 <div className="col-md-4">
                     <div className="form-group">
                         <label className="control-label">
-                            {t("insurance.PassportNo")}
-                        </label>
-                        <input
-                            type="text"
-                            name="canPassportNo"
-                            className="form-control"
-                            value={values.canPassportNo}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.InsuranceCandidateName")}
-                        </label>
-                        <input
-                            type="text"
-                            name="canName"
-                            className="form-control"
-                            value={values.canName}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
                             {t("insurance.Date")}
                         </label>
                         <input
@@ -2026,24 +1953,26 @@ const InsuranceForm = () => {
                 </div>
                 <div className="col-md-4">
                     <label className="control-label">Signature</label>
-                    <SignatureCanvas
-                        penColor="black"
-                        canvasProps={{
-                            width: 250,
-                            height: 100,
-                            className: "sign101 border mt-1",
-                        }}
-                        ref={sigRef}
-                        onEnd={handleSignatureEnd}
-                    />
-                    <p>
-                        <button
-                            className="btn btn-warning mb-2"
-                            onClick={clearSignature}
-                        >
-                            {t("form101.button_clear")}
-                        </button>
-                    </p>
+                    <div className="d-flex align-items-center">
+                        <SignatureCanvas
+                            penColor="black"
+                            canvasProps={{
+                                width: 250,
+                                height: 100,
+                                className: "sign101 border mt-1 bg-white",
+                            }}
+                            ref={sigRef}
+                            onEnd={handleSignatureEnd}
+                        />
+                        <p className="ml-2">
+                            <button
+                                className="btn btn-warning mb-2"
+                                onClick={clearSignature}
+                            >
+                                {t("form101.button_clear")}
+                            </button>
+                        </p>
+                    </div>
                 </div>
             </div>
 
