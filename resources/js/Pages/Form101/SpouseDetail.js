@@ -3,6 +3,7 @@ import DateField from "./inputElements/DateField";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import SelectElement from "./inputElements/SelectElement";
 import TextField from "./inputElements/TextField";
+import CheckBox from "./inputElements/CheckBox";
 import { countryOption } from "./cityCountry";
 
 export default function SpouseDetail({
@@ -212,7 +213,6 @@ export default function SpouseDetail({
                             value={values.Spouse.hasIncome}
                             onChange={(e) => {
                                 handleChange(e);
-                                setFieldValue("Spouse.incomeType", "");
                             }}
                             onBlur={handleBlur}
                             error={
@@ -226,32 +226,47 @@ export default function SpouseDetail({
                             required
                         />
                         {values.Spouse.hasIncome === "Yes" && (
-                            <RadioButtonGroup
-                                name="Spouse.incomeType"
-                                label={t("form101.IncomeTypes")}
-                                options={[
-                                    {
-                                        label: t("form101.incomeTypeOpt1"),
-                                        value: "Work/Allowance/Business",
-                                    },
-                                    {
-                                        label: t("form101.incomeTypeOpt2"),
-                                        value: "Other",
-                                    },
-                                ]}
-                                value={values.Spouse.incomeType}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                    touched.Spouse &&
-                                    errors.Spouse &&
-                                    touched.Spouse.incomeType &&
-                                    errors.Spouse.incomeType
-                                        ? errors.Spouse.incomeType
-                                        : ""
-                                }
-                                required
-                            />
+                            <>
+                                <label htmlFor="label" className="form-label">{t("form101.IncomeTypes")} *</label>
+                                <div className="row">
+                                    <div className="col-12">
+                                        <CheckBox
+                                            name={"Spouse.incomeTypeOpt1"}
+                                            label={t("form101.incomeTypeOpt1")}
+                                            value={values.Spouse.incomeTypeOpt1}
+                                            checked={values.Spouse.incomeTypeOpt1}
+                                            onChange={(e) => setFieldValue("Spouse.incomeTypeOpt1", e.target.checked)}
+                                            onBlur={handleBlur}
+                                            error={
+                                                touched.Spouse &&
+                                                errors.Spouse &&
+                                                touched.Spouse.incomeTypeOpt1 &&
+                                                errors.Spouse.incomeTypeOpt1
+                                                    ? errors.Spouse.incomeTypeOpt1
+                                                    : ""
+                                            }
+                                        />
+                                    </div>
+                                    <div className="col-12">
+                                        <CheckBox
+                                            name={"Spouse.incomeTypeOpt2"}
+                                            label={t("form101.incomeTypeOpt2")}
+                                            value={values.Spouse.incomeTypeOpt2}
+                                            onChange={(e) => setFieldValue("Spouse.incomeTypeOpt2", e.target.checked)}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            error={
+                                                touched.Spouse &&
+                                                errors.Spouse &&
+                                                touched.Spouse.incomeTypeOpt2 &&
+                                                errors.Spouse.incomeTypeOpt2
+                                                    ? errors.Spouse.incomeTypeOpt2
+                                                    : ""
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

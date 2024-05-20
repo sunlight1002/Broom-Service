@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
@@ -14,17 +13,14 @@ import {
     getWorkerAvailabilities,
     getWorkersData,
 } from "../../../Utils/job.utils";
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import WorkerAvailabilityTable from "../../../Admin/Components/Job/WorkerAvailabilityTable";
 
 export default function ChangeWorkerCalender({ job }) {
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
-    const [workerData, setWorkerData] = useState([]);
+    const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
-    const [interval, setTimeInterval] = useState([]);
-    const [data, setData] = useState([]);
     const [formValues, setFormValues] = useState({
         repeatancy: "one_time",
         until_date: null,
@@ -129,6 +125,7 @@ export default function ChangeWorkerCalender({ job }) {
                     worker: data[0],
                     repeatancy: formValues.repeatancy,
                     until_date: formValues.until_date,
+                    updatedJobs: updatedJobs,
                 };
                 let viewbtn = document.querySelectorAll(".viewBtn");
                 if (data.length > 0) {
@@ -198,7 +195,9 @@ export default function ChangeWorkerCalender({ job }) {
                     e,
                     worker.jobHours,
                     true,
-                    alert
+                    alert,
+                    setWorkerAvailabilities,
+                    setUpdatedJobs
                 );
                 added = true;
                 return {
@@ -334,6 +333,7 @@ export default function ChangeWorkerCalender({ job }) {
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={week}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -355,6 +355,7 @@ export default function ChangeWorkerCalender({ job }) {
                     aria-labelledby="current-job"
                 >
                     <WorkerAvailabilityTable
+                        workerAvailabilities={workerAvailabilities}
                         week={nextweek}
                         AllWorkers={AllWorkers}
                         hasActive={hasActive}
@@ -378,6 +379,7 @@ export default function ChangeWorkerCalender({ job }) {
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={nextnextweek}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -432,6 +434,7 @@ export default function ChangeWorkerCalender({ job }) {
                     {customDateRange.length > 0 && (
                         <div className="crt-jb-table-scrollable">
                             <WorkerAvailabilityTable
+                                workerAvailabilities={workerAvailabilities}
                                 week={customDateRange}
                                 AllWorkers={AllWorkers}
                                 hasActive={hasActive}

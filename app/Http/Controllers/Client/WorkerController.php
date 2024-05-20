@@ -47,8 +47,14 @@ class WorkerController extends Controller
             })
             ->when($service != '', function ($q) use ($service) {
                 return $q
-                    ->whereHas('availabilities', function ($query) {
-                        $query->where('date', '>=', Carbon::now()->toDateString());
+                    ->where(function ($qu) {
+                        $qu->whereHas('availabilities', function ($query) {
+                            $query->where('date', '>=', Carbon::now()->toDateString());
+                        });
+                        $qu->orWhereHas('defaultAvailabilities', function ($query) {
+                            $query->where('until_date', '>=', Carbon::now()->toDateString());
+                            $query->orWhereNull('until_date');
+                        });
                     })
                     // ->whereRelation('jobs', function ($query) {
                     //     $query->where('start_date', '>=', Carbon::now()->toDateString());

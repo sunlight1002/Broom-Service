@@ -295,6 +295,95 @@ class JobController extends Controller
             ], 404);
         }
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
+        if (isset($data['updatedJobs'])) {
+            foreach ($data['updatedJobs'] as $updateJob) {
+                $editJob = Job::find($updateJob['job_id']);
+
+                $repeat_value = $editJob->jobservice->period;
+
+                $job_date = Carbon::parse($updateJob['date']);
+                $preferredWeekDay = strtolower($job_date->format('l'));
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                $job_date = $job_date->toDateString();
+
+                $slots = explode(',', $updateJob['shifts']);
+                // sort slots in ascending order of time before merging for continuous time
+                sort($slots);
+
+                $shiftFormattedArr = [];
+                foreach ($slots as $key => $shift) {
+                    $timing = explode('-', $shift);
+
+                    $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    ];
+                }
+
+                $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+                $minutes = 0;
+                $slotsInString = '';
+                foreach ($mergedContinuousTime as $key => $slot) {
+                    if (!empty($slotsInString)) {
+                        $slotsInString .= ',';
+                    }
+
+                    $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+                }
+
+                $status = JobStatusEnum::SCHEDULED;
+
+                if (
+                    Job::where('start_date', $job_date)
+                    ->where('id', '!=', $editJob->id)
+                    ->where('worker_id', $editJob->worker_id)
+                    ->exists()
+                ) {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
+
+                $jobData = [
+                    'start_date'    => $job_date,
+                    'shifts'        => $slotsInString,
+                    'status'        => $status,
+                    'next_start_date'   => $next_job_date,
+                ];
+
+                $jobData['previous_shifts'] = $editJob->shifts;
+                $jobData['previous_shifts_after'] = NULL;
+
+                $editJob->update($jobData);
+
+                $editJob->jobservice()->update([
+                    'duration_minutes'  => $minutes,
+                    'config'            => [
+                        'cycle'             => $editJob->jobservice->cycle,
+                        'period'            => $editJob->jobservice->period,
+                        'preferred_weekday' => $preferredWeekDay
+                    ]
+                ]);
+
+                $editJob->workerShifts()->delete();
+                foreach ($mergedContinuousTime as $key => $shift) {
+                    $editJob->workerShifts()->create($shift);
+                }
+
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+                event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
+            }
+        }
+
         $offerServices = $this->formatServices($contract->offer, false);
         $filtered = Arr::where($offerServices, function ($value, $key) use ($data) {
             return $value['service'] == $data['service_id'];
@@ -319,8 +408,6 @@ class JobController extends Controller
         $s_id     = $selectedService['service'];
 
         $jobGroupID = NULL;
-        $manageTime = ManageTime::first();
-        $workingWeekDays = json_decode($manageTime->days);
 
         $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
         foreach ($workerIDs as $workerID) {
@@ -348,6 +435,7 @@ class JobController extends Controller
                 // sort slots in ascending order of time before merging for continuous time
                 sort($slots);
 
+                $shiftFormattedArr = [];
                 foreach ($slots as $key => $shift) {
                     $timing = explode('-', $shift);
 
@@ -545,6 +633,95 @@ class JobController extends Controller
             ], 404);
         }
 
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+
+        if (isset($data['updatedJobs'])) {
+            foreach ($data['updatedJobs'] as $updateJob) {
+                $editJob = Job::find($updateJob['job_id']);
+
+                $repeat_value = $editJob->jobservice->period;
+
+                $job_date = Carbon::parse($updateJob['date']);
+                $preferredWeekDay = strtolower($job_date->format('l'));
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                $job_date = $job_date->toDateString();
+
+                $slots = explode(',', $updateJob['shifts']);
+                // sort slots in ascending order of time before merging for continuous time
+                sort($slots);
+
+                $shiftFormattedArr = [];
+                foreach ($slots as $key => $shift) {
+                    $timing = explode('-', $shift);
+
+                    $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    ];
+                }
+
+                $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+                $minutes = 0;
+                $slotsInString = '';
+                foreach ($mergedContinuousTime as $key => $slot) {
+                    if (!empty($slotsInString)) {
+                        $slotsInString .= ',';
+                    }
+
+                    $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+                }
+
+                $status = JobStatusEnum::SCHEDULED;
+
+                if (
+                    Job::where('start_date', $job_date)
+                    ->where('id', '!=', $editJob->id)
+                    ->where('worker_id', $editJob->worker_id)
+                    ->exists()
+                ) {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
+
+                $jobData = [
+                    'start_date'    => $job_date,
+                    'shifts'        => $slotsInString,
+                    'status'        => $status,
+                    'next_start_date'   => $next_job_date,
+                ];
+
+                $jobData['previous_shifts'] = $editJob->shifts;
+                $jobData['previous_shifts_after'] = NULL;
+
+                $editJob->update($jobData);
+
+                $editJob->jobservice()->update([
+                    'duration_minutes'  => $minutes,
+                    'config'            => [
+                        'cycle'             => $editJob->jobservice->cycle,
+                        'period'            => $editJob->jobservice->period,
+                        'preferred_weekday' => $preferredWeekDay
+                    ]
+                ]);
+
+                $editJob->workerShifts()->delete();
+                foreach ($mergedContinuousTime as $key => $shift) {
+                    $editJob->workerShifts()->create($shift);
+                }
+
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+                event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
+            }
+        }
+
         $oldWorker = $job->worker;
 
         $old_job_data = [
@@ -553,9 +730,6 @@ class JobController extends Controller
         ];
 
         $repeat_value = $job->jobservice->period;
-
-        $manageTime = ManageTime::first();
-        $workingWeekDays = json_decode($manageTime->days);
 
         $job_date = Carbon::parse($data['worker']['date']);
         $preferredWeekDay = strtolower($job_date->format('l'));
@@ -567,6 +741,7 @@ class JobController extends Controller
         // sort slots in ascending order of time before merging for continuous time
         sort($slots);
 
+        $shiftFormattedArr = [];
         foreach ($slots as $key => $shift) {
             $timing = explode('-', $shift);
 
@@ -723,6 +898,92 @@ class JobController extends Controller
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
 
+        if (isset($data['updatedJobs'])) {
+            foreach ($data['updatedJobs'] as $updateJob) {
+                $editJob = Job::find($updateJob['job_id']);
+
+                $repeat_value = $editJob->jobservice->period;
+
+                $job_date = Carbon::parse($updateJob['date']);
+                $preferredWeekDay = strtolower($job_date->format('l'));
+                $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                $job_date = $job_date->toDateString();
+
+                $slots = explode(',', $updateJob['shifts']);
+                // sort slots in ascending order of time before merging for continuous time
+                sort($slots);
+
+                $shiftFormattedArr = [];
+                foreach ($slots as $key => $shift) {
+                    $timing = explode('-', $shift);
+
+                    $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+                    $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+                    $shiftFormattedArr[$key] = [
+                        'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+                        'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    ];
+                }
+
+                $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+                $minutes = 0;
+                $slotsInString = '';
+                foreach ($mergedContinuousTime as $key => $slot) {
+                    if (!empty($slotsInString)) {
+                        $slotsInString .= ',';
+                    }
+
+                    $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+                }
+
+                $status = JobStatusEnum::SCHEDULED;
+
+                if (
+                    Job::where('start_date', $job_date)
+                    ->where('id', '!=', $editJob->id)
+                    ->where('worker_id', $editJob->worker_id)
+                    ->exists()
+                ) {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
+
+                $jobData = [
+                    'start_date'    => $job_date,
+                    'shifts'        => $slotsInString,
+                    'status'        => $status,
+                    'next_start_date'   => $next_job_date,
+                ];
+
+                $jobData['previous_shifts'] = $editJob->shifts;
+                $jobData['previous_shifts_after'] = NULL;
+
+                $editJob->update($jobData);
+
+                $editJob->jobservice()->update([
+                    'duration_minutes'  => $minutes,
+                    'config'            => [
+                        'cycle'             => $editJob->jobservice->cycle,
+                        'period'            => $editJob->jobservice->period,
+                        'preferred_weekday' => $preferredWeekDay
+                    ]
+                ]);
+
+                $editJob->workerShifts()->delete();
+                foreach ($mergedContinuousTime as $key => $shift) {
+                    $editJob->workerShifts()->create($shift);
+                }
+
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+                event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
+            }
+        }
+
         $repeat_value = $job->jobservice->period;
 
         $job_date = Carbon::parse($data['worker']['date']);
@@ -735,6 +996,7 @@ class JobController extends Controller
         // sort slots in ascending order of time before merging for continuous time
         sort($slots);
 
+        $shiftFormattedArr = [];
         foreach ($slots as $key => $shift) {
             $timing = explode('-', $shift);
 
@@ -1081,7 +1343,7 @@ class JobController extends Controller
                 'emailContent'  => $emailContent
             ];
             event(new JobNotificationToAdmin($adminEmailData));
-            
+
             //send notification to worker
             $job = $job->toArray();
             $worker = $job['worker'];

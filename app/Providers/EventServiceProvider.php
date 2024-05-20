@@ -21,6 +21,7 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
 use App\Events\JobNotificationToClient;
 use App\Events\MeetingReminderEvent;
+use App\Events\WorkerChangeAffectedAvailability;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
@@ -40,6 +41,7 @@ use App\Listeners\SendJobNotificationToAdmin;
 use App\Listeners\SendJobNotificationToWorker;
 use App\Listeners\SendJobNotificationToClient;
 use App\Listeners\MeetingReminderNotification;
+use App\Listeners\SendWorkerChangedAffectedAvailability;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -116,6 +118,9 @@ class EventServiceProvider extends ServiceProvider
         MeetingReminderEvent::class => [
             MeetingReminderNotification::class
         ],
+        WorkerChangeAffectedAvailability::class => [
+            SendWorkerChangedAffectedAvailability::class
+        ]
     ];
 
     /**

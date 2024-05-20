@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\ManpowerCompaniesController;
+use App\Http\Controllers\Admin\WorkerAffectedAvailabilitiesController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\DocumentController;
 
@@ -283,4 +284,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
     Route::post('document/save', [DocumentController::class, 'save']);
     Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
+
+    Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
+    Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);
+    Route::post('worker-affected-availability/{id}/reject', [WorkerAffectedAvailabilitiesController::class, 'reject']);
 });

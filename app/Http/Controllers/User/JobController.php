@@ -20,8 +20,11 @@ use App\Models\Notification;
 use App\Traits\JobSchedule;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\WorkerAffectedAvailabilityStatusEnum;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
+use App\Events\WorkerChangeAffectedAvailability;
+use App\Models\WorkerAffectedAvailability;
 
 class JobController extends Controller
 {
@@ -142,6 +145,78 @@ class JobController extends Controller
             $firstEditDate = Carbon::today()->addWeeks(2)->startOfWeek(Carbon::SUNDAY);
         } else {
             $firstEditDate = Carbon::today()->addWeek()->startOfWeek(Carbon::SUNDAY);
+        }
+
+        $upcomingJobDates = Job::query()
+            ->where('worker_id', $worker->id)
+            ->whereDate('start_date', '>=', today()->toDateString())
+            ->whereIn(
+                'status',
+                [
+                    JobStatusEnum::PROGRESS,
+                    JobStatusEnum::SCHEDULED,
+                    JobStatusEnum::UNSCHEDULED,
+                ]
+            )
+            ->pluck('start_date')
+            ->toArray();
+
+        foreach ($upcomingJobDates as $key => $date_) {
+            $currentDate = Carbon::parse($date_);
+            $weekDay = $currentDate->weekday();
+            $dateString = $currentDate->toDateString();
+
+            $newTimeSlotsByDate = [];
+            $newTimeSlotsByWeekDay = [];
+
+            $newTimeSlots = [];
+            if (isset($data['time_slots'][$dateString])) {
+                $newTimeSlots =$newTimeSlotsByDate = $data['time_slots'][$dateString];
+            } elseif (
+                isset($data['default']['time_slots']) &&
+                isset($data['default']['time_slots'][$weekDay])
+            ) {
+                $newTimeSlots = $newTimeSlotsByWeekDay = $data['default']['time_slots'][$weekDay];
+            }
+
+            $oldTimeSlots = $oldTimeSlotsByDate = $worker->availabilities()
+                ->whereDate('date', $dateString)
+                ->selectRaw('DATE_FORMAT(start_time, "%H:%i") AS start_time')
+                ->selectRaw('DATE_FORMAT(end_time, "%H:%i") AS end_time')
+                ->get()
+                ->toArray();
+
+            $oldTimeSlotsByWeekDay = $worker->defaultAvailabilities()
+                ->where('weekday', $weekDay)
+                ->whereDate('until_date', '>=', $dateString)
+                ->selectRaw('DATE_FORMAT(start_time, "%H:%i") AS start_time')
+                ->selectRaw('DATE_FORMAT(end_time, "%H:%i") AS end_time')
+                ->get()
+                ->toArray();
+            if (empty($oldTimeSlots)) {
+                $oldTimeSlots = $oldTimeSlotsByWeekDay;
+            }
+
+            if ($this->timeArraysAreDifferent($oldTimeSlots, $newTimeSlots)) {
+                $workerAffectAvail = WorkerAffectedAvailability::create([
+                    'worker_id' => $worker->id,
+                    'old_values' => [
+                        'date' => $dateString,
+                        'time_by_date' => $oldTimeSlotsByDate,
+                        'weekday' => $weekDay,
+                        'time_by_weekday' => $oldTimeSlotsByWeekDay,
+                    ],
+                    'new_values' => [
+                        'date' => $dateString,
+                        'time_by_date' => $newTimeSlotsByDate,
+                        'weekday' => $weekDay,
+                        'time_by_weekday' => $newTimeSlotsByWeekDay,
+                    ],
+                    'status' => WorkerAffectedAvailabilityStatusEnum::PENDING
+                ]);
+
+                event(new WorkerChangeAffectedAvailability($worker, $dateString, $workerAffectAvail));
+            }
         }
 
         $worker->availabilities()
@@ -357,5 +432,31 @@ class JobController extends Controller
         return response()->json([
             'data' => 'Job approved successfully'
         ]);
+    }
+
+    public function timeArraysAreDifferent($array1, $array2)
+    {
+        // Check if both arrays have the same length
+        if (count($array1) !== count($array2)) {
+            return true;
+        }
+
+        // Iterate through the arrays
+        foreach ($array1 as $index => $timeRange1) {
+            if (isset($array2[$index])) {
+                $timeRange2 = $array2[$index];
+
+                // Compare each time range
+                if ($timeRange1['start_time'] !== $timeRange2['start_time'] || $timeRange1['end_time'] !== $timeRange2['end_time']) {
+                    return true;
+                }
+            } else {
+                // If the second array does not have a corresponding index
+                return true;
+            }
+        }
+
+        // If no differences were found
+        return false;
     }
 }
