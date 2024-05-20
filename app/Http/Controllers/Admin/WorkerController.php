@@ -114,7 +114,7 @@ class WorkerController extends Controller
             ->with([
                 'availabilities:user_id,day,date,start_time,end_time',
                 'defaultAvailabilities:user_id,weekday,start_time,end_time,until_date',
-                'jobs:worker_id,start_date,shifts,client_id',
+                'jobs:worker_id,start_date,shifts,client_id,id',
                 'jobs.client:id,firstname,lastname',
                 'notAvailableDates:user_id,date,start_time,end_time'
             ])
@@ -213,6 +213,7 @@ class WorkerController extends Controller
                 $dates = array();
                 foreach ($worker->jobs as $job) {
                     $slotInfo = [
+                        'job_id' => $job->id,
                         'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
                         'slot' => $job->shifts
                     ];
