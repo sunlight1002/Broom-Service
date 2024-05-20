@@ -221,6 +221,7 @@ export default function WorkerAvailabilty() {
             )
             .then((res) => {
                 alert.success(res.data.message);
+                getWorkerAvailabilty();
             })
             .catch((err) => alert.error("Something went wrong!"));
     };
