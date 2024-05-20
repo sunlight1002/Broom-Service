@@ -175,6 +175,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             // sort slots in ascending order of time before merging for continuous time
             sort($slots);
 
+            $shiftFormattedArr = [];
             foreach ($slots as $key => $shift) {
                 $timing = explode('-', $shift);
 
