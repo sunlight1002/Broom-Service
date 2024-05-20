@@ -21,23 +21,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Enums\WorkerFormTypeEnum;
-use App\Events\Form101Signed;
 use App\Events\WorkerCreated;
-use App\Services\WorkerFormService;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class WorkerController extends Controller
 {
     use JobSchedule;
-
-    protected $workerFormService;
-
-    public function __construct(WorkerFormService $workerFormService)
-    {
-        $this->workerFormService = $workerFormService;
-    }
 
     /**
      * Display a listing of the resource.
@@ -854,33 +844,5 @@ class WorkerController extends Controller
         return response()->json([
             'workers' => $data,
         ]);
-    }
-
-    public function testForm101(Request $request)
-    {
-        $worker = User::find(43);
-        if (!$worker) {
-            return response()->json([
-                'message' => 'Worker not found'
-            ], 404);
-        }
-
-        $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)->first();
-        $form->lng = $worker->lng;
-
-        if (!$form) {
-            return response()->json([
-                'message' => 'Form not found'
-            ], 404);
-        }
-
-        $file_name = Str::uuid()->toString() . '.pdf';
-        return $this->workerFormService->generateForm101PDF($form, $file_name);
-
-        // $form->update([
-        //     'pdf_name' => $file_name
-        // ]);
-
-        // event(new Form101Signed($worker, $form));
     }
 }

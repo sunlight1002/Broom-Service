@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
-use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\GoogleController;
@@ -36,7 +35,6 @@ Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
 Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
-Route::get('form101/pdf/test', [WorkerController::class, 'testForm101']);
 
 // Auth::routes();
 Route::any('/{path?}', function () {

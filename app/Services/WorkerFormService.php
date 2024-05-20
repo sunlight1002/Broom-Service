@@ -836,8 +836,8 @@ class WorkerFormService
 
         $total_page += (int)$pdf->numPages;
 
-        $output = $pdf->Output('', 'I');
-        // Storage::disk('public')->put("signed-docs/{$outputName}", $output);
+        $output = $pdf->Output('', 'S');
+        Storage::disk('public')->put("signed-docs/{$outputName}", $output);
 
         return $output;
     }
