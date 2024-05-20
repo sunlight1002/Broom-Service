@@ -128,7 +128,7 @@ const InsuranceForm = () => {
             const allFields = form.getFields();
             for (let index = 0; index < allFields.length; index++) {
                 const element = allFields[index];
-                console.log(element.getName());
+                // console.log(element.getName());
             }
         };
         fetchPdf();
@@ -170,18 +170,18 @@ const InsuranceForm = () => {
         pdfForm.getTextField("canEmail").setText(values.canEmail);
         pdfForm.getRadioGroup("gender").select(values.gender);
 
-        pdfForm.getTextField("G-firstname").setText(values.GFirstname);
-        pdfForm.getTextField("G-lastname").setText(values.GLastname);
-        pdfForm.getTextField("G-passportno").setText(values.GPassportno);
+        pdfForm.getTextField("G-firstname").setText(values.canFirstName);
+        pdfForm.getTextField("G-lastname").setText(values.canLastName);
+        pdfForm.getTextField("G-passportno").setText(values.canPassport);
         pdfForm.getTextField("G-details").setText(values.GDetails);
         pdfForm.getTextField("G-candidatename").setText(values.GCandidatename);
-        pdfForm.getTextField("G-date").setText(values.GDate);
-        pdfForm.getTextField("H-name").setText(values.AgentName);
+        pdfForm.getTextField("G-date").setText(values.canDate);
         pdfForm
             .getTextField("candidate-passport-no")
-            .setText(values.canPassportNo);
-        pdfForm.getTextField("candidate-name").setText(values.canName);
+            .setText(values.canPassport);
+        pdfForm.getTextField("candidate-name").setText(values.GCandidatename);
         pdfForm.getTextField("candidate-date").setText(values.canDate);
+        pdfForm.getTextField("H-name").setText(values.Hname);
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
@@ -825,6 +825,51 @@ const InsuranceForm = () => {
                                     <input
                                         className="form-check-input"
                                         type="radio"
+                                        name="g4y2"
+                                        id="g4t"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g4t"
+                                    >
+                                        Today
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="g4yn2"
+                                        id="g4p"
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="g4p"
+                                    >
+                                        In The Past
+                                    </label>
+                                </div>
+                                <div className="d-flex align-items-center">
+                                    <div
+                                        style={{
+                                            whiteSpace: "nowrap",
+                                        }}
+                                        className="mr-4"
+                                    >
+                                        When did you stop?
+                                    </div>
+                                    <input
+                                        type="text"
+                                        name="g4stop"
+                                        className="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
                                         checked={values.g4 === "yes"}
                                         name="g4yn"
                                         id="g4yes"
@@ -976,6 +1021,14 @@ const InsuranceForm = () => {
                                 Were you hospitalized in the course of the last
                                 10 years at a hospital or a medical institution?
                             </label>
+                                <div>Which one, when, the reason</div>
+                            <div className="d-flex align-items-center">
+                                <input
+                                    type="text"
+                                    name="g7text"
+                                    className="form-control"
+                                />
+                            </div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -1572,6 +1625,14 @@ const InsuranceForm = () => {
                                 tumor/s, polyps Detail 18. the type and method
                                 of treatment
                             </label>
+                            <div className="d-flex align-items-center">
+                                <input
+                                    type="text"
+                                    name="g7text"
+                                    className="form-control"
+                                />
+                            </div>
+                                <div className="">Enclose reports and pathology</div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -1843,8 +1904,17 @@ const InsuranceForm = () => {
                                 menstruation, fertility problems, bleeding and
                                 breast cysts, problems in the uterus and
                                 ovaries, irregular findings in a gynecological
-                                exam (such as PAP)?
+                                exam (such as PAP)? Are you pregnant? What is
+                                the number of fetuses?
                             </label>
+                            <div className="d-flex align-items-center">
+                                <input type="text" className="form-control" />
+                            </div>
+                            <div>
+                                Have you suffered from any problems in previous
+                                pregnancies or in the current pregnancy? Have
+                                you given birth by a Caesarean Section?
+                            </div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -1890,8 +1960,10 @@ const InsuranceForm = () => {
                             </label>
                             <input
                                 type="text"
-                                name="DetailsOfPositiveFindings"
+                                name="GDetails"
                                 className="form-control"
+                                value={values.GDetails}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
@@ -1913,8 +1985,10 @@ const InsuranceForm = () => {
                         Mr/Ms,
                         <input
                             type="text"
-                            name="mr/ms"
+                            name="Hname"
                             className="form-control ml-2"
+                            value={values.Hname}
+                            onChange={handleChange}
                         />
                     </div>
                     <div>
