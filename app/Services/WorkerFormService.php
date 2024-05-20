@@ -440,8 +440,8 @@ class WorkerFormService
                 }
 
                 if (
-                    isset($formData['allowance']) &&
-                    $formData['allowance'] === true
+                    isset($formData['incomeType']) &&
+                    $formData['incomeType'] === 'Allowance'
                 ) {
                     $w = 4;
                     $h = 4;
@@ -452,8 +452,8 @@ class WorkerFormService
                 }
 
                 if (
-                    isset($formData['scholarship']) &&
-                    $formData['scholarship'] === true
+                    isset($formData['incomeType']) &&
+                    $formData['incomeType'] === 'Scholarship'
                 ) {
                     $w = 4;
                     $h = 4;
