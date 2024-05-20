@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobWorkerChanged;
 use App\Models\ManageTime;
+use App\Events\JobNotificationToWorker;
 
 class JobController extends Controller
 {
@@ -205,6 +206,16 @@ class JobController extends Controller
                 'emailContent'  => $emailContent
             ];
             event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to worker
+            $job = $job->toArray();
+            $worker = $job['worker'];
+            $emailData = [
+                'emailSubject'  => $emailSubject,
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => $emailContent
+            ];
+            event(new JobNotificationToWorker($worker, $job, $emailData));
         }
 
         return response()->json([

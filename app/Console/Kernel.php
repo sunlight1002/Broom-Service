@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
         $schedule->command('regular-invoice:generate')->dailyAt('12:00');
         $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
+        $schedule->command('meeting:reminder')->hourly();
     }
 
     /**
