@@ -111,7 +111,9 @@ const CustomCalendar = ({ meeting }) => {
         setIsLoading(true);
         axios
             .post(`/api/client/meeting/${meeting.id}/reschedule`, {
-                start_date: selectedDate,
+                start_date: selectedDate
+                    ? moment(selectedDate).format("YYYY-MM-DD")
+                    : null,
                 start_time: selectedTime,
             })
             .then((response) => {
@@ -129,15 +131,23 @@ const CustomCalendar = ({ meeting }) => {
             });
     };
 
-    const dayName = new Date(selectedDate)?.toLocaleDateString("en-US", {
-        month: "long",
-    });
+    const formattedSelectedDate = useMemo(() => {
+        if (selectedDate) {
+            const _date = new Date(selectedDate);
+            const dayName = _date.toLocaleDateString("en-US", {
+                month: "long",
+            });
 
-    const monthName = new Date(selectedDate).toLocaleDateString("en-US", {
-        weekday: "long",
-    });
+            const monthName = _date.toLocaleDateString("en-US", {
+                weekday: "long",
+            });
 
-    const date = new Date(selectedDate)?.getDate();
+            const date = _date.getDate();
+
+            return `${dayName}, ${monthName}, ${date}`;
+        }
+        return "";
+    }, [selectedDate]);
 
     const timeSlots = useMemo(() => {
         return startTimeOptions.map((i) =>
@@ -163,7 +173,7 @@ const CustomCalendar = ({ meeting }) => {
                         </div>
                         <div className="mt-1 ">
                             <h6 className="time-slot-date">
-                                {dayName ?? ""}, {monthName ?? ""}, {date ?? ""}
+                                {formattedSelectedDate}
                             </h6>
                             <ul className="list-unstyled mt-4 timeslot">
                                 {timeSlots.length > 0 ? (

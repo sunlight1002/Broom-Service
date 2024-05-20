@@ -90,28 +90,30 @@ const IncomeDetails = ({
                 </div>
                 <div className="col-sm-4">
                     <CheckBox
-                        name={"allowance"}
+                        name={"incomeType"}
                         label={t("form101.allowance")}
-                        checked={values.allowance}
-                        onChange={handleChange}
+                        value="Allowance"
+                        checked={values.incomeType === "Allowance"}
+                        onChange={handleIncomeChange}
                         onBlur={handleBlur}
                         error={
-                            touched.allowance && errors.allowance
-                                ? errors.allowance
+                            touched.incomeType && errors.incomeType
+                                ? errors.incomeType
                                 : ""
                         }
                     />
                 </div>
                 <div className="col-sm-4">
                     <CheckBox
-                        name={"scholarship"}
+                        name={"incomeType"}
                         label={t("form101.scholarship")}
-                        checked={values.scholarship}
-                        onChange={handleChange}
+                        value="Scholarship"
+                        checked={values.incomeType === "Scholarship"}
+                        onChange={handleIncomeChange}
                         onBlur={handleBlur}
                         error={
-                            touched.scholarship && errors.scholarship
-                                ? errors.scholarship
+                            touched.incomeType && errors.incomeType
+                                ? errors.incomeType
                                 : ""
                         }
                     />

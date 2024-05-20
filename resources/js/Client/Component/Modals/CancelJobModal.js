@@ -10,11 +10,12 @@ import "flatpickr/dist/flatpickr.css";
 export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
-        repeatancy: "",
+        repeatancy: "one_time",
         until_date: null,
     });
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [totalAmount, setTotalAmount] = useState(0);
 
     const navigate = useNavigate();
     const flatpickrRef = useRef(null);
@@ -23,6 +24,22 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("client-token"),
+    };
+
+    const getOpenedJobAmountByGroup = () => {
+        axios
+            .get(`/api/client/jobs/${job.id}/total-amount-by-group`, {
+                headers,
+                params: {
+                    group_id: job.job_group_id,
+                    repeatancy: formValues.repeatancy,
+                    until_date: formValues.until_date,
+                },
+            })
+            .then((response) => {
+                setTotalAmount(response.data.total_amount);
+            })
+            .catch((e) => {});
     };
 
     const handleConfirmCancel = () => {
@@ -57,6 +74,10 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
         );
     }, []);
 
+    useEffect(() => {
+        getOpenedJobAmountByGroup();
+    }, [formValues.repeatancy, formValues.until_date]);
+
     const feeInAmount = useMemo(() => {
         const diffInDays = moment(job.start_date).diff(
             moment().startOf("day"),
@@ -65,8 +86,8 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
 
         const _feePercentage = diffInDays >= 1 ? 50 : 100;
 
-        return job.total_amount * (_feePercentage / 100);
-    }, [job]);
+        return totalAmount * (_feePercentage / 100);
+    }, [job, totalAmount]);
 
     useEffect(() => {
         if (formValues.repeatancy == "until_date") {
@@ -117,7 +138,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                                 value={formValues.repeatancy}
                                 className="form-control mb-3"
                             >
-                                <option value=""> --- Please select ---</option>
+                                {/* <option value=""> --- Please select ---</option> */}
                                 <option value="one_time">
                                     One Time ( for single job )
                                 </option>

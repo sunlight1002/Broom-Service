@@ -100,6 +100,7 @@ class ScheduleController extends Controller
 
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
+            $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
         }
 
         $client = Client::find($input['client_id']);
@@ -152,9 +153,9 @@ class ScheduleController extends Controller
         } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            $this->sendMeetingMail($schedule);
-
             $this->saveGoogleCalendarEvent($schedule);
+
+            $this->sendMeetingMail($schedule);
 
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
@@ -328,8 +329,10 @@ class ScheduleController extends Controller
 
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
+            $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
         } else {
             $input['end_time'] = NULL;
+            $input['start_time_standard_format'] = NULL;
         }
 
         $schedule->update([
@@ -341,12 +344,16 @@ class ScheduleController extends Controller
             'booking_status'    => $input['booking_status'],
             'start_date' => $input['start_date'],
             'start_time' => $input['start_time'],
-            'end_time'   => $input['end_time']
+            'end_time'   => $input['end_time'],
+            'start_time_standard_format'   => $input['start_time_standard_format']
         ]);
 
         $schedule->load(['client', 'team', 'propertyAddress']);
 
         if ($schedule->is_calendar_event_created) {
+            // Initializes Google Client object
+            $googleClient = $this->getClient();
+
             if ($schedule->booking_status == 'declined') {
                 $this->deleteGoogleCalendarEvent($schedule);
             } else {
@@ -376,6 +383,9 @@ class ScheduleController extends Controller
         }
 
         if ($schedule->is_calendar_event_created) {
+            // Initializes Google Client object
+            $googleClient = $this->getClient();
+
             $this->deleteGoogleCalendarEvent($schedule);
         }
         $scheduleArr = $schedule->toArray();

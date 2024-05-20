@@ -582,7 +582,7 @@ class WhatsappNotification
                 $jobData = $eventData['job'];
                 $params = [
                     "messaging_product"=> "whatsapp",
-                    "to"=> $by == 'client' ? $adminData['phone'] : ['job']['client']['phone'],
+                    "to"=> $by == 'client' ? $adminData['phone'] : $jobData['client']['phone'],
                     "type"=> "template",
                     "template"=> [
                         "name"=> WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,

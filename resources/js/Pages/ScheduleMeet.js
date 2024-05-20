@@ -49,7 +49,7 @@ export default function ScheduleMeet() {
 
     const getClient = () => {
         axios
-            .post(`/api/client/get-client`, { id: Base64.decode(param.id) })
+            .get(`/api/client/${Base64.decode(param.id)}/info`)
             .then((res) => {
                 let c = res.data.client;
 
@@ -81,7 +81,9 @@ export default function ScheduleMeet() {
 
         const data = {
             client: client,
-            startDate: Moment(startDate).toDate(),
+            startDate: startDate
+                ? Moment(startDate).format("YYYY-MM-DD")
+                : null,
             startTime: startTime,
             endTime: endTime,
         };
@@ -159,17 +161,13 @@ export default function ScheduleMeet() {
                                             <option value="">
                                                 {t("front_meet.op_start")}
                                             </option>
-                                            {time &&
-                                                time.map((t, i) => {
-                                                    return (
-                                                        <option
-                                                            value={t}
-                                                            key={i}
-                                                        >
-                                                            {t}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {time.map((t, i) => {
+                                                return (
+                                                    <option value={t} key={i}>
+                                                        {t}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>
@@ -188,17 +186,13 @@ export default function ScheduleMeet() {
                                             <option value="">
                                                 {t("front_meet.op_end")}
                                             </option>
-                                            {time &&
-                                                time.map((t, i) => {
-                                                    return (
-                                                        <option
-                                                            value={t}
-                                                            key={i}
-                                                        >
-                                                            {t}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {time.map((t, i) => {
+                                                return (
+                                                    <option value={t} key={i}>
+                                                        {t}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>
@@ -246,17 +240,13 @@ export default function ScheduleMeet() {
                                             <option value="">
                                                 {t("front_meet.op_start")}
                                             </option>
-                                            {time &&
-                                                time.map((t, i) => {
-                                                    return (
-                                                        <option
-                                                            value={t}
-                                                            key={i}
-                                                        >
-                                                            {t}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {time.map((t, i) => {
+                                                return (
+                                                    <option value={t} key={i}>
+                                                        {t}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>
@@ -275,17 +265,13 @@ export default function ScheduleMeet() {
                                             <option value="">
                                                 {t("front_meet.op_end")}
                                             </option>
-                                            {time &&
-                                                time.map((t, i) => {
-                                                    return (
-                                                        <option
-                                                            value={t}
-                                                            key={i}
-                                                        >
-                                                            {t}
-                                                        </option>
-                                                    );
-                                                })}
+                                            {time.map((t, i) => {
+                                                return (
+                                                    <option value={t} key={i}>
+                                                        {t}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
                                 </div>

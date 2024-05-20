@@ -3,7 +3,29 @@ import React, { useState, useEffect } from "react";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
 
+const formType = [
+    {
+        key: "form_101",
+        name: "Form 101",
+        file: "",
+        path: "form101",
+    },
+    {
+        key: "worker_contract",
+        name: "Contract",
+        file: "",
+        path: "contract",
+    },
+    {
+        key: "form_insurance",
+        name: "Safety and Gear",
+        file: "",
+        path: "safetygear",
+    },
+];
+
 export default function Forms() {
+    const [isExistingUser, setIsExistingUser] = useState(false);
     const [forms, setForms] = useState([]);
 
     const { t } = useTranslation();
@@ -16,7 +38,19 @@ export default function Forms() {
     const getForms = () => {
         axios.get(`/api/forms`, { headers }).then((res) => {
             if (res.data && res.data) {
-                setForms(res.data.forms);
+                if (res.data.forms) {
+                    setForms(res.data.forms);
+                } else if (res.data.exist_user_forms) {
+                    const userForm = res.data.exist_user_forms;
+                    const updatedForms = [...formType].map((f) => {
+                        return {
+                            ...f,
+                            ["file"]: userForm[f.key],
+                        };
+                    });
+                    setForms(updatedForms);
+                    setIsExistingUser(true);
+                }
             }
         });
     };
@@ -48,18 +82,20 @@ export default function Forms() {
                             }}
                         >
                             <div className="row">
-                                <div className="col-sm-3 col-3">
-                                    <span
-                                        className="noteDate"
-                                        style={{ fontWeight: "600" }}
-                                    >
-                                        {d.submitted_at
-                                            ? Moment(d.submitted_at).format(
-                                                  "DD-MM-Y"
-                                              )
-                                            : "NA"}
-                                    </span>
-                                </div>
+                                {!isExistingUser && (
+                                    <div className="col-sm-3 col-3">
+                                        <span
+                                            className="noteDate"
+                                            style={{ fontWeight: "600" }}
+                                        >
+                                            {d.submitted_at
+                                                ? Moment(d.submitted_at).format(
+                                                      "DD-MM-Y"
+                                                  )
+                                                : "NA"}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="col-sm-3 col-3">
                                     <p
                                         style={{
@@ -67,11 +103,22 @@ export default function Forms() {
                                             fontWeight: "600",
                                         }}
                                     >
-                                        {d.type}
+                                        {isExistingUser ? d.name : d.type}
                                     </p>
                                 </div>
                                 <div className="col-sm-4 col-4">
-                                    {d.pdf_name && (
+                                    {isExistingUser && d.file !== null && (
+                                        <a
+                                            href={`/storage/uploads/worker/${d.path}/${d.file}`}
+                                            target={"_blank"}
+                                            download={d.type}
+                                        >
+                                            <span className="btn-default">
+                                                <i className="fa fa-download"></i>
+                                            </span>
+                                        </a>
+                                    )}
+                                    {d.pdf_name && !isExistingUser && (
                                         <a
                                             href={`/storage/signed-docs/${d.pdf_name}`}
                                             target={"_blank"}

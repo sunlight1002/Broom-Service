@@ -9,8 +9,10 @@ class Schedule extends Model
 {
     use HasFactory;
 
+    protected $table = 'schedules';
+
     protected $fillable = [
-        'client_id', 'team_id', 'address_id', 'booking_status', 'start_date', 'purpose', 'start_time', 'end_time', 'meet_via', 'meet_link', 'is_calendar_event_created', 'meeting_mail_sent_at', 'google_calendar_event_id'
+        'client_id', 'team_id', 'address_id', 'booking_status', 'start_date', 'old_start_date_format', 'purpose', 'start_time', 'end_time', 'start_time_standard_format', 'meet_via', 'meet_link', 'is_calendar_event_created', 'meeting_mail_sent_at', 'google_calendar_event_id'
     ];
 
     /**

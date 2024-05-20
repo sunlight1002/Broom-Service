@@ -47,6 +47,7 @@ class Job extends Model
         'worker_approved_at',
         'actual_time_taken_minutes',
         'origin_job_id',
+        'job_group_id',
         'original_worker_id',
         'original_shifts',
         'previous_worker_id',

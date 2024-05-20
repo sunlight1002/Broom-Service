@@ -29,6 +29,7 @@ class MeetingController extends Controller
 
         $bookedSlots = Schedule::query()
             ->whereDate('start_date', $date)
+            ->where('team_id', $teamMember->id)
             ->whereNotNull('start_time')
             ->where('start_time', '!=', '')
             ->whereNotNull('end_time')

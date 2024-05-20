@@ -23,7 +23,9 @@ import check from "../../Assets/image/icons/check-mark.png";
 import TextField from "./inputElements/TextField";
 import ChangeYear from "./ChangeYear";
 import { objectToFormData } from "../../Utils/common.utils";
+import moment from "moment";
 
+const currentDate = moment().format("YYYY-MM-DD");
 const initialValues = {
     employerName: "",
     employerAddress: "",
@@ -55,8 +57,6 @@ const initialValues = {
     employeeHealthFundname: "",
     employeemyIncomeToKibbutz: "",
     incomeType: "",
-    allowance: false,
-    scholarship: false,
     DateOfBeginningWork: "",
     children: [],
     otherIncome: {
@@ -129,7 +129,7 @@ const initialValues = {
         requestReason3Certificate: null,
         employer: [employerInitial],
     },
-    date: "",
+    date: currentDate,
     sender: {
         employeeEmail: "",
         employerEmail: "office@broomservice.co.il",
@@ -271,11 +271,11 @@ const Form101Component = () => {
                     "Salary for additional employment",
                     "Partial salary",
                     "Wage (Daily rate of pay)",
+                    "Allowance",
+                    "Scholarship",
                 ],
                 t("form101.errorMsg.incomeTypeReq")
             ),
-        allowance: yup.boolean(),
-        scholarship: yup.boolean(),
         DateOfBeginningWork: yup
             .date()
             .required(t("form101.errorMsg.dateOfBeginReq")),
@@ -997,6 +997,7 @@ const Form101Component = () => {
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         value={values.date}
+                                        readOnly
                                         error={touched.date && errors.date}
                                     />
                                 </div>

@@ -52,6 +52,7 @@ class ClientEmailController extends Controller
 
     $bookedSlots = Schedule::query()
       ->whereDate('start_date', $startDate)
+      ->where('team_id', $schedule->team_id)
       ->whereNotNull('start_time')
       ->where('start_time', '!=', '')
       ->whereNotNull('end_time')
@@ -202,7 +203,12 @@ class ClientEmailController extends Controller
 
     $schedule->load(['client', 'team', 'propertyAddress']);
 
-    $this->saveGoogleCalendarEvent($schedule);
+    if ($schedule->is_calendar_event_created) {
+      // Initializes Google Client object
+      $googleClient = $this->getClient();
+
+      $this->saveGoogleCalendarEvent($schedule);
+    }
 
     Notification::create([
       'user_id' => $schedule->client_id,
@@ -246,6 +252,9 @@ class ClientEmailController extends Controller
     $schedule->load(['client', 'team', 'propertyAddress']);
 
     if ($schedule->is_calendar_event_created) {
+      // Initializes Google Client object
+      $googleClient = $this->getClient();
+
       $this->deleteGoogleCalendarEvent($schedule);
     }
 
@@ -280,14 +289,18 @@ class ClientEmailController extends Controller
     }
 
     $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->addMinutes(30)->format('h:i A');
+    $data['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->toTimeString();
 
     $schedule->update([
       'start_date' => $data['start_date'],
       'start_time' => $data['start_time'],
       'end_time' => $data['end_time'],
+      'start_time_standard_format' => $data['start_time_standard_format'],
       'booking_status' => 'rescheduled'
     ]);
 
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
 
@@ -435,9 +448,9 @@ class ClientEmailController extends Controller
     return response()->json(['template' => $template]);
   }
 
-  public function getClient(Request $request)
+  public function getClientInfo($id)
   {
-    $client = Client::find($request->id);
+    $client = Client::find($id);
 
     return response()->json([
       'client' => $client
@@ -446,15 +459,21 @@ class ClientEmailController extends Controller
 
   public function addMeet(Request $request)
   {
+    $start_time_standard_format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request['data']['startDate'])->toTimeString();
+
     $schedule = Schedule::create([
       'booking_status' => 'pending',
       'start_date'     => $request['data']['startDate'],
       'start_time'     => $request['data']['startTime'],
       'end_time'       => $request['data']['endTime'],
+      'start_time_standard_format'       => $start_time_standard_format,
       'client_id'      => $request['data']['client']['id'],
     ]);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
+
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
 
@@ -519,14 +538,19 @@ class ClientEmailController extends Controller
 
     $startTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['start_time'])->format('h:i A');
     $endTime = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['end_time'])->format('h:i A');
+    $startTimeStandardFormat = Carbon::createFromFormat('Y-m-d H:i', date('Y-m-d') . ' ' . $data['start_time'])->toTimeString();
 
     $schedule->update([
       'start_time' => $startTime,
       'end_time' => $endTime,
+      'start_time_standard_format' => $startTimeStandardFormat,
       'booking_status' => 'confirmed'
     ]);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
+
+    // Initializes Google Client object
+    $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
     $this->sendMeetingMail($schedule);

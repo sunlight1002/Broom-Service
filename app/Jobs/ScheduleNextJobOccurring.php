@@ -90,7 +90,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             ]);
 
             $current_month_unpaid_job_count = Job::query()
-                ->where('origin_job_id', $job->origin_job_id)
+                ->where('job_group_id', $job->job_group_id)
                 ->whereMonth('start_date', $job_date->month)
                 ->whereYear('start_date', $job_date->year)
                 ->where('is_paid', false)
@@ -239,6 +239,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'keep_prev_worker'  => $job->keep_prev_worker,
                 'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                 'origin_job_id'         => $job->origin_job_id,
+                'job_group_id'          => $job->job_group_id,
                 'original_worker_id'    => $job->original_worker_id,
                 'original_shifts'       => $job->original_shifts,
                 'previous_worker_id'    => $previous_worker_id,

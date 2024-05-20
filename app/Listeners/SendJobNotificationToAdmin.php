@@ -35,6 +35,7 @@ class SendJobNotificationToAdmin implements ShouldQueue
             ->where('role', 'admin')
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
+
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
             // if (isset($admin) && !empty($admin['phone'])) {
@@ -43,7 +44,11 @@ class SendJobNotificationToAdmin implements ShouldQueue
             //         "notificationData" => [$emailData, $admin->toArray()]
             //     ]));
             // }
-            Mail::send('/Mails/admin/JobNotification', ['data' => $adminEmailData,'job' =>  $adminEmailData['emailData'] ['job'], 'admin' => $admin->toArray()], function ($messages) use ($admin, $adminEmailData) {
+            Mail::send('/Mails/admin/JobNotification', [
+                'data' => $adminEmailData,
+                'job' => $adminEmailData['emailData']['job'],
+                'admin' => $admin->toArray()
+            ], function ($messages) use ($admin, $adminEmailData) {
                 $messages->to($admin['email']);
                 $messages->subject($adminEmailData['emailSubject']);
             });

@@ -4,7 +4,7 @@ import SelectElement from "./inputElements/SelectElement";
 import DateField from "./inputElements/DateField";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import { useTranslation } from "react-i18next";
-import { cityOption, countryOption } from "./cityCountry";
+import { countryOption } from "./cityCountry";
 
 export default function EmployeeDetails({
     errors,
@@ -286,8 +286,8 @@ export default function EmployeeDetails({
                     )}
                 </div>
                 <div className="col-sm-3 col-xs-6">
-                    <SelectElement
-                        name={"employeeCity"}
+                    <TextField
+                        name="employeeCity"
                         label={t("form101.City")}
                         value={values.employeeCity}
                         onChange={handleChange}
@@ -297,8 +297,7 @@ export default function EmployeeDetails({
                                 ? errors.employeeCity
                                 : ""
                         }
-                        options={cityOption}
-                        required={true}
+                        required
                     />
                 </div>
                 <div className="col-sm-3 col-xs-6">

@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobWorkerChanged;
 use App\Models\ManageTime;
+use App\Events\JobNotificationToWorker;
 
 class JobController extends Controller
 {
@@ -67,7 +68,7 @@ class JobController extends Controller
 
     public function cancel(Request $request, $id)
     {
-        $job = Job::with(['client', 'offer', 'worker', 'jobservice'])
+        $job = Job::with('client')
             ->where('client_id', Auth::user()->id)
             ->find($id);
 
@@ -105,85 +106,117 @@ class JobController extends Controller
             ], 403);
         }
 
-        $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
-        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+        $repeatancy = $request->get('repeatancy');
+        $until_date = $request->get('until_date');
 
-        JobCancellationFee::create([
-            'job_id' => $job->id,
-            'cancellation_fee_percentage' => $feePercentage,
-            'cancellation_fee_amount' => $feeAmount,
-            'cancelled_user_role' => 'client',
-            'cancelled_by' => Auth::user()->id,
-            'action' => CancellationActionEnum::CANCELLATION,
-            'duration' => $request->repeatancy,
-            'until_date' => $request->until_date,
-        ]);
-
-        $job->update([
-            'status' => JobStatusEnum::CANCEL,
-            'cancellation_fee_percentage' => $feePercentage,
-            'cancellation_fee_amount' => $feeAmount,
-            'cancelled_by_role' => 'client',
-            'cancelled_by' => Auth::user()->id,
-            'cancelled_at' => now(),
-            'cancelled_for' => $request->repeatancy,
-            'cancel_until_date' => $request->until_date,
-        ]);
-
-        CreateJobOrder::dispatch($job->id);
-        ScheduleNextJobOccurring::dispatch($job->id);
-
-        Notification::create([
-            'user_id' => $job->client->id,
-            'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
-            'job_id' => $job->id,
-            'status' => 'declined'
-        ]);
+        $jobs = Job::query()
+            ->with(['client', 'offer', 'worker', 'jobservice'])
+            ->whereIn('status', [
+                JobStatusEnum::SCHEDULED,
+                JobStatusEnum::UNSCHEDULED,
+            ])
+            ->when($repeatancy == 'until_date', function ($q) use ($until_date) {
+                return $q->whereDate('start_date', '<=', $until_date);
+            })
+            ->when($repeatancy == 'one_time', function ($q) use ($id) {
+                return $q->where('id', $id);
+            })
+            ->where('job_group_id', $job->job_group_id)
+            ->get();
 
         $admin = Admin::where('role', 'admin')->first();
-        App::setLocale('en');
-        $data = array(
-            'by'         => 'client',
-            'email'      => $admin->email,
-            'admin'      => $admin->toArray(),
-            'job'        => $job->toArray(),
-        );
-        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
-                "notificationData" => $data
-            ]));
-        }
-        // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-        //     $messages->to($data['email']);
-        //     $sub = __('mail.client_job_status.subject');
-        //     $messages->subject($sub);
-        // });
 
-        //send notification to admin
-        $emailContent = '';
-        if ($data['by'] == 'client') {
-            $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($data['job']['status']) . '.';
-            if ($data['job']['cancellation_fee_amount']) {
-                $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $data['job']['cancellation_fee_amount'] . 'ILS.';
+        foreach ($jobs as $key => $job) {
+            $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+            JobCancellationFee::create([
+                'job_id' => $job->id,
+                'job_group_id' => $job->job_group_id,
+                'cancellation_fee_percentage' => $feePercentage,
+                'cancellation_fee_amount' => $feeAmount,
+                'cancelled_user_role' => 'client',
+                'cancelled_by' => Auth::user()->id,
+                'action' => CancellationActionEnum::CANCELLATION,
+                'duration' => $repeatancy,
+                'until_date' => $until_date,
+            ]);
+
+            $job->update([
+                'status' => JobStatusEnum::CANCEL,
+                'cancellation_fee_percentage' => $feePercentage,
+                'cancellation_fee_amount' => $feeAmount,
+                'cancelled_by_role' => 'client',
+                'cancelled_by' => Auth::user()->id,
+                'cancelled_at' => now(),
+                'cancelled_for' => $repeatancy,
+                'cancel_until_date' => $until_date,
+            ]);
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+            CreateJobOrder::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id);
+
+            Notification::create([
+                'user_id' => $job->client->id,
+                'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
+                'job_id' => $job->id,
+                'status' => 'declined'
+            ]);
+
+            App::setLocale('en');
+            $data = array(
+                'by'         => 'client',
+                'email'      => $admin->email,
+                'admin'      => $admin->toArray(),
+                'job'        => $job->toArray(),
+            );
+            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                    "notificationData" => $data
+                ]));
             }
-        } else {
-            $emailContent .= 'Job is marked as' . ucfirst($data['job']['status']) . 'by admin/team.';
+            // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+            //     $messages->to($data['email']);
+            //     $sub = __('mail.client_job_status.subject');
+            //     $messages->subject($sub);
+            // });
+
+            //send notification to admin
+            $emailContent = '';
+            if ($data['by'] == 'client') {
+                $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
+                if ($job->cancellation_fee_amount) {
+                    $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
+                }
+            } else {
+                $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
+            }
+
+            $emailSubject = ($data['by'] == 'admin') ?
+                ('Job has been cancelled') . " #" . $job->id :
+                __('mail.client_job_status.subject') . " #" . $job->id;
+
+            $adminEmailData = [
+                'emailData' => [
+                    'job' => $job->toArray(),
+                ],
+                'emailSubject'  => $emailSubject,
+                'emailTitle'    => 'Job Status',
+                'emailContent'  => $emailContent
+            ];
+            event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to worker
+            $job = $job->toArray();
+            $worker = $job['worker'];
+            $emailData = [
+                'emailSubject'  => $emailSubject,
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => $emailContent
+            ];
+            event(new JobNotificationToWorker($worker, $job, $emailData));
         }
-
-        $emailSubject = ($data['by'] == 'admin') ?
-            ('Job has been cancelled') . " #" . $data['job']['id'] :
-            __('mail.client_job_status.subject') . " #" . $data['job']['id'];
-
-        $adminEmailData = [
-            'emailData'   => [
-                'job'   =>  $job->toArray(),
-            ],
-            'emailSubject'  => $emailSubject,
-            'emailTitle'  => 'Job Status',
-            'emailContent'  => $emailContent
-        ];
-        event(new JobNotificationToAdmin($adminEmailData));
 
         return response()->json([
             'job' => $job,
@@ -354,6 +387,7 @@ class JobController extends Controller
 
         JobCancellationFee::create([
             'job_id' => $job->id,
+            'job_group_id' => $job->job_group_id,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
             'cancelled_user_role' => 'admin',
@@ -443,6 +477,33 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job rating submitted successfully',
+        ]);
+    }
+
+    public function getOpenJobAmountByGroup(Request $request, $id)
+    {
+        $groupID = $request->get('group_id');
+        $repeatancy = $request->get('repeatancy');
+        $until_date = $request->get('until_date');
+
+        $jobs = Job::query()
+            ->where('client_id', Auth::user()->id)
+            ->whereIn('status', [
+                JobStatusEnum::SCHEDULED,
+                JobStatusEnum::UNSCHEDULED,
+            ])
+            ->when($repeatancy == 'until_date' && $until_date, function ($q) use ($until_date) {
+                return $q->whereDate('start_date', '<=', $until_date);
+            })
+            ->when($repeatancy == 'one_time', function ($q) use ($id) {
+                return $q->where('id', $id);
+            })
+            ->where('job_group_id', $groupID)
+            ->selectRaw("SUM(total_amount) as total_amount")
+            ->first();
+
+        return response()->json([
+            'total_amount' => $jobs->total_amount
         ]);
     }
 }

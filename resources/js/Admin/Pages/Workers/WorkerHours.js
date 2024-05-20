@@ -48,6 +48,10 @@ export default function WorkerHours() {
     });
     const [selectedFilter, setselectedFilter] = useState("Week");
     const [exportData, setExportData] = useState([]);
+    const [filters, setFilters] = useState({
+        manpower_company_id: null,
+    });
+    const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -60,6 +64,10 @@ export default function WorkerHours() {
 
         if (searchVal) {
             _filters.keyword = searchVal;
+        }
+
+        if (filters.manpower_company_id) {
+            _filters.manpower_company_id = filters.manpower_company_id;
         }
 
         _filters.start_date = dateRange.start_date;
@@ -85,12 +93,14 @@ export default function WorkerHours() {
     };
 
     const handleExport = async () => {
-        console.log("handleExport");
-
         let _filters = {};
 
         if (searchVal) {
             _filters.keyword = searchVal;
+        }
+
+        if (filters.manpower_company_id) {
+            _filters.manpower_company_id = filters.manpower_company_id;
         }
 
         _filters.start_date = dateRange.start_date;
@@ -112,7 +122,25 @@ export default function WorkerHours() {
 
     useEffect(() => {
         getWorkers();
-    }, [currentPage, searchVal, dateRange]);
+    }, [currentPage, searchVal, dateRange, filters]);
+
+    const getManpowerCompanies = async () => {
+        await axios
+            .get("/api/admin/manpower-companies-list", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.companies?.length > 0) {
+                    setManpowerCompanies(response.data.companies);
+                } else {
+                    setManpowerCompanies([]);
+                }
+            });
+    };
+
+    useEffect(() => {
+        getManpowerCompanies();
+    }, []);
 
     const header = [
         { label: "Worker Name", key: "worker_name" },
@@ -205,138 +233,163 @@ export default function WorkerHours() {
                         </div>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                        <div className="d-flex align-items-center">
+                            <div
+                                style={{ fontWeight: "bold" }}
+                                className="mr-2"
+                            >
+                                Date Period
+                            </div>
+                            <FilterButtons
+                                text="Day"
+                                className="px-4 mr-1"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date: todayFilter.start_date,
+                                        end_date: todayFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedFilter}
+                                setselectedFilter={setselectedFilter}
+                            />
+                            <FilterButtons
+                                text="Week"
+                                className="px-4 mr-3"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date:
+                                            currentWeekFilter.start_date,
+                                        end_date: currentWeekFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedFilter}
+                                setselectedFilter={setselectedFilter}
+                            />
+                            <FilterButtons
+                                text="Previous Week"
+                                className="px-3 mr-1"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date:
+                                            previousWeekFilter.start_date,
+                                        end_date: previousWeekFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedFilter}
+                                setselectedFilter={setselectedFilter}
+                            />
+                            <FilterButtons
+                                text="Next Week"
+                                className="px-3"
+                                onClick={() =>
+                                    setDateRange({
+                                        start_date: nextWeekFilter.start_date,
+                                        end_date: nextWeekFilter.end_date,
+                                    })
+                                }
+                                selectedFilter={selectedFilter}
+                                setselectedFilter={setselectedFilter}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                        <div className="d-flex align-items-center">
+                            <div
+                                className="mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                Custom Date Range
+                            </div>
+
+                            <input
+                                className="form-control"
+                                type="date"
+                                placeholder="From date"
+                                name="from filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.start_date}
+                                onChange={(e) => {
+                                    setselectedFilter("Custom Range");
+                                    setDateRange({
+                                        start_date: e.target.value,
+                                        end_date: dateRange.end_date,
+                                    });
+                                }}
+                            />
+                            <div className="mx-2">to</div>
+                            <input
+                                className="form-control"
+                                type="date"
+                                placeholder="To date"
+                                name="to filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.end_date}
+                                onChange={(e) => {
+                                    setselectedFilter("Custom Range");
+                                    setDateRange({
+                                        start_date: dateRange.start_date,
+                                        end_date: e.target.value,
+                                    });
+                                }}
+                            />
+                            <button
+                                type="button"
+                                className="m-0 ml-4 btn border rounded px-3"
+                                onClick={handleExport}
+                                style={{
+                                    background: "#2c3f51",
+                                    color: "white",
+                                }}
+                            >
+                                Export
+                            </button>
+                        </div>
+
+                        <div className="App" style={{ display: "none" }}>
+                            <CSVLink {...csvReport} id="csv">
+                                Export to CSV
+                            </CSVLink>
+                        </div>
+                    </div>
+                    <div className="col-sm-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                        <div
+                            className="mr-3 align-items-center"
+                            style={{ fontWeight: "bold" }}
+                        >
+                            Manpower Company
+                        </div>
+                        <div>
+                            {manpowerCompanies.map((company, _index) => (
+                                <button
+                                    key={_index}
+                                    className={`btn border rounded px-3 mr-1 float-left`}
+                                    style={
+                                        filters.manpower_company_id ===
+                                        company.id
+                                            ? { background: "white" }
+                                            : {
+                                                  background: "#2c3f51",
+                                                  color: "white",
+                                              }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            manpower_company_id: company.id,
+                                        });
+                                    }}
+                                >
+                                    {company.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
-                                <div className="d-flex align-items-center">
-                                    <div
-                                        style={{ fontWeight: "bold" }}
-                                        className="mr-2"
-                                    >
-                                        Date Period
-                                    </div>
-                                    <FilterButtons
-                                        text="Day"
-                                        className="px-4 mr-1"
-                                        onClick={() =>
-                                            setDateRange({
-                                                start_date:
-                                                    todayFilter.start_date,
-                                                end_date: todayFilter.end_date,
-                                            })
-                                        }
-                                        selectedFilter={selectedFilter}
-                                        setselectedFilter={setselectedFilter}
-                                    />
-                                    <FilterButtons
-                                        text="Week"
-                                        className="px-4 mr-3"
-                                        onClick={() =>
-                                            setDateRange({
-                                                start_date:
-                                                    currentWeekFilter.start_date,
-                                                end_date:
-                                                    currentWeekFilter.end_date,
-                                            })
-                                        }
-                                        selectedFilter={selectedFilter}
-                                        setselectedFilter={setselectedFilter}
-                                    />
-                                    <FilterButtons
-                                        text="Previous Week"
-                                        className="px-3 mr-1"
-                                        onClick={() =>
-                                            setDateRange({
-                                                start_date:
-                                                    previousWeekFilter.start_date,
-                                                end_date:
-                                                    previousWeekFilter.end_date,
-                                            })
-                                        }
-                                        selectedFilter={selectedFilter}
-                                        setselectedFilter={setselectedFilter}
-                                    />
-                                    <FilterButtons
-                                        text="Next Week"
-                                        className="px-3"
-                                        onClick={() =>
-                                            setDateRange({
-                                                start_date:
-                                                    nextWeekFilter.start_date,
-                                                end_date:
-                                                    nextWeekFilter.end_date,
-                                            })
-                                        }
-                                        selectedFilter={selectedFilter}
-                                        setselectedFilter={setselectedFilter}
-                                    />
-                                </div>
-                            </div>
-                            <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
-                                <div className="d-flex align-items-center">
-                                    <div
-                                        className="mr-3"
-                                        style={{ fontWeight: "bold" }}
-                                    >
-                                        Custom Date Range
-                                    </div>
-
-                                    <input
-                                        className="form-control"
-                                        type="date"
-                                        placeholder="From date"
-                                        name="from filter"
-                                        style={{ width: "fit-content" }}
-                                        value={dateRange.start_date}
-                                        onChange={(e) => {
-                                            setselectedFilter("Custom Range");
-                                            setDateRange({
-                                                start_date: e.target.value,
-                                                end_date: dateRange.end_date,
-                                            });
-                                        }}
-                                    />
-                                    <div className="mx-2">to</div>
-                                    <input
-                                        className="form-control"
-                                        type="date"
-                                        placeholder="To date"
-                                        name="to filter"
-                                        style={{ width: "fit-content" }}
-                                        value={dateRange.end_date}
-                                        onChange={(e) => {
-                                            setselectedFilter("Custom Range");
-                                            setDateRange({
-                                                start_date:
-                                                    dateRange.start_date,
-                                                end_date: e.target.value,
-                                            });
-                                        }}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="m-0 ml-4 btn border rounded px-3"
-                                        onClick={handleExport}
-                                        style={{
-                                            background: "#2c3f51",
-                                            color: "white",
-                                        }}
-                                    >
-                                        Export
-                                    </button>
-                                </div>
-
-                                <div
-                                    className="App"
-                                    style={{ display: "none" }}
-                                >
-                                    <CSVLink {...csvReport} id="csv">
-                                        Export to CSV
-                                    </CSVLink>
-                                </div>
-                            </div>
-
                             <div className="Table-responsive">
                                 {workers.length > 0 ? (
                                     <Table className="table table-bordered">
