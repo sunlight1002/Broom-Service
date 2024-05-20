@@ -19,6 +19,7 @@ import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 export default function ChangeShiftCalender({ job }) {
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
+    const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -128,6 +129,7 @@ export default function ChangeShiftCalender({ job }) {
                     worker: data[0],
                     repeatancy: formValues.repeatancy,
                     until_date: formValues.until_date,
+                    updatedJobs: updatedJobs,
                 };
                 let viewbtn = document.querySelectorAll(".viewBtn");
                 if (data.length > 0) {
@@ -199,6 +201,8 @@ export default function ChangeShiftCalender({ job }) {
                     worker.jobHours,
                     false,
                     alert,
+                    setWorkerAvailabilities,
+                    setUpdatedJobs
                 );
                 added = true;
                 return {
@@ -341,6 +345,7 @@ export default function ChangeShiftCalender({ job }) {
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={week}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -362,6 +367,7 @@ export default function ChangeShiftCalender({ job }) {
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={nextweek}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -385,6 +391,7 @@ export default function ChangeShiftCalender({ job }) {
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={nextnextweek}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -438,6 +445,7 @@ export default function ChangeShiftCalender({ job }) {
                     {customDateRange.length > 0 && (
                         <div className="crt-jb-table-scrollable">
                             <WorkerAvailabilityTable
+                                workerAvailabilities={workerAvailabilities}
                                 week={customDateRange}
                                 AllWorkers={AllWorkers}
                                 hasActive={hasActive}

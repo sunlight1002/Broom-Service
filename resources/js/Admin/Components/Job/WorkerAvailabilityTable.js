@@ -1,15 +1,14 @@
 import moment from "moment-timezone";
-import { filterShiftOptions } from "../../../Utils/job.utils";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 
 export default function WorkerAvailabilityTable({
+    workerAvailabilities,
     week,
     AllWorkers,
     hasActive,
     changeShift,
     removeShift,
-    selectedHours,
     isClient = false,
 }) {
     return (
@@ -30,12 +29,6 @@ export default function WorkerAvailabilityTable({
                 </thead>
                 <tbody>
                     {AllWorkers.map((w, index) => {
-                        let availabilities = w.availabilities ?? [];
-                        let booked_slots = w.booked_slots ?? [];
-                        let freeze_dates = w.freeze_dates ?? [];
-                        // console.log(freeze_dates);
-                        const notAvailableDates = w.not_available_on;
-
                         return (
                             <tr key={index}>
                                 <td className="worker-name">
@@ -47,42 +40,43 @@ export default function WorkerAvailabilityTable({
                                     </span>
                                 </td>
                                 {week.map((element, index) => {
-                                    let shifts = booked_slots[element] ?? [];
-                                    let slots = filterShiftOptions(
-                                        availabilities[element] ?? [],
-                                        shifts,
-                                        freeze_dates.filter(f => {
-                                            return f.date == element
-                                        }),
-                                        notAvailableDates?.find(
-                                            (n) => n.date == element
-                                        ),
-                                        selectedHours,
-                                        w.id,
-                                        element,
-                                    );
+                                    let workerSlots = workerAvailabilities.find(_w => {
+                                        return _w.workerId == w.id
+                                    }) ?? [];
+                                    let slots = workerSlots?.slots?.find(_s => {
+                                        return _s.date == element;
+                                    }) ?? [];
+                                    let hasStartActive = false;
                                     return (
                                         <td key={index}>
                                             <div className="d-flex">
                                                 <div className="d-flex slots">
-                                                    {slots.length > 0 ? (
-                                                        slots.map(
+                                                    {slots?.allSlots?.length > 0 ? (
+                                                        slots?.allSlots.map(
                                                             (shift, _sIdx) => {
-                                                                const isActive =
+                                                                let isActive =
                                                                     hasActive(
                                                                         w.id,
                                                                         element,
                                                                         shift
                                                                     );
+
+                                                                if(!hasStartActive) {
+                                                                    hasStartActive = isActive;
+                                                                } else if(isClient) {
+                                                                    isActive = false;
+                                                                }
                                                                 let tooltip = '';
-                                                                if(shift?.isBooked) {
-                                                                    tooltip = shift?.clientName;
-                                                                } else if(shift?.isFreezed && isClient) {
-                                                                    tooltip = 'Shift is freezed by Administrator';
-                                                                } else if(shift?.isFreezed && !isClient) {
-                                                                    tooltip = 'Shift is freezed';
-                                                                } else if(shift?.notAvailable) {
-                                                                    tooltip = 'Worker is not available';
+                                                                if(!isClient) {
+                                                                    if(shift?.isBooked) {
+                                                                        tooltip = shift?.clientName + shift?.jobId;
+                                                                    } else if(shift?.isFreezed && isClient) {
+                                                                        tooltip = 'Shift is freezed by Administrator';
+                                                                    } else if(shift?.isFreezed && !isClient) {
+                                                                        tooltip = 'Shift is freezed';
+                                                                    } else if(shift?.notAvailable) {
+                                                                        tooltip = 'Worker is not available';
+                                                                    }
                                                                 }
                                                                 return (
                                                                     <div

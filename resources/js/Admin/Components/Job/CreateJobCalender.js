@@ -22,6 +22,7 @@ export default function CreateJobCalender({
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
+    const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
     const [selectedService, setSelectedService] = useState(0);
@@ -130,6 +131,7 @@ export default function CreateJobCalender({
                     service_id: selectedService.service,
                     contract_id: selectedService.contract_id,
                     prevWorker: isPrevWorker.current.checked,
+                    updatedJobs: updatedJobs,
                 };
                 let viewbtn = document.querySelectorAll(".viewBtn");
                 if (data.length > 0) {
@@ -195,7 +197,9 @@ export default function CreateJobCalender({
                     e,
                     worker.jobHours,
                     false,
-                    alert
+                    alert,
+                    setWorkerAvailabilities,
+                    setUpdatedJobs
                 );
 
                 return {
@@ -323,6 +327,7 @@ export default function CreateJobCalender({
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={week}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -345,6 +350,7 @@ export default function CreateJobCalender({
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={nextweek}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -368,6 +374,7 @@ export default function CreateJobCalender({
                 >
                     <div className="crt-jb-table-scrollable">
                         <WorkerAvailabilityTable
+                            workerAvailabilities={workerAvailabilities}
                             week={nextnextweek}
                             AllWorkers={AllWorkers}
                             hasActive={hasActive}
@@ -421,6 +428,7 @@ export default function CreateJobCalender({
                     {customDateRange.length > 0 && (
                         <div className="crt-jb-table-scrollable">
                             <WorkerAvailabilityTable
+                                workerAvailabilities={workerAvailabilities}
                                 week={customDateRange}
                                 AllWorkers={AllWorkers}
                                 hasActive={hasActive}

@@ -132,6 +132,7 @@ import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 import Invoices from "./Client/Pages/Invoices/Invoices";
 import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies";
+import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvailability";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -602,6 +603,11 @@ export default function MyRoutes() {
                                 exact
                                 path="view-contract/:id"
                                 element={<ViewContract />}
+                            />
+                            <Route
+                                exact
+                                path="worker-affected-availability/:id"
+                                element={<WorkerAffectedAvailability />}
                             />
                             <Route
                                 exact
