@@ -666,12 +666,15 @@ export default function ViewSchedule() {
                                     {t("admin.schedule.meetingTimeAndDate")}
                                 </h4>
 
-                                <div className="mx-auto mt-5 row custom-calendar">
-                                    <div className="col-12 col-md-8 border">
+                                <div className="mx-auto mt-5 custom-calendar">
+                                    <div className="border">
                                         <h5 className="mt-3">
                                             Select a Date & Time
                                         </h5>
-                                        <div className="d-flex gap-3 p-3" style={{overflowX: 'auto'}}>
+                                        <div
+                                            className="d-flex gap-3 p-3"
+                                            style={{ overflowX: "auto" }}
+                                        >
                                             <div>
                                                 <DatePicker
                                                     selected={selectedDate}
