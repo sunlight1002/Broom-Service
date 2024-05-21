@@ -32,7 +32,7 @@ const ChildrenDetails = ({
                         {t("form101.child")} {index + 1}{" "}
                         <button
                             type="button"
-                            className="btn btn-sm btn-danger "
+                            className="btn btn-sm btn-danger action-btn"
                             onClick={() => {
                                 const newChildren = [...values.children];
                                 newChildren.splice(index, 1);
@@ -141,7 +141,7 @@ const ChildrenDetails = ({
                 ))}
             <button
                 type="button"
-                className="btn btn-success button add slotBtn mb-3"
+                className="btn btn-success button add mb-3 action-btn"
                 onClick={() => {
                     setFieldValue("children", [
                         ...values.children,

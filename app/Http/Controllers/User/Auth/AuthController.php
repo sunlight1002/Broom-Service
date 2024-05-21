@@ -237,6 +237,24 @@ class AuthController extends Controller
         ]);
     }
 
+    public function transformFormDataForBoolean(&$array)
+    {
+        foreach ($array as $key => &$value) {
+            if (is_array($value)) {
+                // Recursively call the function for nested arrays
+                $array[$key] = $this->transformFormDataForBoolean($value);
+            } elseif (is_string($value)) {
+                if ($value === 'true') {
+                    $array[$key] = true;
+                } elseif ($value === 'false') {
+                    $array[$key] = false;
+                }
+            }
+        }
+
+        return $array;
+    }
+
     public function form101(Request $request, $id)
     {
         $worker = User::find($id);
@@ -248,6 +266,7 @@ class AuthController extends Controller
         }
 
         $data = $request->all();
+        $data = $this->transformFormDataForBoolean($data);
         $savingType = $data['savingType'];
         unset($data['savingType']);
 
@@ -303,7 +322,9 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Form 101 signed successfully.'
+            'message' => $savingType === 'draft'
+                ? 'Form 101 saved as draft.'
+                : 'Form 101 signed successfully.'
         ]);
     }
 

@@ -26,116 +26,6 @@ import { objectToFormData } from "../../Utils/common.utils";
 import moment from "moment";
 
 const currentDate = moment().format("YYYY-MM-DD");
-const initialValues = {
-    employerName: "",
-    employerAddress: "",
-    employerPhone: "",
-    employerDeductionsFileNo: "",
-    employeeFirstName: "",
-    employeeLastName: "",
-    employeeIdentityType: "IDNumber",
-    employeeIdNumber: "",
-    employeeIdCardCopy: null,
-    employeecountry: "",
-    employeePassportNumber: "",
-    employeepassportCopy: null,
-    employeeResidencePermit: null,
-    employeeDob: "",
-    employeeDateOfAliyah: "",
-    employeeCity: "",
-    employeeStreet: "",
-    employeeHouseNo: "",
-    employeePostalCode: "",
-    employeeMobileNo: "",
-    employeePhoneNo: "",
-    employeeEmail: "",
-    employeeSex: "",
-    employeeMaritalStatus: "",
-    employeeIsraeliResident: "",
-    employeeCollectiveMoshavMember: "",
-    employeeHealthFundMember: "",
-    employeeHealthFundname: "",
-    employeemyIncomeToKibbutz: "",
-    incomeType: "",
-    DateOfBeginningWork: "",
-    children: [],
-    otherIncome: {
-        haveincome: "",
-        incomeType: [],
-        taxCreditsAtOtherIncome: "",
-        allowance: false,
-        scholarship: false,
-    },
-    Spouse: {
-        firstName: "",
-        lastName: "",
-        Identity: "",
-        Country: "",
-        passportNumber: "",
-        IdNumber: "",
-        Dob: "",
-        DateOFAliyah: "",
-        hasIncome: "",
-        incomeType: "",
-        incomeTypeOpt1: false,
-        incomeTypeOpt2: false,
-    },
-    TaxExemption: {
-        isIsraelResident: "", // Initial value for isIsraelResident
-        disabled: false,
-        disabledCertificate: "",
-        disabledCompensation: false,
-        disabledCompensationCertificate: "",
-        exm3: false,
-        exm3Date: "",
-        exm3Locality: "",
-        exm3Certificate: "",
-        exm4: false,
-        exm4FromDate: "",
-        exm4ImmigrationCertificate: "",
-        exm4NoIncomeDate: "",
-        exm5: false,
-        exm5disabledCirtificate: "",
-        exm6: false,
-        exm7: false,
-        exm7NoOfChild: 0,
-        exm7NoOfChild1to5: 0,
-        exm7NoOfChild6to17: 0,
-        exm7NoOfChild18: 0,
-        exm8: false,
-        exm8NoOfChild: 0,
-        exm8NoOfChild1to5: 0,
-        exm8NoOfChild6to17: 0,
-        exm9: false,
-        exm10: false,
-        exm10Certificate: "",
-        exm11: false,
-        exm11NoOfChildWithDisibility: 0,
-        exm11Certificate: "",
-        exm12: false,
-        exm12Certificate: "",
-        exm13: false,
-        exm14: false,
-        exm14BeginingDate: "",
-        exm14EndDate: "",
-        exm14Certificate: "",
-        exm15: false,
-        exm15Certificate: "",
-    },
-    TaxCoordination: {
-        hasTaxCoordination: false,
-        requestReason: "",
-        requestReason1Certificate: null,
-        requestReason3Certificate: null,
-        employer: [employerInitial],
-    },
-    date: currentDate,
-    sender: {
-        employeeEmail: "",
-        employerEmail: "office@broomservice.co.il",
-    },
-    signature: "",
-};
 
 const Form101Component = () => {
     const sigRef = useRef();
@@ -686,7 +576,526 @@ const Form101Component = () => {
         setFieldValue,
         isSubmitting,
     } = useFormik({
-        initialValues: formValues ?? initialValues,
+        initialValues: {
+            employerName:
+                formValues && formValues.employerName
+                    ? formValues.employerName
+                    : "",
+            employerAddress:
+                formValues && formValues.employerAddress
+                    ? formValues.employerAddress
+                    : "",
+            employerPhone:
+                formValues && formValues.employerPhone
+                    ? formValues.employerPhone
+                    : "",
+            employerDeductionsFileNo:
+                formValues && formValues.employerDeductionsFileNo
+                    ? formValues.employerDeductionsFileNo
+                    : "",
+            employeeFirstName:
+                formValues && formValues.employeeFirstName
+                    ? formValues.employeeFirstName
+                    : "",
+            employeeLastName:
+                formValues && formValues.employeeLastName
+                    ? formValues.employeeLastName
+                    : "",
+            employeeIdentityType:
+                formValues && formValues.employeeIdentityType
+                    ? formValues.employeeIdentityType
+                    : "IDNumber",
+            employeeIdNumber:
+                formValues && formValues.employeeIdNumber
+                    ? formValues.employeeIdNumber
+                    : "",
+            employeeIdCardCopy:
+                formValues && formValues.employeeIdCardCopy
+                    ? formValues.employeeIdCardCopy
+                    : null,
+            employeecountry:
+                formValues && formValues.employeecountry
+                    ? formValues.employeecountry
+                    : "",
+            employeePassportNumber:
+                formValues && formValues.employeePassportNumber
+                    ? formValues.employeePassportNumber
+                    : "",
+            employeepassportCopy:
+                formValues && formValues.employeepassportCopy
+                    ? formValues.employeepassportCopy
+                    : null,
+            employeeResidencePermit:
+                formValues && formValues.employeeResidencePermit
+                    ? formValues.employeeResidencePermit
+                    : null,
+            employeeDob:
+                formValues && formValues.employeeDob
+                    ? formValues.employeeDob
+                    : "",
+            employeeDateOfAliyah:
+                formValues && formValues.employeeDateOfAliyah
+                    ? formValues.employeeDateOfAliyah
+                    : "",
+            employeeCity:
+                formValues && formValues.employeeCity
+                    ? formValues.employeeCity
+                    : "",
+            employeeStreet:
+                formValues && formValues.employeeStreet
+                    ? formValues.employeeStreet
+                    : "",
+            employeeHouseNo:
+                formValues && formValues.employeeHouseNo
+                    ? formValues.employeeHouseNo
+                    : "",
+            employeePostalCode:
+                formValues && formValues.employeePostalCode
+                    ? formValues.employeePostalCode
+                    : "",
+            employeeMobileNo:
+                formValues && formValues.employeeMobileNo
+                    ? formValues.employeeMobileNo
+                    : "",
+            employeePhoneNo:
+                formValues && formValues.employeePhoneNo
+                    ? formValues.employeePhoneNo
+                    : "",
+            employeeEmail:
+                formValues && formValues.employeeEmail
+                    ? formValues.employeeEmail
+                    : "",
+            employeeSex:
+                formValues && formValues.employeeSex
+                    ? formValues.employeeSex
+                    : "",
+            employeeMaritalStatus:
+                formValues && formValues.employeeMaritalStatus
+                    ? formValues.employeeMaritalStatus
+                    : "",
+            employeeIsraeliResident:
+                formValues && formValues.employeeIsraeliResident
+                    ? formValues.employeeIsraeliResident
+                    : "",
+            employeeCollectiveMoshavMember:
+                formValues && formValues.employeeCollectiveMoshavMember
+                    ? formValues.employeeCollectiveMoshavMember
+                    : "",
+            employeeHealthFundMember:
+                formValues && formValues.employeeHealthFundMember
+                    ? formValues.employeeHealthFundMember
+                    : "",
+            employeeHealthFundname:
+                formValues && formValues.employeeHealthFundname
+                    ? formValues.employeeHealthFundname
+                    : "",
+            employeemyIncomeToKibbutz:
+                formValues && formValues.employeemyIncomeToKibbutz
+                    ? formValues.employeemyIncomeToKibbutz
+                    : "",
+            incomeType:
+                formValues && formValues.incomeType
+                    ? formValues.incomeType
+                    : "",
+            DateOfBeginningWork:
+                formValues && formValues.DateOfBeginningWork
+                    ? formValues.DateOfBeginningWork
+                    : "",
+            children:
+                formValues && formValues.children ? formValues.children : [],
+            otherIncome: {
+                haveincome:
+                    formValues &&
+                    formValues.otherIncome &&
+                    formValues.otherIncome.haveincome
+                        ? formValues.otherIncome.haveincome
+                        : "",
+                incomeType:
+                    formValues &&
+                    formValues.otherIncome &&
+                    formValues.otherIncome.incomeType
+                        ? formValues.otherIncome.incomeType
+                        : [],
+                taxCreditsAtOtherIncome:
+                    formValues &&
+                    formValues.otherIncome &&
+                    formValues.otherIncome.taxCreditsAtOtherIncome
+                        ? formValues.otherIncome.taxCreditsAtOtherIncome
+                        : "",
+                allowance:
+                    formValues &&
+                    formValues.otherIncome &&
+                    formValues.otherIncome.allowance
+                        ? formValues.otherIncome.allowance
+                        : false,
+                scholarship:
+                    formValues &&
+                    formValues.otherIncome &&
+                    formValues.otherIncome.scholarship
+                        ? formValues.otherIncome.scholarship
+                        : false,
+            },
+            Spouse: {
+                firstName:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.firstName
+                        ? formValues.Spouse.firstName
+                        : "",
+                lastName:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.lastName
+                        ? formValues.Spouse.lastName
+                        : "",
+                Identity:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.Identity
+                        ? formValues.Spouse.Identity
+                        : "",
+                Country:
+                    formValues && formValues.Spouse && formValues.Spouse.Country
+                        ? formValues.Spouse.Country
+                        : "",
+                passportNumber:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.passportNumber
+                        ? formValues.Spouse.passportNumber
+                        : "",
+                IdNumber:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.IdNumber
+                        ? formValues.Spouse.IdNumber
+                        : "",
+                Dob:
+                    formValues && formValues.Spouse && formValues.Spouse.Dob
+                        ? formValues.Spouse.Dob
+                        : "",
+                DateOFAliyah:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.DateOFAliyah
+                        ? formValues.Spouse.DateOFAliyah
+                        : "",
+                hasIncome:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.hasIncome
+                        ? formValues.Spouse.hasIncome
+                        : "",
+                incomeType:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.incomeType
+                        ? formValues.Spouse.incomeType
+                        : "",
+                incomeTypeOpt1:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.incomeTypeOpt1
+                        ? formValues.Spouse.incomeTypeOpt1
+                        : false,
+                incomeTypeOpt2:
+                    formValues &&
+                    formValues.Spouse &&
+                    formValues.Spouse.incomeTypeOpt2
+                        ? formValues.Spouse.incomeTypeOpt2
+                        : false,
+            },
+            TaxExemption: {
+                isIsraelResident:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.isIsraelResident
+                        ? formValues.TaxExemption.isIsraelResident
+                        : "", // Initial value for isIsraelResident
+                disabled:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.disabled
+                        ? formValues.TaxExemption.disabled
+                        : false,
+                disabledCertificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.disabledCertificate
+                        ? formValues.TaxExemption.disabledCertificate
+                        : "",
+                disabledCompensation:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.disabledCompensation
+                        ? formValues.TaxExemption.disabledCompensation
+                        : false,
+                disabledCompensationCertificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.disabledCompensationCertificate
+                        ? formValues.TaxExemption
+                              .disabledCompensationCertificate
+                        : "",
+                exm3:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm3
+                        ? formValues.TaxExemption.exm3
+                        : false,
+                exm3Date:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm3Date
+                        ? formValues.TaxExemption.exm3Date
+                        : "",
+                exm3Locality:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm3Locality
+                        ? formValues.TaxExemption.exm3Locality
+                        : "",
+                exm3Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm3Certificate
+                        ? formValues.TaxExemption.exm3Certificate
+                        : "",
+                exm4:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm4
+                        ? formValues.TaxExemption.exm4
+                        : false,
+                exm4FromDate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm4FromDate
+                        ? formValues.TaxExemption.exm4FromDate
+                        : "",
+                exm4ImmigrationCertificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm4ImmigrationCertificate
+                        ? formValues.TaxExemption.exm4ImmigrationCertificate
+                        : "",
+                exm4NoIncomeDate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm4NoIncomeDate
+                        ? formValues.TaxExemption.exm4NoIncomeDate
+                        : "",
+                exm5:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm5
+                        ? formValues.TaxExemption.exm5
+                        : false,
+                exm5disabledCirtificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm5disabledCirtificate
+                        ? formValues.TaxExemption.exm5disabledCirtificate
+                        : "",
+                exm6:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm6
+                        ? formValues.TaxExemption.exm6
+                        : false,
+                exm7:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm7
+                        ? formValues.TaxExemption.exm7
+                        : false,
+                exm7NoOfChild:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm7NoOfChild
+                        ? formValues.TaxExemption.exm7NoOfChild
+                        : 0,
+                exm7NoOfChild1to5:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm7NoOfChild1to5
+                        ? formValues.TaxExemption.exm7NoOfChild1to5
+                        : 0,
+                exm7NoOfChild6to17:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm7NoOfChild6to17
+                        ? formValues.TaxExemption.exm7NoOfChild6to17
+                        : 0,
+                exm7NoOfChild18:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm7NoOfChild18
+                        ? formValues.TaxExemption.exm7NoOfChild18
+                        : 0,
+                exm8:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm8
+                        ? formValues.TaxExemption.exm8
+                        : false,
+                exm8NoOfChild:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm8NoOfChild
+                        ? formValues.TaxExemption.exm8NoOfChild
+                        : 0,
+                exm8NoOfChild1to5:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm8NoOfChild1to5
+                        ? formValues.TaxExemption.exm8NoOfChild1to5
+                        : 0,
+                exm8NoOfChild6to17:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm8NoOfChild6to17
+                        ? formValues.TaxExemption.exm8NoOfChild6to17
+                        : 0,
+                exm9:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm9
+                        ? formValues.TaxExemption.exm9
+                        : false,
+                exm10:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm10
+                        ? formValues.TaxExemption.exm10
+                        : false,
+                exm10Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm10Certificate
+                        ? formValues.TaxExemption.exm10Certificate
+                        : "",
+                exm11:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm11
+                        ? formValues.TaxExemption.exm11
+                        : false,
+                exm11NoOfChildWithDisibility:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm11NoOfChildWithDisibility
+                        ? formValues.TaxExemption.exm11NoOfChildWithDisibility
+                        : 0,
+                exm11Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm11Certificate
+                        ? formValues.TaxExemption.exm11Certificate
+                        : "",
+                exm12:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm12
+                        ? formValues.TaxExemption.exm12
+                        : false,
+                exm12Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm12Certificate
+                        ? formValues.TaxExemption.exm12Certificate
+                        : "",
+                exm13:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm13
+                        ? formValues.TaxExemption.exm13
+                        : false,
+                exm14:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm14
+                        ? formValues.TaxExemption.exm14
+                        : false,
+                exm14BeginingDate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm14BeginingDate
+                        ? formValues.TaxExemption.exm14BeginingDate
+                        : "",
+                exm14EndDate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm14EndDate
+                        ? formValues.TaxExemption.exm14EndDate
+                        : "",
+                exm14Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm14Certificate
+                        ? formValues.TaxExemption.exm14Certificate
+                        : "",
+                exm15:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm15
+                        ? formValues.TaxExemption.exm15
+                        : false,
+                exm15Certificate:
+                    formValues &&
+                    formValues.TaxExemption &&
+                    formValues.TaxExemption.exm15Certificate
+                        ? formValues.TaxExemption.exm15Certificate
+                        : "",
+            },
+            TaxCoordination: {
+                hasTaxCoordination:
+                    formValues &&
+                    formValues.TaxCoordination &&
+                    formValues.TaxCoordination.hasTaxCoordination
+                        ? formValues.TaxCoordination.hasTaxCoordination
+                        : false,
+                requestReason:
+                    formValues &&
+                    formValues.TaxCoordination &&
+                    formValues.TaxCoordination.requestReason
+                        ? formValues.TaxCoordination.requestReason
+                        : "",
+                requestReason1Certificate:
+                    formValues &&
+                    formValues.TaxCoordination &&
+                    formValues.TaxCoordination.requestReason1Certificate
+                        ? formValues.TaxCoordination.requestReason1Certificate
+                        : null,
+                requestReason3Certificate:
+                    formValues &&
+                    formValues.TaxCoordination &&
+                    formValues.TaxCoordination.requestReason3Certificate
+                        ? formValues.TaxCoordination.requestReason3Certificate
+                        : null,
+                employer:
+                    formValues &&
+                    formValues.TaxCoordination &&
+                    formValues.TaxCoordination.employer
+                        ? formValues.TaxCoordination.employer
+                        : [employerInitial],
+            },
+            date: isSubmitted ? formValues.date : currentDate,
+            sender: {
+                employeeEmail:
+                    formValues &&
+                    formValues.sender &&
+                    formValues.sender.employeeEmail
+                        ? formValues.sender.employeeEmail
+                        : "",
+                employerEmail:
+                    formValues && formValues.sender
+                        ? formValues.sender.employerEmail
+                        : "office@broomservice.co.il",
+            },
+            signature:
+                formValues && formValues.signature ? formValues.signature : "",
+        },
         enableReinitialize: true,
         validationSchema: savingType === "draft" ? yup.object({}) : formSchema,
         onSubmit: (values) => {
@@ -726,7 +1135,6 @@ const Form101Component = () => {
         setFieldValue("signature", "");
     };
     useEffect(() => {
-        setFieldValue("sender.employerEmail", "office@broomservice.co.il");
         getForm();
     }, []);
 
@@ -740,6 +1148,11 @@ const Form101Component = () => {
         selects.forEach((select) => {
             select.disabled = true;
         });
+
+        const buttons = document.querySelectorAll("button.action-btn");
+        buttons.forEach((_button) => {
+            _button.style.display = "none";
+        });
     };
 
     const getForm = () => {
@@ -751,19 +1164,7 @@ const Form101Component = () => {
             } else {
                 document.querySelector("html").removeAttribute("dir");
             }
-            if (res.data.worker) {
-                const worker = res.data.worker;
-                setFieldValue("employeeFirstName", worker.firstname);
-                setFieldValue("employeeLastName", worker.lastname);
-                setFieldValue("employeeMobileNo", worker.phone);
-                const workerGender = worker.gender;
-                const gender =
-                    workerGender.charAt(0).toUpperCase() +
-                    workerGender.slice(1);
-                setFieldValue("employeeEmail", worker.email);
-                setFieldValue("sender.employeeEmail", worker.email);
-                setFieldValue("employeeSex", gender);
-            }
+
             if (res.data.form) {
                 setFormValues(res.data.form.data);
 
@@ -773,6 +1174,18 @@ const Form101Component = () => {
                     }, 2000);
                     setIsSubmitted(true);
                 }
+            } else if (res.data.worker) {
+                const _worker = res.data.worker;
+                setFieldValue("employeeFirstName", _worker.firstname);
+                setFieldValue("employeeLastName", _worker.lastname);
+                setFieldValue("employeeMobileNo", _worker.phone);
+                const workerGender = _worker.gender;
+                const gender =
+                    workerGender.charAt(0).toUpperCase() +
+                    workerGender.slice(1);
+                setFieldValue("employeeEmail", _worker.email);
+                setFieldValue("sender.employeeEmail", _worker.email);
+                setFieldValue("employeeSex", gender);
             }
         });
     };
@@ -783,7 +1196,10 @@ const Form101Component = () => {
 
     const handleSaveAsDraft = () => {
         setSavingType("draft");
-        handleSubmit();
+
+        setTimeout(() => {
+            handleSubmit();
+        }, 200);
     };
 
     return (

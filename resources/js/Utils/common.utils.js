@@ -59,9 +59,7 @@ export const objectToFormData = (obj, formData, namespace) => {
             ) {
                 objectToFormData(obj[property], fd, formKey);
             } else {
-                if (obj[property] !== false) {
-                    fd.append(formKey, obj[property]);
-                }
+                fd.append(formKey, obj[property]);
             }
         }
     }

@@ -845,7 +845,7 @@ export default function TaxExemption({
                             <input
                                 type="file"
                                 name="TaxExemption.exm12Certificate"
-                                id="employeepassportCopy"
+                                id="TaxExemption.exm12Certificate"
                                 accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
@@ -957,12 +957,12 @@ export default function TaxExemption({
                             <br />
                             <input
                                 type="file"
-                                name="TaxExemption.TaxExemption"
-                                id="employeepassportCopy"
+                                name="TaxExemption.exm14Certificate"
+                                id="TaxExemption.exm14Certificate"
                                 accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
-                                        "TaxExemption.TaxExemption",
+                                        "TaxExemption.exm14Certificate",
                                         e.target.files[0]
                                     )
                                 }
@@ -970,10 +970,10 @@ export default function TaxExemption({
                             />
                             {touched.TaxExemption &&
                                 errors.TaxExemption &&
-                                touched.TaxExemption.TaxExemption &&
-                                errors.TaxExemption.TaxExemption && (
+                                touched.TaxExemption.exm14Certificate &&
+                                errors.TaxExemption.exm14Certificate && (
                                     <p className="text-danger">
-                                        {errors.TaxExemption.TaxExemption}
+                                        {errors.TaxExemption.exm14Certificate}
                                     </p>
                                 )}
                         </div>
@@ -1011,7 +1011,7 @@ export default function TaxExemption({
                             <input
                                 type="file"
                                 name="TaxExemption.exm15Certificate"
-                                id="employeepassportCopy"
+                                id="TaxExemption.exm15Certificate"
                                 accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
