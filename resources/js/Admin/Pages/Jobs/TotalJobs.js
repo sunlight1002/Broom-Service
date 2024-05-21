@@ -1130,7 +1130,12 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
         if (_isIncrement) {
             setCount((_count) => (parseFloat(_count) + 0.25).toFixed(2));
         } else {
-            setCount((_count) => (parseFloat(_count) - 0.25).toFixed(2));
+            setCount((_count) =>
+                (_count > 0 && !_count.includes("-")
+                    ? parseFloat(_count) - 0.25
+                    : 0
+                ).toFixed(2)
+            );
         }
         setIsChanged(true);
     };
@@ -1142,7 +1147,7 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
     useEffect(() => {
         setCount(
             data.actual_time_taken_minutes
-                ? (data.actual_time_taken_minutes / 60).toFixed(2)
+                ? parseFloat(data.actual_time_taken_minutes / 60).toFixed(2)
                 : 0
         );
     }, [data]);

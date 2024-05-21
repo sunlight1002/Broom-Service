@@ -1155,11 +1155,11 @@ class JobController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'start_time' => ['required', 'date_format:Y-m-d H:i:s'],
-            'end_time'  => ['required', 'date_format:Y-m-d H:i:s']
+            'end_time'  => ['required', 'date_format:Y-m-d H:i:s', 'after:start_time']
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
+            return response()->json(['errors' => $validator->messages()]);
         }
 
         $time = JobHours::create([
@@ -1181,11 +1181,11 @@ class JobController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'start_time' => ['required', 'date_format:Y-m-d H:i:s'],
-            'end_time'  => ['required', 'date_format:Y-m-d H:i:s']
+            'end_time'  => ['required', 'date_format:Y-m-d H:i:s', 'after:start_time']
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->messages()]);
+            return response()->json(['errors' => $validator->messages()]);
         }
 
         $time = JobHours::find($request->id);
