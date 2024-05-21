@@ -7,6 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class MeetingReminderNotification implements ShouldQueue
 {
@@ -31,31 +33,52 @@ class MeetingReminderNotification implements ShouldQueue
         $schedule = $event->schedule;
         $client = $schedule->client;
         $team = $schedule->team;
-
         //send reminder to team
         if(isset($team['email']) && !empty($team['email'])){
-            App::setLocale('lng');
-            Mail::send('/Mails/team/MeetingReminder', [
-                'schedule'  => $schedule, 
-                'client'    => $client, 
-                'team'      => $team,
-            ], function ($messages) use ($team) {
-                $messages->to($team['email']);
-                $messages->subject('Meeting Remider');
-            });
+            // App::setLocale('en');
+            // Mail::send('/Mails/team/MeetingReminder', [
+            //     'schedule'  => $schedule, 
+            //     'client'    => $client, 
+            //     'team'      => $team,
+            // ], function ($messages) use ($team) {
+            //     $messages->to($team['email']);
+            //     $messages->subject('Meeting Remider');
+            // });
+            $scheduleData = $schedule;
+            $scheduleData['phone'] = $team['phone'];
+            $scheduleData['lng'] = 'en';
+            $scheduleData['firstname'] = $team['name'];
+            $scheduleData['lastname'] = " ";
+            if (isset($scheduleData['phone']) && !empty($scheduleData['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
+                    "notificationData" => $scheduleData
+                ]));
+            }
         }
         
         //send reminder to client
         if(isset($client['email']) && !empty($client['email'])){
-            App::setLocale($client['lng']);
-            Mail::send('/Mails/client/MeetingReminder', [
-                'schedule'  => $schedule, 
-                'client'    => $client, 
-                'team'      => $team,
-            ], function ($messages) use ($client) {
-                $messages->to($client['email']);
-                $messages->subject('Meeting Remider');
-            });
+            // App::setLocale($client['lng']);
+            // Mail::send('/Mails/client/MeetingReminder', [
+            //     'schedule'  => $schedule, 
+            //     'client'    => $client, 
+            //     'team'      => $team,
+            // ], function ($messages) use ($client) {
+            //     $messages->to($client['email']);
+            //     $messages->subject('Meeting Remider');
+            // });
+            $scheduleData = $schedule;
+            $scheduleData['phone'] = $client['phone'];
+            $scheduleData['lng'] = $client['lng'];
+            $scheduleData['firstname'] = $client['firstname'];
+            $scheduleData['lastname'] = $client['lastname'];
+            if (isset($scheduleData['phone']) && !empty($scheduleData['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
+                    "notificationData" => $scheduleData
+                ]));
+            }
         }
     }
 }

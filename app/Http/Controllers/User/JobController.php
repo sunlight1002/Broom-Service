@@ -265,6 +265,17 @@ class JobController extends Controller
         if ($job->status != JobStatusEnum::PROGRESS) {
             $job->status = JobStatusEnum::PROGRESS;
             $job->save();
+            //send notification to worker
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+            $job->start_time = $request->start_time;
+            $jobData = $job->toArray();
+            $worker = $jobData['worker'];
+            $emailData = [
+                'emailSubject'  => __('mail.job_status.subject'),
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
+            ];
+            event(new JobNotificationToWorker($worker, $jobData, $emailData));
         }
 
         JobHours::create([
@@ -273,6 +284,7 @@ class JobController extends Controller
             'start_time' => $request->start_time,
         ]);
 
+         
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
@@ -331,11 +343,11 @@ class JobController extends Controller
             ]);
 
             App::setLocale('en');
-
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
             //send notification to admin
             $adminEmailData = [
                 'emailData'   => [
-                    'job'   =>  $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray(),
+                    'job'   =>  $job,
                 ],
                 'emailSubject'  => __('mail.job_status.subject'),
                 'emailTitle'  => 'Job Status',
@@ -345,7 +357,6 @@ class JobController extends Controller
             event(new JobNotificationToAdmin($adminEmailData));
 
             //send notification to worker
-            $job = $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
             $worker = $job['worker'];
             $emailData = [
                 'emailSubject'  => __('mail.job_status.subject'),

@@ -54,10 +54,10 @@ export function IsrailContact({
             .date()
             .required(t("israilContract.errorMsg.StartDateOfJob")),
         signatureDate: yup.date().required(t("israilContract.errorMsg.Date")),
-        PhoneNo: yup
-            .string()
-            .trim()
-            .required(t("israilContract.errorMsg.Phone")),
+        // PhoneNo: yup
+        //     .string()
+        //     .trim()
+        //     .required(t("israilContract.errorMsg.Phone")),
         MobileNo: yup
             .string()
             .trim()
@@ -210,7 +210,7 @@ export function IsrailContact({
                                                     "israilContract.HomePhone"
                                                 )}
                                                 value={values.PhoneNo}
-                                                required={true}
+                                                // required={true}
                                                 readonly={true}
                                                 error={
                                                     touched.PhoneNo &&
@@ -253,6 +253,7 @@ export function IsrailContact({
                                             value={values.role}
                                             required={true}
                                             error={touched.role && errors.role}
+                                            readonly
                                         />
                                     </div>
                                 </li>

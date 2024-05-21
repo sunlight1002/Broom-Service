@@ -15,6 +15,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { objectToFormData } from "../Utils/common.utils";
 import { useTranslation } from "react-i18next";
 import SignatureCanvas from "react-signature-canvas";
+import moment from "moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
@@ -24,7 +25,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const InsuranceForm = () => {
     const [show, setShow] = useState(false);
     const sigRef = useRef();
-
+    const currentDate = moment().format("YYYY-MM-DD");
     const [pdfForm, setPdfForm] = useState(null);
     const [pdfDoc, setPdfDoc] = useState(null);
     const [pdfData, setPdfData] = useState(null);
@@ -77,7 +78,7 @@ const InsuranceForm = () => {
         g24: "",
         // page 4
         Hname: "",
-        canDate: "",
+        canDate: currentDate,
         signature: "",
     };
 
@@ -2020,6 +2021,7 @@ const InsuranceForm = () => {
                             className="form-control"
                             value={values.canDate}
                             onChange={handleChange}
+                            readOnly
                         />
                     </div>
                 </div>

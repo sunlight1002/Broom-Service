@@ -112,6 +112,79 @@ class WhatsappNotification
                         ]
                     ]
                 ];
+            }elseif($eventType == WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER){
+                $propertyAddress = $eventData['property_address'];
+                if($eventData['purpose'] == "Price offer"){
+                    $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                }else if($eventData['purpose'] == "Quality check"){
+                    $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                }else{
+                    $eventData['purpose'] = $eventData['purpose'];
+                }
+                $params = [
+                        "messaging_product"=> "whatsapp",
+                        "to"=> $eventData['phone'],
+                        "type"=> "template",
+                        "template"=> [
+                            "name"=> WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
+                            "language"=> [
+                                "code"=> $eventData['lng'] == "heb"?'he':$eventData['lng']
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [       
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $eventData['firstname'].' '.$eventData['lastname']
+                                    ],           
+                                    [
+                                        "type"=> "text",
+                                        "text"=>  \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
+                                    ],
+                                    [
+                                        "type"=> "text",
+                                        "text"=> date("H:i", strtotime($eventData['start_time']))
+                                    ],
+                                    [
+                                        "type"=> "text",
+                                        "text"=> date("H:i", strtotime($eventData['end_time']))
+                                    ],
+                                    [
+                                        "type"=> "text",
+                                        "text"=> isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ?$propertyAddress['address_name']: "NA"
+                                    ],
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $eventData['purpose']?$eventData['purpose']:" "
+                                    ],
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0", 
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "meeting-schedule/".base64_encode($eventData['id'])
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "1",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "meeting-files/".base64_encode($eventData['id'])
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
             }elseif ($eventType == WhatsappMessageTemplateEnum::OFFER_PRICE) {
                 $clientData = $eventData['client'];
                 $service_names = isset($eventData['service_names']) ? $eventData['service_names']: ' ';
@@ -440,7 +513,7 @@ class WhatsappNotification
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL || $eventType == WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL) {
+            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL) {
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
@@ -474,6 +547,68 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL) {
+                $adminData = $eventData['admin'];
+                $jobData = $eventData['job'];
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $adminData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> $eventType,
+                        "language"=> [
+                            "code"=> 'en'
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $adminData['name']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " ". ($jobData['shifts'] ? (" ( ".$jobData['shifts']. " ) ") : " ")
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $jobData['client']['firstname'] ." " . $jobData['client']['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=>  $jobData['worker']['firstname'] ." " . $jobData['worker']['lastname']
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> ($jobData['jobservice']['name'].', ')
+                                    ],[
+                                        "type"=> "text",
+                                        "text"=> $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0", 
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "admin/jobs/".$jobData['id']."/change-worker"
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "1", 
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "admin/jobs/".$jobData['id']."/change-shift"
                                     ]
                                 ]
                             ],

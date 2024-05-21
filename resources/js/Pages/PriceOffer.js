@@ -1033,7 +1033,7 @@ export default function PriceOffer() {
                                         {t("price_offer.our_services.s5_p9")}
                                     </li>
                                 </ul>
-                                <h4 className="mt-4">
+                                {/* <h4 className="mt-4">
                                     &bull; {t("price_offer.our_services.s6")}
                                 </h4>
                                 <ul className="list-unstyled">
@@ -1052,7 +1052,7 @@ export default function PriceOffer() {
                                             )}
                                         </a>{" "}
                                     </li>
-                                </ul>
+                                </ul> */}
                             </div>
                         </div>
                         {status == "sent" && (

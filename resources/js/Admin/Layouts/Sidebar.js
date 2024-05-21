@@ -269,12 +269,12 @@ export default function Sidebar() {
                                     {/*<li className='list-group-item'>
                                         <Link to="/admin/languages"><i className="fa fa-angle-right"></i>Languages</Link>
                                     </li>*/}
-                                    <li className="list-group-item">
+                                    {/* <li className="list-group-item">
                                         <Link to="/admin/credentials">
                                             <i className="fa fa-angle-right"></i>{" "}
                                             Credentials{" "}
                                         </Link>
-                                    </li>
+                                    </li> */}
                                     <li className="list-group-item">
                                         <Link to="/admin/settings">
                                             <i className="fa fa-angle-right"></i>{" "}

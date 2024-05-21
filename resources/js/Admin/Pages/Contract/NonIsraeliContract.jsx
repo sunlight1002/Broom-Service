@@ -52,10 +52,10 @@ export function NonIsraeliContract({
             .string()
             .trim()
             .required(t("nonIsrailContract.errorMsg.FullName")),
-        role: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.Role")),
+        // role: yup
+        //     .string()
+        //     .trim()
+        //     .required(t("nonIsrailContract.errorMsg.Role")),
         IdNumber: yup
             .number()
             .typeError(t("nonIsrailContract.errorMsg.invalidId"))
@@ -268,6 +268,7 @@ export function NonIsraeliContract({
                                         value={values.role}
                                         required={true}
                                         error={touched.role && errors.role}
+                                        readonly
                                     />
                                     <p className="mb-2">
                                         {t("nonIsrailContract.nic3-2")}

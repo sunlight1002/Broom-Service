@@ -857,8 +857,8 @@
         },
         "client": {
             "clientName": "Client Name",
-            "BookedCustomer": "Booked Customer",
-            "NotBookedCustomer": "Not Booked Customer",
+            "BookedCustomer": "Active client",
+            "NotBookedCustomer": "Pending client",
             "Export": "Export",
             "Options": {
                 "sortBy": "-- Sort By--",
@@ -900,8 +900,12 @@
                     "qualityCheck": "Quality check",
                     "other": "Other"
                 },
-                "startTime": { "defaultOpt": " --- Choose start time ---" },
-                "endTime": { "defaultOpt": " --- Choose end time ---" },
+                "startTime": {
+                    "defaultOpt": " --- Choose start time ---"
+                },
+                "endTime": {
+                    "defaultOpt": " --- Choose end time ---"
+                },
                 "meetVia": {
                     "onSite": "On site",
                     "offSite": "Off site"

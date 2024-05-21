@@ -33,6 +33,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_RESCHEDULE_MEETING = 'client_reschedule_meeting';
     public const ADMIN_LEAD_FILES = 'admin_lead_files';
     public const TEAM_LEAD_FILES = 'team_lead_files';
-
+    public const CLIENT_MEETING_REMINDER = 'client_meeting_reminder';
 
 }
