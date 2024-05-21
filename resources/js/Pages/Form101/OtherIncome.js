@@ -34,7 +34,7 @@ const OtherIncome = ({
                     },
                     { label: t("form101.if_income_yes"), value: "Yes" },
                 ]}
-                value={values.otherIncome.haveincome}
+                value={values.otherIncome ? values.otherIncome.haveincome : ""}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 error={

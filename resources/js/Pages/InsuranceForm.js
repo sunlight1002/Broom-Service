@@ -223,10 +223,6 @@ const InsuranceForm = () => {
         // console.log(pdfBytes, "arrayBytes");
     };
 
-    // const handleSubmit = async () => {
-    //     await saveFormData(true);
-    // };
-
     const handleShow = async () => {
         await saveFormData(false);
     };
@@ -1021,7 +1017,7 @@ const InsuranceForm = () => {
                                 Were you hospitalized in the course of the last
                                 10 years at a hospital or a medical institution?
                             </label>
-                                <div>Which one, when, the reason</div>
+                            <div>Which one, when, the reason</div>
                             <div className="d-flex align-items-center">
                                 <input
                                     type="text"
@@ -1632,7 +1628,9 @@ const InsuranceForm = () => {
                                     className="form-control"
                                 />
                             </div>
-                                <div className="">Enclose reports and pathology</div>
+                            <div className="">
+                                Enclose reports and pathology
+                            </div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -2028,24 +2026,31 @@ const InsuranceForm = () => {
                 <div className="col-md-4">
                     <label className="control-label">Signature</label>
                     <div className="d-flex align-items-center">
-                        <SignatureCanvas
-                            penColor="black"
-                            canvasProps={{
-                                width: 250,
-                                height: 100,
-                                className: "sign101 border mt-1 bg-white",
-                            }}
-                            ref={sigRef}
-                            onEnd={handleSignatureEnd}
-                        />
-                        <p className="ml-2">
-                            <button
-                                className="btn btn-warning mb-2"
-                                onClick={clearSignature}
-                            >
-                                {t("form101.button_clear")}
-                            </button>
-                        </p>
+                        {formValues && formValues.signature ? (
+                            <img src={formValues.signature} />
+                        ) : (
+                            <>
+                                <SignatureCanvas
+                                    penColor="black"
+                                    canvasProps={{
+                                        width: 250,
+                                        height: 100,
+                                        className:
+                                            "sign101 border mt-1 bg-white",
+                                    }}
+                                    ref={sigRef}
+                                    onEnd={handleSignatureEnd}
+                                />
+                                <p className="ml-2">
+                                    <button
+                                        className="btn btn-warning mb-2"
+                                        onClick={clearSignature}
+                                    >
+                                        {t("form101.button_clear")}
+                                    </button>
+                                </p>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -2056,6 +2061,7 @@ const InsuranceForm = () => {
                     <div className="row justify-content-center">
                         <div className="col-md-8 d-flex">
                             <button
+                                type="button"
                                 className="btn btn-secondary"
                                 onClick={handleShow}
                                 disabled={isSubmitted}

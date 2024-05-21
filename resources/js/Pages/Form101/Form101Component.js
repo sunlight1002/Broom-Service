@@ -312,68 +312,80 @@ const Form101Component = () => {
         Spouse: yup.mixed().when("employeeMaritalStatus", {
             is: "Married",
             then: () =>
-                yup.object().shape({
-                    firstName: yup
-                        .string()
-                        .required(t("form101.errorMsg.fNameReq")),
-                    lastName: yup
-                        .string()
-                        .required(t("form101.errorMsg.lNameReq")),
-                    Identity: yup
-                        .string()
-                        .required(t("form101.errorMsg.SelectOpt"))
-                        .oneOf(
-                            ["IDNumber", "Passport"],
-                            t("form101.errorMsg.invalidopt")
-                        ),
-                    Country: yup
-                        .string()
-                        .when("Identity", {
-                            is: "Passport",
-                            then: () =>
-                                yup
-                                    .string()
-                                    .required(t("form101.errorMsg.countryReq")),
-                        })
-                        .nullable(),
-                    passportNumber: yup
-                        .string()
-                        .when("Identity", {
-                            is: "Passport",
+                yup
+                    .object()
+                    .shape({
+                        firstName: yup
+                            .string()
+                            .required(t("form101.errorMsg.fNameReq")),
+                        lastName: yup
+                            .string()
+                            .required(t("form101.errorMsg.lNameReq")),
+                        Identity: yup
+                            .string()
+                            .required(t("form101.errorMsg.SelectOpt"))
+                            .oneOf(
+                                ["IDNumber", "Passport"],
+                                t("form101.errorMsg.invalidopt")
+                            ),
+                        Country: yup
+                            .string()
+                            .when("Identity", {
+                                is: "Passport",
+                                then: () =>
+                                    yup
+                                        .string()
+                                        .required(
+                                            t("form101.errorMsg.countryReq")
+                                        ),
+                            })
+                            .nullable(),
+                        passportNumber: yup
+                            .string()
+                            .when("Identity", {
+                                is: "Passport",
+                                then: () =>
+                                    yup
+                                        .string()
+                                        .required(
+                                            t("form101.errorMsg.passportNumReq")
+                                        ),
+                            })
+                            .nullable(),
+                        IdNumber: yup.string().when("Identity", {
+                            is: "IDNumber",
                             then: () =>
                                 yup
                                     .string()
                                     .required(
-                                        t("form101.errorMsg.passportNumReq")
+                                        t("form101.errorMsg.IdNumberReq")
                                     ),
-                        })
-                        .nullable(),
-                    IdNumber: yup.string().when("Identity", {
-                        is: "IDNumber",
-                        then: () =>
-                            yup
-                                .string()
-                                .required(t("form101.errorMsg.IdNumberReq")),
+                        }),
+                        Dob: yup.date().required(t("form101.errorMsg.dobReq")),
+                        DateOFAliyah: yup.date(),
+                        hasIncome: yup
+                            .string()
+                            .required(t("form101.errorMsg.incomeReq")),
+                        incomeTypeOpt1: yup.boolean(),
+                        incomeTypeOpt2: yup.boolean(),
+                    })
+                    .test({
+                        name: "atLeastOneCheckbox",
+                        test: function (value) {
+                            if (
+                                value.hasIncome === "Yes" &&
+                                !value.incomeTypeOpt1 &&
+                                !value.incomeTypeOpt2
+                            ) {
+                                throw this.createError({
+                                    path: "Spouse.hasIncome",
+                                    message:
+                                        "Please select at least one income type",
+                                });
+                            }
+                            return true;
+                        },
                     }),
-                    Dob: yup.date().required(t("form101.errorMsg.dobReq")),
-                    DateOFAliyah: yup.date(),
-                    hasIncome: yup
-                        .string()
-                        .required(t("form101.errorMsg.incomeReq")),
-                    incomeTypeOpt1: yup.boolean(),
-                    incomeTypeOpt2: yup.boolean(),
-                }).test({
-                    name: 'atLeastOneCheckbox',
-                    test: function(value) {
-                      if (value.hasIncome === 'Yes' && !value.incomeTypeOpt1 && !value.incomeTypeOpt2) {
-                        throw this.createError({
-                          path: 'Spouse.hasIncome',
-                          message: 'Please select at least one income type',
-                        });
-                      }
-                      return true;
-                    }
-                }),
             otherwise: () => yup.mixed().nullable(),
         }),
         TaxExemption: yup.object().shape({
@@ -676,7 +688,7 @@ const Form101Component = () => {
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
-        validationSchema: formSchema,
+        validationSchema: savingType === "draft" ? yup.object({}) : formSchema,
         onSubmit: (values) => {
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
