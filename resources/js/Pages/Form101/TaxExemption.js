@@ -104,7 +104,7 @@ export default function TaxExemption({
                             {values.TaxExemption &&
                                 values.TaxExemption.disabledCompensation && (
                                     <div className="row">
-                                        <label htmlFor="disabledCompensationCertificate col-12">
+                                        <label htmlFor="disabledCompensationCertificate">
                                             {t(
                                                 "form101.disabledCompensationCertificate"
                                             )}
@@ -250,7 +250,7 @@ export default function TaxExemption({
                         {" "}
                         <div className="col-6">
                             <DateField
-                                name="exm4FromDate"
+                                name="TaxExemption.exm4FromDate"
                                 label={t("form101.label_from_date")}
                                 value={values.TaxExemption.exm4FromDate}
                                 onChange={handleChange}
@@ -300,7 +300,7 @@ export default function TaxExemption({
                         </div>
                         <div className="col-12">
                             <DateField
-                                name="exm4NoIncomeDate"
+                                name="TaxExemption.exm4NoIncomeDate"
                                 label={t("form101.exm4NoIncomeDate")}
                                 value={values.TaxExemption.exm4NoIncomeDate}
                                 onChange={handleChange}

@@ -284,6 +284,16 @@ class AuthController extends Controller
         $data = $this->saveForm101UploadedDocument($data, 'employeepassportCopy', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'employeeResidencePermit', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'employeeIdCardCopy', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.disabledCertificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.disabledCompensationCertificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm3Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm4ImmigrationCertificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm5disabledCirtificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm10Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm11Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm12Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm14Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm15Certificate', $formOldData);
 
         if ($form && $form->submitted_at) {
             return response()->json([
@@ -330,21 +340,49 @@ class AuthController extends Controller
 
     private function saveForm101UploadedDocument($data, $key, $formOldData)
     {
-        if (isset($data[$key]) && !is_string($data[$key]) && $data[$key]->isFile()) {
-            $file = $data[$key];
+        $originalKeys = explode('.', $key);
 
-            $file_name = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-            if (Storage::disk('public')->putFileAs("uploads/form101/documents", $file, $file_name)) {
-
-                if (isset($formOldData[$key])) {
-                    if (Storage::disk('public')->exists("uploads/form101/documents/" . $formOldData[$key])) {
-                        Storage::disk('public')->delete("uploads/form101/documents/" . $formOldData[$key]);
+        // Helper function to handle the recursive traversal and removing existing
+        $removeFileRecursively = function (&$item, $keys) use (&$removeFileRecursively) {
+            if (count($keys) == 1) {
+                $currentKey = $keys[0];
+                if (isset($item[$currentKey]) && is_string($item[$currentKey])) {
+                    if (Storage::disk('public')->exists("uploads/form101/documents/" . $item[$currentKey])) {
+                        Storage::disk('public')->delete("uploads/form101/documents/" . $item[$currentKey]);
                     }
                 }
-
-                $data[$key] = $file_name;
+            } else {
+                $currentKey = array_shift($keys);
+                if (isset($item[$currentKey]) && is_array($item[$currentKey])) {
+                    $removeFileRecursively($item[$currentKey], $keys);
+                }
             }
-        }
+        };
+
+        // Helper function to handle the recursive traversal and file saving
+        $saveFileRecursively = function (&$item, $keys) use (&$saveFileRecursively, $formOldData, $originalKeys, $removeFileRecursively) {
+            if (count($keys) == 1) {
+                $currentKey = $keys[0];
+                if (isset($item[$currentKey]) && !is_string($item[$currentKey]) && $item[$currentKey]->isFile()) {
+                    $file = $item[$currentKey];
+                    $file_name = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+
+                    if (Storage::disk('public')->putFileAs("uploads/form101/documents", $file, $file_name)) {
+                        $removeFileRecursively($formOldData, $originalKeys);
+
+                        $item[$currentKey] = $file_name;
+                    }
+                }
+            } else {
+                $currentKey = array_shift($keys);
+                if (isset($item[$currentKey]) && is_array($item[$currentKey])) {
+                    $saveFileRecursively($item[$currentKey], $keys);
+                }
+            }
+        };
+
+        $keys = $originalKeys;
+        $saveFileRecursively($data, $keys);
 
         return $data;
     }
