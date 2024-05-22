@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 import useDebounce from "./hooks/useDebounce";
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
@@ -491,13 +492,13 @@ export default function TotalJobs() {
                 </div>
                 <div className="card">
                     <div className="card-body getjobslist">
-                        <div className="boxPanel-th-border-none">
+                        <div className="boxPanel-Th-border-none">
                             <div className="table-responsive">
                                 {totalJobs.length > 0 ? (
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th
+                                    <Table className="table">
+                                        <Thead>
+                                            <Tr>
+                                                <Th
                                                     scope="col"
                                                     onClick={(e) => {
                                                         sortTable(
@@ -514,33 +515,33 @@ export default function TotalJobs() {
                                                         {" "}
                                                         &darr;{" "}
                                                     </span>
-                                                </th>
-                                                <th scope="col">
+                                                </Th>
+                                                <Th scope="col">
                                                     Client Reviews
-                                                </th>
-                                                <th scope="col">
+                                                </Th>
+                                                <Th scope="col">
                                                     If Job Was Done
-                                                </th>
-                                                <th scope="col">Client</th>
-                                                <th scope="col">Worker</th>
-                                                <th scope="col">Shift</th>
-                                                <th scope="col">Service</th>
-                                                <th scope="col">
+                                                </Th>
+                                                <Th scope="col">Client</Th>
+                                                <Th scope="col">Worker</Th>
+                                                <Th scope="col">Shift</Th>
+                                                <Th scope="col">Service</Th>
+                                                <Th scope="col">
                                                     Time For Job
-                                                </th>
-                                                <th scope="col">
+                                                </Th>
+                                                <Th scope="col">
                                                     Time Worker Actually
-                                                </th>
-                                                <th scope="col">Comments</th>
-                                                <th
+                                                </Th>
+                                                <Th scope="col">Comments</Th>
+                                                <Th
                                                     className="text-center"
                                                     scope="col"
                                                 >
                                                     Action
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                                </Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
                                             {totalJobs.map((item, index) => {
                                                 const _shifts =
                                                     item.shifts.split(", ");
@@ -595,13 +596,13 @@ export default function TotalJobs() {
                                                 );
 
                                                 return (
-                                                    <tr
+                                                    <Tr
                                                         key={index}
                                                         style={{
                                                             cursor: "pointer",
                                                         }}
                                                     >
-                                                        <td
+                                                        <Td
                                                             onClick={(e) =>
                                                                 handleNavigate(
                                                                     e,
@@ -616,10 +617,10 @@ export default function TotalJobs() {
                                                                     "DD/MM/YYYY"
                                                                 )}
                                                             </span>
-                                                        </td>
-                                                        <td>
+                                                        </Td>
+                                                        <Td>
                                                             {item.review && (
-                                                                <div className="d-flex justify-content-center">
+                                                                <div className="d-flex justify-content-sm-start justify-content-md-center">
                                                                     <div
                                                                         className="rounded"
                                                                         style={{
@@ -636,9 +637,9 @@ export default function TotalJobs() {
                                                                     </div>
                                                                 </div>
                                                             )}
-                                                        </td>
-                                                        <td>
-                                                            <div className="d-flex justify-content-center">
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
                                                                 <span
                                                                     className="rounded"
                                                                     style={{
@@ -682,8 +683,8 @@ export default function TotalJobs() {
                                                                     />
                                                                 </span>
                                                             </div>
-                                                        </td>
-                                                        <td>
+                                                        </Td>
+                                                        <Td>
                                                             <Link
                                                                 to={
                                                                     item.client
@@ -727,8 +728,8 @@ export default function TotalJobs() {
                                                                           .lastname
                                                                     : "NA"}
                                                             </Link>
-                                                        </td>
-                                                        <td>
+                                                        </Td>
+                                                        <Td>
                                                             <div
                                                                 onClick={() => {
                                                                     handleSwitchWorker(
@@ -770,8 +771,8 @@ export default function TotalJobs() {
                                                                           .lastname
                                                                     : "NA"}
                                                             </div>
-                                                        </td>
-                                                        <td
+                                                        </Td>
+                                                        <Td
                                                             onClick={(e) =>
                                                                 handleNavigate(
                                                                     e,
@@ -779,13 +780,13 @@ export default function TotalJobs() {
                                                                 )
                                                             }
                                                         >
-                                                            <div className="d-flex flex-column justify-content-center">
+                                                            <div className="d-flex flex-column justify-content-sm-start justify-content-md-center">
                                                                 {shiftHelperFn(
                                                                     item.shifts
                                                                 )}
                                                             </div>
-                                                        </td>
-                                                        <td
+                                                        </Td>
+                                                        <Td
                                                             onClick={(e) =>
                                                                 handleNavigate(
                                                                     e,
@@ -816,9 +817,9 @@ export default function TotalJobs() {
                                                                     : item
                                                                           .jobservice
                                                                           .heb_name)}
-                                                        </td>
-                                                        <td>
-                                                            <div className="d-flex justify-content-center">
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
                                                                 {item.jobservice &&
                                                                     item.client && (
                                                                         <span className="text-nowrap">
@@ -830,9 +831,9 @@ export default function TotalJobs() {
                                                                         </span>
                                                                     )}
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <div className="d-flex justify-content-center">
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
                                                                 {item && (
                                                                     <ActuallyTimeWorker
                                                                         data={
@@ -850,14 +851,14 @@ export default function TotalJobs() {
                                                                     />
                                                                 )}
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <div className="d-flex justify-content-center">
+                                                        </Td>
+                                                        <Td>
+                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
                                                                 {item.comment ||
                                                                     "-"}
                                                             </div>
-                                                        </td>
-                                                        <td className="text-center">
+                                                        </Td>
+                                                        <Td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
                                                                 <button
                                                                     type="button"
@@ -934,12 +935,12 @@ export default function TotalJobs() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                        </td>
-                                                    </tr>
+                                                        </Td>
+                                                    </Tr>
                                                 );
                                             })}
-                                        </tbody>
-                                    </table>
+                                        </Tbody>
+                                    </Table>
                                 ) : (
                                     <p className="text-center mt-5">
                                         {loading}
