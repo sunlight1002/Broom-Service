@@ -243,7 +243,7 @@ export default function ClientDashboard() {
                                                                     to={`/client/view-job/${Base64.encode(
                                                                         item.id.toString()
                                                                     )}`}
-                                                                    className="ml-2 btn bg-yellow"
+                                                                    className="ml-auto ml-md-2 btn bg-yellow"
                                                                 >
                                                                     <i className="fa fa-eye"></i>
                                                                 </Link>

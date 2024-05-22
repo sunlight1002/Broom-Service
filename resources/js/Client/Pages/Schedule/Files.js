@@ -235,7 +235,7 @@ export default function Clientfiles() {
                                                                     <i className="fa fa-eye"></i>
                                                                 </a>
                                                                 <button
-                                                                    className="ml-2 btn bg-red"
+                                                                    className="ml-auto ml-md-2 btn bg-red"
                                                                     onClick={(
                                                                         e
                                                                     ) =>
