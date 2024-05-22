@@ -74,7 +74,6 @@
         "type": "Type",
         "amount_txt": "Price per visit (Before VAT)",
         "offer_title": "What Do We Have To Offer?",
-        "laundary_service_price_title": "Laundry Services Price List",
         "thorough_cleaning": {
             "premium": "Premium package which includes:",
             "s1_1": "Thorough dust.",
@@ -196,6 +195,7 @@
             "s4_p3": "Service by legally insured professional workers.",
             "s4_p4": "Detergents and the most advanced equipment at our expense - without acids and dangerous.",
             "s4_p5": "A supervisor who will make sure that the work is to your satisfaction and up to our standards.",
+            "s4_p6": "Payment at the end of the work by credit card",
             "s5": "Full Moving Services From The Packaging Stage To The Coffee With The New Neighbors:",
             "s5_p1": "Deep general cleaning services before moving.",
             "s5_p2": "Cleaning windows at any height (even in rappelling).",
@@ -1153,6 +1153,7 @@
         "heading_5_2_1": "5.2.1 Housekeeping",
         "heading_5_2_2": "5.2.2 Working to the satisfaction of the Company’s clients and at the Company’s standards.",
         "heading_5_2_3": "5.2.3 Responsibility and keeping the Company’s equipment and the cleaning materials which the Company shall provide the Employee.",
+        "heading_5_2_4": "5.2.4. Inventory management.",
         "heading_6": "6 Work days and working hours",
         "heading_6_1": "6.1 The Employee’s work days and working house shall be as follows: at most: Sunday to Thursday, about 9 hours a day.",
         "heading_6_2": "6.2 Fridays if necessary.",
