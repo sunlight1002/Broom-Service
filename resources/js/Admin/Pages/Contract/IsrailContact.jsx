@@ -253,7 +253,7 @@ export function IsrailContact({
                                             value={values.role}
                                             required={true}
                                             error={touched.role && errors.role}
-                                            readonly
+                                            readonly={true}
                                         />
                                     </div>
                                 </li>

@@ -87,7 +87,7 @@ const TaxCoordination = ({
                             <input
                                 type="file"
                                 name="TaxCoordination.requestReason1Certificate"
-                                id="exm5disabledCirtificate"
+                                id="TaxCoordination.requestReason1Certificate"
                                 accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
@@ -121,7 +121,7 @@ const TaxCoordination = ({
                             <input
                                 type="file"
                                 name="TaxCoordination.requestReason3Certificate"
-                                id="exm5disabledCirtificate"
+                                id="TaxCoordination.requestReason3Certificate"
                                 accept="image/*"
                                 onChange={(e) =>
                                     setFieldValue(
@@ -182,6 +182,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -189,6 +190,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .firstName &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -210,6 +212,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -217,6 +220,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .address &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -238,6 +242,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -245,6 +250,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .fileNumber &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -292,6 +298,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -299,6 +306,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .incomeType &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -320,6 +328,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -327,6 +336,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .MonthlyIncome &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -348,6 +358,7 @@ const TaxCoordination = ({
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                                     error={
+                                                        touched.TaxCoordination &&
                                                         touched.TaxCoordination
                                                             .employer &&
                                                         touched.TaxCoordination
@@ -355,6 +366,7 @@ const TaxCoordination = ({
                                                         touched.TaxCoordination
                                                             .employer[index]
                                                             .Tax &&
+                                                        errors.TaxCoordination &&
                                                         errors.TaxCoordination
                                                             .employer &&
                                                         errors.TaxCoordination
@@ -386,13 +398,15 @@ const TaxCoordination = ({
                                                     }
                                                     onBlur={handleBlur}
                                                 />
-                                                {touched.TaxCoordination
-                                                    .employer &&
+                                                {touched.TaxCoordination &&
+                                                    touched.TaxCoordination
+                                                        .employer &&
                                                     touched.TaxCoordination
                                                         .employer[index] &&
                                                     touched.TaxCoordination
                                                         .employer[index]
                                                         .payslip &&
+                                                    errors.TaxCoordination &&
                                                     errors.TaxCoordination
                                                         .employer &&
                                                     errors.TaxCoordination

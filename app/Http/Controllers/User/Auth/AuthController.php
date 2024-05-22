@@ -294,6 +294,19 @@ class AuthController extends Controller
         $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm12Certificate', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm14Certificate', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'TaxExemption.exm15Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxCoordination.requestReason1Certificate', $formOldData);
+        $data = $this->saveForm101UploadedDocument($data, 'TaxCoordination.requestReason3Certificate', $formOldData);
+
+        if (
+            isset($data['TaxCoordination']['employer']) &&
+            is_array($data['TaxCoordination']['employer'])
+        ) {
+            foreach ($data['TaxCoordination']['employer'] as $key => $value) {
+                if (isset($value['payslip'])) {
+                    $data = $this->saveForm101UploadedDocument($data, "TaxCoordination.employer.$key.payslip", $formOldData);
+                }
+            }
+        }
 
         if ($form && $form->submitted_at) {
             return response()->json([
@@ -439,6 +452,12 @@ class AuthController extends Controller
     public function getSafegear($id)
     {
         $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
@@ -453,6 +472,11 @@ class AuthController extends Controller
     public function get101($id)
     {
         $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::FORM101)
@@ -469,6 +493,11 @@ class AuthController extends Controller
     public function getWorkContract($id)
     {
         $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -483,6 +512,12 @@ class AuthController extends Controller
     public function getInsuranceForm($id)
     {
         $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
             ->whereYear('created_at', now()->year)

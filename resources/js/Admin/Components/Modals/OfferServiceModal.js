@@ -349,21 +349,17 @@ export default function OfferServiceModal({
             </Modal.Header>
 
             <Modal.Body>
-                {isAdd && (
-                    <div className="d-flex align-items-center mb-3">
-                        <label htmlFor="noOfWrkers pe-2">
-                            No of workers :{" "}
-                        </label>
-                        <input
-                            type="number"
-                            min={1}
-                            className="form-control w-25"
-                            id="noOfWrkers"
-                            defaultValue={1}
-                            onChange={handleChangeWorkerCount}
-                        />
-                    </div>
-                )}
+                <div className="d-flex align-items-center mb-3">
+                    <label htmlFor="noOfWrkers">No of workers : </label>
+                    <input
+                        type="number"
+                        min={1}
+                        className="form-control w-25"
+                        id="noOfWrkers"
+                        defaultValue={offerServiceTmp.workers.length}
+                        onChange={handleChangeWorkerCount}
+                    />
+                </div>
 
                 <div className="row">
                     <div className="col-sm-12">

@@ -1340,7 +1340,6 @@
         "incomeType4": "Other",
         "copyPaySlip": "Copy of pay slip",
         "add_employer_player": "+ Add Employer/Player",
-        "taxCordination": "Tax coordination approval by an assessor",
         "text_disclaimer": "Disclaimer",
         "disclaimer_details1": "I declare that the details I provided in this form are complete and correct. I know that omitting or providing incorrect information is a violation of the Income Tax Ordinance.",
         "disclaimer_details2": "I undertake to inform the employer of any change that will apply to my personal details and the details above within a week from the date of the change.",
@@ -1534,7 +1533,7 @@
         "name": " Name of the employee",
         "IDNumber": "ID Number",
         "Address": "Address",
-        "StartDateOfJob:": "Start date of job:",
+        "StartDateOfJob": "Start date of job:",
         "HomePhone": "Home phone number:",
         "mobileNumber": "Mobile number:",
         "is1NOte": "Contract period: The contract period is not fixed",
@@ -1723,7 +1722,7 @@
                     "td4": "directly to the employee",
                     "td5": "Employer contributions"
                 },
-                "tr1": {
+                "tr2": {
                     "td1": "or in the pay slip or at the end of the work according to the company's decision",
                     "td2": "7.5% of wages",
                     "td3": "0",

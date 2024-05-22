@@ -268,7 +268,7 @@ export function NonIsraeliContract({
                                         value={values.role}
                                         required={true}
                                         error={touched.role && errors.role}
-                                        readonly
+                                        readonly={true}
                                     />
                                     <p className="mb-2">
                                         {t("nonIsrailContract.nic3-2")}

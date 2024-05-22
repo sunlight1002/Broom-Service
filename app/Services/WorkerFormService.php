@@ -27,6 +27,16 @@ class WorkerFormService
         $pdf->numPages = $pdf->setSourceFile($filePath);
         $pdf->SetTextColor(0, 7, 224);
 
+        // // set some language dependent data:
+        // $lg = array();
+        // $lg['a_meta_charset'] = 'UTF-8';
+        // $lg['a_meta_dir'] = 'rtl';
+        // $lg['a_meta_language'] = 'fa';
+        // $lg['w_page'] = 'page';
+
+        // // set some language-dependent strings (optional)
+        // $pdf->setLanguageArray($lg);
+
         $lng = $form->lng;
 
         $total_page = 0;
@@ -610,6 +620,24 @@ class WorkerFormService
 
                             $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                         }
+
+                        if (isset($value['inCustody']) && $value['inCustody'] == true) {
+                            $w = 5;
+                            $h = 5;
+                            $x = 533;
+                            $y = 386 + $ypos;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
+
+                        if (isset($value['haveChildAllowance']) && $value['haveChildAllowance'] == true) {
+                            $w = 5;
+                            $h = 5;
+                            $x = 523;
+                            $y = 386 + $ypos;
+
+                            $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                        }
                     }
                 }
 
@@ -784,6 +812,39 @@ class WorkerFormService
                         $y = 111;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                        if (isset($formData['TaxExemption']['exm3Date'])) {
+                            $isDate = true;
+
+                            try {
+                                Carbon::parse($formData['TaxExemption']['exm3Date']);
+                            } catch (\Throwable $th) {
+                                //throw $th;
+                                $isDate = false;
+                            }
+
+                            if ($isDate) {
+                                $text = (string)Carbon::parse($formData['TaxExemption']['exm3Date'])->format('d/m/Y');
+                                $w = 198;
+                                $h = 98;
+                                $x = 260;
+                                $y = 105;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm3Locality'])) {
+                            $text = (string)$formData['TaxExemption']['exm3Locality'];
+                            $w = 198;
+                            $h = 98;
+                            $x = 298;
+                            $y = 118;
+                            $fontsize = 12;
+
+                            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                        }
                     }
 
                     if (
@@ -796,6 +857,50 @@ class WorkerFormService
                         $y = 138;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                        if (isset($formData['TaxExemption']['exm4FromDate'])) {
+                            $isDate = true;
+
+                            try {
+                                Carbon::parse($formData['TaxExemption']['exm4FromDate']);
+                            } catch (\Throwable $th) {
+                                //throw $th;
+                                $isDate = false;
+                            }
+
+                            if ($isDate) {
+                                $text = (string)Carbon::parse($formData['TaxExemption']['exm4FromDate'])->format('d/m/Y');
+                                $w = 198;
+                                $h = 98;
+                                $x = 334;
+                                $y = 132;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm4NoIncomeDate'])) {
+                            $isDate = true;
+
+                            try {
+                                Carbon::parse($formData['TaxExemption']['exm4NoIncomeDate']);
+                            } catch (\Throwable $th) {
+                                //throw $th;
+                                $isDate = false;
+                            }
+
+                            if ($isDate) {
+                                $text = (string)Carbon::parse($formData['TaxExemption']['exm4NoIncomeDate'])->format('d/m/Y');
+                                $w = 198;
+                                $h = 98;
+                                $x = 190;
+                                $y = 146;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
                     }
 
                     if (
@@ -832,6 +937,90 @@ class WorkerFormService
                         $y = 234;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                        if (isset($formData['TaxExemption']['exm7NoOfChild'])) {
+                            $text = (int)$formData['TaxExemption']['exm7NoOfChild'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 501;
+                                $y = 256;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 370;
+                                $y = 250;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm7NoOfChild1to5'])) {
+                            $text = (int)$formData['TaxExemption']['exm7NoOfChild1to5'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 501;
+                                $y = 267;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 285;
+                                $y = 260;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm7NoOfChild6to17'])) {
+                            $text = (int)$formData['TaxExemption']['exm7NoOfChild6to17'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 259;
+                                $y = 256;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 45;
+                                $y = 250;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm7NoOfChild18'])) {
+                            $text = (int)$formData['TaxExemption']['exm7NoOfChild18'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 259;
+                                $y = 267;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 80;
+                                $y = 260;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
                     }
 
                     if (
@@ -845,15 +1034,67 @@ class WorkerFormService
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
 
-                        if (isset($formData['TaxExemption']['exm11NoOfChildWithDisibility'])) {
-                            $text = (string)$formData['TaxExemption']['exm11NoOfChildWithDisibility'];
-                            $w = 50;
-                            $h = 50;
-                            $x = 449;
-                            $y = 281;
-                            $fontsize = 12;
+                        if (isset($formData['TaxExemption']['exm8NoOfChild'])) {
+                            $text = (int)$formData['TaxExemption']['exm8NoOfChild'];
 
-                            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 502;
+                                $y = 294;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 370;
+                                $y = 288;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm8NoOfChild1to5'])) {
+                            $text = (int)$formData['TaxExemption']['exm8NoOfChild1to5'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 503;
+                                $y = 305;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 285;
+                                $y = 299;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
+
+                        if (isset($formData['TaxExemption']['exm8NoOfChild6to17'])) {
+                            $text = (int)$formData['TaxExemption']['exm8NoOfChild6to17'];
+
+                            if ($text > 0) {
+                                $w = 2;
+                                $h = 2;
+                                $x = 259;
+                                $y = 294;
+
+                                $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+
+                                $w = 50;
+                                $h = 100;
+                                $x = 45;
+                                $y = 288;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
                         }
                     }
 
@@ -994,6 +1235,112 @@ class WorkerFormService
                         $y = 444;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    }
+                }
+
+                if (
+                    isset($formData['TaxCoordination']['hasTaxCoordination']) &&
+                    $formData['TaxCoordination']['hasTaxCoordination'] == true
+                ) {
+                    if (
+                        isset($formData['TaxCoordination']['requestReason']) &&
+                        ($formData['TaxCoordination']['requestReason'] === 'reason1' ||
+                            $formData['TaxCoordination']['requestReason'] === 'reason3')
+                    ) {
+                        $w = 3;
+                        $h = 3;
+                        $x = 515;
+                        $y = 481;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    }
+
+                    if (
+                        isset($formData['TaxCoordination']['requestReason']) &&
+                        $formData['TaxCoordination']['requestReason'] === 'reason2'
+                    ) {
+                        $w = 3;
+                        $h = 3;
+                        $x = 515;
+                        $y = 509;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    }
+
+                    if (
+                        isset($formData['TaxCoordination']['employer']) &&
+                        is_array($formData['TaxCoordination']['employer']) &&
+                        !empty($formData['TaxCoordination']['employer'])
+                    ) {
+                        foreach ($formData['TaxCoordination']['employer'] as $key => $employer_) {
+                            $ypos = 16 * $key;
+
+                            if (isset($employer_['Tax'])) {
+                                $text = (string)$employer_['Tax'];
+                                $w = 50;
+                                $h = 50;
+                                $x = 40;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+
+                            if (isset($employer_['MonthlyIncome'])) {
+                                $text = (string)$employer_['MonthlyIncome'];
+                                $w = 50;
+                                $h = 50;
+                                $x = 115;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+
+                            if (isset($employer_['incomeType'])) {
+                                $text = (string)$employer_['incomeType'];
+                                $w = 150;
+                                $h = 50;
+                                $x = 172;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+
+                            if (isset($employer_['fileNumber'])) {
+                                $text = (string)$employer_['fileNumber'];
+                                $w = 150;
+                                $h = 50;
+                                $x = 240;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+
+                            if (isset($employer_['address'])) {
+                                $text = (string)$employer_['address'];
+                                $w = 300;
+                                $h = 50;
+                                $x = 315;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+
+                            if (isset($employer_['firstName'])) {
+                                $text = (string)$employer_['firstName'];
+                                $w = 250;
+                                $h = 50;
+                                $x = 447;
+                                $y = 545 + $ypos;
+                                $fontsize = 12;
+
+                                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+                            }
+                        }
                     }
                 }
 
@@ -1395,6 +1742,97 @@ class WorkerFormService
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm15Certificate']), $x, $y, $w, $h, '', '', '', true);
+            }
+        }
+
+        if (
+            isset($formData['TaxCoordination']['hasTaxCoordination']) &&
+            $formData['TaxCoordination']['hasTaxCoordination'] === true
+        ) {
+            if (
+                isset($formData['TaxCoordination']['requestReason1Certificate']) &&
+                Storage::disk('public')->exists('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason1Certificate'])
+            ) {
+                //create a page
+                $pdf->AddPage();
+
+                $text = 'Attachment of tax coordination | Proofs for lack of previous incomes';
+                $w = 540;
+                $h = 100;
+                $x = 90;
+                $y = 20;
+                $fontsize = 14;
+
+                $pdf->SetTextColor(0, 0, 0);
+                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                $pdf->SetTextColor(0, 7, 224);
+                $w = 530;
+                $h = 300;
+                $x = 30;
+                $y = 50;
+
+                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason1Certificate']), $x, $y, $w, $h, '', '', '', true);
+            }
+
+            if (
+                isset($formData['TaxCoordination']['employer']) &&
+                is_array($formData['TaxCoordination']['employer']) &&
+                !empty($formData['TaxCoordination']['employer'])
+            ) {
+                foreach ($formData['TaxCoordination']['employer'] as $key => $employer_) {
+                    if (
+                        isset($employer_['payslip']) &&
+                        Storage::disk('public')->exists('uploads/form101/documents/' . $employer_['payslip'])
+                    ) {
+                        //create a page
+                        $pdf->AddPage();
+
+                        $text = 'Attachment of tax coordination | Salary Payslip ' . ($key + 1) . '.';
+                        $w = 540;
+                        $h = 100;
+                        $x = 150;
+                        $y = 20;
+                        $fontsize = 14;
+
+                        $pdf->SetTextColor(0, 0, 0);
+                        $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                        $pdf->SetTextColor(0, 7, 224);
+                        $w = 530;
+                        $h = 300;
+                        $x = 30;
+                        $y = 50;
+
+                        $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $employer_['payslip']), $x, $y, $w, $h, '', '', '', true);
+                    }
+                }
+            }
+
+            if (
+                isset($formData['TaxCoordination']['requestReason3Certificate']) &&
+                Storage::disk('public')->exists('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason3Certificate'])
+            ) {
+                //create a page
+                $pdf->AddPage();
+
+                $text = 'Attachment of tax coordination | Tax coordination certificate from the assessing officer';
+                $w = 540;
+                $h = 100;
+                $x = 50;
+                $y = 20;
+                $fontsize = 14;
+
+                $pdf->SetTextColor(0, 0, 0);
+                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+                $pdf->SetTextColor(0, 7, 224);
+                $w = 530;
+                $h = 300;
+                $x = 30;
+                $y = 50;
+
+                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason3Certificate']), $x, $y, $w, $h, '', '', '', true);
             }
         }
 
