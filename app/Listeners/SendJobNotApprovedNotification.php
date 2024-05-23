@@ -33,6 +33,7 @@ class SendJobNotApprovedNotification implements ShouldQueue
      */
     public function handle(WorkerNotApprovedJob $event)
     {
+        App::setLocale('en');
         //send notification to admin
         $adminEmailData = [
             'emailData'   => [
@@ -47,6 +48,8 @@ class SendJobNotApprovedNotification implements ShouldQueue
         //send notification to worker
         $job = $event->job->toArray();
         $worker = $job['worker'];
+        App::setLocale($worker['lng']);
+
         $emailData = [
             'emailSubject'  => __('mail.job_common.not_approve_subject'),
             'emailTitle'  => __('mail.job_common.not_approve_title'),
@@ -59,7 +62,8 @@ class SendJobNotApprovedNotification implements ShouldQueue
             ->where('role', 'admin')
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
-        
+
+        App::setLocale('en');
         foreach ($admins as $key => $admin) {
             $emailData = array(
                 'admin' => $admin->toArray(),
