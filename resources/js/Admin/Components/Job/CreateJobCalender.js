@@ -281,7 +281,10 @@ export default function CreateJobCalender({
     return (
         <>
             <div className="row mb-3">
-                <div className="col-sm-12 d-flex align-items-center flex-wrap" style={{rowGap: '0.5rem'}}>
+                <div
+                    className="col-sm-12 d-flex align-items-center flex-wrap"
+                    style={{ rowGap: "0.5rem" }}
+                >
                     <div className="mr-3" style={{ fontWeight: "bold" }}>
                         Worker Availability
                     </div>
