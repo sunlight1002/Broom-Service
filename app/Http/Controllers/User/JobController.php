@@ -358,6 +358,8 @@ class JobController extends Controller
 
             //send notification to worker
             $worker = $job['worker'];
+            App::setLocale($worker['lng']);
+
             $emailData = [
                 'emailSubject'  => __('mail.job_status.subject'),
                 'emailTitle'  => __('mail.job_common.job_status'),
@@ -367,6 +369,7 @@ class JobController extends Controller
             event(new JobNotificationToWorker($worker, $job, $emailData));
 
             //old
+            App::setLocale('en');
             $admin = Admin::where('role', 'admin')->first();
             $data = array(
                 'email'      => $admin->email,

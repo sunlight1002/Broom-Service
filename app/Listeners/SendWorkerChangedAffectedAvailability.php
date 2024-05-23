@@ -38,6 +38,7 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
 
+        App::setLocale('en');
         foreach ($admins as $key => $admin) {
             $emailData = array(
                 'admin' => $admin->toArray(),
