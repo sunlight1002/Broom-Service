@@ -29,8 +29,7 @@ class WorkerFormService
 
         $lng = $form->lng;
 
-        if($lng == "heb")
-        {
+        if ($lng == "heb") {
             // // set some language dependent data:
             $lg = array();
             $lg['a_meta_charset'] = 'UTF-8';
@@ -1408,7 +1407,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 60;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeepassportCopy']), $x, $y, $w, $h, '', '', '', true);
@@ -1431,7 +1430,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeResidencePermit']), $x, $y, $w, $h, '', '', '', true);
@@ -1462,7 +1461,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['disabledCertificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1491,7 +1490,7 @@ class WorkerFormService
                         $pdf->SetTextColor(0, 7, 224);
                         $w = 530;
                         $h = 300;
-                        $x = 30;
+                        $x = $lng == "heb" ? 560 : 30;
                         $y = 50;
 
                         $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['disabledCompensationCertificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1524,7 +1523,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm3Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1555,7 +1554,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm4ImmigrationCertificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1586,7 +1585,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm5disabledCirtificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1617,7 +1616,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm10Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1648,7 +1647,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm11Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1679,7 +1678,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm12Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1710,7 +1709,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm14Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1741,7 +1740,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxExemption']['exm15Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1772,7 +1771,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason1Certificate']), $x, $y, $w, $h, '', '', '', true);
@@ -1804,7 +1803,7 @@ class WorkerFormService
                         $pdf->SetTextColor(0, 7, 224);
                         $w = 530;
                         $h = 300;
-                        $x = 30;
+                        $x = $lng == "heb" ? 560 : 30;
                         $y = 50;
 
                         $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $employer_['payslip']), $x, $y, $w, $h, '', '', '', true);
@@ -1832,7 +1831,7 @@ class WorkerFormService
                 $pdf->SetTextColor(0, 7, 224);
                 $w = 530;
                 $h = 300;
-                $x = 30;
+                $x = $lng == "heb" ? 560 : 30;
                 $y = 50;
 
                 $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['TaxCoordination']['requestReason3Certificate']), $x, $y, $w, $h, '', '', '', true);
