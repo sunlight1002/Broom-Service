@@ -162,7 +162,7 @@ export default function Comment() {
                                         {c.name ==
                                         localStorage.getItem("client-name") ? (
                                             <button
-                                                className="ml-2 btn bg-red"
+                                                className="ml-auto ml-md-2 btn bg-red"
                                                 onClick={(e) =>
                                                     handleDelete(e, c.id)
                                                 }

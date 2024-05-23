@@ -548,20 +548,24 @@ class JobController extends Controller
                         //     $messages->subject($sub);
                         // });
                         //send notification to admin
-                        $adminEmailData = [
-                            'emailData'   => [
-                                'job'   =>  $job->toArray(),
-                            ],
-                            'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-                            'emailTitle'  => 'New Job',
-                            'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
-                        ];
-                        event(new JobNotificationToAdmin($adminEmailData));
                     }
+
+                    App::setLocale('en');
+                    $adminEmailData = [
+                        'emailData'   => [
+                            'job'   =>  $job->toArray(),
+                        ],
+                        'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                        'emailTitle'  => 'New Job',
+                        'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                    ];
+                    event(new JobNotificationToAdmin($adminEmailData));
                 }
                 //send notification to client
                 $client = $job['client'];
                 $worker = $job['worker'];
+
+                App::setLocale($client['lng']);
                 $emailData = [
                     'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
                     'emailTitle'  => __('mail.worker_new_job.new_job_assigned'),

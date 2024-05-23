@@ -190,8 +190,7 @@ export default function ChangeWorkerCalender({ job }) {
         let added = false;
         const promises = selectedHours.map(async (worker, index) => {
             if (
-                (worker.slots == null ||
-                    worker?.slots[0]?.workerId == w_id) &&
+                (worker.slots == null || worker?.slots[0]?.workerId == w_id) &&
                 !added
             ) {
                 const slots = await getAvailableSlots(
@@ -210,9 +209,7 @@ export default function ChangeWorkerCalender({ job }) {
                     jobHours: worker.jobHours,
                     slots: slots.length > 0 ? slots : null,
                     formattedSlots:
-                        slots.length > 0
-                            ? convertShiftsFormat(slots)
-                            : null,
+                        slots.length > 0 ? convertShiftsFormat(slots) : null,
                 };
             }
             if (!added && selectedHours.length === index + 1) {
@@ -300,7 +297,10 @@ export default function ChangeWorkerCalender({ job }) {
     return (
         <>
             <div className="row mb-3">
-                <div className="col-sm-12 d-flex align-items-center">
+                <div
+                    className="col-sm-12 d-flex align-items-center flex-wrap"
+                    style={{ rowGap: "0.5rem" }}
+                >
                     <div className="mr-3" style={{ fontWeight: "bold" }}>
                         Worker Availability
                     </div>

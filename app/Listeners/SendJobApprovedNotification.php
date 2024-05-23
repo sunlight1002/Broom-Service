@@ -33,6 +33,7 @@ class SendJobApprovedNotification implements ShouldQueue
      */
     public function handle(WorkerApprovedJob $event)
     {
+        App::setLocale('en');
         //send notification to admin
         $adminEmailData = [
             'emailData'   => [
@@ -47,6 +48,8 @@ class SendJobApprovedNotification implements ShouldQueue
         //send notification to worker
         $job = $event->job->toArray();
         $worker = $job['worker'];
+        App::setLocale($worker['lng']);
+
         $emailData = [
             'emailSubject'  => __('mail.job_common.approve_subject'),
             'emailTitle'  => __('mail.job_common.approve_title'),
@@ -60,6 +63,7 @@ class SendJobApprovedNotification implements ShouldQueue
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
 
+        App::setLocale('en');
         foreach ($admins as $key => $admin) {
             $emailData = array(
                 'admin' => $admin->toArray(),

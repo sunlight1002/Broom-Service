@@ -152,7 +152,7 @@ export default function ClientOfferPrice() {
                                                                 to={`/client/view-offer/${Base64.encode(
                                                                     ofr.id.toString()
                                                                 )}`}
-                                                                className="ml-2 btn bg-yellow"
+                                                                className="ml-auto ml-md-2 btn bg-yellow"
                                                             >
                                                                 <i className="fa fa-eye"></i>
                                                             </Link>

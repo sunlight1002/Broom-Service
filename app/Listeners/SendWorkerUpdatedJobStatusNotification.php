@@ -41,7 +41,7 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
         $data = array(
             'email'      => $admin->email,
             'admin'      => $admin->toArray(),
-            'comment'    => $event->comment && $event->comment->comment ? $event->comment->comment: '-',
+            'comment'    => $event->comment && $event->comment->comment ? $event->comment->comment : '-',
             'job'        => $event->job->toArray(),
         );
         Notification::create([
@@ -62,11 +62,11 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
         //     $sub = __('mail.job_status.subject');
         //     $messages->subject($sub);
         // });
-        
+
         //send notification to admin
-        $emailContent = __('mail.job_status.content').''.ucfirst($data['job']['status']).'.' ;
-		if($data['job']['status'] != 'completed') {
-            $emailContent .=__('mail.job_status.reason').' '.$event->comment->comment.'.';
+        $emailContent = __('mail.job_status.content') . '' . ucfirst($data['job']['status']) . '.';
+        if ($data['job']['status'] != 'completed') {
+            $emailContent .= __('mail.job_status.reason') . ' ' . $event->comment->comment . '.';
         }
         $adminEmailData = [
             'emailData'   => [
@@ -91,21 +91,23 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
                     "notificationData" => $emailData
                 ]));
             }
-            
+
             Mail::send('/Mails/ClientJobUpdated', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
                 $sub = __('mail.client_job_status.job_completed_subject');
                 $messages->subject($sub);
             });
-            
+
+            App::setLocale($event->job->worker->lng);
             //send notification to worker
             $emailData = [
                 'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
                 'emailTitle'  => __('mail.client_job_status.job_details'),
-                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname. '  '.$event->job->worker->lastname])
+                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname . '  ' . $event->job->worker->lastname])
             ];
             event(new JobNotificationToWorker($event->job->worker->toArray(), $event->job->toArray(), $emailData));
 
+            App::setLocale('en');
             //send notification to admin
             $adminEmailData = [
                 'emailData'   => [
@@ -113,7 +115,7 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
                 ],
                 'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
                 'emailTitle'  => __('mail.client_job_status.job_details'),
-                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname. '  '.$event->job->worker->lastname])
+                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname . '  ' . $event->job->worker->lastname])
             ];
             event(new JobNotificationToAdmin($adminEmailData));
         }
