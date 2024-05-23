@@ -53,12 +53,18 @@ const InsuranceForm = () => {
         GCandidatename: "",
         GDate: "",
         g1: "",
+        g1Height: "",
+        g1Weight: "",
         g2: "",
         g3: "",
         g4: "",
+        g4Today: "",
+        g4Past: "",
+        g4WhenStop: "",
         g5: "",
         g6: "",
         g7: "",
+        g7Reason: "",
         g8: "",
         g9: "",
         g10: "",
@@ -70,12 +76,14 @@ const InsuranceForm = () => {
         g16: "",
         g17: "",
         g18: "",
+        g18Treatment: "",
         g19: "",
         g20: "",
         g21: "",
         g22: "",
         g23: "",
         g24: "",
+        g24Treatment: "",
         // page 4
         Hname: "",
         canDate: currentDate,
@@ -186,15 +194,27 @@ const InsuranceForm = () => {
         pdfForm.getTextField("candidate-name").setText(values.GCandidatename);
         pdfForm.getTextField("candidate-date").setText(values.canDate);
         pdfForm.getTextField("H-name").setText(values.Hname);
-        pdfForm.getTextField("G-height-en").setText("154");
-        pdfForm.getTextField("G-height-heb").setText("154");
+        pdfForm.getTextField("G-height-en").setText(values.g1Height);
+        pdfForm.getTextField("G-height-heb").setText(values.g1Height);
+        pdfForm.getTextField("G-weight-en").setText(values.g1Weight);
+        pdfForm.getTextField("G-weight-heb").setText(values.g1Weight);
+        pdfForm.getTextField("G7-reason-en").setText(values.g7Reason);
+        pdfForm.getTextField("G7-reason-heb").setText(values.g7Reason);
+        pdfForm.getTextField("G18-treatment-en").setText(values.g18Treatment);
+        pdfForm.getTextField("G18-treatment-heb").setText(values.g18Treatment);
+        pdfForm.getTextField("G24-answer-en").setText(values.g24Treatment);
+        pdfForm.getTextField("G24-answer-heb").setText(values.g24Treatment);
+        pdfForm.getTextField("G-stopped-smoking-on-en").setText(values.g4WhenStop);
+        pdfForm.getTextField("G-stopped-smoking-on-heb").setText(values.g4WhenStop);
 
-        if (values.g20 == "yes") {
-            pdfForm.getCheckBox("G20-Yes").check();
-            pdfForm.getCheckBox("G20-No").uncheck();
-        } else if (values.g20 == "no") {
-            pdfForm.getCheckBox("G20-Yes").uncheck();
-            pdfForm.getCheckBox("G20-No").check();
+        for (let i = 1; i <= 24; i++) {
+            const key = "g" + i;
+            const toUpperCase = "G" + i;
+            if (values[key] === "yes") {
+                pdfForm.getCheckBox(`${toUpperCase}-Yes`).check();
+            } else if (values[key] === "no") {
+                pdfForm.getCheckBox(`${toUpperCase}-No`).check();
+            }
         }
 
         if (values.signature) {
@@ -705,6 +725,13 @@ const InsuranceForm = () => {
                                     type="text"
                                     name="height"
                                     className="form-control"
+                                    value={values.g1Height}
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            "g1Height",
+                                            e.target.value
+                                        )
+                                    }
                                 />{" "}
                                 <div
                                     style={{
@@ -718,6 +745,13 @@ const InsuranceForm = () => {
                                     type="text"
                                     name="width"
                                     className="form-control"
+                                    value={values.g1Weight}
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            "g1Weight",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </label>
                             <div>
@@ -883,6 +917,11 @@ const InsuranceForm = () => {
                                         type="radio"
                                         name="g4y2"
                                         id="g4t"
+                                        checked={values.g4Today === "yes"}
+                                        onChange={(e) => {
+                                            setFieldValue("g4Today", "yes");
+                                            setFieldValue("g4Past", "no");
+                                        }}
                                     />
                                     <label
                                         className="form-check-label"
@@ -897,6 +936,12 @@ const InsuranceForm = () => {
                                         type="radio"
                                         name="g4yn2"
                                         id="g4p"
+                                        checked={values.g4Today === "no"}
+                                        onChange={(e) => {
+                                            setFieldValue("g4Today", "no");
+                                            setFieldValue("g4Past", "yes");
+                                        }}
+                                        value="yes"
                                     />
                                     <label
                                         className="form-check-label"
@@ -918,6 +963,13 @@ const InsuranceForm = () => {
                                         type="text"
                                         name="g4stop"
                                         className="form-control"
+                                        value={values.g4WhenStop}
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "g4WhenStop",
+                                                e.target.value
+                                            )
+                                        }
                                     />
                                 </div>
                             </div>
@@ -1083,6 +1135,13 @@ const InsuranceForm = () => {
                                     type="text"
                                     name="g7text"
                                     className="form-control"
+                                    value={values.g7Reason}
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            "g7Reason",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </div>
                             <div>
@@ -1644,6 +1703,10 @@ const InsuranceForm = () => {
                                         name="g17"
                                         id="g17yes"
                                         value="yes"
+                                        checked={values.g17 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g17", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1659,6 +1722,10 @@ const InsuranceForm = () => {
                                         name="g17"
                                         id="g17no"
                                         value="no"
+                                        checked={values.g17 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g17", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1686,6 +1753,13 @@ const InsuranceForm = () => {
                                     type="text"
                                     name="g7text"
                                     className="form-control"
+                                    value={values.g18Treatment}
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            "g18Treatment",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </div>
                             <div className="">
@@ -1699,6 +1773,10 @@ const InsuranceForm = () => {
                                         name="g18"
                                         id="g18yes"
                                         value="yes"
+                                        checked={values.g18 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g18", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1714,6 +1792,10 @@ const InsuranceForm = () => {
                                         name="g18"
                                         id="g18no"
                                         value="no"
+                                        checked={values.g18 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g18", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1744,6 +1826,10 @@ const InsuranceForm = () => {
                                         name="g19"
                                         id="g19yes"
                                         value="yes"
+                                        checked={values.g19 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g19", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1759,6 +1845,10 @@ const InsuranceForm = () => {
                                         name="g19"
                                         id="g19no"
                                         value="no"
+                                        checked={values.g19 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g19", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1848,6 +1938,10 @@ const InsuranceForm = () => {
                                         name="g21"
                                         id="g21-yes"
                                         value="yes"
+                                        checked={values.g21 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g21", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1863,6 +1957,10 @@ const InsuranceForm = () => {
                                         name="g21"
                                         id="g21-no"
                                         value="no"
+                                        checked={values.g21 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g21", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1893,6 +1991,10 @@ const InsuranceForm = () => {
                                         name="g22"
                                         id="g22-yes"
                                         value="yes"
+                                        checked={values.g22 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g22", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1908,6 +2010,10 @@ const InsuranceForm = () => {
                                         name="g22"
                                         id="g22-no"
                                         value="no"
+                                        checked={values.g22 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g22", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1938,6 +2044,10 @@ const InsuranceForm = () => {
                                         name="g23"
                                         id="g23-yes"
                                         value="yes"
+                                        checked={values.g23 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g23", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1953,6 +2063,10 @@ const InsuranceForm = () => {
                                         name="g23"
                                         id="g23-no"
                                         value="no"
+                                        checked={values.g23 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g23", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -1980,7 +2094,17 @@ const InsuranceForm = () => {
                                 the number of fetuses?
                             </label>
                             <div className="d-flex align-items-center">
-                                <input type="text" className="form-control" />
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={values.g24Treatment}
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            "g24Treatment",
+                                            e.target.value
+                                        )
+                                    }
+                                />
                             </div>
                             <div>
                                 Have you suffered from any problems in previous
@@ -1995,6 +2119,10 @@ const InsuranceForm = () => {
                                         name="g24"
                                         id="g24-yes"
                                         value="yes"
+                                        checked={values.g24 === "yes"}
+                                        onChange={(e) =>
+                                            setFieldValue("g24", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
@@ -2010,6 +2138,10 @@ const InsuranceForm = () => {
                                         name="g24"
                                         id="g24-no"
                                         value="no"
+                                        checked={values.g24 === "no"}
+                                        onChange={(e) =>
+                                            setFieldValue("g24", e.target.value)
+                                        }
                                     />
                                     <label
                                         className="form-check-label"
