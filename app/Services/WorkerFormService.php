@@ -27,17 +27,20 @@ class WorkerFormService
         $pdf->numPages = $pdf->setSourceFile($filePath);
         $pdf->SetTextColor(0, 7, 224);
 
-        // // set some language dependent data:
-        // $lg = array();
-        // $lg['a_meta_charset'] = 'UTF-8';
-        // $lg['a_meta_dir'] = 'rtl';
-        // $lg['a_meta_language'] = 'fa';
-        // $lg['w_page'] = 'page';
-
-        // // set some language-dependent strings (optional)
-        // $pdf->setLanguageArray($lg);
-
         $lng = $form->lng;
+
+        if($lng == "heb")
+        {
+            // // set some language dependent data:
+            $lg = array();
+            $lg['a_meta_charset'] = 'UTF-8';
+            $lg['a_meta_dir'] = 'rtl';
+            $lg['a_meta_language'] = 'fa';
+            $lg['w_page'] = 'page';
+
+            // // set some language-dependent strings (optional)
+            $pdf->setLanguageArray($lg);
+        }
 
         $total_page = 0;
         foreach (range(1, $pdf->numPages, 1) as $page) {
@@ -51,7 +54,7 @@ class WorkerFormService
                 $text = $this->addWhiteSpaceBetweenChars($text, ' &nbsp;');
                 $w = 198;
                 $h = 25;
-                $x = 224;
+                $x = $lng == "heb" ? 313 : 224;
                 $y = 83;
                 $fontsize = 15;
 
@@ -72,7 +75,7 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 119;
+                        $x = $lng == "heb" ? 385 : 119;
                         $y = 220;
                         $fontsize = 15;
 
@@ -84,7 +87,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeFirstName'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 277 : 212;
+                    $x = $lng == "heb" ? 282 : 212;
                     $y = 220;
                     $fontsize = 14;
 
@@ -95,7 +98,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeLastName'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 374 : 316;
+                    $x = $lng == "heb" ? 158 : 316;
                     $y = 220;
                     $fontsize = 14;
 
@@ -107,9 +110,9 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 435;
+                    $x = $lng == "heb" ? 54 : 438;
                     $y = 220;
-                    $fontsize = 14;
+                    $fontsize = 15;
 
                     $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
                 }
@@ -129,7 +132,7 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 27;
+                        $x = $lng == "heb" ? 100 : 27;
                         $y = 220;
                         $fontsize = 14;
 
@@ -142,7 +145,7 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 29;
+                    $x = $lng == "heb" ? 497 : 29;
                     $y = 243;
                     $fontsize = 15;
 
@@ -153,7 +156,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeCity'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 156 : 109;
+                    $x = $lng == "heb" ? 393 : 109;
                     $y = 246;
                     $fontsize = 12;
 
@@ -164,7 +167,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeHouseNo'];
                     $w = 198;
                     $h = 98;
-                    $x = 202;
+                    $x = $lng == "heb" ? 376 : 202;
                     $y = 246;
                     $fontsize = 12;
 
@@ -175,7 +178,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeStreet'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 360 : 233;
+                    $x = $lng == "heb" ? 203 : 230;
                     $y = 246;
                     $fontsize = 12;
 
@@ -187,7 +190,7 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 393;
+                    $x = $lng == "heb" ? 88 : 393;
                     $y = 250;
                     $fontsize = 15;
 
@@ -200,7 +203,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 125;
+                    $x = $lng == "heb" ? 129 : 125;
                     $y = 293;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -209,7 +212,7 @@ class WorkerFormService
                         $text = (string)$formData['employeeHealthFundname'];
                         $w = 150;
                         $h = 50;
-                        $x = $lng == "heb" ? 40 : 29;
+                        $x = $lng == "heb" ? 524 : 29;
                         $y = 291;
                         $fontsize = 10;
 
@@ -218,7 +221,7 @@ class WorkerFormService
                 } else {
                     $w = 4;
                     $h = 4;
-                    $x = 125;
+                    $x = $lng == "heb" ? 129 : 125;
                     $y = 280;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -234,14 +237,14 @@ class WorkerFormService
                     ) {
                         $w = 4;
                         $h = 4;
-                        $x = 250;
+                        $x = $lng == "heb" ? 254 : 250;
                         $y = 282;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                     } else {
                         $w = 4;
                         $h = 4;
-                        $x = 272;
+                        $x = $lng == "heb" ? 276 : 272;
                         $y = 295;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -249,7 +252,7 @@ class WorkerFormService
                 } else {
                     $w = 4;
                     $h = 4;
-                    $x = 272;
+                    $x = $lng == "heb" ? 276 : 272;
                     $y = 282;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -261,14 +264,14 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 311;
+                    $x = $lng == "heb" ? 315 : 311;
                     $y = 282;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                 } else {
                     $w = 4;
                     $h = 4;
-                    $x = 311;
+                    $x = $lng == "heb" ? 315 : 311;
                     $y = 295;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -280,7 +283,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 491;
+                    $x = $lng == "heb" ? 495 : 491;
                     $y = 281;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -290,7 +293,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 432;
+                    $x = $lng == "heb" ? 436 : 432;
                     $y = 281;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -300,7 +303,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 365;
+                    $x = $lng == "heb" ? 369 : 365;
                     $y = 281;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -310,7 +313,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 491;
+                    $x = $lng == "heb" ? 495 : 491;
                     $y = 294;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -320,7 +323,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 444;
+                    $x = $lng == "heb" ? 449 : 444;
                     $y = 294;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -332,14 +335,14 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 530;
+                    $x = $lng == "heb" ? 534 : 530;
                     $y = 282;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                 } else {
                     $w = 4;
                     $h = 4;
-                    $x = 530;
+                    $x = $lng == "heb" ? 534 : 530;
                     $y = 295;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -349,7 +352,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeMobileNo'];
                     $w = 198;
                     $h = 98;
-                    $x = 74;
+                    $x = $lng == "heb" ? 439 : 74;
                     $y = 312;
                     $fontsize = 14;
 
@@ -360,7 +363,7 @@ class WorkerFormService
                     $text = (string)$formData['employeePhoneNo'];
                     $w = 198;
                     $h = 98;
-                    $x = 240;
+                    $x = $lng == "heb" ? 279 : 240;
                     $y = 312;
                     $fontsize = 14;
 
@@ -371,7 +374,7 @@ class WorkerFormService
                     $text = (string)$formData['employeeEmail'];
                     $w = 198;
                     $h = 98;
-                    $x = 364;
+                    $x = $lng == "heb" ? 110 : 364;
                     $y = 312;
                     $fontsize = 14;
 
@@ -393,7 +396,7 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 30;
+                        $x = $lng == "heb" ? 473 : 30;
                         $y = 376;
                         $fontsize = 15;
 
@@ -407,7 +410,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 360;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -419,7 +422,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 372;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -431,7 +434,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 384;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -443,7 +446,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 396;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -455,7 +458,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 408;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -467,7 +470,7 @@ class WorkerFormService
                 ) {
                     $w = 4;
                     $h = 4;
-                    $x = 240;
+                    $x = $lng == "heb" ? 244 : 240;
                     $y = 420;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -478,14 +481,14 @@ class WorkerFormService
                     if ($formData['otherIncome']['haveincome'] == "No") {
                         $w = 4;
                         $h = 4;
-                        $x = 238;
+                        $x = $lng == "heb" ? 242 : 238;
                         $y = 457;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                     } else {
                         $w = 4;
                         $h = 4;
-                        $x = 238;
+                        $x = $lng == "heb" ? 242 : 238;
                         $y = 481;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -493,7 +496,7 @@ class WorkerFormService
                         if (in_array('Monthly salary', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 238;
+                            $x = $lng == "heb" ? 242 : 238;
                             $y = 493;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -502,7 +505,7 @@ class WorkerFormService
                         if (in_array('Salary for additional employment', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 238;
+                            $x = $lng == "heb" ? 242 : 238;
                             $y = 504;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -511,7 +514,7 @@ class WorkerFormService
                         if (in_array('Salary for additional employment', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 238;
+                            $x = $lng == "heb" ? 242 : 238;
                             $y = 515;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -520,7 +523,7 @@ class WorkerFormService
                         if (in_array('Wage (Daily rate of pay)', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 120;
+                            $x = $lng == "heb" ? 124 : 120;
                             $y = 493;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -529,7 +532,7 @@ class WorkerFormService
                         if (in_array('Allowance', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 120;
+                            $x = $lng == "heb" ? 124 : 120;
                             $y = 504;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -538,7 +541,7 @@ class WorkerFormService
                         if (in_array('Scholarship', $formData['otherIncome']['incomeType'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 120;
+                            $x = $lng == "heb" ? 124 : 120;
                             $y = 515;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -551,14 +554,14 @@ class WorkerFormService
                     if ($formData['otherIncome']['taxCreditsAtOtherIncome'] == "request") {
                         $w = 4;
                         $h = 4;
-                        $x = 237;
+                        $x = $lng == "heb" ? 241 : 237;
                         $y = 539;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                     } elseif ($formData['otherIncome']['taxCreditsAtOtherIncome'] == "receive") {
                         $w = 4;
                         $h = 4;
-                        $x = 237;
+                        $x = $lng == "heb" ? 241 : 237;
                         $y = 562;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -568,7 +571,7 @@ class WorkerFormService
                 if (isset($formData['otherIncome']['studyFund'])) {
                     $w = 4;
                     $h = 4;
-                    $x = 237;
+                    $x = $lng == "heb" ? 241 : 237;
                     $y = 586;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -577,7 +580,7 @@ class WorkerFormService
                 if (isset($formData['otherIncome']['pensionInsurance'])) {
                     $w = 4;
                     $h = 4;
-                    $x = 237;
+                    $x = $lng == "heb" ? 241 : 237;
                     $y = 621;
 
                     $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -591,7 +594,7 @@ class WorkerFormService
                             $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                             $w = 198;
                             $h = 98;
-                            $x = 256;
+                            $x = $lng == "heb" ? 248 : 256;
                             $y = 386 + $ypos;
                             $fontsize = 15;
 
@@ -603,7 +606,7 @@ class WorkerFormService
                             $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                             $w = 198;
                             $h = 98;
-                            $x = 348;
+                            $x = $lng == "heb" ? 147 : 348;
                             $y = 386 + $ypos;
                             $fontsize = 13;
 
@@ -614,7 +617,7 @@ class WorkerFormService
                             $text = $value['firstName'];
                             $w = 198;
                             $h = 98;
-                            $x = $lng == "heb" ? 477 : 450;
+                            $x = $lng == "heb" ? 77 : 450;
                             $y = 386 + $ypos;
                             $fontsize = 13;
 
@@ -624,8 +627,8 @@ class WorkerFormService
                         if (isset($value['inCustody']) && $value['inCustody'] == true) {
                             $w = 5;
                             $h = 5;
-                            $x = 533;
-                            $y = 386 + $ypos;
+                            $x = $lng == "heb" ? 538 : 533;
+                            $y = 390 + $ypos;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                         }
@@ -633,8 +636,8 @@ class WorkerFormService
                         if (isset($value['haveChildAllowance']) && $value['haveChildAllowance'] == true) {
                             $w = 5;
                             $h = 5;
-                            $x = 523;
-                            $y = 386 + $ypos;
+                            $x = $lng == "heb" ? 528 : 523;
+                            $y = 390 + $ypos;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                         }
@@ -648,7 +651,7 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 28;
+                        $x = $lng == "heb" ? 475 : 28;
                         $y = 694;
                         $fontsize = 15;
 
@@ -663,7 +666,7 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 119;
+                    $x = $lng == "heb" ? 384 : 119;
                     $y = 694;
                     $fontsize = 15;
 
@@ -674,7 +677,7 @@ class WorkerFormService
                     $text = (string)$formData['Spouse']['firstName'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 278 : 210;
+                    $x = $lng == "heb" ? 282 : 210;
                     $y = 694;
                     $fontsize = 14;
 
@@ -685,7 +688,7 @@ class WorkerFormService
                     $text = (string)$formData['Spouse']['lastName'];
                     $w = 198;
                     $h = 98;
-                    $x = $lng == "heb" ? 384 : 315;
+                    $x = $lng == "heb" ? 158 : 315;
                     $y = 694;
                     $fontsize = 14;
 
@@ -697,7 +700,7 @@ class WorkerFormService
                     $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                     $w = 198;
                     $h = 98;
-                    $x = 439;
+                    $x = $lng == "heb" ? 241 : 439;
                     $y = 694;
                     $fontsize = 13;
 
@@ -708,14 +711,14 @@ class WorkerFormService
                     if ($formData['Spouse']['hasIncome'] == "No") {
                         $w = 4;
                         $h = 4;
-                        $x = 412;
+                        $x = $lng == "heb" ? 416 : 412;
                         $y = 719;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                     } else {
                         $w = 4;
                         $h = 4;
-                        $x = 284;
+                        $x = $lng == "heb" ? 288 : 284;
                         $y = 719;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -723,7 +726,7 @@ class WorkerFormService
                         if (isset($formData['Spouse']['incomeTypeOpt1'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 162;
+                            $x = $lng == "heb" ? 166 : 162;
                             $y = 720;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -732,7 +735,7 @@ class WorkerFormService
                         if (isset($formData['Spouse']['incomeTypeOpt2'])) {
                             $w = 4;
                             $h = 4;
-                            $x = 82;
+                            $x = $lng == "heb" ? 86 : 82;
                             $y = 720;
 
                             $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
@@ -745,7 +748,7 @@ class WorkerFormService
                         $text = (string)$formData['Spouse']['Country'];
                         $w = 198;
                         $h = 98;
-                        $x = $lng == "heb" ? 505 : 422;
+                        $x = $lng == "heb" ? 55 : 422;
                         $y = 718;
                         $fontsize = 8;
 
@@ -755,7 +758,7 @@ class WorkerFormService
                         $text = $this->addWhiteSpaceBetweenChars($text, ' ');
                         $w = 198;
                         $h = 98;
-                        $x = 420;
+                        $x = $lng == "heb" ? 55 : 420;
                         $y = 724;
                         $fontsize = 12;
 
