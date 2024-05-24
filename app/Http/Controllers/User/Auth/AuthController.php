@@ -226,7 +226,7 @@ class AuthController extends Controller
         $form = $worker->forms()->create([
             'type' => WorkerFormTypeEnum::CONTRACT,
             'data' => $data,
-            'submitted_at' => now()->toDateString(),
+            'submitted_at' => now()->toDateTimeString(),
             'pdf_name' => $file_name
         ]);
 
@@ -315,7 +315,7 @@ class AuthController extends Controller
         }
 
         if ($savingType == 'submit') {
-            $submittedAt = now()->toDateString();
+            $submittedAt = now()->toDateTimeString();
         } else {
             $submittedAt = NULL;
         }
@@ -438,7 +438,7 @@ class AuthController extends Controller
         $form = $worker->forms()->create([
             'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
             'data' => $data,
-            'submitted_at' => now()->toDateString(),
+            'submitted_at' => now()->toDateTimeString(),
             'pdf_name' => $file_name
         ]);
 
@@ -569,7 +569,7 @@ class AuthController extends Controller
         $form = $worker->forms()->create([
             'type' => WorkerFormTypeEnum::INSURANCE,
             'data' => $data,
-            'submitted_at' => now()->toDateString(),
+            'submitted_at' => now()->toDateTimeString(),
             'pdf_name' => $file_name
         ]);
 
