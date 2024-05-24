@@ -1246,8 +1246,7 @@ class WorkerFormService
                 ) {
                     if (
                         isset($formData['TaxCoordination']['requestReason']) &&
-                        ($formData['TaxCoordination']['requestReason'] === 'reason1' ||
-                            $formData['TaxCoordination']['requestReason'] === 'reason3')
+                        $formData['TaxCoordination']['requestReason'] === 'reason1'
                     ) {
                         $w = 3;
                         $h = 3;
@@ -1265,6 +1264,18 @@ class WorkerFormService
                         $h = 3;
                         $x = $lng == "heb" ? 518 : 515;
                         $y = 509;
+
+                        $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
+                    }
+
+                    if (
+                        isset($formData['TaxCoordination']['requestReason']) &&
+                        $formData['TaxCoordination']['requestReason'] === 'reason3'
+                    ) {
+                        $w = 3;
+                        $h = 3;
+                        $x = $lng == "heb" ? 518 : 515;
+                        $y = 594;
 
                         $pdf->Image(public_path('images/icons/cross.png'), $x, $y, $w, $h, '', '', '', true);
                     }
@@ -1381,10 +1392,9 @@ class WorkerFormService
 
                 if (isset($formData['signature'])) {
                     $img = '<img src="' . $formData['signature'] . '" width="150" height="50">';
-                    if($lng == "heb") {
+                    if ($lng == "heb") {
                         $pdf->writeHTMLCell(120, 30, 450, 620, $img, 0, 1);
-                    }
-                    else {
+                    } else {
                         $pdf->writeHTMLCell(120, 30, 26, 620, $img, 0, 1);
                     }
                 }
