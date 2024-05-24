@@ -103,6 +103,7 @@ return [
         'cancelled'   => 'Cancelled',
         'worker_changed'   => 'Worker Changed',
         'shift_changed'   => 'Shift Changed',
+        'cancellation_fee' => 'Cancellation fee'
     ],
     'worker_contract' => [
         'subject'     => 'Contract Form | Broom Service',

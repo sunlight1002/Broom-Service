@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { Rating } from "react-simple-star-rating";
+import "react-tooltip/dist/react-tooltip.css";
+import { Tooltip } from "react-tooltip";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 import useDebounce from "./hooks/useDebounce";
@@ -244,44 +247,6 @@ export default function TotalJobs() {
         }
     };
 
-    const shiftColors = [
-        {
-            bg: "yellow",
-            tc: "#444",
-            shift: "morning",
-            start: "08:00",
-            end: "12:00",
-        },
-        {
-            bg: "#79BAEC",
-            tc: "#fff",
-            shift: "afternoon",
-            start: "12:00",
-            end: "16:00",
-        },
-        {
-            bg: "#DBF9DB",
-            tc: "#444",
-            shift: "evening",
-            start: "16:00",
-            end: "20:00",
-        },
-        {
-            bg: "#B09FCA",
-            tc: "#fff",
-            shift: "night",
-            start: "20:00",
-            end: "24:00",
-        },
-        {
-            bg: "#d3d3d3",
-            tc: "#444",
-            shift: "fullday",
-            start: "08:00",
-            end: "16:00",
-        },
-    ];
-
     const handleSwitchWorker = (_job) => {
         setSelectedJob(_job);
         setIsOpenSwitchWorker(true);
@@ -516,16 +481,13 @@ export default function TotalJobs() {
                                                         &darr;{" "}
                                                     </span>
                                                 </Th>
-                                                <Th scope="col">
-                                                    Client Reviews
-                                                </Th>
+                                                <Th scope="col">Client</Th>
+                                                <Th scope="col">Service</Th>
+                                                <Th scope="col">Worker</Th>
+                                                <Th scope="col">Shift</Th>
                                                 <Th scope="col">
                                                     If Job Was Done
                                                 </Th>
-                                                <Th scope="col">Client</Th>
-                                                <Th scope="col">Worker</Th>
-                                                <Th scope="col">Shift</Th>
-                                                <Th scope="col">Service</Th>
                                                 <Th scope="col">
                                                     Time For Job
                                                 </Th>
@@ -533,6 +495,9 @@ export default function TotalJobs() {
                                                     Time Worker Actually
                                                 </Th>
                                                 <Th scope="col">Comments</Th>
+                                                <Th scope="col">
+                                                    Client Review
+                                                </Th>
                                                 <Th
                                                     className="text-center"
                                                     scope="col"
@@ -543,58 +508,6 @@ export default function TotalJobs() {
                                         </Thead>
                                         <Tbody>
                                             {totalJobs.map((item, index) => {
-                                                const _shifts =
-                                                    item.shifts.split(", ");
-                                                const _shift =
-                                                    _shifts[0].split("-");
-
-                                                const _startTime = Moment(
-                                                    "1990-01-01 " + _shift[0]
-                                                );
-                                                const _endTime = Moment(
-                                                    "1990-01-01 " + _shift[1]
-                                                );
-
-                                                const ix = shiftColors.find(
-                                                    (_s) => {
-                                                        const _shiftStartTime =
-                                                            Moment(
-                                                                "1990-01-01 " +
-                                                                    _s.start
-                                                            );
-                                                        const _shiftEndTime =
-                                                            Moment(
-                                                                "1990-01-01 " +
-                                                                    _s.end
-                                                            );
-
-                                                        return (
-                                                            _shiftStartTime.isSame(
-                                                                _startTime
-                                                            ) ||
-                                                            _shiftEndTime.isSame(
-                                                                _endTime
-                                                            ) ||
-                                                            _shiftStartTime.isBetween(
-                                                                _startTime,
-                                                                _endTime
-                                                            ) ||
-                                                            _shiftEndTime.isBetween(
-                                                                _startTime,
-                                                                _endTime
-                                                            ) ||
-                                                            _startTime.isBetween(
-                                                                _shiftStartTime,
-                                                                _shiftEndTime
-                                                            ) ||
-                                                            _endTime.isBetween(
-                                                                _shiftStartTime,
-                                                                _shiftEndTime
-                                                            )
-                                                        );
-                                                    }
-                                                );
-
                                                 return (
                                                     <Tr
                                                         key={index}
@@ -617,72 +530,6 @@ export default function TotalJobs() {
                                                                     "DD/MM/YYYY"
                                                                 )}
                                                             </span>
-                                                        </Td>
-                                                        <Td>
-                                                            {item.review && (
-                                                                <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                    <div
-                                                                        className="rounded"
-                                                                        style={{
-                                                                            padding:
-                                                                                "2px 10px",
-                                                                            backgroundColor:
-                                                                                "#f4f4f4",
-                                                                            border: "1px solid #ebebeb",
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                            item.review
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                <span
-                                                                    className="rounded"
-                                                                    style={{
-                                                                        border: "1px solid #ebebeb",
-                                                                        overflow:
-                                                                            "hidden",
-                                                                    }}
-                                                                >
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        name="job-compeleted"
-                                                                        checked={
-                                                                            item.is_job_done
-                                                                        }
-                                                                        disabled={
-                                                                            item.status ==
-                                                                                "cancel" ||
-                                                                            (item.order &&
-                                                                                item
-                                                                                    .order
-                                                                                    .status ==
-                                                                                    "Closed")
-                                                                        }
-                                                                        onChange={(
-                                                                            e
-                                                                        ) => {
-                                                                            handleJobDone(
-                                                                                item.id,
-                                                                                e
-                                                                                    .target
-                                                                                    .checked
-                                                                            );
-                                                                        }}
-                                                                        style={{
-                                                                            height: "20px",
-                                                                            width: "20px",
-                                                                            accentColor:
-                                                                                "#f4f4f4",
-                                                                        }}
-                                                                        className="form-control"
-                                                                    />
-                                                                </span>
-                                                            </div>
                                                         </Td>
                                                         <Td>
                                                             <Link
@@ -728,6 +575,38 @@ export default function TotalJobs() {
                                                                           .lastname
                                                                     : "NA"}
                                                             </Link>
+                                                        </Td>
+                                                        <Td
+                                                            onClick={(e) =>
+                                                                handleNavigate(
+                                                                    e,
+                                                                    item.id
+                                                                )
+                                                            }
+                                                            style={{
+                                                                background: `${
+                                                                    item.jobservice &&
+                                                                    item
+                                                                        .jobservice
+                                                                        .service
+                                                                        ? item
+                                                                              .jobservice
+                                                                              .service
+                                                                              ?.color_code
+                                                                        : "#FFFFFF"
+                                                                }`,
+                                                            }}
+                                                        >
+                                                            {item.jobservice &&
+                                                                (item.client &&
+                                                                item.client
+                                                                    .lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
                                                         </Td>
                                                         <Td>
                                                             <div
@@ -786,37 +665,51 @@ export default function TotalJobs() {
                                                                 )}
                                                             </div>
                                                         </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                            style={{
-                                                                background: `${
-                                                                    item.jobservice &&
-                                                                    item
-                                                                        .jobservice
-                                                                        .service
-                                                                        ? item
-                                                                              .jobservice
-                                                                              .service
-                                                                              ?.color_code
-                                                                        : "#FFFFFF"
-                                                                }`,
-                                                            }}
-                                                        >
-                                                            {item.jobservice &&
-                                                                (item.client &&
-                                                                item.client
-                                                                    .lng == "en"
-                                                                    ? item
-                                                                          .jobservice
-                                                                          .name
-                                                                    : item
-                                                                          .jobservice
-                                                                          .heb_name)}
+                                                        <Td>
+                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
+                                                                <span
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        border: "1px solid #ebebeb",
+                                                                        overflow:
+                                                                            "hidden",
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="job-compeleted"
+                                                                        checked={
+                                                                            item.is_job_done
+                                                                        }
+                                                                        disabled={
+                                                                            item.status ==
+                                                                                "cancel" ||
+                                                                            (item.order &&
+                                                                                item
+                                                                                    .order
+                                                                                    .status ==
+                                                                                    "Closed")
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleJobDone(
+                                                                                item.id,
+                                                                                e
+                                                                                    .target
+                                                                                    .checked
+                                                                            );
+                                                                        }}
+                                                                        style={{
+                                                                            height: "20px",
+                                                                            width: "20px",
+                                                                            accentColor:
+                                                                                "#f4f4f4",
+                                                                        }}
+                                                                        className="form-control"
+                                                                    />
+                                                                </span>
+                                                            </div>
                                                         </Td>
                                                         <Td>
                                                             <div className="d-flex justify-content-sm-start justify-content-md-center">
@@ -857,6 +750,30 @@ export default function TotalJobs() {
                                                                 {item.comment ||
                                                                     "-"}
                                                             </div>
+                                                        </Td>
+                                                        <Td>
+                                                            {item.rating && (
+                                                                <div
+                                                                    data-tooltip-hidden={
+                                                                        !item.review
+                                                                    }
+                                                                    data-tooltip-id="slot-tooltip"
+                                                                    data-tooltip-content={
+                                                                        item.review
+                                                                    }
+                                                                >
+                                                                    <Rating
+                                                                        initialValue={
+                                                                            item.rating
+                                                                        }
+                                                                        allowFraction
+                                                                        size={
+                                                                            15
+                                                                        }
+                                                                        readonly
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </Td>
                                                         <Td className="text-center">
                                                             <div className="action-dropdown dropdown pb-2">
@@ -1084,6 +1001,8 @@ export default function TotalJobs() {
                     }}
                 />
             )}
+
+            <Tooltip id="slot-tooltip" />
         </div>
     );
 }

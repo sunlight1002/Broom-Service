@@ -107,6 +107,7 @@ return [
         'cancelled'   => 'מבוטל',
         'worker_changed'   => 'עובד התחלף',
         'shift_changed'   => 'Shift השתנה',
+        'cancellation_fee' => 'דמי ביטול'
     ],
     'worker_contract' => [
         'subject'     => 'חוזה עם',

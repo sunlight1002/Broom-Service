@@ -5,6 +5,7 @@ import { useAlert } from "react-alert";
 import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import Swal from "sweetalert2";
 
 import {
     convertShiftsFormat,
@@ -107,59 +108,79 @@ export default function CreateJobCalender({
             });
     };
 
+    const submitForm = (_data) => {
+        let viewbtn = document.querySelectorAll(".viewBtn");
+        let formdata = {
+            workers: _data,
+            service_id: selectedService.service,
+            contract_id: selectedService.contract_id,
+            prevWorker: isPrevWorker.current.checked,
+            updatedJobs: updatedJobs,
+        };
+
+        viewbtn[0].setAttribute("disabled", true);
+        viewbtn[0].value = "please wait ...";
+
+        axios
+            .post(`/api/admin/create-job`, formdata, {
+                headers,
+            })
+            .then((res) => {
+                alert.success(res.data.message);
+                setTimeout(() => {
+                    navigate("/admin/jobs");
+                }, 1000);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+            });
+    };
+
     const handleSubmit = () => {
         if (selectedHours) {
-            if (selectedHours.length != getWorkersData(selectedHours).length) {
-                alert.error("Please select all frequency dates.");
-                return false;
-            }
+            // const unfilled = selectedHours.find((worker) => {
+            //     return worker.slots == null;
+            // });
 
-            const unfilled = selectedHours.find((worker) => {
-                return worker.slots == null;
-            });
-            if (unfilled) {
-                alert.error("Please select all workers.");
-            } else {
-                const data = [];
-                selectedHours.forEach((worker, index) => {
-                    worker?.formattedSlots?.forEach((slots) => {
-                        data.push(slots);
-                    });
+            // if (unfilled) {
+            //     alert.error("Please select all workers.");
+            //     return false;
+            // }
+
+            const data = [];
+            selectedHours.forEach((worker, index) => {
+                worker?.formattedSlots?.forEach((slots) => {
+                    data.push(slots);
                 });
-                let formdata = {
-                    workers: data,
-                    service_id: selectedService.service,
-                    contract_id: selectedService.contract_id,
-                    prevWorker: isPrevWorker.current.checked,
-                    updatedJobs: updatedJobs,
-                };
-                let viewbtn = document.querySelectorAll(".viewBtn");
-                if (data.length > 0) {
-                    viewbtn[0].setAttribute("disabled", true);
-                    viewbtn[0].value = "please wait ...";
+            });
 
-                    axios
-                        .post(`/api/admin/create-job`, formdata, {
-                            headers,
-                        })
-                        .then((res) => {
-                            alert.success(res.data.message);
-                            setTimeout(() => {
-                                navigate("/admin/jobs");
-                            }, 1000);
-                        })
-                        .catch((e) => {
-                            Swal.fire({
-                                title: "Error!",
-                                text: e.response.data.message,
-                                icon: "error",
-                            });
-                        });
+            if (data.length > 0) {
+                const _getWorkersData = getWorkersData(selectedHours);
+
+                if (selectedHours.length != _getWorkersData.length) {
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "All frequency dates not selected!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, sure!",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitForm(data);
+                        }
+                    });
                 } else {
-                    viewbtn[0].removeAttribute("disabled");
-                    viewbtn[0].value = "View Job";
-                    alert.error("Please Select the Workers");
+                    submitForm(data);
                 }
+            } else {
+                let viewbtn = document.querySelectorAll(".viewBtn");
+                viewbtn[0].removeAttribute("disabled");
+                viewbtn[0].value = "View Job";
+                alert.error("Please Select the Workers");
             }
         }
     };

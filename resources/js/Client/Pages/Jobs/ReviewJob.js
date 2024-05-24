@@ -35,6 +35,11 @@ export default function ReviewJob() {
             .then((response) => {
                 const _job = response.data.job;
                 setJob(_job);
+
+                setFormValues({
+                    rating: _job.rating,
+                    review: _job.review,
+                });
             })
             .catch((e) => {
                 Swal.fire({
@@ -233,7 +238,7 @@ export default function ReviewJob() {
                                                     allowFraction
                                                     transition
                                                     rtl={lng === "heb"}
-                                                    disabled={job.rating}
+                                                    readonly={job.rating}
                                                 />
                                             </div>
                                         </div>

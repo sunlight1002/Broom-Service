@@ -78,16 +78,8 @@ class CreateJobOrder implements ShouldQueue
                 ->get(['cancellation_fee_amount', 'action']);
 
             foreach ($cancellationFees as $key => $fee) {
-                if ($fee->action == CancellationActionEnum::CHANGE_WORKER) {
-                    $actionName = __('mail.job_status.worker_changed');
-                } else if ($fee->action == CancellationActionEnum::CHANGE_SHIFT) {
-                    $actionName = __('mail.job_status.shift_changed');
-                } else {
-                    $actionName = __('mail.job_status.cancelled');
-                }
-
                 $items[] = [
-                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . $actionName,
+                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . __('mail.job_status.cancellation_fee'),
                     "unitprice"   => $fee->cancellation_fee_amount,
                     "quantity"    => 1,
                 ];

@@ -473,7 +473,8 @@ class JobController extends Controller
 
         $job->update([
             'rating' => $data['rating'],
-            'review' => $data['review']
+            'review' => $data['review'],
+            'client_reviewed_at' => now()->toDateTimeString()
         ]);
 
         return response()->json([
