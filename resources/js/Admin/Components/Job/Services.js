@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import { useTranslation } from "react-i18next";
 import JobDiscountModal from "../Modals/JobDiscountModal";
+import JobExtraModal from "../Modals/JobExtraModal";
 
 export default function Services({ job, updateJob }) {
     const [isOpenDiscountModal, setIsOpenDiscountModal] = useState(false);
+    const [isOpenExtraModal, setIsOpenExtraModal] = useState(false);
 
     const { t } = useTranslation();
     const service = job.jobservice;
@@ -25,6 +27,14 @@ export default function Services({ job, updateJob }) {
                         onClick={() => setIsOpenDiscountModal(true)}
                     >
                         Discount
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn btn-primary float-right mr-2"
+                        onClick={() => setIsOpenExtraModal(true)}
+                    >
+                        Extra amount
                     </button>
                 </div>
             </div>
@@ -140,6 +150,18 @@ export default function Services({ job, updateJob }) {
                         onSuccess={() => {
                             updateJob();
                             setIsOpenDiscountModal(false);
+                        }}
+                    />
+                )}
+
+                {isOpenExtraModal && (
+                    <JobExtraModal
+                        setIsOpen={setIsOpenExtraModal}
+                        isOpen={isOpenExtraModal}
+                        job={job}
+                        onSuccess={() => {
+                            updateJob();
+                            setIsOpenExtraModal(false);
                         }}
                     />
                 )}

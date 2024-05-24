@@ -85,6 +85,14 @@ class CreateJobOrder implements ShouldQueue
                 ];
             }
 
+            if ($job->extra_amount) {
+                $items[] = [
+                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . __('mail.job_common.extra_amount'),
+                    "unitprice"   => $job->extra_amount,
+                    "quantity"    => 1,
+                ];
+            }
+
             $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
             $order = $this->generateOrderDocument(

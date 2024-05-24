@@ -353,6 +353,7 @@ return [
         'admin_change_worker_content'  => ':workerName עובד הוסר מהמשימה # :jobId.',
         'worker_job_reminder_subject'   => 'תזכורת משימה | שירותי מטאטא',
         'worker_job_reminder_content'   => 'תזכורת ידידותית שעדיין לא אישרת את המשימה.',
-        'worker_job_start_time_content' => 'זמן המשימה הוגדר על ידך.'
+        'worker_job_start_time_content' => 'זמן המשימה הוגדר על ידך.',
+        'extra_amount' => 'כמות נוספת'
     ]
 ];

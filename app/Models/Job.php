@@ -24,6 +24,7 @@ class Job extends Model
         'end_time',
         'shifts',
         'comment',
+        'extra_amount',
         'subtotal_amount',
         'discount_type',
         'discount_value',
@@ -75,6 +76,7 @@ class Job extends Model
      * @var array
      */
     protected $casts = [
+        'extra_amount' => 'double',
         'subtotal_amount' => 'double',
         'discount_value' => 'double',
         'discount_amount' => 'double',

@@ -345,6 +345,7 @@ return [
         'admin_change_worker_content'  =>  'Worker :workerName unassigned from the job# :jobId.',
         'worker_job_reminder_subject'   => 'Job Reminder | Broom Service',
         'worker_job_reminder_content'   => 'Just a friendly reminder that you have not approve the job till now.',
-        'worker_job_start_time_content' => 'Job time has been started by you.'
+        'worker_job_start_time_content' => 'Job time has been started by you.',
+        'extra_amount' => 'Extra amount'
     ],
 ];

@@ -480,6 +480,10 @@ trait JobSchedule
                 $subtotal_amount = $selectedService['fixed_price'];
             }
 
+            if ($job->extra_amount) {
+                $subtotal_amount = $subtotal_amount + $job->extra_amount;
+            }
+
             $discount_amount = NULL;
             if ($job->discount_type == 'percentage') {
                 $discount_amount = (($job->discount_value / 100) * $subtotal_amount);
@@ -557,14 +561,16 @@ trait JobSchedule
                     $original_name = $attachment_->original_name;
                     $file_name = $job->id . "_" . date('s') . "_" . $original_name;
 
-                    if (Storage::disk('public')->copy(
-                        'uploads/attachments/' . $attachment_->file_name,
-                        'uploads/attachments/' . $file_name
-                    )) {
-                        array_push($resultArr, [
-                            'file_name' => $file_name,
-                            'original_name' => $original_name
-                        ]);
+                    if (Storage::disk('public')->exists('uploads/attachments/' . $attachment_->file_name)) {
+                        if (Storage::disk('public')->copy(
+                            'uploads/attachments/' . $attachment_->file_name,
+                            'uploads/attachments/' . $file_name
+                        )) {
+                            array_push($resultArr, [
+                                'file_name' => $file_name,
+                                'original_name' => $original_name
+                            ]);
+                        }
                     }
                 }
 
