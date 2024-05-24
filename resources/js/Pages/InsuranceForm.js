@@ -26,8 +26,6 @@ const InsuranceForm = () => {
     const [show, setShow] = useState(false);
     const sigRef = useRef();
     const currentDate = moment().format("YYYY-MM-DD");
-    const [pdfForm, setPdfForm] = useState(null);
-    const [pdfDoc, setPdfDoc] = useState(null);
     const [pdfData, setPdfData] = useState(null);
     const { t } = useTranslation();
     const initialValues = {
@@ -49,7 +47,6 @@ const InsuranceForm = () => {
         canEmail: "",
         gender: "male",
         // page 3
-        GDetails: "",
         GCandidatename: "",
         GDate: "",
         g1: "",
@@ -85,7 +82,6 @@ const InsuranceForm = () => {
         g24: "",
         g24Treatment: "",
         // page 4
-        Hname: "",
         canDate: currentDate,
         signature: "",
     };
@@ -125,24 +121,6 @@ const InsuranceForm = () => {
     const params = useParams();
     const id = Base64.decode(params.id);
 
-    useEffect(() => {
-        const fetchPdf = async () => {
-            const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
-                (res) => res.arrayBuffer()
-            );
-            const PdfDoc = await PDFDocument.load(formPdfBytes);
-            setPdfDoc(PdfDoc);
-            const form = PdfDoc.getForm();
-            setPdfForm(form);
-            const allFields = form.getFields();
-            for (let index = 0; index < allFields.length; index++) {
-                const element = allFields[index];
-                // console.log(element.getName(), element.constructor.name);
-            }
-        };
-        fetchPdf();
-    }, []);
-
     const {
         errors,
         touched,
@@ -151,17 +129,25 @@ const InsuranceForm = () => {
         handleSubmit,
         values,
         setFieldValue,
+        isSubmitting,
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
         validationSchema: formSchema,
         onSubmit: async (values) => {
-            setIsSubmitted(true);
             await saveFormData(true);
         },
     });
 
     const saveFormData = async (isSubmit) => {
+        const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
+            (res) => res.arrayBuffer()
+        );
+        const pdfDoc = await PDFDocument.load(formPdfBytes);
+        // setPdfDoc(PdfDoc);
+
+        const pdfForm = pdfDoc.getForm();
+
         pdfForm.getTextField("canFirstName").setText(values.canFirstName);
         pdfForm.getTextField("canLastName").setText(values.canLastName);
         pdfForm.getTextField("canPassport").setText(values.canPassport);
@@ -185,7 +171,6 @@ const InsuranceForm = () => {
         pdfForm.getTextField("G-firstname").setText(values.canFirstName);
         pdfForm.getTextField("G-lastname").setText(values.canLastName);
         pdfForm.getTextField("G-passportno").setText(values.canPassport);
-        pdfForm.getTextField("G-details").setText(values.GDetails);
         pdfForm.getTextField("G-candidatename").setText(values.GCandidatename);
         pdfForm.getTextField("G-date").setText(values.canDate);
         pdfForm
@@ -193,19 +178,34 @@ const InsuranceForm = () => {
             .setText(values.canPassport);
         pdfForm.getTextField("candidate-name").setText(values.GCandidatename);
         pdfForm.getTextField("candidate-date").setText(values.canDate);
-        pdfForm.getTextField("H-name").setText(values.Hname);
+        pdfForm.getTextField("G-height-en").setFontSize(9);
         pdfForm.getTextField("G-height-en").setText(values.g1Height);
+        pdfForm.getTextField("G-height-heb").setFontSize(9);
         pdfForm.getTextField("G-height-heb").setText(values.g1Height);
+        pdfForm.getTextField("G-weight-en").setFontSize(9);
         pdfForm.getTextField("G-weight-en").setText(values.g1Weight);
+        pdfForm.getTextField("G-weight-heb").setFontSize(9);
         pdfForm.getTextField("G-weight-heb").setText(values.g1Weight);
+        pdfForm.getTextField("G7-reason-en").setFontSize(9);
         pdfForm.getTextField("G7-reason-en").setText(values.g7Reason);
+        pdfForm.getTextField("G7-reason-heb").setFontSize(9);
         pdfForm.getTextField("G7-reason-heb").setText(values.g7Reason);
+        pdfForm.getTextField("G18-treatment-en").setFontSize(9);
         pdfForm.getTextField("G18-treatment-en").setText(values.g18Treatment);
+        pdfForm.getTextField("G18-treatment-heb").setFontSize(9);
         pdfForm.getTextField("G18-treatment-heb").setText(values.g18Treatment);
+        pdfForm.getTextField("G24-answer-en").setFontSize(9);
         pdfForm.getTextField("G24-answer-en").setText(values.g24Treatment);
+        pdfForm.getTextField("G24-answer-heb").setFontSize(9);
         pdfForm.getTextField("G24-answer-heb").setText(values.g24Treatment);
-        pdfForm.getTextField("G-stopped-smoking-on-en").setText(values.g4WhenStop);
-        pdfForm.getTextField("G-stopped-smoking-on-heb").setText(values.g4WhenStop);
+        pdfForm.getTextField("G-stopped-smoking-on-en").setFontSize(9);
+        pdfForm
+            .getTextField("G-stopped-smoking-on-en")
+            .setText(values.g4WhenStop);
+        pdfForm.getTextField("G-stopped-smoking-on-heb").setFontSize(9);
+        pdfForm
+            .getTextField("G-stopped-smoking-on-heb")
+            .setText(values.g4WhenStop);
 
         for (let i = 1; i <= 24; i++) {
             const key = "g" + i;
@@ -224,37 +224,38 @@ const InsuranceForm = () => {
 
             const pngImage = await pdfDoc.embedPng(pngImageBytes);
 
-            const pngDims = pngImage.scale(0.5);
+            const pngDims1 = pngImage.scale(0.28);
+            const pngDims2 = pngImage.scale(0.24);
 
             const page3 = pdfDoc.getPage(2);
             const page4 = pdfDoc.getPage(3);
 
             page3.drawImage(pngImage, {
-                x: page3.getWidth() / 2 - pngDims.width / 2 - 70,
-                y: page3.getHeight() / 2 - pngDims.height / 2 - 380,
-                width: pngDims.width,
-                height: pngDims.height,
+                x: page3.getWidth() / 2 - pngDims1.width / 2 - 90,
+                y: page3.getHeight() / 2 - pngDims1.height / 2 - 390,
+                width: pngDims1.width,
+                height: pngDims1.height,
             });
 
             page4.drawImage(pngImage, {
-                x: page4.getWidth() / 2 - pngDims.width / 2 - 80,
-                y: page4.getHeight() / 2 - pngDims.height / 2 + 290,
-                width: pngDims.width,
-                height: pngDims.height,
+                x: page4.getWidth() / 2 - pngDims2.width / 2 - 80,
+                y: page4.getHeight() / 2 - pngDims2.height / 2 + 290,
+                width: pngDims2.width,
+                height: pngDims2.height,
             });
 
             page4.drawImage(pngImage, {
-                x: page4.getWidth() / 2 - pngDims.width / 2 + 120,
-                y: page4.getHeight() / 2 - pngDims.height / 2 + 290,
-                width: pngDims.width,
-                height: pngDims.height,
+                x: page4.getWidth() / 2 - pngDims2.width / 2 + 130,
+                y: page4.getHeight() / 2 - pngDims2.height / 2 + 295,
+                width: pngDims2.width,
+                height: pngDims2.height,
             });
 
             page4.drawImage(pngImage, {
-                x: page4.getWidth() / 2 - pngDims.width / 2 - 130,
-                y: page4.getHeight() / 2 - pngDims.height / 2 - 300,
-                width: pngDims.width,
-                height: pngDims.height,
+                x: page4.getWidth() / 2 - pngDims1.width / 2 - 145,
+                y: page4.getHeight() / 2 - pngDims1.height / 2 - 300,
+                width: pngDims1.width,
+                height: pngDims1.height,
             });
         }
 
@@ -292,7 +293,6 @@ const InsuranceForm = () => {
                     }, 2000);
                 })
                 .catch((e) => {
-                    setIsSubmitted(false);
                     Swal.fire({
                         title: "Error!",
                         text: e.response.data.message,
@@ -2155,55 +2155,6 @@ const InsuranceForm = () => {
                         <hr />
                     </div>
                 </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                Details of positive findings
-                            </label>
-                            <input
-                                type="text"
-                                name="GDetails"
-                                className="form-control"
-                                value={values.GDetails}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                Receipt of all the information in the Policy
-            </div>
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div>
-                        I hereby permit my insurance agent for the Policy,
-                    </div>
-                    <div className="d-flex align-items-center">
-                        Mr/Ms,
-                        <input
-                            type="text"
-                            name="Hname"
-                            className="form-control ml-2"
-                            value={values.Hname}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div>
-                        to handle on my behalf and for me all matters related to
-                        this claim, including submitting to Menora and receiving
-                        from Menora on my behalf and for me all correspondence
-                        and/or documents. related to a claim, and to serve as my
-                        representative for all intents and purposes related to
-                        this claim.
-                    </div>
-                </div>
             </div>
 
             {/* LAST section */}
@@ -2264,14 +2215,14 @@ const InsuranceForm = () => {
 
             {/* Buttons */}
             <div>
-                {!formValues && (
+                {!isSubmitted && (
                     <div className="row justify-content-center">
                         <div className="col-md-8 d-flex">
                             <button
                                 type="button"
                                 className="btn btn-secondary"
                                 onClick={handleShow}
-                                disabled={isSubmitted}
+                                disabled={isSubmitting}
                             >
                                 {t("insurance.Preview")}
                             </button>
@@ -2280,7 +2231,7 @@ const InsuranceForm = () => {
                                 type="submit"
                                 className="btn btn-primary"
                                 onClick={handleSubmit}
-                                disabled={isSubmitted}
+                                disabled={isSubmitting}
                             >
                                 {t("insurance.Submit")}
                             </button>
