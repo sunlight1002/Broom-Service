@@ -1,6 +1,7 @@
 {
     "common": {
-        "loading": "טוען..."
+        "loading": "טוען...",
+        "continue": "לְהַמשִׁיך"
     },
     "global": {
         "vat": "מע'מ",
@@ -467,9 +468,9 @@
             "total": "סה'כ",
             "action": "פעולה",
             "view_btn": "צפה",
-            "change_worker": "שנה עובד",
+            "change_schedule": "שנה לוח זמנים",
             "change": {
-                "title": "שינוי בקשת עובד",
+                "title": "שנה לוח זמנים",
                 "worker_availability": "זמינות עובדים",
                 "desc": "הקצה עובד ספציפי בלבד ובחר משמרת לתאריך בודד.",
                 "services": "שירותים",

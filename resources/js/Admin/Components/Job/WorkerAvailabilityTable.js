@@ -36,22 +36,46 @@ export default function WorkerAvailabilityTable({
                                         id={`worker-${w.id}`}
                                         className="align-items-center justify-content-center"
                                     >
-                                        {w.firstname} {w.lastname}
+                                        {isClient ? (
+                                            <>
+                                                {w.firstname}
+
+                                                {w.gender == "male" && (
+                                                    <i className="fa fa-person text-primary ml-2"></i>
+                                                )}
+
+                                                {w.gender == "female" && (
+                                                    <i
+                                                        className="fa fa-person-dress ml-2"
+                                                        style={{
+                                                            color: "pink",
+                                                        }}
+                                                    ></i>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {w.firstname} {w.lastname}
+                                            </>
+                                        )}
                                     </span>
                                 </td>
                                 {week.map((element, index) => {
-                                    let workerSlots = workerAvailabilities.find(_w => {
-                                        return _w.workerId == w.id
-                                    }) ?? [];
-                                    let slots = workerSlots?.slots?.find(_s => {
-                                        return _s.date == element;
-                                    }) ?? [];
+                                    let workerSlots =
+                                        workerAvailabilities.find((_w) => {
+                                            return _w.workerId == w.id;
+                                        }) ?? [];
+                                    let slots =
+                                        workerSlots?.slots?.find((_s) => {
+                                            return _s.date == element;
+                                        }) ?? [];
                                     let hasStartActive = false;
                                     return (
                                         <td key={index}>
                                             <div className="d-flex">
                                                 <div className="d-flex slots">
-                                                    {slots?.allSlots?.length > 0 ? (
+                                                    {slots?.allSlots?.length >
+                                                    0 ? (
                                                         slots?.allSlots.map(
                                                             (shift, _sIdx) => {
                                                                 let isActive =
@@ -61,39 +85,64 @@ export default function WorkerAvailabilityTable({
                                                                         shift
                                                                     );
 
-                                                                if(!hasStartActive) {
-                                                                    hasStartActive = isActive;
-                                                                } else if(isClient) {
+                                                                if (
+                                                                    !hasStartActive
+                                                                ) {
+                                                                    hasStartActive =
+                                                                        isActive;
+                                                                } else if (
+                                                                    isClient
+                                                                ) {
                                                                     isActive = false;
                                                                 }
-                                                                let tooltip = '';
-                                                                if(!isClient) {
-                                                                    if(shift?.isBooked) {
-                                                                        tooltip = shift?.clientName + shift?.jobId;
-                                                                    } else if(shift?.isFreezed && isClient) {
-                                                                        tooltip = 'Shift is freezed by Administrator';
-                                                                    } else if(shift?.isFreezed && !isClient) {
-                                                                        tooltip = 'Shift is freezed';
-                                                                    } else if(shift?.notAvailable) {
-                                                                        tooltip = 'Worker is not available';
+                                                                let tooltip =
+                                                                    "";
+                                                                if (!isClient) {
+                                                                    if (
+                                                                        shift?.isBooked
+                                                                    ) {
+                                                                        tooltip =
+                                                                            shift?.clientName +
+                                                                            shift?.jobId;
+                                                                    } else if (
+                                                                        shift?.isFreezed &&
+                                                                        isClient
+                                                                    ) {
+                                                                        tooltip =
+                                                                            "Shift is freezed by Administrator";
+                                                                    } else if (
+                                                                        shift?.isFreezed &&
+                                                                        !isClient
+                                                                    ) {
+                                                                        tooltip =
+                                                                            "Shift is freezed";
+                                                                    } else if (
+                                                                        shift?.notAvailable
+                                                                    ) {
+                                                                        tooltip =
+                                                                            "Worker is not available";
                                                                     }
                                                                 }
                                                                 return (
                                                                     <div
                                                                         data-tooltip-hidden={
                                                                             shift?.isBooked ||
-                                                                            (shift?.isFreezed && !isClient) ||
+                                                                            (shift?.isFreezed &&
+                                                                                !isClient) ||
                                                                             shift?.notAvailable
                                                                         }
                                                                         data-tooltip-id="slot-tooltip"
-                                                                        data-tooltip-content={tooltip}
+                                                                        data-tooltip-content={
+                                                                            tooltip
+                                                                        }
                                                                         className={`d-flex slot justify-content-between ${
                                                                             isActive
                                                                                 ? "bg-primary-selected"
                                                                                 : ""
                                                                         } ${
                                                                             shift?.isBooked ||
-                                                                            (shift?.isFreezed && isClient) ||
+                                                                            (shift?.isFreezed &&
+                                                                                isClient) ||
                                                                             shift?.notAvailable
                                                                                 ? "slot-disabled"
                                                                                 : ""
@@ -101,7 +150,8 @@ export default function WorkerAvailabilityTable({
                                                                         onClick={() => {
                                                                             if (
                                                                                 !shift?.isBooked &&
-                                                                                (!shift?.isFreezed || !isClient) &&
+                                                                                (!shift?.isFreezed ||
+                                                                                    !isClient) &&
                                                                                 !shift?.notAvailable
                                                                             ) {
                                                                                 isActive

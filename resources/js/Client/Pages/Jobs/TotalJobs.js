@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
-import Sidebar from "../../Layouts/ClientSidebar";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
@@ -9,12 +8,14 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
 
+import Sidebar from "../../Layouts/ClientSidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function TotalJobs() {
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
+
     const alert = useAlert();
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
@@ -54,39 +55,6 @@ export default function TotalJobs() {
                 }
             });
     };
-    // const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
-    // const getShift = (shifts) => {
-    //     let s = shifts.split(",");
-    //     let check = "";
-    //     let new_shift = "";
-    //     show_shift.map((p) => {
-    //         if (p == "Afternoon") {
-    //             check = "noon";
-    //         } else {
-    //             check = p;
-    //         }
-    //         s.map((sh) => {
-    //             if (sh.includes(check.toLowerCase())) {
-    //                 if (new_shift == "") {
-    //                     new_shift = p;
-    //                 } else {
-    //                     if (!new_shift.includes(p)) {
-    //                         new_shift =
-    //                             t("global." + new_shift.toLowerCase()) +
-    //                             " | " +
-    //                             t("global." + p.toLowerCase());
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     });
-    //     if (new_shift == "Full Day") return t("global.fullday");
-    //     if (new_shift == "Morning") return t("global.morning");
-    //     if (new_shift == "Noon") return t("global.noon");
-    //     if (new_shift == "Afternoon") return t("global.afternoon");
-    //     if (new_shift == "Evening") return t("global.evening");
-    //     return new_shift;
-    // };
 
     return (
         <div id="container">
@@ -306,11 +274,11 @@ export default function TotalJobs() {
                                                                     <Link
                                                                         to={`/client/jobs/${Base64.encode(
                                                                             item.id.toString()
-                                                                        )}/change-worker`}
+                                                                        )}/change-schedule`}
                                                                         className="dropdown-item"
                                                                     >
                                                                         {t(
-                                                                            "client.jobs.change_worker"
+                                                                            "client.jobs.change_schedule"
                                                                         )}
                                                                     </Link>
                                                                 </div>

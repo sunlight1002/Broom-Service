@@ -1,6 +1,7 @@
 {
     "common": {
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "continue": "Continue"
     },
     "global": {
         "vat": "VAT",
@@ -467,9 +468,9 @@
             "total": "Total",
             "action": "Action",
             "view_btn": "View",
-            "change_worker": "Change Worker",
+            "change_schedule": "Change Schedule",
             "change": {
-                "title": "Change Worker",
+                "title": "Change Schedule",
                 "worker_availability": "Worker Availability",
                 "desc": "Assign a specific worker only and choose a shift for a single date.",
                 "services": "Services",

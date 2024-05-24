@@ -8,10 +8,10 @@ import { Base64 } from "js-base64";
 import { useTranslation } from "react-i18next";
 
 import ClientSidebar from "../../Layouts/ClientSidebar";
-import ChangeWorkerCalender from "../../Component/Job/ChangeWorkerCalender";
+import ChangeScheduleCalender from "../../Component/Job/ChangeScheduleCalender";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
-export default function ChangeWorker() {
+export default function ChangeSchedule() {
     const params = useParams();
     const [job, setJob] = useState(null);
     const { t } = useTranslation();
@@ -202,7 +202,7 @@ export default function ChangeWorker() {
 
                                     <div className="row">
                                         <div className="col-sm-12">
-                                            <ChangeWorkerCalender job={job} />
+                                            <ChangeScheduleCalender job={job} />
                                             <div className="mb-3">&nbsp;</div>
                                         </div>
                                     </div>

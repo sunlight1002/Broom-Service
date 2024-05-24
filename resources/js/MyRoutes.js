@@ -124,7 +124,7 @@ import Messenger from "./Admin/Pages/Chat/messenger";
 import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
-import ClientChangeWorker from "./Client/Pages/Jobs/ChangeWorker";
+import ChangeSchedule from "./Client/Pages/Jobs/ChangeSchedule";
 import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
 import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
 import InsuranceForm from "./Pages/InsuranceForm";
@@ -286,8 +286,8 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="/client/jobs/:id/change-worker"
-                                element={<ClientChangeWorker />}
+                                path="/client/jobs/:id/change-schedule"
+                                element={<ChangeSchedule />}
                             />
                             <Route
                                 exact

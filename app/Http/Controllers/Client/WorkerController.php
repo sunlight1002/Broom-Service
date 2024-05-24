@@ -13,6 +13,7 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         $service = '';
+        $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
         if ($request->service_id) {
             // $contract=Contract::with('offer','client')->find($request->contract_id);
@@ -42,6 +43,9 @@ class WorkerController extends Controller
                 'jobs.client:id,firstname,lastname',
                 'notAvailableDates:user_id,date,start_time,end_time'
             ])
+            ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
+                return $q->whereIn('id', $onlyWorkerIDArr);
+            })
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
