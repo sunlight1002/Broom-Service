@@ -129,7 +129,7 @@ const InsuranceForm = () => {
             const allFields = form.getFields();
             for (let index = 0; index < allFields.length; index++) {
                 const element = allFields[index];
-                // console.log(element.getName());
+                // console.log(element.getName(), element.constructor.name);
             }
         };
         fetchPdf();
@@ -168,8 +168,11 @@ const InsuranceForm = () => {
         pdfForm.getTextField("canStreet").setText(values.canStreet);
         pdfForm.getTextField("canTelephone").setText(values.canTelephone);
         pdfForm.getTextField("canCellPhone").setText(values.canCellPhone);
+        pdfForm.getTextField("canEmail").setFontSize(9);
         pdfForm.getTextField("canEmail").setText(values.canEmail);
-        pdfForm.getRadioGroup("gender").select(values.gender);
+        const genderRadioGroup = pdfForm.getRadioGroup("gender");
+        genderRadioGroup.select(values.gender);
+        genderRadioGroup.defaultUpdateAppearances();
 
         pdfForm.getTextField("G-firstname").setText(values.canFirstName);
         pdfForm.getTextField("G-lastname").setText(values.canLastName);
@@ -183,6 +186,62 @@ const InsuranceForm = () => {
         pdfForm.getTextField("candidate-name").setText(values.GCandidatename);
         pdfForm.getTextField("candidate-date").setText(values.canDate);
         pdfForm.getTextField("H-name").setText(values.Hname);
+        pdfForm.getTextField("G-height-en").setText("154");
+        pdfForm.getTextField("G-height-heb").setText("154");
+
+        if (values.g20 == "yes") {
+            pdfForm.getCheckBox("G20-Yes").check();
+            pdfForm.getCheckBox("G20-No").uncheck();
+        } else if (values.g20 == "no") {
+            pdfForm.getCheckBox("G20-Yes").uncheck();
+            pdfForm.getCheckBox("G20-No").check();
+        }
+
+        if (values.signature) {
+            const pngImageBytes = await fetch(values.signature).then((res) =>
+                res.arrayBuffer()
+            );
+
+            const pngImage = await pdfDoc.embedPng(pngImageBytes);
+
+            const pngDims = pngImage.scale(0.5);
+
+            const page3 = pdfDoc.getPage(2);
+            const page4 = pdfDoc.getPage(3);
+
+            page3.drawImage(pngImage, {
+                x: page3.getWidth() / 2 - pngDims.width / 2 - 70,
+                y: page3.getHeight() / 2 - pngDims.height / 2 - 380,
+                width: pngDims.width,
+                height: pngDims.height,
+            });
+
+            page4.drawImage(pngImage, {
+                x: page4.getWidth() / 2 - pngDims.width / 2 - 80,
+                y: page4.getHeight() / 2 - pngDims.height / 2 + 290,
+                width: pngDims.width,
+                height: pngDims.height,
+            });
+
+            page4.drawImage(pngImage, {
+                x: page4.getWidth() / 2 - pngDims.width / 2 + 120,
+                y: page4.getHeight() / 2 - pngDims.height / 2 + 290,
+                width: pngDims.width,
+                height: pngDims.height,
+            });
+
+            page4.drawImage(pngImage, {
+                x: page4.getWidth() / 2 - pngDims.width / 2 - 130,
+                y: page4.getHeight() / 2 - pngDims.height / 2 - 300,
+                width: pngDims.width,
+                height: pngDims.height,
+            });
+        }
+
+        // it makes form readonly
+        if (isSubmit) {
+            pdfForm.flatten();
+        }
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
@@ -298,7 +357,7 @@ const InsuranceForm = () => {
     }, [values.Months]);
 
     const handleSignatureEnd = () => {
-        setFieldValue("signature", sigRef.current.toDataURL());
+        setFieldValue("signature", sigRef.current.toDataURL("image/png"));
     };
     const clearSignature = () => {
         sigRef.current.clear();
@@ -1730,6 +1789,13 @@ const InsuranceForm = () => {
                                         name="g20"
                                         id="g20yes"
                                         value="yes"
+                                        checked={values.g20 == "yes"}
+                                        onChange={(e) => {
+                                            setFieldValue(
+                                                "g20",
+                                                e.target.value
+                                            );
+                                        }}
                                     />
                                     <label
                                         className="form-check-label"
@@ -1745,6 +1811,13 @@ const InsuranceForm = () => {
                                         name="g20"
                                         id="g20no"
                                         value="no"
+                                        checked={values.g20 == "no"}
+                                        onChange={(e) => {
+                                            setFieldValue(
+                                                "g20",
+                                                e.target.value
+                                            );
+                                        }}
                                     />
                                     <label
                                         className="form-check-label"
