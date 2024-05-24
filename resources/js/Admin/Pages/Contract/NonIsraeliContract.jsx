@@ -589,7 +589,7 @@ export function NonIsraeliContract({
                                     </p>
                                 </li>
                                 <li>
-                                    <p style={{ marginBottom: "90px" }}>
+                                    <p style={{ marginBottom: "210px" }}>
                                         {t("nonIsrailContract.nic7")}
                                     </p>
                                 </li>
@@ -709,7 +709,7 @@ export function NonIsraeliContract({
                                     </p>
                                     <div
                                         className="row gap-3"
-                                        style={{ marginBottom: "90px" }}
+                                        style={{ marginBottom: "140px" }}
                                     >
                                         <div className="col-6">
                                             <p>

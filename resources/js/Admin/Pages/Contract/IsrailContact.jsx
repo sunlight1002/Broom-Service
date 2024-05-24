@@ -465,7 +465,7 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    <p style={{ marginBottom: "30px" }}>
+                                    <p style={{ marginBottom: "50px" }}>
                                         {t("israilContract.is10-1")}
                                     </p>
                                     <p className="mb-2">
@@ -489,7 +489,7 @@ export function IsrailContact({
                                         bordered
                                         size="sm"
                                         className="mt-3"
-                                        style={{ marginBottom: "120px" }}
+                                        style={{ marginBottom: "140px" }}
                                     >
                                         <thead className="text-center">
                                             <tr>

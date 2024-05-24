@@ -582,20 +582,26 @@ If you would like to speak to a human representative, please send a message with
                         ) {
                             $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
 
-                            ClientPropertyAddress::create(
-                                [
-                                    'client_id' => $client->id,
-                                    'address_name' => $lastEnteredAddress['address_name'],
-                                    'city' => $lastEnteredAddress['city'],
-                                    'floor' => $lastEnteredAddress['floor'],
-                                    'apt_no' => $lastEnteredAddress['apt_no'],
-                                    'entrence_code' => $lastEnteredAddress['entrence_code'],
-                                    'zipcode' => $lastEnteredAddress['zipcode'],
-                                    'geo_address' => $lastEnteredAddress['geo_address'],
-                                    'latitude' => $lastEnteredAddress['latitude'],
-                                    'longitude' => $lastEnteredAddress['longitude'],
-                                ]
-                            );
+                            if (
+                                !$client->property_addresses()
+                                    ->where('geo_address', $lastEnteredAddress['geo_address'])
+                                    ->exists()
+                            ) {
+                                ClientPropertyAddress::create(
+                                    [
+                                        'client_id' => $client->id,
+                                        'address_name' => $lastEnteredAddress['address_name'],
+                                        'city' => $lastEnteredAddress['city'],
+                                        'floor' => $lastEnteredAddress['floor'],
+                                        'apt_no' => $lastEnteredAddress['apt_no'],
+                                        'entrence_code' => $lastEnteredAddress['entrence_code'],
+                                        'zipcode' => $lastEnteredAddress['zipcode'],
+                                        'geo_address' => $lastEnteredAddress['geo_address'],
+                                        'latitude' => $lastEnteredAddress['latitude'],
+                                        'longitude' => $lastEnteredAddress['longitude'],
+                                    ]
+                                );
+                            }
 
                             $client->update([
                                 'verify_last_address_with_wa_bot' => NULL
