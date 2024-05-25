@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import moment from "moment-timezone";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
@@ -9,14 +10,70 @@ export default function WorkerAvailabilityTable({
     hasActive,
     changeShift,
     removeShift,
+    searchKeyword = "",
     isClient = false,
 }) {
+    // const [workers, setWorkers] = useState(AllWorkers);
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const handleSorting = () => {
+        if (sortOrder == "asc") {
+            setSortOrder("desc");
+        } else {
+            setSortOrder("asc");
+        }
+    };
+
+    const workers = useMemo(() => {
+        let modifiedWorkers = AllWorkers;
+
+        if (searchKeyword) {
+            const _searchKeyword = searchKeyword.toLocaleLowerCase();
+
+            modifiedWorkers = modifiedWorkers.filter((i) => {
+                const name = (
+                    i.firstname +
+                    " " +
+                    i.lastname
+                ).toLocaleLowerCase();
+
+                return name.includes(_searchKeyword);
+            });
+        }
+
+        const _workers = [...modifiedWorkers].sort((a, b) => {
+            const name1 = (a.firstname + " " + a.lastname).toLocaleLowerCase();
+            const name2 = (b.firstname + " " + b.lastname).toLocaleLowerCase();
+
+            if (sortOrder == "asc") {
+                return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
+            } else {
+                return name1 > name2 ? -1 : name1 < name2 ? 1 : 0;
+            }
+        });
+
+        return _workers;
+    }, [AllWorkers, sortOrder, searchKeyword]);
+
     return (
         <>
             <table className="table table-bordered crt-jb-wrap worker-availability-table">
                 <thead>
                     <tr>
-                        <th className="text-center worker-name">Worker</th>
+                        <th
+                            className="text-center worker-name"
+                            onClick={handleSorting}
+                        >
+                            Worker{" "}
+                            <i
+                                className={
+                                    `ml-2 fa ` +
+                                    (sortOrder == "asc"
+                                        ? "fa-sort-up"
+                                        : "fa-sort-down")
+                                }
+                            ></i>
+                        </th>
                         {week.map((element, index) => (
                             <th className="text-center" key={index}>
                                 {moment(element).format("MMM DD").toString()}{" "}
@@ -28,7 +85,7 @@ export default function WorkerAvailabilityTable({
                     </tr>
                 </thead>
                 <tbody>
-                    {AllWorkers.map((w, index) => {
+                    {workers.map((w, index) => {
                         return (
                             <tr key={index}>
                                 <td className="worker-name">

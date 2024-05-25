@@ -28,6 +28,7 @@ export default function ChangeScheduleCalender({ job }) {
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const [customDateRange, setCustomDateRange] = useState([]);
+    const [searchVal, setSearchVal] = useState("");
 
     const params = useParams();
     const navigate = useNavigate();
@@ -303,40 +304,50 @@ export default function ChangeScheduleCalender({ job }) {
     return (
         <>
             <div className="row mb-3">
-                <div
-                    className="col-sm-12 d-flex align-items-center flex-wrap"
-                    style={{ rowGap: "0.5rem" }}
-                >
-                    <div className="mr-3" style={{ fontWeight: "bold" }}>
-                        Worker Availability
+                <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
+                    <div className="d-flex align-items-center flex-wrap float-left">
+                        <div className="mr-3" style={{ fontWeight: "bold" }}>
+                            Worker Availability
+                        </div>
+                        <FilterButtons
+                            text="Current Week"
+                            className="px-3 mr-2"
+                            selectedFilter={currentFilter}
+                            setselectedFilter={setcurrentFilter}
+                        />
+
+                        <FilterButtons
+                            text="Next Week"
+                            className="px-3 mr-2"
+                            selectedFilter={currentFilter}
+                            setselectedFilter={setcurrentFilter}
+                        />
+
+                        <FilterButtons
+                            text="Next Next Week"
+                            className="px-3 mr-2"
+                            selectedFilter={currentFilter}
+                            setselectedFilter={setcurrentFilter}
+                        />
+
+                        <FilterButtons
+                            text="Custom"
+                            className="px-3 mr-2"
+                            selectedFilter={currentFilter}
+                            setselectedFilter={setcurrentFilter}
+                        />
                     </div>
-                    <FilterButtons
-                        text="Current Week"
-                        className="px-3 mr-2"
-                        selectedFilter={currentFilter}
-                        setselectedFilter={setcurrentFilter}
-                    />
 
-                    <FilterButtons
-                        text="Next Week"
-                        className="px-3 mr-2"
-                        selectedFilter={currentFilter}
-                        setselectedFilter={setcurrentFilter}
-                    />
-
-                    <FilterButtons
-                        text="Next Next Week"
-                        className="px-3 mr-2"
-                        selectedFilter={currentFilter}
-                        setselectedFilter={setcurrentFilter}
-                    />
-
-                    <FilterButtons
-                        text="Custom"
-                        className="px-3 mr-2"
-                        selectedFilter={currentFilter}
-                        setselectedFilter={setcurrentFilter}
-                    />
+                    <div className="float-right" style={{ width: "150px" }}>
+                        <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Search"
+                            onChange={(e) => {
+                                setSearchVal(e.target.value);
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
@@ -359,6 +370,7 @@ export default function ChangeScheduleCalender({ job }) {
                             changeShift={changeShift}
                             removeShift={removeShift}
                             selectedHours={selectedHours}
+                            searchKeyword={searchVal}
                             isClient={true}
                         />
                     </div>
@@ -381,6 +393,7 @@ export default function ChangeScheduleCalender({ job }) {
                         changeShift={changeShift}
                         removeShift={removeShift}
                         selectedHours={selectedHours}
+                        searchKeyword={searchVal}
                         isClient={true}
                     />
                 </div>
@@ -405,6 +418,7 @@ export default function ChangeScheduleCalender({ job }) {
                             changeShift={changeShift}
                             removeShift={removeShift}
                             selectedHours={selectedHours}
+                            searchKeyword={searchVal}
                             isClient={true}
                         />
                     </div>
@@ -460,6 +474,7 @@ export default function ChangeScheduleCalender({ job }) {
                                 changeShift={changeShift}
                                 removeShift={removeShift}
                                 selectedHours={selectedHours}
+                                searchKeyword={searchVal}
                                 isClient={true}
                             />
                         </div>
