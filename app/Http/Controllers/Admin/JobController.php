@@ -421,14 +421,6 @@ class JobController extends Controller
                 $preferredWeekDay = strtolower($job_date->format('l'));
                 $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
 
-                if (!$next_job_date) {
-                    $is_one_time_in_month_job = true;
-                } else {
-                    $next_job_date_carbon = Carbon::parse($next_job_date);
-                    $is_one_time_in_month_job = !($job_date->year == $next_job_date_carbon->year &&
-                        $job_date->month == $next_job_date_carbon->month);
-                }
-
                 $job_date = $job_date->toDateString();
 
                 $slots = explode(',', $workerDate['shifts']);
@@ -487,7 +479,6 @@ class JobController extends Controller
                     'start_date'    => $job_date,
                     'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
-                    'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                     'schedule_id'   => $s_id,
                     'status'        => $status,
                     'subtotal_amount'  => $total_amount,

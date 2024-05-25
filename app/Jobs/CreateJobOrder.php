@@ -62,6 +62,42 @@ class CreateJobOrder implements ShouldQueue
             $client = $job->client;
             $service = $job->jobservice;
 
+            // mark job(s) as last of month
+            $monthEndDate = Carbon::parse($job->start_date)->endOfMonth()->toDateString();
+
+            $upcomingJobCountInCurrentMonth = Job::query()
+                ->where('client_id', $client->id)
+                ->whereDate('start_date', '>=', $job->start_date)
+                ->where(function ($q) use ($monthEndDate) {
+                    $q->whereDate('start_date', '<=', $monthEndDate)
+                        ->orWhereDate('next_start_date', '<=', $monthEndDate);
+                })
+                ->whereIn('status', [
+                    JobStatusEnum::PROGRESS,
+                    JobStatusEnum::SCHEDULED,
+                    JobStatusEnum::UNSCHEDULED
+                ])
+                ->where('is_paid', false)
+                ->count();
+
+            Job::query()
+                ->where('client_id', $client->id)
+                ->whereDate('start_date', '<=', $monthEndDate)
+                ->where(function ($q) {
+                    $q
+                        ->whereIn('status', [
+                            JobStatusEnum::COMPLETED,
+                            JobStatusEnum::CANCEL,
+                        ])
+                        ->orWhere('is_job_done', true);
+                })
+                ->where('is_paid', false)
+                ->update([
+                    'is_one_time_in_month_job' => $upcomingJobCountInCurrentMonth <= 0
+                ]);
+
+            $job->refresh();
+
             App::setLocale($client->lng);
 
             if ($job->is_job_done) {

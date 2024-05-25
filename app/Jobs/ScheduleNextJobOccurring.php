@@ -89,27 +89,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'next_start_date' => $next_job_date,
             ]);
 
-            $current_month_unpaid_job_count = Job::query()
-                ->where('job_group_id', $job->job_group_id)
-                ->whereMonth('start_date', $job_date->month)
-                ->whereYear('start_date', $job_date->year)
-                ->where('is_paid', false)
-                ->count();
-
-            if ($current_month_unpaid_job_count > 0) {
-                $is_one_time_in_month_job = false;
-            } else {
-                if (!$next_to_next_job_date) {
-                    $is_one_time_in_month_job = true;
-                } else {
-                    $next_job_date_carbon = Carbon::parse($next_job_date);
-                    $next_to_next_job_date_carbon = Carbon::parse($next_to_next_job_date);
-
-                    $is_one_time_in_month_job = !($next_to_next_job_date_carbon->year == $next_job_date_carbon->year &&
-                        $next_to_next_job_date_carbon->month == $next_job_date_carbon->month);
-                }
-            }
-
             $job_date = $job_date->toDateString();
 
             $previous_worker_id = $job->previous_worker_id;
@@ -238,7 +217,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'next_start_date'   => $next_to_next_job_date,
                 'address_id'        => $job->address_id,
                 'keep_prev_worker'  => $job->keep_prev_worker,
-                'is_one_time_in_month_job'   => $is_one_time_in_month_job,
                 'origin_job_id'         => $job->origin_job_id,
                 'job_group_id'          => $job->job_group_id,
                 'original_worker_id'    => $job->original_worker_id,

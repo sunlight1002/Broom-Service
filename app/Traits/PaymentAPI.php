@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\JobStatusEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
@@ -413,13 +414,27 @@ trait PaymentAPI
         $invoice_status = 1;
         $paid_status = NULL;
         if (isset($data['job_ids'])) {
-            $jobIDs = $data['job_ids'];
-
             $hasPendingJobInMonth = Job::query()
-                ->whereIn('id', $jobIDs)
-                ->whereNotNull('next_start_date')
-                ->whereDate('next_start_date', '>=', Carbon::today()->toDateString())
-                ->whereDate('next_start_date', '<=', Carbon::today()->endOfMonth()->toDateString())
+                ->where('client_id', $client->id)
+                ->where(function ($q) {
+                    $q
+                        ->where(function ($q1) {
+                            $q1
+                                ->whereDate('start_date', '>=', Carbon::today()->toDateString())
+                                ->whereDate('start_date', '<=', Carbon::today()->endOfMonth()->toDateString());
+                        })
+                        ->orWhereNotNull('next_start_date')
+                        ->where(function ($q2) {
+                            $q2
+                                ->whereDate('next_start_date', '>=', Carbon::today()->toDateString())
+                                ->whereDate('next_start_date', '<=', Carbon::today()->endOfMonth()->toDateString());
+                        });
+                })
+                ->whereIn('status', [
+                    JobStatusEnum::PROGRESS,
+                    JobStatusEnum::SCHEDULED,
+                    JobStatusEnum::UNSCHEDULED
+                ])
                 ->exists();
 
             $paid_status = $hasPendingJobInMonth ? OrderPaidStatusEnum::UNDONE : NULL;

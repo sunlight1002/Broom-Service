@@ -788,6 +788,8 @@ export default function TotalJobs() {
                                                                 {item.client && (
                                                                     <div className="dropdown-menu">
                                                                         {item.client &&
+                                                                            item.status ==
+                                                                                "completed" &&
                                                                             !item.is_order_generated && (
                                                                                 <Link
                                                                                     to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
