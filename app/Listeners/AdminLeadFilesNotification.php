@@ -66,7 +66,7 @@ class AdminLeadFilesNotification implements ShouldQueue
 
                 $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
 
-                //$messages->attach($filePath);
+                $messages->attach($filePath);
 
                 $messages->subject($subject);
             });
@@ -81,15 +81,16 @@ class AdminLeadFilesNotification implements ShouldQueue
         ]);
 
         //team mail
+        $scheduleArr['file_name'] = $fileName;
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
             "notificationData" => $scheduleArr
         ]));
-        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
+        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
             $messages->to($teamEmail);
 
             $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-
+            $messages->attach($filePath);
             $messages->subject($subject);
         });
     }

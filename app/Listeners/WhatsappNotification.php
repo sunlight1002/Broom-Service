@@ -1075,6 +1075,17 @@ class WhatsappNotification
                                     ]
                                 ]
                             ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "storage/uploads/ClientFiles/".$eventData["file_name"]
+                                    ]
+                                ]
+                            ],
                         ]
                     ]
                 ];
@@ -1101,6 +1112,17 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "storage/uploads/ClientFiles/".$eventData["file_name"]
                                     ]
                                 ]
                             ],
