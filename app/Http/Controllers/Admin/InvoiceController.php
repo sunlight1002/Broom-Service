@@ -1604,27 +1604,40 @@ class InvoiceController extends Controller
             ], 403);
         }
 
+        $isCreditCardMethod = false;
         if ($client->payment_method == 'cc') {
-            return response()->json([
-                'message' => "Payment is set to credit card"
-            ], 403);
+            $isCreditCardMethod = true;
+
+            $client->update([
+                'payment_method' => NULL
+            ]);
         }
 
-        $card = $this->getClientCard($client->id);
+        try {
+            $card = $this->getClientCard($client->id);
 
-        $orders = Order::query()
-            ->where('client_id', $client->id)
-            ->where('status', 'Open')
-            ->get();
+            $orders = Order::query()
+                ->where('client_id', $client->id)
+                ->where('status', 'Open')
+                ->get();
 
-        if ($orders->count() == 0) {
-            return response()->json([
-                'message' => "Open order not found"
-            ], 404);
-        }
+            if ($orders->count() == 0) {
+                return response()->json([
+                    'message' => "Open order not found"
+                ], 404);
+            }
 
-        foreach ($orders as $key => $order) {
-            $this->generateOrderInvoice($client, $order, $card);
+            foreach ($orders as $key => $order) {
+                $this->generateOrderInvoice($client, $order, $card);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        } finally {
+            if ($isCreditCardMethod) {
+                $client->update([
+                    'payment_method' => 'cc'
+                ]);
+            }
         }
 
         return response()->json([

@@ -512,8 +512,13 @@ export default function Payments() {
                                                                         See
                                                                         document
                                                                     </Link>
-                                                                    {_statusName ==
-                                                                        "unpaid" && (
+                                                                    {[
+                                                                        "unpaid",
+                                                                        "undone",
+                                                                        "problem",
+                                                                    ].includes(
+                                                                        _statusName
+                                                                    ) && (
                                                                         <button
                                                                             className="dropdown-item"
                                                                             onClick={() =>
@@ -549,7 +554,7 @@ export default function Payments() {
                                                                             "paid" && (
                                                                             <>
                                                                                 {item.payment_method ==
-                                                                                "cc" ? (
+                                                                                    "cc" && (
                                                                                     <button
                                                                                         className="dropdown-item"
                                                                                         onClick={() =>
@@ -562,25 +567,23 @@ export default function Payments() {
                                                                                         for
                                                                                         payment
                                                                                     </button>
-                                                                                ) : (
-                                                                                    <>
-                                                                                        {item.priority_paid_status &&
-                                                                                            _statusName !=
-                                                                                                "unpaid" && (
-                                                                                                <button
-                                                                                                    className="dropdown-item"
-                                                                                                    onClick={() =>
-                                                                                                        handleGenerateInvoice(
-                                                                                                            item.client_id
-                                                                                                        )
-                                                                                                    }
-                                                                                                >
-                                                                                                    Generate
-                                                                                                    Invoice
-                                                                                                </button>
-                                                                                            )}
-                                                                                    </>
                                                                                 )}
+
+                                                                                {item.priority_paid_status &&
+                                                                                    _statusName !=
+                                                                                        "unpaid" && (
+                                                                                        <button
+                                                                                            className="dropdown-item"
+                                                                                            onClick={() =>
+                                                                                                handleGenerateInvoice(
+                                                                                                    item.client_id
+                                                                                                )
+                                                                                            }
+                                                                                        >
+                                                                                            Generate
+                                                                                            Invoice
+                                                                                        </button>
+                                                                                    )}
                                                                             </>
                                                                         )}
                                                                     {_statusName &&
