@@ -9,8 +9,10 @@ import { CSVLink } from "react-csv";
 import Sidebar from "../../Layouts/Sidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import FilterButtons from "../../Components/common/FilterButton";
+import { useAlert } from "react-alert";
 
 export default function WorkerHours() {
+    const alert = useAlert();
     const todayFilter = {
         start_date: Moment().format("YYYY-MM-DD"),
         end_date: Moment().format("YYYY-MM-DD"),
@@ -115,8 +117,22 @@ export default function WorkerHours() {
                 },
             })
             .then((response) => {
-                setExportData(response.data.workers);
-                document.querySelector("#csv").click();
+                if (
+                    response.data &&
+                    response.data.workers &&
+                    response.data.workers.length > 0
+                ) {
+                    const mappedData = response.data.workers.map((w) => {
+                        return {
+                            "Start Date": w.start_date,
+                            [w.worker_name]: w.time,
+                        };
+                    });
+                    setExportData(mappedData);
+                    document.querySelector("#csv").click();
+                } else {
+                    alert.error("Worker data not found!");
+                }
             });
     };
 
@@ -150,7 +166,7 @@ export default function WorkerHours() {
 
     const csvReport = {
         data: exportData,
-        headers: header,
+        // headers: header,
         filename:
             "Worker Hours - (" +
             dateRange.start_date +
