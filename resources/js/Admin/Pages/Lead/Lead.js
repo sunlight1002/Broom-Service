@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
+import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 
 export default function Lead() {
     const [leads, setLeads] = useState([]);
@@ -16,7 +17,10 @@ export default function Lead() {
     const [filter, setFilter] = useState("all");
     const [condition, setCondition] = useState("");
     const [loading, setLoading] = useState("Loading...");
-
+    const [changeStatusModal, setChangeStatusModal] = useState({
+        isOpen: false,
+        id: 0,
+    });
     const navigate = useNavigate();
     const { t } = useTranslation();
     const leadStatuses = [
@@ -205,6 +209,19 @@ export default function Lead() {
             setOrder("ASC");
         }
     };
+    const toggleChangeStatusModal = (clientId = 0) => {
+        setChangeStatusModal((prev) => {
+            return {
+                isOpen: !prev.isOpen,
+                id: clientId,
+            };
+        });
+    };
+    const updateData = () => {
+        setTimeout(() => {
+            getleads();
+        }, 1000);
+    };
     return (
         <div id="container">
             <Sidebar />
@@ -270,7 +287,9 @@ export default function Lead() {
                                     className="btn btn-pink add-btn"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    <span className="d-lg-block d-none">{t("admin.leads.AddNew")}</span>
+                                    <span className="d-lg-block d-none">
+                                        {t("admin.leads.AddNew")}
+                                    </span>
                                 </Link>
                             </div>
                         </div>
@@ -473,6 +492,17 @@ export default function Lead() {
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>
+                                                                            toggleChangeStatusModal(
+                                                                                item.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Change
+                                                                        status
+                                                                    </button>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
                                                                             handleDelete(
                                                                                 item.id
                                                                             )
@@ -522,6 +552,14 @@ export default function Lead() {
                     </div>
                 </div>
             </div>
+            {changeStatusModal.isOpen && (
+                <ChangeStatusModal
+                    handleChangeStatusModalClose={toggleChangeStatusModal}
+                    isOpen={changeStatusModal.isOpen}
+                    clientId={changeStatusModal.id}
+                    getUpdatedData={updateData}
+                />
+            )}
         </div>
     );
 }

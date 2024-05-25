@@ -5,6 +5,7 @@ import Moment from "moment";
 import Notes from "./Notes";
 import Files from "../Clients/Files";
 import { useTranslation } from "react-i18next";
+import { Tooltip } from "react-tooltip";
 
 export default function LeadDetails({ lead }) {
     const { t } = useTranslation();
@@ -120,12 +121,36 @@ export default function LeadDetails({ lead }) {
                                                             "admin.global.Status"
                                                         )}
                                                     </label>
-                                                    <p>
-                                                        {
-                                                            lead.lead_status
-                                                                .lead_status
-                                                        }
-                                                    </p>
+
+                                                    {lead.latest_log &&
+                                                    lead.latest_log[0] ? (
+                                                        <p
+                                                            data-tooltip-id="status-tooltip"
+                                                            data-tooltip-content={`Reason : ${
+                                                                lead
+                                                                    .latest_log[0]
+                                                                    .reason
+                                                            } on ${Moment(
+                                                                lead
+                                                                    .latest_log[0]
+                                                                    .created_at
+                                                            ).format(
+                                                                "DD/MM/Y"
+                                                            )}`}
+                                                        >
+                                                            {
+                                                                lead.lead_status
+                                                                    .lead_status
+                                                            }
+                                                        </p>
+                                                    ) : (
+                                                        <p>
+                                                            {
+                                                                lead.lead_status
+                                                                    .lead_status
+                                                            }
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
@@ -352,6 +377,7 @@ export default function LeadDetails({ lead }) {
                     </div>
                 </div>
             </div>
+            <Tooltip id="status-tooltip" />
         </>
     );
 }

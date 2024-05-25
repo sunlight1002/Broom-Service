@@ -147,4 +147,13 @@ class Client extends Authenticatable
     {
         return $this->hasMany(ClientCard::class, 'client_id');
     }
+
+    public function logs()
+    {
+        return $this->morphMany(Log::class, 'logable');
+    }
+    public function latestLog()
+    {
+        return $this->morphMany(Log::class, 'logable')->latest('id')->take(1);
+    }
 }

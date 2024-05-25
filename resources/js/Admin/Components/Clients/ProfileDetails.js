@@ -7,6 +7,7 @@ import axios from "axios";
 import Notes from "./Notes";
 import Files from "./Files";
 import PropertyAddressTable from "../common/PropertyAddressTable";
+import { Tooltip } from "react-tooltip";
 
 export default function ProfileDetails({
     client,
@@ -304,7 +305,23 @@ export default function ProfileDetails({
                                         <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>status</label>
-                                                <p>{cstatus}</p>
+                                                {client.latest_log &&
+                                                client.latest_log[0] ? (
+                                                    <p
+                                                        data-tooltip-id="status-tooltip"
+                                                        data-tooltip-content={`Reason : ${
+                                                            client.latest_log[0]
+                                                                .reason
+                                                        } on ${Moment(
+                                                            client.latest_log[0]
+                                                                .created_at
+                                                        ).format("DD/MM/Y")}`}
+                                                    >
+                                                        {cstatus}
+                                                    </p>
+                                                ) : (
+                                                    <p>{cstatus}</p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-sm-12">
@@ -495,6 +512,7 @@ export default function ProfileDetails({
                     </div>
                 </div>
             </div>
+            <Tooltip id="status-tooltip" />
         </>
     );
 }

@@ -117,7 +117,7 @@ class LeadController extends Controller
     public function edit($id)
     {
         $lead = Client::query()
-            ->with(['offers', 'meetings', 'lead_status', 'property_addresses'])
+            ->with(['offers', 'meetings', 'lead_status', 'property_addresses', 'latestLog'])
             ->find($id);
 
         if (!empty($lead)) {

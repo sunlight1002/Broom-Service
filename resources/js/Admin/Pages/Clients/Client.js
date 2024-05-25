@@ -11,6 +11,7 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
+import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
@@ -21,6 +22,11 @@ export default function Clients() {
     const [stat, setStat] = useState("null");
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
+    const [changeStatusModal, setChangeStatusModal] = useState({
+        isOpen: false,
+        id: 0,
+    });
+
     const alert = useAlert();
     const { t } = useTranslation();
 
@@ -248,13 +254,25 @@ export default function Clients() {
         filename: "clients",
     };
 
+    const toggleChangeStatusModal = (clientId = 0) => {
+        setChangeStatusModal((prev) => {
+            return {
+                isOpen: !prev.isOpen,
+                id: clientId,
+            };
+        });
+    };
+    const updateData = () => {
+        setTimeout(() => {
+            getclients();
+        }, 1000);
+    };
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="d-flex flex-column flex-lg-row">
-
                         <div className="d-flex mt-2 d-lg-none justify-content-between">
                             <h1 className="page-title p-0">
                                 {t("admin.sidebar.Clients")}
@@ -631,6 +649,17 @@ export default function Clients() {
                                                                     <button
                                                                         className="dropdown-item"
                                                                         onClick={() =>
+                                                                            toggleChangeStatusModal(
+                                                                                item.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Change
+                                                                        status
+                                                                    </button>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
                                                                             handleDelete(
                                                                                 item.id
                                                                             )
@@ -715,6 +744,14 @@ export default function Clients() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            {changeStatusModal.isOpen && (
+                <ChangeStatusModal
+                    handleChangeStatusModalClose={toggleChangeStatusModal}
+                    isOpen={changeStatusModal.isOpen}
+                    clientId={changeStatusModal.id}
+                    getUpdatedData={updateData}
+                />
+            )}
         </div>
     );
 }

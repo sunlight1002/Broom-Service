@@ -336,7 +336,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $client = Client::with('property_addresses')->find($id);
+        $client = Client::with(['property_addresses', 'latestLog'])->find($id);
 
         if (!$client) {
             return response()->json([
@@ -869,6 +869,33 @@ class ClientController extends Controller
 
         return response()->json([
             'message' => 'Comment has been deleted successfully'
+        ]);
+    }
+    public function clienStatusLog(Request $request){
+        $data = $request->all();
+        $statusArr = [
+            0 => LeadStatusEnum::POTENTIAL_LEAD,
+            1 => LeadStatusEnum::POTENTIAL_CLIENT,
+            2 => LeadStatusEnum::ACTIVE_CLIENT,
+        ];
+        $client = Client::find($data['id']);
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found!'
+            ]);
+        }
+        $client->status = $data['status'];
+        $client->save();
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $statusArr[$data['status']]]
+        );
+        $client->logs()->create([
+            'status' => $data['status'],
+            'reason' =>  $data['reason']
+        ]);
+        return response()->json([
+            'message' => 'Status has been changes successfully!'
         ]);
     }
 }
