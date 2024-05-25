@@ -57,208 +57,220 @@ export default function WorkerAvailabilityTable({
 
     return (
         <>
-            <table className="table table-bordered crt-jb-wrap worker-availability-table">
-                <thead>
-                    <tr>
-                        <th
-                            className="text-center worker-name"
-                            onClick={handleSorting}
-                        >
-                            Worker{" "}
-                            <i
-                                className={
-                                    `ml-2 fa ` +
-                                    (sortOrder == "asc"
-                                        ? "fa-sort-up"
-                                        : "fa-sort-down")
-                                }
-                            ></i>
-                        </th>
-                        {week.map((element, index) => (
-                            <th className="text-center" key={index}>
-                                {moment(element).format("MMM DD").toString()}{" "}
-                                <span className="day-text">
-                                    {moment(element).format("ddd").toString()}
-                                </span>
+            <div className="table-container">
+                <table className="table table-bordered crt-jb-wrap worker-availability-table">
+                    <thead>
+                        <tr>
+                            <th
+                                className="text-center worker-name"
+                                onClick={handleSorting}
+                            >
+                                Worker{" "}
+                                <i
+                                    className={
+                                        `ml-2 fa ` +
+                                        (sortOrder == "asc"
+                                            ? "fa-sort-up"
+                                            : "fa-sort-down")
+                                    }
+                                ></i>
                             </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {workers.map((w, index) => {
-                        return (
-                            <tr key={index}>
-                                <td className="worker-name">
-                                    <span
-                                        id={`worker-${w.id}`}
-                                        className="align-items-center justify-content-center"
-                                    >
-                                        {isClient ? (
-                                            <>
-                                                {w.firstname}
-
-                                                {w.gender == "male" && (
-                                                    <i className="fa fa-person text-primary ml-2"></i>
-                                                )}
-
-                                                {w.gender == "female" && (
-                                                    <i
-                                                        className="fa fa-person-dress ml-2"
-                                                        style={{
-                                                            color: "pink",
-                                                        }}
-                                                    ></i>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                {w.firstname} {w.lastname}
-                                            </>
-                                        )}
+                            {week.map((element, index) => (
+                                <th className="text-center" key={index}>
+                                    {moment(element)
+                                        .format("MMM DD")
+                                        .toString()}{" "}
+                                    <span className="day-text">
+                                        {moment(element)
+                                            .format("ddd")
+                                            .toString()}
                                     </span>
-                                </td>
-                                {week.map((element, index) => {
-                                    let workerSlots =
-                                        workerAvailabilities.find((_w) => {
-                                            return _w.workerId == w.id;
-                                        }) ?? [];
-                                    let slots =
-                                        workerSlots?.slots?.find((_s) => {
-                                            return _s.date == element;
-                                        }) ?? [];
-                                    let hasStartActive = false;
-                                    return (
-                                        <td key={index}>
-                                            <div className="d-flex">
-                                                <div className="d-flex slots">
-                                                    {slots?.allSlots?.length >
-                                                    0 ? (
-                                                        slots?.allSlots.map(
-                                                            (shift, _sIdx) => {
-                                                                let isActive =
-                                                                    hasActive(
-                                                                        w.id,
-                                                                        element,
-                                                                        shift
-                                                                    );
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {workers.map((w, index) => {
+                            return (
+                                <tr key={index}>
+                                    <td className="worker-name">
+                                        <span
+                                            id={`worker-${w.id}`}
+                                            className="align-items-center justify-content-center"
+                                        >
+                                            {isClient ? (
+                                                <>
+                                                    {w.firstname}
 
-                                                                if (
-                                                                    !hasStartActive
-                                                                ) {
-                                                                    hasStartActive =
-                                                                        isActive;
-                                                                } else if (
-                                                                    isClient
-                                                                ) {
-                                                                    isActive = false;
-                                                                }
-                                                                let tooltip =
-                                                                    "";
-                                                                if (!isClient) {
+                                                    {w.gender == "male" && (
+                                                        <i className="fa fa-person text-primary ml-2"></i>
+                                                    )}
+
+                                                    {w.gender == "female" && (
+                                                        <i
+                                                            className="fa fa-person-dress ml-2"
+                                                            style={{
+                                                                color: "pink",
+                                                            }}
+                                                        ></i>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {w.firstname} {w.lastname}
+                                                </>
+                                            )}
+                                        </span>
+                                    </td>
+                                    {week.map((element, index) => {
+                                        let workerSlots =
+                                            workerAvailabilities.find((_w) => {
+                                                return _w.workerId == w.id;
+                                            }) ?? [];
+                                        let slots =
+                                            workerSlots?.slots?.find((_s) => {
+                                                return _s.date == element;
+                                            }) ?? [];
+                                        let hasStartActive = false;
+                                        return (
+                                            <td key={index}>
+                                                <div className="d-flex">
+                                                    <div className="d-flex slots">
+                                                        {slots?.allSlots
+                                                            ?.length > 0 ? (
+                                                            slots?.allSlots.map(
+                                                                (
+                                                                    shift,
+                                                                    _sIdx
+                                                                ) => {
+                                                                    let isActive =
+                                                                        hasActive(
+                                                                            w.id,
+                                                                            element,
+                                                                            shift
+                                                                        );
+
                                                                     if (
-                                                                        shift?.isBooked
+                                                                        !hasStartActive
                                                                     ) {
-                                                                        tooltip =
-                                                                            shift?.clientName +
-                                                                            shift?.jobId;
+                                                                        hasStartActive =
+                                                                            isActive;
                                                                     } else if (
-                                                                        shift?.isFreezed &&
                                                                         isClient
                                                                     ) {
-                                                                        tooltip =
-                                                                            "Shift is freezed by Administrator";
-                                                                    } else if (
-                                                                        shift?.isFreezed &&
+                                                                        isActive = false;
+                                                                    }
+                                                                    let tooltip =
+                                                                        "";
+                                                                    if (
                                                                         !isClient
                                                                     ) {
-                                                                        tooltip =
-                                                                            "Shift is freezed";
-                                                                    } else if (
-                                                                        shift?.notAvailable
-                                                                    ) {
-                                                                        tooltip =
-                                                                            "Worker is not available";
+                                                                        if (
+                                                                            shift?.isBooked
+                                                                        ) {
+                                                                            tooltip =
+                                                                                shift?.clientName +
+                                                                                shift?.jobId;
+                                                                        } else if (
+                                                                            shift?.isFreezed &&
+                                                                            isClient
+                                                                        ) {
+                                                                            tooltip =
+                                                                                "Shift is freezed by Administrator";
+                                                                        } else if (
+                                                                            shift?.isFreezed &&
+                                                                            !isClient
+                                                                        ) {
+                                                                            tooltip =
+                                                                                "Shift is freezed";
+                                                                        } else if (
+                                                                            shift?.notAvailable
+                                                                        ) {
+                                                                            tooltip =
+                                                                                "Worker is not available";
+                                                                        }
                                                                     }
-                                                                }
-                                                                return (
-                                                                    <div
-                                                                        data-tooltip-hidden={
-                                                                            shift?.isBooked ||
-                                                                            (shift?.isFreezed &&
-                                                                                !isClient) ||
-                                                                            shift?.notAvailable
-                                                                        }
-                                                                        data-tooltip-id="slot-tooltip"
-                                                                        data-tooltip-content={
-                                                                            tooltip
-                                                                        }
-                                                                        className={`d-flex slot justify-content-between ${
-                                                                            isActive
-                                                                                ? "bg-primary-selected"
-                                                                                : ""
-                                                                        } ${
-                                                                            shift?.isBooked ||
-                                                                            (shift?.isFreezed &&
-                                                                                isClient) ||
-                                                                            shift?.notAvailable
-                                                                                ? "slot-disabled"
-                                                                                : ""
-                                                                        }`}
-                                                                        onClick={() => {
-                                                                            if (
-                                                                                !shift?.isBooked &&
-                                                                                (!shift?.isFreezed ||
-                                                                                    !isClient) &&
-                                                                                !shift?.notAvailable
-                                                                            ) {
-                                                                                isActive
-                                                                                    ? removeShift(
-                                                                                          w.id,
-                                                                                          element,
-                                                                                          shift
-                                                                                      )
-                                                                                    : changeShift(
-                                                                                          w.id,
-                                                                                          element,
-                                                                                          shift
-                                                                                      );
+                                                                    return (
+                                                                        <div
+                                                                            data-tooltip-hidden={
+                                                                                shift?.isBooked ||
+                                                                                (shift?.isFreezed &&
+                                                                                    !isClient) ||
+                                                                                shift?.notAvailable
                                                                             }
-                                                                        }}
-                                                                        key={
-                                                                            _sIdx
-                                                                        }
-                                                                    >
-                                                                        <>
-                                                                            {shift.time
-                                                                                ? moment(
-                                                                                      shift.time,
-                                                                                      "HH:mm"
-                                                                                  ).format(
-                                                                                      "hh A"
-                                                                                  )
-                                                                                : "-"}
-                                                                        </>
-                                                                    </div>
-                                                                );
-                                                            }
-                                                        )
-                                                    ) : (
-                                                        <div
-                                                            className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
-                                                        >
-                                                            Not Available
-                                                        </div>
-                                                    )}
+                                                                            data-tooltip-id="slot-tooltip"
+                                                                            data-tooltip-content={
+                                                                                tooltip
+                                                                            }
+                                                                            className={`d-flex slot justify-content-between ${
+                                                                                isActive
+                                                                                    ? "bg-primary-selected"
+                                                                                    : ""
+                                                                            } ${
+                                                                                shift?.isBooked ||
+                                                                                (shift?.isFreezed &&
+                                                                                    isClient) ||
+                                                                                shift?.notAvailable
+                                                                                    ? "slot-disabled"
+                                                                                    : ""
+                                                                            }`}
+                                                                            onClick={() => {
+                                                                                if (
+                                                                                    !shift?.isBooked &&
+                                                                                    (!shift?.isFreezed ||
+                                                                                        !isClient) &&
+                                                                                    !shift?.notAvailable
+                                                                                ) {
+                                                                                    isActive
+                                                                                        ? removeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          )
+                                                                                        : changeShift(
+                                                                                              w.id,
+                                                                                              element,
+                                                                                              shift
+                                                                                          );
+                                                                                }
+                                                                            }}
+                                                                            key={
+                                                                                _sIdx
+                                                                            }
+                                                                        >
+                                                                            <>
+                                                                                {shift.time
+                                                                                    ? moment(
+                                                                                          shift.time,
+                                                                                          "HH:mm"
+                                                                                      ).format(
+                                                                                          "hh A"
+                                                                                      )
+                                                                                    : "-"}
+                                                                            </>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            )
+                                                        ) : (
+                                                            <div
+                                                                className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
+                                                            >
+                                                                Not Available
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+
             <Tooltip id="slot-tooltip" />
         </>
     );

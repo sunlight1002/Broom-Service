@@ -2345,6 +2345,34 @@ h1 {
   min-width: 150px;
 }
 
+.table-container {
+  max-height: 560px; /* Adjust this height as needed */
+  overflow-y: auto;
+  margin-top: 20px; /* Adjust as needed */
+}
+
+.worker-availability-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.worker-availability-table th, .worker-availability-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.worker-availability-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.worker-availability-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
 .slot.slot-disabled {
   cursor: default !important;
   color: #2F4054;
