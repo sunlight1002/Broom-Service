@@ -106,12 +106,23 @@ export default function CreateClientJob() {
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
-                                                    >
-                                                        {item.jobHours} hours
-                                                    </p>
+                                                    <div key={index}>
+                                                        {item?.workers?.map(
+                                                            (worker, i) => (
+                                                                <p
+                                                                    className={`services-${item.service}-${item.contract_id}`}
+                                                                    key={i}
+                                                                >
+                                                                    {
+                                                                        worker.jobHours
+                                                                    }{" "}
+                                                                    hours
+                                                                    (Worker{" "}
+                                                                    {i + 1})
+                                                                </p>
+                                                            )
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>

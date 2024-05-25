@@ -11,7 +11,17 @@ class Offer extends Model
         'services',
         'subtotal',
         'total',
-        'status'
+        'status',
+        'is_fixed_for_services'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_fixed_for_services' => 'boolean',
     ];
 
     public function client()

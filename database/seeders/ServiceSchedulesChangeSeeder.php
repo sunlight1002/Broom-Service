@@ -15,7 +15,6 @@ class ServiceSchedulesChangeSeeder extends Seeder
     public function run()
     {
         ServiceSchedule::where('period', 'bdm')->delete();
-        ServiceSchedule::where('period', 'w')->where('cycle', 6)->delete();
         ServiceSchedule::where('period', 'D')->update(['period' => 'd']);
     }
 }
