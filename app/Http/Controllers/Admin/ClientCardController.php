@@ -2,42 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\ContractStatusEnum;
-use App\Enums\LeadStatusEnum;
 use App\Enums\TransactionStatusEnum;
-use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
-use App\Jobs\ImportClientJob;
-use App\Models\Admin;
 use App\Models\Client;
 use App\Models\ClientCard;
-use App\Models\Files;
-use App\Models\Note;
-use App\Models\Offer;
-use App\Models\ServiceSchedule;
-use App\Models\Services;
-use App\Models\Contract;
-use App\Models\Job;
-use App\Models\JobService;
-use App\Models\Shift;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use App\Models\ClientPropertyAddress;
-use App\Models\Comment;
 use App\Models\Transaction;
-use App\Models\User;
 use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ClientCardController extends Controller
 {

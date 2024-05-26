@@ -244,7 +244,16 @@ class LeadWebhookController extends Controller
                     }
 
                     // Need more help
-                    if ((in_array($last_menu, ['email', 'need_more_help']) && (str_contains($message, 'yes') || str_contains($message, 'כן'))) || (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')) {
+                    if (
+                        (
+                            in_array($last_menu, ['email', 'need_more_help']) &&
+                            (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))
+                        ) ||
+                        (
+                            ($prev_step == 'main_menu' || $prev_step == 'customer_service') &&
+                            $message == '0'
+                        )
+                    ) {
                         $result = sendWhatsappMessage($from, 'bot_main_menu', array('name' => ''), $client->lng == 'heb' ? 'he' : 'en');
                         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
@@ -266,7 +275,10 @@ class LeadWebhookController extends Controller
                     }
 
                     // Cancel job one time
-                    if ($last_menu == 'cancel_one_time' && (str_contains($message, 'yes') || str_contains($message, 'כן'))) {
+                    if (
+                        $last_menu == 'cancel_one_time' &&
+                        (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))
+                    ) {
                         $msg = ($client->lng == 'heb' ? `נציג מהצוות שלנו ייצור איתך קשר בהקדם.` : 'A representative from our team will contact you shortly.');
                         WebhookResponse::create([
                             'status'        => 1,
@@ -428,7 +440,7 @@ If you would like to speak to a human representative, please send a message with
                     ];
 
                     // Greeting message
-                    if (in_array($last_menu, ['email', 'need_more_help', 'cancel_one_time']) && (str_contains($message, 'no') || str_contains($message, 'לא'))) {
+                    if (in_array($last_menu, ['email', 'need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
                         $msg = ($client->lng == 'heb' ? `מקווה שעזרתי! 🤗` : 'I hope I helped! 🤗');
                         WebhookResponse::create([
                             'status'        => 1,
@@ -578,7 +590,7 @@ If you would like to speak to a human representative, please send a message with
                     if ($last_menu == 'verify_address') {
                         if (
                             ($client->lng == 'heb' && $message == 'כן') ||
-                            ($client->lng == 'en' && $message == 'Yes')
+                            ($client->lng == 'en' && strtolower($message) == 'yes')
                         ) {
                             $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
 

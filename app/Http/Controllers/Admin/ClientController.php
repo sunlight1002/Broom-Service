@@ -769,7 +769,7 @@ class ClientController extends Controller
 
     public function sampleFileExport(Request $request)
     {
-        return Excel::download(new ClientSampleFileExport, 'client-import-sheet.xlsx');
+        return Excel::download(new ClientSampleFileExport, 'client-import-sheet.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
     public function getComments($id)
@@ -871,7 +871,8 @@ class ClientController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
-    public function clienStatusLog(Request $request){
+    public function clienStatusLog(Request $request)
+    {
         $data = $request->all();
         $statusArr = [
             LeadStatusEnum::PENDING_LEAD => 0,
