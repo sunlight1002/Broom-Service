@@ -125,7 +125,9 @@ export default function WorkerHours() {
                     const mappedData = response.data.workers.map((w) => {
                         return {
                             "Start Date": w.start_date,
-                            [w.worker_name]: w.time,
+                            [w.worker_name]: w.time
+                                ? convertMinsToDecimalHrs(w.time)
+                                : 0.0,
                         };
                     });
                     setExportData(mappedData);

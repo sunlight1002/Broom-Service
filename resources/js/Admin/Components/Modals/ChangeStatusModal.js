@@ -2,7 +2,18 @@ import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
-import { object } from "yup";
+
+const statusArr = {
+    "pending lead": "Pending lead",
+    "potential lead": "Potential lead",
+    irrelevant: "Irrelevant",
+    uninterested: "Uninterested",
+    unanswered: "Unanswered",
+    "potential client": "Potential client",
+    "pending client": "Pending client",
+    "freeze client": "Freeze client",
+    "active client": "Active client",
+};
 
 export default function ChangeStatusModal({
     handleChangeStatusModalClose,
@@ -13,7 +24,7 @@ export default function ChangeStatusModal({
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         reason: "",
-        status: 0,
+        status: "pending lead",
         id: clientId,
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -96,9 +107,11 @@ export default function ChangeStatusModal({
                                 value={formValues.status}
                                 className="form-control mb-3"
                             >
-                                <option value="0">Lead</option>
-                                <option value="1">Potential Customer</option>
-                                <option value="2">Customer</option>
+                                {Object.keys(statusArr).map((s) => (
+                                    <option key={s} value={s}>
+                                        {statusArr[s]}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>

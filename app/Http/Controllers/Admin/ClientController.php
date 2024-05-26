@@ -874,9 +874,15 @@ class ClientController extends Controller
     public function clienStatusLog(Request $request){
         $data = $request->all();
         $statusArr = [
-            0 => LeadStatusEnum::POTENTIAL_LEAD,
-            1 => LeadStatusEnum::POTENTIAL_CLIENT,
-            2 => LeadStatusEnum::ACTIVE_CLIENT,
+            LeadStatusEnum::PENDING_LEAD => 0,
+            LeadStatusEnum::POTENTIAL_LEAD => 0,
+            LeadStatusEnum::IRRELEVANT => 0,
+            LeadStatusEnum::UNINTERESTED => 0,
+            LeadStatusEnum::UNANSWERED => 0,
+            LeadStatusEnum::FREEZE_CLIENT => 0,
+            LeadStatusEnum::POTENTIAL_CLIENT => 1,
+            LeadStatusEnum::PENDING_CLIENT => 2,
+            LeadStatusEnum::ACTIVE_CLIENT => 2,
         ];
         $client = Client::find($data['id']);
         if (!$client) {
@@ -884,14 +890,14 @@ class ClientController extends Controller
                 'message' => 'Client not found!'
             ]);
         }
-        $client->status = $data['status'];
+        $client->status = $statusArr[$data['status']];
         $client->save();
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => $statusArr[$data['status']]]
+            ['lead_status' => $data['status']]
         );
         $client->logs()->create([
-            'status' => $data['status'],
+            'status' =>  $statusArr[$data['status']],
             'reason' =>  $data['reason']
         ]);
         return response()->json([
