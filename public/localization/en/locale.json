@@ -1003,7 +1003,11 @@
             "not_available": "Not Available Dates"
         },
         "dashboard": {
+            "past_jobs": "Past Jobs",
+            "past_hours": "Past Hours",
             "upcoming_jobs": "Upcoming Jobs",
+            "today_jobs": "Today Jobs",
+            "approve_tomorrow_jobs": "Approve Tomorrow Jobs",
             "client": "Client",
             "service": "Service",
             "date": "Date",

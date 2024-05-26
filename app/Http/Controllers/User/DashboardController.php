@@ -7,6 +7,7 @@ use App\Models\Job;
 use App\Models\User;
 use App\Models\ManageTime;
 use App\Models\WorkerNotAvailableDate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,18 +17,29 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $total_jobs      = Job::where('worker_id', Auth::id())->count();
-        $latest_jobs     = Job::query()
-            ->with(['client', 'offer', 'worker', 'jobservice'])
-            ->where('worker_id', Auth::id())
-            ->whereDate('start_date', '>=', today()->toDateString())
+        $workerID = Auth::id();
+        $todayDate = today()->toDateString();
+
+        $counts = Job::query()
+            ->where('worker_id', $workerID)
+            ->selectRaw("count(case when date(start_date) < ? then 1 end) as past_job_count", [$todayDate])
+            ->selectRaw("sum(case when date(start_date) < ? then actual_time_taken_minutes else 0 end) as past_job_minutes", [$todayDate])
+            ->selectRaw("count(case when date(start_date) > ? then 1 end) as upcoming_job_count", [$todayDate])
+            ->selectRaw("count(case when date(start_date) = ? then 1 end) as today_job_count", [$todayDate])
+            ->first();
+
+        $approval_pending_job = Job::query()
+            ->with(['client', 'jobservice'])
+            ->where('worker_id', $workerID)
+            ->whereDate('start_date', Carbon::tomorrow()->toDateString())
+            ->whereNull('worker_approved_at')
             ->orderBy('start_date', 'asc')
             ->take(10)
-            ->get();
+            ->get(['id', 'start_date', 'shifts', 'status', 'client_id']);
 
         return response()->json([
-            'total_jobs'  => $total_jobs,
-            'latest_jobs' => $latest_jobs
+            'counts' => $counts,
+            'approval_pending_job' => $approval_pending_job
         ]);
     }
 

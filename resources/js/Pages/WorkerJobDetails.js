@@ -28,7 +28,6 @@ export default function WorkerJobDetails() {
                 alert.success(t("job_approval.success_msg"));
             })
             .catch((e) => {
-                console.log(e);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,

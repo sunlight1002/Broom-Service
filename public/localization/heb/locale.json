@@ -1003,7 +1003,11 @@
             "not_available": "תאריכים לא זמינים"
         },
         "dashboard": {
+            "past_jobs": "משרות קודמות",
+            "past_hours": "השעות האחרונות",
             "upcoming_jobs": "מקומות עבודה קרובים",
+            "today_jobs": "היום ג'ובס",
+            "approve_tomorrow_jobs": "אשר עבודות מחר",
             "client": "לָקוּחַ",
             "service": "שֵׁרוּת",
             "date": "תַאֲרִיך",
