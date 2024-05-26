@@ -582,12 +582,12 @@ If you would like to speak to a human representative, please send a message with
                         ) {
                             $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
 
-                            if (
-                                !$client->property_addresses()
-                                    ->where('geo_address', $lastEnteredAddress['geo_address'])
-                                    ->exists()
-                            ) {
-                                ClientPropertyAddress::create(
+                            $propertyAddress = $client->property_addresses()
+                                ->where('geo_address', $lastEnteredAddress['geo_address'])
+                                ->first();
+
+                            if (!$propertyAddress) {
+                                $propertyAddress = ClientPropertyAddress::create(
                                     [
                                         'client_id' => $client->id,
                                         'address_name' => $lastEnteredAddress['address_name'],
@@ -603,9 +603,31 @@ If you would like to speak to a human representative, please send a message with
                                 );
                             }
 
+                            $lastEnteredAddress['id'] = $propertyAddress->id;
+
                             $client->update([
-                                'verify_last_address_with_wa_bot' => NULL
+                                'verify_last_address_with_wa_bot' => $lastEnteredAddress
                             ]);
+
+                            $msg = null;
+                            if ($client->lng == 'heb') {
+                                $msg = 'אנא ספק את פרטי החניה עבור הכתובת הנתונה.';
+                            } else {
+                                $msg = "Please provide the parking details for the given address.";
+                            }
+
+                            WebhookResponse::create([
+                                'status'        => 1,
+                                'name'          => 'whatsapp',
+                                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                'message'       => $msg,
+                                'number'        => $from,
+                                'flex'          => 'A',
+                                'read'          => 1,
+                                'data'          => json_encode($get_data)
+                            ]);
+
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
 
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
@@ -613,6 +635,7 @@ If you would like to speak to a human representative, please send a message with
                                 'menu_option' => 'main_menu->appointment->full_address',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
+
                             die("Store address");
                         } else {
                             $client->update([
@@ -650,8 +673,69 @@ If you would like to speak to a human representative, please send a message with
                         }
                     }
 
-                    // Store lead email
+                    // Store address parking
                     if ($last_menu == 'full_address') {
+                        $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
+
+                        $propertyAddress = $client->property_addresses()
+                            ->where('id', $lastEnteredAddress['id'])
+                            ->first();
+
+                        if ($propertyAddress) {
+                            $propertyAddress->update([
+                                'parking' => $message
+                            ]);
+
+                            $client->update([
+                                'verify_last_address_with_wa_bot' => NULL
+                            ]);
+
+                            WhatsAppBotClientState::updateOrCreate([
+                                'client_id' => $client->id,
+                            ], [
+                                'menu_option' => 'main_menu->appointment->address_parking',
+                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                            ]);
+
+                            die("Store address parking");
+                        } else {
+                            $client->update([
+                                'verify_last_address_with_wa_bot' => NULL
+                            ]);
+
+                            $msg = null;
+                            if ($client->lng == 'heb') {
+                                $msg = 'הכתובת הנתונה לא נמצאה. אנא ספק כתובת חלופית.';
+                            } else {
+                                $msg = "The given address was not found. Please provide an alternative address.";
+                            }
+
+                            WebhookResponse::create([
+                                'status'        => 1,
+                                'name'          => 'whatsapp',
+                                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                'message'       => $msg,
+                                'number'        => $from,
+                                'flex'          => 'A',
+                                'read'          => 1,
+                                'data'          => json_encode($get_data)
+                            ]);
+
+                            $result = sendWhatsappMessage($from, '', array('message' => $msg));
+
+                            WhatsAppBotClientState::updateOrCreate([
+                                'client_id' => $client->id,
+                            ], [
+                                'menu_option' => 'main_menu->appointment->full_name',
+                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                            ]);
+
+                            die("Re-enter address");
+                        }
+                    }
+
+                    // Store lead email
+                    if ($last_menu == 'address_parking') {
                         $msg = null;
                         if (filter_var($message, FILTER_VALIDATE_EMAIL)) {
                             $email_exists = Client::where('email', $message)->where('id', '!=', $client->id)->exists();
