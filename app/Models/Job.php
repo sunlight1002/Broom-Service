@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\JobStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Events\JobNotificationToWorker;
 
 class Job extends Model
 {
@@ -112,6 +113,42 @@ class Job extends Model
                 $model->getOriginal('status') != $model->status
             ) {
                 $model->is_job_done = true;
+            }
+        });
+
+        //send notification to worker about next step
+        static::updating(function ($model) {
+            $isSend = false;
+            $job = $model->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
+            $worker = $job['worker'];
+            if(auth()->user()->email == $worker['email']){
+                if ($model->isDirty('worker_approved_at')) {
+                    $isSend = true;
+                    $emailData = [
+                        // 'emailSubject'  => __('mail.job_status.subject'),
+                        'emailSubject'  => 'Job Approved | Next step | Broom Service',
+                        'emailTitle'  => 'Job Approved',
+                        'emailContent'  => "You have approved the job. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>I'm leaving for work now</b> </a> when you will going to start your work."
+                    ];
+                }elseif ($model->isDirty('job_opening_timestamp')) {
+                    $isSend = true;
+                    $emailData = [
+                        'emailSubject'  => 'Job Opened | Next step | Broom Service',
+                        'emailTitle'  => 'Job Opened',
+                        'emailContent'  => "You are going to start your work. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>Start time</b> </a> whenever you start your work time or if you want to complete the job click on <b>Mark as complete</b>."
+                    ];
+                }elseif ($model->isDirty('is_job_done')) {
+                    $isSend = true;
+                    $emailData = [
+                        'emailSubject'  => 'Job Completed | Next step | Broom Service',
+                        'emailTitle'  => 'Job Completed',
+                        'emailContent'  => "You have completed the job #".$job['id'].".You will get the feedback once the job reviewed by client."
+                    ];
+                }
+
+                if($isSend){
+                    event(new JobNotificationToWorker($worker, $job, $emailData));
+                }
             }
         });
 
