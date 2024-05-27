@@ -30,7 +30,7 @@ export default function ChangePass() {
                     setCurrentPassword("");
                     setPassword("");
                     setPasswordConfirmed("");
-                    alert.success("Password has been updated successfully");
+                    alert.success(t("client.settings.passwordUpdateSuccess"));
                 }
             });
     };
@@ -41,7 +41,7 @@ export default function ChangePass() {
                 <form>
                     <div className="form-group">
                         <label className="control-label">
-                            {t("client.settings.c_pass")} *
+                            {t("client.settings.passwordUpdateSuccess")} *
                         </label>
                         <input
                             type="password"

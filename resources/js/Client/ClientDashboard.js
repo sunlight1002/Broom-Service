@@ -30,7 +30,7 @@ export default function ClientDashboard() {
             if (response.data.latest_jobs.length > 0) {
                 setlatestJobs(response.data.latest_jobs);
             } else {
-                setLoading("No job found");
+                setLoading(t("client.dashboard.noJobFound"));
             }
         });
     };

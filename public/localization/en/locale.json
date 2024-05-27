@@ -222,6 +222,7 @@
         }
     },
     "work-contract": {
+        "pleaseSign": "Please sign the contract",
         "action": "Action",
         "inHead": "Broom Service L.M. Ltd Private Company no. 515184208 \n Exclusive Framework Agreement with Tenants/Clients",
         "signed": "Made and Signed in :",
@@ -377,6 +378,7 @@
             "settings": "Settings"
         },
         "dashboard": {
+            "noJobFound": "No job found",
             "contracts": "Contracts",
             "offered_price": "Offered Price",
             "meetings": "Meetings",
@@ -394,6 +396,8 @@
             "action": "Action"
         },
         "meeting": {
+            "noMeetingSchedule": "No meeting scheduled yet",
+            "noMeetingFound": "No meeting found",
             "title": "Schedule meetings",
             "id": "ID",
             "attender": "Meeting Attender",
@@ -419,6 +423,7 @@
             }
         },
         "offer": {
+            "noOffer": "No offer found",
             "title": "Offered Prices",
             "ofr_date": "Date",
             "services": "Services",
@@ -447,6 +452,7 @@
             }
         },
         "contract": {
+            "NoContract": "No contract found",
             "title": "Contracts",
             "c_date": "Date",
             "services": "Services",
@@ -553,7 +559,19 @@
             "c_pass": "Current password",
             "u_pass": "New password",
             "cn_pass": "Confirm new password",
-            "save": "Save"
+            "save": "Save",
+            "updateSuccess": "Account details has been updated successfully",
+            "select": "--- Select language ---",
+            "Hebrew": "Hebrew",
+            "English": "English",
+            "passwordUpdateSuccess": "Password has been updated successfully",
+            "areYouSure": "Are you sure?",
+            "willNotRevert": "You won't be able to revert this!",
+            "yesDelete": "Yes, Delete Card!",
+            "cardDeleted": "card has been deleted.",
+            "default": "default",
+            "markAsDefault": "Mark as Default",
+            "NoCardAdded": "No card added"
         }
     },
     "admin": {
@@ -1833,6 +1851,42 @@
         "Close": "Close",
         "Previous": "Previous",
         "Page": "Page",
-        "Next": "Next"
+        "Next": "Next",
+        "generalQesMwdical": "General questions on the medical state",
+        "Height": "Height",
+        "andWidth": "and Width",
+        "Yes": "Yes",
+        "No": "No",
+        "isthereChangeInWeight": "Has there been any change in your weight (5 kg and more) in the course of the last twelve months (not as a result of a diet)?",
+        "alcohol": "Do you now, or did you in the past, consume alcohol – more than one glass a day of beer/wine or another alcoholic beverage?",
+        "smoke": " Do you smoke or have you smoked in the past?",
+        "Today": "Today",
+        "InThePast": "In The Past",
+        "whenStop": "When did you stop?",
+        "drugs": "Do you now, or have you in the past, consumed Drugs?",
+        "surgery": "Did you undergo surgery in the course of the last 10 years or was surgery recommended to you?",
+        "hospitalized": " Were you hospitalized in the course of the last 10 years at a hospital or a medical institution?",
+        "hospitalizedReason": "Which one, when, the reason",
+        "chronicCondition": "Do you regularly take medication for a chronic condition?",
+        "DidAnyTest": "Have you undergone in the course of the last 10 years or have you been given a recommendation to undergo one or more of the following tests: catheterization, a cardiac scan, echocardiogram, MRI, CT, endoscopy, tests for detection of a cancerous tumor, biopsy and occult blood?",
+        "Qestiondiseases": "Questions about diseases Were you ever diagnosed with the diseases and/or disorders and/or medical problems listed below?",
+        "heartAndBlood": "Heart and blood Heart disease, angina pectoris, myocardial infarction, arrhythmias, heart valve problems, congenital heart disease, cardiomyopathy or pericardial disorders. High blood pressure, blood vessel, blood clots, varicose roses, circulation problems, narrowing of the arteries.",
+        "nervousSys": "The nervous system and the brain Multiple sclerosis, muscular dystrophy, paralysis, spasms (epilepsy), T.I.A, stroke, brain hemorrhage (c.v.a), tremor, ataxia, Parkinson.",
+        "attemptedSuicide": "Diagnosed mental disorders and attempted suicide",
+        "Respiratory": "Respiratory system Asthma, chronic bronchitis, emphysema, tuberculosis, hemoptysis, repeat respiratory tract infections.",
+        "Gastrointestinal": "Gastrointestinal tract and liver Ulcer (gastric or duodenal ulcers), heartburn, chronic inflammatory intestinal infection, gastrointestinal bleeding, hemorrhoids, rectal problems, chronic liver disease, hepatitis, gallstones, pancreatitis, hepatitis (viral or otherwise).",
+        "Kidneys": "Kidneys and urinary tract Kidney stones, kidney infections, urinary tract defects, blood or protein in the urine, renal cysts, renal dysfunction, Prostate.",
+        "Metabolic": "Metabolic and endocrine diseases Diabetes, thyroid disorder, adrenal 16. disorder, kidney cysts, pituitary and other glands, high blood lipids.",
+        "Dermatology": " Dermatology and Venereology Syphilis, herpes, skin tumors, moles, warts and/or infertility and/or fertility problems.",
+        "Malignant": "Malignant diseases, malignant or precancerous tumor/s, polyps Detail 18. the type and method of treatment",
+        "pathology": "Enclose reports and pathology",
+        "Infectious": "Infectious diseases, autoimmune diseases, polio, venereal diseases and AIDS/ HIV. Enclose medical documents",
+        "JointsAndfBone": "Joints and bones - arthritis, rheumatism (Galt), neck or back pain, herniated disc, dislocation of shoulder, knee, bone disease.",
+        "eyesCataract": "Eyes - cataract, glaucoma, strabismus, blindness, retinal disease, cornea disease, visual disturbances, diopter number.",
+        "Otolaryngology": "Otolaryngology (nose/ ear/ throat) - ear recurrent or throat infections, sinusitis, hearing disorders, sleep apnea syndrome.",
+        "Hernia": "Hernia (hernia break) - of the abdominal wall, groin, surgical scars, navel and solar plexus. Medical documents must be enclosed",
+        "womenOnly": "For women only: Do you suffer or have you suffered from any women’s illnesses: irregular menstruation, fertility problems, bleeding and breast cysts, problems in the uterus and ovaries, irregular findings in a gynecological exam (such as PAP)? Are you pregnant? What is the number of fetuses?",
+        "Caesarean": "Have you suffered from any problems in previous pregnancies or in the current pregnancy? Have you given birth by a Caesarean Section?",
+        "Signature": "Signature"
     }
 }

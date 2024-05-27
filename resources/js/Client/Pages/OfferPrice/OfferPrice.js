@@ -25,7 +25,7 @@ export default function ClientOfferPrice() {
                 setPageCount(response.data.offers.last_page);
             } else {
                 setOffers([]);
-                setLoading("No offer found");
+                setLoading(t("client.offer.noOffer"));
             }
         });
     };
@@ -40,7 +40,7 @@ export default function ClientOfferPrice() {
                     setPageCount(response.data.offers.last_page);
                 } else {
                     setOffers([]);
-                    setLoading("No offer found");
+                    setLoading(t("client.offer.noOffer"));
                 }
             });
     };
@@ -54,7 +54,7 @@ export default function ClientOfferPrice() {
                     setPageCount(response.data.offers.last_page);
                 } else {
                     setPageCount(response.data.offers.last_page);
-                    setLoading("No offer found");
+                    setLoading(t("client.offer.noOffer"));
                 }
             });
     };
