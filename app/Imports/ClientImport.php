@@ -32,6 +32,40 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
      */
     public function collection(Collection $collection)
     {
+        $paymentMethodOptions = [
+            'Credit Card'       => 'cc',
+            'Money Transfer'    => 'mt',
+            'By Cheque'         => 'cheque',
+            'By Cash'           => 'cash',
+        ];
+
+        $languageOptions = [
+            'Hebrew'    => 'heb',
+            'English'   => 'en'
+        ];
+
+        $colorOptions = [
+            'White'     => '#fff',
+            'Green'     => '#28a745',
+            'Blue'      => '#007bff',
+            'Violet'    => '#6f42c1',
+            'Red'       => '#dc3545',
+            'Orange'    => '#fd7e14',
+            'Yellow'    => '#ffc107'
+        ];
+
+        $statusOptions = [
+            'Lead' => 0,
+            'Potential Customer' => 1,
+            'Customer' => 2,
+        ];
+
+        $preferTypeOptions = [
+            'Female'    => 'female',
+            'Male'      => 'male',
+            'Both'      => 'both'
+        ];
+
         $failedImports = collect([]);
         foreach ($collection as $row) {
             try {
@@ -64,28 +98,36 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     ];
                 }
 
-                $status = [
-                    'Lead' => 0,
-                    'Potential Customer' => 1,
-                    'Customer' => 2,
-                ];
-                if (!in_array(Str::title($row['status'] ?? ''), array_keys($status))) {
+                if (!in_array($row['payment_method'], array_keys($paymentMethodOptions))) {
+                    throw new Exception('Invalid payment method');
+                }
+
+                if (!in_array($row['language'], array_keys($languageOptions))) {
+                    throw new Exception('Invalid language');
+                }
+
+                if (!in_array($row['color'], array_keys($colorOptions))) {
+                    throw new Exception('Invalid color');
+                }
+
+                if (!in_array($row['status'], array_keys($statusOptions))) {
                     throw new Exception('Invalid client status');
                 }
+
                 $clientData = [
                     'firstname' => $row['first_name'] ?? '',
-                    'lastname' => $row['last_name'] ?? '',
+                    'lastname'  => $row['last_name'] ?? '',
                     'invoicename' => $row['invoice_name'] ?? '',
-                    'dob' => date('Y-m-d', strtotime($row['date_of_birth'] ?? '')),
+                    'dob'       => date('Y-m-d', strtotime($row['date_of_birth'] ?? '')),
                     'phone'     => $row['primary_phone'] ?? '',
-                    'status'    => $status[Str::title($row['status'] ?? '')],
+                    'status'    => $statusOptions[$row['status']],
                     'passcode'  => $row['password'] ?? '',
                     'password'  => Hash::make($row['password'] ?? ''),
                     'email'     => $row['primary_email'] ?? '',
-                    'extra' => json_encode($extra),
-                    'lng'     => $row['language'] ?? '',
-                    'color'     => $row['color'] ?? '',
-                    'payment_method'     => $row['payment_method'] ?? '',
+                    'extra'     => json_encode($extra),
+                    'lng'       => $languageOptions[$row['language']],
+                    'color'     => $colorOptions[$row['color']],
+                    'payment_method'     => $paymentMethodOptions[$row['payment_method']],
                 ];
 
                 $client = Client::where('phone', $clientData['phone'])
@@ -105,6 +147,10 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 if (!ClientPropertyAddress::where('client_id', $client->id)->exists()) {
                     if (empty($row['full_address'])) {
                         throw new Exception('Invalid address');
+                    }
+
+                    if (!in_array($row['prefered_type'], array_keys($preferTypeOptions))) {
+                        throw new Exception('Invalid prefered type');
                     }
 
                     $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
@@ -147,9 +193,9 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         'latitude' => $result->geometry->location->lat ?? NULL,
                         'longitude' => $result->geometry->location->lng ?? NULL,
                         'client_id' => $client->id,
-                        'prefer_type' => $row['prefered_type'] ?? '',
-                        'is_dog_avail' => strtolower($row['dog_in_the_property'] ?? '') == 'yes' ? 1 : 0,
-                        'is_cat_avail' => strtolower($row['cat_in_the_property'] ?? '') == 'yes' ? 1 : 0,
+                        'prefer_type' => $preferTypeOptions[$row['prefered_type']],
+                        'is_dog_avail' => $row['dog_in_the_property'] == 'Yes' ? 1 : 0,
+                        'is_cat_avail' => $row['cat_in_the_property'] == 'Yes' ? 1 : 0,
                     ]);
                 }
 
@@ -192,7 +238,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'service' => $service->id ?? '',
                             'name' => $row['service_name'] ?? '',
                             'type' => $row['type'] ?? '',
-                            'rateperhour' => ($row['type'] == 'hourly') ? $row['fixed_price'] : '',
+                            'rateperhour' => ($row['type'] == 'hourly') ? $row['rateperhour'] : '',
                             'freq_name' => $row['frequency'] ?? '',
                             'frequency' => $serviceschedule->id ?? '',
                             'fixed_price' => ($row['type'] == 'fixed') ? $row['fixed_price'] : '',
@@ -239,14 +285,14 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     if (!$offer) {
                         $offer = Offer::create([
                             'client_id' => $client->id,
-                            'services' => json_encode($existing_services),
+                            'services' => json_encode($existing_services, JSON_UNESCAPED_UNICODE),
                             'subtotal' => $subtotal,
                             'total' => ($subtotal + $tax),
                             'status' => 'sent',
                         ]);
                     } else {
                         $offer->update([
-                            'services' => json_encode($existing_services),
+                            'services' => json_encode($existing_services, JSON_UNESCAPED_UNICODE),
                             'subtotal' => $subtotal,
                             'total' => ($subtotal + $tax),
                             'status' => 'sent',
@@ -303,40 +349,45 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     }
                 }
 
-                $validDate = explode("/", $row['valid'])[0] . substr(explode("/", $row['valid'])[1], -2);
-                $validateResponse = $this->validateCard([
-                    'card_number' => $row['card_number'],
-                    'card_exp' => $validDate
-                ]);
+                if (
+                    !empty($row['card_number']) &&
+                    !empty($row['valid'])
+                ) {
+                    $validDate = explode("/", $row['valid'])[0] . substr(explode("/", $row['valid'])[1], -2);
+                    $validateResponse = $this->validateCard([
+                        'card_number' => $row['card_number'],
+                        'card_exp' => $validDate
+                    ]);
 
-                if (!$validateResponse['HasError']) {
-                    $isdefault = ClientCard::where('client_id', $client->id)->where('is_default', 1)->first();
-                    $existingCard = ClientCard::where('client_id', $client->id)->where('card_number', $row['card_number'])->first();
+                    if (!$validateResponse['HasError']) {
+                        $isdefault = ClientCard::where('client_id', $client->id)->where('is_default', 1)->first();
+                        $existingCard = ClientCard::where('client_id', $client->id)->where('card_number', $row['card_number'])->first();
 
-                    if ($existingCard) {
-                        if ($existingCard->is_default == 0 && !$isdefault) {
-                            $existingCard->update(['is_default' => 1]);
-                        }
-                    } else {
-                        $card = ClientCard::create([
-                            'client_id'   => $client->id,
-                            'card_number' => $row['card_number'],
-                            'card_type'   => $row['card_type'],
-                            'card_holder_id' => $row['card_holder_id'],
-                            'card_holder_name' => $row['card_holder_name'],
-                            'valid'       => $row['valid'],
-                            'cvv'       => $row['cvv'],
-                            'card_token'  => $validateResponse['Token'],
-                            'is_default'  => $isdefault ? 0 : 1
-                        ]);
-
-                        Contract::query()
-                            ->where('client_id', $client->id)
-                            ->where('status', ContractStatusEnum::VERIFIED)
-                            ->whereNull('card_id')
-                            ->update([
-                                'card_id' => $card->id
+                        if ($existingCard) {
+                            if ($existingCard->is_default == 0 && !$isdefault) {
+                                $existingCard->update(['is_default' => 1]);
+                            }
+                        } else {
+                            $card = ClientCard::create([
+                                'client_id'   => $client->id,
+                                'card_number' => $row['card_number'],
+                                'card_type'   => $row['card_type'],
+                                'card_holder_id' => $row['card_holder_id'],
+                                'card_holder_name' => $row['card_holder_name'],
+                                'valid'       => $row['valid'],
+                                'cvv'       => $row['cvv'],
+                                'card_token'  => $validateResponse['Token'],
+                                'is_default'  => $isdefault ? 0 : 1
                             ]);
+
+                            Contract::query()
+                                ->where('client_id', $client->id)
+                                ->where('status', ContractStatusEnum::VERIFIED)
+                                ->whereNull('card_id')
+                                ->update([
+                                    'card_id' => $card->id
+                                ]);
+                        }
                     }
                 }
             } catch (Exception $e) {

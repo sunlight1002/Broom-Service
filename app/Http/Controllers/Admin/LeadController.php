@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
+use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\LeadComment;
 use App\Models\Offer;
@@ -13,10 +12,11 @@ use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use App\Models\Fblead;
-use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class LeadController extends Controller
 {
@@ -401,8 +401,8 @@ class LeadController extends Controller
         } else {
             $pageAccessToken = $this->pageAccessToken();
             $request_data = $request->getContent();
-            \Log::info("webhook_request_data");
-            \Log::info($request_data);
+            Log::info("webhook_request_data");
+            Log::info($request_data);
             if(isset($request_data['object']) && $request_data['object']  == "page" && isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
                 $entry_data = $request_data['entry'][0];
                 $changes_data = $entry_data['changes'];
@@ -449,7 +449,7 @@ class LeadController extends Controller
                         );
                     }
                     else{
-                        \Log::info('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
+                        Log::info('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
                     }
                 }
                 $webhook_response = WebhookResponse::create([
@@ -471,8 +471,8 @@ class LeadController extends Controller
         ]);
         $lead_data = $lead_response->json();
         $http_code = $lead_response->status();
-        \Log::info("lead_data_get");
-        \Log::info($lead_data);
+        Log::info("lead_data_get");
+        Log::info($lead_data);
         return ['lead_data' => $lead_data, 'http_code' => $http_code];
     }
 }

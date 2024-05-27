@@ -19,7 +19,7 @@ trait PriceOffered
         }
 
         if ($returnJson) {
-            return json_encode($services, true);
+            return json_encode($services, JSON_UNESCAPED_UNICODE);
         } else {
             return $services;
         }

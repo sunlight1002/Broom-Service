@@ -197,7 +197,7 @@ class ClientController extends Controller
 
             $offer = Offer::create([
                 'client_id' => $client->id,
-                'services' => json_encode($allServices, true),
+                'services' => json_encode($allServices, JSON_UNESCAPED_UNICODE),
                 'subtotal' => $request->jobdata['subtotal'],
                 'total' => $request->jobdata['total'],
                 'status' => 'accepted'

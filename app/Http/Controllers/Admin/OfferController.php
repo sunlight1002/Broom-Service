@@ -100,7 +100,7 @@ class OfferController extends Controller
         $input = $request->except(['action']);
         $input['subtotal'] = $subtotal;
         $input['total'] = $subtotal + $tax_amount;
-        $input['services'] = json_encode($services);
+        $input['services'] = json_encode($services, JSON_UNESCAPED_UNICODE);
 
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
@@ -264,7 +264,7 @@ class OfferController extends Controller
         $input = $request->except(['action']);
         $input['subtotal'] = $subtotal;
         $input['total'] = $subtotal + $tax_amount;
-        $input['services'] = json_encode($services);
+        $input['services'] = json_encode($services, JSON_UNESCAPED_UNICODE);
 
         $offer->update($input);
         $offer->load(['client', 'service']);
