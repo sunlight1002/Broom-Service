@@ -155,17 +155,17 @@ class ContractController extends Controller
         ]);
 
         //login credential send to client after contract verify by admin
-        if($client->status != 2){
-            App::setLocale($client['lng']);
-            Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
-                $messages->to($client['email']);
-                $client['lng'] ?
-                  $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
-                  :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
+        // if($client->status != 2){
+        //     App::setLocale($client['lng']);
+        //     Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
+        //         $messages->to($client['email']);
+        //         $client['lng'] ?
+        //           $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
+        //           :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
 
-                $messages->subject($sub);
-            });
-        }
+        //         $messages->subject($sub);
+        //     });
+        // }
 
         $client->lead_status()->updateOrCreate(
             [],

@@ -4,6 +4,7 @@ import logo from "../../../Assets/image/sample.svg";
 import Dropdown from "react-bootstrap/Dropdown";
 import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
+import { workerHours } from "../../../Utils/common.utils";
 
 export default function ViewOffer() {
     const [offer, setOffer] = useState([]);
@@ -265,10 +266,10 @@ export default function ViewOffer() {
                                                                                         }
                                                                                     </td>
                                                                                     <td className="text-right">
-                                                                                        {
-                                                                                            s.jobHours
-                                                                                        }{" "}
-                                                                                        hour(s)
+                                                                                        {workerHours(
+                                                                                            s,
+                                                                                            "hour(s)"
+                                                                                        )}
                                                                                     </td>
                                                                                     {s.type !=
                                                                                         "fixed" ||

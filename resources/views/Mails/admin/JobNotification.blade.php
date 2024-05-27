@@ -31,26 +31,26 @@
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Date</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Client</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Worker</th>
+					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Worker</th> -->
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Service</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Property</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Shift</th>
+					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Shift</th> -->
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Start time</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Status</th>
+					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">Status</th> -->
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['start_date'])->format('M d Y') }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['client']['firstname'] }} {{ $job['client']['lastname'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">@if($job['worker']) {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }} @endif</td>
+					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">@if($job['worker']) {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }} @endif</td> -->
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 						{{ $job['jobservice']['name'].', ' }}
 					</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['property_address']) && $job['property_address'] ? $job['property_address']['address_name'] : "NA" }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>
+					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td> -->
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['start_time'])?$job['start_time']:'-' }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
+					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td> -->
 				</tr>
 			</tbody>
 		</table>

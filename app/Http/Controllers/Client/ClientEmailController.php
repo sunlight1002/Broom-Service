@@ -341,8 +341,20 @@ class ClientEmailController extends Controller
         ], 404);
       }
 
-      Contract::where('unique_hash', $request->unique_hash)->update($request->input());
+      $contract->update($request->input());
 
+      //login credential send to client after contract verify by admin
+      if($client->status != 2){
+        App::setLocale($client['lng']);
+        Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
+            $messages->to($client['email']);
+            $client['lng'] ?
+              $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
+              :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
+
+            $messages->subject($sub);
+        });
+      }
       Notification::create([
         'user_id' => $contract->client_id,
         'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
@@ -361,7 +373,7 @@ class ClientEmailController extends Controller
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
-      ]);
+      ], 500);
     }
   }
 

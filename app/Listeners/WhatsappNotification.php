@@ -287,10 +287,11 @@ class WhatsappNotification
                                     ],[
                                         "type"=> "text",
                                         "text"=> $clientData['lng'] == 'heb'? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['shifts']
                                     ]
+                                    // ,[
+                                    //     "type"=> "text",
+                                    //     "text"=> $jobData['shifts']
+                                    // ]
                                 ]
                             ],
                             [

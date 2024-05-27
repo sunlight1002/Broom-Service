@@ -6,6 +6,7 @@ import Moment from "moment";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
+import { workerHours } from "../../../Utils/common.utils";
 
 export default function ClientViewOffer() {
     const [offer, setOffer] = useState([]);
@@ -313,11 +314,11 @@ export default function ClientViewOffer() {
                                                                                         }
                                                                                     </Td>
                                                                                     <Td className="text-right">
-                                                                                        {
-                                                                                            s.jobHours
-                                                                                        }{" "}
-                                                                                        {t(
-                                                                                            "client.offer.view.hour_s"
+                                                                                        {workerHours(
+                                                                                            s,
+                                                                                            t(
+                                                                                                "client.offer.view.hour_s"
+                                                                                            )
                                                                                         )}
                                                                                     </Td>
                                                                                     {s.type !=
