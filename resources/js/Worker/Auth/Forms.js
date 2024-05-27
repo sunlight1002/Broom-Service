@@ -122,7 +122,7 @@ export default function Forms() {
                                         <a
                                             href={`/storage/signed-docs/${d.pdf_name}`}
                                             target={"_blank"}
-                                            download={d.type}
+                                            download={`${d.type}.pdf`}
                                         >
                                             <span className="btn-default">
                                                 <i className="fa fa-download"></i>

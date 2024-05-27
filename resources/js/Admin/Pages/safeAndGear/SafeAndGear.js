@@ -181,7 +181,7 @@ const SafeAndGear = () => {
                         <li>{t("safeAndGear.sfg9")}</li>
                     </ol>
 
-                    <div className="mt-5">
+                    <div className="mt-5" style={{ marginBottom: "150px" }}>
                         <div className="text-center">
                             <h5>
                                 <strong>
@@ -207,7 +207,7 @@ const SafeAndGear = () => {
                     <div className="mt-5">
                         <div className="text-center">
                             <h5>
-                                <strong>{t("safeAndGear.eqList")}:</strong>
+                                <strong>{t("safeAndGear.eqList")}</strong>
                             </h5>
                         </div>
                         <div></div>

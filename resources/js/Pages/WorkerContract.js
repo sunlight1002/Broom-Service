@@ -37,7 +37,7 @@ export default function WorkerContract() {
         const _pdf = await html2pdf()
             .set(options)
             .from(content)
-            .outputPdf("blob", "Safety-And-Gear.pdf");
+            .outputPdf("blob", "Contract.pdf");
 
         setIsGeneratingPDF(false);
 
