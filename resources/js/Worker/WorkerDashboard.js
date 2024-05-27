@@ -45,7 +45,11 @@ export default function WorkerDashboard() {
 
     const handleApprove = async (_jobID) => {
         axios
-            .post(`/api/worker/${workerID}/jobs/${_jobID}/approve`)
+            .post(
+                `/api/worker/${workerID}/jobs/${_jobID}/approve`,
+                {},
+                { headers }
+            )
             .then((response) => {
                 GetDashboardData();
                 alert.success(t("job_approval.success_msg"));

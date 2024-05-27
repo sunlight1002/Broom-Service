@@ -30,7 +30,11 @@ class SendShiftChangedNotification implements ShouldQueue
      */
     public function handle(JobShiftChanged $event)
     {
-        if (!is_null($event->job['worker']['email']) && $event->job['worker']['email'] != 'Null') {
+        if (
+            $event->job['worker'] &&
+            !is_null($event->job['worker']['email']) &&
+            $event->job['worker']['email'] != 'Null'
+        ) {
             App::setLocale($event->job->worker->lng);
 
             $emailData = array(

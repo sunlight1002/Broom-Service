@@ -171,7 +171,7 @@ class JobController extends Controller
 
             $newTimeSlots = [];
             if (isset($data['time_slots'][$dateString])) {
-                $newTimeSlots =$newTimeSlotsByDate = $data['time_slots'][$dateString];
+                $newTimeSlots = $newTimeSlotsByDate = $data['time_slots'][$dateString];
             } elseif (
                 isset($data['default']['time_slots']) &&
                 isset($data['default']['time_slots'][$weekDay])
@@ -284,7 +284,7 @@ class JobController extends Controller
             'start_time' => $request->start_time,
         ]);
 
-         
+
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
@@ -417,7 +417,7 @@ class JobController extends Controller
         ]);
     }
 
-    public function approveWorkerJob(Request $request, $wid, $jid)
+    public function approveWorkerJob($wid, $jid)
     {
         $job = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress'])

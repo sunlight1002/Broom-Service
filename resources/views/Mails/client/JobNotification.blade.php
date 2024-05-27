@@ -21,7 +21,7 @@
 		</table>
 		<h1 style="text-align: center;">{{__('mail.job_common.hi')}}, {{ $client['firstname'] }} {{ $client['lastname'] }}</h1>
 		<p style="text-align: center;line-height: 30px">{{__('mail.job_common.greetings')}} {{__('mail.job_common.from')}} {{__('mail.job_common.company')}}. {{ $emailData['emailContent'] }} {{ __('mail.job_common.please_check') }}</p>
-		@if(isset($emailData['isJobOpen']) && $emailData['isJobOpen'])
+		@if(isset($emailData['isJobOpen']) && $emailData['isJobOpen'] && $job['worker'])
 			<p style="text-align: center;line-height: 30px">
                 <a href='{{ url("worker/view-job/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/view-worker/".$job["id"] ) }}'> {{ $job['worker']['firstname'] }}  {{ $job['worker']['lastname'] }}.</a>
             </p>
@@ -43,7 +43,7 @@
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['start_date'])->format('M d Y') }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['client']['firstname'] }} {{ $job['client']['lastname'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">@if($job['worker']) {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }} @endif</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 						@if($job['client']['lng'] == 'heb')
 							{{ $job['jobservice']['heb_name'].', ' }}

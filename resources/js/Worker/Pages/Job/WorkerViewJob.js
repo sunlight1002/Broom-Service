@@ -75,7 +75,11 @@ export default function WorkerViewJob() {
 
         setIsApproving(true);
         axios
-            .post(`/api/worker/${worker.id}/jobs/${params.id}/approve`)
+            .post(
+                `/api/worker/${worker.id}/jobs/${params.id}/approve`,
+                {},
+                { headers }
+            )
             .then((res) => {
                 getJob();
                 alert.success(res.data.data);
