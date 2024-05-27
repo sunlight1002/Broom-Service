@@ -28,7 +28,7 @@ export default function Contract() {
                     setContracts(response.data.contracts.data);
                     setPageCount(response.data.contracts.last_page);
                 } else {
-                    setLoading("No contract found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };
@@ -43,7 +43,7 @@ export default function Contract() {
                 } else {
                     setContracts([]);
                     setPageCount(response.data.contracts.last_page);
-                    setLoading("No contract found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };
@@ -56,7 +56,7 @@ export default function Contract() {
                     setContracts(response.data.contracts.data);
                     setPageCount(response.data.contracts.last_page);
                 } else {
-                    setLoading("No offer found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };

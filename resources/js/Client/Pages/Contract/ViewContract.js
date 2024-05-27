@@ -33,7 +33,7 @@ export default function ViewContract() {
 
     const handleAccept = (e) => {
         if (!signature) {
-            swal("Please sign the contract", "", "error");
+            swal(t("work-contract.pleaseSign"), "", "error");
             return false;
         }
 

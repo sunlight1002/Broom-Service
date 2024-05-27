@@ -33,7 +33,7 @@ export default function Schedule() {
                     setSchedules(response.data.schedules.data);
                     setPageCount(response.data.schedules.last_page);
                 } else {
-                    setLoading("No meeting scheduled yet");
+                    setLoading(t("client.meeting.noMeetingSchedule"));
                 }
             });
     };
@@ -46,7 +46,7 @@ export default function Schedule() {
                     setSchedules(response.data.schedules.data);
                     setPageCount(response.data.schedules.last_page);
                 } else {
-                    setLoading("No meeting scheduled yet");
+                    setLoading(t("client.meeting.noMeetingSchedule"));
                 }
             });
     };
@@ -65,7 +65,7 @@ export default function Schedule() {
                 } else {
                     setSchedules([]);
                     setPageCount(response.data.schedules.last_page);
-                    setLoading("No meeting found");
+                    setLoading(t("client.meeting.noMeetingFound"));
                 }
             });
     };
