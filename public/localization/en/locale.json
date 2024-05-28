@@ -20,7 +20,11 @@
         "previous_week": "Previous Week",
         "next_week": "Next Week",
         "to": "To",
-        "no_record_found": "No record found"
+        "no_record_found": "No record found",
+        "areYouSure": "Are you sure?",
+        "notAbleToRevert": "You won't be able to revert this!",
+        "yesDelete": "Yes, Delete!",
+        "deleted": "Deleted!"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -412,6 +416,13 @@
             "files": "Files",
             "address_txt": "Address",
             "cfiles": {
+                "fileNotAllowed": "This file is not allowed",
+                "areYouSure": "Are you sure?",
+                "notAbleToRevert": "You won't be able to revert this!",
+                "yesDelete": "Yes, Delete File",
+                "pleaseAdd": "Please add file",
+                "noFIleAdded": "No file added for this meeting",
+                "deleted": "Deleted!",
                 "title": "Meeting Files",
                 "button": "Add Files",
                 "upload_date": "Upload Date",
@@ -467,6 +478,7 @@
             "action": "Action"
         },
         "jobs": {
+            "noJobFound": "No Job found",
             "title": "Jobs",
             "date": "Date",
             "job_date": "Job Dated",
@@ -494,7 +506,35 @@
                 "shift": "Shift",
                 "date": "Date",
                 "worker": "Worker",
-                "pending": "Request is pending."
+                "pending": "Request is pending.",
+                "Repeatancy": "The Repeatancy is missing",
+                "UntilDate": "The Until Date is missing",
+                "pleaseSelectAllWorker": "Please select all workers.",
+                "pleaseWait": "please wait ...",
+                "viewJob": "View Job",
+                "pleaseSelectWorker": "Please Select the Workers",
+                "alreadyOtherWorker": "Already other workers selected.",
+                "currentWeek": "Current Week",
+                "nextWeek": "Next Week",
+                "nextnextWeek": "Next Next Week",
+                "Custom": "Custom",
+                "Search": "Search",
+                "Worker": "Worker",
+                "shiftFreezedByAdmin": "Shift is freezed by Administrator",
+                "shiftFreezed": "Shift is freezed",
+                "workNotAvail": "Worker is not available",
+                "notAvail": "Not Available",
+                "selectDate": "Select Date Range",
+                "Cancellationfee": "Cancellation fee of {{feeInAmount}} ILS will be charged.",
+                "Repeatancy": "Repeatancy",
+                "oneTime": "One Time ( for single job )",
+                "UntilDate": "Until Date",
+                "Forever": "Forever",
+                "Close": "Close",
+                "SaveAndSend": "Save and Send",
+                "SelectService": "Select Service",
+                "KeepSameWorker": "Keep same worker",
+                "Continue": "Continue"
             },
             "view": {
                 "worker_details": "Worker Details",
@@ -517,6 +557,8 @@
                 "cancel": "Cancel",
                 "back": "Back",
                 "add_cmt": "Add Comment",
+                "pleaseEnterCmt": "Please Enter Comment",
+                "commentDeleted": "Comment has been deleted.",
                 "cancel_text": "cancalation fee may apply are you sure you would like to cancel and pay the fee of",
                 "cancel_warning": "Are you sure?",
                 "confirm_cancel_btn": "Yes, Cancel Job",
@@ -524,6 +566,25 @@
                 "updated": "Updated!",
                 "with_cancel": "with cancellation fees of",
                 "file": "Upload files"
+            },
+            "review": {
+                "ratingReq": "The Rating is required",
+                "reviewReq": "The Review field is required",
+                "Error": "Error!",
+                "title": "Review and Rating Job",
+                "Services": "Services",
+                "Frequency": "Frequency",
+                "timeToComplete": "Time to Complete",
+                "hours": "hours",
+                "Property": "Property",
+                "PetAnimals": "Pet animals",
+                "GenderPreference": "Gender preference",
+                "Worker": "Worker",
+                "Date": "Date",
+                "Shift": "Shift",
+                "Rating": "Rating",
+                "Review": "Review",
+                "Submit": "Submit"
             }
         },
         "invoice": {
@@ -1515,7 +1576,8 @@
             "employeeEmail": "Employee email is required",
             "employerEmail": "Employer email is required",
             "sign": "Signature is required",
-            "incomeReq": "Income is required"
+            "incomeReq": "Income is required",
+            "pleaseSelectOneIncomeType": "Please select at least one income type"
         }
     },
     "credit-card": {
@@ -1557,7 +1619,9 @@
         "Clear": "Clear",
         "Submit": "Submit",
         "Accept": "Accept",
-        "errorMsg": "Signature is required"
+        "errorMsg": "Signature is required",
+        "successfullySigned": "Successfuly signed",
+        "error": "Error!"
     },
     "israilContract": {
         "title1": "Notice to the employee regarding details of working conditions",
@@ -1671,6 +1735,7 @@
         "Broom": "Broom Service L.M. Ltd",
         "Submit": "Submit",
         "Accept": "Accept",
+        "Date": "Date",
         "errorMsg": {
             "FullName": "Full name is required",
             "Role": "Role is required",

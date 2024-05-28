@@ -32,7 +32,7 @@ export default function Clientfiles() {
             setFile(e.target.files[0]);
         } else {
             setFile([]);
-            window.alert("This file is not allowed");
+            window.alert(t("client.meeting.cfiles.fileNotAllowed"));
             document.querySelector('input[type="file"]').value = "";
         }
     };
@@ -40,7 +40,7 @@ export default function Clientfiles() {
     const handleFile = (e) => {
         e.preventDefault();
         if (file.length == 0) {
-            window.alert("Please add file");
+            window.alert(t("client.meeting.cfiles.pleaseAdd"));
             return;
         }
         const type = document.querySelector('select[name="filetype"]').value;
@@ -81,21 +81,21 @@ export default function Clientfiles() {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("client.meeting.cfiles.areYouSure"),
+            text: t("client.meeting.cfiles.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete File",
+            confirmButtonText: t("client.meeting.cfiles.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .post(`/api/client/delete-file/`, { id: id }, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "File has been deleted.",
+                            t("client.meeting.cfiles.deleted"),
+                            t("client.meeting.cfiles.noFIleAdded"),
                             "success"
                         );
                         setTimeout(() => {

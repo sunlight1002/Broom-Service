@@ -269,8 +269,9 @@ const Form101Component = () => {
                             ) {
                                 throw this.createError({
                                     path: "Spouse.hasIncome",
-                                    message:
-                                        "Please select at least one income type",
+                                    message: t(
+                                        "form101.errorMsg.pleaseSelectOneIncomeType"
+                                    ),
                                 });
                             }
                             return true;

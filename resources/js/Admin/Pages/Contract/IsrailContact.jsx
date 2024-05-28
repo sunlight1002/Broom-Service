@@ -691,7 +691,7 @@ export function IsrailContact({
                                         name={"signatureDate"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        label={"Date"}
+                                        label={t("israilContract.Date")}
                                         value={values.signatureDate}
                                         required={true}
                                         readOnly

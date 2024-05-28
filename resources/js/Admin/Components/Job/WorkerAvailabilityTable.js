@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import moment from "moment-timezone";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerAvailabilityTable({
     workerAvailabilities,
@@ -15,6 +16,7 @@ export default function WorkerAvailabilityTable({
 }) {
     // const [workers, setWorkers] = useState(AllWorkers);
     const [sortOrder, setSortOrder] = useState("asc");
+    const { t } = useTranslation();
 
     const handleSorting = () => {
         if (sortOrder == "asc") {
@@ -65,7 +67,7 @@ export default function WorkerAvailabilityTable({
                                 className="text-center worker-name"
                                 onClick={handleSorting}
                             >
-                                Worker{" "}
+                                {t("client.jobs.change.Worker")}
                                 <i
                                     className={
                                         `ml-2 fa ` +
@@ -176,18 +178,24 @@ export default function WorkerAvailabilityTable({
                                                                             isClient
                                                                         ) {
                                                                             tooltip =
-                                                                                "Shift is freezed by Administrator";
+                                                                                t(
+                                                                                    "client.jobs.change.shiftFreezedByAdmin"
+                                                                                );
                                                                         } else if (
                                                                             shift?.isFreezed &&
                                                                             !isClient
                                                                         ) {
                                                                             tooltip =
-                                                                                "Shift is freezed";
+                                                                                t(
+                                                                                    "client.jobs.change.shiftFreezed"
+                                                                                );
                                                                         } else if (
                                                                             shift?.notAvailable
                                                                         ) {
                                                                             tooltip =
-                                                                                "Worker is not available";
+                                                                                t(
+                                                                                    "client.jobs.change.workNotAvail"
+                                                                                );
                                                                         }
                                                                     }
                                                                     return (
@@ -256,7 +264,9 @@ export default function WorkerAvailabilityTable({
                                                             <div
                                                                 className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
                                                             >
-                                                                Not Available
+                                                                {t(
+                                                                    "client.jobs.change.notAvail"
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>

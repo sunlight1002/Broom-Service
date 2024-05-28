@@ -14,6 +14,7 @@ import {
     getWorkersData,
 } from "../../../Utils/job.utils";
 import WorkerAvailabilityTable from "../../../Admin/Components/Job/WorkerAvailabilityTable";
+import { useTranslation } from "react-i18next";
 
 export default function ChangeScheduleCalender({ job }) {
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
@@ -33,6 +34,7 @@ export default function ChangeScheduleCalender({ job }) {
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
+    const { t } = useTranslation();
 
     const jobId = Base64.decode(params.id);
 
@@ -109,12 +111,12 @@ export default function ChangeScheduleCalender({ job }) {
 
     const handleSubmit = () => {
         if (!formValues.repeatancy) {
-            alert.error("The Repeatancy is missing");
+            alert.error(t("client.jobs.change.Repeatancy"));
             return false;
         }
 
         if (formValues.repeatancy == "until_date" && !formValues.until_date) {
-            alert.error("The Until Date is missing");
+            alert.error(t("client.jobs.change.UntilDate"));
             return false;
         }
 
@@ -123,7 +125,7 @@ export default function ChangeScheduleCalender({ job }) {
                 return worker.slots == null;
             });
             if (unfilled) {
-                alert.error("Please select all workers.");
+                alert.error(t("client.jobs.change.pleaseSelectAllWorker"));
             } else {
                 const data = [];
                 selectedHours.forEach((worker, index) => {
@@ -141,7 +143,7 @@ export default function ChangeScheduleCalender({ job }) {
                 let viewbtn = document.querySelectorAll(".viewBtn");
                 if (data.length > 0) {
                     viewbtn[0].setAttribute("disabled", true);
-                    viewbtn[0].value = "please wait ...";
+                    viewbtn[0].value = t("client.jobs.change.pleaseWait");
 
                     axios
                         .post(
@@ -166,8 +168,8 @@ export default function ChangeScheduleCalender({ job }) {
                         });
                 } else {
                     viewbtn[0].removeAttribute("disabled");
-                    viewbtn[0].value = "View Job";
-                    alert.error("Please Select the Workers");
+                    viewbtn[0].value = t("client.jobs.change.viewJob");
+                    alert.error(t("client.jobs.change.pleaseSelectWorker"));
                 }
             }
         }
@@ -219,7 +221,7 @@ export default function ChangeScheduleCalender({ job }) {
                 };
             }
             if (!added && selectedHours.length === index + 1) {
-                alert.error("Already other workers selected.");
+                alert.error(t("client.jobs.change.alreadyOtherWorker"));
             }
             return worker;
         });
@@ -307,31 +309,31 @@ export default function ChangeScheduleCalender({ job }) {
                 <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
                     <div className="d-flex align-items-center flex-wrap float-left">
                         <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            Worker Availability
+                            {t("client.jobs.change.worker_availability")}
                         </div>
                         <FilterButtons
-                            text="Current Week"
+                            text={t("client.jobs.change.currentWeek")}
                             className="px-3 mr-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Next Week"
+                            text={t("client.jobs.change.nextWeek")}
                             className="px-3 mr-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Next Next Week"
+                            text={t("client.jobs.change.nextnextWeek")}
                             className="px-3 mr-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Custom"
+                            text={t("client.jobs.change.Custom")}
                             className="px-3 mr-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
@@ -342,7 +344,7 @@ export default function ChangeScheduleCalender({ job }) {
                         <input
                             type="text"
                             className="form-control form-control-sm"
-                            placeholder="Search"
+                            placeholder={t("client.jobs.change.Search")}
                             onChange={(e) => {
                                 setSearchVal(e.target.value);
                             }}
@@ -434,7 +436,7 @@ export default function ChangeScheduleCalender({ job }) {
                 >
                     <div className="form-group">
                         <label className="control-label">
-                            Select Date Range
+                            {t("client.jobs.change.selectDate")}
                         </label>
                         <Flatpickr
                             name="date"
@@ -502,7 +504,7 @@ export default function ChangeScheduleCalender({ job }) {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                View Job
+                                {t("client.jobs.change.viewJob")}
                             </h5>
                             <button
                                 type="button"
@@ -519,16 +521,34 @@ export default function ChangeScheduleCalender({ job }) {
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col">Service</th>
-                                                <th scope="col">Frequency</th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.services"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.frequency"
+                                                    )}
+                                                </th>
                                                 {/* <th scope="col">
                                                     Time to Complete
                                                 </th> */}
-                                                <th scope="col">Property</th>
                                                 <th scope="col">
-                                                    Gender preference
+                                                    {t(
+                                                        "client.jobs.change.property"
+                                                    )}
                                                 </th>
-                                                <th scope="col">Pet animals</th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.gender_preference"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.pet_animals"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -604,9 +624,21 @@ export default function ChangeScheduleCalender({ job }) {
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Worker</th>
-                                                    <th scope="col">Date</th>
-                                                    <th scope="col">Shifts</th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.Worker"
+                                                        )}
+                                                    </th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.date"
+                                                        )}
+                                                    </th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.shift"
+                                                        )}
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -635,13 +667,15 @@ export default function ChangeScheduleCalender({ job }) {
                             <div className="row">
                                 <div className="offset-sm-4 col-sm-4">
                                     <p className="mb-4">
-                                        Cancellation fee of {feeInAmount} ILS
-                                        will be charged.
+                                        {t(
+                                            "client.jobs.change.Cancellationfee",
+                                            { feeInAmount }
+                                        )}
                                     </p>
 
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Repeatancy
+                                            {t("client.jobs.change.Repeatancy")}
                                         </label>
 
                                         <select
@@ -656,13 +690,19 @@ export default function ChangeScheduleCalender({ job }) {
                                             className="form-control mb-3"
                                         >
                                             <option value="one_time">
-                                                One Time ( for single job )
+                                                {t(
+                                                    "client.jobs.change.oneTime"
+                                                )}
                                             </option>
                                             <option value="until_date">
-                                                Until Date
+                                                {t(
+                                                    "client.jobs.change.UntilDate"
+                                                )}
                                             </option>
                                             <option value="forever">
-                                                Forever
+                                                {t(
+                                                    "client.jobs.change.Forever"
+                                                )}
                                             </option>
                                         </select>
                                     </div>
@@ -672,7 +712,9 @@ export default function ChangeScheduleCalender({ job }) {
                                     <div className="offset-sm-4 col-sm-4">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Until Date
+                                                {t(
+                                                    "client.jobs.change.UntilDate"
+                                                )}
                                             </label>
                                             <Flatpickr
                                                 name="date"
@@ -705,7 +747,7 @@ export default function ChangeScheduleCalender({ job }) {
                                 className="btn btn-secondary closeb"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("client.jobs.change.Close")}
                             </button>
                             <button
                                 type="button"
@@ -713,7 +755,7 @@ export default function ChangeScheduleCalender({ job }) {
                                 className="btn btn-primary"
                                 data-dismiss="modal"
                             >
-                                Save and Send
+                                {t("client.jobs.change.SaveAndSend")}
                             </button>
                         </div>
                     </div>
@@ -731,7 +773,7 @@ export default function ChangeScheduleCalender({ job }) {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Select Service
+                                {t("client.jobs.change.SelectService")}
                             </h5>
                         </div>
                         <div className="modal-body">
@@ -744,7 +786,9 @@ export default function ChangeScheduleCalender({ job }) {
                                                 type="checkbox"
                                                 className="form-check-input"
                                             />
-                                            Keep same worker
+                                            {t(
+                                                "client.jobs.change.KeepSameWorker"
+                                            )}
                                         </label>
                                     </div>
                                 </div>
@@ -754,7 +798,7 @@ export default function ChangeScheduleCalender({ job }) {
                                         className="btn btn-primary"
                                         onClick={handleWorkerList}
                                     >
-                                        Continue
+                                        {t("client.jobs.change.Continue")}
                                     </button>
                                 </div>
                             </div>

@@ -23,7 +23,7 @@ export default function Comment() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (comment == "") {
-            window.alert("Please Enter Comment");
+            window.alert(t("client.jobs.view.pleaseEnterCmt"));
             return;
         }
         const data = new FormData();
@@ -60,21 +60,21 @@ export default function Comment() {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("global.areYouSure"),
+            text: t("global.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Comment",
+            confirmButtonText: t("global.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .delete(`/api/client/job-comments/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "Comment has been deleted.",
+                            t("global.deleted"),
+                            t("client.jobs.view.commentDeleted"),
                             "success"
                         );
                         setTimeout(() => {

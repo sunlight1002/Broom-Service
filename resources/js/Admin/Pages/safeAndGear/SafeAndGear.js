@@ -82,14 +82,14 @@ const SafeAndGear = () => {
                     },
                 })
                 .then((res) => {
-                    alert.success("Successfuly signed");
+                    alert.success(t("safeAndGear.successfullySigned"));
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                 })
                 .catch((e) => {
                     Swal.fire({
-                        title: "Error!",
+                        title: t("safeAndGear.error"),
                         text: e.response.data.message,
                         icon: "error",
                     });

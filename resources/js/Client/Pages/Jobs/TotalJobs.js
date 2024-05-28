@@ -32,7 +32,7 @@ export default function TotalJobs() {
                 setPageCount(response.data.jobs.last_page);
             } else {
                 setTotalJobs([]);
-                setLoading("No Job found");
+                setLoading(t("client.jobs.noJobFound"));
             }
         });
     };
@@ -51,7 +51,7 @@ export default function TotalJobs() {
                     setPageCount(response.data.jobs.last_page);
                 } else {
                     setTotalJobs([]);
-                    setLoading("No Job found");
+                    setLoading(t("client.jobs.noJobFound"));
                 }
             });
     };
