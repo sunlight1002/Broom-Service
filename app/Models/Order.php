@@ -25,6 +25,7 @@ class Order extends Model
         'unpaid_amount',
         'is_force_closed',
         'force_closed_at',
+        'is_webhook_created',
     ];
 
     /**
@@ -41,6 +42,7 @@ class Order extends Model
         'unpaid_amount' => 'double',
         'is_force_closed' => 'boolean',
         'force_closed_at' => 'datetime',
+        'is_webhook_created' => 'boolean',
     ];
 
     public function jobs()

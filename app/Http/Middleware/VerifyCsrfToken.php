@@ -16,6 +16,7 @@ class VerifyCsrfToken extends Middleware
         'twilio/voice/webhook',
         'zcredit/callback',
         'newlead',
-        'facebook/webhook'
+        'facebook/webhook',
+        'icount/webhook'
     ];
 }

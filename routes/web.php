@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\iCountController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Webhook\TwilioController;
 
@@ -23,6 +24,7 @@ use App\Http\Controllers\Webhook\TwilioController;
 */
 
 Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
+Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
