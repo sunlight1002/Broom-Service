@@ -16,6 +16,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function TotalJobs() {
     const todayFilter = {
@@ -1128,29 +1129,3 @@ const ActuallyTimeWorker = ({ data, emitValue }) => {
         </div>
     );
 };
-
-const FilterButtons = ({
-    text,
-    className,
-    selectedFilter,
-    setselectedFilter,
-    onClick,
-}) => (
-    <button
-        className={`btn border rounded ${className}`}
-        style={
-            selectedFilter === text
-                ? { background: "white" }
-                : {
-                      background: "#2c3f51",
-                      color: "white",
-                  }
-        }
-        onClick={() => {
-            onClick?.();
-            setselectedFilter(text);
-        }}
-    >
-        {text}
-    </button>
-);

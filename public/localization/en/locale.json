@@ -14,7 +14,13 @@
         "fullday": "Full Day",
         "night": "Night",
         "accepted": "Accepted",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "day": "Day",
+        "week": "Week",
+        "previous_week": "Previous Week",
+        "next_week": "Next Week",
+        "to": "To",
+        "no_record_found": "No record found"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -1054,6 +1060,9 @@
             "action": "Action",
             "viewbtn": "View",
             "job_details": "Job details",
+            "date_period": "Date Period",
+            "custom_date_range": "Custom Date Range",
+            "custom_range": "Custom Range",
             "view": {
                 "c_details": "Client Details",
                 "c_name": "Name",

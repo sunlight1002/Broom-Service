@@ -11,17 +11,18 @@ class JobHours extends Model
 
     protected $fillable = ['job_id', 'worker_id', 'start_time', 'end_time', 'time_diff'];
 
-    public static function boot(){
+    public static function boot()
+    {
         parent::boot();
 
         //send notification to worker about next step
         static::saving(function ($model) {
             $isSend = false;
-            $model->load(['job','job.client', 'job.worker', 'job.jobservice', 'job.propertyAddress']);
+            $model->load(['job', 'job.client', 'job.worker', 'job.jobservice', 'job.propertyAddress']);
             $job = $model->job->toArray();
             $worker = $job['worker'];
             $job['start_time'] = $model->start_time;
-            if(auth()->user()->email == $worker['email']){
+            if (auth()->user()->email == $worker['email']) {
                 if ($model->isDirty('start_time')) {
                     $isSend = true;
                     $emailData = [
@@ -30,7 +31,7 @@ class JobHours extends Model
                         'emailTitle'  => 'Job time started',
                         'emailContent'  => "Job time has been started by you. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>End time</b> </a> for stop your job work time."
                     ];
-                }elseif ($model->isDirty('end_time')) {
+                } elseif ($model->isDirty('end_time')) {
                     $isSend = true;
                     $emailData = [
                         'emailSubject'  => 'Job time ended | Next step | Broom Service',
@@ -39,7 +40,7 @@ class JobHours extends Model
                     ];
                 }
 
-                if($isSend){
+                if ($isSend) {
                     event(new JobNotificationToWorker($worker, $job, $emailData));
                 }
             }

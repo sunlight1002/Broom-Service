@@ -14,7 +14,13 @@
         "fullday": "יום שלם",
         "night": "לילה",
         "accepted": "אושר",
-        "rejected": "דחה"
+        "rejected": "דחה",
+        "day": "יום",
+        "week": "שבוע",
+        "previous_week": "שבוע שעבר",
+        "next_week": "שבוע הבא",
+        "to": "עד",
+        "no_record_found": "לא נמצא רשומה"
     },
     "front_meet": {
         "title": "שעה ותאריך לפגישה",
@@ -1054,6 +1060,9 @@
             "action": "פעולה",
             "viewbtn": "נוף",
             "job_details": "פרטי עבודה",
+            "date_period": "תקופת תאריך",
+            "custom_date_range": "טווח תאריכים מותאם אישית",
+            "custom_range": "טווח מותאם אישית",
             "view": {
                 "c_details": "פרטי הלקוח",
                 "c_name": "שם הלקוח",

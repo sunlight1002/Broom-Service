@@ -6,6 +6,7 @@ import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 
 import WorkerSidebar from "./Layouts/WorkerSidebar";
+import ChangeJobStatusModal from "./Components/Modals/ChangeJobStatusModal";
 
 export default function WorkerDashboard() {
     const [pastJobCount, setPastJobCount] = useState(0);
@@ -13,7 +14,9 @@ export default function WorkerDashboard() {
     const [todayJobCount, setTodayJobCount] = useState(0);
     const [upcomingJobCount, setUpcomingJobCount] = useState(0);
     const [approveTomorrowJobs, setApproveTomorrowJobs] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
+    const [todayJobs, setTodayJobs] = useState([]);
+    const [processingJobID, setProcessingJobID] = useState(null);
+    const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
 
     const alert = useAlert();
     const { t, i18n } = useTranslation();
@@ -36,14 +39,18 @@ export default function WorkerDashboard() {
             setUpcomingJobCount(response.data.counts.upcoming_job_count);
             setTodayJobCount(response.data.counts.today_job_count);
             setApproveTomorrowJobs(response.data.approval_pending_job);
-
-            if (response.data.approval_pending_job.length === 0) {
-                setLoading("No job found");
-            }
         });
     };
 
-    const handleApprove = async (_jobID) => {
+    const getTodayJobs = () => {
+        axios.get("/api/jobs/today", { headers }).then((response) => {
+            setTodayJobs(response.data.today_jobs);
+        });
+    };
+
+    const handleApproveJob = async (_jobID) => {
+        setProcessingJobID(_jobID);
+
         axios
             .post(
                 `/api/worker/${workerID}/jobs/${_jobID}/approve`,
@@ -52,15 +59,63 @@ export default function WorkerDashboard() {
             )
             .then((response) => {
                 GetDashboardData();
+                getTodayJobs();
                 alert.success(t("job_approval.success_msg"));
+                setProcessingJobID(null);
             })
             .catch((e) => {
                 alert.error(e.response.data.message);
+                setProcessingJobID(null);
+            });
+    };
+
+    const handleMarkComplete = (_jobID, _isRunning) => {
+        _isRunning ? stopTimer(_jobID) : "";
+        setProcessingJobID(_jobID);
+        setIsOpenChangeJobStatus(true);
+    };
+
+    const handleOpeningTime = (_jobID) => {
+        setProcessingJobID(_jobID);
+
+        axios
+            .post(
+                `/api/job-opening-timestamp`,
+                {
+                    job_id: _jobID,
+                },
+                { headers }
+            )
+            .then((res) => {
+                getTodayJobs();
+                alert.success(res.data.message);
+                setProcessingJobID(null);
+            })
+            .catch((err) => {
+                alert.success(res.data.message);
+                setProcessingJobID(null);
+            });
+    };
+
+    const startTimer = (_jobID) => {
+        axios
+            .post(`/api/jobs/${_jobID}/start-time`, {}, { headers })
+            .then((res) => {
+                getTodayJobs();
+            });
+    };
+
+    const stopTimer = (_jobID) => {
+        axios
+            .post(`/api/jobs/${_jobID}/end-time`, {}, { headers })
+            .then((res) => {
+                getTodayJobs();
             });
     };
 
     useEffect(() => {
         GetDashboardData();
+        getTodayJobs();
     }, []);
 
     return (
@@ -75,7 +130,7 @@ export default function WorkerDashboard() {
                     </div>
                     <div className="row">
                         <div className="col-sm-4 col-xs-6">
-                            <Link to={`/worker/jobs`}>
+                            <Link to={`/worker/jobs?f=past`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
                                         <i className="fa-solid fa-suitcase"></i>
@@ -105,7 +160,7 @@ export default function WorkerDashboard() {
                         </div>
 
                         <div className="col-sm-4 col-xs-6">
-                            <Link to={`/worker/jobs`}>
+                            <Link to={`/worker/jobs?f=upcoming`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
                                         <i className="fa-solid fa-suitcase"></i>
@@ -123,7 +178,7 @@ export default function WorkerDashboard() {
                         </div>
 
                         <div className="col-sm-4 col-xs-6">
-                            <Link to={`/worker/jobs`}>
+                            <Link to={`/worker/jobs?f=today`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
                                         <i className="fa-solid fa-suitcase"></i>
@@ -228,7 +283,7 @@ export default function WorkerDashboard() {
                                                                         type="button"
                                                                         className="btn btn-primary"
                                                                         onClick={() =>
-                                                                            handleApprove(
+                                                                            handleApproveJob(
                                                                                 item.id
                                                                             )
                                                                         }
@@ -247,12 +302,230 @@ export default function WorkerDashboard() {
                                     </Table>
                                 ) : (
                                     <p className="text-center mt-5">
-                                        {loading}
+                                        {t("global.no_record_found")}
                                     </p>
                                 )}
                             </div>
                         </div>
                     </div>
+
+                    <div className="latest-users">
+                        <h2 className="page-title">
+                            {t("worker.dashboard.today_jobs")}
+                        </h2>
+                        <div className="boxPanel">
+                            <div className="table-responsive">
+                                {todayJobs.length > 0 ? (
+                                    <Table className="table table-bordered responsiveTable">
+                                        <Thead>
+                                            <Tr>
+                                                <Th>
+                                                    {t(
+                                                        "worker.dashboard.client"
+                                                    )}
+                                                </Th>
+                                                <Th>
+                                                    {t(
+                                                        "worker.dashboard.service"
+                                                    )}
+                                                </Th>
+                                                <Th>
+                                                    {t(
+                                                        "worker.dashboard.shift"
+                                                    )}
+                                                </Th>
+                                                <Th>
+                                                    {t(
+                                                        "worker.dashboard.status"
+                                                    )}
+                                                </Th>
+                                                <Th>
+                                                    {t(
+                                                        "worker.dashboard.action"
+                                                    )}
+                                                </Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            {todayJobs.map((item, index) => {
+                                                const isRunning =
+                                                    item.time.filter(
+                                                        (i) =>
+                                                            i.end_time === null
+                                                    ).length > 0;
+
+                                                return (
+                                                    <Tr key={index}>
+                                                        <Td>
+                                                            {item.client
+                                                                ? item.client
+                                                                      .firstname +
+                                                                  " " +
+                                                                  item.client
+                                                                      .lastname
+                                                                : "NA"}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.jobservice &&
+                                                                (w_lng == "en"
+                                                                    ? item
+                                                                          .jobservice
+                                                                          .name
+                                                                    : item
+                                                                          .jobservice
+                                                                          .heb_name)}
+                                                        </Td>
+                                                        <Td>{item.shifts}</Td>
+                                                        <Td
+                                                            style={{
+                                                                textTransform:
+                                                                    "capitalize",
+                                                            }}
+                                                        >
+                                                            {item.status}
+                                                        </Td>
+                                                        <Td>
+                                                            {item.job_opening_timestamp ===
+                                                                null &&
+                                                            item.worker_approved_at ===
+                                                                null ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleApproveJob(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        processingJobID ==
+                                                                        item.id
+                                                                    }
+                                                                    className="btn btn-primary mr-2"
+                                                                >
+                                                                    {t(
+                                                                        "worker.jobs.view.approve"
+                                                                    )}
+                                                                </button>
+                                                            ) : item.job_opening_timestamp ===
+                                                                  null &&
+                                                              item.worker_approved_at !==
+                                                                  null ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleOpeningTime(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                    className="btn btn-success mr-2"
+                                                                    disabled={
+                                                                        processingJobID ==
+                                                                        item.id
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "worker.jobs.view.going_to_start"
+                                                                    )}
+                                                                </button>
+                                                            ) : (
+                                                                <>
+                                                                    {item.status !=
+                                                                        "completed" &&
+                                                                        item.status !=
+                                                                            "cancel" && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    handleMarkComplete(
+                                                                                        item.id,
+                                                                                        isRunning
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    processingJobID ==
+                                                                                    item.id
+                                                                                }
+                                                                                className="btn btn-success mr-2"
+                                                                            >
+                                                                                {t(
+                                                                                    "worker.jobs.view.completebtn"
+                                                                                )}
+                                                                            </button>
+                                                                        )}
+                                                                    {item.status !=
+                                                                        "completed" &&
+                                                                        item.status !=
+                                                                            "cancel" && (
+                                                                            <>
+                                                                                {!isRunning ? (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() =>
+                                                                                            startTimer(
+                                                                                                item.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="btn btn-primary mr-2"
+                                                                                    >
+                                                                                        {item
+                                                                                            .time
+                                                                                            .length >
+                                                                                        0
+                                                                                            ? t(
+                                                                                                  "worker.jobs.view.resbtn"
+                                                                                              )
+                                                                                            : t(
+                                                                                                  "worker.jobs.view.startbtn"
+                                                                                              )}
+                                                                                    </button>
+                                                                                ) : (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() =>
+                                                                                            stopTimer(
+                                                                                                item.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="btn btn-danger dangerous mr-2"
+                                                                                    >
+                                                                                        {t(
+                                                                                            "worker.jobs.view.stopbtn"
+                                                                                        )}
+                                                                                    </button>
+                                                                                )}
+                                                                            </>
+                                                                        )}
+                                                                </>
+                                                            )}
+                                                        </Td>
+                                                    </Tr>
+                                                );
+                                            })}
+                                        </Tbody>
+                                    </Table>
+                                ) : (
+                                    <p className="text-center mt-5">
+                                        {t("global.no_record_found")}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* {isOpenChangeJobStatus && (
+                        <ChangeJobStatusModal
+                            allComment={allComment}
+                            jobId={processingJobID}
+                            jobStatus={job_status}
+                            setIsOpen={setIsOpenChangeJobStatus}
+                            isOpen={isOpenChangeJobStatus}
+                            onSuccess={() => {
+                                getTodayJobs();
+                                setIsOpenChangeJobStatus(false);
+                                setProcessingJobID(null);
+                            }}
+                        />
+                    )} */}
                 </div>
             </div>
         </div>

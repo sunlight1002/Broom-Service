@@ -148,34 +148,25 @@ export default function WorkerViewJob() {
     const startTimer = () => {
         setCounter("00:00:00");
         setIsRunning(true);
-        let data = {
-            job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
-            start_time: getDateTime(),
-        };
-        axios.post(`/api/job-start-time`, data, { headers }).then((res) => {
-            getTime();
-        });
+        axios
+            .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
+            .then((res) => {
+                getTime();
+            });
     };
     const stopTimer = () => {
         setIsRunning(false);
         setStartTime(getDateTime());
-        let data = {
-            id: time_id,
-            time_diff:
-                (new Date(getDateTime()).getTime() -
-                    new Date(startTime).getTime()) /
-                1000,
-            end_time: getDateTime(),
-        };
-        axios.post(`/api/job-end-time`, data, { headers }).then((res) => {
-            getTimes();
-        });
+
+        axios
+            .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
+            .then((res) => {
+                getTimes();
+            });
     };
     const getTime = () => {
         let data = {
             job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
             filter_end_time: true,
         };
         axios.post(`/api/get-job-time`, data, { headers }).then((res) => {
@@ -192,7 +183,6 @@ export default function WorkerViewJob() {
     const getTimes = () => {
         let data = {
             job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
         };
         axios.post(`/api/get-job-time`, data, { headers }).then((res) => {
             let t = res.data;
@@ -240,7 +230,7 @@ export default function WorkerViewJob() {
 
     const getComments = () => {
         axios
-            .get(`/api/job-comments?id=${params.id}`, { headers })
+            .get(`/api/jobs/${params.id}/comments`, { headers })
             .then((res) => {
                 setAllComment(res.data.comments);
             });
@@ -425,44 +415,40 @@ export default function WorkerViewJob() {
                                                         </Tr>
                                                     </Thead>
                                                     <Tbody>
-                                                        {job_time &&
-                                                            job_time.map(
-                                                                (
-                                                                    item,
-                                                                    index
-                                                                ) => {
-                                                                    let w_t =
-                                                                        item.end_time
-                                                                            ? time_difference(
-                                                                                  item.start_time,
-                                                                                  item.end_time
-                                                                              )
-                                                                            : "";
-                                                                    return (
-                                                                        <Tr
-                                                                            key={
-                                                                                index
+                                                        {job_time.map(
+                                                            (item, index) => {
+                                                                let w_t =
+                                                                    item.end_time
+                                                                        ? time_difference(
+                                                                              item.start_time,
+                                                                              item.end_time
+                                                                          )
+                                                                        : "";
+                                                                return (
+                                                                    <Tr
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        <Td>
+                                                                            {
+                                                                                item.start_time
                                                                             }
-                                                                        >
-                                                                            <Td>
-                                                                                {
-                                                                                    item.start_time
-                                                                                }
-                                                                            </Td>
-                                                                            <Td>
-                                                                                {
-                                                                                    item.end_time
-                                                                                }
-                                                                            </Td>
-                                                                            <Td>
-                                                                                {
-                                                                                    w_t
-                                                                                }
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    );
-                                                                }
-                                                            )}
+                                                                        </Td>
+                                                                        <Td>
+                                                                            {
+                                                                                item.end_time
+                                                                            }
+                                                                        </Td>
+                                                                        <Td>
+                                                                            {
+                                                                                w_t
+                                                                            }
+                                                                        </Td>
+                                                                    </Tr>
+                                                                );
+                                                            }
+                                                        )}
                                                         <Tr>
                                                             <Td colSpan="2">
                                                                 {t(
