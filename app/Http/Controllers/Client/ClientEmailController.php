@@ -343,18 +343,6 @@ class ClientEmailController extends Controller
 
       $contract->update($request->input());
 
-      //login credential send to client after contract verify by admin
-      if($client->status != 2){
-        App::setLocale($client['lng']);
-        Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
-            $messages->to($client['email']);
-            $client['lng'] ?
-              $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
-              :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
-
-            $messages->subject($sub);
-        });
-      }
       Notification::create([
         'user_id' => $contract->client_id,
         'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
@@ -362,10 +350,24 @@ class ClientEmailController extends Controller
         'status' => 'accepted'
       ]);
 
+      $client->update([
+        'status' => '2'
+      ]);
+
       $client->lead_status()->updateOrCreate(
         [],
         ['lead_status' => LeadStatusEnum::PENDING_CLIENT]
       );
+
+      App::setLocale($client['lng']);
+      Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
+        $messages->to($client['email']);
+        $client['lng'] ?
+          $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] . " " . $client['lastname']
+          :  $sub = $client['firstname'] . " " . $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
+
+        $messages->subject($sub);
+      });
 
       return response()->json([
         'message' => "Thanks, for accepting contract"

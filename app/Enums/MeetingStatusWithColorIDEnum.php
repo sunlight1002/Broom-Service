@@ -7,10 +7,10 @@ namespace App\Enums;
 final class MeetingStatusWithColorIDEnum extends AbstractEnum
 {
     public const status = [
-        'pending' => '1',
-        'confirmed' => '6',
-        'declined' => '4',
+        'pending' => '3',
+        'confirmed' => '2',
+        'declined' => '6',
         'completed' => '2',
-        'rescheduled' => '11',
+        'rescheduled' => '6',
     ];
 }

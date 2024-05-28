@@ -10,7 +10,6 @@ use App\Models\Client;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -154,26 +153,11 @@ class ContractController extends Controller
             'status' => ContractStatusEnum::VERIFIED
         ]);
 
-        //login credential send to client after contract verify by admin
-        // if($client->status != 2){
-        //     App::setLocale($client['lng']);
-        //     Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
-        //         $messages->to($client['email']);
-        //         $client['lng'] ?
-        //           $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
-        //           :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
-
-        //         $messages->subject($sub);
-        //     });
-        // }
-
         $client->lead_status()->updateOrCreate(
             [],
             ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
         );
-        $client->update([
-            'status' => '2'
-        ]);
+
         return response()->json([
             'message' => 'Contract verified successfully'
         ]);

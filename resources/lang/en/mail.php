@@ -51,7 +51,7 @@ return [
         'tel'         => 'Telephone',
     ],
     'offer' => [
-        'subject'     => 'Offer recieved',
+        'subject'     => 'Offer received',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
