@@ -87,7 +87,6 @@ import WorkerLogin from "./Worker/Auth/WorkerLogin";
 import ClientLogin from "./Client/Auth/ClientLogin";
 import Schedule from "./Admin/Pages/Schedule/Schedule";
 import ViewSchedule from "./Admin/Pages/Schedule/ViewSchedule";
-import CreateContract from "./Admin/Pages/Contract/CreateContract";
 import PriceOffer from "./Pages/PriceOffer";
 import InsuranceEng from "./Pages/Insurance/InsuranceEng";
 import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
@@ -344,11 +343,6 @@ export default function MyRoutes() {
 
                     {/* Admin Routes Start  */}
                     <Route exact path="/admin/login" element={<AdminLogin />} />
-                    <Route
-                        exact
-                        path="create-contract"
-                        element={<CreateContract />}
-                    />
                     <Route element={<AdminProtectedRoutes />}>
                         <Route path="admin" element={<Admin />}>
                             <Route

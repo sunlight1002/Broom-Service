@@ -22,6 +22,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ContractSigned;
+use App\Events\OfferAccepted;
 use App\Events\ReScheduleMettingJob;
 use App\Events\WhatsappNotificationEvent;
 
@@ -91,13 +93,6 @@ class ClientEmailController extends Controller
 
     $ofr = $offer->toArray();
 
-    Notification::create([
-      'user_id' => $ofr['client']['id'],
-      'type' => NotificationTypeEnum::ACCEPT_OFFER,
-      'offer_id' => $offer->id,
-      'status' => 'accepted'
-    ]);
-
     LeadStatus::UpdateOrCreate(
       [
         'client_id' => $ofr['client']['id']
@@ -116,24 +111,16 @@ class ClientEmailController extends Controller
       'status'     => ContractStatusEnum::NOT_SIGNED
     ]);
 
+    Notification::create([
+      'user_id' => $ofr['client']['id'],
+      'type' => NotificationTypeEnum::ACCEPT_OFFER,
+      'offer_id' => $offer->id,
+      'status' => 'accepted'
+    ]);
+
     $ofr['contract_id'] = $hash;
 
-    App::setLocale($ofr['client']['lng']);
-
-    if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
-      event(new WhatsappNotificationEvent([
-        "type" => WhatsappMessageTemplateEnum::CONTRACT,
-        "notificationData" => $ofr
-      ]));
-    }
-    Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
-      $messages->to($ofr['client']['email']);
-      $ofr['client']['lng'] ?
-        $sub = __('mail.contract.subject') . "  " . __('mail.contract.company') . " for offer #" . $ofr['id']
-        :  $sub = $ofr['id'] . "# " . __('mail.contract.subject') . "  " . __('mail.contract.company');
-
-      $messages->subject($sub);
-    });
+    event(new OfferAccepted($ofr));
 
     return response()->json([
       'message' => 'Offer is accepted'
@@ -333,13 +320,6 @@ class ClientEmailController extends Controller
 
       $contract->update($request->input());
 
-      Notification::create([
-        'user_id' => $contract->client_id,
-        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
-        'contract_id' => $contract->id,
-        'status' => 'accepted'
-      ]);
-
       $client->update([
         'status' => '2'
       ]);
@@ -349,15 +329,14 @@ class ClientEmailController extends Controller
         ['lead_status' => LeadStatusEnum::PENDING_CLIENT]
       );
 
-      App::setLocale($client['lng']);
-      Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
-        $messages->to($client['email']);
-        $client['lng'] ?
-          $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] . " " . $client['lastname']
-          :  $sub = $client['firstname'] . " " . $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
+      Notification::create([
+        'user_id' => $contract->client_id,
+        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
+        'contract_id' => $contract->id,
+        'status' => 'accepted'
+      ]);
 
-        $messages->subject($sub);
-      });
+      event(new ContractSigned($client, $contract));
 
       return response()->json([
         'message' => "Thanks, for accepting contract"
@@ -384,7 +363,8 @@ class ClientEmailController extends Controller
 
       $contract->update(['status' => ContractStatusEnum::DECLINED]);
 
-      Client::where('id', $contract->client_id)->update(['status' => 1]);
+      $client = Client::find($contract->client_id);
+      $client->update(['status' => 1]);
       Notification::create([
         'user_id' => $contract->client_id,
         'type' => NotificationTypeEnum::CONTRACT_REJECT,

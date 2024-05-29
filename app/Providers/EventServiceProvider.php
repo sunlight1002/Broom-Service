@@ -6,6 +6,7 @@ use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
 use App\Events\ClientPaymentFailed;
 use App\Events\ContractFormSigned;
+use App\Events\ContractSigned;
 use App\Events\Form101Signed;
 use App\Events\InsuranceFormSigned;
 use App\Events\JobReviewRequest;
@@ -21,6 +22,8 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
 use App\Events\JobNotificationToClient;
 use App\Events\MeetingReminderEvent;
+use App\Events\OfferAccepted;
+use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
@@ -41,6 +44,9 @@ use App\Listeners\SendJobNotificationToAdmin;
 use App\Listeners\SendJobNotificationToWorker;
 use App\Listeners\SendJobNotificationToClient;
 use App\Listeners\MeetingReminderNotification;
+use App\Listeners\NotifyForContract;
+use App\Listeners\NotifyForOffer;
+use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -120,6 +126,15 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerChangeAffectedAvailability::class => [
             SendWorkerChangedAffectedAvailability::class
+        ],
+        OfferSaved::class => [
+            NotifyForOffer::class
+        ],
+        OfferAccepted::class => [
+            NotifyForContract::class
+        ],
+        ContractSigned::class => [
+            SendClientCredentials::class
         ]
     ];
 

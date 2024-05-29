@@ -245,6 +245,19 @@ class JobController extends Controller
     public function JobStartTime($id)
     {
         $job = Job::find($id);
+
+        $time = JobHours::query()
+            ->where('worker_id', Auth::id())
+            ->where('job_id', $id)
+            ->whereNull('end_time')
+            ->first();
+
+        if ($time) {
+            return response()->json([
+                'message' => 'End timer',
+            ], 404);
+        }
+
         $currentDateTime = now()->toDateTimeString();
 
         if ($job->status != JobStatusEnum::PROGRESS) {
@@ -275,6 +288,7 @@ class JobController extends Controller
             'message' => 'Updated Successfully',
         ]);
     }
+
     public function JobEndTime($id)
     {
         $time = JobHours::query()
@@ -328,11 +342,28 @@ class JobController extends Controller
     {
         $rData = $request->all();
         try {
-            $job = Job::updateOrCreate([
-                'id' => $rData['job_id'],
-            ], [
-                'job_opening_timestamp' => now()
+            $job = Job::query()
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->where('worker_id', Auth::id())
+                ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+                ->find($rData['job_id']);
+
+            if (!$job) {
+                return response()->json([
+                    'message' => 'Something went wrong!'
+                ], 404);
+            }
+
+            if ($job->job_opening_timestamp) {
+                return response()->json([
+                    'message' => 'Worker already leave for work'
+                ], 403);
+            }
+
+            $job->update([
+                'job_opening_timestamp' => Carbon::now()->toDateTimeString()
             ]);
+
             Notification::create([
                 'user_id' => $job->client->id,
                 'type' => NotificationTypeEnum::OPENING_JOB,

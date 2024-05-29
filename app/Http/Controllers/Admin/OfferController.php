@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\OfferSaved;
 
 class OfferController extends Controller
 {
@@ -115,53 +116,12 @@ class OfferController extends Controller
         );
 
         if ($request->action == 'Save and Send') {
-            $this->sendOfferMail($offer);
+            event(new OfferSaved($offer->toArray()));
         }
 
         return response()->json([
             'message' => 'Offer created successfully'
         ]);
-    }
-
-    public function sendOfferMail($offer)
-    {
-        $offer = $offer->toArray();
-        $services = ($offer['services'] != '') ? json_decode($offer['services']) : [];
-        if (isset($services)) {
-            $s_names  = '';
-            foreach ($services as $k => $service) {
-
-                if ($k != count($services) - 1 && $service->service != 10) {
-                    $s_names .= $service->name . ", ";
-                } else if ($service->service == 10) {
-                    if ($k != count($services) - 1) {
-                        $s_names .= $service->other_title . ", ";
-                    } else {
-                        $s_names .= $service->other_title;
-                    }
-                } else {
-                    $s_names .= $service->name;
-                }
-            }
-        }
-
-        $offer['service_names'] = $s_names;
-
-        App::setLocale($offer['client']['lng']);
-        if (isset($offer['client']) && !empty($offer['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
-                "notificationData" => $offer
-            ]));
-        }
-        Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-            $messages->to($offer['client']['email']);
-            ($offer['client']['lng'] == 'en') ?
-                $sub = __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company') . " #" . ($offer['id'])
-                : $sub = $offer['id'] . "# " . __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company');
-
-            $messages->subject($sub);
-        });
     }
 
     /**
@@ -270,7 +230,7 @@ class OfferController extends Controller
         $offer->load(['client', 'service']);
 
         if ($request->action == 'Save and Send') {
-            $this->sendOfferMail($offer);
+            event(new OfferSaved($offer->toArray()));
         }
 
         return response()->json([

@@ -7,13 +7,15 @@ import Moment from "moment";
 import Swal from "sweetalert2";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Schedule() {
     const [schedules, setSchedules] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const navigate = useNavigate();
     const [filter, setFilter] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -30,8 +32,6 @@ export default function Schedule() {
                 if (response.data.schedules.data.length > 0) {
                     setSchedules(response.data.schedules.data);
                     setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading("No meeting scheduled yet");
                 }
             });
     };
@@ -43,7 +43,6 @@ export default function Schedule() {
                 setPageCount(response.data.schedules.last_page);
             } else {
                 setSchedules([]);
-                setLoading("No meeting scheduled yet");
             }
         });
     };
@@ -58,7 +57,6 @@ export default function Schedule() {
                 } else {
                     setSchedules([]);
                     setPageCount(response.data.schedules.last_page);
-                    setLoading("No meeting found");
                 }
             });
     };
@@ -78,9 +76,13 @@ export default function Schedule() {
             confirmButtonText: "Yes, Delete Meeting!",
         }).then((result) => {
             if (result.isConfirmed) {
+                setIsLoading(true);
+
                 axios
                     .delete(`/api/admin/schedule/${id}`, { headers })
                     .then((response) => {
+                        setIsLoading(false);
+
                         Swal.fire(
                             "Deleted!",
                             "Meeting has been deleted.",
@@ -91,6 +93,8 @@ export default function Schedule() {
                         }, 1000);
                     })
                     .catch((e) => {
+                        setIsLoading(false);
+
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
@@ -520,7 +524,7 @@ export default function Schedule() {
                                     </Table>
                                 ) : (
                                     <p className="text-center mt-5">
-                                        {loading}
+                                        No record found
                                     </p>
                                 )}
                             </div>
@@ -553,6 +557,8 @@ export default function Schedule() {
                     </div>
                 </div>
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

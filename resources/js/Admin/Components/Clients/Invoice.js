@@ -14,9 +14,9 @@ import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 
 import AddCreditCardModal from "../Modals/AddCreditCardModal";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Invoice() {
-    const [loading, setLoading] = useState("Loading...");
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [res, setRes] = useState("");
@@ -37,6 +37,7 @@ export default function Invoice() {
         icount_status: "",
         type: "",
     });
+    const [isLoading, setIsLoading] = useState(false);
 
     const params = useParams();
     const id = params.id;
@@ -76,7 +77,6 @@ export default function Invoice() {
                     setPageCount(res.data.invoices.last_page);
                 } else {
                     setInvoices([]);
-                    setLoading("No Invoice found");
                 }
             });
     };
@@ -232,15 +232,21 @@ export default function Invoice() {
             confirmButtonText: "Yes, Close Invoice!",
         }).then((result) => {
             if (result.isConfirmed) {
+                setIsLoading(true);
+
                 axios
                     .get(`/api/admin/close-doc/${id}/${type}`, { headers })
                     .then((response) => {
+                        setIsLoading(false);
+
                         Swal.fire("Closed", response.data.message, "success");
                         setTimeout(() => {
                             getInvoices();
                         }, 1000);
                     })
                     .catch((e) => {
+                        setIsLoading(false);
+
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
@@ -253,6 +259,8 @@ export default function Invoice() {
 
     const handleCancel = (e) => {
         e.preventDefault();
+        setIsLoading(true);
+
         const data = {
             doctype: dtype,
             docnum: cancelDoc,
@@ -262,11 +270,15 @@ export default function Invoice() {
         axios
             .post(`/api/admin/cancel-doc`, data, { headers })
             .then((res) => {
+                setIsLoading(false);
+
                 $(".closeb11").click();
                 Swal.fire(res.data.message, "", "info");
                 getInvoices();
             })
             .catch((e) => {
+                setIsLoading(false);
+
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -715,8 +727,7 @@ export default function Invoice() {
                         </Table>
                     ) : (
                         <div className="form-control text-center">
-                            {" "}
-                            No Invoice Found
+                            No record found
                         </div>
                     )}
 
@@ -1127,6 +1138,8 @@ export default function Invoice() {
                     clientId={id}
                 />
             )}
+
+            <FullPageLoader visible={isLoading || isSubmitting} />
         </>
     );
 }

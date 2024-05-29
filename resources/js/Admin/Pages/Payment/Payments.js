@@ -11,6 +11,8 @@ import { Base64 } from "js-base64";
 import Sidebar from "../../Layouts/Sidebar";
 import AddPaymentModal from "../../Components/Modals/AddPaymentModal";
 import AddCreditCardModal from "../../Components/Modals/AddCreditCardModal";
+import FilterButtons from "../../../Components/common/FilterButton";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 const thisMonthFilter = {
     start_date: Moment().startOf("month").format("YYYY-MM-DD"),
@@ -23,7 +25,6 @@ const nextMonthFilter = {
 };
 
 export default function Payments() {
-    const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
     const [clients, setClients] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
@@ -37,6 +38,7 @@ export default function Payments() {
     const [addCardModalOpen, setAddCardModalOpen] = useState(false);
     const [selectedClientID, setSelectedClientID] = useState(null);
     const [searchVal, setSearchVal] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const alert = useAlert();
 
@@ -74,7 +76,6 @@ export default function Payments() {
                     setPageCount(res.data.data.last_page);
                 } else {
                     setClients([]);
-                    setLoading("No record found");
                 }
             });
     };
@@ -132,6 +133,7 @@ export default function Payments() {
     }, [currentPage, dateRange, paidStatusFilter, searchVal]);
 
     const handleCloseForPayment = async (_clientID) => {
+        setIsLoading(true);
         await axios
             .post(
                 `/api/admin/client/${_clientID}/close-for-payment`,
@@ -141,6 +143,7 @@ export default function Payments() {
                 }
             )
             .then((response) => {
+                setIsLoading(false);
                 Swal.fire(
                     "Payment Closed!",
                     "Invoice receipt has been created.",
@@ -149,6 +152,7 @@ export default function Payments() {
                 getClientPayments();
             })
             .catch((e) => {
+                setIsLoading(false);
                 getClientPayments();
 
                 Swal.fire({
@@ -166,6 +170,7 @@ export default function Payments() {
     };
 
     const handleGenerateInvoice = async (_clientID) => {
+        setIsLoading(true);
         await axios
             .post(
                 `/api/admin/client/${_clientID}/generate-invoice`,
@@ -175,6 +180,7 @@ export default function Payments() {
                 }
             )
             .then((response) => {
+                setIsLoading(false);
                 Swal.fire(
                     "Invoice Generated!",
                     "Invoice has been created.",
@@ -183,6 +189,7 @@ export default function Payments() {
                 getClientPayments();
             })
             .catch((e) => {
+                setIsLoading(false);
                 getClientPayments();
 
                 Swal.fire({
@@ -201,6 +208,7 @@ export default function Payments() {
             denyButtonText: `No`,
         }).then(async (result) => {
             if (result.isConfirmed) {
+                setIsLoading(true);
                 await axios
                     .post(
                         `/api/admin/client/${_clientID}/close-without-payment`,
@@ -210,10 +218,12 @@ export default function Payments() {
                         }
                     )
                     .then((response) => {
+                        setIsLoading(false);
                         Swal.fire("Closed without payment!", "", "success");
                         getClientPayments();
                     })
                     .catch((e) => {
+                        setIsLoading(false);
                         getClientPayments();
 
                         Swal.fire({
@@ -614,7 +624,7 @@ export default function Payments() {
                                             <Tr>
                                                 <Td colSpan={5}>
                                                     <p className="text-center">
-                                                        No data found
+                                                        No record found
                                                     </p>
                                                 </Td>
                                             </Tr>
@@ -676,32 +686,8 @@ export default function Payments() {
                     clientId={selectedClientID}
                 />
             )}
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }
-
-const FilterButtons = ({
-    text,
-    className,
-    selectedFilter,
-    setselectedFilter,
-    onClick,
-}) => (
-    <button
-        className={`btn border rounded ${className}`}
-        style={
-            selectedFilter === text
-                ? { background: "white" }
-                : {
-                      background: "#2c3f51",
-                      color: "white",
-                  }
-        }
-        onClick={() => {
-            onClick?.();
-            setselectedFilter(text);
-        }}
-    >
-        {text}
-    </button>
-);

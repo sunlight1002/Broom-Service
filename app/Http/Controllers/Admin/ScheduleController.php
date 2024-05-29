@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
-use App\Models\LeadStatus;
 use App\Models\Schedule;
 use App\Models\Notification;
 use App\Models\Setting;

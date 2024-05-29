@@ -160,19 +160,24 @@ export default function AddOffer() {
             action: _action,
         };
 
-        axios.post(`/api/admin/offers`, data, { headers }).then((response) => {
-            if (response.data.errors) {
-                for (let e in response.data.errors) {
-                    alert.error(response.data.errors[e]);
+        axios
+            .post(`/api/admin/offers`, data, { headers })
+            .then((response) => {
+                if (response.data.errors) {
+                    for (let e in response.data.errors) {
+                        alert.error(response.data.errors[e]);
+                    }
+                } else {
+                    alert.success(response.data.message);
+                    setTimeout(() => {
+                        navigate(`/admin/offered-price`);
+                    }, 1000);
                 }
-            } else {
-                alert.success(response.data.message);
-                setTimeout(() => {
-                    navigate(`/admin/offered-price`);
-                }, 1000);
-            }
-            setIsSubmitting(false);
-        });
+                setIsSubmitting(false);
+            })
+            .catch((e) => {
+                setIsSubmitting(false);
+            });
     };
 
     useEffect(() => {
