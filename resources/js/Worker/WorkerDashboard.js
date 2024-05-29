@@ -15,8 +15,10 @@ export default function WorkerDashboard() {
     const [upcomingJobCount, setUpcomingJobCount] = useState(0);
     const [approveTomorrowJobs, setApproveTomorrowJobs] = useState([]);
     const [todayJobs, setTodayJobs] = useState([]);
+    const [jobComments, setJobComments] = useState([]);
     const [processingJobID, setProcessingJobID] = useState(null);
     const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
+    const [selectedJobStatus, setSelectedJobStatus] = useState("");
 
     const alert = useAlert();
     const { t, i18n } = useTranslation();
@@ -69,9 +71,11 @@ export default function WorkerDashboard() {
             });
     };
 
-    const handleMarkComplete = (_jobID, _isRunning) => {
-        _isRunning ? stopTimer(_jobID) : "";
-        setProcessingJobID(_jobID);
+    const handleMarkComplete = (_job, _isRunning) => {
+        _isRunning ? stopTimer(_job.id) : "";
+        getComments(_job.id);
+        setProcessingJobID(_job.id);
+        setSelectedJobStatus(_job.status);
         setIsOpenChangeJobStatus(true);
     };
 
@@ -111,6 +115,12 @@ export default function WorkerDashboard() {
             .then((res) => {
                 getTodayJobs();
             });
+    };
+
+    const getComments = (_jobID) => {
+        axios.get(`/api/jobs/${_jobID}/comments`, { headers }).then((res) => {
+            setJobComments(res.data.comments);
+        });
     };
 
     useEffect(() => {
@@ -437,7 +447,7 @@ export default function WorkerDashboard() {
                                                                                 type="button"
                                                                                 onClick={() =>
                                                                                     handleMarkComplete(
-                                                                                        item.id,
+                                                                                        item,
                                                                                         isRunning
                                                                                     )
                                                                                 }
@@ -512,11 +522,11 @@ export default function WorkerDashboard() {
                         </div>
                     </div>
 
-                    {/* {isOpenChangeJobStatus && (
+                    {isOpenChangeJobStatus && (
                         <ChangeJobStatusModal
-                            allComment={allComment}
+                            allComment={jobComments}
                             jobId={processingJobID}
-                            jobStatus={job_status}
+                            jobStatus={selectedJobStatus}
                             setIsOpen={setIsOpenChangeJobStatus}
                             isOpen={isOpenChangeJobStatus}
                             onSuccess={() => {
@@ -525,7 +535,7 @@ export default function WorkerDashboard() {
                                 setProcessingJobID(null);
                             }}
                         />
-                    )} */}
+                    )}
                 </div>
             </div>
         </div>
