@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import logo from "../Assets/image/sample.svg";
 import star from "../Assets/image/icons/blue-star.png";
 import footer from "../Assets/image/bg-bottom-footer.png";
@@ -136,6 +136,10 @@ export default function PriceOffer() {
             return a;
         }
     });
+
+    const showWorkerHours = useMemo(() => {
+        return services.filter((i) => i.type !== "fixed").length > 0;
+    }, [services]);
 
     return (
         <>
@@ -798,11 +802,13 @@ export default function PriceOffer() {
                                                         "price_offer.freq_s_txt"
                                                     )}
                                                 </th>
-                                                <th>
-                                                    {t(
-                                                        "price_offer.worker_hours"
-                                                    )}
-                                                </th>
+                                                {showWorkerHours && (
+                                                    <th>
+                                                        {t(
+                                                            "price_offer.worker_hours"
+                                                        )}
+                                                    </th>
+                                                )}
                                                 <th>
                                                     {t(
                                                         "price_offer.amount_txt"
@@ -836,9 +842,11 @@ export default function PriceOffer() {
                                                                 )}
                                                             </p> */}
                                                         </td>
-                                                        <td>
-                                                            {workerHours(s)}
-                                                        </td>
+                                                        {showWorkerHours && (
+                                                            <td>
+                                                                {workerHours(s)}
+                                                            </td>
+                                                        )}
                                                         {s.type == "fixed" ? (
                                                             <td>
                                                                 {s.workers
