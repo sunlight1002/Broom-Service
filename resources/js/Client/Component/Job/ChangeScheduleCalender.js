@@ -72,6 +72,7 @@ export default function ChangeScheduleCalender({ job }) {
                     only_worker_ids: isSameWorker.current.checked
                         ? job.worker_id
                         : "",
+                    job_id: job.id,
                 },
             })
             .then((res) => {
