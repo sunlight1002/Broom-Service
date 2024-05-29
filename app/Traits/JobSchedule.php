@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\Job;
 use App\Models\JobComments;
 use App\Models\JobHours;
+use App\Models\JobWorkerShift;
 use App\Models\Services;
 use App\Models\User;
 use Carbon\Carbon;
@@ -577,5 +578,41 @@ trait JobSchedule
                 $comment->attachments()->createMany($resultArr);
             }
         }
+    }
+
+    private function isJobTimeConflicting($newSlots, $job_date, $workerID, $ignoreJobID = NULL)
+    {
+        $bookedSlots = JobWorkerShift::query()
+            ->leftJoin('jobs', 'job_worker_shifts.job_id', '=', 'jobs.id')
+            ->whereDate('jobs.start_date', $job_date)
+            ->where('jobs.worker_id', $workerID)
+            ->when($ignoreJobID, function ($q) use ($ignoreJobID) {
+                return $q->where('jobs.id', '!=', $ignoreJobID);
+            })
+            ->select('job_worker_shifts.starting_at', 'job_worker_shifts.ending_at')
+            ->get()
+            ->toArray();
+
+        $isConflicting = false;
+        foreach ($newSlots as $slot) {
+            $ns = Carbon::parse($slot['starting_at']);
+            $ne = Carbon::parse($slot['ending_at'])->subSecond();
+
+            foreach ($bookedSlots as $key => $bookedSlot) {
+                $bss = Carbon::parse($bookedSlot['starting_at']);
+                $bse = Carbon::parse($bookedSlot['ending_at'])->subSecond();
+
+                if ($ns->between($bss, $bse) || $ne->between($bss, $bse)) {
+                    $isConflicting = true;
+                    break;
+                }
+            }
+
+            if ($isConflicting) {
+                break;
+            }
+        }
+
+        return $isConflicting;
     }
 }

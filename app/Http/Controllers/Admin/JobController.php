@@ -343,12 +343,7 @@ class JobController extends Controller
 
                 $status = JobStatusEnum::SCHEDULED;
 
-                if (
-                    Job::where('start_date', $job_date)
-                    ->where('id', '!=', $editJob->id)
-                    ->where('worker_id', $editJob->worker_id)
-                    ->exists()
-                ) {
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
@@ -463,11 +458,7 @@ class JobController extends Controller
 
                 $status = JobStatusEnum::SCHEDULED;
 
-                if (
-                    Job::where('start_date', $job_date)
-                    ->where('worker_id', $workerDate['worker_id'])
-                    ->exists()
-                ) {
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id'])) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
@@ -675,12 +666,7 @@ class JobController extends Controller
 
                 $status = JobStatusEnum::SCHEDULED;
 
-                if (
-                    Job::where('start_date', $job_date)
-                    ->where('id', '!=', $editJob->id)
-                    ->where('worker_id', $editJob->worker_id)
-                    ->exists()
-                ) {
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
@@ -764,11 +750,7 @@ class JobController extends Controller
 
         $status = JobStatusEnum::SCHEDULED;
 
-        if (
-            Job::where('start_date', $job_date)
-            ->where('worker_id', $data['worker']['worker_id'])
-            ->exists()
-        ) {
+        if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $data['worker']['worker_id'])) {
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
@@ -937,12 +919,7 @@ class JobController extends Controller
 
                 $status = JobStatusEnum::SCHEDULED;
 
-                if (
-                    Job::where('start_date', $job_date)
-                    ->where('id', '!=', $editJob->id)
-                    ->where('worker_id', $editJob->worker_id)
-                    ->exists()
-                ) {
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
@@ -1019,12 +996,7 @@ class JobController extends Controller
 
         $status = JobStatusEnum::SCHEDULED;
 
-        if (
-            Job::where('start_date', $job_date)
-            ->where('id', '!=', $job->id)
-            ->where('worker_id', $job->worker_id)
-            ->exists()
-        ) {
+        if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $job->worker_id, $job->id)) {
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
