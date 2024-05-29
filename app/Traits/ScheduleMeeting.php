@@ -236,7 +236,6 @@ trait ScheduleMeeting
             $defaultAvailabilities = TeamMemberDefaultAvailability::query()
                 ->where('team_member_id', $teamMember->id)
                 ->whereIn('weekday', $workingWeekDays)
-                ->whereDate('until_date', '>=', date('Y-m-d'))
                 ->get(['team_member_id', 'weekday', 'start_time', 'end_time', 'until_date']);
 
             $schedules = Schedule::query()

@@ -195,11 +195,6 @@ const AvailabilityForm = () => {
             return false;
         }
 
-        if (!formValues.default_until_date) {
-            alert.error("Default until date not selected");
-            return false;
-        }
-
         axios
             .post(
                 params.id
@@ -466,6 +461,19 @@ const AvailabilityForm = () => {
                                         }}
                                         ref={flatpickrRef}
                                     />
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger btn-sm mt-2"
+                                        onClick={() => {
+                                            setFormValues({
+                                                ...formValues,
+                                                default_until_date: null,
+                                            });
+                                        }}
+                                    >
+                                        Clear
+                                    </button>
                                 </div>
                             </div>
                         </div>
