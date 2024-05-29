@@ -171,7 +171,7 @@ export function NonIsraeliContract({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="mx-5 mt-5" ref={contentRef}>
+                <div className="mx-md-5 mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -294,7 +294,7 @@ export function NonIsraeliContract({
                                                 )}
                                             </p>
                                             <div className="row mt-5">
-                                                <div className="col-4">
+                                                <div className="col-12 col-md-4">
                                                     <p>
                                                         <strong>
                                                             {t(
@@ -351,7 +351,7 @@ export function NonIsraeliContract({
                                                     )}
                                                 </div>
                                                 <div className="col-5"></div>
-                                                <div className="col-3">
+                                                <div className="col-12 col-md-3">
                                                     <DateField
                                                         name={"signatureDate1"}
                                                         onBlur={handleBlur}
@@ -373,7 +373,12 @@ export function NonIsraeliContract({
                                             </div>
                                         </li>
                                     </ol>
-                                    <Table bordered className="mt-3" size="sm">
+                                    <Table
+                                        bordered
+                                        className="mt-3"
+                                        size="sm"
+                                        responsive
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
@@ -509,7 +514,7 @@ export function NonIsraeliContract({
                                         )}
                                     </p>
                                     <div className="row mt-3">
-                                        <div className="col-4">
+                                        <div className="col-md-4 col-12">
                                             <p>
                                                 <strong>
                                                     {t(
@@ -564,7 +569,7 @@ export function NonIsraeliContract({
                                             )}
                                         </div>
                                         <div className="col-5"></div>
-                                        <div className="col-3">
+                                        <div className="col-md-3 col-12">
                                             <DateField
                                                 name={"signatureDate2"}
                                                 onBlur={handleBlur}
@@ -597,7 +602,12 @@ export function NonIsraeliContract({
                                     <p className="mb-2">
                                         {t("nonIsrailContract.nic8")}
                                     </p>
-                                    <Table bordered size="sm" className=" mt-3">
+                                    <Table
+                                        bordered
+                                        size="sm"
+                                        className=" mt-3"
+                                        responsive
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th>
@@ -711,7 +721,7 @@ export function NonIsraeliContract({
                                         className="row gap-3"
                                         style={{ marginBottom: "140px" }}
                                     >
-                                        <div className="col-6">
+                                        <div className="col-lg-6 col-12">
                                             <p>
                                                 <strong>
                                                     {t(
@@ -765,7 +775,7 @@ export function NonIsraeliContract({
                                                 </>
                                             )}
                                         </div>
-                                        <div className="col-6">
+                                        <div className="col-lg-6 col-12">
                                             <p>
                                                 <strong>
                                                     {t(
@@ -899,7 +909,7 @@ export function NonIsraeliContract({
                                 </li>
                             </ol>
                             <div className="row mt-5 gap-3">
-                                <div className="col-6">
+                                <div className="col-12 col-lg-6">
                                     <p>
                                         <strong>
                                             {t("nonIsrailContract.workerSign")}
@@ -946,7 +956,7 @@ export function NonIsraeliContract({
                                         </>
                                     )}
                                 </div>
-                                <div className="col-6">
+                                <div className="col-12 col-lg-6">
                                     <p>
                                         <strong>
                                             {t("nonIsrailContract.companySign")}

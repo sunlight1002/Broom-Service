@@ -235,7 +235,7 @@ const SafeAndGear = () => {
                                 <p>{t("safeAndGear.eq5")}</p>
                                 <p> {t("safeAndGear.eq6")}</p>
                                 <div className="row gap-5">
-                                    <div className="col-6">
+                                    <div className="col-md-6 col-12">
                                         <span
                                             className="badge badge-primary"
                                             style={workerStyle.workerName2}
@@ -245,7 +245,7 @@ const SafeAndGear = () => {
                                                 values.workerName2}
                                         </span>
                                     </div>
-                                    <div className="col-6">
+                                    <div className="col-md-6 col-12 mt-3 mt-md-0">
                                         <p>
                                             <strong>
                                                 {t("safeAndGear.sign")}

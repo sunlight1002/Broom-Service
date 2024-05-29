@@ -24,7 +24,6 @@ export function IsrailContact({
     } = useTranslation();
     const [formValues, setFormValues] = useState(null);
     const currentDate = moment().format("YYYY-MM-DD");
-    console.log("language", language);
     const initialValues = {
         fullName: "",
         IdNumber: "",
@@ -119,7 +118,7 @@ export function IsrailContact({
     return (
         <div className="container targetDiv">
             <div id="content">
-                <div className="mx-5 mt-5" ref={contentRef}>
+                <div className="mx-md-5 mt-5" ref={contentRef}>
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -139,7 +138,7 @@ export function IsrailContact({
                                 <li>
                                     <strong>{t("israilContract.is1")}</strong>
                                     <div className="row gap-3">
-                                        <div className="col-6">
+                                        <div className="col-md-6 col-12">
                                             <TextField
                                                 name={"fullName"}
                                                 onBlur={handleBlur}
@@ -154,7 +153,7 @@ export function IsrailContact({
                                                 }
                                             />
                                         </div>
-                                        <div className="col-6">
+                                        <div className="col-md-6 col-12">
                                             <TextField
                                                 name={"IdNumber"}
                                                 onBlur={handleBlur}
@@ -201,7 +200,7 @@ export function IsrailContact({
                                         }
                                     />
                                     <div className="row">
-                                        <div className="col-6">
+                                        <div className="col-md-6 col-12">
                                             <TextField
                                                 name={"PhoneNo"}
                                                 onBlur={handleBlur}
@@ -218,7 +217,7 @@ export function IsrailContact({
                                                 }
                                             />
                                         </div>
-                                        <div className="col-6">
+                                        <div className="col-md-6 col-12">
                                             <TextField
                                                 name={"MobileNo"}
                                                 onBlur={handleBlur}
@@ -279,6 +278,7 @@ export function IsrailContact({
                                         bordered
                                         className="mt-3 mb-2"
                                         size="sm"
+                                        responsive
                                     >
                                         <thead className="text-center">
                                             <tr>
@@ -486,6 +486,7 @@ export function IsrailContact({
                                     <p>{t("israilContract.is13-1")}</p>
                                     <p>{t("israilContract.is13-2")}</p>
                                     <Table
+                                        responsive
                                         bordered
                                         size="sm"
                                         className="mt-3"
@@ -643,7 +644,7 @@ export function IsrailContact({
                                 <li>{t("israilContract.is14")}</li>
                             </ol>
                             <div className="row mt-3">
-                                <div className="col-4">
+                                <div className="col-md-4 col-12">
                                     <p>
                                         <strong>
                                             {t("israilContract.sign")}
@@ -686,7 +687,7 @@ export function IsrailContact({
                                     )}
                                 </div>
                                 <div className="col-5"></div>
-                                <div className="col-3">
+                                <div className="col-md-3 col-12">
                                     <DateField
                                         name={"signatureDate"}
                                         onBlur={handleBlur}

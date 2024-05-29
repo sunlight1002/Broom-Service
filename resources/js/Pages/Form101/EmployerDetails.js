@@ -14,7 +14,7 @@ export default function EmployerDetails({
         <div>
             <h2>{t("form101.employer_details")}</h2>
             <div className="row">
-                <div className="col-sm-3 col-xs-6">
+                <div className=" col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employerName"
                         label={t("form101.label_name")}
@@ -29,7 +29,7 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employerAddress"
                         label={t("form101.label_address")}
@@ -44,7 +44,7 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employerPhone"
                         label={t("form101.label_phNum")}
@@ -59,7 +59,7 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employerDeductionsFileNo"
                         label={t("form101.label_ddfileId")}
