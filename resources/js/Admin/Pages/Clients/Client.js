@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
+import { leadStatusColor } from "../../../Utils/client.utils";
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
@@ -505,68 +506,81 @@ export default function Clients() {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {clients &&
-                                            clients.map((item, index) => {
-                                                // let address = item.geo_address
-                                                //     ? item.geo_address
-                                                //     : "NA";
-                                                // let cords =
-                                                //     item.latitude &&
-                                                //     item.longitude
-                                                //         ? item.latitude +
-                                                //           "," +
-                                                //           item.longitude
-                                                //         : "";
-                                                let status = "";
-                                                // if (item.status == 0)
-                                                //     status = "Lead";
-                                                // if (item.status == 1)
-                                                //     status = "Potential Customer";
-                                                // if (item.status == 2)
-                                                //     status = "Customer";
+                                        {clients.map((item, index) => {
+                                            // let address = item.geo_address
+                                            //     ? item.geo_address
+                                            //     : "NA";
+                                            // let cords =
+                                            //     item.latitude &&
+                                            //     item.longitude
+                                            //         ? item.latitude +
+                                            //           "," +
+                                            //           item.longitude
+                                            //         : "";
+                                            let status = "";
+                                            // if (item.status == 0)
+                                            //     status = "Lead";
+                                            // if (item.status == 1)
+                                            //     status = "Potential Customer";
+                                            // if (item.status == 2)
+                                            //     status = "Customer";
 
-                                                let phone = item.phone
-                                                    ? item.phone
-                                                          .toString()
-                                                          .split(",")
-                                                    : [];
+                                            let phone = item.phone
+                                                ? item.phone
+                                                      .toString()
+                                                      .split(",")
+                                                : [];
 
-                                                return (
-                                                    <Tr
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                        key={index}
+                                            const _statusColor =
+                                                leadStatusColor(
+                                                    item.lead_status
+                                                        ? item.lead_status
+                                                              .lead_status
+                                                        : ""
+                                                );
+
+                                            const statusSpanStyle = {
+                                                backgroundColor:
+                                                    _statusColor.backgroundColor,
+                                                color: "#fff",
+                                            };
+
+                                            return (
+                                                <Tr
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    key={index}
+                                                >
+                                                    <Td
+                                                        onClick={(e) =>
+                                                            handleNavigate(
+                                                                e,
+                                                                item.id
+                                                            )
+                                                        }
                                                     >
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
+                                                        {item.id}
+                                                    </Td>
+                                                    <Td>
+                                                        <Link
+                                                            to={`/admin/view-client/${item.id}`}
                                                         >
-                                                            {item.id}
-                                                        </Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={`/admin/view-client/${item.id}`}
-                                                            >
-                                                                {item.firstname}{" "}
-                                                                {item.lastname}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.email}
-                                                        </Td>
-                                                        {/* <Td>
+                                                            {item.firstname}{" "}
+                                                            {item.lastname}
+                                                        </Link>
+                                                    </Td>
+                                                    <Td
+                                                        onClick={(e) =>
+                                                            handleNavigate(
+                                                                e,
+                                                                item.id
+                                                            )
+                                                        }
+                                                    >
+                                                        {item.email}
+                                                    </Td>
+                                                    {/* <Td>
                                                             <a
                                                                 href={`https://maps.google.com?q=${cords}`}
                                                                 target="_blank"
@@ -574,105 +588,116 @@ export default function Clients() {
                                                                 {address}
                                                             </a>
                                                         </Td> */}
-                                                        {/*<Td><a  href={`tel:${item.phone.toString().split(",").join(' | ')}`}>{(item.phone) ? item.phone.toString().split(",").join(' | ') : ''}</a></Td>*/}
+                                                    {/*<Td><a  href={`tel:${item.phone.toString().split(",").join(' | ')}`}>{(item.phone) ? item.phone.toString().split(",").join(' | ') : ''}</a></Td>*/}
 
-                                                        <Td>
-                                                            {phone &&
-                                                                phone.map(
-                                                                    (p, i) => {
-                                                                        return (
-                                                                            <a
-                                                                                href={`tel:${p}`}
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {phone.length >
-                                                                                1
-                                                                                    ? p
-                                                                                    : p}{" "}
-                                                                                |{" "}
-                                                                            </a>
-                                                                        );
-                                                                    }
-                                                                )}
-                                                        </Td>
-
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.lead_status
-                                                                ? item
-                                                                      .lead_status
-                                                                      .lead_status
-                                                                : "NA"}
-                                                        </Td>
-
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    {item.latest_contract !=
-                                                                        0 && (
-                                                                        <Link
-                                                                            to={`/admin/create-job/${item.latest_contract}`}
-                                                                            className="dropdown-item"
+                                                    <Td>
+                                                        {phone &&
+                                                            phone.map(
+                                                                (p, i) => {
+                                                                    return (
+                                                                        <a
+                                                                            href={`tel:${p}`}
+                                                                            key={
+                                                                                i
+                                                                            }
                                                                         >
-                                                                            Create
-                                                                            Job
-                                                                        </Link>
-                                                                    )}
+                                                                            {phone.length >
+                                                                            1
+                                                                                ? p
+                                                                                : p}{" "}
+                                                                            |{" "}
+                                                                        </a>
+                                                                    );
+                                                                }
+                                                            )}
+                                                    </Td>
 
+                                                    <Td
+                                                        onClick={(e) =>
+                                                            handleNavigate(
+                                                                e,
+                                                                item.id
+                                                            )
+                                                        }
+                                                    >
+                                                        {item.lead_status ? (
+                                                            <span
+                                                                className="badge"
+                                                                style={
+                                                                    statusSpanStyle
+                                                                }
+                                                            >
+                                                                {
+                                                                    item
+                                                                        .lead_status
+                                                                        .lead_status
+                                                                }
+                                                            </span>
+                                                        ) : (
+                                                            "NA"
+                                                        )}
+                                                    </Td>
+
+                                                    <Td>
+                                                        <div className="action-dropdown dropdown">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-default dropdown-toggle"
+                                                                data-toggle="dropdown"
+                                                            >
+                                                                <i className="fa fa-ellipsis-vertical"></i>
+                                                            </button>
+                                                            <div className="dropdown-menu">
+                                                                {item.latest_contract !=
+                                                                    0 && (
                                                                     <Link
-                                                                        to={`/admin/clients/${item.id}/edit`}
+                                                                        to={`/admin/create-job/${item.latest_contract}`}
                                                                         className="dropdown-item"
                                                                     >
-                                                                        Edit
+                                                                        Create
+                                                                        Job
                                                                     </Link>
-                                                                    <Link
-                                                                        to={`/admin/view-client/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        View
-                                                                    </Link>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            toggleChangeStatusModal(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Change
-                                                                        status
-                                                                    </button>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
+                                                                )}
+
+                                                                <Link
+                                                                    to={`/admin/clients/${item.id}/edit`}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    Edit
+                                                                </Link>
+                                                                <Link
+                                                                    to={`/admin/view-client/${item.id}`}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    View
+                                                                </Link>
+                                                                <button
+                                                                    className="dropdown-item"
+                                                                    onClick={() =>
+                                                                        toggleChangeStatusModal(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Change
+                                                                    status
+                                                                </button>
+                                                                <button
+                                                                    className="dropdown-item"
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Delete
+                                                                </button>
                                                             </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
+                                                        </div>
+                                                    </Td>
+                                                </Tr>
+                                            );
+                                        })}
                                     </Tbody>
                                 </Table>
                             ) : (

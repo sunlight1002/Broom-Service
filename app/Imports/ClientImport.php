@@ -290,6 +290,11 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'total' => ($subtotal + $tax),
                             'status' => 'sent',
                         ]);
+
+                        $client->lead_status()->updateOrCreate(
+                            [],
+                            ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
+                        );
                     } else {
                         $offer->update([
                             'services' => json_encode($existing_services, JSON_UNESCAPED_UNICODE),
@@ -298,11 +303,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'status' => 'sent',
                         ]);
                     }
-
-                    $client->lead_status()->updateOrCreate(
-                        [],
-                        ['lead_status' => LeadStatusEnum::POTENTIAL_CLIENT]
-                    );
 
                     if ($row['has_contract'] == "Yes") {
                         $hash = md5($client->email . $offer->id);

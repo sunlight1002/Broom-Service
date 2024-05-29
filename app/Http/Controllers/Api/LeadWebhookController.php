@@ -16,7 +16,6 @@ use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
 use App\Models\ClientPropertyAddress;
-use App\Models\LeadStatus;
 use App\Models\Notification;
 use App\Models\Schedule;
 use App\Models\Setting;
@@ -777,11 +776,6 @@ If you would like to speak to a human representative, please send a message with
                                     $scheduleData['end_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->addMinutes(30)->format('h:i A');
 
                                     $schedule = Schedule::create($scheduleData);
-
-                                    LeadStatus::updateOrCreate(
-                                        ['client_id' => $client->id],
-                                        ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
-                                    );
 
                                     $googleAccessToken = Setting::query()
                                         ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)

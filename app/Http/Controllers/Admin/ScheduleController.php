@@ -118,11 +118,6 @@ class ScheduleController extends Controller
 
         $schedule = Schedule::create($input);
 
-        LeadStatus::updateOrCreate(
-            ['client_id' => $schedule->client_id],
-            ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
-        );
-
         $schedule->load(['client', 'propertyAddress']);
 
         if (!$schedule->start_date) {

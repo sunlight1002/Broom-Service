@@ -169,11 +169,6 @@ class ClientEmailController extends Controller
       'status' => 'declined'
     ]);
 
-    $client->lead_status()->updateOrCreate(
-      [],
-      ['lead_status' => LeadStatusEnum::UNINTERESTED]
-    );
-
     return response()->json([
       'message' => 'Thanks, your offer has been rejected'
     ]);
@@ -241,11 +236,6 @@ class ClientEmailController extends Controller
     $schedule->update([
       'booking_status' => 'declined'
     ]);
-
-    $client->lead_status()->updateOrCreate(
-      [],
-      ['lead_status' => LeadStatusEnum::IRRELEVANT]
-    );
 
     $client->update(['status' => 0]);
 

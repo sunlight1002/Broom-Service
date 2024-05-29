@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
+import { leadStatusColor } from "../../../Utils/client.utils";
 
 export default function Lead() {
     const [leads, setLeads] = useState([]);
@@ -418,106 +419,130 @@ export default function Lead() {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {leads &&
-                                            leads.map((item, index) => {
-                                                return (
-                                                    <Tr
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                        key={index}
-                                                    >
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.id}
-                                                        </Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={`/admin/view-lead/${item.id}`}
-                                                            >
-                                                                {item.firstname}{" "}
-                                                                {item.lastname}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.email}
-                                                        </Td>
-                                                        <Td>{item.phone}</Td>
-                                                        <Td>
-                                                            {item.lead_status
-                                                                ? item
-                                                                      .lead_status
-                                                                      .lead_status
-                                                                : "-"}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    <Link
-                                                                        to={`/admin/leads/${item.id}/edit`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        {t(
-                                                                            "admin.leads.Edit"
-                                                                        )}
-                                                                    </Link>
-                                                                    <Link
-                                                                        to={`/admin/view-lead/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        {t(
-                                                                            "admin.leads.view"
-                                                                        )}
-                                                                    </Link>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            toggleChangeStatusModal(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Change
-                                                                        status
-                                                                    </button>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        {t(
-                                                                            "admin.leads.Delete"
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
+                                        {leads.map((item, index) => {
+                                            const _statusColor =
+                                                leadStatusColor(
+                                                    item.lead_status
+                                                        ? item.lead_status
+                                                              .lead_status
+                                                        : ""
                                                 );
-                                            })}
+
+                                            const statusSpanStyle = {
+                                                backgroundColor:
+                                                    _statusColor.backgroundColor,
+                                                color: "#fff",
+                                            };
+
+                                            return (
+                                                <Tr
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                    key={index}
+                                                >
+                                                    <Td
+                                                        onClick={(e) =>
+                                                            handleNavigate(
+                                                                e,
+                                                                item.id
+                                                            )
+                                                        }
+                                                    >
+                                                        {item.id}
+                                                    </Td>
+                                                    <Td>
+                                                        <Link
+                                                            to={`/admin/view-lead/${item.id}`}
+                                                        >
+                                                            {item.firstname}{" "}
+                                                            {item.lastname}
+                                                        </Link>
+                                                    </Td>
+                                                    <Td
+                                                        onClick={(e) =>
+                                                            handleNavigate(
+                                                                e,
+                                                                item.id
+                                                            )
+                                                        }
+                                                    >
+                                                        {item.email}
+                                                    </Td>
+                                                    <Td>{item.phone}</Td>
+                                                    <Td>
+                                                        {item.lead_status ? (
+                                                            <span
+                                                                className="badge"
+                                                                style={
+                                                                    statusSpanStyle
+                                                                }
+                                                            >
+                                                                {
+                                                                    item
+                                                                        .lead_status
+                                                                        .lead_status
+                                                                }
+                                                            </span>
+                                                        ) : (
+                                                            "-"
+                                                        )}
+                                                    </Td>
+                                                    <Td>
+                                                        <div className="action-dropdown dropdown">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-default dropdown-toggle"
+                                                                data-toggle="dropdown"
+                                                            >
+                                                                <i className="fa fa-ellipsis-vertical"></i>
+                                                            </button>
+                                                            <div className="dropdown-menu">
+                                                                <Link
+                                                                    to={`/admin/leads/${item.id}/edit`}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t(
+                                                                        "admin.leads.Edit"
+                                                                    )}
+                                                                </Link>
+                                                                <Link
+                                                                    to={`/admin/view-lead/${item.id}`}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t(
+                                                                        "admin.leads.view"
+                                                                    )}
+                                                                </Link>
+                                                                <button
+                                                                    className="dropdown-item"
+                                                                    onClick={() =>
+                                                                        toggleChangeStatusModal(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Change
+                                                                    status
+                                                                </button>
+                                                                <button
+                                                                    className="dropdown-item"
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "admin.leads.Delete"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </Td>
+                                                </Tr>
+                                            );
+                                        })}
                                     </Tbody>
                                 </Table>
                             ) : (
