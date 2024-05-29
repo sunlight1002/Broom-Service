@@ -203,7 +203,7 @@ export default function WorkerAvailabilty() {
         }
 
         if (!formValues.default_until_date) {
-            alert.error("Default until date not selected");
+            alert.error(t("worker.schedule.untilDate"));
             return false;
         }
 
@@ -223,7 +223,7 @@ export default function WorkerAvailabilty() {
                 alert.success(res.data.message);
                 getWorkerAvailabilty();
             })
-            .catch((err) => alert.error("Something went wrong!"));
+            .catch((err) => alert.error(t("worker.schedule.somethingWrong")));
     };
 
     const handleCustomDateSelect = (selectedDates, dateStr) => {

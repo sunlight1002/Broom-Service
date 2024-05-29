@@ -1,4 +1,5 @@
 import { Fragment, createRef, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 const slotTimeArr = [
     {
@@ -13,6 +14,7 @@ const slotTimeArr = [
 
 const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots, isDisabled }) => {
     const elementsRef = useRef(slotTimeArr.map(() => createRef()));
+    const { t } = useTranslation();
     const handleTimeSlotAdd = () => {
         let flag = true;
         const time = [];
@@ -25,7 +27,7 @@ const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots, isDisabled }) => {
             }
         });
         if (!flag) {
-            alert("Please add start & end time!");
+            alert(t("worker.schedule.pleaseAddStartEndTime"));
             return false;
         }
 

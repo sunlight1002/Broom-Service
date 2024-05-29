@@ -23,7 +23,7 @@ export default function ClientSidebar() {
                 localStorage.removeItem("client-name");
                 localStorage.removeItem("client-id");
                 navigate("/client/login");
-                alert.success("Logged Out Successfully");
+                alert.success(t("global.Logout"));
             }
         });
     };

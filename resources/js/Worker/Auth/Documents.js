@@ -37,7 +37,7 @@ export default function Documents() {
             )
             .then((response) => {
                 document.querySelector(".closedoc").click();
-                alert.success("Form Upload Successfully");
+                alert.success(t("worker.settings.formUplodSuccess"));
             })
             .catch((error) => {
                 console.log(error);

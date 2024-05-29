@@ -24,7 +24,8 @@
         "areYouSure": "האם אתה בטוח?",
         "notAbleToRevert": "לא תוכל לבטל את הפעולה!",
         "yesDelete": "כן, מחק!",
-        "deleted": "נמחק!"
+        "deleted": "נמחק!",
+        "Logout": "התנתקת בהצלחה"
     },
     "front_meet": {
         "title": "שעה ותאריך לפגישה",
@@ -1104,6 +1105,7 @@
             "action": "פעולה"
         },
         "jobs": {
+            "noJobFound": "לא נמצאה משרה",
             "all_jobs": "כל העבודות",
             "current_week": "משרות נוכחיות",
             "next_week": "משרות הבאות",
@@ -1124,6 +1126,7 @@
             "date_period": "תקופת תאריך",
             "custom_date_range": "טווח תאריכים מותאם אישית",
             "custom_range": "טווח מותאם אישית",
+            "commentDeleted": "התגובה נמחקה.",
             "view": {
                 "c_details": "פרטי הלקוח",
                 "c_name": "שם הלקוח",
@@ -1157,7 +1160,10 @@
                 "close": "סגור",
                 "file": "העלה קבצים",
                 "going_to_start": "אני עוזב עכשיו לעבודה",
-                "approve": "לְאַשֵׁר"
+                "approve": "לְאַשֵׁר",
+                "selectAllComment": "אנא בחר את כל ההערות",
+                "jobMarkCompleted": "המשימה סומנה כהושלמה.",
+                "CompleteJob": "השלם את המשימה"
             }
         },
         "schedule": {
@@ -1175,9 +1181,24 @@
             "start_time": "שעת התחלה",
             "end_time": "שעת סיום",
             "save_date": "שמור תאריך",
-            "close": "סגור"
+            "close": "סגור",
+            "untilDate": "תאריך סיום ברירת מחדל לא נבחר",
+            "somethingWrong": "משהו השתבש!",
+            "pleaseAddStartEndTime": "אנא הוסף זמן התחלה וסיום!",
+            "pleaseSelectBothStartEnd": "אנא בחר גם זמן התחלה וגם זמן סיום, או השאר את שניהם ריקים.",
+            "endTimeGreater": "זמן הסיום חייב להיות מאוחר יותר מזמן ההתחלה.",
+            "DateDeleted": "התאריך נמחק."
         },
         "settings": {
+            "profileUpdated": "הפרופיל עודכן בהצלחה",
+            "selectLang": "--- בחר שפה ---",
+            "Hebrew": "עברית",
+            "English": "אנגלית",
+            "areYouAfraid": "האם אתה חושש מאחת מחיות המחמד הבאות?",
+            "pleaseSelect": "--- אנא בחר ---",
+            "Enable": "הפעל",
+            "Disable": "השבת",
+            "formUplodSuccess": "הטופס הועלה בהצלחה",
             "edit_account": "ערוך חשבון",
             "manage_form": "נהל טופס",
             "view_contract": "View Contract",

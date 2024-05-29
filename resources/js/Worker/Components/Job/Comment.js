@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
 export default function Comment({ allComment, handleGetComments }) {
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "multipart/form-data",
@@ -14,21 +15,21 @@ export default function Comment({ allComment, handleGetComments }) {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("global.areYouSure"),
+            text: t("global.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Comment",
+            confirmButtonText: t("global.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .delete(`/api/job-comments/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "Comment has been deleted.",
+                            t("global.deleted"),
+                            t("worker.jobs.commentDeleted"),
                             "success"
                         );
                         setTimeout(() => {

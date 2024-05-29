@@ -79,7 +79,7 @@ export default function WorkerMyAccount() {
             if (response.data.errors) {
                 setErrors(response.data.errors);
             } else {
-                alert.success("Profile has been updated successfully");
+                alert.success(t("worker.settings.profileUpdated"));
             }
         });
     };
@@ -327,10 +327,14 @@ export default function WorkerMyAccount() {
                                         onChange={(e) => setLng(e.target.value)}
                                     >
                                         <option value="">
-                                            --- Select language ---
+                                            {t("worker.settings.selectLang")}
                                         </option>
-                                        <option value="heb">Hebrew</option>
-                                        <option value="en">English</option>
+                                        <option value="heb">
+                                            {t("worker.settings.Hebrew")}
+                                        </option>
+                                        <option value="en">
+                                            {t("worker.settings.English")}
+                                        </option>
                                     </select>
                                 </div>
                             </div>
@@ -438,7 +442,7 @@ export default function WorkerMyAccount() {
                         <div className="col-sm-12 mt-4">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Are you afraid of any follwing pet animals ?
+                                    {t("worker.settings.areYouAfraid")}
                                 </label>
                             </div>
                             {animalArray &&
@@ -466,9 +470,15 @@ export default function WorkerMyAccount() {
                                 value={itemStatus}
                                 onChange={(e) => setItemStatus(e.target.value)}
                             >
-                                <option value="">--- Please select ---</option>
-                                <option value="1">Enable</option>
-                                <option value="0">Disable</option>
+                                <option value="">
+                                    {t("worker.settings.pleaseSelect")}
+                                </option>
+                                <option value="1">
+                                    {t("worker.settings.Enable")}
+                                </option>
+                                <option value="0">
+                                    {t("worker.settings.Disable")}
+                                </option>
                             </select>
                             {errors.status ? (
                                 <small className="text-danger mb-1">

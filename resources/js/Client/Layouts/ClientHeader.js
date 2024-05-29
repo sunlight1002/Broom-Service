@@ -26,7 +26,7 @@ export default function ClientHeader() {
                 localStorage.removeItem("client-name");
                 localStorage.removeItem("client-id");
                 navigate("/client/login");
-                alert.success("Logged Out Successfully");
+                alert.success(t("global.Logout"));
             }
         });
     };

@@ -24,7 +24,8 @@
         "areYouSure": "Are you sure?",
         "notAbleToRevert": "You won't be able to revert this!",
         "yesDelete": "Yes, Delete!",
-        "deleted": "Deleted!"
+        "deleted": "Deleted!",
+        "Logout": "Logged Out Successfully"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -1104,6 +1105,7 @@
             "action": "Action"
         },
         "jobs": {
+            "noJobFound": "No Job found",
             "all_jobs": "All Jobs",
             "current_week": "Current Jobs",
             "next_week": "Next Jobs",
@@ -1124,6 +1126,7 @@
             "date_period": "Date Period",
             "custom_date_range": "Custom Date Range",
             "custom_range": "Custom Range",
+            "commentDeleted": "Comment has been deleted.",
             "view": {
                 "c_details": "Client Details",
                 "c_name": "Name",
@@ -1157,7 +1160,10 @@
                 "close": "Close",
                 "file": "Upload files",
                 "going_to_start": "I'm leaving for work now",
-                "approve": "Approve"
+                "approve": "Approve",
+                "selectAllComment": "Please select all comments",
+                "jobMarkCompleted": "Job Mark as Completed.",
+                "CompleteJob": "Complete Job"
             }
         },
         "schedule": {
@@ -1175,9 +1181,24 @@
             "start_time": "Start Time",
             "end_time": "End Time",
             "save_date": "Save Date",
-            "close": "Close"
+            "close": "Close",
+            "untilDate": "Default until date not selected",
+            "somethingWrong": "Something went wrong!",
+            "pleaseAddStartEndTime": "Please add start & end time!",
+            "pleaseSelectBothStartEnd": "Please select both Start Time and End Time, or leave both empty.",
+            "endTimeGreater": "End Time must be greater than Start Time.",
+            "DateDeleted": "Date has been deleted."
         },
         "settings": {
+            "profileUpdated": "Profile has been updated successfully",
+            "selectLang": "--- Select language ---",
+            "Hebrew": "Hebrew",
+            "English": "English",
+            "areYouAfraid": "Are you afraid of any follwing pet animals ?",
+            "pleaseSelect": "--- Please select ---",
+            "Enable": "Enable",
+            "Disable": "Disable",
+            "formUplodSuccess": "Form Upload Successfully",
             "edit_account": "Edit Account",
             "manage_form": "Manage Form",
             "view_contract": "View Contract",
