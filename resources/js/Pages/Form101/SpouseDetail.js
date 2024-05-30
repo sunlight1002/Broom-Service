@@ -56,7 +56,7 @@ export default function SpouseDetail({
                             required
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-lg-4">
                         <label className="d-block">{t("form101.idBy")} *</label>
                         <label className="mr-3 ">
                             <input
@@ -102,7 +102,7 @@ export default function SpouseDetail({
 
                     {values.Spouse.Identity === "Passport" ? (
                         <>
-                            <div className="col-4">
+                            <div className="col-lg-4 col-sm-6 col-12">
                                 <SelectElement
                                     name={"Spouse.Country"}
                                     label={t("form101.country_passport")}
@@ -120,7 +120,7 @@ export default function SpouseDetail({
                                     options={countryOption}
                                 />
                             </div>
-                            <div className="col-4">
+                            <div className="col-lg-4 col-sm-6 col-12">
                                 <TextField
                                     name="Spouse.passportNumber"
                                     label={t("form101.passport_num")}
@@ -140,7 +140,7 @@ export default function SpouseDetail({
                             </div>
                         </>
                     ) : (
-                        <div className="col-4">
+                        <div className="col-lg-4 col-sm-6 col-12">
                             <TextField
                                 name="Spouse.IdNumber"
                                 label={t("form101.id_num")}
@@ -159,7 +159,7 @@ export default function SpouseDetail({
                             />
                         </div>
                     )}
-                    <div className="col-4">
+                    <div className="col-lg-4 col-sm-6 col-12">
                         <DateField
                             name="Spouse.Dob"
                             label={t("form101.dob")}
@@ -178,7 +178,7 @@ export default function SpouseDetail({
                         />
                     </div>
                     {values.Spouse.Identity === "IDNumber" && (
-                        <div className="col-4">
+                        <div className="col-lg-4 col-sm-6 col-12">
                             <DateField
                                 name="Spouse.DateOFAliyah"
                                 label={t("form101.dom")}
@@ -196,7 +196,7 @@ export default function SpouseDetail({
                             />
                         </div>
                     )}
-                    <div className="col-4">
+                    <div className="col-lg-4 col-sm-6 col-12">
                         <RadioButtonGroup
                             name="Spouse.hasIncome"
                             label={t("form101.incomeSpouse")}
@@ -227,22 +227,32 @@ export default function SpouseDetail({
                         />
                         {values.Spouse.hasIncome === "Yes" && (
                             <>
-                                <label htmlFor="label" className="form-label">{t("form101.IncomeTypes")} *</label>
+                                <label htmlFor="label" className="form-label">
+                                    {t("form101.IncomeTypes")} *
+                                </label>
                                 <div className="row">
                                     <div className="col-12">
                                         <CheckBox
                                             name={"Spouse.incomeTypeOpt1"}
                                             label={t("form101.incomeTypeOpt1")}
                                             value={values.Spouse.incomeTypeOpt1}
-                                            checked={values.Spouse.incomeTypeOpt1}
-                                            onChange={(e) => setFieldValue("Spouse.incomeTypeOpt1", e.target.checked)}
+                                            checked={
+                                                values.Spouse.incomeTypeOpt1
+                                            }
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "Spouse.incomeTypeOpt1",
+                                                    e.target.checked
+                                                )
+                                            }
                                             onBlur={handleBlur}
                                             error={
                                                 touched.Spouse &&
                                                 errors.Spouse &&
                                                 touched.Spouse.incomeTypeOpt1 &&
                                                 errors.Spouse.incomeTypeOpt1
-                                                    ? errors.Spouse.incomeTypeOpt1
+                                                    ? errors.Spouse
+                                                          .incomeTypeOpt1
                                                     : ""
                                             }
                                         />
@@ -252,7 +262,12 @@ export default function SpouseDetail({
                                             name={"Spouse.incomeTypeOpt2"}
                                             label={t("form101.incomeTypeOpt2")}
                                             value={values.Spouse.incomeTypeOpt2}
-                                            onChange={(e) => setFieldValue("Spouse.incomeTypeOpt2", e.target.checked)}
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "Spouse.incomeTypeOpt2",
+                                                    e.target.checked
+                                                )
+                                            }
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             error={
@@ -260,7 +275,8 @@ export default function SpouseDetail({
                                                 errors.Spouse &&
                                                 touched.Spouse.incomeTypeOpt2 &&
                                                 errors.Spouse.incomeTypeOpt2
-                                                    ? errors.Spouse.incomeTypeOpt2
+                                                    ? errors.Spouse
+                                                          .incomeTypeOpt2
                                                     : ""
                                             }
                                         />

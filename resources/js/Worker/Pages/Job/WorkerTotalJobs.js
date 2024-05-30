@@ -80,7 +80,7 @@ export default function WorkerTotalJobs() {
                     setPageCount(response.data.jobs.last_page);
                 } else {
                     setTotalJobs([]);
-                    setLoading("No Job found");
+                    setLoading(t("worker.jobs.noJobFound"));
                 }
             });
     };
@@ -97,9 +97,7 @@ export default function WorkerTotalJobs() {
                     .subtract(1, "days")
                     .subtract(1, "weeks")
                     .format("YYYY-MM-DD"),
-                end_date: Moment()
-                    .subtract(1, "days")
-                    .format("YYYY-MM-DD"),
+                end_date: Moment().subtract(1, "days").format("YYYY-MM-DD"),
             });
         } else if (urlParamF == "upcoming") {
             setselectedFilter(t("worker.jobs.custom_range"));

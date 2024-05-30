@@ -2124,7 +2124,7 @@ const InsuranceForm = () => {
                     <label className="control-label">
                         {t("insurance.Signature")}
                     </label>
-                    <div className="d-flex align-items-center">
+                    <div className="d-lg-flex align-items-center">
                         {formValues && formValues.signature ? (
                             <img src={formValues.signature} />
                         ) : (

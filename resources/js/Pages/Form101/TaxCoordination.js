@@ -172,7 +172,7 @@ const TaxCoordination = ({
                                             -
                                         </button>
                                         <div className="row">
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].firstName`}
                                                     label={t(
@@ -202,7 +202,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].address`}
                                                     label={t(
@@ -232,7 +232,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].fileNumber`}
                                                     label={t(
@@ -262,7 +262,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <RadioButtonGroup
                                                     name={`TaxCoordination.employer[${index}].incomeType`}
                                                     label={t(
@@ -318,7 +318,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].MonthlyIncome`}
                                                     label={t(
@@ -348,7 +348,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <TextField
                                                     name={`TaxCoordination.employer[${index}].Tax`}
                                                     label={t(
@@ -377,7 +377,7 @@ const TaxCoordination = ({
                                                     required
                                                 />
                                             </div>{" "}
-                                            <div className="col-4">
+                                            <div className="col-md-4 col-12">
                                                 <label
                                                     htmlFor={`TaxCoordination.employer[${index}].payslip`}
                                                 >

@@ -23,7 +23,7 @@ export default function WorkerSidebar() {
                 localStorage.removeItem("worker-name");
                 localStorage.removeItem("worker-id");
                 navigate("/worker/login");
-                alert.success("Logged Out Successfully");
+                alert.success(t("global.Logout"));
             }
         });
     };

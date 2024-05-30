@@ -29,9 +29,7 @@ export default function WorkerNotAvailability() {
         e.preventDefault();
 
         if ((startTime && !endTime) || (!startTime && endTime)) {
-            alert.error(
-                "Please select both Start Time and End Time, or leave both empty."
-            );
+            alert.error(t("worker.schedule.pleaseSelectBothStartEnd"));
             return;
         }
 
@@ -44,7 +42,7 @@ export default function WorkerNotAvailability() {
                 parseInt(endTime.split(":")[1]);
 
             if (endTimeMinutes <= startTimeMinutes) {
-                alert.error("End Time must be greater than Start Time.");
+                alert.error(t("worker.schedule.endTimeGreater"));
                 return;
             }
         }
@@ -76,13 +74,13 @@ export default function WorkerNotAvailability() {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("global.areYouSure"),
+            text: t("global.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Date",
+            confirmButtonText: t("global.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
@@ -93,8 +91,8 @@ export default function WorkerNotAvailability() {
                     )
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "Date has been deleted.",
+                            t("global.deleted"),
+                            t("worker.schedule.DateDeleted"),
                             "success"
                         );
                         setTimeout(() => {

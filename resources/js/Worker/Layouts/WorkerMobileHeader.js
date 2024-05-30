@@ -24,14 +24,14 @@ export default function WorkerMobileHeader() {
                 localStorage.removeItem("worker-name");
                 localStorage.removeItem("worker-id");
                 navigate("/worker/login");
-                alert.success("Logged Out Successfully");
+                alert.success(t("global.Logout"));
             }
         });
         localStorage.removeItem("worker-token");
         localStorage.removeItem("worker-name");
         localStorage.removeItem("worker-id");
         navigate("/worker/login");
-        alert.success("Logged Out Successfully");
+        alert.success(t("global.Logout"));
     };
   return (
     <div className='mobileNav hidden-xl'>

@@ -18,17 +18,17 @@ export default function RadioButtonGroup({
             <div className={isFlex ? "d-flex  " : ""}>
                 {options.map((option, index) => (
                     <div key={index} className="me-3">
-                        <input
-                            type="radio"
-                            id={name + option.value}
-                            className="mr-1"
-                            name={name}
-                            value={option.value}
-                            checked={value === option.value}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                        />
                         <label className="mr-2" htmlFor={name + option.value}>
+                            <input
+                                type="radio"
+                                id={name + option.value}
+                                className="mr-1"
+                                name={name}
+                                value={option.value}
+                                checked={value === option.value}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                            />
                             {option.label}
                         </label>
                     </div>
