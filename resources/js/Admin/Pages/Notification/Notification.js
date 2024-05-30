@@ -4,44 +4,47 @@ import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Notification() {
     const [notices, setNotices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
+    const [currentPage, setCurrentPage] = useState(0);
+    const [notificationGrpTypeFilter, setNotificationGrpTypeFilter] =
+        useState("all");
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
     const headNotice = () => {
-        axios.post("/api/admin/notice", { all: 1 }, { headers }).then((res) => {
-            if (res.data.notice.data) {
-                setNotices(res.data.notice.data);
-                setPageCount(res.data.notice.last_page);
-            } else {
-                setNotices([]);
-                setLoading("No notification yet");
-            }
-        });
-    };
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
+        let _filters = {};
+
+        if (notificationGrpTypeFilter) {
+            _filters.group_type = notificationGrpTypeFilter;
+        }
+
         axios
-            .post(
-                "/api/admin/notice?page=" + currentPage,
-                { all: 1 },
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.notice.data) {
-                    setNotices(response.data.notice.data);
-                    setPageCount(response.data.notice.last_page);
+            .get("/api/admin/notice", {
+                headers,
+                params: {
+                    page: currentPage,
+                    all: 1,
+                    ..._filters,
+                },
+            })
+            .then((res) => {
+                if (res.data.notice.data) {
+                    setNotices(res.data.notice.data);
+                    setPageCount(res.data.notice.last_page);
                 } else {
-                    setLoading("No notification yet");
+                    setNotices([]);
                 }
             });
     };
+
     const clearAll = (e) => {
         e.preventDefault();
         Swal.fire({
@@ -69,9 +72,10 @@ export default function Notification() {
             }
         });
     };
+
     useEffect(() => {
         headNotice();
-    }, []);
+    }, [notificationGrpTypeFilter]);
 
     return (
         <div id="container">
@@ -94,6 +98,62 @@ export default function Notification() {
                 </div>
 
                 <div className="notification-page">
+                    <div className="payment-filter mb-3">
+                        <div className="row mb-2">
+                            <div className="col-sm-12 d-md-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Status
+                                </div>
+                                <FilterButtons
+                                    text="all"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="schedule-and-worker"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="converted-to-client"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="client-comments-reviews"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="payment-status"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </div>
                     <div className="card">
                         <div className="card-body">
                             {notices.length > 0 ? (
@@ -123,7 +183,7 @@ export default function Notification() {
                                 })
                             ) : (
                                 <div className="form-control text-center">
-                                    {loading}
+                                    No record found
                                 </div>
                             )}
 
@@ -135,7 +195,9 @@ export default function Notification() {
                                     pageCount={pageCount}
                                     marginPagesDisplayed={2}
                                     pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
+                                    onPageChange={(data) => {
+                                        setCurrentPage(data.selected + 1);
+                                    }}
                                     containerClassName={
                                         "pagination justify-content-end mt-3"
                                     }

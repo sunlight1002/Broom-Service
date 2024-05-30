@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\TransactionStatusEnum;
@@ -13,6 +14,7 @@ use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Receipts;
 use App\Models\Refunds;
@@ -1369,6 +1371,7 @@ class InvoiceController extends Controller
             0,
         );
 
+        $isFullPayment = true;
         foreach ($payForInvoices as $key => $_pinvoice) {
             $invoice = $invoices->where('id', $_pinvoice['invoice_id'])->first();
 
@@ -1399,6 +1402,10 @@ class InvoiceController extends Controller
                     OrderPaidStatusEnum::PAID : OrderPaidStatusEnum::UNPAID
             ]);
 
+            if (!$_pinvoice['is_full_payment']) {
+                $isFullPayment = false;
+            }
+
             Job::where('order_id', $order->id)
                 ->update([
                     'is_paid' => true
@@ -1409,6 +1416,18 @@ class InvoiceController extends Controller
                     'is_paid' => true
                 ]);
         }
+
+        Notification::create([
+            'user_id'   => $client->id,
+            'user_type' => get_class($client),
+            'type'      => $isFullPayment
+                ? NotificationTypeEnum::PAYMENT_PAID
+                : NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
+            'data'      => [
+                'amount' => $subtotal
+            ],
+            'status' => 'paid'
+        ]);
 
         return response()->json([
             'message' => 'Invoice updated successfully'
@@ -1582,6 +1601,16 @@ class InvoiceController extends Controller
                     'is_paid' => true
                 ]);
         }
+
+        Notification::create([
+            'user_id'   => $client->id,
+            'user_type' => get_class($client),
+            'type'      => NotificationTypeEnum::PAYMENT_PAID,
+            'data'      => [
+                'amount' => $subtotal
+            ],
+            'status' => 'paid'
+        ]);
 
         return response()->json([
             'message' => 'Invoice updated successfully'

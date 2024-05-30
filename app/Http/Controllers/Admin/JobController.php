@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
@@ -36,6 +37,7 @@ use App\Traits\PaymentAPI;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToClient;
 use App\Events\JobNotificationToWorker;
+use App\Models\Notification;
 
 class JobController extends Controller
 {
@@ -810,6 +812,14 @@ class JobController extends Controller
             'until_date' => $request->until_date,
         ]);
 
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+            'job_id' => $job->id,
+            'status' => 'changed'
+        ]);
+
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
         event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
@@ -1047,6 +1057,14 @@ class JobController extends Controller
             'action' => CancellationActionEnum::CHANGE_SHIFT,
             'duration' => $request->repeatancy,
             'until_date' => $request->until_date,
+        ]);
+
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+            'job_id' => $job->id,
+            'status' => 'changed'
         ]);
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
@@ -1602,6 +1620,14 @@ class JobController extends Controller
             'emailContent'  => __('mail.job_common.admin_switch_worker_content', ['w1' => $jobArray['worker']['firstname'] . ' ' . $jobArray['worker']['lastname'], 'w2' => $otherJobArray['worker']['firstname'] . ' ' . $otherJobArray['worker']['lastname']])
         ];
         event(new JobNotificationToClient($worker, $client, $jobArray, $emailData));
+
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+            'job_id' => $job->id,
+            'status' => 'changed'
+        ]);
 
         return response()->json([
             'message' => "Worker switched successfully",

@@ -12,6 +12,7 @@ use App\Models\Notification;
 use Symfony\Component\Finder\Iterator\FilenameFilterIterator;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Models\Client;
 
 class AdminLeadFilesNotification implements ShouldQueue
 {
@@ -75,6 +76,7 @@ class AdminLeadFilesNotification implements ShouldQueue
         // admin bell icon notification
         Notification::create([
             'user_id' => $schedules->client_id,
+            'user_type' => Client::class,
             'type' => NotificationTypeEnum::FILES,
             'meet_id' => $schedules->id,
             'status' => $schedules->booking_status

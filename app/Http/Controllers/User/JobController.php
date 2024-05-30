@@ -366,6 +366,7 @@ class JobController extends Controller
 
             Notification::create([
                 'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
                 'type' => NotificationTypeEnum::OPENING_JOB,
                 'job_id' => $job->id,
                 'status' => 'going to start'

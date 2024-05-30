@@ -24,6 +24,7 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobWorkerChanged;
 use App\Models\ManageTime;
 use App\Events\JobNotificationToWorker;
+use App\Models\Client;
 
 class JobController extends Controller
 {
@@ -158,6 +159,7 @@ class JobController extends Controller
 
             Notification::create([
                 'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
                 'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
                 'job_id' => $job->id,
                 'status' => 'declined'
@@ -394,6 +396,14 @@ class JobController extends Controller
             'until_date' => $data['until_date'],
         ]);
 
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+            'job_id' => $job->id,
+            'status' => 'changed'
+        ]);
+
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
         event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
@@ -471,6 +481,13 @@ class JobController extends Controller
             'rating' => $data['rating'],
             'review' => $data['review'],
             'client_reviewed_at' => now()->toDateTimeString()
+        ]);
+
+        Notification::create([
+            'user_id' => $job->client_id,
+            'user_type' => Client::class,
+            'type' => NotificationTypeEnum::JOB_REVIEWED,
+            'status' => 'reviewed'
         ]);
 
         return response()->json([

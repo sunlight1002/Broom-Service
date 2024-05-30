@@ -46,6 +46,7 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
         );
         Notification::create([
             'user_id' => $event->job->client->id,
+            'user_type' => get_class($event->job->client),
             'type' => NotificationTypeEnum::WORKER_RESCHEDULE,
             'job_id' => $event->job->id,
             'status' => 'reschedule'

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InvoiceStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Models\Client;
 use App\Models\Invoices;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Traits\PaymentAPI;
@@ -211,6 +213,18 @@ class iCountController extends Controller
                                                 'invoice_icount_status' => $invoice_icount_status,
                                                 'is_webhook_created'    => true
                                             ]);
+
+                                            if ($invoice->status == InvoiceStatusEnum::PAID) {
+                                                Notification::create([
+                                                    'user_id'   => $client->id,
+                                                    'user_type' => get_class($client),
+                                                    'type'      => NotificationTypeEnum::PAYMENT_PAID,
+                                                    'data'      => [
+                                                        'amount' => $paid_amount
+                                                    ],
+                                                    'status' => 'paid'
+                                                ]);
+                                            }
                                         } else {
                                             if ($invoice->is_webhook_created) {
                                                 $invoice->update([
@@ -228,6 +242,18 @@ class iCountController extends Controller
                                                     'status'                => $status,
                                                     'invoice_icount_status' => $invoice_icount_status,
                                                 ]);
+
+                                                if ($invoice->status == InvoiceStatusEnum::PAID) {
+                                                    Notification::create([
+                                                        'user_id'   => $client->id,
+                                                        'user_type' => get_class($client),
+                                                        'type'      => NotificationTypeEnum::PAYMENT_PAID,
+                                                        'data'      => [
+                                                            'amount' => $paid_amount
+                                                        ],
+                                                        'status' => 'paid'
+                                                    ]);
+                                                }
                                             }
                                         }
 

@@ -8,6 +8,7 @@ class Notification extends Model
 {
     protected $fillable = [
         'user_id',
+        'user_type',
         'type',
         'status',
         'seen',
@@ -16,6 +17,15 @@ class Notification extends Model
         'contract_id',
         'job_id',
     ];
+
+    protected $casts = [
+        'data' => 'array'
+    ];
+
+    public function user()
+    {
+        return $this->morphTo();
+    }
 
     public function client()
     {

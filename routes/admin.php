@@ -234,8 +234,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('multiple-invoices', [InvoiceController::class, 'multipleInvoices']);
 
     // Notifications
-    Route::get('head-notice', [DashboardController::class, 'headNotice'])->name('head-notice');
-    Route::post('notice', [DashboardController::class, 'Notice'])->name('notice');
+    Route::get('head-notice', [DashboardController::class, 'headNotice']);
+    Route::get('notice', [DashboardController::class, 'Notice']);
     Route::post('seen', [DashboardController::class, 'seen'])->name('seen');
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
 

@@ -51,7 +51,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
-    Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);

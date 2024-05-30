@@ -798,6 +798,7 @@ If you would like to speak to a human representative, please send a message with
 
                                     Notification::create([
                                         'user_id' => $schedule->client_id,
+                                        'user_type' => get_class($client),
                                         'type' => NotificationTypeEnum::SENT_MEETING,
                                         'meet_id' => $schedule->id,
                                         'status' => $schedule->booking_status

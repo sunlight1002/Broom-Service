@@ -113,6 +113,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
+      'user_type' => Client::class,
       'type' => NotificationTypeEnum::ACCEPT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'accepted'
@@ -151,6 +152,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $offerArr['client']['id'],
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::REJECT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'declined'
@@ -194,6 +196,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::ACCEPT_MEETING,
       'meet_id' => $request->id,
       'status' => 'confirmed'
@@ -237,6 +240,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::REJECT_MEETING,
       'meet_id' => $request->id,
       'status' => 'declined'
@@ -320,9 +324,18 @@ class ClientEmailController extends Controller
 
       $contract->update($request->input());
 
-      $client->update([
-        'status' => '2'
-      ]);
+      if ($client->status != 2) {
+        $client->update([
+          'status' => 2
+        ]);
+
+        Notification::create([
+          'user_id' => $contract->client_id,
+          'user_type' => get_class($client),
+          'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
+          'status' => 'converted'
+        ]);
+      }
 
       $client->lead_status()->updateOrCreate(
         [],
@@ -331,6 +344,7 @@ class ClientEmailController extends Controller
 
       Notification::create([
         'user_id' => $contract->client_id,
+        'user_type' => get_class($client),
         'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
         'contract_id' => $contract->id,
         'status' => 'accepted'
@@ -367,6 +381,7 @@ class ClientEmailController extends Controller
       $client->update(['status' => 1]);
       Notification::create([
         'user_id' => $contract->client_id,
+        'user_type' => get_class($client),
         'type' => NotificationTypeEnum::CONTRACT_REJECT,
         'contract_id' => $contract->id,
         'status' => 'declined'
