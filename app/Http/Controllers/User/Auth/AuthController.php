@@ -176,7 +176,7 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = User::where('worker_id', $request->worker_id)->first();
+        $user = User::find($request->worker_id);
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -189,13 +189,52 @@ class AuthController extends Controller
         ]);
     }
 
+    public function getWorker($id) {
+        $workerId = base64_decode($id);
+        $user = User::find($workerId);
+        if(!$user){
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+        $forms = $user->forms()
+            ->whereIn('type', [
+                WorkerFormTypeEnum::CONTRACT,
+                WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+                WorkerFormTypeEnum::FORM101,
+                WorkerFormTypeEnum::INSURANCE,
+            ])
+            ->whereYear('created_at', now()->year)
+            ->get()
+            ->groupBy('type');
+
+        $contractForm = $forms[WorkerFormTypeEnum::CONTRACT][0] ?? null;
+        $safetyAndGearForm = $forms[WorkerFormTypeEnum::SAFTEY_AND_GEAR][0] ?? null;
+        $form101Form = $forms[WorkerFormTypeEnum::FORM101][0] ?? null;
+        $insuranceForm = $forms[WorkerFormTypeEnum::INSURANCE][0] ?? null;
+
+        $forms = [];
+        if ($user->company_type == 'my-company') {
+            $forms['form101Form'] = $form101Form ? $form101Form->data : null;
+        }if ($user->country == 'Israel' && $user->company_type == 'my-company') {
+            $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm->data : null;
+            $forms['contractForm'] = $contractForm ? $contractForm->data : null;
+        }if ($user->country != 'Israel' && $user->company_type == 'my-company') {
+            $forms['insuranceForm'] = $insuranceForm ? $insuranceForm->data : null;
+        }
+        return response()->json([
+            'worker' => $user,
+            'forms' => $forms,
+        ]);
+    }
+
     public function WorkContract(Request $request, $id)
     {
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
 
-        $worker = User::where('worker_id', $id)->first();
+        $worker = User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',

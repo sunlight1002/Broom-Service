@@ -1130,6 +1130,41 @@ class WhatsappNotification
                         ]
                     ]
                 ];
+            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_FORMS) {
+                $workerData = $eventData;
+                $params = [
+                    "messaging_product"=> "whatsapp",
+                    "to"=> $workerData['phone'],
+                    "type"=> "template",
+                    "template"=> [
+                        "name"=> WhatsappMessageTemplateEnum::WORKER_FORMS,
+                        "language"=> [
+                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                        ],
+                        "components"=> [
+                            [
+                                "type"=> "body",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type"=> "button",
+                                "sub_type" => "url",
+                                "index"=> "0",
+                                "parameters"=> [
+                                    [
+                                        "type"=> "text",
+                                        "text"=> "worker-forms/".base64_encode($workerData['id'])
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
             }
             // \Log::info($eventType);
             // \Log::info($params);

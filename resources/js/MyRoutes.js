@@ -132,6 +132,7 @@ import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 import Invoices from "./Client/Pages/Invoices/Invoices";
 import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies";
 import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvailability";
+import WorkerForm from "./Pages/WorkerForm";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -223,7 +224,11 @@ export default function MyRoutes() {
                         path="worker/:wid/jobs/:jid/approve"
                         element={<WorkerJobDetails />}
                     />
-
+                    <Route
+                        exact
+                        path="worker-forms/:id"
+                        element={<WorkerForm />}
+                    />
                     {/* Client Routes Start  */}
 
                     <Route element={<ClientProtectedRoutes />}>

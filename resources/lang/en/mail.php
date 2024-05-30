@@ -348,4 +348,11 @@ return [
         'worker_job_start_time_content' => 'Job time has been started by you.',
         'extra_amount' => 'Extra amount'
     ],
+    'forms' => [
+        'worker_forms' => 'Worker Forms',
+        'content'   => 'You have successfully registered on our portal. Please sign the below forms to start working on the job.',
+        'below_txt' => 'Click the below button to fill forms.',
+        'btn_txt'   => 'Check Forms'
+
+    ]
 ];

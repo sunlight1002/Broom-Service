@@ -1962,5 +1962,15 @@
         "womenOnly": "For women only: Do you suffer or have you suffered from any women’s illnesses: irregular menstruation, fertility problems, bleeding and breast cysts, problems in the uterus and ovaries, irregular findings in a gynecological exam (such as PAP)? Are you pregnant? What is the number of fetuses?",
         "Caesarean": "Have you suffered from any problems in previous pregnancies or in the current pregnancy? Have you given birth by a Caesarean Section?",
         "Signature": "Signature"
+    },
+    "formTxt": {
+        "saftyAndGear": "Safety and Gear",
+        "insuranceForm": "Insurance",
+        "form101Form": "Form101",
+        "contractForm": "Contract",
+        "workerFormPlural": "Worker Forms",
+        "hii": "Hii",
+        "greetingTxt": "Greetings from Broom Service.",
+        "formContent": "You have successfully registered on our portal.Please sign the below forms to start working on job."
     }
 }
