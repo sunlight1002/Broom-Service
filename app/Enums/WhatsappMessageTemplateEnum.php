@@ -24,6 +24,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_UNASSIGNED = 'worker_unassigned';
 
     public const CLIENT_JOB_STATUS_NOTIFICATION = 'client_job_status_notification';
+    public const ADMIN_JOB_STATUS_NOTIFICATION = 'admin_job_status_notification';
     public const WORKER_JOB_OPENING_NOTIFICATION = 'worker_job_opening_notification';
     public const WORKER_JOB_STATUS_NOTIFICATION = 'worker_job_status_notification';
 

@@ -172,7 +172,7 @@ class JobController extends Controller
             );
             if (isset($data['admin']) && !empty($data['admin']['phone'])) {
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                    "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
                     "notificationData" => $data
                 ]));
             }
