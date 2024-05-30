@@ -33,10 +33,8 @@ class SendWorkerFormsNotification implements ShouldQueue
         if (!empty($event->worker->email)) {
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
-            $matchedCondition = (($event->worker->company_type == 'my-company') || ($event->worker->country == 'Israel' &&
-            $event->worker->company_type == 'my-company') || ($event->worker->country != 'Israel' &&
-            $event->worker->company_type == 'my-company'));
-            if($matchedCondition) {
+
+            if ($event->worker->company_type == 'my-company') {
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
                     $messages->to($workerArr['email']);
                     ($workerArr['lng'] == 'heb') ?
@@ -59,13 +57,13 @@ class SendWorkerFormsNotification implements ShouldQueue
             //         ]));
             //     }
 
-                // Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
-                //     $messages->to($workerArr['email']);
-                //     ($workerArr['lng'] == 'heb') ?
-                //         $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') :
-                //         $sub = __('mail.form_101.subject') . " #" . $workerArr['id'];
-                //     $messages->subject($sub);
-                // });
+            // Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
+            //     $messages->to($workerArr['email']);
+            //     ($workerArr['lng'] == 'heb') ?
+            //         $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') :
+            //         $sub = __('mail.form_101.subject') . " #" . $workerArr['id'];
+            //     $messages->subject($sub);
+            // });
             // }
 
             // if (
@@ -83,36 +81,36 @@ class SendWorkerFormsNotification implements ShouldQueue
             //         ]));
             //     }
 
-                // Mail::send('/Mails/WorkerContractMail', $workerArr, function ($messages) use ($workerArr) {
-                //     $messages->to($workerArr['email']);
-                //     ($workerArr['lng'] == 'heb') ?
-                //         $sub = $workerArr['id'] . "# " . __('mail.worker_contract.subject') :
-                //         $sub = __('mail.worker_contract.subject') . " #" . $workerArr['id'];
-                //     $messages->subject($sub);
-                // });
+            // Mail::send('/Mails/WorkerContractMail', $workerArr, function ($messages) use ($workerArr) {
+            //     $messages->to($workerArr['email']);
+            //     ($workerArr['lng'] == 'heb') ?
+            //         $sub = $workerArr['id'] . "# " . __('mail.worker_contract.subject') :
+            //         $sub = __('mail.worker_contract.subject') . " #" . $workerArr['id'];
+            //     $messages->subject($sub);
+            // });
 
-                // Mail::send('/Mails/WorkerSafeGearMail', $workerArr, function ($messages) use ($workerArr) {
-                //     $messages->to($workerArr['email']);
-                //     ($workerArr['lng'] == 'heb') ?
-                //         $sub = $workerArr['id'] . "# " . __('mail.worker_safe_gear.subject') :
-                //         $sub = __('mail.worker_safe_gear.subject') . " #" . $workerArr['id'];
-                //     $messages->subject($sub);
-                // });
+            // Mail::send('/Mails/WorkerSafeGearMail', $workerArr, function ($messages) use ($workerArr) {
+            //     $messages->to($workerArr['email']);
+            //     ($workerArr['lng'] == 'heb') ?
+            //         $sub = $workerArr['id'] . "# " . __('mail.worker_safe_gear.subject') :
+            //         $sub = __('mail.worker_safe_gear.subject') . " #" . $workerArr['id'];
+            //     $messages->subject($sub);
+            // });
             // } else if (
             //     $event->worker->country != 'Israel' &&
             //     $event->worker->company_type == 'my-company'
             // ) {
             //     if (!empty($workerArr['phone'])) {
-                    // event(new WhatsappNotificationEvent([
-                    //     "type" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
-                    //     "notificationData" => $workerArr
-                    // ]));
-                // }
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
+            //     "notificationData" => $workerArr
+            // ]));
+            // }
 
-                // Mail::send('Mails.worker.insurance-form', $workerArr, function ($messages) use ($workerArr) {
-                //     $messages->to($workerArr['email']);
-                //     $messages->subject(__('mail.worker.insurance-form.subject'));
-                // });
+            // Mail::send('Mails.worker.insurance-form', $workerArr, function ($messages) use ($workerArr) {
+            //     $messages->to($workerArr['email']);
+            //     $messages->subject(__('mail.worker.insurance-form.subject'));
+            // });
             // }
         }
     }
