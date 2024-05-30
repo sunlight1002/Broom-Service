@@ -116,9 +116,9 @@ export function IsrailContact({
     };
 
     return (
-        <div className="container targetDiv">
+        <div className="container targetDiv" ref={contentRef}>
             <div id="content">
-                <div className="mx-md-5 mt-5" ref={contentRef}>
+                <div className="mt-5">
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -132,13 +132,20 @@ export function IsrailContact({
 
                         <div>
                             <ol
-                                className="mt-5 lh-lg "
-                                style={{ fontSize: "16px" }}
+                                className="mt-5 lh-lg text-justify"
+                                style={{
+                                    fontSize: "16px",
+                                }}
                             >
                                 <li>
                                     <strong>{t("israilContract.is1")}</strong>
                                     <div className="row gap-3">
-                                        <div className="col-md-6 col-12">
+                                        <div
+                                            className={
+                                                "col-md-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <TextField
                                                 name={"fullName"}
                                                 onBlur={handleBlur}
@@ -153,7 +160,12 @@ export function IsrailContact({
                                                 }
                                             />
                                         </div>
-                                        <div className="col-md-6 col-12">
+                                        <div
+                                            className={
+                                                "col-md-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <TextField
                                                 name={"IdNumber"}
                                                 onBlur={handleBlur}
@@ -200,7 +212,12 @@ export function IsrailContact({
                                         }
                                     />
                                     <div className="row">
-                                        <div className="col-md-6 col-12">
+                                        <div
+                                            className={
+                                                "col-md-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <TextField
                                                 name={"PhoneNo"}
                                                 onBlur={handleBlur}
@@ -217,7 +234,12 @@ export function IsrailContact({
                                                 }
                                             />
                                         </div>
-                                        <div className="col-md-6 col-12">
+                                        <div
+                                            className={
+                                                "col-md-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <TextField
                                                 name={"MobileNo"}
                                                 onBlur={handleBlur}
@@ -268,7 +290,13 @@ export function IsrailContact({
                                                 workerDetail.payment_per_hour,
                                         })}
                                     </p>
-                                    <p style={{ marginBottom: "145px" }}>
+                                    <p
+                                        style={{
+                                            marginBottom: isGeneratingPDF
+                                                ? "140px"
+                                                : "16px",
+                                        }}
+                                    >
                                         {t("israilContract.is5-2")}
                                     </p>
                                 </li>
@@ -316,7 +344,7 @@ export function IsrailContact({
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody className="text-left">
                                             <tr>
                                                 <td>
                                                     {t(
@@ -465,7 +493,7 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    <p style={{ marginBottom: "50px" }}>
+                                    <p className="mb-2">
                                         {t("israilContract.is10-1")}
                                     </p>
                                     <p className="mb-2">
@@ -473,7 +501,13 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    <p className="mb-2">
+                                    <p
+                                        style={{
+                                            marginBottom: isGeneratingPDF
+                                                ? "20px"
+                                                : "16px",
+                                        }}
+                                    >
                                         {t("israilContract.is11")}
                                     </p>
                                 </li>
@@ -490,7 +524,6 @@ export function IsrailContact({
                                         bordered
                                         size="sm"
                                         className="mt-3"
-                                        style={{ marginBottom: "140px" }}
                                     >
                                         <thead className="text-center">
                                             <tr>
@@ -521,7 +554,7 @@ export function IsrailContact({
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody className="text-left">
                                             <tr>
                                                 <td>
                                                     {t(
@@ -637,7 +670,13 @@ export function IsrailContact({
                                             </tr>
                                         </tbody>
                                     </Table>
-                                    <p className="mb-2">
+                                    <p
+                                        style={{
+                                            marginBottom: isGeneratingPDF
+                                                ? "155px"
+                                                : "16px",
+                                        }}
+                                    >
                                         {t("israilContract.is13-3")}
                                     </p>
                                 </li>
