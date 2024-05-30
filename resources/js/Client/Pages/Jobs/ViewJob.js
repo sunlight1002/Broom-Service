@@ -68,7 +68,7 @@ export default function ViewJob() {
                         <div className="row">
                             <div className="col-sm-12">
                                 <div className="row">
-                                    <div className="col-sm-8 ">
+                                    <div className="col-lg-8 ">
                                         <h2 className="text-custom">
                                             {t(
                                                 "client.jobs.view.worker_details"
@@ -76,7 +76,7 @@ export default function ViewJob() {
                                         </h2>
                                         <WorkerDetails worker={worker} />
                                     </div>
-                                    <div className="col-sm-2 text-right">
+                                    <div className="col-lg-2 col-6 text-right">
                                         {t("client.jobs.view.job_status")} :{" "}
                                         <h6
                                             className="text-custom"
@@ -87,7 +87,7 @@ export default function ViewJob() {
                                             {job.status}
                                         </h6>
                                     </div>
-                                    <div className="col-sm-2">
+                                    <div className="col-lg-2 col-6">
                                         {job_status != "completed" &&
                                             job_status != "cancel" && (
                                                 <button

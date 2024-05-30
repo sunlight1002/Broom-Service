@@ -308,20 +308,23 @@ export default function ChangeScheduleCalender({ job }) {
         <>
             <div className="row mb-3">
                 <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
-                    <div className="d-flex align-items-center flex-wrap float-left">
-                        <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            {t("client.jobs.change.worker_availability")}
-                        </div>
+                    <div
+                        className="mr-3 col-12 col-lg-3"
+                        style={{ fontWeight: "bold" }}
+                    >
+                        {t("client.jobs.change.worker_availability")}
+                    </div>
+                    <div className="col-12 col-lg-9 d-flex align-items-center flex-wrap float-left">
                         <FilterButtons
                             text={t("client.jobs.change.currentWeek")}
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2 mb-sm-0"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
                             text={t("client.jobs.change.nextWeek")}
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2 mb-sm-0"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
@@ -344,7 +347,7 @@ export default function ChangeScheduleCalender({ job }) {
                     <div className="float-right" style={{ width: "150px" }}>
                         <input
                             type="text"
-                            className="form-control form-control-sm"
+                            className="form-control form-control-sm mt-2 mt-lg-0"
                             placeholder={t("client.jobs.change.Search")}
                             onChange={(e) => {
                                 setSearchVal(e.target.value);

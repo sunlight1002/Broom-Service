@@ -93,7 +93,7 @@ export default function Documents() {
                 <div className="col-sm-2">
                     <button
                         type="button"
-                        className="btn btn-pink"
+                        className="btn btn-pink mt-3 mt-md-0"
                         data-toggle="modal"
                         data-target="#exampleModal"
                     >

@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
+import { Table } from "react-bootstrap";
 
 export default function Clientfiles() {
     const [note, setNote] = useState("");
@@ -153,7 +154,10 @@ export default function Clientfiles() {
                         <div className="boxPanel">
                             <div className="table-responsive">
                                 {AllFiles.length > 0 ? (
-                                    <table className="table table-bordered">
+                                    <Table
+                                        className="table table-bordered"
+                                        responsive
+                                    >
                                         <thead>
                                             <tr>
                                                 <th scope="col">
@@ -230,7 +234,7 @@ export default function Clientfiles() {
                                                                     }}
                                                                     data-toggle="modal"
                                                                     data-target="#exampleModalFile"
-                                                                    className="btn bg-yellow"
+                                                                    className="btn bg-yellow mr-2 my-2  my-xs-0"
                                                                 >
                                                                     <i className="fa fa-eye"></i>
                                                                 </a>
@@ -252,7 +256,7 @@ export default function Clientfiles() {
                                                     );
                                                 })}
                                         </tbody>
-                                    </table>
+                                    </Table>
                                 ) : (
                                     <p className="text-center mt-5">
                                         {loading}

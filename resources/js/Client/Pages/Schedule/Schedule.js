@@ -232,6 +232,7 @@ export default function Schedule() {
                                                                     to={`/client/files/${Base64.encode(
                                                                         item.id.toString()
                                                                     )}`}
+                                                                    className="d-block d-md-flex text-center pl-5 pl-md-0"
                                                                 >
                                                                     <i
                                                                         className="fa fa-image"
