@@ -30,6 +30,7 @@ export default function WorkerViewJob() {
     const [isApproving, setIsApproving] = useState(false);
     const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
     const [isButtonEnabled, setIsButtonEnabled] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -146,15 +147,20 @@ export default function WorkerViewJob() {
         return dateTime;
     };
     const startTimer = () => {
+        setIsSubmitting(true);
         setCounter("00:00:00");
         setIsRunning(true);
         axios
             .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
             .then((res) => {
                 getTime();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
             });
     };
     const stopTimer = () => {
+        setIsSubmitting(true);
         setIsRunning(false);
         setStartTime(getDateTime());
 
@@ -162,6 +168,9 @@ export default function WorkerViewJob() {
             .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
             .then((res) => {
                 getTimes();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
             });
     };
     const getTime = () => {
@@ -322,6 +331,9 @@ export default function WorkerViewJob() {
                                                         {!isRunning && (
                                                             <>
                                                                 <button
+                                                                    disabled={
+                                                                        isSubmitting
+                                                                    }
                                                                     onClick={
                                                                         startTimer
                                                                     }
@@ -349,6 +361,9 @@ export default function WorkerViewJob() {
                                                         {isRunning && (
                                                             <>
                                                                 <button
+                                                                    disabled={
+                                                                        isSubmitting
+                                                                    }
                                                                     onClick={
                                                                         stopTimer
                                                                     }

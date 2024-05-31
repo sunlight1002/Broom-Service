@@ -19,6 +19,7 @@ export default function WorkerDashboard() {
     const [processingJobID, setProcessingJobID] = useState(null);
     const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
     const [selectedJobStatus, setSelectedJobStatus] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const alert = useAlert();
     const { t, i18n } = useTranslation();
@@ -102,18 +103,26 @@ export default function WorkerDashboard() {
     };
 
     const startTimer = (_jobID) => {
+        setIsSubmitting(true);
         axios
             .post(`/api/jobs/${_jobID}/start-time`, {}, { headers })
             .then((res) => {
                 getTodayJobs();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
             });
     };
 
     const stopTimer = (_jobID) => {
+        setIsSubmitting(true);
         axios
             .post(`/api/jobs/${_jobID}/end-time`, {}, { headers })
             .then((res) => {
                 getTodayJobs();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
             });
     };
 
@@ -469,6 +478,9 @@ export default function WorkerDashboard() {
                                                                             <>
                                                                                 {!isRunning ? (
                                                                                     <button
+                                                                                        disabled={
+                                                                                            isSubmitting
+                                                                                        }
                                                                                         type="button"
                                                                                         onClick={() =>
                                                                                             startTimer(
@@ -490,6 +502,9 @@ export default function WorkerDashboard() {
                                                                                     </button>
                                                                                 ) : (
                                                                                     <button
+                                                                                        disabled={
+                                                                                            isSubmitting
+                                                                                        }
                                                                                         type="button"
                                                                                         onClick={() =>
                                                                                             stopTimer(
