@@ -148,7 +148,7 @@ export default function WorkerDashboard() {
                         </h1>
                     </div>
                     <div className="row">
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-xl-4 col-sm-6 col-xs-6">
                             <Link to={`/worker/jobs?f=past`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
@@ -162,7 +162,7 @@ export default function WorkerDashboard() {
                             </Link>
                         </div>
 
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-xl-4 col-sm-6  col-xs-6">
                             <Link to={`/worker/jobs`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
@@ -178,7 +178,7 @@ export default function WorkerDashboard() {
                             </Link>
                         </div>
 
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-xl-4 col-sm-6  col-xs-6">
                             <Link to={`/worker/jobs?f=upcoming`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
@@ -196,7 +196,7 @@ export default function WorkerDashboard() {
                             </Link>
                         </div>
 
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-xl-4 col-sm-6  col-xs-6">
                             <Link to={`/worker/jobs?f=today`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
@@ -297,7 +297,7 @@ export default function WorkerDashboard() {
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
-                                                                <div className="d-flex">
+                                                                <div className="d-flex mt-3 mt-md-0">
                                                                     <button
                                                                         type="button"
                                                                         className="btn btn-primary"
@@ -419,7 +419,7 @@ export default function WorkerDashboard() {
                                                                         processingJobID ==
                                                                         item.id
                                                                     }
-                                                                    className="btn btn-primary mr-2"
+                                                                    className="btn btn-primary mr-2 mt-4 mt-md-0"
                                                                 >
                                                                     {t(
                                                                         "worker.jobs.view.approve"
@@ -436,7 +436,7 @@ export default function WorkerDashboard() {
                                                                             item.id
                                                                         )
                                                                     }
-                                                                    className="btn btn-success mr-2"
+                                                                    className="btn btn-success mr-2 mt-4 mt-md-0"
                                                                     disabled={
                                                                         processingJobID ==
                                                                         item.id
@@ -464,7 +464,7 @@ export default function WorkerDashboard() {
                                                                                     processingJobID ==
                                                                                     item.id
                                                                                 }
-                                                                                className="btn btn-success mr-2"
+                                                                                className="btn btn-success mr-2 mt-4 mt-md-0"
                                                                             >
                                                                                 {t(
                                                                                     "worker.jobs.view.completebtn"
@@ -487,7 +487,7 @@ export default function WorkerDashboard() {
                                                                                                 item.id
                                                                                             )
                                                                                         }
-                                                                                        className="btn btn-primary mr-2"
+                                                                                        className="btn btn-primary mr-2 mt-4 mt-md-0"
                                                                                     >
                                                                                         {item
                                                                                             .time
@@ -511,7 +511,7 @@ export default function WorkerDashboard() {
                                                                                                 item.id
                                                                                             )
                                                                                         }
-                                                                                        className="btn btn-danger dangerous mr-2"
+                                                                                        className="btn btn-danger dangerous mr-2 mt-4 mt-md-0"
                                                                                     >
                                                                                         {t(
                                                                                             "worker.jobs.view.stopbtn"

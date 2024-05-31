@@ -28,12 +28,12 @@ export default function card() {
         const _paymentStatus = queryParams.get("cps");
 
         if (_paymentStatus == "payment-success") {
-            // swal(t("work-contract.messages.card_success"), "", "success");
-            swal(
-                "Thanks, card is added successfully, Now you can sign contract!",
-                "",
-                "success"
-            );
+            swal(t("work-contract.messages.card_success"), "", "success");
+            // swal(
+            //     "Thanks, card is added successfully, Now you can sign contract!",
+            //     "",
+            //     "success"
+            // );
             navigate(`/client/settings`);
         } else if (_paymentStatus == "payment-cancelled") {
             swal(t("work-contract.messages.card_adding_failed"), "", "error");
@@ -106,7 +106,7 @@ export default function card() {
                     .delete(`/api/client/cards/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
+                            t("global.deleted"),
                             t("work-contract.cardDeleted"),
                             "success"
                         );
@@ -158,7 +158,7 @@ export default function card() {
                                                 {card.is_default && (
                                                     <Badge bg="success ml-3">
                                                         {t(
-                                                            "work-contract.default"
+                                                            "client.settings.default"
                                                         )}
                                                     </Badge>
                                                 )}
