@@ -7,7 +7,6 @@ import { NavLink } from "react-router-dom";
 
 export default function MobileHeader() {
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
     const [role, setRole] = useState();
     const headers = {
@@ -29,17 +28,14 @@ export default function MobileHeader() {
                 alert.success("Logged Out Successfully");
             }
         });
-        localStorage.removeItem("admin-token");
-        localStorage.removeItem("admin-name");
-        localStorage.removeItem("admin-id");
-        navigate("/admin/login");
-        alert.success("Logged Out Successfully");
     };
+
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
     };
+
     useEffect(() => {
         getAdmin();
     }, []);
