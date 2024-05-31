@@ -297,7 +297,7 @@ export default function WorkerDashboard() {
                                                                 {item.status}
                                                             </Td>
                                                             <Td>
-                                                                <div className="d-flex mt-3 mt-md-0">
+                                                                <div className="d-flex mt-4 mt-md-0">
                                                                     <button
                                                                         type="button"
                                                                         className="btn btn-primary"

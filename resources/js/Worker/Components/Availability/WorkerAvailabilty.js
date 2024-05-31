@@ -253,58 +253,30 @@ export default function WorkerAvailabilty() {
 
     return (
         <div className="boxPanel">
-            <ul className="nav nav-tabs" role="tablist">
+            <div className="d-flex mb-2 flex-wrap">
                 {tabList.map((t) => {
                     return (
-                        <li
-                            className="nav-item"
-                            role="presentation"
-                            key={t.key}
-                        >
-                            <a
-                                href="#"
-                                className={
-                                    "nav-link" +
-                                    (activeTab == t.key ? " active" : "")
-                                }
-                                aria-selected="true"
-                                role="tab"
-                                onClick={() => handleTab(t.key)}
-                            >
-                                {t.label}
-                            </a>
-                        </li>
+                        <FilterButtons
+                            text={t.label}
+                            value={t.key}
+                            selectedFilter={activeTab}
+                            onClick={() => handleTab(t.key)}
+                        />
                     );
                 })}
-                <li className="nav-item" role="presentation">
-                    <a
-                        href="#"
-                        className={
-                            "nav-link" +
-                            (activeTab == "custom" ? " active" : "")
-                        }
-                        aria-selected="true"
-                        role="tab"
-                        onClick={() => handleTab("custom")}
-                    >
-                        {t("worker.schedule.custom")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        href="#"
-                        className={
-                            "nav-link" +
-                            (activeTab == "default" ? " active" : "")
-                        }
-                        aria-selected="true"
-                        role="tab"
-                        onClick={() => handleTab("default")}
-                    >
-                        {t("worker.schedule.default")}
-                    </a>
-                </li>
-            </ul>
+                <FilterButtons
+                    text={t("worker.schedule.custom")}
+                    value={"custom"}
+                    selectedFilter={activeTab}
+                    onClick={() => handleTab("custom")}
+                />
+                <FilterButtons
+                    text={t("worker.schedule.default")}
+                    value={"default"}
+                    selectedFilter={activeTab}
+                    onClick={() => handleTab("default")}
+                />
+            </div>
             <div className="tab-content" style={{ background: "#fff" }}>
                 {tabList
                     .filter((t) => activeTab == t.key)
@@ -491,3 +463,22 @@ export default function WorkerAvailabilty() {
         </div>
     );
 }
+
+const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
+    <button
+        className={`btn border  rounded mr-2 mb-2 ${className}`}
+        style={
+            selectedFilter === value
+                ? { background: "white" }
+                : {
+                      background: "#2c3f51",
+                      color: "white",
+                  }
+        }
+        onClick={() => {
+            onClick?.();
+        }}
+    >
+        {text}
+    </button>
+);

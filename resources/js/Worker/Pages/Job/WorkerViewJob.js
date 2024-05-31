@@ -264,8 +264,8 @@ export default function WorkerViewJob() {
                         {job && (
                             <div className="row">
                                 <div className="col-sm-12">
-                                    <div className="row mb-3 mt-4">
-                                        <div className="col-sm-8 col-12">
+                                    <div className="row mb-3 mt-4 gap-2">
+                                        <div className="col-sm-6 col-12">
                                             <h2 className="text-custom">
                                                 {t(
                                                     "worker.jobs.view.c_details"
@@ -275,7 +275,7 @@ export default function WorkerViewJob() {
 
                                         {job.job_opening_timestamp === null &&
                                         job.worker_approved_at === null ? (
-                                            <div className="col-sm-2 col-6">
+                                            <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleApproveJob}
@@ -290,7 +290,7 @@ export default function WorkerViewJob() {
                                         ) : job.job_opening_timestamp ===
                                               null &&
                                           job.worker_approved_at !== null ? (
-                                            <div className="col-sm-2 col-6">
+                                            <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleOpeningTime}
@@ -304,7 +304,7 @@ export default function WorkerViewJob() {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="col-sm-2 col-6">
+                                                <div className="col-sm-3 col-xl-2 col-6">
                                                     {job_status !=
                                                         "completed" &&
                                                         job_status !=

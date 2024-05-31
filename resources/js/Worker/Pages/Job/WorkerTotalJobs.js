@@ -124,10 +124,10 @@ export default function WorkerTotalJobs() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-md-12 mt-2">
-                            <div className="d-flex align-items-center">
+                            <div className="d-sm-flex align-items-center">
                                 <div
                                     style={{ fontWeight: "bold" }}
-                                    className="mr-2"
+                                    className="mr-2 "
                                 >
                                     {t("worker.jobs.date_period")}
                                 </div>
@@ -135,7 +135,7 @@ export default function WorkerTotalJobs() {
                                 <div>
                                     <FilterButtons
                                         text={t("global.day")}
-                                        className="px-4 mr-1"
+                                        className="px-4 mr-1 "
                                         onClick={() =>
                                             setDateRange({
                                                 start_date:
@@ -148,7 +148,7 @@ export default function WorkerTotalJobs() {
                                     />
                                     <FilterButtons
                                         text={t("global.week")}
-                                        className="px-4 mr-3"
+                                        className="px-4 mr-3 "
                                         onClick={() =>
                                             setDateRange({
                                                 start_date:
@@ -162,7 +162,7 @@ export default function WorkerTotalJobs() {
                                     />
                                     <FilterButtons
                                         text={t("global.previous_week")}
-                                        className="px-3 mr-1"
+                                        className="px-3 mr-1 "
                                         onClick={() =>
                                             setDateRange({
                                                 start_date:
@@ -176,7 +176,7 @@ export default function WorkerTotalJobs() {
                                     />
                                     <FilterButtons
                                         text={t("global.next_week")}
-                                        className="px-3"
+                                        className="px-3 "
                                         onClick={() =>
                                             setDateRange({
                                                 start_date:
@@ -193,49 +193,51 @@ export default function WorkerTotalJobs() {
                         </div>
 
                         <div className="col-md-12 my-2">
-                            <div className="d-flex align-items-center">
+                            <div className="d-sm-flex align-items-center">
                                 <div
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
                                     {t("worker.jobs.custom_date_range")}
                                 </div>
-
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="From date"
-                                    name="from filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.start_date}
-                                    onChange={(e) => {
-                                        setselectedFilter(
-                                            t("worker.jobs.custom_range")
-                                        );
-                                        setDateRange({
-                                            start_date: e.target.value,
-                                            end_date: dateRange.end_date,
-                                        });
-                                    }}
-                                />
-                                <div className="mx-2">{t("global.to")}</div>
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="To date"
-                                    name="to filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.end_date}
-                                    onChange={(e) => {
-                                        setselectedFilter(
-                                            t("worker.jobs.custom_range")
-                                        );
-                                        setDateRange({
-                                            start_date: dateRange.start_date,
-                                            end_date: e.target.value,
-                                        });
-                                    }}
-                                />
+                                <div className="d-flex align-items-center">
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setselectedFilter(
+                                                t("worker.jobs.custom_range")
+                                            );
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">{t("global.to")}</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setselectedFilter(
+                                                t("worker.jobs.custom_range")
+                                            );
+                                            setDateRange({
+                                                start_date:
+                                                    dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -361,7 +363,7 @@ export default function WorkerTotalJobs() {
                                                         <Td>
                                                             <Link
                                                                 to={`/worker/view-job/${item.id}`}
-                                                                className="btn btn-primary"
+                                                                className="btn btn-primary mt-4 mt-md-0 ml-1"
                                                             >
                                                                 {t(
                                                                     "worker.jobs.viewbtn"

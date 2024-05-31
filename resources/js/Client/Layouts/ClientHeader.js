@@ -75,7 +75,7 @@ export default function ClientHeader() {
                                         />
                                     </div>
                                     <div
-                                        className="dropdown-menu"
+                                        className="dropdown-menu dropdown-menu-right"
                                         aria-labelledby="dropdownMenuLink"
                                     >
                                         <Link

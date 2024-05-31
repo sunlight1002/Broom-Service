@@ -12,7 +12,7 @@ export default function ClientDetails({ client, address }) {
             <div className="dashBox p-4 mb-3">
                 <form>
                     <div className="row">
-                        <div className="col-sm-4">
+                        <div className="col-xl-4 col-md-6 col-12">
                             <div className="form-group">
                                 <label className="control-label">
                                     {t("worker.jobs.view.c_name")}
@@ -22,7 +22,7 @@ export default function ClientDetails({ client, address }) {
                                 </p>
                             </div>
                         </div>
-                        <div className="col-sm-4">
+                        <div className="col-xl-4 col-md-6 col-12">
                             <div className="form-group">
                                 <label className="control-label">
                                     {t("worker.jobs.view.c_email")}
@@ -30,7 +30,7 @@ export default function ClientDetails({ client, address }) {
                                 <p>{client.email}</p>
                             </div>
                         </div>
-                        <div className="col-sm-4">
+                        <div className="col-xl-4 col-md-6 col-12">
                             <div className="form-group">
                                 <label className="control-label">
                                     {t("worker.jobs.view.c_phone")}
@@ -38,7 +38,7 @@ export default function ClientDetails({ client, address }) {
                                 <p>{client.phone}</p>
                             </div>
                         </div>
-                        <div className="col-sm-4">
+                        <div className="col-xl-4 col-md-6 col-12">
                             <div className="form-group">
                                 <label>{t("worker.jobs.view.geo_adr")}</label>
                                 <p>
