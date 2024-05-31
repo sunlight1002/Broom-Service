@@ -24,6 +24,8 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WorkerCreated;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Enums\Form101FieldEnum;
+use App\Enums\WorkerFormTypeEnum;
 
 class WorkerController extends Controller
 {
@@ -830,6 +832,44 @@ class WorkerController extends Controller
             
         return response()->json([
             'workers' => $data,
+        ]);
+    }
+
+    public function formSend(Request $request, Form101FieldEnum $formEnum){
+        $formId = null;
+        $data = $request->all();
+        $formType = $data['type'];
+        $worker = User::find($data['workerId']);
+        if(!$worker){
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+        $isExistForm101 = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereNull('submitted_at')
+            ->first();
+
+        if(!$isExistForm101){
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $worker->firstname;
+            $defaultFields['employeeLastName'] = $worker->lastname;
+            $defaultFields['employeeMobileNo'] = $worker->phone;
+            $defaultFields['employeeEmail'] = $worker->email;
+            $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
+            $formId = $form->id;
+        }else{
+            $formId = $isExistForm101->id;
+        }
+        event(new WorkerCreated($worker, $formType, $formId));
+        return response()->json([
+            'message' => 'Worker created successfully',
         ]);
     }
 }

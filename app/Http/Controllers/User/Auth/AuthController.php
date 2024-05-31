@@ -307,6 +307,7 @@ class AuthController extends Controller
         $data = $request->all();
         $data = $this->transformFormDataForBoolean($data);
         $savingType = $data['savingType'];
+        $formId = $data['formId'];
         unset($data['savingType']);
 
         if (!Storage::disk('public')->exists('uploads/form101/documents')) {
@@ -314,8 +315,12 @@ class AuthController extends Controller
         }
 
         $form = $worker->forms()
-            ->where('type', WorkerFormTypeEnum::FORM101)
-            ->whereYear('created_at', now()->year)
+            ->when($formId != NULL, function($q) use($formId) {
+                $q->where('id', $formId);
+            })
+            ->when($formId == NULL, function($q) use($formId) {
+                $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
+            })
             ->first();
 
         $formOldData = $form ? $form->data : [];
@@ -508,7 +513,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function get101($id)
+    public function get101($id, $formId = NULL)
     {
         $worker = User::find($id);
         if (!$worker) {
@@ -518,13 +523,34 @@ class AuthController extends Controller
         }
 
         $form = $worker->forms()
-            ->where('type', WorkerFormTypeEnum::FORM101)
-            ->whereYear('created_at', now()->year)
+            ->when($formId != NULL, function($q) use($formId) {
+                $q->where('id', $formId);
+            })
+            ->when($formId == NULL, function($q) use($formId) {
+                $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
+            })
             ->first();
 
         return response()->json([
             'lng' => $worker->lng,
             'form' => $form ? $form : NULL,
+            'worker' => $worker
+        ]);
+    }
+    public function getAllForms($id){
+        $worker = User::find($id);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+        $form = $worker->forms()
+            ->whereYear('created_at', now()->year)
+            ->get();
+
+        return response()->json([
+            'lng' => $worker->lng,
+            'forms' => $form->count() > 0 ? $form : [],
             'worker' => $worker
         ]);
     }
