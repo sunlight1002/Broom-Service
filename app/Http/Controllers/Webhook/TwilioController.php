@@ -24,6 +24,7 @@ class TwilioController extends Controller
             'email'             => $request_data['From'] . '@lead.com',
             'payment_method'    => 'cc',
             'password'          => Hash::make($request_data['From']),
+            'passcode'          => $request_data['From'],
             'status'            => 0,
             'lng'               => 'heb',
             'firstname'         => 'lead_' . $request_data['From']

@@ -329,6 +329,7 @@ class DashboardController extends Controller
 
         $client = Client::find(Auth::user()->id);
         if (Hash::check($request->get('current_password'), $client->password)) {
+            $client->passcode = $request->password;
             $client->password = Hash::make($request->password);
             $client->save();
 

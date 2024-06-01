@@ -10,6 +10,7 @@ import Clientfiles from "../Client/Pages/Schedule/Files";
 import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import useToggle from "../Hooks/useToggle";
 
 export default function MeetingFiles() {
     const param = useParams();
@@ -23,6 +24,7 @@ export default function MeetingFiles() {
     const [AllFiles, setAllFiles] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [address, setAddress] = useState([]);
+    const [toggle, toggleValue] = useToggle(false);
     const meetId = Base64.decode(param.id);
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -65,6 +67,7 @@ export default function MeetingFiles() {
             window.alert("Please add file");
             return;
         }
+        toggleValue(true);
         const type = document.querySelector('select[name="filetype"]').value;
         const fd = new FormData();
         fd.append("user_id", meeting.client_id);
@@ -95,6 +98,7 @@ export default function MeetingFiles() {
                     setFile([]);
                     document.querySelector('input[type="file"]').value = "";
                 }
+                toggleValue(false);
             });
     };
 
@@ -454,6 +458,7 @@ export default function MeetingFiles() {
                                                                     *
                                                                 </label>
                                                                 <input
+                                                                    accept="image/*,video/*"
                                                                     type="file"
                                                                     name="file"
                                                                     onChange={(
@@ -481,6 +486,7 @@ export default function MeetingFiles() {
                                                         )}
                                                     </button>
                                                     <button
+                                                        disabled={toggle}
                                                         type="button"
                                                         onClick={handleFile}
                                                         className="btn btn-primary"
