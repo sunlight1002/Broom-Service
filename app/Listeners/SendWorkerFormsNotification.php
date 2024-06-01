@@ -34,9 +34,9 @@ class SendWorkerFormsNotification implements ShouldQueue
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
             if ($event->worker->company_type == 'my-company') {
-                if($event->formId){
+                if ($event->formId) {
                     $workerArr['formId'] = $event->formId;
-                    if($event->type == WhatsappMessageTemplateEnum::FORM101){
+                    if ($event->type == WhatsappMessageTemplateEnum::FORM101) {
                         Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
                             $messages->to($workerArr['email']);
                             ($workerArr['lng'] == 'heb') ?
@@ -51,7 +51,7 @@ class SendWorkerFormsNotification implements ShouldQueue
                             ]));
                         }
                     }
-                }else{
+                } else {
                     Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
                         $messages->to($workerArr['email']);
                         ($workerArr['lng'] == 'heb') ?

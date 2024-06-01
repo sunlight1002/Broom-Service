@@ -331,6 +331,22 @@ class WorkerController extends Controller
             }
         }
 
+        $formEnum = new Form101FieldEnum;
+
+        $defaultFields = $formEnum->getDefaultFields();
+        $defaultFields['employeeFirstName'] = $worker->firstname;
+        $defaultFields['employeeLastName'] = $worker->lastname;
+        $defaultFields['employeeMobileNo'] = $worker->phone;
+        $defaultFields['employeeEmail'] = $worker->email;
+        $defaultFields['sender']['employeeEmail'] = $worker->email;
+        $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::FORM101,
+            'data' => $formData,
+            'submitted_at' => NULL
+        ]);
+
         event(new WorkerCreated($worker));
 
         return response()->json([
@@ -800,7 +816,7 @@ class WorkerController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
-        
+
         $data = Job::whereNotNull('jobs.worker_id')
             ->whereNotNull('jobs.actual_time_taken_minutes')
             ->join('users', 'jobs.worker_id', '=', 'users.id')
@@ -829,18 +845,19 @@ class WorkerController extends Controller
             ->groupBy('jobs.start_date')
             ->orderBy('jobs.start_date', 'desc')
             ->get();
-            
+
         return response()->json([
             'workers' => $data,
         ]);
     }
 
-    public function formSend(Request $request, Form101FieldEnum $formEnum){
+    public function formSend(Request $request, Form101FieldEnum $formEnum)
+    {
         $formId = null;
         $data = $request->all();
         $formType = $data['type'];
         $worker = User::find($data['workerId']);
-        if(!$worker){
+        if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
@@ -850,7 +867,7 @@ class WorkerController extends Controller
             ->whereNull('submitted_at')
             ->first();
 
-        if(!$isExistForm101){
+        if (!$isExistForm101) {
             $defaultFields = $formEnum->getDefaultFields();
             $defaultFields['employeeFirstName'] = $worker->firstname;
             $defaultFields['employeeLastName'] = $worker->lastname;
@@ -864,7 +881,7 @@ class WorkerController extends Controller
                 'submitted_at' => NULL
             ]);
             $formId = $form->id;
-        }else{
+        } else {
             $formId = $isExistForm101->id;
         }
         event(new WorkerCreated($worker, $formType, $formId));

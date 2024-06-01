@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace App\Enums;
+
 use Carbon\Carbon;
 
 final class Form101FieldEnum extends AbstractEnum
@@ -132,5 +133,4 @@ final class Form101FieldEnum extends AbstractEnum
     {
         return $this->defaultFields;
     }
-
 }

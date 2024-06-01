@@ -10,7 +10,6 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [form, setForm] = useState(false);
-    const [workerId, setWorkerId] = useState("");
     const alert = useAlert();
 
     const headers = {
@@ -20,43 +19,29 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     };
 
     const getForm = () => {
-        // axios.get(`/api/work-contract/${worker.id}`).then((res) => {
-        //     setContractForm(res.data.form ? true : false);
-        //     setWorkerId(res.data.worker.worker_id);
-        // });
-
         axios
             .get(`/api/getAllForms/${worker.id}`)
             .then((res) => {
                 const formsData = res.data.forms;
                 if (formsData.length > 0) {
                     setForms(formsData);
-                    const contractFormExist = formsData.filter((f) =>
+                    const _contractForm = formsData.find((f) =>
                         f.type.includes("contract")
-                    )[0];
-                    const saftyGearFormExist = formsData.filter((f) =>
+                    );
+                    const _saftyGearForm = formsData.find((f) =>
                         f.type.includes("saftey-and-gear")
-                    )[0];
-                    const form101Exist = formsData.filter((f) =>
+                    );
+                    const _form101Forms = formsData.filter((f) =>
                         f.type.includes("form101")
-                    )[0];
-                    setContractForm(contractFormExist.length > 0);
-                    setSafetyAndGearForm(saftyGearFormExist.length > 0);
-                    setForm(form101Exist.length > 0 ? true : false);
+                    );
+                    setContractForm(_contractForm);
+                    setSafetyAndGearForm(_saftyGearForm);
+                    setForm(_form101Forms.length > 0);
                 }
-                setWorkerId(res.data.worker.worker_id);
             })
             .catch((e) => {
                 alert.error(e.response.data.message);
             });
-
-        // axios.get(`/api/getSafegear/${worker.id}`).then((res) => {
-        //     if (res.data.form) {
-        //         setSafetyAndGearForm(true);
-        //     } else {
-        //         setSafetyAndGearForm(false);
-        //     }
-        // });
     };
 
     useEffect(() => {
@@ -168,7 +153,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             </span>
                         </div>
                         <div className="col-sm-2 col-2">
-                            {(contractForm && workerId) ||
+                            {(contractForm && worker) ||
                             worker.worker_contract ? (
                                 <div>
                                     <span className="btn btn-success m-3">
@@ -182,7 +167,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             )}
                         </div>
                         <div className="col-sm-4 col-4">
-                            {(contractForm && workerId) ||
+                            {(contractForm && worker) ||
                             worker.worker_contract ? (
                                 <div>
                                     <Link
@@ -191,7 +176,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             worker.worker_contract
                                                 ? `/storage/uploads/worker/contract/${worker.worker_contract}`
                                                 : `/worker-contract/` +
-                                                  Base64.encode(workerId)
+                                                  Base64.encode(
+                                                      worker.worker_id
+                                                  )
                                         }
                                         className="m-2 btn btn-pink"
                                     >

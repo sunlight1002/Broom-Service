@@ -176,7 +176,7 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = User::find($request->worker_id);
+        $user = User::where('worker_id', $request->worker_id)->first();
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -185,14 +185,15 @@ class AuthController extends Controller
 
         return response()->json([
             'worker' => $user,
-            'form' => $form ? $form->data : NULL
+            'form' => $form
         ]);
     }
 
-    public function getWorker($id) {
+    public function getWorker($id)
+    {
         $workerId = base64_decode($id);
         $user = User::find($workerId);
-        if(!$user){
+        if (!$user) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
@@ -215,13 +216,18 @@ class AuthController extends Controller
 
         $forms = [];
         if ($user->company_type == 'my-company') {
-            $forms['form101Form'] = $form101Form ? $form101Form->data : null;
-        }if ($user->country == 'Israel' && $user->company_type == 'my-company') {
-            $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm->data : null;
-            $forms['contractForm'] = $contractForm ? $contractForm->data : null;
-        }if ($user->country != 'Israel' && $user->company_type == 'my-company') {
-            $forms['insuranceForm'] = $insuranceForm ? $insuranceForm->data : null;
+            $forms['form101Form'] = $form101Form ? $form101Form : null;
         }
+
+        if ($user->country == 'Israel' && $user->company_type == 'my-company') {
+            $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
+            $forms['contractForm'] = $contractForm ? $contractForm : null;
+        }
+
+        if ($user->country != 'Israel' && $user->company_type == 'my-company') {
+            $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
+        }
+
         return response()->json([
             'worker' => $user,
             'forms' => $forms,
@@ -315,10 +321,10 @@ class AuthController extends Controller
         }
 
         $form = $worker->forms()
-            ->when($formId != NULL, function($q) use($formId) {
+            ->when($formId != NULL, function ($q) use ($formId) {
                 $q->where('id', $formId);
             })
-            ->when($formId == NULL, function($q) use($formId) {
+            ->when($formId == NULL, function ($q) use ($formId) {
                 $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
             })
             ->first();
@@ -523,10 +529,10 @@ class AuthController extends Controller
         }
 
         $form = $worker->forms()
-            ->when($formId != NULL, function($q) use($formId) {
+            ->when($formId != NULL, function ($q) use ($formId) {
                 $q->where('id', $formId);
             })
-            ->when($formId == NULL, function($q) use($formId) {
+            ->when($formId == NULL, function ($q) use ($formId) {
                 $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
             })
             ->first();
@@ -537,7 +543,8 @@ class AuthController extends Controller
             'worker' => $worker
         ]);
     }
-    public function getAllForms($id){
+    public function getAllForms($id)
+    {
         $worker = User::find($id);
         if (!$worker) {
             return response()->json([

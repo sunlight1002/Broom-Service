@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useAlert } from "react-alert";
+import { Base64 } from "js-base64";
 
 export default function WorkerForm() {
     const param = useParams();
@@ -44,15 +45,31 @@ export default function WorkerForm() {
         axios
             .get(`/api/worker/${param.id}`)
             .then((res) => {
-                console.log("res", res);
                 const { worker: workData, forms: formData } = res.data;
                 setWorker(workData);
                 const updatedFormData = {};
                 for (const key in { ...forms }) {
                     if (formData.hasOwnProperty(key)) {
+                        let _url = forms[key]["url"];
+                        if (key == "contractForm") {
+                            _url = `/worker-contract/${Base64.encode(
+                                workData.worker_id
+                            )}`;
+                        } else if (key == "form101Form" && formData[key]) {
+                            _url = `/form101/${Base64.encode(
+                                workData.id.toString()
+                            )}/${Base64.encode(
+                                formData[key]["id"].toString()
+                            )}`;
+                        }
+
                         updatedFormData[key] = {
                             ...forms[key],
-                            isFilled: formData[key] !== null ? true : false,
+                            isFilled:
+                                formData[key] && formData[key]["submitted_at"]
+                                    ? true
+                                    : false,
+                            url: _url,
                         };
                     }
                 }
