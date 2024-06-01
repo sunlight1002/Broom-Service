@@ -234,10 +234,10 @@ export default function chat() {
             <div id="content">
                 <div className="view-applicant">
                     <div className="row">
-                        <div className="col-sm-6">
+                        <div className="col-lg-6 col-12">
                             <h1 className="page-title">Chat History</h1>
                         </div>
-                        <div className="col-sm-6 text-right page-title">
+                        <div className="col-sm-6 d-none d-lg-block text-right page-title">
                             <input
                                 type="text"
                                 name="smsg"
@@ -248,12 +248,22 @@ export default function chat() {
                             />
                         </div>
                     </div>
-                    <button
-                        className="btn btn-danger d-flex d-xl-none mb-3"
-                        onClick={handleOpen}
-                    >
-                        Clients
-                    </button>
+                    <div>
+                        <input
+                            type="text"
+                            name="smsg"
+                            className="form-control d-lg-none"
+                            onChange={(e) => search(e.target.value)}
+                            placeholder="search name or number"
+                            style={{ float: "right", width: "55%" }}
+                        />
+                        <button
+                            className="btn btn-danger d-flex d-xl-none mb-3"
+                            onClick={handleOpen}
+                        >
+                            Clients
+                        </button>
+                    </div>
                     <CustomOffcanvas isOpen={isOpen} handleClose={handleClose}>
                         {clientsCard}
                     </CustomOffcanvas>
