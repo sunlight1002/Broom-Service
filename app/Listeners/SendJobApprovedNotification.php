@@ -55,7 +55,7 @@ class SendJobApprovedNotification implements ShouldQueue
             'emailTitle'  => __('mail.job_common.approve_title'),
             'emailContent'  => __('mail.job_common.approve_content')
         ];
-        event(new JobNotificationToWorker($worker, $job, $emailData));
+        // event(new JobNotificationToWorker($worker, $job, $emailData));
 
         //old
         $admins = Admin::query()

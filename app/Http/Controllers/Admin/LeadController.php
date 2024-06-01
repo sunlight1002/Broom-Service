@@ -84,9 +84,10 @@ class LeadController extends Controller
         }
 
         $input = $data;
-        $input['password'] = isset($input['phone']) && !empty($input['phone']) ?
-            Hash::make($input['phone']) :
-            Hash::make('password');
+        $password =  isset($input['phone']) && !empty($input['phone']) ?
+        $input['phone'] : 'password';
+        $input['password'] = Hash::make($password);
+        $input['passcode'] = $password;
 
         $client = Client::create($input);
 
@@ -450,6 +451,7 @@ class LeadController extends Controller
                         ], [
                             'payment_method'    => 'cc',
                             'password'          => Hash::make($lead_data['id']),
+                            'passcode'          => $lead_data['id'],
                             'status'            => 0,
                             'lng'               => $lng,
                             'firstname'         => $name[0],
