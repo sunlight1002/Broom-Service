@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
         "tecnickcom/tcpdf": "^6.5",
-        "twilio/sdk": "^7.15"
+        "twilio/sdk": "^7.15",
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

@@ -389,7 +389,7 @@ class JobController extends Controller
             'job_group_id' => $job->job_group_id,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
-            'cancelled_user_role' => 'admin',
+            'cancelled_user_role' => 'client',
             'cancelled_by' => Auth::user()->id,
             'action' => CancellationActionEnum::CHANGE_WORKER,
             'duration' => $data['repeatancy'],

@@ -302,7 +302,6 @@ export default function AllWorkers() {
                 </div>
                 <div className="card">
                     <div className="card-body">
-                        {/* <WorkerFilter getWorkerFilter={getWorkerFilter}/> */}
                         <div className="boxPanel">
                             <div className="Table-responsive">
                                 {workers.length > 0 ? (
