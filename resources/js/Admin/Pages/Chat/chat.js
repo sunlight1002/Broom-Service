@@ -6,6 +6,7 @@ import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { template } from "lodash";
+import CustomOffcanvas from "../../Components/shared/CustomOffcanvas";
 
 export default function chat() {
     const [data, setData] = useState(null);
@@ -13,7 +14,14 @@ export default function chat() {
     const [selectNumber, setSelectNumber] = useState(null);
     const [clients, setClients] = useState(null);
     const [expired, setExpired] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
 
+    const handleClose = () => {
+        setIsOpen(false);
+    };
+    const handleOpen = () => {
+        setIsOpen(true);
+    };
     const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -151,6 +159,75 @@ export default function chat() {
             }
         });
     };
+
+    const clientsCard = data
+        ?.slice(0)
+        .reverse()
+        .sort((a, b) => b.unread - a.unread)
+        .map((d, i) => {
+            let cd = clients?.find(({ num }) => num == d.number);
+
+            return (
+                <div
+                    className={"mb-3 card p-3 mt-3 cl_" + d.number}
+                    style={
+                        d.unread > 0
+                            ? {
+                                  background: "#e9dada",
+                              }
+                            : {}
+                    }
+                    onClick={(e) => {
+                        getMessages(d.number);
+                        setSelectNumber(d.number);
+                        handleClose();
+                        localStorage.setItem("number", d.number);
+                        setTimeout(() => {
+                            scroller();
+                        }, 200);
+                        document.querySelector(
+                            ".cl_" + d.number
+                        ).style.background = "#fff";
+                        document.querySelector(".cn_" + d.number).remove();
+                    }}
+                    key={i}
+                >
+                    {cd && (
+                        <h5
+                            className="mt-0 mb-1"
+                            style={{
+                                cursor: "pointer",
+                            }}
+                        >
+                            <Link
+                                to={
+                                    cd.client == 1
+                                        ? `/admin/view-client/${cd.id}`
+                                        : `/admin/view-lead/${cd.id}`
+                                }
+                            >
+                                <i className="fas fa-user"></i>
+                                {cd.name}
+                            </Link>
+                        </h5>
+                    )}
+                    <h6
+                        className="mt-0 mb-1"
+                        style={{
+                            cursor: "pointer",
+                        }}
+                    >
+                        <i className="fas fa-phone"></i>
+                        {d.number}
+                        {d.unread > 0 && (
+                            <span
+                                className={"text-danger p-2 cn_" + d.number}
+                            >{`(${d.unread})`}</span>
+                        )}
+                    </h6>
+                </div>
+            );
+        });
     return (
         <div id="container">
             <Sidebar />
@@ -171,11 +248,19 @@ export default function chat() {
                             />
                         </div>
                     </div>
-
+                    <button
+                        className="btn btn-danger d-flex d-xl-none mb-3"
+                        onClick={handleOpen}
+                    >
+                        Clients
+                    </button>
+                    <CustomOffcanvas isOpen={isOpen} handleClose={handleClose}>
+                        {clientsCard}
+                    </CustomOffcanvas>
                     <div className="card">
                         <div className="card-body">
                             <div className="row">
-                                <div className="col-sm-9">
+                                <div className="col-xl-8  col-12">
                                     <h4 className="header-title mb-3">
                                         Replies
                                         <button
@@ -365,100 +450,13 @@ export default function chat() {
                                 </div>
 
                                 <div
-                                    className="card col-sm-3 card-body sidemsg"
+                                    className="card col-sm-4 card-body sidemsg d-none d-xl-flex"
                                     style={{
                                         backgroundColor: "#00a4f39e!important",
                                         borderRadius: "3%",
                                     }}
                                 >
-                                    {data
-                                        ?.slice(0)
-                                        .reverse()
-                                        .sort((a, b) => b.unread - a.unread)
-                                        .map((d, i) => {
-                                            let cd = clients?.find(
-                                                ({ num }) => num == d.number
-                                            );
-
-                                            return (
-                                                <div
-                                                    className={
-                                                        "mb-3 card p-3 mt-3 cl_" +
-                                                        d.number
-                                                    }
-                                                    style={
-                                                        d.unread > 0
-                                                            ? {
-                                                                  background:
-                                                                      "#e9dada",
-                                                              }
-                                                            : {}
-                                                    }
-                                                    onClick={(e) => {
-                                                        getMessages(d.number);
-                                                        setSelectNumber(
-                                                            d.number
-                                                        );
-                                                        localStorage.setItem(
-                                                            "number",
-                                                            d.number
-                                                        );
-                                                        setTimeout(() => {
-                                                            scroller();
-                                                        }, 200);
-                                                        document.querySelector(
-                                                            ".cl_" + d.number
-                                                        ).style.background =
-                                                            "#fff";
-                                                        document
-                                                            .querySelector(
-                                                                ".cn_" +
-                                                                    d.number
-                                                            )
-                                                            .remove();
-                                                    }}
-                                                    key={i}
-                                                >
-                                                    {cd && (
-                                                        <h5
-                                                            className="mt-0 mb-1"
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                        >
-                                                            <Link
-                                                                to={
-                                                                    cd.client ==
-                                                                    1
-                                                                        ? `/admin/view-client/${cd.id}`
-                                                                        : `/admin/view-lead/${cd.id}`
-                                                                }
-                                                            >
-                                                                <i className="fas fa-user"></i>
-                                                                {cd.name}
-                                                            </Link>
-                                                        </h5>
-                                                    )}
-                                                    <h6
-                                                        className="mt-0 mb-1"
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                    >
-                                                        <i className="fas fa-phone"></i>
-                                                        {d.number}
-                                                        {d.unread > 0 && (
-                                                            <span
-                                                                className={
-                                                                    "text-danger p-2 cn_" +
-                                                                    d.number
-                                                                }
-                                                            >{`(${d.unread})`}</span>
-                                                        )}
-                                                    </h6>
-                                                </div>
-                                            );
-                                        })}
+                                    {clientsCard}
                                 </div>
                             </div>
                         </div>
