@@ -15,15 +15,19 @@ class WorkerCreated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $worker;
+    public $type;
+    public $formId;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($worker)
+    public function __construct($worker, $type = NULL, $formId = NULL)
     {
         $this->worker = $worker;
+        $this->type = $type;
+        $this->formId = $formId;
     }
 
     /**

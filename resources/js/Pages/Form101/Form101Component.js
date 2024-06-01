@@ -33,6 +33,7 @@ const Form101Component = () => {
     const alert = useAlert();
     const param = useParams();
     const id = Base64.decode(param.id);
+    const formId = param.formId ? Base64.decode(param.formId) : null;
 
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -1103,6 +1104,7 @@ const Form101Component = () => {
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("savingType", savingType);
+            formData.append("formId", formId);
 
             axios
                 .post(`/api/form101/${id}`, formData, {
@@ -1157,7 +1159,7 @@ const Form101Component = () => {
     };
 
     const getForm = () => {
-        axios.get(`/api/get101/${id}`).then((res) => {
+        axios.get(`/api/get101/${id}/${formId}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");

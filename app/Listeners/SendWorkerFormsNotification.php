@@ -33,20 +33,38 @@ class SendWorkerFormsNotification implements ShouldQueue
         if (!empty($event->worker->email)) {
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
-
             if ($event->worker->company_type == 'my-company') {
-                Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
-                    $messages->to($workerArr['email']);
-                    ($workerArr['lng'] == 'heb') ?
-                        $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
-                        $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
-                    $messages->subject($sub);
-                });
-                if (!empty($workerArr['phone'])) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_FORMS,
-                        "notificationData" => $workerArr
-                    ]));
+                if ($event->formId) {
+                    $workerArr['formId'] = $event->formId;
+                    if ($event->type == WhatsappMessageTemplateEnum::FORM101) {
+                        Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
+                            $messages->to($workerArr['email']);
+                            ($workerArr['lng'] == 'heb') ?
+                                $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') :
+                                $sub = __('mail.form_101.subject') . " #" . $workerArr['id'];
+                            $messages->subject($sub);
+                        });
+                        if (!empty($workerArr['phone'])) {
+                            event(new WhatsappNotificationEvent([
+                                "type" => WhatsappMessageTemplateEnum::FORM101,
+                                "notificationData" => $workerArr
+                            ]));
+                        }
+                    }
+                } else {
+                    Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
+                        $messages->to($workerArr['email']);
+                        ($workerArr['lng'] == 'heb') ?
+                            $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
+                            $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
+                        $messages->subject($sub);
+                    });
+                    if (!empty($workerArr['phone'])) {
+                        event(new WhatsappNotificationEvent([
+                            "type" => WhatsappMessageTemplateEnum::WORKER_FORMS,
+                            "notificationData" => $workerArr
+                        ]));
+                    }
                 }
             }
             // if ($event->worker->company_type == 'my-company') {

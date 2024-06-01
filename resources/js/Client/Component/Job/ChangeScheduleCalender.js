@@ -56,6 +56,11 @@ export default function ChangeScheduleCalender({ job }) {
         });
     };
 
+    const jobHours = useMemo(
+        () => job.jobservice.duration_minutes / 60,
+        [job.jobservice.duration_minutes]
+    );
+
     const getWorkers = () => {
         axios
             .get(`/api/client/workers`, {
@@ -78,7 +83,7 @@ export default function ChangeScheduleCalender({ job }) {
             .then((res) => {
                 setAllWorkers(res.data.workers);
                 setWorkerAvailabilities(
-                    getWorkerAvailabilities(res.data.workers, true)
+                    getWorkerAvailabilities(res.data.workers, true, jobHours)
                 );
             });
     };
@@ -103,12 +108,12 @@ export default function ChangeScheduleCalender({ job }) {
     useEffect(() => {
         setSelectedHours([
             {
-                jobHours: job.jobservice.duration_minutes / 60,
+                jobHours: jobHours,
                 slots: null,
                 formattedSlots: null,
             },
         ]);
-    }, [job]);
+    }, [jobHours]);
 
     const handleSubmit = () => {
         if (!formValues.repeatancy) {

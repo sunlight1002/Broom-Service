@@ -432,7 +432,48 @@ export const getAvailableSlots = async (
     return availableSlots;
 };
 
-export const getWorkerAvailabilities = (workers, isClient = false) => {
+// Function to convert time string to minutes
+export const timeToMinutes = (time) => {
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+};
+
+export const findContinuousTimeSlots = (slots, requiredHours) => {
+    const slotsInMinutes = slots.map((i) => {
+        return { ...i, minutes: timeToMinutes(i.time) };
+    });
+
+    let continousHour = 0;
+    let newSlots = [];
+
+    for (let i = 0; i <= slotsInMinutes.length - 1; i++) {
+        if (
+            (i < slotsInMinutes.length ||
+                slotsInMinutes[i + 1]["minutes"] -
+                    slotsInMinutes[i]["minutes"] ==
+                    60) &&
+            !slotsInMinutes[i]["isBooked"] &&
+            !slotsInMinutes[i]["isFreezed"] &&
+            !slotsInMinutes[i]["notAvailable"]
+        ) {
+            continousHour++;
+        } else {
+            continousHour = 0;
+        }
+
+        if (continousHour >= requiredHours) {
+            newSlots.push(slotsInMinutes[i - requiredHours + 1]);
+        }
+    }
+
+    return newSlots;
+};
+
+export const getWorkerAvailabilities = (
+    workers,
+    isClient = false,
+    jobHours = undefined
+) => {
     return workers?.map((worker) => {
         let freeze_dates = worker.freeze_dates ?? [];
         const booked_slots = worker.booked_slots ?? [];
@@ -449,10 +490,12 @@ export const getWorkerAvailabilities = (workers, isClient = false) => {
                 notAvailableDates?.find((n) => n.date == key)
             );
 
-            return {
-                date: key,
-                allSlots: slots,
-                slots: slots
+            let filteredSlots = [];
+
+            if (isClient) {
+                filteredSlots = findContinuousTimeSlots(slots, jobHours);
+            } else {
+                filteredSlots = slots
                     .filter(
                         (slot) =>
                             !slot?.isBooked &&
@@ -461,7 +504,13 @@ export const getWorkerAvailabilities = (workers, isClient = false) => {
                     )
                     .map((slot) => {
                         return slot;
-                    }),
+                    });
+            }
+
+            return {
+                date: key,
+                allSlots: slots,
+                slots: filteredSlots,
             };
         });
         return {

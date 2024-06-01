@@ -134,13 +134,17 @@ export default function WorkerAvailabilityTable({
                                                 return _s.date == element;
                                             }) ?? [];
                                         let hasStartActive = false;
+
+                                        const filteredSlots = isClient
+                                            ? slots?.slots
+                                            : slots?.allSlots;
                                         return (
                                             <td key={index}>
                                                 <div className="d-flex">
                                                     <div className="d-flex slots">
-                                                        {slots?.allSlots
-                                                            ?.length > 0 ? (
-                                                            slots?.allSlots.map(
+                                                        {filteredSlots?.length >
+                                                        0 ? (
+                                                            filteredSlots.map(
                                                                 (
                                                                     shift,
                                                                     _sIdx
