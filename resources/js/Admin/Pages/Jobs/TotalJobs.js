@@ -1,7 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import ReactPaginate from "react-paginate";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +8,13 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
-import useDebounce from "./hooks/useDebounce";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { renderToString } from "react-dom/server";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
@@ -46,21 +49,23 @@ export default function TotalJobs() {
     };
 
     const [totalJobs, setTotalJobs] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
-    const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
         start_date: currentWeekFilter.start_date,
         end_date: currentWeekFilter.end_date,
     });
     const [paymentFilter, setPaymentFilter] = useState("");
-    const [searchVal, setSearchVal] = useState("");
     const [selectedFilter, setselectedFilter] = useState("Week");
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
+
+    const tableRef = useRef(null);
+    const paymentFilterRef = useRef(null);
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -71,43 +76,330 @@ export default function TotalJobs() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getJobs = () => {
-        let _filters = {};
-
-        if (searchVal) {
-            _filters.keyword = searchVal;
-        }
-
-        if (paymentFilter) {
-            _filters.payment_filter = paymentFilter;
-        }
-
-        _filters.start_date = dateRange.start_date;
-        _filters.end_date = dateRange.end_date;
-
-        axios
-            .get(`/api/admin/jobs`, {
-                headers,
-                params: {
-                    page: currentPage,
-                    ..._filters,
-                },
-            })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setPageCount(0);
-                    setLoading("No Job found");
-                }
-            });
+    const minutesToHours = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours`;
     };
 
     useEffect(() => {
-        getJobs();
-    }, [currentPage, paymentFilter, dateRange, searchVal]);
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/jobs",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+                data: function (d) {
+                    d.payment_filter = paymentFilterRef.current.value;
+                    d.start_date = startDateRef.current.value;
+                    d.end_date = endDateRef.current.value;
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Date",
+                    data: "start_date",
+                },
+                {
+                    title: "Client",
+                    data: "client_name",
+                    render: function (data, type, row, meta) {
+                        let _html = `<span class="client-name-badge dt-client-badge" style="background-color: ${
+                            row.client_color ?? "#FFFFFF"
+                        };" data-client-id="${row.client_id}">`;
+
+                        _html += `<i class="fa-solid fa-user"></i>`;
+
+                        _html += data;
+
+                        _html += `</span>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Service",
+                    data: "service_name",
+                    render: function (data, type, row, meta) {
+                        let _html = `<span class="service-name-badge" style="background-color: ${
+                            row.service_color ?? "#FFFFFF"
+                        };">`;
+
+                        _html += data;
+
+                        _html += `</span>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Worker",
+                    data: "worker_name",
+                    render: function (data, type, row, meta) {
+                        let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+
+                        _html += `<i class="fa-solid fa-user"></i>`;
+
+                        _html += data;
+
+                        _html += `</span>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Shift",
+                    data: "shifts",
+                    render: function (data, type, row, meta) {
+                        const _slots = data.split(",");
+
+                        return _slots
+                            .map((_slot, index) => {
+                                return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
+                            })
+                            .join(" ");
+                    },
+                },
+                {
+                    title: "If Job Was Done",
+                    data: "is_job_done",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${
+                            row.id
+                        }" class="form-control dt-if-job-done-checkbox" ${
+                            row.is_job_done ? "checked" : ""
+                        } ${
+                            row.status == "cancel" || row.is_order_closed == 1
+                                ? "disabled"
+                                : ""
+                        }/> </span> </div>`;
+                    },
+                },
+                {
+                    title: "Time For Job",
+                    data: "duration_minutes",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return `<span class="text-nowrap"> ${minutesToHours(
+                            data
+                        )} </span>`;
+                    },
+                },
+                {
+                    title: "Time Worker Actually",
+                    data: "actual_time_taken_minutes",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        const _hours = row.actual_time_taken_minutes
+                            ? parseFloat(
+                                  row.actual_time_taken_minutes / 60
+                              ).toFixed(2)
+                            : 0;
+
+                        const isOrderClosed =
+                            row.status == "cancel" || row.is_order_closed == 1;
+
+                        let _timeBGColor = "white";
+                        if (
+                            row.actual_time_taken_minutes > row.duration_minutes
+                        ) {
+                            _timeBGColor = "#ff0000";
+                        } else if (isOrderClosed) {
+                            _timeBGColor = "#e7e7e7";
+                        }
+
+                        let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center">`;
+
+                        _html += `<button type="button" class="time-counter dt-time-counter-dec" data-id="${
+                            row.id
+                        }" data-hours="${_hours}" ${
+                            isOrderClosed ? "disabled" : ""
+                        } style="pointer-events: ${
+                            _hours === 0 ? "none" : "auto"
+                        }, opacity: ${_hours === 0 ? 0.5 : 1};"> - </button>`;
+
+                        _html += `<span class="mx-1 time-counter" style="background-color: ${_timeBGColor}"> ${_hours} </span>`;
+
+                        _html += `<button type="button" class="time-counter dt-time-counter-inc" ${
+                            isOrderClosed ? "disabled" : ""
+                        } data-id="${
+                            row.id
+                        }" data-hours="${_hours}"> + </button>`;
+
+                        _html += `</div> </div>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Comments",
+                    data: "comment",
+                    orderable: false,
+                },
+                {
+                    title: "Client Review",
+                    data: "review",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html = `-`;
+
+                        if (row.rating) {
+                            _html = renderToString(
+                                <div
+                                    data-tooltip-hidden={!row.review}
+                                    data-tooltip-id="slot-tooltip"
+                                    data-tooltip-content={row.review}
+                                >
+                                    <Rating
+                                        initialValue={20 * row.rating}
+                                        allowFraction
+                                        size={15}
+                                        readonly
+                                    />
+                                </div>
+                            );
+                        }
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        if (
+                            row.status == "completed" &&
+                            !row.is_order_generated
+                        ) {
+                            _html += `<button type="button" class="dropdown-item dt-create-order-btn" data-id="${row.id}" data-client-id="${row.client_id}">Create Order</button>`;
+                        }
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        if (
+                            [
+                                "not-started",
+                                "scheduled",
+                                "unscheduled",
+                                "re-scheduled",
+                            ].includes(row.status)
+                        ) {
+                            _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">Switch Worker</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">Change Worker</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-id="${row.id}">Change Shift</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">Cancel</button>`;
+                        }
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-client-badge", function () {
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/view-client/${_clientID}`);
+        });
+
+        $(tableRef.current).on(
+            "change",
+            ".dt-if-job-done-checkbox",
+            function () {
+                const _id = $(this).data("id");
+                handleJobDone(_id, this.checked);
+            }
+        );
+
+        $(tableRef.current).on("click", ".dt-time-counter-dec", function () {
+            const _id = $(this).data("id");
+            const _hours = parseFloat($(this).data("hours"));
+
+            const _changedHours = (
+                _hours > 0 && !_hours.includes("-")
+                    ? parseFloat(_hours) - 0.25
+                    : 0
+            ).toFixed(2);
+
+            handleWorkerActualTime(_id, _changedHours * 60);
+        });
+
+        $(tableRef.current).on("click", ".dt-time-counter-inc", function () {
+            const _id = $(this).data("id");
+            const _hours = $(this).data("hours");
+
+            const _changedHours = (parseFloat(_hours) + 0.25).toFixed(2);
+
+            handleWorkerActualTime(_id, _changedHours * 60);
+        });
+
+        $(tableRef.current).on("click", ".dt-create-order-btn", function () {
+            const _id = $(this).data("id");
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/add-order?j=${_id}&c=${_clientID}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-job/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
+            const _id = $(this).data("id");
+            const _totalAmount = $(this).data("total-amount");
+
+            handleSwitchWorker({
+                id: _id,
+                total_amount: _totalAmount,
+            });
+        });
+
+        $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/jobs/${_id}/change-worker`);
+        });
+
+        $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/jobs/${_id}/change-shift`);
+        });
+
+        $(tableRef.current).on("click", ".dt-cancel-btn", function () {
+            const _id = $(this).data("id");
+            const _groupID = $(this).data("group-id");
+
+            handleCancel({
+                id: _id,
+                job_group_id: _groupID,
+            });
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
+
+    useEffect(() => {
+        $(tableRef.current).DataTable().draw();
+    }, [paymentFilter, dateRange]);
 
     const handleJobDone = (_jobID, _checked) => {
         if (_checked) {
@@ -118,7 +410,7 @@ export default function TotalJobs() {
                     { headers }
                 )
                 .then((response) => {
-                    getJobs();
+                    $(tableRef.current).DataTable().draw();
                 });
         } else {
             Swal.fire({
@@ -138,10 +430,10 @@ export default function TotalJobs() {
                             { headers }
                         )
                         .then((response) => {
-                            getJobs();
+                            $(tableRef.current).DataTable().draw();
                         })
                         .catch((e) => {
-                            getJobs();
+                            $(tableRef.current).DataTable().draw();
                         });
                 }
             });
@@ -156,16 +448,11 @@ export default function TotalJobs() {
                 { headers }
             )
             .then((response) => {
-                getJobs();
+                $(tableRef.current).DataTable().draw();
             })
             .catch((e) => {
-                getJobs();
+                $(tableRef.current).DataTable().draw();
             });
-    };
-
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-job/${id}`);
     };
 
     const header = [
@@ -210,42 +497,9 @@ export default function TotalJobs() {
         headers: header,
         filename: filename,
     };
-    const copy = [...totalJobs];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
 
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setTotalJobs(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setTotalJobs(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     const handleSwitchWorker = (_job) => {
@@ -284,20 +538,6 @@ export default function TotalJobs() {
                                 Export to CSV
                             </CSVLink>
                         </div>
-                        {/* <div className="col-sm-2 hidden-xs">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    value={searchVal}
-                                    className="form-control"
-                                    placeholder="Search"
-                                    onChange={(e) => {
-                                        setSearchVal(e.target.value);
-                                    }}
-                                    style={{ marginRight: "0" }}
-                                />
-                            </div>
-                        </div> */}
 
                         <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                             <div className="d-flex align-items-center">
@@ -430,6 +670,24 @@ export default function TotalJobs() {
                                 >
                                     Export Time Reports
                                 </button>
+
+                                <input
+                                    type="hidden"
+                                    value={paymentFilter}
+                                    ref={paymentFilterRef}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    value={dateRange.start_date}
+                                    ref={startDateRef}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    value={dateRange.end_date}
+                                    ref={endDateRef}
+                                />
                             </div>
                         </div>
                         {/* Mobile */}
@@ -447,11 +705,11 @@ export default function TotalJobs() {
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="start_date">Job Date</option>
-                                <option value="status">Status</option>
+                                <option value="0">Job Date</option>
+                                <option value="1">Client</option>
                             </select>
                         </div>
                     </div>
@@ -459,439 +717,10 @@ export default function TotalJobs() {
                 <div className="card">
                     <div className="card-body getjobslist">
                         <div className="boxPanel-Th-border-none">
-                            <div className="table-responsive">
-                                {totalJobs.length > 0 ? (
-                                    <Table className="table">
-                                        <Thead>
-                                            <Tr>
-                                                <Th
-                                                    scope="col"
-                                                    onClick={(e) => {
-                                                        sortTable(
-                                                            e,
-                                                            "start_date"
-                                                        );
-                                                    }}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Date{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th scope="col">Client</Th>
-                                                <Th scope="col">Service</Th>
-                                                <Th scope="col">Worker</Th>
-                                                <Th scope="col">Shift</Th>
-                                                <Th scope="col">
-                                                    If Job Was Done
-                                                </Th>
-                                                <Th scope="col">
-                                                    Time For Job
-                                                </Th>
-                                                <Th scope="col">
-                                                    Time Worker Actually
-                                                </Th>
-                                                <Th scope="col">Comments</Th>
-                                                <Th scope="col">
-                                                    Client Review
-                                                </Th>
-                                                <Th
-                                                    className="text-center"
-                                                    scope="col"
-                                                >
-                                                    Action
-                                                </Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {totalJobs.map((item, index) => {
-                                                return (
-                                                    <Tr
-                                                        key={index}
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                    >
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <span className="d-block text-nowrap mb-1">
-                                                                {Moment(
-                                                                    item.start_date
-                                                                ).format(
-                                                                    "DD/MM/YYYY"
-                                                                )}
-                                                            </span>
-                                                        </Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={
-                                                                    item.client
-                                                                        ? `/admin/view-client/${item.client.id}`
-                                                                        : "#"
-                                                                }
-                                                                style={{
-                                                                    color: "#000000",
-                                                                    background:
-                                                                        item
-                                                                            .client
-                                                                            .color ||
-                                                                        "#FFFFFF",
-                                                                    padding:
-                                                                        "3px 8px",
-                                                                    borderRadius:
-                                                                        "5px",
-                                                                    display:
-                                                                        "flex",
-                                                                    alignItems:
-                                                                        "center",
-                                                                    width: "max-content",
-                                                                }}
-                                                            >
-                                                                <i
-                                                                    className="fa-solid fa-user"
-                                                                    style={{
-                                                                        fontSize:
-                                                                            "12px",
-                                                                        marginRight:
-                                                                            "5px",
-                                                                    }}
-                                                                ></i>
-                                                                {item.client
-                                                                    ? item
-                                                                          .client
-                                                                          .firstname +
-                                                                      " " +
-                                                                      item
-                                                                          .client
-                                                                          .lastname
-                                                                    : "NA"}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                            style={{
-                                                                background: `${
-                                                                    item.jobservice &&
-                                                                    item
-                                                                        .jobservice
-                                                                        .service
-                                                                        ? item
-                                                                              .jobservice
-                                                                              .service
-                                                                              ?.color_code
-                                                                        : "#FFFFFF"
-                                                                }`,
-                                                            }}
-                                                        >
-                                                            {item.jobservice &&
-                                                                (item.client &&
-                                                                item.client
-                                                                    .lng == "en"
-                                                                    ? item
-                                                                          .jobservice
-                                                                          .name
-                                                                    : item
-                                                                          .jobservice
-                                                                          .heb_name)}
-                                                        </Td>
-                                                        <Td>
-                                                            <div
-                                                                onClick={() => {
-                                                                    handleSwitchWorker(
-                                                                        item
-                                                                    );
-                                                                }}
-                                                                style={{
-                                                                    color: "black",
-                                                                    background:
-                                                                        "#f4f4f4",
-                                                                    padding:
-                                                                        "3px 8px",
-                                                                    border: "1px solid #ebebeb",
-                                                                    borderRadius:
-                                                                        "5px",
-                                                                    display:
-                                                                        "flex",
-                                                                    alignItems:
-                                                                        "center",
-                                                                    width: "max-content",
-                                                                }}
-                                                            >
-                                                                <i
-                                                                    className="fa-solid fa-user"
-                                                                    style={{
-                                                                        fontSize:
-                                                                            "12px",
-                                                                        marginRight:
-                                                                            "5px",
-                                                                    }}
-                                                                ></i>
-                                                                {item.worker
-                                                                    ? item
-                                                                          .worker
-                                                                          .firstname +
-                                                                      " " +
-                                                                      item
-                                                                          .worker
-                                                                          .lastname
-                                                                    : "NA"}
-                                                            </div>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <div className="d-flex flex-column justify-content-sm-start justify-content-md-center">
-                                                                {shiftHelperFn(
-                                                                    item.shifts
-                                                                )}
-                                                            </div>
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                <span
-                                                                    className="rounded"
-                                                                    style={{
-                                                                        border: "1px solid #ebebeb",
-                                                                        overflow:
-                                                                            "hidden",
-                                                                    }}
-                                                                >
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        name="job-compeleted"
-                                                                        checked={
-                                                                            item.is_job_done
-                                                                        }
-                                                                        disabled={
-                                                                            item.status ==
-                                                                                "cancel" ||
-                                                                            (item.order &&
-                                                                                item
-                                                                                    .order
-                                                                                    .status ==
-                                                                                    "Closed")
-                                                                        }
-                                                                        onChange={(
-                                                                            e
-                                                                        ) => {
-                                                                            handleJobDone(
-                                                                                item.id,
-                                                                                e
-                                                                                    .target
-                                                                                    .checked
-                                                                            );
-                                                                        }}
-                                                                        style={{
-                                                                            height: "20px",
-                                                                            width: "20px",
-                                                                            accentColor:
-                                                                                "#f4f4f4",
-                                                                        }}
-                                                                        className="form-control"
-                                                                    />
-                                                                </span>
-                                                            </div>
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                {item.jobservice &&
-                                                                    item.client && (
-                                                                        <span className="text-nowrap">
-                                                                            {minutesToHours(
-                                                                                item
-                                                                                    .jobservice
-                                                                                    .duration_minutes
-                                                                            )}
-                                                                        </span>
-                                                                    )}
-                                                            </div>
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                {item && (
-                                                                    <ActuallyTimeWorker
-                                                                        data={
-                                                                            item
-                                                                        }
-                                                                        emitValue={(
-                                                                            e
-                                                                        ) => {
-                                                                            handleWorkerActualTime(
-                                                                                item.id,
-                                                                                e *
-                                                                                    60
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="d-flex justify-content-sm-start justify-content-md-center">
-                                                                {item.comment ||
-                                                                    "-"}
-                                                            </div>
-                                                        </Td>
-                                                        <Td>
-                                                            {item.rating && (
-                                                                <div
-                                                                    data-tooltip-hidden={
-                                                                        !item.review
-                                                                    }
-                                                                    data-tooltip-id="slot-tooltip"
-                                                                    data-tooltip-content={
-                                                                        item.review
-                                                                    }
-                                                                >
-                                                                    <Rating
-                                                                        initialValue={
-                                                                            item.rating
-                                                                        }
-                                                                        allowFraction
-                                                                        size={
-                                                                            15
-                                                                        }
-                                                                        readonly
-                                                                    />
-                                                                </div>
-                                                            )}
-                                                        </Td>
-                                                        <Td className="text-center">
-                                                            <div className="action-dropdown dropdown pb-2">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-
-                                                                {item.client && (
-                                                                    <div className="dropdown-menu">
-                                                                        {item.client &&
-                                                                            item.status ==
-                                                                                "completed" &&
-                                                                            !item.is_order_generated && (
-                                                                                <Link
-                                                                                    to={`/admin/add-order?j=${item.id}&c=${item.client.id}`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Create
-                                                                                    Order
-                                                                                </Link>
-                                                                            )}
-                                                                        <Link
-                                                                            to={`/admin/view-job/${item.id}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            View
-                                                                        </Link>
-                                                                        {[
-                                                                            "not-started",
-                                                                            "scheduled",
-                                                                            "unscheduled",
-                                                                            "re-scheduled",
-                                                                        ].includes(
-                                                                            item.status
-                                                                        ) && (
-                                                                            <>
-                                                                                <button
-                                                                                    className="dropdown-item"
-                                                                                    onClick={() =>
-                                                                                        handleSwitchWorker(
-                                                                                            item
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Switch
-                                                                                    Worker
-                                                                                </button>
-                                                                                <Link
-                                                                                    to={`/admin/jobs/${item.id}/change-worker`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Change
-                                                                                    Worker
-                                                                                </Link>
-                                                                                <Link
-                                                                                    to={`/admin/jobs/${item.id}/change-shift`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Change
-                                                                                    Shift
-                                                                                </Link>
-                                                                                <button
-                                                                                    className="dropdown-item"
-                                                                                    onClick={() =>
-                                                                                        handleCancel(
-                                                                                            item
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Cancel
-                                                                                </button>
-                                                                            </>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {totalJobs.length > 0 && (
-                                    <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={(data) => {
-                                            setCurrentPage(data.selected + 1);
-                                        }}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
 
                         <div
@@ -989,7 +818,7 @@ export default function TotalJobs() {
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
                     job={selectedJob}
-                    onSuccess={() => getJobs()}
+                    onSuccess={() => $(tableRef.current).DataTable().draw()}
                 />
             )}
 
@@ -999,7 +828,7 @@ export default function TotalJobs() {
                     isOpen={isOpenCancelModal}
                     job={selectedJob}
                     onSuccess={() => {
-                        getJobs();
+                        $(tableRef.current).DataTable().draw();
                         setIsOpenCancelModal(false);
                     }}
                 />
@@ -1009,123 +838,3 @@ export default function TotalJobs() {
         </div>
     );
 }
-
-const minutesToHours = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    return `${hours} hours`;
-};
-
-const shiftHelperFn = (timeString) => {
-    if (timeString) {
-        const arrOfStr = timeString.split(",");
-        return arrOfStr.map((s, index) => (
-            <div
-                className="rounded mb-1"
-                style={{
-                    whiteSpace: "nowrap",
-                    background: "#e7a917",
-                    color: "white",
-                    padding: "3px 8px",
-                }}
-                key={index}
-            >
-                {s}
-            </div>
-        ));
-    } else {
-        return "-";
-    }
-};
-
-const divStyle = {
-    background: "#f4f4f4",
-    color: "black",
-    padding: "3px 8px",
-    border: "1px solid #ebebeb",
-};
-
-const ActuallyTimeWorker = ({ data, emitValue }) => {
-    const [count, setCount] = useState(0);
-    const [isChanged, setIsChanged] = useState(false);
-    const debouncedValue = useDebounce(count, 500);
-
-    const handleChangeHours = (_isIncrement) => {
-        if (_isIncrement) {
-            setCount((_count) => (parseFloat(_count) + 0.25).toFixed(2));
-        } else {
-            setCount((_count) =>
-                (_count > 0 && !_count.includes("-")
-                    ? parseFloat(_count) - 0.25
-                    : 0
-                ).toFixed(2)
-            );
-        }
-        setIsChanged(true);
-    };
-
-    useEffect(() => {
-        isChanged && emitValue(debouncedValue);
-    }, [debouncedValue]);
-
-    useEffect(() => {
-        setCount(
-            data.actual_time_taken_minutes
-                ? parseFloat(data.actual_time_taken_minutes / 60).toFixed(2)
-                : 0
-        );
-    }, [data]);
-
-    const isOrderClosed = useMemo(() => {
-        return (
-            data.status == "cancel" ||
-            (data.order && data.order.status == "Closed")
-        );
-    }, [data.order]);
-
-    const timeBGColor = useMemo(() => {
-        let _color = "white";
-        if (data.actual_time_taken_minutes > data.jobservice.duration_minutes) {
-            _color = "#ff0000";
-        } else if (isOrderClosed) {
-            _color = "#e7e7e7";
-        }
-
-        return _color;
-    }, [isOrderClosed, data]);
-
-    return (
-        <div className="d-flex align-items-center">
-            <button
-                onClick={() => {
-                    handleChangeHours(false);
-                }}
-                disabled={isOrderClosed}
-                style={{
-                    ...divStyle,
-                    pointerEvents: count === 0 ? "none" : "auto",
-                    opacity: count === 0 ? 0.5 : 1,
-                }}
-            >
-                -
-            </button>
-            <span
-                className="mx-1"
-                style={{
-                    ...divStyle,
-                    background: timeBGColor,
-                }}
-            >
-                {count}
-            </span>
-            <button
-                onClick={() => {
-                    handleChangeHours(true);
-                }}
-                disabled={isOrderClosed}
-                style={divStyle}
-            >
-                +
-            </button>
-        </div>
-    );
-};

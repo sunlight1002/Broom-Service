@@ -33,6 +33,6 @@ class JobService extends Model
 
     public function service()
     {
-        return $this->belongsTo(Services::class, 'job_id');
+        return $this->belongsTo(Services::class, 'service_id');
     }
 }

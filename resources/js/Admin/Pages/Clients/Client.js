@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Button from "react-bootstrap/Button";
@@ -11,18 +9,17 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
-import Sidebar from "../../Layouts/Sidebar";
-import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
-import { leadStatusColor } from "../../../Utils/client.utils";
-
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
+import Sidebar from "../../Layouts/Sidebar";
+import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
+import { leadStatusColor } from "../../../Utils/client.utils";
+
 export default function Clients() {
-    const [clients, setClients] = useState([]);
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const [changeStatusModal, setChangeStatusModal] = useState({
@@ -35,6 +32,9 @@ export default function Clients() {
 
     const tableRef = useRef(null);
     const actionRef = useRef(null);
+
+    const alert = useAlert();
+    const { t } = useTranslation();
 
     useEffect(() => {
         $(tableRef.current).DataTable({
@@ -87,7 +87,7 @@ export default function Clients() {
                     orderable: false,
                     render: function (data, type, row, meta) {
                         let _html =
-                            '<div class="dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i className="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
                         if (row.has_contract == 1) {
                             _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
@@ -141,9 +141,6 @@ export default function Clients() {
             $(tableRef.current).DataTable().destroy(true);
         };
     }, []);
-
-    const alert = useAlert();
-    const { t } = useTranslation();
 
     const handleClose = () => {
         setImportFile("");

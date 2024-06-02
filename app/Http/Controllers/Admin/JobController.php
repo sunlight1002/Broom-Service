@@ -38,6 +38,7 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToClient;
 use App\Events\JobNotificationToWorker;
 use App\Models\Notification;
+use Yajra\DataTables\Facades\DataTables;
 
 class JobController extends Controller
 {
@@ -50,61 +51,62 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('keyword');
         $payment_filter = $request->get('payment_filter');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
 
-        $jobs = Job::query()
-            ->with([
-                'worker',
-                'client',
-                'offer',
-                'jobservice',
-                'order',
-                'invoice',
-                'jobservice.service',
-                'propertyAddress'
-            ])
-            ->when($keyword, function ($q) use ($keyword) {
-                return $q
-                    ->whereHas('worker', function ($sq) use ($keyword) {
-                        $sq->where(function ($sq) use ($keyword) {
-                            $sq->where(DB::raw('firstname'), 'like', '%' . $keyword . '%');
-                            $sq->orWhere(DB::raw('lastname'), 'like', '%' . $keyword . '%');
-                        });
-                    })
-                    ->orWhereHas('client', function ($sq) use ($keyword) {
-                        $sq->where(function ($sq) use ($keyword) {
-                            $sq->where(DB::raw('firstname'), 'like', '%' . $keyword . '%');
-                            $sq->orWhere(DB::raw('lastname'), 'like', '%' . $keyword . '%');
-                        });
-                    })
-                    ->orWhereHas('jobservice', function ($sq) use ($keyword) {
-                        $sq->where(function ($sq) use ($keyword) {
-                            $sq->where(DB::raw('name'), 'like', '%' . $keyword . '%');
-                            $sq->orWhere(DB::raw('heb_name'), 'like', '%' . $keyword . '%');
-                        });
-                    })
-                    ->orWhere('status', 'like', '%' . $keyword . '%');
-            })
+        $query = Job::query()
+            ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
+            ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
+            ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+            ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
+            ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
             ->when($start_date, function ($q) use ($start_date) {
-                return $q->whereDate('start_date', '>=', $start_date);
+                return $q->whereDate('jobs.start_date', '>=', $start_date);
             })
             ->when($end_date, function ($q) use ($end_date) {
-                return $q->whereDate('start_date', '<=', $end_date);
+                return $q->whereDate('jobs.start_date', '<=', $end_date);
             })
             ->when(isset($payment_filter), function ($q) use ($payment_filter) {
-                return $q->where('is_paid', $payment_filter);
+                return $q->where('jobs.is_paid', $payment_filter);
             })
-            ->orderBy('start_date')
-            ->orderBy('client_id')
-            ->groupBy('jobs.id')
-            ->paginate(20);
+            ->select('jobs.id', 'jobs.start_date', 'clients.id as client_id', 'clients.color as client_color', 'users.id as worker_id', 'services.color_code as service_color', 'jobs.shifts', 'jobs.is_job_done', 'jobs.status', 'job_services.duration_minutes', 'jobs.actual_time_taken_minutes', 'jobs.comment', 'jobs.review', 'jobs.rating', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id')
+            ->selectRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name")
+            ->selectRaw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name")
+            ->selectRaw('IF(order.status = "Closed", 1, 0) AS is_order_closed')
+            ->selectRaw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name')
+            ->groupBy('jobs.id');
 
-        return response()->json([
-            'jobs' => $jobs,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('job_services.name', 'like', "%" . $keyword . "%")
+                                ->orWhere('job_services.heb_name', 'like', "%" . $keyword . "%")
+                                ->orWhere('jobs.shifts', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('start_date', function ($data) {
+                return $data->start_date ? Carbon::parse($data->start_date)->format('d/m/Y') : '-';
+            })
+            ->editColumn('comment', function ($data) {
+                return $data->comment ? $data->comment : '-';
+            })
+            ->editColumn('worker_name', function ($data) {
+                return $data->worker_name ? $data->worker_name : 'NA';
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function shiftChangeWorker($sid, $date)
