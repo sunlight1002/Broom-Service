@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function ManageTeam() {
-    const [item, setItem] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [pageCount, setPageCount] = useState(0);
+    const navigate = useNavigate();
+    const tableRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -18,34 +21,90 @@ export default function ManageTeam() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/admin/teams?page=" + currentPage, { headers })
-            .then((response) => {
-                if (response.data.team.data.length > 0) {
-                    setItem(response.data.team.data);
-                    setPageCount(response.data.team.last_page);
-                } else {
-                    setLoading("No member found");
-                }
-            });
-    };
-
-    const getMembers = () => {
-        axios.get("/api/admin/teams", { headers }).then((response) => {
-            if (response.data.team.data.length > 0) {
-                setItem(response.data.team.data);
-                setPageCount(response.data.team.last_page);
-            } else {
-                setLoading("No member found");
-            }
-        });
-    };
-
     useEffect(() => {
-        getMembers();
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/teams",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    render: function (data, type, row, meta) {
+                        return row.status == 1 ? "Active" : "Inactive";
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-availability-btn" data-id="${row.id}">Availability</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-availability-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/team-member/availability/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/teams/${_id}/edit`);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
     }, []);
+
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -66,64 +125,15 @@ export default function ManageTeam() {
                             "success"
                         );
                         setTimeout(() => {
-                            getMembers();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
 
-    const filterTeam = (e) => {
-        axios
-            .get(`/api/admin/teams?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.team.data.length > 0) {
-                    setItem(response.data.team.data);
-                    setPageCount(response.data.team.last_page);
-                } else {
-                    setItem([]);
-                    setPageCount(response.data.team.last_page);
-                    setLoading("No member found");
-                }
-            });
-    };
-
-    const copy = [...item];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setItem(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setItem(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     return (
@@ -137,12 +147,6 @@ export default function ManageTeam() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={filterTeam}
-                                    placeholder="Search"
-                                />
                                 <Link
                                     to="/admin/teams/create"
                                     className="btn btn-pink addButton"
@@ -155,142 +159,22 @@ export default function ManageTeam() {
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="name">Name</option>
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                                <option value="status">Status</option>
+                                <option value="0">Name</option>
+                                <option value="1">Email</option>
+                                <option value="2">Phone</option>
+                                <option value="3">Status</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div className="dashBox p-4">
-                    <div className="table-responsive">
-                        {item.length > 0 ? (
-                            <Table className="table table-bordered">
-                                <Thead>
-                                    <Tr style={{ cursor: "pointer" }}>
-                                        <Th
-                                            scope="col"
-                                            onClick={(e) => {
-                                                sortTable(e, "name");
-                                            }}
-                                        >
-                                            Name{" "}
-                                            <span className="arr"> &darr;</span>
-                                        </Th>
-                                        <Th
-                                            scope="col"
-                                            onClick={(e) => {
-                                                sortTable(e, "email");
-                                            }}
-                                        >
-                                            Email{" "}
-                                            <span className="arr"> &darr;</span>
-                                        </Th>
-                                        <Th
-                                            scope="col"
-                                            onClick={(e) => {
-                                                sortTable(e, "phone");
-                                            }}
-                                        >
-                                            Phone{" "}
-                                            <span className="arr"> &darr;</span>
-                                        </Th>
-                                        <Th
-                                            scope="col"
-                                            onClick={(e) => {
-                                                sortTable(e, "status");
-                                            }}
-                                        >
-                                            Status{" "}
-                                            <span className="arr"> &darr;</span>
-                                        </Th>
-                                        <Th scope="col">Action</Th>
-                                    </Tr>
-                                </Thead>
-                                <Tbody>
-                                    {item &&
-                                        item.map((item, index) => (
-                                            <Tr key={index}>
-                                                <Td>{item.name}</Td>
-                                                <Td>{item.email}</Td>
-                                                <Td>{item.phone}</Td>
-                                                <Td>
-                                                    {item.status == 1
-                                                        ? "Active"
-                                                        : "Inactive"}
-                                                </Td>
-                                                <Td>
-                                                    <div className="action-dropdown dropdown">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-default dropdown-toggle"
-                                                            data-toggle="dropdown"
-                                                        >
-                                                            <i className="fa fa-ellipsis-vertical"></i>
-                                                        </button>
-                                                        <div className="dropdown-menu">
-                                                            <Link
-                                                                to={`/admin/team-member/availability/${item.id}`}
-                                                                className="dropdown-item"
-                                                            >
-                                                                Availability
-                                                            </Link>
-                                                            <Link
-                                                                to={`/admin/teams/${item.id}/edit`}
-                                                                className="dropdown-item"
-                                                            >
-                                                                Edit
-                                                            </Link>
-                                                            <button
-                                                                className="dropdown-item"
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        item.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </Td>
-                                            </Tr>
-                                        ))}
-                                </Tbody>
-                            </Table>
-                        ) : (
-                            <div className="text-center">{loading}</div>
-                        )}
-                    </div>
-                    {item.length > 0 ? (
-                        <ReactPaginate
-                            previousLabel={"Previous"}
-                            nextLabel={"Next"}
-                            breakLabel={"..."}
-                            pageCount={pageCount}
-                            marginPagesDisplayed={2}
-                            pageRangeDisplayed={3}
-                            onPageChange={handlePageClick}
-                            containerClassName={
-                                "pagination justify-content-end mt-3"
-                            }
-                            pageClassName={"page-item"}
-                            pageLinkClassName={"page-link"}
-                            previousClassName={"page-item"}
-                            previousLinkClassName={"page-link"}
-                            nextClassName={"page-item"}
-                            nextLinkClassName={"page-link"}
-                            breakClassName={"page-item"}
-                            breakLinkClassName={"page-link"}
-                            activeClassName={"active"}
-                        />
-                    ) : (
-                        ""
-                    )}
+                    <table
+                        ref={tableRef}
+                        className="display table table-bordered"
+                    />
                 </div>
             </div>
         </div>

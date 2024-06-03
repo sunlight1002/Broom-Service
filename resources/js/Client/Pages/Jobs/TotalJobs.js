@@ -1,60 +1,204 @@
-import React, { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { useAlert } from "react-alert";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import Moment from "moment";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
 
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
 import Sidebar from "../../Layouts/ClientSidebar";
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function TotalJobs() {
-    const [totalJobs, setTotalJobs] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
 
-    const alert = useAlert();
+    const tableRef = useRef(null);
     const { t, i18n } = useTranslation();
-    const c_lng = i18n.language;
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("client-token"),
-    };
 
-    const getJobs = () => {
-        axios.post("/api/client/jobs", {}, { headers }).then((response) => {
-            if (response.data.jobs.length > 0) {
-                setTotalJobs(response.data.jobs);
-                setPageCount(response.data.jobs.last_page);
-            } else {
-                setTotalJobs([]);
-                setLoading(t("client.jobs.noJobFound"));
-            }
-        });
+    const minutesToHours = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours`;
     };
 
     useEffect(() => {
-        getJobs();
-    }, []);
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/client/jobs",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("client-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Date",
+                    data: "start_date",
+                },
+                {
+                    title: "Worker",
+                    data: "worker_name",
+                    render: function (data, type, row, meta) {
+                        let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/client/jobs?page=" + currentPage, { headers })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setLoading(t("client.jobs.noJobFound"));
-                }
-            });
-    };
+                        _html += `<i class="fa-solid fa-user"></i>`;
+
+                        _html += data;
+
+                        _html += `</span>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Service",
+                    data: "service_name",
+                    render: function (data, type, row, meta) {
+                        let _html = `<span class="service-name-badge" style="background-color: ${
+                            row.service_color ?? "#FFFFFF"
+                        };">`;
+
+                        _html += data;
+
+                        _html += `</span>`;
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Shift",
+                    data: "shifts",
+                    render: function (data, type, row, meta) {
+                        const _slots = data.split(",");
+
+                        return _slots
+                            .map((_slot, index) => {
+                                return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
+                            })
+                            .join(" ");
+                    },
+                },
+                {
+                    title: "Address",
+                    data: "address_name",
+                    render: function (data, type, row, meta) {
+                        if (data) {
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank"> ${data} </a>`;
+                        } else {
+                            return "NA";
+                        }
+                    },
+                },
+                {
+                    title: "Complete Time",
+                    data: "duration_minutes",
+                    render: function (data, type, row, meta) {
+                        return `<span class="text-nowrap"> ${minutesToHours(
+                            data
+                        )} </span>`;
+                    },
+                },
+                {
+                    title: "Status",
+                    data: "status",
+
+                    // let status = item.status;
+                    //                             if (status == "not-started") {
+                    //                                 status = t(
+                    //                                     "j_status.not-started"
+                    //                                 );
+                    //                             }
+                    //                             if (status == "progress") {
+                    //                                 status =
+                    //                                     t("j_status.progress");
+                    //                             }
+                    //                             if (status == "completed") {
+                    //                                 status =
+                    //                                     t("j_status.completed");
+                    //                             }
+                    //                             if (status == "scheduled") {
+                    //                                 status =
+                    //                                     t("j_status.scheduled");
+                    //                             }
+                    //                             if (status == "unscheduled") {
+                    //                                 status = t(
+                    //                                     "j_status.unscheduled"
+                    //                                 );
+                    //                             }
+                    //                             if (status == "re-scheduled") {
+                    //                                 status = t(
+                    //                                     "j_status.re-scheduled"
+                    //                                 );
+                    //                             }
+                    //                             if (status == "cancel") {
+                    //                                 status =
+                    //                                     t("j_status.cancel");
+                    //                             }
+                },
+                {
+                    title: "Total",
+                    data: "total",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return (
+                            `${data} ` +
+                            t("global.currency") +
+                            " + " +
+                            t("global.vat")
+                        );
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        if (
+                            [
+                                "not-started",
+                                "scheduled",
+                                "unscheduled",
+                                "re-scheduled",
+                            ].includes(row.status)
+                        ) {
+                            _html += `<button type="button" class="dropdown-item dt-change-schedule-btn" data-id="${row.id}">Change Schedule</button>`;
+                        }
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = Base64.encode($(this).data("id"));
+            navigate(`/client/view-job/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-change-schedule-btn", function () {
+            const _id = Base64.encode($(this).data("id"));
+            navigate(`/client/jobs/${_id}/change-schedule`);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     return (
         <div id="container">
@@ -81,245 +225,10 @@ export default function TotalJobs() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {totalJobs.length > 0 ? (
-                                    <Table className="table table-bordered responsiveTable">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">
-                                                    {t("client.jobs.date")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.worker")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.service")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.shift")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.address")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.c_time")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.status")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.total")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.jobs.action")}
-                                                </Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {totalJobs.map((item, index) => {
-                                                let address =
-                                                    item.property_address;
-
-                                                let address_name =
-                                                    address &&
-                                                    address.address_name
-                                                        ? address.address_name
-                                                        : "NA";
-                                                let cords =
-                                                    address &&
-                                                    address.latitude &&
-                                                    address.longitude
-                                                        ? address.latitude +
-                                                          "," +
-                                                          address.longitude
-                                                        : "NA";
-                                                let status = item.status;
-                                                if (status == "not-started") {
-                                                    status = t(
-                                                        "j_status.not-started"
-                                                    );
-                                                }
-                                                if (status == "progress") {
-                                                    status =
-                                                        t("j_status.progress");
-                                                }
-                                                if (status == "completed") {
-                                                    status =
-                                                        t("j_status.completed");
-                                                }
-                                                if (status == "scheduled") {
-                                                    status =
-                                                        t("j_status.scheduled");
-                                                }
-                                                if (status == "unscheduled") {
-                                                    status = t(
-                                                        "j_status.unscheduled"
-                                                    );
-                                                }
-                                                if (status == "re-scheduled") {
-                                                    status = t(
-                                                        "j_status.re-scheduled"
-                                                    );
-                                                }
-                                                if (status == "cancel") {
-                                                    status =
-                                                        t("j_status.cancel");
-                                                }
-                                                return (
-                                                    <Tr key={index}>
-                                                        <Td>
-                                                            {Moment(
-                                                                item.start_date
-                                                            ).format(
-                                                                "DD MMM, Y"
-                                                            )}
-                                                        </Td>
-                                                        <Td>
-                                                            <h6>
-                                                                {item.worker
-                                                                    ? item
-                                                                          .worker
-                                                                          .firstname +
-                                                                      " " +
-                                                                      item
-                                                                          .worker
-                                                                          .lastname
-                                                                    : "NA"}
-                                                            </h6>
-                                                        </Td>
-                                                        <Td>
-                                                            {item.jobservice &&
-                                                                (c_lng == "en"
-                                                                    ? item
-                                                                          .jobservice
-                                                                          .name
-                                                                    : item
-                                                                          .jobservice
-                                                                          .heb_name)}
-                                                        </Td>
-                                                        <Td>{item.shifts}</Td>
-                                                        <Td>
-                                                            {cords !== "NA" ? (
-                                                                <Link
-                                                                    to={`https://maps.google.com?q=${cords}`}
-                                                                    target="_blank"
-                                                                >
-                                                                    {
-                                                                        address_name
-                                                                    }
-                                                                </Link>
-                                                            ) : (
-                                                                <>
-                                                                    {
-                                                                        address_name
-                                                                    }
-                                                                </>
-                                                            )}
-                                                        </Td>
-                                                        <Td>
-                                                            {item.jobservice
-                                                                ? convertMinsToDecimalHrs(
-                                                                      item
-                                                                          .jobservice
-                                                                          .duration_minutes
-                                                                  ) + " Hours"
-                                                                : "NA"}
-                                                        </Td>
-                                                        <Td>
-                                                            {status}
-                                                            {item.status ==
-                                                            "cancel"
-                                                                ? ` (${t(
-                                                                      "client.jobs.view.with_cancel"
-                                                                  )} ${
-                                                                      item.cancellation_fee_amount
-                                                                  } + ${t(
-                                                                      "global.currency"
-                                                                  )})`
-                                                                : ""}
-                                                        </Td>
-                                                        <Td>
-                                                            {item.jobservice &&
-                                                                item.jobservice
-                                                                    .total +
-                                                                    " " +
-                                                                    t(
-                                                                        "global.currency"
-                                                                    ) +
-                                                                    " + " +
-                                                                    t(
-                                                                        "global.vat"
-                                                                    )}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown pb-2">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    <Link
-                                                                        to={`/client/view-job/${Base64.encode(
-                                                                            item.id.toString()
-                                                                        )}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        {t(
-                                                                            "client.jobs.view_btn"
-                                                                        )}
-                                                                    </Link>
-                                                                    <Link
-                                                                        to={`/client/jobs/${Base64.encode(
-                                                                            item.id.toString()
-                                                                        )}/change-schedule`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        {t(
-                                                                            "client.jobs.change_schedule"
-                                                                        )}
-                                                                    </Link>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {totalJobs.length > 0 ? (
-                                    <ReactPaginate
-                                        previousLabel={t("client.previous")}
-                                        nextLabel={t("client.next")}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

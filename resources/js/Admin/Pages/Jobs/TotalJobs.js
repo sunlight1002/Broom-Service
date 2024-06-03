@@ -48,8 +48,6 @@ export default function TotalJobs() {
             .format("YYYY-MM-DD"),
     };
 
-    const [totalJobs, setTotalJobs] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);

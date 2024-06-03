@@ -2399,6 +2399,16 @@ h1 {
   width: max-content;
 }
 
+.client-payment-status-badge {
+  color: #FFFFFF;
+  background-color: #2F4054;
+  padding: 3px 20px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  width: max-content;
+}
+
 .shifts-badge {
   white-space: nowrap;
   background: #e7a917;
@@ -2424,4 +2434,11 @@ button.time-counter, span.time-counter {
   border: 1px solid #ebebeb;
 }
 
+.text-blue {
+  color: blue;
+}
+
+.text-green {
+  color: green;
+}
 /*******End*************/
