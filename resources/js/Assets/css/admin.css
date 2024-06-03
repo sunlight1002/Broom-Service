@@ -158,6 +158,18 @@ a:hover {
   margin-top: 10px;
 }
 
+@media (max-width: 1200px) {
+  .adminDash .dashBox  {
+  padding: 13px !important;
+  gap: 15px;
+  }
+}
+@media (max-width: 992px) {
+  .adminDash .dashBox  {
+  padding: 10px !important;
+  gap: 15px;
+  }
+}
 .adminDash .dashBox h4 {
   font-size: 40px;
   text-align: center;

@@ -27,7 +27,7 @@ export default function LeadDetails({ lead }) {
                     {lead.firstname + " " + lead.lastname}
                 </h1>
                 <div className="row">
-                    <div className="col-sm-8">
+                    <div className="col-lg-8 col-12">
                         <div className="ClientHistory dashBox p-4 min-414">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
@@ -90,7 +90,7 @@ export default function LeadDetails({ lead }) {
                                     aria-labelledby="client-details"
                                 >
                                     <div className="row">
-                                        <div className="col-sm-6">
+                                        <div className="col-xl-6">
                                             <div className="form-group">
                                                 <label>
                                                     {t("admin.global.Email")}
@@ -98,7 +98,7 @@ export default function LeadDetails({ lead }) {
                                                 <p>{lead.email}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-6">
+                                        <div className="col-xl-6">
                                             <div className="form-group">
                                                 <label>
                                                     {" "}
@@ -114,7 +114,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         </div>
                                         {lead.lead_status && (
-                                            <div className="col-sm-6">
+                                            <div className="col-xl-6">
                                                 <div className="form-group">
                                                     <label>
                                                         {t(
@@ -154,7 +154,7 @@ export default function LeadDetails({ lead }) {
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="col-sm-6">
+                                        <div className="col-xl-6">
                                             <div className="form-group">
                                                 <label>
                                                     {" "}
@@ -290,7 +290,7 @@ export default function LeadDetails({ lead }) {
                             </div>
                         </div>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-lg-4 col-12">
                         <div className="dashBox p-4">
                             <div className="form-group">
                                 <label className="d-block">

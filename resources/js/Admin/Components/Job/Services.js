@@ -17,13 +17,13 @@ export default function Services({ job, updateJob }) {
         <>
             <div className="row">
                 <div className="col-sm-12">
-                    <h2 className="text-custom float-left">
+                    <h2 className="text-custom float-left col-12 col-md-6">
                         {t("admin.schedule.jobs.serviceDetailslabel")}
                     </h2>
 
                     <button
                         type="button"
-                        className="btn btn-primary float-right"
+                        className="btn btn-primary float-right mb-2 mb-sm-0"
                         onClick={() => setIsOpenDiscountModal(true)}
                     >
                         Discount
@@ -31,7 +31,7 @@ export default function Services({ job, updateJob }) {
 
                     <button
                         type="button"
-                        className="btn btn-primary float-right mr-2"
+                        className="btn btn-primary float-right mr-2  mb-2 mb-sm-0"
                         onClick={() => setIsOpenExtraModal(true)}
                     >
                         Extra amount
@@ -43,7 +43,7 @@ export default function Services({ job, updateJob }) {
                 {service && (
                     <form>
                         <div className="row">
-                            <div className="col-sm-3">
+                            <div className="col-lg-3 col-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t(
@@ -53,7 +53,7 @@ export default function Services({ job, updateJob }) {
                                     <p>{service.name}</p>
                                 </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col-lg-2 col-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t(
@@ -63,7 +63,7 @@ export default function Services({ job, updateJob }) {
                                     <p>{service.freq_name}</p>
                                 </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col-lg-2 col-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t(
@@ -79,7 +79,7 @@ export default function Services({ job, updateJob }) {
                                     </p>
                                 </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col-lg-2 col-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t(
@@ -89,7 +89,7 @@ export default function Services({ job, updateJob }) {
                                     <p>{job.shifts}</p>
                                 </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col-lg-2 col-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t(

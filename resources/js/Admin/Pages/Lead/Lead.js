@@ -228,7 +228,7 @@ export default function Lead() {
             <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
-                    <div className="row">
+                    <div className="row align-items-center">
                         <div className="col-sm-6">
                             <h1 className="page-title">
                                 {" "}
@@ -277,7 +277,7 @@ export default function Lead() {
 
                                 <input
                                     type="text"
-                                    className="form-control"
+                                    className="form-control mt-0 mt-md-4"
                                     onChange={(e) => {
                                         filterLeads(e);
                                     }}
@@ -354,7 +354,7 @@ export default function Lead() {
                     <div className="card-body">
                         <div className="boxPanel">
                             {leads.length > 0 ? (
-                                <Table className="table table-bordered">
+                                <Table className="table table-bordered ">
                                     <Thead>
                                         <Tr style={{ cursor: "pointer" }}>
                                             <Th
