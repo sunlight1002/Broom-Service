@@ -346,13 +346,34 @@ return [
         'worker_job_reminder_subject'   => 'Job Reminder | Broom Service',
         'worker_job_reminder_content'   => 'Just a friendly reminder that you have not approve the job till now.',
         'worker_job_start_time_content' => 'Job time has been started by you.',
-        'extra_amount' => 'Extra amount'
+        'extra_amount' => 'Extra amount',
+        'check_job_details' => 'Check Job Details',
+        'mark_as_complete'  =>  'Mark as complete',
+        'end_time'  => 'End time',
+        'resume_timer'  => 'Resume timer'
     ],
     'forms' => [
         'worker_forms' => 'Worker Forms',
         'content'   => 'You have successfully registered on our portal. Please sign the below forms to start working on the job.',
         'below_txt' => 'Click the below button to fill forms.',
         'btn_txt'   => 'Check Forms'
-
+    ],
+    'job_nxt_step' => [
+        'approved_nxt_step_email_subject' => 'Job Approved | Next step | Broom Service',
+        'approved_nxt_step_email_title' => 'Job Approved',
+        'approved_nxt_step_email_content' => 'You have approved the job. Check the below link and click :label when you will going to start your work.',
+        'leaving_for_work_link'  => 'I\'m leaving for work now',
+        'opened_nxt_step_email_subject' => 'Job Opened | Next step | Broom Service',
+        'opened_nxt_step_email_title' => 'Job Opened',
+        'opened_nxt_step_email_content' => 'You are going to start your work. Check the below link and click :l1 whenever you start your work time or if you want to complete the job click on :l2.',
+        'completed_nxt_step_email_subject' => 'Job Completed | Next step | Broom Service',
+        'completed_nxt_step_email_title' => 'Job Completed',
+        'completed_nxt_step_email_content' => 'You have completed the job # :jobId .You will get the feedback once the job reviewed by client.',
+        'start_time_nxt_step_email_subject' => 'Job time started | Next step | Broom Service',
+        'start_time_nxt_step_email_title' => 'Job time started',
+        'start_time_nxt_step_email_content' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
+        'end_time_nxt_step_email_subject' => 'Job time Ended | Next step | Broom Service',
+        'end_time_nxt_step_email_title' => 'Job time ended',
+        'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ]
 ];
