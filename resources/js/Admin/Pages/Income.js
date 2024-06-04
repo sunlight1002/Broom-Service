@@ -160,9 +160,9 @@ export default function income() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-12 d-flex align-items-center">
+                        <div className="col-sm-12 d-sm-flex flex-wrap align-items-center">
                             <div
-                                className="mr-3"
+                                className="mr-3 "
                                 style={{ fontWeight: "bold" }}
                             >
                                 Date Period
@@ -256,7 +256,11 @@ export default function income() {
                                                                   " ILS + VAT "
                                                                 : ""}
                                                         </Td>
-                                                        <Td>{0}</Td>
+                                                        <Td>
+                                                            <span className="d-flex justify-content-center justify-content-sm-start ml-4 ml-sm-0">
+                                                                {0}
+                                                            </span>
+                                                        </Td>
                                                     </Tr>
                                                 );
                                             })}

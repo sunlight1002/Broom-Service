@@ -257,7 +257,7 @@ export default function Payments() {
                 </div>
                 <div className="payment-filter mb-3">
                     <div className="row mb-2">
-                        <div className="col-sm-12 d-flex align-items-center">
+                        <div className="col-sm-12 d-md-flex flex-wrap align-items-center">
                             <div
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
@@ -301,7 +301,7 @@ export default function Payments() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-12 d-flex align-items-center">
+                        <div className="col-sm-12 d-md-flex flex-wrap align-items-center">
                             <div
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
@@ -339,7 +339,7 @@ export default function Payments() {
                             />
                             <FilterButtons
                                 text="This month"
-                                className="px-3 mr-1"
+                                className="px-3 mr-1 mt-2"
                                 onClick={() =>
                                     setDateRange({
                                         start_date: thisMonthFilter.start_date,
@@ -352,7 +352,7 @@ export default function Payments() {
 
                             <FilterButtons
                                 text="Next month"
-                                className="px-3 mr-1"
+                                className="px-3 mr-1  mt-2"
                                 onClick={() =>
                                     setDateRange({
                                         start_date: nextMonthFilter.start_date,
@@ -365,7 +365,7 @@ export default function Payments() {
 
                             <FilterButtons
                                 text="All time"
-                                className="px-3 mr-1"
+                                className="px-3 mr-1  mt-2"
                                 onClick={() =>
                                     setDateRange({
                                         start_date: null,

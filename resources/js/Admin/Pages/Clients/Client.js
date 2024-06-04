@@ -324,7 +324,7 @@ export default function Clients() {
                                     >
                                         <i className="fa fa-filter"></i>
                                     </button>
-                                    <div className="dropdown-menu">
+                                    <div className="dropdown-menu dropdown-menu-right">
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {

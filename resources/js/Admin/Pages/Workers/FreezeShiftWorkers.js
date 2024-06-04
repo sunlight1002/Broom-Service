@@ -135,13 +135,13 @@ export default function FreezeShiftWorkers() {
 
     const handleSubmit = () => {
         if (selectedHours) {
-            const unfilled = selectedHours.find((worker) => {
+            const unfilled = selectedHours?.find((worker) => {
                 return worker.slots == null;
             });
             if (unfilled) {
                 alert.error("Please select all workers.");
             } else {
-                const data = selectedHours.map((worker, index) => {
+                const data = selectedHours?.map((worker, index) => {
                     let formattedSlots = convertShiftsFormat(
                         worker?.slots?.map((s) => {
                             return {
@@ -264,7 +264,7 @@ export default function FreezeShiftWorkers() {
     const removeShift = (w_id, date, shift) => {
         setSelectedHours((data) => {
             return data.filter((worker) => {
-                const slot = worker.slots.find((s) => {
+                const slot = worker.slots?.find((s) => {
                     return (
                         worker.workerId == w_id &&
                         s.date == date &&
@@ -290,9 +290,9 @@ export default function FreezeShiftWorkers() {
 
     const hasActive = (w_id, date, shift) => {
         if (selectedHours) {
-            const filtered = selectedHours.find((worker) => {
+            const filtered = selectedHours?.find((worker) => {
                 if (worker.slots != null) {
-                    const slot = worker.slots.find((s) => {
+                    const slot = worker.slots?.find((s) => {
                         return (
                             worker.workerId == w_id &&
                             s.date == date &&
@@ -335,7 +335,7 @@ export default function FreezeShiftWorkers() {
                         <div className="boxPanel">
                             <div className="card">
                                 <div className="row mb-3">
-                                    <div className="col-sm-12 d-flex align-items-center">
+                                    <div className="col-sm-12 d-flex flex-wrap align-items-center">
                                         <div
                                             className="mr-3"
                                             style={{ fontWeight: "bold" }}
@@ -344,28 +344,28 @@ export default function FreezeShiftWorkers() {
                                         </div>
                                         <FilterButtons
                                             text="Current Week"
-                                            className="px-3 mr-2"
+                                            className="px-3 mr-2 mb-2"
                                             selectedFilter={currentFilter}
                                             setselectedFilter={setcurrentFilter}
                                         />
 
                                         <FilterButtons
                                             text="Next Week"
-                                            className="px-3 mr-2"
+                                            className="px-3 mr-2 mb-2"
                                             selectedFilter={currentFilter}
                                             setselectedFilter={setcurrentFilter}
                                         />
 
                                         <FilterButtons
                                             text="Next Next Week"
-                                            className="px-3 mr-2"
+                                            className="px-3 mr-2 mb-2"
                                             selectedFilter={currentFilter}
                                             setselectedFilter={setcurrentFilter}
                                         />
 
                                         <FilterButtons
                                             text="Custom"
-                                            className="px-3 mr-2"
+                                            className="px-3 mr-2 mb-2"
                                             selectedFilter={currentFilter}
                                             setselectedFilter={setcurrentFilter}
                                         />

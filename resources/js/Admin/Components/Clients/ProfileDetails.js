@@ -138,13 +138,13 @@ export default function ProfileDetails({
                     <span>#{client.id}</span> {firstname} {lastname}
                 </h1>
                 <div className="row">
-                    <div className="col-sm-8">
+                    <div className="col-xl-8 col-12 mb-3 mb-xl-0 ">
                         <div className="ClientHistory dashBox p-4 min-414">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="client-details"
-                                        className="nav-link active"
+                                        className="nav-link active px-2"
                                         data-toggle="tab"
                                         href="#tab-client-details"
                                         aria-selected="true"
@@ -368,7 +368,7 @@ export default function ProfileDetails({
                             </div>
                         </div>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-xl-4  col-12">
                         <div className="dashBox p-4">
                             <div className="form-group">
                                 <label className="d-block">

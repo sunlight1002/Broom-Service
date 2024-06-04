@@ -472,11 +472,13 @@ export default function WorkerHours() {
                                                         </Td>
                                                         <Td>{item.email}</Td>
                                                         <Td>
-                                                            {item.minutes
-                                                                ? convertMinsToDecimalHrs(
-                                                                      item.minutes
-                                                                  )
-                                                                : "NA"}
+                                                            <div className="text-center text-sm-left ml-5 ml-sm-0">
+                                                                {item.minutes
+                                                                    ? convertMinsToDecimalHrs(
+                                                                          item.minutes
+                                                                      )
+                                                                    : "NA"}
+                                                            </div>
                                                         </Td>
                                                     </Tr>
                                                 );

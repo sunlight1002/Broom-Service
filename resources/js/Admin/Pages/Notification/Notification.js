@@ -94,6 +94,62 @@ export default function Notification() {
                 </div>
 
                 <div className="notification-page">
+                    <div className="payment-filter mb-3">
+                        <div className="row mb-2">
+                            <div className="col-sm-12 d-md-flex flex-wrap align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Status
+                                </div>
+                                <FilterButtons
+                                    text="all"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="schedule-and-worker"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="converted-to-client"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="client-comments-reviews"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="payment-status"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </div>
                     <div className="card">
                         <div className="card-body">
                             {notices.length > 0 ? (

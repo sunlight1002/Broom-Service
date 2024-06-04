@@ -75,7 +75,7 @@ export default function WorkerAvailabilityTable({
                                     }
                                 ></i>
                             </th>
-                            {week.map((element, index) => (
+                            {week?.map((element, index) => (
                                 <th className="text-center" key={index}>
                                     {moment(element)
                                         .format("MMM DD")
@@ -90,7 +90,7 @@ export default function WorkerAvailabilityTable({
                         </tr>
                     </thead>
                     <tbody>
-                        {workers.map((w, index) => {
+                        {workers?.map((w, index) => {
                             return (
                                 <tr key={index}>
                                     <td className="worker-name">
@@ -122,9 +122,9 @@ export default function WorkerAvailabilityTable({
                                             )}
                                         </span>
                                     </td>
-                                    {week.map((element, index) => {
+                                    {week?.map((element, index) => {
                                         let workerSlots =
-                                            workerAvailabilities.find((_w) => {
+                                            workerAvailabilities?.find((_w) => {
                                                 return _w.workerId == w.id;
                                             }) ?? [];
                                         let slots =
@@ -136,9 +136,9 @@ export default function WorkerAvailabilityTable({
                                             <td key={index}>
                                                 <div className="d-flex">
                                                     <div className="d-flex slots">
-                                                        {slots?.allSlots
-                                                            ?.length > 0 ? (
-                                                            slots?.allSlots.map(
+                                                        {filteredSlots?.length >
+                                                        0 ? (
+                                                            filteredSlots?.map(
                                                                 (
                                                                     shift,
                                                                     _sIdx

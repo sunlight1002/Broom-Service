@@ -91,7 +91,7 @@ export default function EditTeam() {
                 <h1 className="page-title">Edit Team member</h1>
                 <form>
                     <div className="row">
-                        <div className="col-sm-6">
+                        <div className="col-lg-6 col-12">
                             <div className="dashBox p-4">
                                 <div className="form-group">
                                     <label className="control-label">
@@ -165,7 +165,7 @@ export default function EditTeam() {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-lg-6 col-12">
                             <div className="dashBox p-4">
                                 <div className="form-group">
                                     <div
@@ -179,7 +179,7 @@ export default function EditTeam() {
                                             Color
                                         </label>
                                     </div>
-                                    <div className="swatch white">
+                                    <div className="swatch white mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -193,7 +193,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>white</span>
                                     </div>
-                                    <div className="swatch green">
+                                    <div className="swatch green mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -209,7 +209,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>Green</span>
                                     </div>
-                                    <div className="swatch blue">
+                                    <div className="swatch blue mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -225,7 +225,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>Blue</span>
                                     </div>
-                                    <div className="swatch purple">
+                                    <div className="swatch purple mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -241,7 +241,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>Voilet</span>
                                     </div>
-                                    <div className="swatch red">
+                                    <div className="swatch red mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -257,7 +257,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>Red</span>
                                     </div>
-                                    <div className="swatch orange">
+                                    <div className="swatch orange mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -273,7 +273,7 @@ export default function EditTeam() {
                                         </label>
                                         <span>Orange</span>
                                     </div>
-                                    <div className="swatch yellow">
+                                    <div className="swatch yellow mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"

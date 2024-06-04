@@ -68,7 +68,6 @@ export default function ContractEng() {
     return (
         <>
             <div className="container">
-                <Sidebar />
                 <div className="send-offer client-contract">
                     <div className="maxWidthControl dashBox mb-4">
                         <div className="row mb-3">
