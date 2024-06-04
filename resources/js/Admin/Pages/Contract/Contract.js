@@ -41,7 +41,7 @@ export default function Contract() {
                     title: "Client",
                     data: "client_name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank"> ${data} </a>`;
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
                     },
                 },
                 {
@@ -133,6 +133,21 @@ export default function Contract() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-client-name")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-contract/${_id}`);
+            }
         });
 
         $(tableRef.current).on("click", ".dt-create-job-btn", function () {

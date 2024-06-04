@@ -170,6 +170,11 @@ export default function Payments() {
             responsive: true,
         });
 
+        $(tableRef.current).on("click", ".dt-client-badge", function () {
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/view-client/${_clientID}`);
+        });
+
         $(tableRef.current).on("click", ".dt-see-document-btn", function () {
             const _clientID = $(this).data("client-id");
             navigate(`/admin/view-client/${_clientID}#tab-invoice`);

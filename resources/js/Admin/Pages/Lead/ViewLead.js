@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export default function ViewLead() {
-    const [lead, setLead] = useState([]);
+    const [lead, setLead] = useState(null);
 
     const param = useParams();
     const { t } = useTranslation();
@@ -53,14 +53,16 @@ export default function ViewLead() {
                         </div>
                     </div>
                 </div>
-                <div className="view-applicant">
-                    <LeadDetails lead={lead} />
-                    <div className="card mt-3">
-                        <div className="card-body">
-                            <LeadHistory client={lead} />
+                {lead && (
+                    <div className="view-applicant">
+                        <LeadDetails lead={lead} />
+                        <div className="card mt-3">
+                            <div className="card-body">
+                                <LeadHistory client={lead} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

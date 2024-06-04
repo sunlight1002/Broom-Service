@@ -42,6 +42,7 @@ export default function ManpowerCompanies() {
                 {
                     title: "ID",
                     data: "id",
+                    visible: false,
                 },
                 {
                     title: "Name",

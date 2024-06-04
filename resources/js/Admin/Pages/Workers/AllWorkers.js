@@ -56,6 +56,7 @@ export default function AllWorkers() {
                 {
                     title: "ID",
                     data: "id",
+                    visible: false,
                 },
                 {
                     title: "Name",
@@ -116,6 +117,20 @@ export default function AllWorkers() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-worker/${_id}`);
+            }
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {

@@ -40,6 +40,7 @@ export default function Services() {
                 {
                     title: "ID",
                     data: "id",
+                    visible: false,
                 },
                 {
                     title: "Service - En",
@@ -79,6 +80,20 @@ export default function Services() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/services/${_id}`);
+            }
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {

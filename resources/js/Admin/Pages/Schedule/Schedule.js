@@ -44,6 +44,7 @@ export default function Schedule() {
                 {
                     title: "ID",
                     data: "id",
+                    visible: false,
                 },
                 {
                     title: "Name",
@@ -133,6 +134,22 @@ export default function Schedule() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+                $(row).attr("data-client-id", data.client_id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu")
+            ) {
+                const _id = $(this).data("id");
+                const _clientID = $(this).data("client-id");
+                navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
+            }
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {

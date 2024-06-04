@@ -2391,6 +2391,10 @@ h1 {
   opacity: 0.4;
 }
 
+.dt-row {
+  cursor: pointer;
+}
+
 .client-name-badge, .service-name-badge {
   color: #000000;
   padding: 3px 8px;
@@ -2398,6 +2402,10 @@ h1 {
   display: flex;
   align-items: center;
   width: max-content;
+}
+
+.client-name-badge {
+  cursor: pointer;
 }
 
 .worker-name-badge {

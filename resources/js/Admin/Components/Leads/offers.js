@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
 export default function OfferedPrice() {
-    const [offers, setOffers] = useState([]);
-    const [loading, setLoading] = useState("Loading..");
-    const param = useParams();
+    const params = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const tableRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -18,17 +22,107 @@ export default function OfferedPrice() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getOffers = () => {
-        axios
-            .post(`/api/admin/client-offers`, { id: param.id }, { headers })
-            .then((res) => {
-                if (res.data.offers.length > 0) {
-                    setOffers(res.data.offers);
-                } else {
-                    setLoading("No offer found");
-                }
-            });
-    };
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: `/api/admin/clients/${params.id}/offers`,
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                    visible: false,
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    render: function (data, type, row, meta) {
+                        let color = "";
+                        if (data == "sent") {
+                            color = "purple";
+                        } else if (data == "accepted") {
+                            color = "green";
+                        } else {
+                            color = "red";
+                        }
+
+                        return `<span style="color: ${color};">${data}</span>`;
+                    },
+                },
+                {
+                    title: "Total",
+                    data: "subtotal",
+                    render: function (data, type, row, meta) {
+                        return `${data} ILS + VAT`;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html = '<div class="d-flex">';
+
+                        _html += `<button type="button" class="btn bg-green dt-edit-btn" data-id="${row.id}"><i class="fa fa-edit"></i></button>`;
+
+                        _html += `<button type="button" class="ml-2 btn bg-warning dt-view-btn" data-id="${row.id}"><i class="fa fa-eye"></i></button>`;
+
+                        _html += `<button type="button" class="ml-2 btn bg-red dt-delete-btn" data-id="${row.id}"><i class="fa fa-trash"></i></button>`;
+
+                        _html += "</div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-offer/${_id}`);
+            }
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-offer/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/edit-offer/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -50,145 +144,16 @@ export default function OfferedPrice() {
                             "success"
                         );
                         setTimeout(() => {
-                            getOffers();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
 
-    useEffect(() => {
-        getOffers();
-    }, []);
-
-    const copy = [...offers];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-
-        if (n == "TH") {
-            let q = e.target.querySelector("span");
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
-        } else {
-            let q = e.target;
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setOffers(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setOffers(sortData);
-            setOrder("ASC");
-        }
-    };
-
     return (
         <div className="boxPanel">
-            <div className="table-responsive">
-                {offers.length > 0 ? (
-                    <table className="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>{t("admin.leads.viewLead.Client")}</th>
-                                {/* <th>Address</th> */}
-                                <th>{t("admin.leads.viewLead.Phone")}</th>
-                                <th
-                                    onClick={(e) => sortTable(e, "status")}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    {t("admin.leads.viewLead.Status")}{" "}
-                                    <span className="arr"> &darr; </span>
-                                </th>
-                                <th>{t("admin.leads.viewLead.Total")}</th>
-                                <th>{t("admin.leads.viewLead.Action")}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {offers &&
-                                offers.map((ofr, i) => {
-                                    // var city = ofr.client.city
-                                    //     ? ofr.client.city + ", "
-                                    //     : "";
-                                    // var sn = ofr.client.street_n_no
-                                    //     ? ofr.client.street_n_no + ", "
-                                    //     : "";
-                                    // var zc = ofr.client.zipcode
-                                    //     ? ofr.client.zipcode
-                                    //     : "";
-
-                                    let color = "";
-                                    if (ofr.status == "sent") {
-                                        color = "purple";
-                                    } else if (ofr.status == "accepted") {
-                                        color = "green";
-                                    } else {
-                                        color = "red";
-                                    }
-
-                                    return (
-                                        <tr key={i}>
-                                            <td>
-                                                {ofr.client
-                                                    ? ofr.client.firstname +
-                                                      " " +
-                                                      ofr.client.lastname
-                                                    : "NA"}
-                                            </td>
-                                            {/* <td>{city + sn + zc}</td> */}
-                                            <td>{ofr.client.phone}</td>
-                                            <td style={{ color }}>
-                                                {ofr.status}
-                                            </td>
-                                            <td>{ofr.subtotal} ILS + VAT</td>
-                                            <td>
-                                                <div className="d-flex">
-                                                    <Link
-                                                        to={`/admin/edit-offer/${ofr.id}`}
-                                                        className="btn bg-green"
-                                                    >
-                                                        <i className="fa fa-edit"></i>
-                                                    </Link>
-                                                    <Link
-                                                        to={`/admin/view-offer/${ofr.id}`}
-                                                        className="ml-2 btn btn-warning"
-                                                    >
-                                                        <i className="fa fa-eye"></i>
-                                                    </Link>
-                                                    <button
-                                                        className="ml-2 btn bg-red"
-                                                        onClick={() =>
-                                                            handleDelete(ofr.id)
-                                                        }
-                                                    >
-                                                        <i className="fa fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                        </tbody>
-                    </table>
-                ) : (
-                    <div className="form-control text-center">{loading}</div>
-                )}
-            </div>
+            <table ref={tableRef} className="display table table-bordered w-100" />
         </div>
     );
 }

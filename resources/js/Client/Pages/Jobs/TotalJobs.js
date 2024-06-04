@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
+import { useNavigate } from "react-router-dom";
 
 import $ from "jquery";
 import "datatables.net";
@@ -11,9 +12,9 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/ClientSidebar";
 
 export default function TotalJobs() {
-
     const tableRef = useRef(null);
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
 
     const minutesToHours = (minutes) => {
         const hours = Math.floor(minutes / 60);
@@ -183,15 +184,29 @@ export default function TotalJobs() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu")
+            ) {
+                const _id = Base64.encode($(this).data("id").toString());
+                navigate(`/client/view-job/${_id}`);
+            }
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
-            const _id = Base64.encode($(this).data("id"));
+            const _id = Base64.encode($(this).data("id").toString());
             navigate(`/client/view-job/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-change-schedule-btn", function () {
-            const _id = Base64.encode($(this).data("id"));
+            const _id = Base64.encode($(this).data("id").toString());
             navigate(`/client/jobs/${_id}/change-schedule`);
         });
 

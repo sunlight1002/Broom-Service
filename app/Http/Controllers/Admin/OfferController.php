@@ -253,17 +253,29 @@ class OfferController extends Controller
         ]);
     }
 
-    public function ClientOffers(Request $request)
+    public function ClientOffers(Request $request, $id)
     {
-        $offers = Offer::query()
-            ->with('client')
-            ->where('client_id', $request->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Offer::query()
+            ->where('offers.client_id', $id)
+            ->select('offers.id', 'offers.status', 'offers.subtotal');
 
-        return response()->json([
-            'offers' => $offers
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('offers.subtotal', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function getLatestClientOffer(Request $request)
