@@ -125,24 +125,23 @@ class Job extends Model
                 if ($model->isDirty('worker_approved_at')) {
                     $isSend = true;
                     $emailData = [
-                        // 'emailSubject'  => __('mail.job_status.subject'),
-                        'emailSubject'  => 'Job Approved | Next step | Broom Service',
-                        'emailTitle'  => 'Job Approved',
-                        'emailContent'  => "You have approved the job. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>I'm leaving for work now</b> </a> when you will going to start your work."
+                        'emailSubject'  => __('mail.job_nxt_step.approved_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.approved_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.approved_nxt_step_email_content', ['label' => " <b>".__('mail.job_nxt_step.leaving_for_work_link')."</b>"]),
                     ];
                 } elseif ($model->isDirty('job_opening_timestamp')) {
                     $isSend = true;
                     $emailData = [
-                        'emailSubject'  => 'Job Opened | Next step | Broom Service',
-                        'emailTitle'  => 'Job Opened',
-                        'emailContent'  => "You are going to start your work. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>Start time</b> </a> whenever you start your work time or if you want to complete the job click on <b>Mark as complete</b>."
+                        'emailSubject'  => __('mail.job_nxt_step.opened_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.opened_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.opened_nxt_step_email_content', ['l1' => " <b>".__('mail.job_common.start_time')."</b>", 'l2' => " <b>".__('mail.job_common.mark_as_complete')."</b>"]),
                     ];
                 } elseif ($model->isDirty('is_job_done')) {
                     $isSend = true;
                     $emailData = [
-                        'emailSubject'  => 'Job Completed | Next step | Broom Service',
-                        'emailTitle'  => 'Job Completed',
-                        'emailContent'  => "You have completed the job #" . $job['id'] . ".You will get the feedback once the job reviewed by client."
+                        'emailSubject'  => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.completed_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>".$job['id']."</b>"]),
                     ];
                 }
 

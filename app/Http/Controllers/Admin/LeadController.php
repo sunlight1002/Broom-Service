@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class LeadController extends Controller
 {
@@ -31,36 +32,45 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $keyword = $request->q;
-        $c = $request->condition;
+        $query = Client::query()
+            ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
+            ->where('clients.status', '!=', 2)
+            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status');
 
-        $result = Client::with(['meetings', 'offers', 'lead_status']);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-        if (!is_null($keyword) &&  ($keyword !== 1 && $keyword !== 0 && $keyword != 'all') && $c != 'filter') {
-
-            $result->where(function ($query) use ($keyword) {
-                $ex = explode(' ', $keyword);
-                $q2 = isset($ex[1]) ? $ex[1] : $keyword;
-
-                $query->where('email', 'like', '%' . $keyword . '%')
-                    ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
-                    ->orWhere('lastname', 'like', '%' . $q2 . '%')
-                    ->orWhere('phone', 'like', '%' . $keyword . '%');
-            });
-        }
-
-        if ($request->condition == 'filter') {
-            $result = $result->whereHas('lead_status', function ($q) use ($keyword) {
-                $q->where('lead_status', $keyword);
-            });
-        }
-
-        $result = $result->where('status', '!=', 2);
-        $result = $result->orderBy('id', 'desc')->paginate(20);
-
-        return response()->json([
-            'leads' => $result,
-        ]);
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->filterColumn('lead_status', function ($query, $keyword) {
+                $sql = "leadstatus.lead_status like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     /**
@@ -84,8 +94,9 @@ class LeadController extends Controller
         }
 
         $input = $data;
-        $password =  isset($input['phone']) && !empty($input['phone']) ?
-        $input['phone'] : 'password';
+        $password =  isset($input['phone']) && !empty($input['phone'])
+            ? $input['phone']
+            : 'password';
         $input['password'] = Hash::make($password);
         $input['passcode'] = $password;
 

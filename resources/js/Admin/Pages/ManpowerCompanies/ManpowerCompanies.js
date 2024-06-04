@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Link } from "react-router-dom";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Swal from "sweetalert2";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ManpowerCompanyModal from "../../Components/Modals/ManpowerCompanyModal";
 
 export default function ManpowerCompanies() {
-    const [manpowerCompanies, setManpowerCompanies] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
-    const [currentPage, setCurrentPage] = useState(0);
     const [isOpenCompanyModal, setIsOpenCompanyModal] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState(null);
+
+    const tableRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -22,28 +23,75 @@ export default function ManpowerCompanies() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getManpowerCompanies = async () => {
-        await axios
-            .get("/api/admin/manpower-companies", {
-                headers,
-                params: {
-                    page: currentPage,
-                },
-            })
-            .then((response) => {
-                if (response.data.companies.data.length > 0) {
-                    setManpowerCompanies(response.data.companies.data);
-                    setPageCount(response.data.companies.last_page);
-                } else {
-                    setManpowerCompanies([]);
-                    setLoading("No company found");
-                }
-            });
-    };
-
     useEffect(() => {
-        getManpowerCompanies();
-    }, [currentPage]);
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/manpower-companies",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}" data-name="${row.name}">Edit</button>`;
+
+                        if (row.contract_filename) {
+                            _html += `<a href="/storage/manpower-companies/contract/${row.contract_filename}" target="_blank" class="dropdown-item">Contract</a>`;
+                        }
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            const _name = $(this).data("name");
+            handleEditCompany({
+                id: _id,
+                name: _name,
+            });
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -65,57 +113,21 @@ export default function ManpowerCompanies() {
                             "success"
                         );
                         setTimeout(() => {
-                            getManpowerCompanies();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
-    const copy = [...manpowerCompanies];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-
-        if (n == "TH") {
-            let q = e.target.querySelector("span");
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
-        } else {
-            let q = e.target;
-            if (q.innerHTML === "↑") {
-                q.innerHTML = "↓";
-            } else {
-                q.innerHTML = "↑";
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setManpowerCompanies(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setManpowerCompanies(sortData);
-            setOrder("ASC");
-        }
-    };
 
     const handleAddCompany = () => {
-        setIsOpenCompanyModal(true);
         setSelectedCompany(null);
+        setIsOpenCompanyModal(true);
     };
 
     const handleEditCompany = (_company) => {
-        setIsOpenCompanyModal(true);
         setSelectedCompany(_company);
+        setIsOpenCompanyModal(true);
     };
 
     return (
@@ -141,132 +153,10 @@ export default function ManpowerCompanies() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {manpowerCompanies.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr>
-                                                <Th
-                                                    scope="col"
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) => {
-                                                        sortTable(e, "id");
-                                                    }}
-                                                >
-                                                    ID{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    scope="col"
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) => {
-                                                        sortTable(e, "name");
-                                                    }}
-                                                >
-                                                    Name
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;
-                                                    </span>
-                                                </Th>
-                                                <Th scope="col">Contract</Th>
-                                                <Th scope="col">Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {manpowerCompanies.map(
-                                                (item, index) => (
-                                                    <Tr key={index}>
-                                                        <Td>{item.id}</Td>
-                                                        <Td>{item.name}</Td>
-                                                        <Td>
-                                                            {item.contract_filename && (
-                                                                <a
-                                                                    href={`/storage/manpower-companies/contract/${item.contract_filename}`}
-                                                                    target="_blank"
-                                                                >
-                                                                    <i className="fa fa-eye"></i>
-                                                                </a>
-                                                            )}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    <button
-                                                                        onClick={() =>
-                                                                            handleEditCompany(
-                                                                                item
-                                                                            )
-                                                                        }
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Edit
-                                                                    </button>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                )
-                                            )}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {manpowerCompanies.length > 0 ? (
-                                    <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={(data) => {
-                                            setCurrentPage(data.selected + 1);
-                                        }}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>
@@ -279,7 +169,7 @@ export default function ManpowerCompanies() {
                     company={selectedCompany}
                     onSuccess={() => {
                         setIsOpenCompanyModal(false);
-                        getManpowerCompanies();
+                        $(tableRef.current).DataTable().draw();
                     }}
                 />
             )}

@@ -26,17 +26,16 @@ class JobHours extends Model
                 if ($model->isDirty('start_time')) {
                     $isSend = true;
                     $emailData = [
-                        // 'emailSubject'  => __('mail.job_status.subject'),
-                        'emailSubject'  => 'Job time started | Next step | Broom Service',
-                        'emailTitle'  => 'Job time started',
-                        'emailContent'  => "Job time has been started by you. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>End time</b> </a> for stop your job work time."
+                        'emailSubject'  => __('mail.job_nxt_step.start_time_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.start_time_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.start_time_nxt_step_email_content', ['label' => " <b>".__('mail.job_common.end_time')."</b>"]),
                     ];
                 } elseif ($model->isDirty('end_time')) {
                     $isSend = true;
                     $emailData = [
-                        'emailSubject'  => 'Job time ended | Next step | Broom Service',
-                        'emailTitle'  => 'Job time ended',
-                        'emailContent'  => "The job time has been stopped by you. Click <a href='" . url("worker/view-job/{$job['id']}") . "'> <b>Mark as complete</b> </a> if you want to complete your job else click on <b>Resume timer</b> to continue job."
+                        'emailSubject'  => __('mail.job_nxt_step.end_time_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.end_time_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " <b>".__('mail.job_common.mark_as_complete')."</b>", 'l2' => " <b>".__('mail.job_common.resume_timer')."</b>"]),
                     ];
                 }
 

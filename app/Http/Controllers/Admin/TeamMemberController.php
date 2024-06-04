@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Schedule;
-use App\Models\TeamMemberAvailability;
 use App\Traits\TeamTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class TeamMemberController extends Controller
 {
@@ -24,25 +24,29 @@ class TeamMemberController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->q;
-
-        $data = Admin::query()
-            ->when($keyword, function ($query, $keyword) {
-                $query
-                    ->where('name', 'like', '%' . $keyword . '%')
-                    ->orWhere('phone',   'like', '%' . $keyword . '%')
-                    ->orWhere('status', 'like', '%' . $keyword . '%')
-                    ->orWhere('email', 'like', '%' . $keyword . '%')
-                    ->where('name', '!=', 'superadmin');
-            })
+        $query = Admin::query()
             ->where('id', '!=', Auth::id())
-            ->where('name', '!=', 'superadmin')
-            ->orderBy('id', 'desc')
-            ->paginate(20);
+            ->where('name', '!=', 'superadmin');
 
-        return response()->json([
-            'team' => $data,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('admins.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('admins.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('admins.name', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     /**

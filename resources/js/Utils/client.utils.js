@@ -2,7 +2,7 @@ export const leadStatusColor = (_status) => {
     let _color = "";
     switch (_status) {
         case "pending lead":
-            _color = "yellow";
+            _color = "#ffa500";
             break;
 
         case "potential lead":

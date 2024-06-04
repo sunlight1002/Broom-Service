@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
-import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
-import { useTranslation } from "react-i18next";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Lead() {
-    const [leads, setLeads] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [filter, setFilter] = useState("all");
-    const [condition, setCondition] = useState("");
-    const [loading, setLoading] = useState("Loading...");
+    const [filter, setFilter] = useState("All");
     const [changeStatusModal, setChangeStatusModal] = useState({
         isOpen: false,
         id: 0,
     });
+
+    const tableRef = useRef(null);
+
     const navigate = useNavigate();
     const { t } = useTranslation();
     const leadStatuses = [
@@ -35,111 +38,106 @@ export default function Lead() {
         "freeze client",
         "active client",
     ];
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getleads = () => {
-        axios.get("/api/admin/leads", { headers }).then((response) => {
-            if (response.data.leads.data.length > 0) {
-                setLeads(response.data.leads.data);
-                setPageCount(response.data.leads.last_page);
-            } else {
-                setLeads([]);
-                setLoading("No lead found");
-            }
-        });
-    };
-
     useEffect(() => {
-        getleads();
-    }, []);
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/leads",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Status",
+                    data: "lead_status",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        const _statusColor = leadStatusColor(data);
 
-    const filterLeads = (e) => {
-        setFilter(e.target.value);
-        setCondition("search");
+                        return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-        axios
-            .get(`/api/admin/leads?q=${e.target.value}` + "&condition=search", {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.leads.data.length > 0) {
-                    setLeads(response.data.leads.data);
-                    setPageCount(response.data.leads.last_page);
-                    setLoading("Loading...");
-                } else {
-                    setLeads([]);
-                    setPageCount(response.data.leads.last_page);
-                    setLoading("No lead found");
-                }
-            });
-    };
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
 
-    const filterLeadsStat = (s) => {
-        setFilter(s);
-        setCondition("filter");
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
 
-        const params = {
-            q: s,
-            condition: "filter",
-        };
+                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">Change status</button>`;
 
-        axios.get(`/api/admin/leads`, { headers, params }).then((response) => {
-            if (response.data.leads.data.length > 0) {
-                setLeads(response.data.leads.data);
-                setPageCount(response.data.leads.last_page);
-                setLoading("Loading...");
-            } else {
-                setLeads([]);
-                setPageCount(response.data.leads.last_page);
-                setLoading("No lead found");
-            }
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
         });
-    };
 
-    const booknun = (s) => {
-        setFilter(s);
-        axios
-            .get(`/api/admin/leads?action=${s}`, { headers })
-            .then((response) => {
-                if (response.data.leads.data.length > 0) {
-                    setLeads(response.data.leads.data);
-                    setPageCount(response.data.leads.last_page);
-                } else {
-                    setLeads([]);
-                    setPageCount(response.data.leads.last_page);
-                    setLoading("No lead found");
-                }
-            });
-    };
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/leads/${_id}/edit`);
+        });
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        let cn = "&q=";
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-lead/${_id}`);
+        });
 
-        axios
-            .get(
-                "/api/admin/leads?page=" +
-                    currentPage +
-                    cn +
-                    filter +
-                    "&condition=" +
-                    condition,
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.leads.data.length > 0) {
-                    setLeads(response.data.leads.data);
-                    setPageCount(response.data.leads.last_page);
-                } else {
-                    setLeads([]);
-                    setLoading("No lead found");
-                }
-            });
-    };
+        $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+            const _id = $(this).data("id");
+            toggleChangeStatusModal(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -161,55 +159,17 @@ export default function Lead() {
                             "success"
                         );
                         setTimeout(() => {
-                            getleads();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
 
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-lead/${id}`);
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
-    const copy = [...leads];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setLeads(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setLeads(sortData);
-            setOrder("ASC");
-        }
-    };
     const toggleChangeStatusModal = (clientId = 0) => {
         setChangeStatusModal((prev) => {
             return {
@@ -218,11 +178,21 @@ export default function Lead() {
             };
         });
     };
+
     const updateData = () => {
         setTimeout(() => {
-            getleads();
+            $(tableRef.current).DataTable().draw();
         }, 1000);
     };
+
+    useEffect(() => {
+        if (filter == "All") {
+            $(tableRef.current).DataTable().column(4).search(null).draw();
+        } else {
+            $(tableRef.current).DataTable().column(4).search(filter).draw();
+        }
+    }, [filter]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -250,21 +220,17 @@ export default function Lead() {
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setCondition("filter");
-                                                setFilter("all");
-                                                getleads();
+                                                setFilter("All");
                                             }}
                                         >
-                                            {t("admin.leads.All")}
+                                            All
                                         </button>
                                         {leadStatuses.map((_status, _index) => {
                                             return (
                                                 <button
                                                     className="dropdown-item"
                                                     onClick={(e) => {
-                                                        filterLeadsStat(
-                                                            _status
-                                                        );
+                                                        setFilter(_status);
                                                     }}
                                                     key={_index}
                                                 >
@@ -275,14 +241,6 @@ export default function Lead() {
                                     </div>
                                 </div>
 
-                                <input
-                                    type="text"
-                                    className="form-control mt-0 mt-md-4"
-                                    onChange={(e) => {
-                                        filterLeads(e);
-                                    }}
-                                    placeholder="Search"
-                                />
                                 <Link
                                     to="/admin/leads/create"
                                     className="btn btn-pink add-btn"
@@ -297,24 +255,24 @@ export default function Lead() {
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">
                                     {t("admin.leads.Options.sortBy")}
                                 </option>
-                                <option value="id">
+                                <option value="0">
                                     {t("admin.leads.Options.ID")}
                                 </option>
-                                <option value="name">
+                                <option value="1">
                                     {t("admin.leads.Options.Name")}
                                 </option>
-                                <option value="email">
+                                <option value="2">
                                     {t("admin.leads.Options.Email")}
                                 </option>
-                                <option value="phone">
+                                <option value="3">
                                     {t("admin.leads.Options.Phone")}
                                 </option>
-                                <option value="status">
+                                <option value="4">
                                     {t("admin.leads.Options.Status")}
                                 </option>
                             </select>
@@ -324,27 +282,19 @@ export default function Lead() {
                 <div className="row mb-2 d-none d-lg-block">
                     <div className="col-sm-12">
                         <FilterButtons
-                            text={t("admin.leads.All")}
+                            text="All"
                             className="px-3 mr-1"
-                            value={"all"}
-                            onClick={() => {
-                                setCondition("filter");
-                                setFilter("all");
-                                getleads();
-                            }}
                             selectedFilter={filter}
+                            setselectedFilter={setFilter}
                         />
                         {leadStatuses.map((_status, _index) => {
                             return (
                                 <FilterButtons
                                     text={_status}
                                     className="px-3 mr-1"
-                                    value={_status}
-                                    onClick={() => {
-                                        filterLeadsStat(_status);
-                                    }}
                                     key={_index}
                                     selectedFilter={filter}
+                                    setselectedFilter={setFilter}
                                 />
                             );
                         })}
@@ -353,226 +303,10 @@ export default function Lead() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            {leads.length > 0 ? (
-                                <Table className="table table-bordered ">
-                                    <Thead>
-                                        <Tr style={{ cursor: "pointer" }}>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "id");
-                                                }}
-                                            >
-                                                {t("admin.leads.Options.ID")}
-
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "name");
-                                                }}
-                                            >
-                                                {t("admin.leads.Options.Name")}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "email");
-                                                }}
-                                            >
-                                                {t("admin.leads.Options.Email")}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "phone");
-                                                }}
-                                            >
-                                                {t("admin.leads.Options.Phone")}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "status");
-                                                }}
-                                            >
-                                                {t(
-                                                    "admin.leads.Options.Status"
-                                                )}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th>{t("admin.leads.Action")}</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {leads.map((item, index) => {
-                                            const _statusColor =
-                                                leadStatusColor(
-                                                    item.lead_status
-                                                        ? item.lead_status
-                                                              .lead_status
-                                                        : ""
-                                                );
-
-                                            const statusSpanStyle = {
-                                                backgroundColor:
-                                                    _statusColor.backgroundColor,
-                                                color: "#fff",
-                                            };
-
-                                            return (
-                                                <Tr
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    key={index}
-                                                >
-                                                    <Td
-                                                        onClick={(e) =>
-                                                            handleNavigate(
-                                                                e,
-                                                                item.id
-                                                            )
-                                                        }
-                                                    >
-                                                        {item.id}
-                                                    </Td>
-                                                    <Td>
-                                                        <Link
-                                                            to={`/admin/view-lead/${item.id}`}
-                                                        >
-                                                            {item.firstname}{" "}
-                                                            {item.lastname}
-                                                        </Link>
-                                                    </Td>
-                                                    <Td
-                                                        onClick={(e) =>
-                                                            handleNavigate(
-                                                                e,
-                                                                item.id
-                                                            )
-                                                        }
-                                                    >
-                                                        {item.email}
-                                                    </Td>
-                                                    <Td>{item.phone}</Td>
-                                                    <Td>
-                                                        {item.lead_status ? (
-                                                            <span
-                                                                className="badge"
-                                                                style={
-                                                                    statusSpanStyle
-                                                                }
-                                                            >
-                                                                {
-                                                                    item
-                                                                        .lead_status
-                                                                        .lead_status
-                                                                }
-                                                            </span>
-                                                        ) : (
-                                                            "-"
-                                                        )}
-                                                    </Td>
-                                                    <Td>
-                                                        <div className="action-dropdown dropdown">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-default dropdown-toggle"
-                                                                data-toggle="dropdown"
-                                                            >
-                                                                <i className="fa fa-ellipsis-vertical"></i>
-                                                            </button>
-                                                            <div className="dropdown-menu">
-                                                                <Link
-                                                                    to={`/admin/leads/${item.id}/edit`}
-                                                                    className="dropdown-item"
-                                                                >
-                                                                    {t(
-                                                                        "admin.leads.Edit"
-                                                                    )}
-                                                                </Link>
-                                                                <Link
-                                                                    to={`/admin/view-lead/${item.id}`}
-                                                                    className="dropdown-item"
-                                                                >
-                                                                    {t(
-                                                                        "admin.leads.view"
-                                                                    )}
-                                                                </Link>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() =>
-                                                                        toggleChangeStatusModal(
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Change
-                                                                    status
-                                                                </button>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() =>
-                                                                        handleDelete(
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {t(
-                                                                        "admin.leads.Delete"
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </Td>
-                                                </Tr>
-                                            );
-                                        })}
-                                    </Tbody>
-                                </Table>
-                            ) : (
-                                <p className="text-center mt-5">{loading}</p>
-                            )}
-                            {leads.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                <></>
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>
@@ -588,21 +322,3 @@ export default function Lead() {
         </div>
     );
 }
-const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
-    <button
-        className={`btn border  rounded ${className}`}
-        style={
-            selectedFilter === value
-                ? { background: "white" }
-                : {
-                      background: "#2c3f51",
-                      color: "white",
-                  }
-        }
-        onClick={() => {
-            onClick?.();
-        }}
-    >
-        {text}
-    </button>
-);

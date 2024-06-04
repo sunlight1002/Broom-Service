@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class ServicesController extends Controller
 {
@@ -24,12 +25,25 @@ class ServicesController extends Controller
      */
     public function index(Request $request)
     {
-        $services = Services::query();
-        $services = $services->orderBy('id', 'desc')->paginate(20);
+        $query = Services::query();
 
-        return response()->json([
-            'services' => $services,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('services.name', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function AllServices()

@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import ReactPaginate from "react-paginate";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 export default function AllWorkers() {
-    const [workers, setWorkers] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0);
     const [filters, setFilters] = useState({
         status: "",
-        q: "",
         manpower_company_id: null,
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
     const navigate = useNavigate();
+    const tableRef = useRef(null);
+    const statusRef = useRef(null);
+    const manpowerCompanyRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -31,43 +33,124 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getWorkers = async () => {
-        let _filters = {};
-
-        if (filters.status) {
-            _filters.status = filters.status;
-        }
-
-        if (filters.q) {
-            _filters.q = filters.q;
-        }
-
-        if (filters.manpower_company_id) {
-            _filters.manpower_company_id = filters.manpower_company_id;
-        }
-
-        await axios
-            .get("/api/admin/workers", {
-                headers,
-                params: {
-                    page: currentPage,
-                    ..._filters,
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/workers",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
                 },
-            })
-            .then((response) => {
-                if (response.data.workers.data.length > 0) {
-                    setWorkers(response.data.workers.data);
-                    setPageCount(response.data.workers.last_page);
-                } else {
-                    setWorkers([]);
-                    setLoading("No Workers found");
-                }
-            });
-    };
+                data: function (d) {
+                    d.status = statusRef.current.value;
+                    d.manpower_company_id = manpowerCompanyRef.current.value;
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Address",
+                    data: "address",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        if (data) {
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank"> ${data} </a>`;
+                        } else {
+                            return "NA";
+                        }
+                    },
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return data == 1 ? "Active" : "Inactive";
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">Freeze Shift</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">Leave Job</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/edit-worker/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-worker/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-freeze-shift-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/freeze-shift/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-leave-job-btn", function () {
+            const _id = $(this).data("id");
+            handleLeaveJob(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     useEffect(() => {
-        getWorkers();
-    }, [currentPage, filters]);
+        $(tableRef.current).DataTable().draw();
+    }, [filters]);
 
     const handleLeaveJob = (_workerID) => {
         setSelectedWorkerId(_workerID);
@@ -94,7 +177,7 @@ export default function AllWorkers() {
                             "success"
                         );
                         setTimeout(() => {
-                            getWorkers();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
@@ -119,47 +202,8 @@ export default function AllWorkers() {
         getManpowerCompanies();
     }, []);
 
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-worker/${id}`);
-    };
-
-    const copy = [...workers];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setWorkers(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setWorkers(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     return (
@@ -169,29 +213,22 @@ export default function AllWorkers() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6 d-flex justify-content-between">
-                            <h1 className="page-title d-none d-md-block">Workers</h1>
-                            <h1 className="page-title p-0 d-block d-md-none">Workers</h1>
+                            <h1 className="page-title d-none d-md-block">
+                                Workers
+                            </h1>
+                            <h1 className="page-title p-0 d-block d-md-none">
+                                Workers
+                            </h1>
                             <Link
-                                    to="/admin/add-worker"
-                                    className="btn btn-pink d-block d-md-none addButton"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
-                                </Link>
+                                to="/admin/add-worker"
+                                className="btn btn-pink d-block d-md-none addButton"
+                            >
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                Add New
+                            </Link>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                        setFilters({
-                                            status: "",
-                                            q: e.target.value,
-                                        });
-                                    }}
-                                    placeholder="Search"
-                                />
                                 <Link
                                     to="/admin/workers/working-hours"
                                     className="btn btn-pink addButton mr-0 mr-md-2  ml-auto"
@@ -210,14 +247,14 @@ export default function AllWorkers() {
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="id">ID</option>
-                                <option value="firstname">Worker Name</option>
-                                <option value="address">Address</option>
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
+                                <option value="0">ID</option>
+                                <option value="1">Name</option>
+                                <option value="2">Email</option>
+                                <option value="3">Phone</option>
+                                <option value="4">Address</option>
                             </select>
                         </div>
                     </div>
@@ -240,7 +277,6 @@ export default function AllWorkers() {
                             onClick={() => {
                                 setFilters({
                                     status: "active",
-                                    q: "",
                                 });
                             }}
                         >
@@ -259,7 +295,6 @@ export default function AllWorkers() {
                             onClick={() => {
                                 setFilters({
                                     status: "past",
-                                    q: "",
                                 });
                             }}
                         >
@@ -298,239 +333,27 @@ export default function AllWorkers() {
                                 </button>
                             ))}
                         </div>
+
+                        <input
+                            type="hidden"
+                            value={filters.status}
+                            ref={statusRef}
+                        />
+
+                        <input
+                            type="hidden"
+                            value={filters.manpower_company_id}
+                            ref={manpowerCompanyRef}
+                        />
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="Table-responsive">
-                                {workers.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr style={{ cursor: "pointer" }}>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "id");
-                                                    }}
-                                                >
-                                                    ID{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(
-                                                            e,
-                                                            "firstname"
-                                                        );
-                                                    }}
-                                                >
-                                                    Worker{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "email");
-                                                    }}
-                                                >
-                                                    Email{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "address");
-                                                    }}
-                                                >
-                                                    Address{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "phone");
-                                                    }}
-                                                >
-                                                    Phone{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th>Status</Th>
-                                                <Th>Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {workers.map((item, index) => {
-                                                let cords =
-                                                    item.latitude &&
-                                                    item.longitude
-                                                        ? item.latitude +
-                                                          "," +
-                                                          item.longitude
-                                                        : "";
-
-                                                return (
-                                                    <Tr
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                        key={index}
-                                                    >
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.id}
-                                                        </Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={`/admin/view-worker/${item.id}`}
-                                                            >
-                                                                {item.firstname}{" "}
-                                                                {item.lastname}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.email}
-                                                        </Td>
-                                                        <Td>
-                                                            <a
-                                                                href={`https://maps.google.com?q=${cords}`}
-                                                                target="_blank"
-                                                            >
-                                                                {item.address}
-                                                            </a>
-                                                        </Td>
-                                                        <Td>
-                                                            <a
-                                                                href={`tel:${item.phone}`}
-                                                            >
-                                                                {item.phone}
-                                                            </a>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.status == 0
-                                                                ? "Inactive"
-                                                                : "Active"}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    <Link
-                                                                        to={`/admin/edit-worker/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Edit
-                                                                    </Link>
-                                                                    <Link
-                                                                        to={`/admin/view-worker/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        View
-                                                                    </Link>
-                                                                    <Link
-                                                                        to={`/admin/freeze-shift/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Freeze
-                                                                        Shift
-                                                                    </Link>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleLeaveJob(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Leave
-                                                                        Job
-                                                                    </button>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {workers.length > 0 && (
-                                    <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={(data) => {
-                                            setCurrentPage(data.selected + 1);
-                                        }}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

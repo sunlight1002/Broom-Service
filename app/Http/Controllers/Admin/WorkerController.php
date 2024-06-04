@@ -10,22 +10,17 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\WorkerAvailability;
 use App\Models\Job;
-use App\Models\Contract;
 use App\Models\WorkerFreezeDate;
 use App\Models\WorkerNotAvailableDate;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WorkerCreated;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Enums\Form101FieldEnum;
 use App\Enums\WorkerFormTypeEnum;
+use Yajra\DataTables\Facades\DataTables;
 
 class WorkerController extends Controller
 {
@@ -38,33 +33,11 @@ class WorkerController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('q');
-        $statusCode = $request->get('status');
+        $status = $request->get('status');
         $manpowerCompanyID = $request->get('manpower_company_id');
 
-        $status = NULL;
-        if (strtolower($keyword) === "active") {
-            $status = 1;
-        }
-        if (strtolower($keyword) === "inactive") {
-            $status = 0;
-        }
-
-        $data = User::query()
-            ->when($keyword, function ($q) use ($keyword) {
-                return $q
-                    ->where(function ($q) use ($keyword) {
-                        $q
-                            ->where('firstname', 'like', '%' . $keyword . '%')
-                            ->orWhere('lastname', 'like', '%' . $keyword . '%')
-                            ->orWhere('phone', 'like', '%' . $keyword . '%')
-                            ->orWhere('address', 'like', '%' . $keyword . '%');
-                    });
-            })
-            ->when(!is_null($status), function ($q) use ($status) {
-                return $q->where('status', $status);
-            })
-            ->when($statusCode == "active", function ($q) {
+        $query = User::query()
+            ->when($status == "active", function ($q) {
                 return $q
                     ->where(function ($q) {
                         $q
@@ -72,7 +45,7 @@ class WorkerController extends Controller
                             ->orWhereDate('last_work_date', '>=', today()->toDateString());
                     });
             })
-            ->when($statusCode == "past", function ($q) {
+            ->when($status == "past", function ($q) {
                 return $q
                     ->whereNotNull('last_work_date')
                     ->whereDate('last_work_date', '<', today()->toDateString());
@@ -80,12 +53,37 @@ class WorkerController extends Controller
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })
-            ->latest()
-            ->paginate(20);
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'users.status', 'users.address', 'users.latitude', 'users.longitude');
 
-        return response()->json([
-            'workers' => $data,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('users.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('users.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function AllWorkers(Request $request)
@@ -94,11 +92,6 @@ class WorkerController extends Controller
         $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
         if ($request->service_id) {
-            // $contract=Contract::with('offer','client')->find($request->contract_id);
-            // if($contract->offer){
-            //     $services=json_decode($contract->offer['services']);
-            //     $service=$services[0]->service;
-            // }
             $service = $request->service_id;
         }
         if ($request->job_id) {
@@ -840,7 +833,7 @@ class WorkerController extends Controller
                 $q->whereNull('users.last_work_date')
                     ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
             })
-            ->select('jobs.start_date', \DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'))
+            ->select('jobs.start_date', DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'))
             ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS time')
             ->groupBy('jobs.start_date')
             ->orderBy('jobs.start_date', 'desc')
