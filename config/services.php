@@ -67,5 +67,10 @@ return [
         'account_id' => env('FB_ACCOUNT_ID'),
         'access_token' => env('FB_ACCESS_TOKEN'),
         'webhook_token' => env('FB_WEBHOOK_TOKEN'),
-    ]
+    ],
+
+    'whapi' => [
+        'url' => env('WHAPI_API_URL'),
+        'token' => env('WHAPI_API_TOKEN'),
+    ],
 ];

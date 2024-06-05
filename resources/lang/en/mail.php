@@ -375,5 +375,43 @@ return [
         'end_time_nxt_step_email_subject' => 'Job time Ended | Next step | Broom Service',
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
+    ],
+    'wa-message' => [
+        'common' => [
+            'salutation' => "Hi, *:name*"
+        ],
+        'client_meeting_schedule' => [
+            'content' => "Greetings from Broom Service. Just a friendly reminder that you have an upcoming appointment on *:date* between *:start_time* to *:end_time* at *:address* for *:purpose*. Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.",
+        ],
+        'offer_price' => [
+            'content' => "Greetings from Broom Service. Please check the price offer for the *:service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.
+            Click the below button to see the price offer.",
+        ],
+        'contract' => [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the contract form to start working on the job.
+            Click the below button to check the contract.",
+        ],
+        'client_job_updated' => [
+            'content' => "Greetings from Broom Service. Your job has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
+        ],
+        'delete_meeting' => [
+            'content' => "Greetings from Broom Service.\n\nJust a friendly reminder that your meeting with *:team_name* on *:date* between *:start_time* to *:end_time* has cancelled now.",
+        ],
+        'form101' => [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the Form 101 to start working on the job.\n\nClick the below button to fill Form101.",
+        ],
+        'new_job' => [
+            'content' => "Greetings from Broom Service. :content_txt Please check the details.\n\n
+            Date/Time: :date_time\nClient: :client_name\nService: :service_name\nProperty: :address\nStatus: :status",
+        ],
+        'button-label' => [
+            'accept_reject' => 'Accept/Reject',
+            'upload_file' => 'Upload file',
+            'price_offer' => 'Price Offer',
+            'check_contract' => 'Check Contract',
+            'review' => 'Review',
+            'form101' => 'Form 101',
+            'view_job' => 'View Job',
+        ]
     ]
 ];

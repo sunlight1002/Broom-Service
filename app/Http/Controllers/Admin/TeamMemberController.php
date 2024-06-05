@@ -254,4 +254,16 @@ class TeamMemberController extends Controller
             'available_slots' => $available_slots
         ]);
     }
+
+    public function getAll()
+    {
+        $teams = Admin::query()
+            ->where('name', '!=', 'superadmin')
+            ->select('id', 'name', 'status')
+            ->get();
+
+        return response()->json([
+            'data' => $teams
+        ]);
+    }
 }
