@@ -30,6 +30,7 @@ export default function WorkerViewJob() {
     const [isApproving, setIsApproving] = useState(false);
     const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
     const [isButtonEnabled, setIsButtonEnabled] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -146,36 +147,35 @@ export default function WorkerViewJob() {
         return dateTime;
     };
     const startTimer = () => {
+        setIsSubmitting(true);
         setCounter("00:00:00");
         setIsRunning(true);
-        let data = {
-            job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
-            start_time: getDateTime(),
-        };
-        axios.post(`/api/job-start-time`, data, { headers }).then((res) => {
-            getTime();
-        });
+        axios
+            .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
+            .then((res) => {
+                getTime();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
+            });
     };
     const stopTimer = () => {
+        setIsSubmitting(true);
         setIsRunning(false);
         setStartTime(getDateTime());
-        let data = {
-            id: time_id,
-            time_diff:
-                (new Date(getDateTime()).getTime() -
-                    new Date(startTime).getTime()) /
-                1000,
-            end_time: getDateTime(),
-        };
-        axios.post(`/api/job-end-time`, data, { headers }).then((res) => {
-            getTimes();
-        });
+
+        axios
+            .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
+            .then((res) => {
+                getTimes();
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 500);
+            });
     };
     const getTime = () => {
         let data = {
             job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
             filter_end_time: true,
         };
         axios.post(`/api/get-job-time`, data, { headers }).then((res) => {
@@ -192,7 +192,6 @@ export default function WorkerViewJob() {
     const getTimes = () => {
         let data = {
             job_id: params.id,
-            worker_id: localStorage.getItem("worker-id"),
         };
         axios.post(`/api/get-job-time`, data, { headers }).then((res) => {
             let t = res.data;
@@ -240,7 +239,7 @@ export default function WorkerViewJob() {
 
     const getComments = () => {
         axios
-            .get(`/api/job-comments?id=${params.id}`, { headers })
+            .get(`/api/jobs/${params.id}/comments`, { headers })
             .then((res) => {
                 setAllComment(res.data.comments);
             });
@@ -265,8 +264,8 @@ export default function WorkerViewJob() {
                         {job && (
                             <div className="row">
                                 <div className="col-sm-12">
-                                    <div className="row mb-3 mt-4">
-                                        <div className="col-sm-8 col-12">
+                                    <div className="row mb-3 mt-4 gap-2">
+                                        <div className="col-sm-6 col-12">
                                             <h2 className="text-custom">
                                                 {t(
                                                     "worker.jobs.view.c_details"
@@ -276,7 +275,7 @@ export default function WorkerViewJob() {
 
                                         {job.job_opening_timestamp === null &&
                                         job.worker_approved_at === null ? (
-                                            <div className="col-sm-2 col-6">
+                                            <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleApproveJob}
@@ -291,7 +290,7 @@ export default function WorkerViewJob() {
                                         ) : job.job_opening_timestamp ===
                                               null &&
                                           job.worker_approved_at !== null ? (
-                                            <div className="col-sm-2 col-6">
+                                            <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
                                                     onClick={handleOpeningTime}
@@ -305,7 +304,7 @@ export default function WorkerViewJob() {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="col-sm-2 col-6">
+                                                <div className="col-sm-3 col-xl-2 col-6">
                                                     {job_status !=
                                                         "completed" &&
                                                         job_status !=
@@ -332,6 +331,9 @@ export default function WorkerViewJob() {
                                                         {!isRunning && (
                                                             <>
                                                                 <button
+                                                                    disabled={
+                                                                        isSubmitting
+                                                                    }
                                                                     onClick={
                                                                         startTimer
                                                                     }
@@ -359,6 +361,9 @@ export default function WorkerViewJob() {
                                                         {isRunning && (
                                                             <>
                                                                 <button
+                                                                    disabled={
+                                                                        isSubmitting
+                                                                    }
                                                                     onClick={
                                                                         stopTimer
                                                                     }
@@ -425,44 +430,40 @@ export default function WorkerViewJob() {
                                                         </Tr>
                                                     </Thead>
                                                     <Tbody>
-                                                        {job_time &&
-                                                            job_time.map(
-                                                                (
-                                                                    item,
-                                                                    index
-                                                                ) => {
-                                                                    let w_t =
-                                                                        item.end_time
-                                                                            ? time_difference(
-                                                                                  item.start_time,
-                                                                                  item.end_time
-                                                                              )
-                                                                            : "";
-                                                                    return (
-                                                                        <Tr
-                                                                            key={
-                                                                                index
+                                                        {job_time.map(
+                                                            (item, index) => {
+                                                                let w_t =
+                                                                    item.end_time
+                                                                        ? time_difference(
+                                                                              item.start_time,
+                                                                              item.end_time
+                                                                          )
+                                                                        : "";
+                                                                return (
+                                                                    <Tr
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                    >
+                                                                        <Td>
+                                                                            {
+                                                                                item.start_time
                                                                             }
-                                                                        >
-                                                                            <Td>
-                                                                                {
-                                                                                    item.start_time
-                                                                                }
-                                                                            </Td>
-                                                                            <Td>
-                                                                                {
-                                                                                    item.end_time
-                                                                                }
-                                                                            </Td>
-                                                                            <Td>
-                                                                                {
-                                                                                    w_t
-                                                                                }
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    );
-                                                                }
-                                                            )}
+                                                                        </Td>
+                                                                        <Td>
+                                                                            {
+                                                                                item.end_time
+                                                                            }
+                                                                        </Td>
+                                                                        <Td>
+                                                                            {
+                                                                                w_t
+                                                                            }
+                                                                        </Td>
+                                                                    </Tr>
+                                                                );
+                                                            }
+                                                        )}
                                                         <Tr>
                                                             <Td colSpan="2">
                                                                 {t(

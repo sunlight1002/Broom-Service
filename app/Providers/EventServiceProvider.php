@@ -6,6 +6,7 @@ use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMettingJob;
 use App\Events\ClientPaymentFailed;
 use App\Events\ContractFormSigned;
+use App\Events\ContractSigned;
 use App\Events\Form101Signed;
 use App\Events\InsuranceFormSigned;
 use App\Events\JobReviewRequest;
@@ -21,7 +22,10 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
 use App\Events\JobNotificationToClient;
 use App\Events\MeetingReminderEvent;
+use App\Events\OfferAccepted;
+use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
+use App\Events\WorkerForm101Requested;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
@@ -41,7 +45,11 @@ use App\Listeners\SendJobNotificationToAdmin;
 use App\Listeners\SendJobNotificationToWorker;
 use App\Listeners\SendJobNotificationToClient;
 use App\Listeners\MeetingReminderNotification;
+use App\Listeners\NotifyForContract;
+use App\Listeners\NotifyForOffer;
+use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
+use App\Listeners\SendWorkerForm101Notification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -78,6 +86,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerCreated::class => [
             SendWorkerFormsNotification::class
+        ],
+        WorkerForm101Requested::class => [
+            SendWorkerForm101Notification::class
         ],
         ReScheduleMettingJob::class => [
             ReScheduleMettingNotification::class,
@@ -120,6 +131,15 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerChangeAffectedAvailability::class => [
             SendWorkerChangedAffectedAvailability::class
+        ],
+        OfferSaved::class => [
+            NotifyForOffer::class
+        ],
+        OfferAccepted::class => [
+            NotifyForContract::class
+        ],
+        ContractSigned::class => [
+            SendClientCredentials::class
         ]
     ];
 

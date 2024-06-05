@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react";
-import ReactPaginate from "react-paginate";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function OfferPrice() {
-    const [offers, setOffers] = useState([]);
-    const [totalOffers, setTotalOffers] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
-    const [pageCount, setPageCount] = useState(0);
+    const tableRef = useRef(null);
+
     const navigate = useNavigate();
-    const [copy, setCopy] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -23,51 +23,125 @@ export default function OfferPrice() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getOffers = () => {
-        axios.get("/api/admin/offers", { headers }).then((response) => {
-            if (response.data.offers.data.length > 0) {
-                setTotalOffers(response.data.offers.data);
-                setOffers(response.data.offers.data);
-                setCopy(response.data.offers.data);
-                setPageCount(response.data.offers.last_page);
-            } else {
-                setLoading("No offer found");
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/offers",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                    visible: false,
+                },
+                {
+                    title: "Client",
+                    data: "name",
+                    render: function (data, type, row, meta) {
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                    },
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    render: function (data, type, row, meta) {
+                        let color = "";
+                        if (data == "sent") {
+                            color = "purple";
+                        } else if (data == "accepted") {
+                            color = "green";
+                        } else {
+                            color = "red";
+                        }
+
+                        return `<span style="color: ${color};">${data}</span>`;
+                    },
+                },
+                {
+                    title: "Total",
+                    data: "subtotal",
+                    render: function (data, type, row, meta) {
+                        return `${data} ILS + VAT`;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-client-name") &&
+                !e.target.closest(".dtr-control")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-offer/${_id}`);
             }
         });
-    };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/admin/offers?page=" + currentPage + "&q=" + filter, {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
-                    setOffers(response.data.offers.data);
-                    setPageCount(response.data.offers.last_page);
-                } else {
-                    setLoading("No offer found");
-                }
-            });
-    };
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/edit-offer/${_id}`);
+        });
 
-    const filterOffers = (e) => {
-        axios
-            .get(`/api/admin/offers?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.offers.data.length > 0) {
-                    setTotalOffers(response.data.offers.data);
-                    setOffers(response.data.offers.data);
-                    setPageCount(response.data.offers.last_page);
-                } else {
-                    setTotalOffers([]);
-                    setPageCount(response.data.offers.last_page);
-                    setLoading("No offer found");
-                }
-            });
-    };
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-offer/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -89,57 +163,15 @@ export default function OfferPrice() {
                             "success"
                         );
                         setTimeout(() => {
-                            getOffers();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
 
-    useEffect(() => {
-        getOffers();
-    }, []);
-
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-offer/${id}`);
-    };
-
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setOffers(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setOffers(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     return (
@@ -153,15 +185,6 @@ export default function OfferPrice() {
                         </div>
                         <div className="col-sm-7">
                             <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                        filterOffers(e);
-                                        setFilter(e.target.value);
-                                    }}
-                                    placeholder="Search"
-                                />
                                 <Link
                                     to="/admin/offers/create"
                                     className="btn btn-pink addButton"
@@ -175,11 +198,11 @@ export default function OfferPrice() {
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="subtotal">Total</option>
-                                <option value="status">Status</option>
+                                <option value="5">Total</option>
+                                <option value="4">Status</option>
                             </select>
                         </div>
                     </div>
@@ -187,258 +210,10 @@ export default function OfferPrice() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {totalOffers.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">ID</Th>
-                                                <Th scope="col">Client</Th>
-                                                <Th scope="col">Email</Th>
-                                                {/* <Th scope="col">Address</Th> */}
-                                                <Th scope="col">Phone</Th>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) =>
-                                                        sortTable(e, "status")
-                                                    }
-                                                    scope="col"
-                                                >
-                                                    Status{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) =>
-                                                        sortTable(e, "subtotal")
-                                                    }
-                                                    scope="col"
-                                                >
-                                                    Total{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th scope="col">Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {offers.map((ofr, i) => {
-                                                if (ofr.client) {
-                                                    // var address = ofr.client
-                                                    //     .geo_address
-                                                    //     ? ofr.client.geo_address
-                                                    //     : "NA";
-                                                    // var cords =
-                                                    //     ofr.client.latitude &&
-                                                    //     ofr.client.longitude
-                                                    //         ? ofr.client
-                                                    //               .latitude +
-                                                    //           "," +
-                                                    //           ofr.client
-                                                    //               .longitude
-                                                    //         : "NA";
-                                                    let color = "";
-                                                    if (ofr.status == "sent") {
-                                                        color = "purple";
-                                                    } else if (
-                                                        ofr.status == "accepted"
-                                                    ) {
-                                                        color = "green";
-                                                    } else {
-                                                        color = "red";
-                                                    }
-
-                                                    let phone =
-                                                        ofr.client.phone !=
-                                                        undefined
-                                                            ? ofr.client.phone.split(
-                                                                  ","
-                                                              )
-                                                            : [];
-
-                                                    return (
-                                                        <Tr
-                                                            key={i}
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                        >
-                                                            <Td> {ofr.id} </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/admin/view-client/${ofr.client.id}`}
-                                                                >
-                                                                    {ofr.client
-                                                                        ? ofr
-                                                                              .client
-                                                                              .firstname +
-                                                                          " " +
-                                                                          ofr
-                                                                              .client
-                                                                              .lastname
-                                                                        : "NA"}
-                                                                </Link>
-                                                            </Td>
-                                                            <Td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        ofr.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                {
-                                                                    ofr.client
-                                                                        .email
-                                                                }
-                                                            </Td>
-                                                            {/* <Td>
-                                                                <Link
-                                                                    to={`https://maps.google.com?q=${cords}`}
-                                                                >
-                                                                    {address}
-                                                                </Link>
-                                                            </Td> */}
-
-                                                            <Td>
-                                                                {phone &&
-                                                                    phone.map(
-                                                                        (
-                                                                            p,
-                                                                            i
-                                                                        ) => {
-                                                                            return phone.length >
-                                                                                1 ? (
-                                                                                <a
-                                                                                    href={`tel:${p}`}
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {
-                                                                                        p
-                                                                                    }{" "}
-                                                                                    |{" "}
-                                                                                </a>
-                                                                            ) : (
-                                                                                <a
-                                                                                    href={`tel:${p}`}
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
-                                                                                    {
-                                                                                        p
-                                                                                    }{" "}
-                                                                                </a>
-                                                                            );
-                                                                        }
-                                                                    )}
-                                                            </Td>
-                                                            <Td
-                                                                style={{
-                                                                    color,
-                                                                }}
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        ofr.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                {ofr.status}
-                                                            </Td>
-                                                            <Td
-                                                                onClick={(e) =>
-                                                                    handleNavigate(
-                                                                        e,
-                                                                        ofr.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                {ofr.subtotal}{" "}
-                                                                ILS + VAT
-                                                            </Td>
-                                                            <Td>
-                                                                <div className="action-dropdown dropdown">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-default dropdown-toggle"
-                                                                        data-toggle="dropdown"
-                                                                    >
-                                                                        <i className="fa fa-ellipsis-vertical"></i>
-                                                                    </button>
-                                                                    <div className="dropdown-menu">
-                                                                        <Link
-                                                                            to={`/admin/edit-offer/${ofr.id}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            Edit
-                                                                        </Link>
-                                                                        <Link
-                                                                            to={`/admin/view-offer/${ofr.id}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            View
-                                                                        </Link>
-                                                                        <button
-                                                                            className="dropdown-item"
-                                                                            onClick={() =>
-                                                                                handleDelete(
-                                                                                    ofr.id
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                }
-                                            })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                            </div>
-
-                            {totalOffers.length > 0 && (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

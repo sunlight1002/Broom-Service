@@ -237,8 +237,7 @@ export default function Contract({ contracts, setContracts, fetchContract }) {
                     </table>
                 ) : (
                     <div className="form-control text-center">
-                        {" "}
-                        No contract found
+                        No record found
                     </div>
                 )}
             </div>

@@ -10,10 +10,10 @@ use App\Models\Client;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class ContractController extends Controller
 {
@@ -26,44 +26,43 @@ class ContractController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
-        $result = Contract::query()->with(['client', 'offer']);
+        $query = Contract::query()
+            ->leftJoin('offers', 'offers.id', '=', 'contracts.offer_id')
+            ->leftJoin('clients', 'contracts.client_id', '=', 'clients.id')
+            ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services');
 
-        $status = '';
-        if (strtolower($q) === ContractStatusEnum::UN_VERIFIED) {
-            $status = 'un-verified';
-        }
-        if (strtolower($q) === ContractStatusEnum::VERIFIED) {
-            $status = 'verified';
-        }
-        if (strtolower($q) === ContractStatusEnum::NOT_SIGNED) {
-            $status = 'not-signed';
-        }
-        if (strtolower($q) === ContractStatusEnum::DECLINED) {
-            $status = '';
-        }
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-        if ($status != '') {
-            $result->orWhere('status', '=', $status);
-        }
-
-        $result = $result->orWhereHas('client', function ($qr) use ($q) {
-            $qr->where(function ($qr) use ($q) {
-                $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('email'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('city'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('street_n_no'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('zipcode'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('phone'), 'like', '%' . $q . '%');
-            });
-        });
-
-        $result = $result->orderBy('created_at', 'desc')->paginate(20);
-
-        return response()->json([
-            'contracts' => $result
-        ]);
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('client_name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('client_name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('client_name', function ($query, $order) {
+                $query->orderBy('clients.firstname', $order);
+            })
+            ->editColumn('services', function ($data) {
+                return json_decode($data->services);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function clientContracts(Request $request)
@@ -154,26 +153,11 @@ class ContractController extends Controller
             'status' => ContractStatusEnum::VERIFIED
         ]);
 
-        //login credential send to client after contract verify by admin
-        if($client->status != 2){
-            App::setLocale($client['lng']);
-            Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($contract, $client) {
-                $messages->to($client['email']);
-                $client['lng'] ?
-                  $sub = __('mail.client_credentials.credentials') . "  " . __('mail.contract.company') . " of client #" . $client['firstname'] ." ". $client['lastname']
-                  :  $sub = $client['firstname'] ." ". $client['lastname'] . "# " . __('mail.client_credentials.credentials') . "  " . __('mail.contract.company');
-
-                $messages->subject($sub);
-            });
-        }
-
         $client->lead_status()->updateOrCreate(
             [],
             ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
         );
-        $client->update([
-            'status' => '2'
-        ]);
+
         return response()->json([
             'message' => 'Contract verified successfully'
         ]);
@@ -216,12 +200,13 @@ class ContractController extends Controller
         ]);
     }
 
-    public function saveContractFile(Request $request){
+    public function saveContractFile(Request $request)
+    {
         $data = $request->all();
         $contract = Contract::find($data['contractId']);
 
         $validator = Validator::make($request->all(), [
-            'contractId'=> ['required'],
+            'contractId' => ['required'],
             'file'      => ['required'],
         ], [], [
             'contractId'    => 'Contract Id',

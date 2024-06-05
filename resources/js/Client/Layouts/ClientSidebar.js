@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
-import logo from "../../Assets/image/sample.svg";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+import logo from "../../Assets/image/sample.svg";
 
 export default function ClientSidebar() {
     const alert = useAlert();
@@ -23,7 +23,7 @@ export default function ClientSidebar() {
                 localStorage.removeItem("client-name");
                 localStorage.removeItem("client-id");
                 navigate("/client/login");
-                alert.success("Logged Out Successfully");
+                alert.success(t("global.Logout"));
             }
         });
     };

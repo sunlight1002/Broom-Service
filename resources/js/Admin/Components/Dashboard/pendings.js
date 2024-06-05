@@ -11,6 +11,8 @@ export default function () {
     const [NpageCount, setNPageCount] = useState(0);
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState("Loading...");
+    const [currentPage, setCurrentPage] = useState(0);
+
     const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -31,32 +33,21 @@ export default function () {
     };
 
     const headNotice = () => {
-        axios.post("/api/admin/notice", { all: 1 }, { headers }).then((res) => {
-            if (res.data.notice.data) {
-                setNotices(res.data.notice.data);
-                setNPageCount(res.data.notice.last_page);
-            } else {
-                setNotices([]);
-                setLoading("No notification yet");
-            }
-        });
-    };
-
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
         axios
-            .post(
-                "/api/admin/notice?page=" + currentPage,
-                { all: 1 },
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.notice.data) {
-                    setNotices(response.data.notice.data);
-                    setNPageCount(response.data.notice.last_page);
+            .get("/api/admin/notice", {
+                headers,
+                params: {
+                    page: currentPage,
+                    all: 1,
+                },
+            })
+            .then((res) => {
+                if (res.data.notice.data) {
+                    setNotices(res.data.notice.data);
+                    setNPageCount(res.data.notice.last_page);
                 } else {
-                    setLoading("No notification yet");
                     setNotices([]);
+                    setLoading("No notification yet");
                 }
             });
     };
@@ -554,7 +545,9 @@ export default function () {
                                                                                         .address
                                                                                         .longitude
                                                                                 }`}
-                                                                                key={j}
+                                                                                key={
+                                                                                    j
+                                                                                }
                                                                             >
                                                                                 {s
                                                                                     .address
@@ -789,7 +782,9 @@ export default function () {
                                                                                         .address
                                                                                         .longitude
                                                                                 }`}
-                                                                                key={j}
+                                                                                key={
+                                                                                    j
+                                                                                }
                                                                             >
                                                                                 {s
                                                                                     .address
@@ -942,7 +937,9 @@ export default function () {
                                 pageCount={NpageCount}
                                 marginPagesDisplayed={2}
                                 pageRangeDisplayed={3}
-                                onPageChange={handlePageClick}
+                                onPageChange={(data) => {
+                                    setCurrentPage(data.selected + 1);
+                                }}
                                 containerClassName={
                                     "pagination justify-content-end mt-3"
                                 }

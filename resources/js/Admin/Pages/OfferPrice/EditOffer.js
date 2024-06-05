@@ -181,6 +181,9 @@ export default function EditOffer() {
                     }, 1000);
                 }
                 setIsSubmitting(false);
+            })
+            .catch((e) => {
+                setIsSubmitting(false);
             });
     };
 

@@ -22,6 +22,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ContractSigned;
+use App\Events\OfferAccepted;
 use App\Events\ReScheduleMettingJob;
 use App\Events\WhatsappNotificationEvent;
 
@@ -91,13 +93,6 @@ class ClientEmailController extends Controller
 
     $ofr = $offer->toArray();
 
-    Notification::create([
-      'user_id' => $ofr['client']['id'],
-      'type' => NotificationTypeEnum::ACCEPT_OFFER,
-      'offer_id' => $offer->id,
-      'status' => 'accepted'
-    ]);
-
     LeadStatus::UpdateOrCreate(
       [
         'client_id' => $ofr['client']['id']
@@ -116,24 +111,17 @@ class ClientEmailController extends Controller
       'status'     => ContractStatusEnum::NOT_SIGNED
     ]);
 
+    Notification::create([
+      'user_id' => $ofr['client']['id'],
+      'user_type' => Client::class,
+      'type' => NotificationTypeEnum::ACCEPT_OFFER,
+      'offer_id' => $offer->id,
+      'status' => 'accepted'
+    ]);
+
     $ofr['contract_id'] = $hash;
 
-    App::setLocale($ofr['client']['lng']);
-
-    if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
-      event(new WhatsappNotificationEvent([
-        "type" => WhatsappMessageTemplateEnum::CONTRACT,
-        "notificationData" => $ofr
-      ]));
-    }
-    Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
-      $messages->to($ofr['client']['email']);
-      $ofr['client']['lng'] ?
-        $sub = __('mail.contract.subject') . "  " . __('mail.contract.company') . " for offer #" . $ofr['id']
-        :  $sub = $ofr['id'] . "# " . __('mail.contract.subject') . "  " . __('mail.contract.company');
-
-      $messages->subject($sub);
-    });
+    event(new OfferAccepted($ofr));
 
     return response()->json([
       'message' => 'Offer is accepted'
@@ -164,15 +152,11 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $offerArr['client']['id'],
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::REJECT_OFFER,
       'offer_id' => $offer->id,
       'status' => 'declined'
     ]);
-
-    $client->lead_status()->updateOrCreate(
-      [],
-      ['lead_status' => LeadStatusEnum::UNINTERESTED]
-    );
 
     return response()->json([
       'message' => 'Thanks, your offer has been rejected'
@@ -212,6 +196,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::ACCEPT_MEETING,
       'meet_id' => $request->id,
       'status' => 'confirmed'
@@ -242,11 +227,6 @@ class ClientEmailController extends Controller
       'booking_status' => 'declined'
     ]);
 
-    $client->lead_status()->updateOrCreate(
-      [],
-      ['lead_status' => LeadStatusEnum::IRRELEVANT]
-    );
-
     $client->update(['status' => 0]);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
@@ -260,6 +240,7 @@ class ClientEmailController extends Controller
 
     Notification::create([
       'user_id' => $schedule->client_id,
+      'user_type' => get_class($client),
       'type' => NotificationTypeEnum::REJECT_MEETING,
       'meet_id' => $request->id,
       'status' => 'declined'
@@ -341,19 +322,35 @@ class ClientEmailController extends Controller
         ], 404);
       }
 
-      Contract::where('unique_hash', $request->unique_hash)->update($request->input());
+      $contract->update($request->input());
 
-      Notification::create([
-        'user_id' => $contract->client_id,
-        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
-        'contract_id' => $contract->id,
-        'status' => 'accepted'
-      ]);
+      if ($client->status != 2) {
+        $client->update([
+          'status' => 2
+        ]);
+
+        Notification::create([
+          'user_id' => $contract->client_id,
+          'user_type' => get_class($client),
+          'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
+          'status' => 'converted'
+        ]);
+      }
 
       $client->lead_status()->updateOrCreate(
         [],
         ['lead_status' => LeadStatusEnum::PENDING_CLIENT]
       );
+
+      Notification::create([
+        'user_id' => $contract->client_id,
+        'user_type' => get_class($client),
+        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
+        'contract_id' => $contract->id,
+        'status' => 'accepted'
+      ]);
+
+      event(new ContractSigned($client, $contract));
 
       return response()->json([
         'message' => "Thanks, for accepting contract"
@@ -361,7 +358,7 @@ class ClientEmailController extends Controller
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
-      ]);
+      ], 500);
     }
   }
 
@@ -380,9 +377,11 @@ class ClientEmailController extends Controller
 
       $contract->update(['status' => ContractStatusEnum::DECLINED]);
 
-      Client::where('id', $contract->client_id)->update(['status' => 1]);
+      $client = Client::find($contract->client_id);
+      $client->update(['status' => 1]);
       Notification::create([
         'user_id' => $contract->client_id,
+        'user_type' => get_class($client),
         'type' => NotificationTypeEnum::CONTRACT_REJECT,
         'contract_id' => $contract->id,
         'status' => 'declined'

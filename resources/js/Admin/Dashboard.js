@@ -124,7 +124,7 @@ export default function Dashboard() {
                         </h1>
                     </div>
                     <div className="row">
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/jobs">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -137,7 +137,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/clients">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -150,7 +150,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/leads">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -163,7 +163,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/workers">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -176,7 +176,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/schedule">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -189,7 +189,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/offered-price">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -205,7 +205,7 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
                             <Link to="/admin/contracts">
                                 <div className="dashBox">
                                     <div className="dashIcon">
@@ -219,7 +219,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-9">
+                        <div className="col-lg-9 col-12">
                             <div className="view-applicant">
                                 <h2 className="page-title">
                                     {t("admin.dashboard.jobsSchedule")}
@@ -268,7 +268,7 @@ export default function Dashboard() {
                                 </>
                             )}
                         </div>
-                        <div className="col-sm-3">
+                        <div className="col-lg-3 col-12 mt-3 mt-lg-0">
                             <h2 className="page-title pt-0">
                                 {t("admin.dashboard.recentUser")}
                             </h2>

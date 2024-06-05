@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { useAlert } from "react-alert";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useLocation } from "react-router-dom";
 import Moment from "moment";
@@ -10,17 +9,51 @@ import { useTranslation } from "react-i18next";
 
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function WorkerTotalJobs() {
+    const todayFilter = {
+        start_date: Moment().format("YYYY-MM-DD"),
+        end_date: Moment().format("YYYY-MM-DD"),
+    };
+    const currentWeekFilter = {
+        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
+        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
+    };
+    const nextWeekFilter = {
+        start_date: Moment()
+            .add(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
+    };
+    const previousWeekFilter = {
+        start_date: Moment()
+            .subtract(1, "weeks")
+            .startOf("week")
+            .format("YYYY-MM-DD"),
+        end_date: Moment()
+            .subtract(1, "weeks")
+            .endOf("week")
+            .format("YYYY-MM-DD"),
+    };
+
+    const { t, i18n } = useTranslation();
+
     const [totalJobs, setTotalJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
-    const [filter, setFilter] = useState("");
-    const alert = useAlert();
-    const location = useLocation();
-    const id = localStorage.getItem("worker-id");
-    const { t, i18n } = useTranslation();
+    const [loading, setLoading] = useState(t("common.loading"));
+    const [currentPage, setCurrentPage] = useState(0);
+    const [dateRange, setDateRange] = useState({
+        start_date: currentWeekFilter.start_date,
+        end_date: currentWeekFilter.end_date,
+    });
+    const [selectedFilter, setselectedFilter] = useState(t("global.week"));
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const urlParamF = queryParams.get("f");
     const w_lng = i18n.language;
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -28,59 +61,61 @@ export default function WorkerTotalJobs() {
     };
 
     const getJobs = () => {
-        axios.get(`/api/jobs?id=${id}`, { headers }).then((response) => {
-            if (response.data.jobs.data.length > 0) {
-                setTotalJobs(response.data.jobs.data);
-                setPageCount(response.data.jobs.last_page);
-            } else {
-                setTotalJobs([]);
-                setLoading("No Job found");
-            }
-        });
+        let _filters = {};
+
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
+        axios
+            .get(`/api/jobs`, {
+                headers,
+                params: {
+                    page: currentPage,
+                    ..._filters,
+                },
+            })
+            .then((response) => {
+                if (response.data.jobs.data.length > 0) {
+                    setTotalJobs(response.data.jobs.data);
+                    setPageCount(response.data.jobs.last_page);
+                } else {
+                    setTotalJobs([]);
+                    setLoading(t("worker.jobs.noJobFound"));
+                }
+            });
     };
 
     useEffect(() => {
         getJobs();
-    }, []);
+    }, [currentPage, dateRange]);
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get(
-                `/api/jobs?id=${id}&page=` + currentPage + "&filter_week=all",
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setLoading("No Job found");
-                }
+    useEffect(() => {
+        if (urlParamF == "past") {
+            setselectedFilter(t("worker.jobs.custom_range"));
+            setDateRange({
+                start_date: Moment()
+                    .subtract(1, "days")
+                    .subtract(1, "weeks")
+                    .format("YYYY-MM-DD"),
+                end_date: Moment().subtract(1, "days").format("YYYY-MM-DD"),
             });
-    };
-
-    const filterJobDate = (w) => {
-        $("#filter-week").val(w);
-        filterJobs1();
-    };
-    const filterJobs1 = () => {
-        let filter_week = $("#filter-week").val();
-
-        axios
-            .get(`/api/jobs?id=${id}&filter_week=${filter_week}`, { headers })
-            .then((response) => {
-                if (response.data.jobs.data.length > 0) {
-                    setTotalJobs(response.data.jobs.data);
-                    setPageCount(response.data.jobs.last_page);
-                } else {
-                    setTotalJobs([]);
-                    setPageCount(response.data.jobs.last_page);
-                    setLoading("No Jobs found");
-                }
+        } else if (urlParamF == "upcoming") {
+            setselectedFilter(t("worker.jobs.custom_range"));
+            setDateRange({
+                start_date: Moment().add(1, "days").format("YYYY-MM-DD"),
+                end_date: Moment()
+                    .add(1, "days")
+                    .add(1, "weeks")
+                    .format("YYYY-MM-DD"),
             });
-    };
+        } else if (urlParamF == "today") {
+            setselectedFilter(t("global.day"));
+            setDateRange({
+                start_date: todayFilter.start_date,
+                end_date: todayFilter.end_date,
+            });
+        }
+    }, [urlParamF]);
 
     return (
         <div id="container">
@@ -88,97 +123,121 @@ export default function WorkerTotalJobs() {
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="row">
-                        <div className="col-sm-2 col-4">
-                            <h1 className="page-title">
-                                {t("worker.jobs.title")}
-                            </h1>
-                        </div>
+                        <div className="col-md-12 mt-2">
+                            <div className="d-sm-flex align-items-center">
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2 "
+                                >
+                                    {t("worker.jobs.date_period")}
+                                </div>
 
-                        <div className="col-sm-7 hidden-xs">
-                            <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                        setFilter(e.target.value);
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
-                                >
-                                    {t("worker.jobs.all_jobs")}
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {t("worker.jobs.current_week")}
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {t("worker.jobs.next_week")}
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {t("worker.jobs.next_next_week")}
-                                </button>
+                                <div>
+                                    <FilterButtons
+                                        text={t("global.day")}
+                                        className="px-4 mr-1 "
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    todayFilter.start_date,
+                                                end_date: todayFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.week")}
+                                        className="px-4 mr-3 "
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    currentWeekFilter.start_date,
+                                                end_date:
+                                                    currentWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.previous_week")}
+                                        className="px-3 mr-1 "
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    previousWeekFilter.start_date,
+                                                end_date:
+                                                    previousWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.next_week")}
+                                        className="px-3 "
+                                        onClick={() =>
+                                            setDateRange({
+                                                start_date:
+                                                    nextWeekFilter.start_date,
+                                                end_date:
+                                                    nextWeekFilter.end_date,
+                                            })
+                                        }
+                                        selectedFilter={selectedFilter}
+                                        setselectedFilter={setselectedFilter}
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className="col-12 hidden-xl">
-                            <div className="job-buttons">
-                                <input type="hidden" id="filter-week" />
-                                <button
-                                    className="btn btn-info"
-                                    onClick={(e) => {
-                                        filterJobDate("all");
-                                    }}
-                                    style={{
-                                        background: "#858282",
-                                        borderColor: "#858282",
-                                    }}
+
+                        <div className="col-md-12 my-2">
+                            <div className="d-sm-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
                                 >
-                                    {" "}
-                                    All Jobs
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-success"
-                                    onClick={(e) => {
-                                        filterJobDate("current");
-                                    }}
-                                >
-                                    {" "}
-                                    Current week
-                                </button>
-                                <button
-                                    className="ml-2 btn btn-pink"
-                                    onClick={(e) => {
-                                        filterJobDate("next");
-                                    }}
-                                >
-                                    {" "}
-                                    Next week
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={(e) => {
-                                        filterJobDate("nextnext");
-                                    }}
-                                >
-                                    {" "}
-                                    Next Next week
-                                </button>
+                                    {t("worker.jobs.custom_date_range")}
+                                </div>
+                                <div className="d-flex align-items-center">
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setselectedFilter(
+                                                t("worker.jobs.custom_range")
+                                            );
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">{t("global.to")}</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setselectedFilter(
+                                                t("worker.jobs.custom_range")
+                                            );
+                                            setDateRange({
+                                                start_date:
+                                                    dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -304,7 +363,7 @@ export default function WorkerTotalJobs() {
                                                         <Td>
                                                             <Link
                                                                 to={`/worker/view-job/${item.id}`}
-                                                                className="btn btn-primary"
+                                                                className="btn btn-primary mt-4 mt-md-0 ml-1"
                                                             >
                                                                 {t(
                                                                     "worker.jobs.viewbtn"
@@ -329,7 +388,9 @@ export default function WorkerTotalJobs() {
                                         pageCount={pageCount}
                                         marginPagesDisplayed={2}
                                         pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
+                                        onPageChange={(data) => {
+                                            setCurrentPage(data.selected + 1);
+                                        }}
                                         containerClassName={
                                             "pagination justify-content-end mt-3"
                                         }

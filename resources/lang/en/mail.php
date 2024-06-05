@@ -51,7 +51,7 @@ return [
         'tel'         => 'Telephone',
     ],
     'offer' => [
-        'subject'     => 'Offer recieved',
+        'subject'     => 'Offer received',
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
@@ -346,6 +346,72 @@ return [
         'worker_job_reminder_subject'   => 'Job Reminder | Broom Service',
         'worker_job_reminder_content'   => 'Just a friendly reminder that you have not approve the job till now.',
         'worker_job_start_time_content' => 'Job time has been started by you.',
-        'extra_amount' => 'Extra amount'
+        'extra_amount' => 'Extra amount',
+        'check_job_details' => 'Check Job Details',
+        'mark_as_complete'  =>  'Mark as complete',
+        'end_time'  => 'End time',
+        'resume_timer'  => 'Resume timer'
     ],
+    'forms' => [
+        'worker_forms' => 'Worker Forms',
+        'content'   => 'You have successfully registered on our portal. Please sign the below forms to start working on the job.',
+        'below_txt' => 'Click the below button to fill forms.',
+        'btn_txt'   => 'Check Forms'
+    ],
+    'job_nxt_step' => [
+        'approved_nxt_step_email_subject' => 'Job Approved | Next step | Broom Service',
+        'approved_nxt_step_email_title' => 'Job Approved',
+        'approved_nxt_step_email_content' => 'You have approved the job. Check the below link and click :label when you will going to start your work.',
+        'leaving_for_work_link'  => 'I\'m leaving for work now',
+        'opened_nxt_step_email_subject' => 'Job Opened | Next step | Broom Service',
+        'opened_nxt_step_email_title' => 'Job Opened',
+        'opened_nxt_step_email_content' => 'You are going to start your work. Check the below link and click :l1 whenever you start your work time or if you want to complete the job click on :l2.',
+        'completed_nxt_step_email_subject' => 'Job Completed | Next step | Broom Service',
+        'completed_nxt_step_email_title' => 'Job Completed',
+        'completed_nxt_step_email_content' => 'You have completed the job # :jobId .You will get the feedback once the job reviewed by client.',
+        'start_time_nxt_step_email_subject' => 'Job time started | Next step | Broom Service',
+        'start_time_nxt_step_email_title' => 'Job time started',
+        'start_time_nxt_step_email_content' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
+        'end_time_nxt_step_email_subject' => 'Job time Ended | Next step | Broom Service',
+        'end_time_nxt_step_email_title' => 'Job time ended',
+        'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
+    ],
+    'wa-message' => [
+        'common' => [
+            'salutation' => "Hi, *:name*"
+        ],
+        'client_meeting_schedule' => [
+            'content' => "Greetings from Broom Service. Just a friendly reminder that you have an upcoming appointment on *:date* between *:start_time* to *:end_time* at *:address* for *:purpose*. Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.",
+        ],
+        'offer_price' => [
+            'content' => "Greetings from Broom Service. Please check the price offer for the *:service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.
+            Click the below button to see the price offer.",
+        ],
+        'contract' => [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the contract form to start working on the job.
+            Click the below button to check the contract.",
+        ],
+        'client_job_updated' => [
+            'content' => "Greetings from Broom Service. Your job has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
+        ],
+        'delete_meeting' => [
+            'content' => "Greetings from Broom Service.\n\nJust a friendly reminder that your meeting with *:team_name* on *:date* between *:start_time* to *:end_time* has cancelled now.",
+        ],
+        'form101' => [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the Form 101 to start working on the job.\n\nClick the below button to fill Form101.",
+        ],
+        'new_job' => [
+            'content' => "Greetings from Broom Service. :content_txt Please check the details.\n\n
+            Date/Time: :date_time\nClient: :client_name\nService: :service_name\nProperty: :address\nStatus: :status",
+        ],
+        'button-label' => [
+            'accept_reject' => 'Accept/Reject',
+            'upload_file' => 'Upload file',
+            'price_offer' => 'Price Offer',
+            'check_contract' => 'Check Contract',
+            'review' => 'Review',
+            'form101' => 'Form 101',
+            'view_job' => 'View Job',
+        ]
+    ]
 ];

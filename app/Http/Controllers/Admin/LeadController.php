@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class LeadController extends Controller
 {
@@ -31,36 +32,45 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $keyword = $request->q;
-        $c = $request->condition;
+        $query = Client::query()
+            ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
+            ->where('clients.status', '!=', 2)
+            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status');
 
-        $result = Client::with(['meetings', 'offers', 'lead_status']);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-        if (!is_null($keyword) &&  ($keyword !== 1 && $keyword !== 0 && $keyword != 'all') && $c != 'filter') {
-
-            $result->where(function ($query) use ($keyword) {
-                $ex = explode(' ', $keyword);
-                $q2 = isset($ex[1]) ? $ex[1] : $keyword;
-
-                $query->where('email', 'like', '%' . $keyword . '%')
-                    ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
-                    ->orWhere('lastname', 'like', '%' . $q2 . '%')
-                    ->orWhere('phone', 'like', '%' . $keyword . '%');
-            });
-        }
-
-        if ($request->condition == 'filter') {
-            $result = $result->whereHas('lead_status', function ($q) use ($keyword) {
-                $q->where('lead_status', $keyword);
-            });
-        }
-
-        $result = $result->where('status', '!=', 2);
-        $result = $result->orderBy('id', 'desc')->paginate(20);
-
-        return response()->json([
-            'leads' => $result,
-        ]);
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->filterColumn('lead_status', function ($query, $keyword) {
+                $sql = "leadstatus.lead_status like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     /**
@@ -84,9 +94,11 @@ class LeadController extends Controller
         }
 
         $input = $data;
-        $input['password'] = isset($input['phone']) && !empty($input['phone']) ?
-            Hash::make($input['phone']) :
-            Hash::make('password');
+        $password =  isset($input['phone']) && !empty($input['phone'])
+            ? $input['phone']
+            : 'password';
+        $input['password'] = Hash::make($password);
+        $input['passcode'] = $password;
 
         $client = Client::create($input);
 
@@ -390,7 +402,8 @@ class LeadController extends Controller
         }
     }
 
-    public function facebookWebhook(Request $request) {
+    public function facebookWebhook(Request $request)
+    {
         $challenge = $request->hub_challenge;
         if (!empty($challenge)) {
             $verify_token = $request->hub_verify_token;
@@ -402,30 +415,45 @@ class LeadController extends Controller
             $pageAccessToken = $this->pageAccessToken();
             $request_data = $request->getContent();
             Log::info("webhook_request_data");
+            Log::info("type - " . gettype($request_data));
             Log::info($request_data);
-            if(isset($request_data['object']) && $request_data['object']  == "page" && isset($request_data['entry']) && isset($request_data['entry'][0]) && count($request_data['entry'][0]) > 0 && !empty($pageAccessToken)) {
+            $request_data = json_decode($request_data, true);
+
+            if (
+                isset($request_data['object']) &&
+                $request_data['object'] == "page" &&
+                isset($request_data['entry']) &&
+                isset($request_data['entry'][0]) &&
+                count($request_data['entry'][0]) > 0 &&
+                !empty($pageAccessToken)
+            ) {
                 $entry_data = $request_data['entry'][0];
                 $changes_data = $entry_data['changes'];
                 foreach ($changes_data as $key => $changes) {
                     $response = $this->getLeadData($changes['value']['leadgen_id'], $pageAccessToken);
                     if ($response['http_code'] == 200) {
                         $lead_data = $response['lead_data'];
-                        $name_keys = ['full_name', 'phone_number'];
+                        $name_keys = ['full_name', 'phone_number', 'email'];
                         $field_data = $lead_data['field_data'];
                         $mapped_field_data = [];
                         foreach ($field_data as $key => $field) {
-                            if(isset($field['name']) && in_array($field['name'], $name_keys) && $field['values'] && count($field['values']) > 0){
-                                $mapped_field_data[$field['name']] =  $field['values'][0];
+                            if (
+                                isset($field['name']) &&
+                                in_array($field['name'], $name_keys) &&
+                                $field['values'] &&
+                                count($field['values']) > 0
+                            ) {
+                                $mapped_field_data[$field['name']] = $field['values'][0];
                             }
                         }
 
-                        $email = isset($mapped_field_data['email']) && !empty($mapped_field_data['email'])?$mapped_field_data['email']:'lead'.$lead_data['id'] . '@lead.com';
+                        $email = isset($mapped_field_data['email']) && !empty($mapped_field_data['email']) ? $mapped_field_data['email'] : 'lead' . $lead_data['id'] . '@lead.com';
 
-                        $name = isset($mapped_field_data['full_name']) && !empty($mapped_field_data['full_name'])? explode(' ', $mapped_field_data['full_name']):'lead '.$lead_data['id'];
+                        $name = isset($mapped_field_data['full_name']) && !empty($mapped_field_data['full_name']) ? explode(' ', $mapped_field_data['full_name']) : explode(' ', 'lead ' . $lead_data['id']);
 
-                        $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number'])?str_replace('+', '', $mapped_field_data['phone_number']):'';
+                        $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number']) ? str_replace('+', '', $mapped_field_data['phone_number']) : '';
                         $lng = 'heb';
-                        if(isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972){
+                        if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
                             $lng = 'en';
                         }
                         // Fblead::create(["challenge" => json_encode($lead_data)]);
@@ -434,22 +462,22 @@ class LeadController extends Controller
                         ], [
                             'payment_method'    => 'cc',
                             'password'          => Hash::make($lead_data['id']),
+                            'passcode'          => $lead_data['id'],
                             'status'            => 0,
                             'lng'               => $lng,
                             'firstname'         => $name[0],
                             'lastname'          => $name[1],
                             'phone'             => $phone,
                         ]);
-                        if(!empty($phone)){
+                        if (!empty($phone)) {
                             $result = sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
                         }
                         $client->lead_status()->updateOrCreate(
                             [],
                             ['lead_status' => LeadStatusEnum::PENDING_LEAD]
                         );
-                    }
-                    else{
-                        Log::info('Error : Failed to create lead of lead id - '. $changes['value']['leadgen_id']);
+                    } else {
+                        Log::info('Error : Failed to create lead of lead id - ' . $changes['value']['leadgen_id']);
                     }
                 }
                 $webhook_response = WebhookResponse::create([
@@ -464,8 +492,9 @@ class LeadController extends Controller
         }
     }
 
-    public function getLeadData($leadgen_id, $pageAccessToken){
-        $url = "https://graph.facebook.com/v19.0/" . $leadgen_id . "/";
+    public function getLeadData($leadgen_id, $pageAccessToken)
+    {
+        $url = "https://graph.facebook.com/v20.0/" . $leadgen_id . "/";
         $lead_response = Http::get($url, [
             'access_token' => $pageAccessToken,
         ]);

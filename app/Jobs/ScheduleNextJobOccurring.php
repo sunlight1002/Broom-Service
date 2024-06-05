@@ -115,19 +115,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $workerId = $job->keep_prev_worker ? $workerId : NULL;
 
-            if ($workerId) {
-                $status = JobStatusEnum::SCHEDULED;
-                if (
-                    Job::where('start_date', $job_date)
-                    ->where('worker_id', $workerId)
-                    ->exists()
-                ) {
-                    $status = JobStatusEnum::UNSCHEDULED;
-                }
-            } else {
-                $status = JobStatusEnum::UNSCHEDULED;
-            }
-
             $previous_shifts = $job->previous_shifts;
             $previous_shifts_after = $job->previous_shifts_after;
             if ($job->previous_shifts) {
@@ -168,6 +155,15 @@ class ScheduleNextJobOccurring implements ShouldQueue
             }
 
             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+            if ($workerId) {
+                $status = JobStatusEnum::SCHEDULED;
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerId)) {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
+            } else {
+                $status = JobStatusEnum::UNSCHEDULED;
+            }
 
             $minutes = 0;
             $slotsInString = '';

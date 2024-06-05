@@ -19,4 +19,14 @@ final class NotificationTypeEnum extends AbstractEnum
     public const RESCHEDULE_MEETING = 'reschedule-meeting';
     public const FILES = 'files';
     public const PAYMENT_FAILED = 'payment-failed';
+    public const PAYMENT_PAID = 'payment-paid';
+    public const PAYMENT_PARTIAL_PAID = 'payment-partial-paid';
+    public const CONVERTED_TO_CLIENT = 'converted-to-client';
+    public const JOB_REVIEWED = 'job-reviewed';
+    public const FORM101_SIGNED = 'form101-signed';
+    public const WORKER_CONTRACT_SIGNED = 'worker-contract-signed';
+    public const SAFETY_GEAR_SIGNED = 'safety-gear-signed';
+    public const INSURANCE_SIGNED = 'insurance-signed';
+    public const CLIENT_COMMENTED = 'client-commented';
+    public const JOB_SCHEDULE_CHANGE = 'job-schedule-change';
 }

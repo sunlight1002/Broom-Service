@@ -81,6 +81,8 @@ class DashboardController extends Controller
 
   public function Notice(Request $request)
   {
+    $groupType = $request->get('group_type');
+
     $count = Notification::count();
     $seenCount = Notification::where('seen', 0)->count();
 
@@ -90,7 +92,36 @@ class DashboardController extends Controller
       }
 
       if ($request->all) {
-        $noticeAll = Notification::with('client')->orderBy('id', 'desc')->paginate(15);
+        $noticeAll = Notification::with('client')
+          ->when($groupType == 'schedule-and-worker', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::FORM101_SIGNED,
+              NotificationTypeEnum::INSURANCE_SIGNED,
+              NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
+              NotificationTypeEnum::SAFETY_GEAR_SIGNED,
+              NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+              NotificationTypeEnum::OPENING_JOB,
+              NotificationTypeEnum::CLIENT_CANCEL_JOB,
+            ]);
+          })
+          ->when($groupType == 'converted-to-client', function ($q) {
+            return $q->where('type', NotificationTypeEnum::CONVERTED_TO_CLIENT);
+          })
+          ->when($groupType == 'client-comments-reviews', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::CLIENT_COMMENTED,
+              NotificationTypeEnum::JOB_REVIEWED,
+            ]);
+          })
+          ->when($groupType == 'payment-status', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::PAYMENT_FAILED,
+              NotificationTypeEnum::PAYMENT_PAID,
+              NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
+            ]);
+          })
+          ->orderBy('id', 'desc')
+          ->paginate(15);
       }
 
       if (isset($noticeAll)) {
@@ -102,7 +133,7 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
-          }else if ($notice->type == NotificationTypeEnum::RESCHEDULE_MEETING) {            
+          } else if ($notice->type == NotificationTypeEnum::RESCHEDULE_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
@@ -113,7 +144,7 @@ class DashboardController extends Controller
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->client->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->user->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> has been confirmed now on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::REJECT_MEETING) {
@@ -122,6 +153,13 @@ class DashboardController extends Controller
             if (isset($sch)) {
               $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> which on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time) . " has cancelled now.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::FILES) {
+            $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
+
+            if (isset($sch)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+                "</a> have added a file to <a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> scheduled on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::ACCEPT_OFFER) {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->first();
@@ -179,8 +217,50 @@ class DashboardController extends Controller
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-job/" . $job->id . "'> Job </a> has been started by  <a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-              "</a>";
+                "</a>";
             }
+          } else if ($notice->type == NotificationTypeEnum::JOB_SCHEDULE_CHANGE) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-job/" . $job->id . "'> Job </a> schedule has been changed";
+            }
+          } else if ($notice->type == NotificationTypeEnum::FORM101_SIGNED) {
+            $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>";
+          } else if ($notice->type == NotificationTypeEnum::WORKER_CONTRACT_SIGNED) {
+            $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>";
+          } else if ($notice->type == NotificationTypeEnum::SAFETY_GEAR_SIGNED) {
+            $noticeAll[$k]->data = "Safety and Gear form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>";
+          } else if ($notice->type == NotificationTypeEnum::INSURANCE_SIGNED) {
+            $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>";
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_COMMENTED) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "Client has comment for a <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::JOB_REVIEWED) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "Client has reviewed a <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::CONVERTED_TO_CLIENT) {
+            $noticeAll[$k]->data = "<a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> have been converted to client";
+          } else if ($notice->type == NotificationTypeEnum::PAYMENT_FAILED) {
+            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> has been failed";
+          } else if ($notice->type == NotificationTypeEnum::PAYMENT_PAID) {
+            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> has been paid";
+          } else if ($notice->type == NotificationTypeEnum::PAYMENT_PARTIAL_PAID) {
+            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> has been paid partially";
           }
         }
       }
@@ -227,7 +307,7 @@ class DashboardController extends Controller
 
     if (empty($startDate) || empty($endDate)) {
       $tasks = $tasks->get();
-    }else{
+    } else {
       $tasks = $tasks->whereBetween('created_at', [$startDate, $endDate])->get();
     }
     $inc = 0;

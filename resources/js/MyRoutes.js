@@ -87,7 +87,6 @@ import WorkerLogin from "./Worker/Auth/WorkerLogin";
 import ClientLogin from "./Client/Auth/ClientLogin";
 import Schedule from "./Admin/Pages/Schedule/Schedule";
 import ViewSchedule from "./Admin/Pages/Schedule/ViewSchedule";
-import CreateContract from "./Admin/Pages/Contract/CreateContract";
 import PriceOffer from "./Pages/PriceOffer";
 import InsuranceEng from "./Pages/Insurance/InsuranceEng";
 import InsuranceHeb from "./Pages/Insurance/InsuranceHeb";
@@ -133,6 +132,7 @@ import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 import Invoices from "./Client/Pages/Invoices/Invoices";
 import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies";
 import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvailability";
+import WorkerForm from "./Pages/WorkerForm";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -195,6 +195,11 @@ export default function MyRoutes() {
                     <Route exact path="form101/:id" element={<Form101 />} />
                     <Route
                         exact
+                        path="form101/:id/:formId"
+                        element={<Form101 />}
+                    />
+                    <Route
+                        exact
                         path="worker-contract/:id"
                         element={<WorkerContract />}
                     />
@@ -224,7 +229,11 @@ export default function MyRoutes() {
                         path="worker/:wid/jobs/:jid/approve"
                         element={<WorkerJobDetails />}
                     />
-
+                    <Route
+                        exact
+                        path="worker-forms/:id"
+                        element={<WorkerForm />}
+                    />
                     {/* Client Routes Start  */}
 
                     <Route element={<ClientProtectedRoutes />}>
@@ -344,11 +353,6 @@ export default function MyRoutes() {
 
                     {/* Admin Routes Start  */}
                     <Route exact path="/admin/login" element={<AdminLogin />} />
-                    <Route
-                        exact
-                        path="create-contract"
-                        element={<CreateContract />}
-                    />
                     <Route element={<AdminProtectedRoutes />}>
                         <Route path="admin" element={<Admin />}>
                             <Route

@@ -50,7 +50,7 @@ export default function ChangeWorker() {
                             <div className="card-body">
                                 <form>
                                     <div className="row">
-                                        <div className="col-sm-2">
+                                        <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
                                                 <label>Client</label>
                                                 <p>
@@ -60,13 +60,13 @@ export default function ChangeWorker() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
                                                 <label>Services</label>
                                                 <p>{job.jobservice.name}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
                                                 <label>Frequency</label>
                                                 <p>
@@ -74,7 +74,7 @@ export default function ChangeWorker() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 <p>
@@ -134,7 +134,7 @@ export default function ChangeWorker() {
                                         </div>
                                     </div>
                                     <div className="row">
-                                        <div className="col-sm-2">
+                                        <div className="col-4 col-lg-2">
                                             <div className="form-group">
                                                 <label>Worker</label>
                                                 {job.worker ? (
@@ -148,7 +148,7 @@ export default function ChangeWorker() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
                                                 <label>Date</label>
                                                 <p>
@@ -158,7 +158,7 @@ export default function ChangeWorker() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
                                                 <label>Shift</label>
                                                 <p>{job.shifts}</p>

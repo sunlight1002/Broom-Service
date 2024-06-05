@@ -157,10 +157,13 @@ const CustomCalendar = ({ meeting }) => {
 
     return (
         <>
-            <div className="mx-auto mt-5 row custom-calendar">
-                <div className="col-8 border">
+            <div className="mx-auto mt-5 custom-calendar">
+                <div className="border">
                     <h5 className="mt-3">Select a Date & Time</h5>
-                    <div className="d-flex gap-3 p-3">
+                    <div
+                        className="d-flex gap-3 p-3"
+                        style={{ overflowX: "auto" }}
+                    >
                         <div>
                             <DatePicker
                                 selected={selectedDate}
@@ -207,7 +210,7 @@ const CustomCalendar = ({ meeting }) => {
 
             <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-primary mt-2"
                 onClick={handleSubmit}
                 disabled={isLoading}
             >

@@ -57,9 +57,7 @@ export default function Acc() {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
                 } else {
-                    alert.success(
-                        "Account details has been updated successfully"
-                    );
+                    alert.success(t("client.settings.updateSuccess"));
                 }
             });
     };
@@ -305,9 +303,15 @@ export default function Acc() {
                             value={lng}
                             onChange={(e) => e.target.value}
                         >
-                            <option value="">--- Select language ---</option>
-                            <option value="heb">Hebrew</option>
-                            <option value="en">English</option>
+                            <option value="">
+                                {t("client.settings.select")}
+                            </option>
+                            <option value="heb">
+                                {t("client.settings.Hebrew")}
+                            </option>
+                            <option value="en">
+                                {t("client.settings.English")}
+                            </option>
                         </select>
                     </div>
                     <div className="form-group">

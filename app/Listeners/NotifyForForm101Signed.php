@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\Form101Signed;
 use App\Events\WhatsappNotificationEvent;
@@ -42,12 +42,12 @@ class NotifyForForm101Signed implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            // Notification::create([
-            //     'user_id' => $event->job->client->id,
-            //     'type' => NotificationTypeEnum::WORKER_RESCHEDULE,
-            //     'job_id' => $event->job->id,
-            //     'status' => 'reschedule'
-            // ]);
+            Notification::create([
+                'user_id' => $event->worker->id,
+                'user_type' => get_class($event->worker),
+                'type' => NotificationTypeEnum::FORM101_SIGNED,
+                'status' => 'signed'
+            ]);
 
             // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
             //     event(new WhatsappNotificationEvent([

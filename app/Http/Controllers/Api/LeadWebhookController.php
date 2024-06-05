@@ -16,7 +16,6 @@ use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
 use App\Models\ClientPropertyAddress;
-use App\Models\LeadStatus;
 use App\Models\Notification;
 use App\Models\Schedule;
 use App\Models\Setting;
@@ -71,6 +70,7 @@ class LeadWebhookController extends Controller
             $lead->email         = $request->email;
             $lead->status        = 0;
             $lead->password      = Hash::make($request->phone);
+            $lead->passcode      = $request->phone;
             $lead->geo_address   = $request->has('address') ? $request->address : '';
             $lead->save();
 
@@ -186,6 +186,7 @@ class LeadWebhookController extends Controller
                     $lead->email         = $from . '@lead.com';
                     $lead->status        = 3;
                     $lead->password      = Hash::make($from);
+                    $lead->passcode      = $from;
                     $lead->geo_address   = '';
                     $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
                     $lead->save();
@@ -778,11 +779,6 @@ If you would like to speak to a human representative, please send a message with
 
                                     $schedule = Schedule::create($scheduleData);
 
-                                    LeadStatus::updateOrCreate(
-                                        ['client_id' => $client->id],
-                                        ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
-                                    );
-
                                     $googleAccessToken = Setting::query()
                                         ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
                                         ->value('value');
@@ -804,6 +800,7 @@ If you would like to speak to a human representative, please send a message with
 
                                     Notification::create([
                                         'user_id' => $schedule->client_id,
+                                        'user_type' => get_class($client),
                                         'type' => NotificationTypeEnum::SENT_MEETING,
                                         'meet_id' => $schedule->id,
                                         'status' => $schedule->booking_status
@@ -1299,6 +1296,7 @@ If you would like to speak to a human representative, please send a message with
         $lead->email = $request->email;
         $lead->status = 0;
         $lead->password = Hash::make($request->phone);
+        $lead->passcode = $request->phone;
         $lead->save();
 
         if (!$lead_exists) {

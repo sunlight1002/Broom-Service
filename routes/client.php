@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('get-contract/{id}', [DashboardController::class, 'getContract'])->name('get-contract');
 
     //job APis
-    Route::post('jobs', [JobController::class, 'index']);
+    Route::get('jobs', [JobController::class, 'index']);
     Route::get('jobs/{id}', [JobController::class, 'show']);
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancel']);
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
@@ -51,7 +51,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
-    Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);

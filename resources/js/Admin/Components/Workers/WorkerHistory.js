@@ -67,21 +67,18 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         Past Job
                     </a>
                 </li>
-                {worker.country === "Israel" &&
-                    worker.company_type === "my-company" && (
-                        <li className="nav-item" role="presentation">
-                            <a
-                                id="worker-forms"
-                                className="nav-link"
-                                data-toggle="tab"
-                                href="#tab-worker-forms"
-                                aria-selected="false"
-                                role="tab"
-                            >
-                                Forms
-                            </a>
-                        </li>
-                    )}
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="worker-forms"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-worker-forms"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        Forms
+                    </a>
+                </li>
                 {/* <li className="nav-item" role="presentation">
                     <a
                         id="worker-not-availability"
@@ -132,20 +129,17 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                 >
                     <PastJob />
                 </div>
-                {worker.country === "Israel" &&
-                    worker.company_type === "my-company" && (
-                        <div
-                            id="tab-worker-forms"
-                            className="tab-pane"
-                            role="tab-panel"
-                            aria-labelledby="worker-forms"
-                        >
-                            <WorkerForms
-                                worker={worker}
-                                getWorkerDetails={getWorkerDetails}
-                            />
-                        </div>
-                    )}
+                <div
+                    id="tab-worker-forms"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="worker-forms"
+                >
+                    <WorkerForms
+                        worker={worker}
+                        getWorkerDetails={getWorkerDetails}
+                    />
+                </div>
                 {/* <div
                     id="tab-worker-not-availability"
                     className="tab-pane"

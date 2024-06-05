@@ -37,37 +37,20 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $w = $request->filter_week;
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
 
         $jobs = Job::query()
             ->with('worker', 'client', 'offer', 'jobservice', 'propertyAddress')
-            ->where('worker_id', $request->id);
-
-        if ((is_null($w) || $w == 'current') && $w != 'all') {
-            $startDate = Carbon::now()->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(5)->toDateString();
-        }
-        if ($w == 'next') {
-            $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(6)->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(12)->toDateString();
-        }
-        if ($w == 'nextnext') {
-            $startDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(13)->toDateString();
-            $endDate = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays(19)->toDateString();
-        }
-        if ($w == 'today') {
-            $startDate = Carbon::today()->toDateString();
-            $endDate = Carbon::today()->toDateString();
-        }
-
-        if ($w == 'all') {
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate(20);
-        } else {
-            $jobs = $jobs->whereDate('start_date', '>=', $startDate);
-            $jobs = $jobs->whereDate('start_date', '<=', $endDate);
-            $pcount = Job::count();
-            $jobs = $jobs->orderBy('created_at', 'desc')->paginate($pcount);
-        }
+            ->where('worker_id', Auth::id())
+            ->when($start_date, function ($q) use ($start_date) {
+                return $q->whereDate('start_date', '>=', $start_date);
+            })
+            ->when($end_date, function ($q) use ($end_date) {
+                return $q->whereDate('start_date', '<=', $end_date);
+            })
+            ->orderBy('start_date')
+            ->paginate(20);
 
         return response()->json([
             'jobs' => $jobs,
@@ -259,43 +242,72 @@ class JobController extends Controller
         ]);
     }
 
-    public function JobStartTime(Request $request)
+    public function JobStartTime($id)
     {
-        $job = Job::find($request->job_id);
+        $job = Job::find($id);
+
+        $time = JobHours::query()
+            ->where('worker_id', Auth::id())
+            ->where('job_id', $id)
+            ->whereNull('end_time')
+            ->first();
+
+        if ($time) {
+            return response()->json([
+                'message' => 'End timer',
+            ], 404);
+        }
+
+        $currentDateTime = now()->toDateTimeString();
+
         if ($job->status != JobStatusEnum::PROGRESS) {
             $job->status = JobStatusEnum::PROGRESS;
             $job->save();
             //send notification to worker
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-            $job->start_time = $request->start_time;
+            $job->start_time = $currentDateTime;
             $jobData = $job->toArray();
             $worker = $jobData['worker'];
+
             $emailData = [
                 'emailSubject'  => __('mail.job_status.subject'),
                 'emailTitle'  => __('mail.job_common.job_status'),
                 'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
             ];
+
             event(new JobNotificationToWorker($worker, $jobData, $emailData));
         }
 
         JobHours::create([
-            'job_id' => $request->job_id,
-            'worker_id' => $request->worker_id,
-            'start_time' => $request->start_time,
+            'job_id' => $job->id,
+            'worker_id' => Auth::id(),
+            'start_time' => $currentDateTime,
         ]);
-
 
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
     }
-    public function JobEndTime(Request $request)
+
+    public function JobEndTime($id)
     {
-        $time = JobHours::find($request->id);
+        $time = JobHours::query()
+            ->where('worker_id', Auth::id())
+            ->where('job_id', $id)
+            ->whereNull('end_time')
+            ->first();
+
+        if (!$time) {
+            return response()->json([
+                'message' => 'Resume timer',
+            ], 404);
+        }
+
+        $currentDateTime = now()->toDateTimeString();
 
         $time->update([
-            'end_time' => $request->end_time,
-            'time_diff' => $request->time_diff,
+            'end_time' => $currentDateTime,
+            'time_diff' => Carbon::parse($time->start_time)->diffInSeconds(),
         ]);
 
         $this->updateJobWorkerMinutes($time->job_id);
@@ -307,7 +319,7 @@ class JobController extends Controller
 
     public function getJobTime(Request $request)
     {
-        $time = JobHours::where('job_id', $request->job_id)->where('worker_id', $request->worker_id);
+        $time = JobHours::where('job_id', $request->job_id)->where('worker_id', Auth::id());
         $total = 0;
         if ($request->filter_end_time) {
             $time = $time->where('end_time', NULL)->first();
@@ -330,13 +342,31 @@ class JobController extends Controller
     {
         $rData = $request->all();
         try {
-            $job = Job::updateOrCreate([
-                'id' => $rData['job_id'],
-            ], [
-                'job_opening_timestamp' => now()
+            $job = Job::query()
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->where('worker_id', Auth::id())
+                ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+                ->find($rData['job_id']);
+
+            if (!$job) {
+                return response()->json([
+                    'message' => 'Something went wrong!'
+                ], 404);
+            }
+
+            if ($job->job_opening_timestamp) {
+                return response()->json([
+                    'message' => 'Worker already leave for work'
+                ], 403);
+            }
+
+            $job->update([
+                'job_opening_timestamp' => Carbon::now()->toDateTimeString()
             ]);
+
             Notification::create([
                 'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
                 'type' => NotificationTypeEnum::OPENING_JOB,
                 'job_id' => $job->id,
                 'status' => 'going to start'
@@ -472,5 +502,40 @@ class JobController extends Controller
 
         // If no differences were found
         return false;
+    }
+
+    public function todayJobs()
+    {
+        $today_jobs = Job::query()
+            ->with(['client', 'jobservice'])
+            ->where('worker_id', Auth::id())
+            ->whereDate('start_date', Carbon::today()->toDateString())
+            ->where('status', '!=', JobStatusEnum::COMPLETED)
+            ->take(10)
+            ->get([
+                'id',
+                'start_date',
+                'shifts',
+                'status',
+                'client_id',
+                'job_opening_timestamp',
+                'worker_approved_at',
+            ]);
+
+        $today_jobs = $today_jobs->map(function ($job, $key) {
+            $jobArr = $job->toArray();
+
+            $time = JobHours::where('job_id', $jobArr['id'])
+                ->where('worker_id', Auth::id())
+                ->get(['start_time', 'end_time']);
+
+            $jobArr['time'] = $time;
+
+            return $jobArr;
+        });
+
+        return response()->json([
+            'today_jobs' => $today_jobs
+        ]);
     }
 }

@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
     Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
     Route::get('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
+    Route::post('form/send', [WorkerController::class, 'formSend']);
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);
@@ -138,7 +139,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Offer Api
     Route::resource('offers', OfferController::class)->except('create');
-    Route::post('client-offers', [OfferController::class, 'ClientOffers'])->name('client-offers');
+    Route::get('clients/{id}/offers', [OfferController::class, 'ClientOffers']);
     Route::post('latest-client-offer', [OfferController::class, 'getLatestClientOffer']);
 
     // Contract Api
@@ -152,6 +153,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
+    Route::get('teams/all', [TeamMemberController::class, 'getAll']);
     Route::get('my-availability', [TeamMemberController::class, 'myAvailability']);
     Route::post('my-availability', [TeamMemberController::class, 'updateMyAvailability']);
     Route::get('teams/{id}/availability', [TeamMemberController::class, 'availability']);
@@ -234,8 +236,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('multiple-invoices', [InvoiceController::class, 'multipleInvoices']);
 
     // Notifications
-    Route::get('head-notice', [DashboardController::class, 'headNotice'])->name('head-notice');
-    Route::post('notice', [DashboardController::class, 'Notice'])->name('notice');
+    Route::get('head-notice', [DashboardController::class, 'headNotice']);
+    Route::get('notice', [DashboardController::class, 'Notice']);
     Route::post('seen', [DashboardController::class, 'seen'])->name('seen');
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
 

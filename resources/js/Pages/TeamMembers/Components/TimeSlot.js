@@ -30,10 +30,21 @@ const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
             end_time: time[1],
         };
 
-        setTimeSlots((state) => ({
-            ...state,
-            [clsName]: state[clsName] ? [...state[clsName], _time] : [_time],
-        }));
+        const isSelected = timeSlots[clsName]?.find(
+            (t) =>
+                t.start_time == _time.start_time && t.end_time == _time.end_time
+        );
+
+        if (!isSelected) {
+            setTimeSlots((state) => ({
+                ...state,
+                [clsName]: state[clsName]
+                    ? [...state[clsName], _time]
+                    : [_time],
+            }));
+        } else {
+            alert("Time slot is already selected");
+        }
     };
 
     const handleTimeSlotRemove = (w, indexId) => {

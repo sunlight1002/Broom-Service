@@ -713,14 +713,16 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
             >
-                General questions on the medical state
+                {t("insurance.generalQesMwdical")}
             </div>
             <div>
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label d-flex align-items-center">
-                                <div className="mr-2">Height</div>
+                                <div className="mr-2">
+                                    {t("insurance.Height")}
+                                </div>
                                 <input
                                     type="text"
                                     name="height"
@@ -739,7 +741,7 @@ const InsuranceForm = () => {
                                         margin: "0 5px",
                                     }}
                                 >
-                                    and Width
+                                    {t("insurance.andWidth")}
                                 </div>
                                 <input
                                     type="text"
@@ -771,7 +773,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g1yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -790,7 +792,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g1no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -802,9 +804,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Has there been any change in your weight (5 kg
-                                and more) in the course of the last twelve
-                                months (not as a result of a diet)?
+                                {t("insurance.isthereChangeInWeight")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -823,7 +823,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g2yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -842,7 +842,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g2no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -855,9 +855,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Do you now, or did you in the past, consume
-                                alcohol – more than one glass a day of beer/
-                                wine or another alcoholic beverage?
+                                {t("insurance.alcohol")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -876,7 +874,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g3yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -895,7 +893,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g3no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -908,7 +906,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Do you smoke or have you smoked in the past?
+                                {t("insurance.smoke")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -927,7 +925,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g4t"
                                     >
-                                        Today
+                                        {t("insurance.Today")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -947,7 +945,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g4p"
                                     >
-                                        In The Past
+                                        {t("insurance.InThePast")}
                                     </label>
                                 </div>
                                 <div className="d-flex align-items-center">
@@ -957,7 +955,7 @@ const InsuranceForm = () => {
                                         }}
                                         className="mr-4"
                                     >
-                                        When did you stop?
+                                        {t("insurance.whenStop")}
                                     </div>
                                     <input
                                         type="text"
@@ -990,7 +988,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g4yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1009,7 +1007,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g4no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1022,8 +1020,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Do you now, or have you in the past, consumed
-                                Drugs?
+                                {t("insurance.drugs")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1042,7 +1039,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g5yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1061,7 +1058,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g5no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1074,8 +1071,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Did you undergo surgery in the course of the
-                                last 10 years or was surgery recommended to you?
+                                {t("insurance.surgery")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1094,7 +1090,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g6yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1113,7 +1109,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g6no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1126,10 +1122,9 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Were you hospitalized in the course of the last
-                                10 years at a hospital or a medical institution?
+                                {t("insurance.hospitalized")}
                             </label>
-                            <div>Which one, when, the reason</div>
+                            <div> {t("insurance.hospitalizedReason")}</div>
                             <div className="d-flex align-items-center">
                                 <input
                                     type="text"
@@ -1161,7 +1156,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g7yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1180,7 +1175,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g7no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1193,8 +1188,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Do you regularly take medication for a chronic
-                                condition?
+                                {t("insurance.chronicCondition")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1213,7 +1207,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g8yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1232,7 +1226,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g8no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1245,12 +1239,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Have you undergone in the course of the last 10
-                                years or have you been given a recommendation to
-                                undergo one or more of the following tests:
-                                catheterization, a cardiac scan, echocardiogram,
-                                MRI, CT, endoscopy, tests for detection of a
-                                cancerous tumor, biopsy and occult blood?
+                                {t("insurance.DidAnyTest")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1269,7 +1258,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g9yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1288,7 +1277,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g9no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1302,8 +1291,7 @@ const InsuranceForm = () => {
                 className="row justify-content-center my-2 w-75 mx-auto"
                 style={{ fontSize: "18px", fontWeight: "bold" }}
             >
-                Questions about diseases Were you ever diagnosed with the
-                diseases and/or disorders and/or medical problems listed below?
+                {t("insurance.Qestiondiseases")}
             </div>
 
             <div>
@@ -1311,13 +1299,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Heart and blood Heart disease, angina pectoris,
-                                myocardial infarction, arrhythmias, heart valve
-                                problems, congenital heart disease,
-                                cardiomyopathy or pericardial disorders. High
-                                blood pressure, blood vessel, blood clots,
-                                varicose roses, circulation problems, narrowing
-                                of the arteries.
+                                {t("insurance.heartAndBlood")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1336,7 +1318,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g10yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1355,7 +1337,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g10no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1368,10 +1350,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                The nervous system and the brain Multiple
-                                sclerosis, muscular dystrophy, paralysis, spasms
-                                (epilepsy), T.I.A, stroke, brain hemorrhage
-                                (c.v.a), tremor, ataxia, Parkinson.
+                                {t("insurance.nervousSys")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1390,7 +1369,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g11yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1409,7 +1388,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g11no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1422,7 +1401,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Diagnosed mental disorders and attempted suicide
+                                {t("insurance.Respiratory")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1441,7 +1420,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g12yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1460,7 +1439,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g12no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1473,9 +1452,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Respiratory system Asthma, chronic bronchitis,
-                                emphysema, tuberculosis, hemoptysis, repeat
-                                respiratory tract infections.
+                                {t("insurance.Respiratory")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1494,7 +1471,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g13yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1513,7 +1490,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g13no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1526,13 +1503,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Gastrointestinal tract and liver Ulcer (gastric
-                                or duodenal ulcers), heartburn, chronic
-                                inflammatory intestinal infection,
-                                gastrointestinal bleeding, hemorrhoids, rectal
-                                problems, chronic liver disease, hepatitis,
-                                gallstones, pancreatitis, hepatitis (viral or
-                                otherwise).
+                                {t("insurance.Gastrointestinal")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1551,7 +1522,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g14yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1570,7 +1541,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g14no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1583,10 +1554,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Kidneys and urinary tract Kidney stones, kidney
-                                infections, urinary tract defects, blood or
-                                protein in the urine, renal cysts, renal
-                                dysfunction, Prostate.
+                                {t("insurance.Kidneys")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1605,7 +1573,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g15yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1624,7 +1592,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g15no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1637,10 +1605,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Metabolic and endocrine diseases Diabetes,
-                                thyroid disorder, adrenal 16. disorder, kidney
-                                cysts, pituitary and other glands, high blood
-                                lipids.
+                                {t("insurance.Metabolic")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1659,7 +1624,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g16yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1678,7 +1643,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g16no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1691,9 +1656,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Dermatology and Venereology Syphilis, herpes,
-                                skin tumors, moles, warts and/or infertility
-                                and/or fertility problems.
+                                {t("insurance.Dermatology")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1712,7 +1675,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g17yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1731,7 +1694,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g17no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1744,9 +1707,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Malignant diseases, malignant or precancerous
-                                tumor/s, polyps Detail 18. the type and method
-                                of treatment
+                                {t("insurance.Malignant")}
                             </label>
                             <div className="d-flex align-items-center">
                                 <input
@@ -1762,9 +1723,7 @@ const InsuranceForm = () => {
                                     }
                                 />
                             </div>
-                            <div className="">
-                                Enclose reports and pathology
-                            </div>
+                            <div className="">{t("insurance.pathology")}</div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -1782,7 +1741,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g18yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1801,7 +1760,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g18no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1814,9 +1773,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Infectious diseases, autoimmune diseases, polio,
-                                venereal diseases and AIDS/ HIV. Enclose medical
-                                documents
+                                {t("insurance.Infectious")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1835,7 +1792,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g19yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1854,7 +1811,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g19no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1867,9 +1824,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Joints and bones - arthritis, rheumatism (Galt),
-                                neck or back pain, herniated disc, dislocation
-                                of shoulder, knee, bone disease.
+                                {t("insurance.JointsAndfBone")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1891,7 +1846,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g20yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1913,7 +1868,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g20no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1926,9 +1881,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Eyes - cataract, glaucoma, strabismus,
-                                blindness, retinal disease, cornea disease,
-                                visual disturbances, diopter number.
+                                {t("insurance.eyesCataract")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -1947,7 +1900,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g21-yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1966,7 +1919,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g21-no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -1979,9 +1932,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Otolaryngology (nose/ ear/ throat) - ear
-                                recurrent or throat infections, sinusitis,
-                                hearing disorders, sleep apnea syndrome.
+                                {t("insurance.Otolaryngology")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -2000,7 +1951,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g22-yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -2019,7 +1970,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g22-no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -2032,9 +1983,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                Hernia (hernia break) - of the abdominal wall,
-                                groin, surgical scars, navel and solar plexus.
-                                Medical documents must be enclosed
+                                {t("insurance.Hernia")}
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -2053,7 +2002,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g23-yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -2072,7 +2021,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g23-no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -2085,13 +2034,7 @@ const InsuranceForm = () => {
                     <div className="col-md-8">
                         <div className="form-group">
                             <label className="control-label">
-                                For women only: Do you suffer or have you
-                                suffered from any women’s illnesses: irregular
-                                menstruation, fertility problems, bleeding and
-                                breast cysts, problems in the uterus and
-                                ovaries, irregular findings in a gynecological
-                                exam (such as PAP)? Are you pregnant? What is
-                                the number of fetuses?
+                                {t("insurance.womenOnly")}
                             </label>
                             <div className="d-flex align-items-center">
                                 <input
@@ -2106,11 +2049,7 @@ const InsuranceForm = () => {
                                     }
                                 />
                             </div>
-                            <div>
-                                Have you suffered from any problems in previous
-                                pregnancies or in the current pregnancy? Have
-                                you given birth by a Caesarean Section?
-                            </div>
+                            <div>{t("insurance.Caesarean")}</div>
                             <div>
                                 <div className="form-check form-check-inline">
                                     <input
@@ -2128,7 +2067,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g24-yes"
                                     >
-                                        Yes
+                                        {t("insurance.Yes")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -2147,7 +2086,7 @@ const InsuranceForm = () => {
                                         className="form-check-label"
                                         htmlFor="g24-no"
                                     >
-                                        No
+                                        {t("insurance.No")}
                                     </label>
                                 </div>
                             </div>
@@ -2182,8 +2121,10 @@ const InsuranceForm = () => {
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <label className="control-label">Signature</label>
-                    <div className="d-flex align-items-center">
+                    <label className="control-label">
+                        {t("insurance.Signature")}
+                    </label>
+                    <div className="d-lg-flex align-items-center">
                         {formValues && formValues.signature ? (
                             <img src={formValues.signature} />
                         ) : (

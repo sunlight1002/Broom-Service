@@ -308,7 +308,9 @@ class DashboardController extends Controller
             $input['avatar'] = $name;
         }
 
-        Client::where('id', Auth::user()->id)->update($input);
+        $client = Client::find(Auth::user()->id);
+
+        $client->update($input);
         return response()->json([
             'message' => 'Account details updated successfully',
         ]);
@@ -327,6 +329,7 @@ class DashboardController extends Controller
 
         $client = Client::find(Auth::user()->id);
         if (Hash::check($request->get('current_password'), $client->password)) {
+            $client->passcode = $request->password;
             $client->password = Hash::make($request->password);
             $client->save();
 

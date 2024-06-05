@@ -3,17 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
-use App\Models\Offer;
+use App\Events\OfferSaved;
 use App\Http\Controllers\Controller;
 use App\Models\LeadStatus;
+use App\Models\Offer;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
+use Yajra\DataTables\Facades\DataTables;
 
 class OfferController extends Controller
 {
@@ -26,37 +24,39 @@ class OfferController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
-        $result = Offer::query()->with('client');
+        $query = Offer::query()
+            ->leftJoin('clients', 'offers.client_id', '=', 'clients.id')
+            ->select('offers.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'offers.status', 'offers.subtotal', 'offers.total');
 
-        $result->orWhere('status', 'like', '%' . $q . '%');
-        $result->orWhere('total', 'like', '%' . $q . '%');
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-        $result = $result->orWhereHas('client', function ($qr) use ($q) {
-            $qr->where(function ($qr) use ($q) {
-                $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('email'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('city'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('street_n_no'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('zipcode'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('phone'), 'like', '%' . $q . '%');
-            });
-        });
-
-        $result = $result->orderBy('created_at', 'desc')->paginate(20);
-
-        if (!empty($result)) {
-            foreach ($result as $i => $res) {
-                if (!is_null($res->client) && $res->client->lastname == null) {
-                    $result[$i]->client->lastname = '';
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
                 }
-            }
-        }
-
-        return response()->json([
-            'offers' => $result
-        ]);
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     /**
@@ -110,58 +110,17 @@ class OfferController extends Controller
                 'client_id' => $offer->client_id,
             ],
             [
-                'lead_status' =>  LeadStatusEnum::UNANSWERED
+                'lead_status' =>  LeadStatusEnum::POTENTIAL_LEAD
             ]
         );
 
         if ($request->action == 'Save and Send') {
-            $this->sendOfferMail($offer);
+            event(new OfferSaved($offer->toArray()));
         }
 
         return response()->json([
             'message' => 'Offer created successfully'
         ]);
-    }
-
-    public function sendOfferMail($offer)
-    {
-        $offer = $offer->toArray();
-        $services = ($offer['services'] != '') ? json_decode($offer['services']) : [];
-        if (isset($services)) {
-            $s_names  = '';
-            foreach ($services as $k => $service) {
-
-                if ($k != count($services) - 1 && $service->service != 10) {
-                    $s_names .= $service->name . ", ";
-                } else if ($service->service == 10) {
-                    if ($k != count($services) - 1) {
-                        $s_names .= $service->other_title . ", ";
-                    } else {
-                        $s_names .= $service->other_title;
-                    }
-                } else {
-                    $s_names .= $service->name;
-                }
-            }
-        }
-
-        $offer['service_names'] = $s_names;
-
-        App::setLocale($offer['client']['lng']);
-        if (isset($offer['client']) && !empty($offer['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
-                "notificationData" => $offer
-            ]));
-        }
-        Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-            $messages->to($offer['client']['email']);
-            ($offer['client']['lng'] == 'en') ?
-                $sub = __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company') . " #" . ($offer['id'])
-                : $sub = $offer['id'] . "# " . __('mail.offer.subject') . " " . __('mail.offer.from') . " " . __('mail.offer.company');
-
-            $messages->subject($sub);
-        });
     }
 
     /**
@@ -270,7 +229,7 @@ class OfferController extends Controller
         $offer->load(['client', 'service']);
 
         if ($request->action == 'Save and Send') {
-            $this->sendOfferMail($offer);
+            event(new OfferSaved($offer->toArray()));
         }
 
         return response()->json([
@@ -294,17 +253,29 @@ class OfferController extends Controller
         ]);
     }
 
-    public function ClientOffers(Request $request)
+    public function ClientOffers(Request $request, $id)
     {
-        $offers = Offer::query()
-            ->with('client')
-            ->where('client_id', $request->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Offer::query()
+            ->where('offers.client_id', $id)
+            ->select('offers.id', 'offers.status', 'offers.subtotal');
 
-        return response()->json([
-            'offers' => $offers
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('offers.subtotal', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function getLatestClientOffer(Request $request)

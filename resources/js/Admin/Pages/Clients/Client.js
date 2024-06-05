@@ -1,34 +1,162 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
-import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
+import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
+import { leadStatusColor } from "../../../Utils/client.utils";
 
 export default function Clients() {
-    const [clients, setClients] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [filter, setFilter] = useState("");
-    const [loading, setLoading] = useState("Loading...");
-
-    const [stat, setStat] = useState("null");
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const [changeStatusModal, setChangeStatusModal] = useState({
         isOpen: false,
         id: 0,
     });
+    const [filters, setFilters] = useState({
+        action: "",
+    });
+
+    const tableRef = useRef(null);
+    const actionRef = useRef(null);
 
     const alert = useAlert();
     const { t } = useTranslation();
+
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/clients",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+                data: function (d) {
+                    d.action = actionRef.current.value;
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                    visible: false,
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Status",
+                    data: "lead_status",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        const _statusColor = leadStatusColor(data);
+
+                        return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        if (row.has_contract == 1) {
+                            _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                        }
+
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">Change status</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dtr-control")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-client/${_id}`);
+            }
+        });
+
+        $(tableRef.current).on("click", ".dt-create-job-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/create-job/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/clients/${_id}/edit`);
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-client/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+            const _id = $(this).data("id");
+            toggleChangeStatusModal(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleClose = () => {
         setImportFile("");
@@ -65,7 +193,7 @@ export default function Clients() {
                 } else {
                     alert.success(response.data.message);
                     setTimeout(() => {
-                        getclients();
+                        $(tableRef.current).DataTable().draw();
                     }, 1000);
                 }
             })
@@ -75,84 +203,9 @@ export default function Clients() {
             });
     };
 
-    const getclients = () => {
-        axios.get("/api/admin/clients", { headers }).then((response) => {
-            if (response.data.clients.data.length > 0) {
-                setClients(response.data.clients.data);
-                setPageCount(response.data.clients.last_page);
-            } else {
-                setLoading("No client found");
-            }
-        });
-    };
-
     useEffect(() => {
-        getclients();
-    }, []);
-
-    const filterClients = (e) => {
-        axios
-            .get(`/api/admin/clients?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
-                } else {
-                    setClients([]);
-                    setPageCount(response.data.clients.last_page);
-                    setLoading("No client found");
-                }
-            });
-    };
-
-    const filterClientsStat = (s) => {
-        setFilter(s);
-        axios.get(`/api/admin/clients?q=${s}`, { headers }).then((response) => {
-            if (response.data.clients.data.length > 0) {
-                setClients(response.data.clients.data);
-                setPageCount(response.data.clients.last_page);
-            } else {
-                setClients([]);
-                setPageCount(response.data.clients.last_page);
-                setLoading("No client found");
-            }
-        });
-    };
-
-    const booknun = (s) => {
-        setFilter(s);
-        axios
-            .get(`/api/admin/clients?action=${s}`, { headers })
-            .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
-                } else {
-                    setClients([]);
-                    setPageCount(response.data.clients.last_page);
-                    setLoading("No client found");
-                }
-            });
-    };
-
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        let cn =
-            filter == "booked" || filter == "notbooked" ? "&action=" : "&q=";
-
-        axios
-            .get("/api/admin/clients?page=" + currentPage + cn + filter, {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.clients.data.length > 0) {
-                    setClients(response.data.clients.data);
-                    setPageCount(response.data.clients.last_page);
-                } else {
-                    setLoading("No client found");
-                }
-            });
-    };
+        $(tableRef.current).DataTable().draw();
+    }, [filters]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -174,53 +227,15 @@ export default function Clients() {
                             "success"
                         );
                         setTimeout(() => {
-                            getclients();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-client/${id}`);
-    };
 
-    const copy = [...clients];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setClients(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setClients(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     const [Alldata, setAllData] = useState([]);
@@ -228,10 +243,15 @@ export default function Clients() {
     const handleReport = (e) => {
         e.preventDefault();
 
-        let cn = stat == "booked" || stat == "notbooked" ? "action=" : "f=";
+        let cn =
+            filters.action == "booked" || filters.action == "notbooked"
+                ? "action="
+                : "f=";
 
         axios
-            .get("/api/admin/clients_export?" + cn + stat, { headers })
+            .get("/api/admin/clients_export?" + cn + filters.action, {
+                headers,
+            })
             .then((response) => {
                 if (response.data.clients.length > 0) {
                     let r = response.data.clients;
@@ -262,11 +282,13 @@ export default function Clients() {
             };
         });
     };
+
     const updateData = () => {
         setTimeout(() => {
-            getclients();
+            $(tableRef.current).DataTable().draw();
         }, 1000);
     };
+
     return (
         <div id="container">
             <Sidebar />
@@ -286,8 +308,8 @@ export default function Clients() {
                             </Link>
                         </div>
 
-                        <div className="d-flex w-100 justify-content-between align-items-center">
-                            <h1 className="page-title d-none d-lg-block">
+                        <div className="clearfix w-100 justify-content-between align-items-center">
+                            <h1 className="page-title d-none d-lg-block float-left">
                                 {t("admin.sidebar.Clients")}
                             </h1>
                             <div className="search-data">
@@ -328,20 +350,19 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setStat("null");
-                                                getclients();
+                                                setFilters({
+                                                    action: "",
+                                                });
                                             }}
                                         >
                                             {t("admin.global.All")}
                                         </button>
-                                        {/* <button className="dropdown-item" onClick={(e)=>{setStat(0);filterClientsStat('lead')}}>Lead</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(2);filterClientsStat('customer')}}>Customer</button>
-                                    <button className="dropdown-item" onClick={(e)=>{setStat(1);filterClientsStat('potential customer')}}>Potential Customer</button> */}
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setStat("booked");
-                                                booknun("booked");
+                                                setFilters({
+                                                    action: "booked",
+                                                });
                                             }}
                                         >
                                             {t("admin.client.BookedCustomer")}
@@ -349,8 +370,9 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setStat("notbooked");
-                                                booknun("notbooked");
+                                                setFilters({
+                                                    action: "notbooked",
+                                                });
                                             }}
                                         >
                                             {t(
@@ -363,18 +385,15 @@ export default function Clients() {
                                         >
                                             {t("admin.client.Export")}
                                         </button>
+
+                                        <input
+                                            type="hidden"
+                                            value={filters.action}
+                                            ref={actionRef}
+                                        />
                                     </div>
                                 </div>
 
-                                <input
-                                    type="text"
-                                    className="form-control action-dropdown dropdown mt-4 mr-2"
-                                    onChange={(e) => {
-                                        filterClients(e);
-                                        setFilter(e.target.value);
-                                    }}
-                                    placeholder="Search"
-                                />
                                 <Link
                                     to="/admin/clients/create"
                                     className="btn btn-pink addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2"
@@ -387,15 +406,13 @@ export default function Clients() {
                         <div className="hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="id">ID</option>
-                                <option value="firstname">Name</option>
-                                {/* <option value="address">Address</option> */}
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                                {/* <option value="status">Status</option> */}
+                                <option value="0">ID</option>
+                                <option value="1">Name</option>
+                                <option value="2">Email</option>
+                                <option value="3">Phone</option>
                             </select>
                         </div>
                     </div>
@@ -408,12 +425,13 @@ export default function Clients() {
                         <FilterButtons
                             text={t("admin.global.All")}
                             className="px-3 mr-1"
-                            value="null"
+                            value=""
                             onClick={() => {
-                                setStat("null");
-                                getclients();
+                                setFilters({
+                                    action: "",
+                                });
                             }}
-                            selectedFilter={stat}
+                            selectedFilter={filters.action}
                         />
 
                         <FilterButtons
@@ -421,288 +439,32 @@ export default function Clients() {
                             value="booked"
                             className="px-3 mr-1"
                             onClick={() => {
-                                setStat("booked");
-                                booknun("booked");
+                                setFilters({
+                                    action: "booked",
+                                });
                             }}
-                            selectedFilter={stat}
+                            selectedFilter={filters.action}
                         />
                         <FilterButtons
                             text={t("admin.client.NotBookedCustomer")}
                             className="px-3 mr-1"
                             value="notbooked"
                             onClick={() => {
-                                setStat("notbooked");
-                                booknun("notbooked");
+                                setFilters({
+                                    action: "notbooked",
+                                });
                             }}
-                            selectedFilter={stat}
+                            selectedFilter={filters.action}
                         />
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            {clients.length > 0 ? (
-                                <Table className="table table-bordered">
-                                    <Thead>
-                                        <Tr style={{ cursor: "pointer" }}>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "id");
-                                                }}
-                                            >
-                                                ID{" "}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "firstname");
-                                                }}
-                                            >
-                                                Name{" "}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "email");
-                                                }}
-                                            >
-                                                Email{" "}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            {/* <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "address");
-                                                }}
-                                            >
-                                                Address{" "}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th> */}
-                                            <Th
-                                                onClick={(e) => {
-                                                    sortTable(e, "phone");
-                                                }}
-                                            >
-                                                Phone{" "}
-                                                <span className="arr">
-                                                    {" "}
-                                                    &darr;{" "}
-                                                </span>
-                                            </Th>
-                                            <Th>Status</Th>
-                                            <Th>Action</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {clients &&
-                                            clients.map((item, index) => {
-                                                // let address = item.geo_address
-                                                //     ? item.geo_address
-                                                //     : "NA";
-                                                // let cords =
-                                                //     item.latitude &&
-                                                //     item.longitude
-                                                //         ? item.latitude +
-                                                //           "," +
-                                                //           item.longitude
-                                                //         : "";
-                                                let status = "";
-                                                // if (item.status == 0)
-                                                //     status = "Lead";
-                                                // if (item.status == 1)
-                                                //     status = "Potential Customer";
-                                                // if (item.status == 2)
-                                                //     status = "Customer";
-
-                                                let phone = item.phone
-                                                    ? item.phone
-                                                          .toString()
-                                                          .split(",")
-                                                    : [];
-
-                                                return (
-                                                    <Tr
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                        key={index}
-                                                    >
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.id}
-                                                        </Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={`/admin/view-client/${item.id}`}
-                                                            >
-                                                                {item.firstname}{" "}
-                                                                {item.lastname}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.email}
-                                                        </Td>
-                                                        {/* <Td>
-                                                            <a
-                                                                href={`https://maps.google.com?q=${cords}`}
-                                                                target="_blank"
-                                                            >
-                                                                {address}
-                                                            </a>
-                                                        </Td> */}
-                                                        {/*<Td><a  href={`tel:${item.phone.toString().split(",").join(' | ')}`}>{(item.phone) ? item.phone.toString().split(",").join(' | ') : ''}</a></Td>*/}
-
-                                                        <Td>
-                                                            {phone &&
-                                                                phone.map(
-                                                                    (p, i) => {
-                                                                        return (
-                                                                            <a
-                                                                                href={`tel:${p}`}
-                                                                                key={
-                                                                                    i
-                                                                                }
-                                                                            >
-                                                                                {phone.length >
-                                                                                1
-                                                                                    ? p
-                                                                                    : p}{" "}
-                                                                                |{" "}
-                                                                            </a>
-                                                                        );
-                                                                    }
-                                                                )}
-                                                        </Td>
-
-                                                        <Td
-                                                            onClick={(e) =>
-                                                                handleNavigate(
-                                                                    e,
-                                                                    item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            {item.lead_status
-                                                                ? item
-                                                                      .lead_status
-                                                                      .lead_status
-                                                                : "NA"}
-                                                        </Td>
-
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    {item.latest_contract !=
-                                                                        0 && (
-                                                                        <Link
-                                                                            to={`/admin/create-job/${item.latest_contract}`}
-                                                                            className="dropdown-item"
-                                                                        >
-                                                                            Create
-                                                                            Job
-                                                                        </Link>
-                                                                    )}
-
-                                                                    <Link
-                                                                        to={`/admin/clients/${item.id}/edit`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Edit
-                                                                    </Link>
-                                                                    <Link
-                                                                        to={`/admin/view-client/${item.id}`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        View
-                                                                    </Link>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            toggleChangeStatusModal(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Change
-                                                                        status
-                                                                    </button>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                    </Tbody>
-                                </Table>
-                            ) : (
-                                <p className="text-center mt-5">{loading}</p>
-                            )}
-                            {clients.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                <></>
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

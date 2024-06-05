@@ -43,6 +43,7 @@ class User extends Authenticatable
         'form_101',
         'form_insurance',
         'worker_contract',
+        'safety_and_gear_form',
         'geo_address',
         'latitude',
         'longitude',

@@ -15,6 +15,7 @@ import moment from "moment";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ViewSchedule() {
     const [client, setClient] = useState([]);
@@ -97,11 +98,12 @@ export default function ViewSchedule() {
                     headers,
                 })
                 .then((res) => {
+                    setIsLoading(false);
+
                     if (res.data.errors) {
                         for (let e in res.data.errors) {
                             alert.error(res.data.errors[e]);
                         }
-                        setIsLoading(false);
                     } else {
                         alert.success(res.data.message);
                     }
@@ -121,11 +123,12 @@ export default function ViewSchedule() {
                     headers,
                 })
                 .then((res) => {
+                    setIsLoading(false);
+
                     if (res.data.errors) {
                         for (let e in res.data.errors) {
                             alert.error(res.data.errors[e]);
                         }
-                        setIsLoading(false);
                     } else {
                         if (res.data.action == "redirect") {
                             window.location = res.data.url;
@@ -197,41 +200,47 @@ export default function ViewSchedule() {
     };
 
     const getTeams = () => {
-        axios.get(`/api/admin/teams`, { headers }).then((res) => {
-            let team = res.data.team.data
-                ? res.data.team.data.filter((e) => {
-                      return e.name != "superadmin";
-                  })
-                : [];
-            setTotalTeam(team);
+        axios.get(`/api/admin/teams/all`, { headers }).then((res) => {
+            setTotalTeam(res.data.data);
         });
     };
 
     const getSchedule = () => {
-        axios.get(`/api/admin/schedule/${sid}`, { headers }).then((res) => {
-            const d = res.data.schedule;
-            setSchedule(d);
-            setTeam(d.team_id ? d.team_id.toString() : "");
-            setBstatus(d.booking_status);
-            if (d.start_date) {
-                setSelectedDate(Moment(d.start_date).toDate());
-            } else {
-                setSelectedDate(null);
-            }
+        setIsLoading(true);
 
-            if (d.start_time) {
-                setSelectedTime(d.start_time);
-            } else {
-                setSelectedTime("");
-            }
-            setMeetVia(d.meet_via);
-            setMeetLink(d.meet_link ?? "");
-            setPurpose(d.purpose);
-            setAddress(d.address_id);
-            if (d.purpose != "Price offer" && d.purpose != "Quality check") {
-                setPurposeText(d.purpose);
-            }
-        });
+        axios
+            .get(`/api/admin/schedule/${sid}`, { headers })
+            .then((res) => {
+                setIsLoading(false);
+                const d = res.data.schedule;
+                setSchedule(d);
+                setTeam(d.team_id ? d.team_id.toString() : "");
+                setBstatus(d.booking_status);
+                if (d.start_date) {
+                    setSelectedDate(Moment(d.start_date).toDate());
+                } else {
+                    setSelectedDate(null);
+                }
+
+                if (d.start_time) {
+                    setSelectedTime(d.start_time);
+                } else {
+                    setSelectedTime("");
+                }
+                setMeetVia(d.meet_via);
+                setMeetLink(d.meet_link ?? "");
+                setPurpose(d.purpose);
+                setAddress(d.address_id);
+                if (
+                    d.purpose != "Price offer" &&
+                    d.purpose != "Quality check"
+                ) {
+                    setPurposeText(d.purpose);
+                }
+            })
+            .catch((e) => {
+                setIsLoading(false);
+            });
     };
 
     const getTeamEvents = async (_teamID) => {
@@ -761,6 +770,8 @@ export default function ViewSchedule() {
                     </div>
                 </div>
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

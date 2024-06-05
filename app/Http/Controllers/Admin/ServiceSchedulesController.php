@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ServiceSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class ServiceSchedulesController extends Controller
 {
@@ -14,15 +15,27 @@ class ServiceSchedulesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $schedules = ServiceSchedule::query()
-            ->orderBy('id', 'desc')
-            ->paginate(20);
+        $query = ServiceSchedule::query();
 
-        return response()->json([
-            'schedules' => $schedules,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('service_schedules.name', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function allSchedules()

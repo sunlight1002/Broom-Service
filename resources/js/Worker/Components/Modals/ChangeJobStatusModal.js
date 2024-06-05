@@ -32,7 +32,7 @@ export default function ChangeJobStatusModal({
     const handleSubmit = (e) => {
         e.preventDefault();
         if (allComment.length > 0 && !allCommentsChecked) {
-            window.alert("Please select all comments");
+            window.alert(t("worker.jobs.view.selectAllComment"));
             return;
         }
         setIsLoading(true);
@@ -59,7 +59,7 @@ export default function ChangeJobStatusModal({
                         window.alert(res.data.error[e]);
                     }
                 } else {
-                    alert.success("Job Mark as Completed.");
+                    alert.success(t("worker.jobs.view.jobMarkCompleted"));
                     onSuccess();
                     setComment("");
                     // setStatus("");
@@ -82,7 +82,7 @@ export default function ChangeJobStatusModal({
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Complete Job</Modal.Title>
+                <Modal.Title>{t("worker.jobs.view.CompleteJob")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>

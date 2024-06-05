@@ -28,7 +28,7 @@ export default function Contract() {
                     setContracts(response.data.contracts.data);
                     setPageCount(response.data.contracts.last_page);
                 } else {
-                    setLoading("No contract found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };
@@ -43,7 +43,7 @@ export default function Contract() {
                 } else {
                     setContracts([]);
                     setPageCount(response.data.contracts.last_page);
-                    setLoading("No contract found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };
@@ -56,7 +56,7 @@ export default function Contract() {
                     setContracts(response.data.contracts.data);
                     setPageCount(response.data.contracts.last_page);
                 } else {
-                    setLoading("No offer found");
+                    setLoading(t("client.contract.NoContract"));
                 }
             });
     };
@@ -173,7 +173,7 @@ export default function Contract() {
                                                                     )}/${
                                                                         c.unique_hash
                                                                     }`}
-                                                                    className="ml-auto ml-md-2 btn bg-yellow"
+                                                                    className="ml-2 ml-md-2 mt-4  mt-md-0 btn bg-yellow"
                                                                 >
                                                                     <i className="fa fa-eye"></i>
                                                                 </Link>

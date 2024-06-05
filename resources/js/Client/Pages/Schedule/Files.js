@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
+import { Table } from "react-bootstrap";
 
 export default function Clientfiles() {
     const [note, setNote] = useState("");
@@ -32,7 +33,7 @@ export default function Clientfiles() {
             setFile(e.target.files[0]);
         } else {
             setFile([]);
-            window.alert("This file is not allowed");
+            window.alert(t("client.meeting.cfiles.fileNotAllowed"));
             document.querySelector('input[type="file"]').value = "";
         }
     };
@@ -40,7 +41,7 @@ export default function Clientfiles() {
     const handleFile = (e) => {
         e.preventDefault();
         if (file.length == 0) {
-            window.alert("Please add file");
+            window.alert(t("client.meeting.cfiles.pleaseAdd"));
             return;
         }
         const type = document.querySelector('select[name="filetype"]').value;
@@ -81,21 +82,21 @@ export default function Clientfiles() {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("client.meeting.cfiles.areYouSure"),
+            text: t("client.meeting.cfiles.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete File",
+            confirmButtonText: t("client.meeting.cfiles.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .post(`/api/client/delete-file/`, { id: id }, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "File has been deleted.",
+                            t("client.meeting.cfiles.deleted"),
+                            t("client.meeting.cfiles.noFIleAdded"),
                             "success"
                         );
                         setTimeout(() => {
@@ -153,7 +154,10 @@ export default function Clientfiles() {
                         <div className="boxPanel">
                             <div className="table-responsive">
                                 {AllFiles.length > 0 ? (
-                                    <table className="table table-bordered">
+                                    <Table
+                                        className="table table-bordered"
+                                        responsive
+                                    >
                                         <thead>
                                             <tr>
                                                 <th scope="col">
@@ -230,7 +234,7 @@ export default function Clientfiles() {
                                                                     }}
                                                                     data-toggle="modal"
                                                                     data-target="#exampleModalFile"
-                                                                    className="btn bg-yellow"
+                                                                    className="btn bg-yellow mr-2 my-2  my-xs-0"
                                                                 >
                                                                     <i className="fa fa-eye"></i>
                                                                 </a>
@@ -252,7 +256,7 @@ export default function Clientfiles() {
                                                     );
                                                 })}
                                         </tbody>
-                                    </table>
+                                    </Table>
                                 ) : (
                                     <p className="text-center mt-5">
                                         {loading}

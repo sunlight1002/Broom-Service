@@ -24,6 +24,8 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobWorkerChanged;
 use App\Models\ManageTime;
 use App\Events\JobNotificationToWorker;
+use App\Models\Client;
+use Yajra\DataTables\Facades\DataTables;
 
 class JobController extends Controller
 {
@@ -36,15 +38,48 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $jobs = Job::query()
-            ->with(['offer', 'client', 'worker', 'jobservice', 'propertyAddress'])
-            ->where('client_id', Auth::user()->id)
-            ->orderBy('start_date')
-            ->get();
+        $service_column = Auth::user()->lng == 'en' ? 'job_services.name' : 'job_services.heb_name';
 
-        return response()->json([
-            'jobs' => $jobs,
-        ]);
+        $query = Job::query()
+            ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
+            ->leftJoin('client_property_addresses', 'jobs.address_id', '=', 'client_property_addresses.id')
+            ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+            ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
+            ->where('jobs.client_id', Auth::user()->id)
+            ->select('jobs.id', 'jobs.start_date', 'users.id as worker_id', 'jobs.shifts', 'jobs.status', 'job_services.duration_minutes', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'job_services.total', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude')
+            ->selectRaw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name")
+            ->selectRaw("$service_column AS service_name")
+            ->groupBy('jobs.id');
+
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('job_services.name', 'like', "%" . $keyword . "%")
+                                ->orWhere('job_services.heb_name', 'like', "%" . $keyword . "%")
+                                ->orWhere('jobs.shifts', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('start_date', function ($data) {
+                return $data->start_date ? Carbon::parse($data->start_date)->format('d M, Y') : '-';
+            })
+            ->editColumn('comment', function ($data) {
+                return $data->comment ? $data->comment : '-';
+            })
+            ->editColumn('worker_name', function ($data) {
+                return $data->worker_name ? $data->worker_name : 'NA';
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function show(Request $request, $id)
@@ -158,6 +193,7 @@ class JobController extends Controller
 
             Notification::create([
                 'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
                 'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
                 'job_id' => $job->id,
                 'status' => 'declined'
@@ -172,7 +208,7 @@ class JobController extends Controller
             );
             if (isset($data['admin']) && !empty($data['admin']['phone'])) {
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                    "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
                     "notificationData" => $data
                 ]));
             }
@@ -334,11 +370,7 @@ class JobController extends Controller
 
         $status = JobStatusEnum::SCHEDULED;
 
-        if (
-            Job::where('start_date', $job_date)
-            ->where('worker_id', $data['worker']['worker_id'])
-            ->exists()
-        ) {
+        if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $data['worker']['worker_id'])) {
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
@@ -391,11 +423,19 @@ class JobController extends Controller
             'job_group_id' => $job->job_group_id,
             'cancellation_fee_percentage' => $feePercentage,
             'cancellation_fee_amount' => $feeAmount,
-            'cancelled_user_role' => 'admin',
+            'cancelled_user_role' => 'client',
             'cancelled_by' => Auth::user()->id,
             'action' => CancellationActionEnum::CHANGE_WORKER,
             'duration' => $data['repeatancy'],
             'until_date' => $data['until_date'],
+        ]);
+
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+            'job_id' => $job->id,
+            'status' => 'changed'
         ]);
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
@@ -475,6 +515,13 @@ class JobController extends Controller
             'rating' => $data['rating'],
             'review' => $data['review'],
             'client_reviewed_at' => now()->toDateTimeString()
+        ]);
+
+        Notification::create([
+            'user_id' => $job->client_id,
+            'user_type' => Client::class,
+            'type' => NotificationTypeEnum::JOB_REVIEWED,
+            'status' => 'reviewed'
         ]);
 
         return response()->json([

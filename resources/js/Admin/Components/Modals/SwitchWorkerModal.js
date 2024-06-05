@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function SwitchWorkerModal({
     setIsOpen,
@@ -304,6 +305,8 @@ export default function SwitchWorkerModal({
                     Save
                 </Button>
             </Modal.Footer>
+
+            <FullPageLoader visible={isLoading} />
         </Modal>
     );
 }

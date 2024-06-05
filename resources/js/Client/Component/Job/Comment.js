@@ -5,14 +5,16 @@ import { useAlert } from "react-alert";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import { Base64 } from "js-base64";
 
 export default function Comment() {
     let cmtFileRef = useRef(null);
     const [comment, setComment] = useState("");
     const [allComment, setAllComment] = useState([]);
-    const param = useParams();
+    const params = useParams();
     const alert = useAlert();
     const { t } = useTranslation();
+    const jobId = Base64.decode(params.id);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -23,11 +25,10 @@ export default function Comment() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (comment == "") {
-            window.alert("Please Enter Comment");
+            window.alert(t("client.jobs.view.pleaseEnterCmt"));
             return;
         }
         const data = new FormData();
-        data.append("job_id", param.id);
         data.append("comment", comment);
         data.append("name", localStorage.getItem("client-name"));
         if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
@@ -42,7 +43,7 @@ export default function Comment() {
         }
 
         axios
-            .post(`/api/client/job-comments`, data, { headers })
+            .post(`/api/client/jobs/${jobId}/comments`, data, { headers })
             .then((res) => {
                 if (res.data.error) {
                     for (let e in res.data.error) {
@@ -60,21 +61,23 @@ export default function Comment() {
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("global.areYouSure"),
+            text: t("global.notAbleToRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Comment",
+            confirmButtonText: t("global.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`/api/client/job-comments/${id}`, { headers })
+                    .delete(`/api/client/jobs/${jobId}/comments/${id}`, {
+                        headers,
+                    })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "Comment has been deleted.",
+                            t("global.deleted"),
+                            t("client.jobs.view.commentDeleted"),
                             "success"
                         );
                         setTimeout(() => {
@@ -87,7 +90,7 @@ export default function Comment() {
 
     const getComments = () => {
         axios
-            .get(`/api/client/job-comments?id=${param.id}`, { headers })
+            .get(`/api/client/jobs/${jobId}/comments`, { headers })
             .then((res) => {
                 setAllComment(res.data.comments);
             });

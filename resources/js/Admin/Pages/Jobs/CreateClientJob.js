@@ -61,7 +61,7 @@ export default function CreateClientJob() {
                             <div className="card-body">
                                 <form>
                                     <div className="row">
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-lg-2">
                                             <div className="form-group">
                                                 <label>Client</label>
                                                 <p>
@@ -71,7 +71,7 @@ export default function CreateClientJob() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-lg-2">
                                             <div className="form-group">
                                                 <label>Services</label>
                                                 {services.map((item, index) => {
@@ -89,7 +89,7 @@ export default function CreateClientJob() {
                                                 })}
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-lg-2">
                                             <div className="form-group">
                                                 <label>Frequency</label>
                                                 {services.map((item, index) => (
@@ -102,7 +102,7 @@ export default function CreateClientJob() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-lg-2">
                                             <div className="form-group">
                                                 <label>Time to Complete</label>
                                                 {services.map((item, index) => (

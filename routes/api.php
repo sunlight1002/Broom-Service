@@ -27,11 +27,13 @@ Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
 Route::post('{id}/work-contract', [AuthController::class, 'WorkContract']);
 Route::get('work-contract/{id}', [AuthController::class, 'getWorkContract']);
 Route::post('form101/{id}', [AuthController::class, 'form101']);
-Route::get('get101/{id}', [AuthController::class, 'get101']);
+Route::get('get101/{id}/{formId?}', [AuthController::class, 'get101']);
+Route::get('getAllForms/{id}', [AuthController::class, 'getAllForms']);
 Route::post('{id}/safegear', [AuthController::class, 'safegear']);
 Route::get('getSafegear/{id}', [AuthController::class, 'getSafegear']);
 Route::get('worker/{id}/insurance-form', [AuthController::class, 'getInsuranceForm']);
 Route::post('worker/{id}/insurance-form', [AuthController::class, 'saveInsuranceForm']);
+Route::get('worker/{id}', [AuthController::class, 'getWorker']);
 
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
@@ -46,14 +48,16 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('not-available-date', [DashboardController::class, 'addNotAvailableDates']);
     Route::post('delete-not-available-date', [DashboardController::class, 'deleteNotAvailableDates']);
 
+    Route::get('jobs/today', [JobController::class, 'todayJobs']);
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
-    Route::post('job-start-time', [JobController::class, 'JobStartTime']);
-    Route::post('job-end-time', [JobController::class, 'JobEndTime']);
+    Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
+    Route::post('jobs/{id}/start-time', [JobController::class, 'JobStartTime']);
+    Route::post('jobs/{id}/end-time', [JobController::class, 'JobEndTime']);
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
     Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
 
-    Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::get('availabilities', [JobController::class, 'getAvailability']);
     Route::post('availabilities', [JobController::class, 'updateAvailability']);
 

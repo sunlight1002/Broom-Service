@@ -4,20 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\JobStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
-use App\Enums\TransactionStatusEnum;
 use App\Events\ClientPaymentFailed;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Receipts;
 use App\Models\Refunds;
 use App\Models\Services;
-use App\Models\Transaction;
 use App\Traits\ClientCardTrait;
 use App\Traits\ICountDocument;
 use App\Traits\PaymentAPI;
@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
 class InvoiceController extends Controller
 {
@@ -1090,7 +1091,7 @@ class InvoiceController extends Controller
             ->selectRaw("MAX(CASE WHEN order.paid_status = 'problem' THEN 5 WHEN order.paid_status = 'unpaid' THEN 4 WHEN order.paid_status = 'undone' THEN 3 WHEN order.paid_status = 'paid' THEN 2 ELSE 1 END) AS priority")
             ->groupBy('order.client_id');
 
-        $data = Client::query()
+        $query = Client::query()
             ->leftJoinSub($jobVisits, 'job_visits', function ($join) {
                 $join->on('clients.id', '=', 'job_visits.client_id');
             })
@@ -1117,13 +1118,30 @@ class InvoiceController extends Controller
             ->selectRaw('CONCAT(clients.firstname, " ", COALESCE(clients.lastname, "")) AS client_name')
             ->selectRaw('order_paid_status.priority AS priority_paid_status')
             ->selectRaw('COUNT(completed_jobs.id) as completed_jobs')
-            ->groupBy('clients.id')
-            // ->orderBy('clients.id', 'desc')
-            ->paginate(20);
+            ->groupBy('clients.id');
 
-        return response()->json([
-            'data' => $data
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('last_activity_date', function ($data) {
+                return $data->last_activity_date ? Carbon::parse($data->last_activity_date)->format('d/m/Y') : '-';
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function clientUnpaidInvoice(Request $request, $id)
@@ -1369,6 +1387,7 @@ class InvoiceController extends Controller
             0,
         );
 
+        $isFullPayment = true;
         foreach ($payForInvoices as $key => $_pinvoice) {
             $invoice = $invoices->where('id', $_pinvoice['invoice_id'])->first();
 
@@ -1399,6 +1418,10 @@ class InvoiceController extends Controller
                     OrderPaidStatusEnum::PAID : OrderPaidStatusEnum::UNPAID
             ]);
 
+            if (!$_pinvoice['is_full_payment']) {
+                $isFullPayment = false;
+            }
+
             Job::where('order_id', $order->id)
                 ->update([
                     'is_paid' => true
@@ -1409,6 +1432,18 @@ class InvoiceController extends Controller
                     'is_paid' => true
                 ]);
         }
+
+        Notification::create([
+            'user_id'   => $client->id,
+            'user_type' => get_class($client),
+            'type'      => $isFullPayment
+                ? NotificationTypeEnum::PAYMENT_PAID
+                : NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
+            'data'      => [
+                'amount' => $subtotal
+            ],
+            'status' => 'paid'
+        ]);
 
         return response()->json([
             'message' => 'Invoice updated successfully'
@@ -1582,6 +1617,16 @@ class InvoiceController extends Controller
                     'is_paid' => true
                 ]);
         }
+
+        Notification::create([
+            'user_id'   => $client->id,
+            'user_type' => get_class($client),
+            'type'      => NotificationTypeEnum::PAYMENT_PAID,
+            'data'      => [
+                'amount' => $subtotal
+            ],
+            'status' => 'paid'
+        ]);
 
         return response()->json([
             'message' => 'Invoice updated successfully'

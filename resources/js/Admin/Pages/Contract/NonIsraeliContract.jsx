@@ -169,9 +169,9 @@ export function NonIsraeliContract({
     };
 
     return (
-        <div className="container targetDiv">
+        <div className="container targetDiv" ref={contentRef}>
             <div id="content">
-                <div className="mx-5 mt-5" ref={contentRef}>
+                <div className="mt-4">
                     <form onSubmit={handleSubmit}>
                         <div className="text-center">
                             <h5>
@@ -186,7 +186,7 @@ export function NonIsraeliContract({
                         </div>
                         <div>
                             <ol
-                                className="mt-5 lh-lg"
+                                className="mt-5 lh-lg text-justify"
                                 style={{ fontSize: "16px" }}
                             >
                                 <li>
@@ -280,7 +280,7 @@ export function NonIsraeliContract({
                                     </p>
                                 </li>
                                 <li>
-                                    <p className="mb-4">
+                                    <p className="mb-2">
                                         {t("nonIsrailContract.nic5", {
                                             payment_per_hour:
                                                 workerDetail.payment_per_hour,
@@ -288,13 +288,20 @@ export function NonIsraeliContract({
                                     </p>
                                     <ol>
                                         <li>
-                                            <p style={{ marginBottom: "90px" }}>
+                                            <p className="mb-2">
                                                 {t(
                                                     "nonIsrailContract.nic5_sub.nic5_sub1"
                                                 )}
                                             </p>
-                                            <div className="row mt-5">
-                                                <div className="col-4">
+                                            <div className="row">
+                                                <div
+                                                    className={
+                                                        "col-md-4 " +
+                                                        (isGeneratingPDF
+                                                            ? "col-4"
+                                                            : "")
+                                                    }
+                                                >
                                                     <p>
                                                         <strong>
                                                             {t(
@@ -351,7 +358,14 @@ export function NonIsraeliContract({
                                                     )}
                                                 </div>
                                                 <div className="col-5"></div>
-                                                <div className="col-3">
+                                                <div
+                                                    className={
+                                                        "col-md-3 " +
+                                                        (isGeneratingPDF
+                                                            ? "col-3"
+                                                            : "")
+                                                    }
+                                                >
                                                     <DateField
                                                         name={"signatureDate1"}
                                                         onBlur={handleBlur}
@@ -373,7 +387,12 @@ export function NonIsraeliContract({
                                             </div>
                                         </li>
                                     </ol>
-                                    <Table bordered className="mt-3" size="sm">
+                                    <Table
+                                        bordered
+                                        className="mt-5"
+                                        size="sm"
+                                        responsive
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th colSpan={2}>
@@ -410,7 +429,7 @@ export function NonIsraeliContract({
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody className="text-left">
                                             <tr>
                                                 <td>
                                                     {t(
@@ -509,7 +528,12 @@ export function NonIsraeliContract({
                                         )}
                                     </p>
                                     <div className="row mt-3">
-                                        <div className="col-4">
+                                        <div
+                                            className={
+                                                "col-md-4 " +
+                                                (isGeneratingPDF ? "col-4" : "")
+                                            }
+                                        >
                                             <p>
                                                 <strong>
                                                     {t(
@@ -564,7 +588,12 @@ export function NonIsraeliContract({
                                             )}
                                         </div>
                                         <div className="col-5"></div>
-                                        <div className="col-3">
+                                        <div
+                                            className={
+                                                "col-md-3 " +
+                                                (isGeneratingPDF ? "col-3" : "")
+                                            }
+                                        >
                                             <DateField
                                                 name={"signatureDate2"}
                                                 onBlur={handleBlur}
@@ -589,7 +618,13 @@ export function NonIsraeliContract({
                                     </p>
                                 </li>
                                 <li>
-                                    <p style={{ marginBottom: "210px" }}>
+                                    <p
+                                        style={{
+                                            marginBottom: isGeneratingPDF
+                                                ? "370px"
+                                                : "16px",
+                                        }}
+                                    >
                                         {t("nonIsrailContract.nic7")}
                                     </p>
                                 </li>
@@ -597,7 +632,12 @@ export function NonIsraeliContract({
                                     <p className="mb-2">
                                         {t("nonIsrailContract.nic8")}
                                     </p>
-                                    <Table bordered size="sm" className=" mt-3">
+                                    <Table
+                                        bordered
+                                        size="sm"
+                                        className="mt-3"
+                                        responsive
+                                    >
                                         <thead className="text-center">
                                             <tr>
                                                 <th>
@@ -630,7 +670,7 @@ export function NonIsraeliContract({
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody className="text-left">
                                             <tr>
                                                 <td>
                                                     {t(
@@ -707,11 +747,13 @@ export function NonIsraeliContract({
                                             "nonIsrailContract.nic8Sub.nic8Sub_3"
                                         )}
                                     </p>
-                                    <div
-                                        className="row gap-3"
-                                        style={{ marginBottom: "140px" }}
-                                    >
-                                        <div className="col-6">
+                                    <div className="row gap-3">
+                                        <div
+                                            className={
+                                                "col-lg-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <p>
                                                 <strong>
                                                     {t(
@@ -765,7 +807,12 @@ export function NonIsraeliContract({
                                                 </>
                                             )}
                                         </div>
-                                        <div className="col-6">
+                                        <div
+                                            className={
+                                                "col-lg-6 " +
+                                                (isGeneratingPDF ? "col-6" : "")
+                                            }
+                                        >
                                             <p>
                                                 <strong>
                                                     {t(
@@ -822,7 +869,14 @@ export function NonIsraeliContract({
                                             )}
                                         </div>
                                     </div>
-                                    <div className="row">
+                                    <div
+                                        className="row"
+                                        style={{
+                                            marginBottom: isGeneratingPDF
+                                                ? "110px"
+                                                : "16px",
+                                        }}
+                                    >
                                         <div className="col-12">
                                             <DateField
                                                 name={"signatureDate3"}
@@ -899,7 +953,12 @@ export function NonIsraeliContract({
                                 </li>
                             </ol>
                             <div className="row mt-5 gap-3">
-                                <div className="col-6">
+                                <div
+                                    className={
+                                        "col-lg-6 " +
+                                        (isGeneratingPDF ? "col-6" : "")
+                                    }
+                                >
                                     <p>
                                         <strong>
                                             {t("nonIsrailContract.workerSign")}
@@ -946,7 +1005,12 @@ export function NonIsraeliContract({
                                         </>
                                     )}
                                 </div>
-                                <div className="col-6">
+                                <div
+                                    className={
+                                        "col-lg-6 " +
+                                        (isGeneratingPDF ? "col-6" : "")
+                                    }
+                                >
                                     <p>
                                         <strong>
                                             {t("nonIsrailContract.companySign")}

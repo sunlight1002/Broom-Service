@@ -10,7 +10,6 @@ import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
     const [role, setRole] = useState(null);
     const headers = {
@@ -24,6 +23,7 @@ export default function Sidebar() {
             setRole(res.data.success.role);
         });
     };
+
     const HandleLogout = (e) => {
         fetch("/api/admin/logout", {
             method: "POST",
@@ -37,12 +37,8 @@ export default function Sidebar() {
                 alert.success("Logged Out Successfully");
             }
         });
-        localStorage.removeItem("admin-token");
-        localStorage.removeItem("admin-name");
-        localStorage.removeItem("admin-id");
-        navigate("/admin/login");
-        alert.success("Logged Out Successfully");
     };
+
     useEffect(() => {
         i18next.changeLanguage("en");
         getAdmin();

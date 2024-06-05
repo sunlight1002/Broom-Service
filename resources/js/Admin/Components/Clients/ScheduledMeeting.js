@@ -4,10 +4,12 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ScheduledMeeting() {
     const [schedules, setSchedules] = useState([]);
-    const [loading, setLoading] = useState("Loading..");
+    const [isLoading, setIsLoading] = useState(false);
+
     const param = useParams();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -41,9 +43,13 @@ export default function ScheduledMeeting() {
             confirmButtonText: "Yes, Delete Meeting!",
         }).then((result) => {
             if (result.isConfirmed) {
+                setIsLoading(true);
+
                 axios
                     .delete(`/api/admin/schedule/${id}`, { headers })
                     .then((response) => {
+                        setIsLoading(false);
+
                         Swal.fire(
                             "Deleted!",
                             "Meeting has been deleted.",
@@ -54,6 +60,7 @@ export default function ScheduledMeeting() {
                         }, 1000);
                     })
                     .catch((e) => {
+                        setIsLoading(false);
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
@@ -213,9 +220,13 @@ export default function ScheduledMeeting() {
                         </tbody>
                     </table>
                 ) : (
-                    <div className="form-control text-center">{loading}</div>
+                    <div className="form-control text-center">
+                        No record found
+                    </div>
                 )}
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

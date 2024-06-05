@@ -3,6 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import moment from "moment";
 import Swal from "sweetalert2";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function AddPaymentModal({
     setIsOpen,
@@ -109,9 +110,9 @@ export default function AddPaymentModal({
                 headers,
             })
             .then((response) => {
+                setIsLoading(false);
                 setIsOpen(false);
                 onSuccess();
-                setIsLoading(false);
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -430,6 +431,8 @@ export default function AddPaymentModal({
                     Save
                 </Button>
             </Modal.Footer>
+
+            <FullPageLoader visible={isLoading} />
         </Modal>
     );
 }

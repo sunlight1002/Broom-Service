@@ -2,28 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
+use App\Models\Job;
+use App\Models\WorkerAvailability;
+use App\Models\WorkerFreezeDate;
+use App\Models\WorkerNotAvailableDate;
 use App\Http\Controllers\Controller;
+use App\Enums\Form101FieldEnum;
+use App\Enums\WorkerFormTypeEnum;
+use App\Events\WorkerCreated;
+use App\Events\WorkerForm101Requested;
+use App\Traits\JobSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\WorkerAvailability;
-use App\Models\Job;
-use App\Models\Contract;
-use App\Models\WorkerFreezeDate;
-use App\Models\WorkerNotAvailableDate;
-use App\Traits\JobSchedule;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\WorkerCreated;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 class WorkerController extends Controller
 {
@@ -36,33 +35,11 @@ class WorkerController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('q');
-        $statusCode = $request->get('status');
+        $status = $request->get('status');
         $manpowerCompanyID = $request->get('manpower_company_id');
 
-        $status = NULL;
-        if (strtolower($keyword) === "active") {
-            $status = 1;
-        }
-        if (strtolower($keyword) === "inactive") {
-            $status = 0;
-        }
-
-        $data = User::query()
-            ->when($keyword, function ($q) use ($keyword) {
-                return $q
-                    ->where(function ($q) use ($keyword) {
-                        $q
-                            ->where('firstname', 'like', '%' . $keyword . '%')
-                            ->orWhere('lastname', 'like', '%' . $keyword . '%')
-                            ->orWhere('phone', 'like', '%' . $keyword . '%')
-                            ->orWhere('address', 'like', '%' . $keyword . '%');
-                    });
-            })
-            ->when(!is_null($status), function ($q) use ($status) {
-                return $q->where('status', $status);
-            })
-            ->when($statusCode == "active", function ($q) {
+        $query = User::query()
+            ->when($status == "active", function ($q) {
                 return $q
                     ->where(function ($q) {
                         $q
@@ -70,7 +47,7 @@ class WorkerController extends Controller
                             ->orWhereDate('last_work_date', '>=', today()->toDateString());
                     });
             })
-            ->when($statusCode == "past", function ($q) {
+            ->when($status == "past", function ($q) {
                 return $q
                     ->whereNotNull('last_work_date')
                     ->whereDate('last_work_date', '<', today()->toDateString());
@@ -78,12 +55,37 @@ class WorkerController extends Controller
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })
-            ->latest()
-            ->paginate(20);
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'users.status', 'users.address', 'users.latitude', 'users.longitude');
 
-        return response()->json([
-            'workers' => $data,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('users.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('users.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function AllWorkers(Request $request)
@@ -92,11 +94,6 @@ class WorkerController extends Controller
         $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
         if ($request->service_id) {
-            // $contract=Contract::with('offer','client')->find($request->contract_id);
-            // if($contract->offer){
-            //     $services=json_decode($contract->offer['services']);
-            //     $service=$services[0]->service;
-            // }
             $service = $request->service_id;
         }
         if ($request->job_id) {
@@ -329,6 +326,23 @@ class WorkerController extends Controller
             }
         }
 
+        $formEnum = new Form101FieldEnum;
+
+        $defaultFields = $formEnum->getDefaultFields();
+        $defaultFields['employeeFirstName'] = $worker->firstname;
+        $defaultFields['employeeLastName'] = $worker->lastname;
+        $defaultFields['employeeMobileNo'] = $worker->phone;
+        $defaultFields['employeeEmail'] = $worker->email;
+        $defaultFields['sender']['employeeEmail'] = $worker->email;
+        $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
+        $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+
+        $worker->forms()->create([
+            'type' => WorkerFormTypeEnum::FORM101,
+            'data' => $formData,
+            'submitted_at' => NULL
+        ]);
+
         event(new WorkerCreated($worker));
 
         return response()->json([
@@ -552,16 +566,32 @@ class WorkerController extends Controller
                 }
             }
 
-            $form_insurance = $request->file('form_insurance');
-            if ($form_insurance) {
-                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+            $safety_and_gear_form = $request->file('safety_and_gear_form');
+            if ($safety_and_gear_form) {
+                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $safety_and_gear_form->getClientOriginalExtension();
                 if (!Storage::disk('public')->exists('uploads/worker/safetygear')) {
                     Storage::disk('public')->makeDirectory('uploads/worker/safetygear');
                 }
-                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)) {
-                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->form_insurance);
+                if (!empty($worker->safety_and_gear_form) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->safety_and_gear_form)) {
+                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->safety_and_gear_form);
                 }
-                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $form_insurance, $filename)) {
+                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $safety_and_gear_form, $filename)) {
+                    $worker->update([
+                        'safety_and_gear_form' => $filename
+                    ]);
+                }
+            }
+
+            $form_insurance = $request->file('form_insurance');
+            if ($form_insurance) {
+                $filename = 'insurance_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/insurance')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/insurance');
+                }
+                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/insurance/' . $worker->form_insurance)) {
+                    Storage::drive('public')->delete('uploads/worker/insurance/' . $worker->form_insurance);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/insurance", $form_insurance, $filename)) {
                     $worker->update([
                         'form_insurance' => $filename
                     ]);
@@ -798,7 +828,7 @@ class WorkerController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
-        
+
         $data = Job::whereNotNull('jobs.worker_id')
             ->whereNotNull('jobs.actual_time_taken_minutes')
             ->join('users', 'jobs.worker_id', '=', 'users.id')
@@ -822,14 +852,56 @@ class WorkerController extends Controller
                 $q->whereNull('users.last_work_date')
                     ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
             })
-            ->select('jobs.start_date', \DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'))
+            ->select('jobs.start_date', DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'))
             ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS time')
             ->groupBy('jobs.start_date')
             ->orderBy('jobs.start_date', 'desc')
             ->get();
-            
+
         return response()->json([
             'workers' => $data,
+        ]);
+    }
+
+    public function formSend(Request $request, Form101FieldEnum $formEnum)
+    {
+        $formId = null;
+        $data = $request->all();
+        $formType = $data['type'];
+        $worker = User::find($data['workerId']);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+        $isExistForm101 = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->whereNull('submitted_at')
+            ->first();
+
+        if (!$isExistForm101) {
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $worker->firstname;
+            $defaultFields['employeeLastName'] = $worker->lastname;
+            $defaultFields['employeeMobileNo'] = $worker->phone;
+            $defaultFields['employeeEmail'] = $worker->email;
+            $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
+            $formId = $form->id;
+        } else {
+            $formId = $isExistForm101->id;
+        }
+
+        event(new WorkerForm101Requested($worker, $formType, $formId));
+
+        return response()->json([
+            'message' => 'Worker created successfully',
         ]);
     }
 }

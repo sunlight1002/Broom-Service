@@ -23,7 +23,9 @@ export default function MyAccount() {
                                 aria-selected="true"
                                 role="tab"
                             >
-                                <h4>{t("worker.settings.edit_account")}</h4>
+                                <h5 className="" style={{ fontSize: "14px" }}>
+                                    {t("worker.settings.edit_account")}
+                                </h5>
                             </a>
                         </li>
                         <li className="nav-item" role="presentation">
@@ -35,7 +37,9 @@ export default function MyAccount() {
                                 aria-selected="true"
                                 role="tab"
                             >
-                                <h4>{t("worker.settings.manage_form")}</h4>
+                                <h5 style={{ fontSize: "14px" }}>
+                                    {t("worker.settings.manage_form")}
+                                </h5>
                             </a>
                         </li>
                         <li className="nav-item" role="presentation">
@@ -47,7 +51,9 @@ export default function MyAccount() {
                                 aria-selected="true"
                                 role="tab"
                             >
-                                <h4>{t("worker.settings.forms")}</h4>
+                                <h5 style={{ fontSize: "14px" }}>
+                                    {t("worker.settings.forms")}
+                                </h5>
                             </a>
                         </li>
                     </ul>

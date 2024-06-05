@@ -1,51 +1,114 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Link } from "react-router-dom";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function ServiceSchedule() {
-    const [schedules, setSchedules] = useState("");
-    const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
+    const navigate = useNavigate();
+    const tableRef = useRef(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getSchedules = () => {
-        axios
-            .get("/api/admin/service-schedule", { headers })
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading("No schedule found");
-                }
-            });
-    };
     useEffect(() => {
-        getSchedules();
-    }, []);
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/service-schedule",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                    visible: false,
+                },
+                {
+                    title: "Schedule - En",
+                    data: "name",
+                },
+                {
+                    title: "Schedule - Heb",
+                    data: "name_heb",
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    render: function (data, type, row, meta) {
+                        return data == 0 ? "Inactive" : "Active";
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/admin/service-schedule?page=" + currentPage, { headers })
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading("No schedule found");
-                }
-            });
-    };
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dtr-control")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/service-schedules/${_id}/edit`);
+            }
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/service-schedules/${_id}/edit`);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -67,7 +130,7 @@ export default function ServiceSchedule() {
                             "success"
                         );
                         setTimeout(() => {
-                            getSchedules();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
@@ -96,98 +159,10 @@ export default function ServiceSchedule() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {schedules.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">ID</Th>
-                                                <Th scope="col">
-                                                    Schedule- En
-                                                </Th>
-                                                <Th scope="col">
-                                                    Schedule- Heb
-                                                </Th>
-                                                <Th scope="col">Status</Th>
-                                                <Th scope="col">Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {schedules &&
-                                                schedules.map((item, index) => (
-                                                    <Tr key={index}>
-                                                        <Td>{item.id}</Td>
-                                                        <Td>{item.name}</Td>
-                                                        <Td>{item.name_heb}</Td>
-                                                        <Td>
-                                                            {item.status == 0
-                                                                ? "Inactive"
-                                                                : "Active"}
-                                                        </Td>
-                                                        <Td>
-                                                            <div className="action-dropdown dropdown">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    <i className="fa fa-ellipsis-vertical"></i>
-                                                                </button>
-                                                                <div className="dropdown-menu">
-                                                                    <Link
-                                                                        to={`/admin/service-schedules/${item.id}/edit`}
-                                                                        className="dropdown-item"
-                                                                    >
-                                                                        Edit
-                                                                    </Link>
-                                                                    <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                item.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                ))}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {schedules.length > 0 ? (
-                                    <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={handlePageClick}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

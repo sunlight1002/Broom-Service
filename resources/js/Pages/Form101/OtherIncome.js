@@ -51,7 +51,7 @@ const OtherIncome = ({
             />
             {values.otherIncome && values.otherIncome?.haveincome === "Yes" && (
                 <div className="row">
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.incomeType"}
                             label={t("form101.month_salary")}
@@ -74,7 +74,7 @@ const OtherIncome = ({
                             }
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.incomeType"}
                             label={t("form101.salary_ap")}
@@ -97,7 +97,7 @@ const OtherIncome = ({
                             }
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.incomeType"}
                             label={t("form101.partial_salary")}
@@ -120,7 +120,7 @@ const OtherIncome = ({
                             }
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.incomeType"}
                             label={t("form101.daily_wages")}
@@ -143,7 +143,7 @@ const OtherIncome = ({
                             }
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.allowance"}
                             label={t("form101.allowance")}
@@ -161,7 +161,7 @@ const OtherIncome = ({
                             }
                         />
                     </div>
-                    <div className="col-4">
+                    <div className="col-sm-4 col-12">
                         <CheckBox
                             name={"otherIncome.scholarship"}
                             label={t("form101.scholarship")}

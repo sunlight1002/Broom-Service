@@ -52,7 +52,12 @@ export default function AdminHeader() {
 
     const headNotice = () => {
         axios
-            .post("/api/admin/notice", { head: 1 }, { headers })
+            .get("/api/admin/notice", {
+                headers,
+                params: {
+                    head: 1,
+                },
+            })
             .then((res) => {
                 setNotices(res.data.notice);
                 setCount(res.data.count);

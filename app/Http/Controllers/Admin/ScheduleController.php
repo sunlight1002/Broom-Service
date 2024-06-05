@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
-use App\Models\LeadStatus;
 use App\Models\Schedule;
 use App\Models\Notification;
 use App\Models\Setting;
 use App\Traits\GoogleAPI;
+use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use App\Traits\ScheduleMeeting;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
+use Yajra\DataTables\Facades\DataTables;
 
 class ScheduleController extends Controller
 {
@@ -33,43 +31,46 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
-        $result = Schedule::query()->with('client', 'team', 'propertyAddress');
-        $result->orWhere('booking_status', 'like', '%' . $q . '%');
-        $result->orWhere('end_time',       'like', '%' . $q . '%');
-        $result->orWhere('start_date',     'like', '%' . $q . '%');
-        $result->orWhere('start_time', 'like', '%' . $q . '%');
+        $query = Schedule::query()
+            ->leftJoin('admins', 'schedules.team_id', '=', 'admins.id')
+            ->leftJoin('clients', 'schedules.client_id', '=', 'clients.id')
+            ->leftJoin('client_property_addresses', 'schedules.address_id', '=', 'client_property_addresses.id')
+            ->select('schedules.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.phone', 'schedules.booking_status', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time');
 
-        $result = $result->orWhereHas('client', function ($qr) use ($q) {
-            $qr->where(function ($qr) use ($q) {
-                $qr->where(DB::raw('firstname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('lastname'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('city'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('street_n_no'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('zipcode'), 'like', '%' . $q . '%');
-                $qr->orWhere(DB::raw('phone'), 'like', '%' . $q . '%');
-            });
-        });
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-        $result = $result->orWhereHas('team', function ($qr) use ($q) {
-            $qr->where(function ($qr) use ($q) {
-                $qr->where(DB::raw('name'), 'like', '%' . $q . '%');
-            });
-        });
-
-        $result = $result->orderBy('created_at', 'desc')->paginate(20);
-
-        if (!empty($result)) {
-            foreach ($result as $i => $res) {
-                if ($res->client->lastname == null) {
-                    $result[$i]->client->lastname = '';
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('admins.name', 'like', "%" . $keyword . "%");
+                        });
+                    }
                 }
-            }
-        }
-
-        return response()->json([
-            'schedules' => $result
-        ]);
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->orderColumn('start_date', function ($query, $order) {
+                $query->orderBy('start_date', $order)
+                    ->orderBy('start_time_standard_format', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     /**
@@ -118,11 +119,6 @@ class ScheduleController extends Controller
 
         $schedule = Schedule::create($input);
 
-        LeadStatus::updateOrCreate(
-            ['client_id' => $schedule->client_id],
-            ['lead_status' => LeadStatusEnum::POTENTIAL_LEAD]
-        );
-
         $schedule->load(['client', 'propertyAddress']);
 
         if (!$schedule->start_date) {
@@ -160,6 +156,7 @@ class ScheduleController extends Controller
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
                     'user_id' => $schedule->client_id,
+                    'user_type' => get_class($client),
                     'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status
@@ -196,6 +193,7 @@ class ScheduleController extends Controller
 
                 Notification::create([
                     'user_id' => $schedule->client_id,
+                    'user_type' => Client::class,
                     'type' => NotificationTypeEnum::SENT_MEETING,
                     'meet_id' => $schedule->id,
                     'status' => $schedule->booking_status

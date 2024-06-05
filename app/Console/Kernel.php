@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
         $schedule->command('meeting:reminder')->hourly();
         $schedule->command('worker:job-reminder')->dailyAt('17:00');
+        $schedule->command('client:update-lead-status')->hourly();
     }
 
     /**

@@ -30,7 +30,7 @@ export default function ClientDashboard() {
             if (response.data.latest_jobs.length > 0) {
                 setlatestJobs(response.data.latest_jobs);
             } else {
-                setLoading("No job found");
+                setLoading(t("client.dashboard.noJobFound"));
             }
         });
     };
@@ -50,7 +50,7 @@ export default function ClientDashboard() {
                         </h1>
                     </div>
                     <div className="row">
-                        <div className="col-sm-3 col-xs-6">
+                        <div className="col-xl-3 col-sm-6 col-xs-6">
                             <a href="/client/jobs">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">
@@ -64,7 +64,7 @@ export default function ClientDashboard() {
                             </a>
                         </div>
 
-                        <div className="col-sm-3 col-xs-6">
+                        <div className="col-xl-3 col-sm-6 col-xs-6">
                             <a href="/client/schedule">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">
@@ -77,7 +77,7 @@ export default function ClientDashboard() {
                                 </div>
                             </a>
                         </div>
-                        <div className="col-sm-3 col-xs-6">
+                        <div className="col-xl-3 col-sm-6 col-xs-6">
                             <a href="/client/offered-price">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">
@@ -94,7 +94,7 @@ export default function ClientDashboard() {
                                 </div>
                             </a>
                         </div>
-                        <div className="col-sm-3 col-xs-6">
+                        <div className="col-xl-3 col-sm-6 col-xs-6">
                             <a href="/client/contracts">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">

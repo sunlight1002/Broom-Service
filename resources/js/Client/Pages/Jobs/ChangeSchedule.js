@@ -58,7 +58,7 @@ export default function ChangeSchedule() {
                             <div className="card-body">
                                 <form>
                                     <div className="row">
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-3 col-lg-2">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -68,7 +68,7 @@ export default function ChangeSchedule() {
                                                 <p>{job.jobservice.name}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-3 col-lg-2">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -96,7 +96,7 @@ export default function ChangeSchedule() {
                                                 </p>
                                             </div>
                                         </div> */}
-                                        <div className="col-sm-4">
+                                        <div className="col-sm-3 col-lg-4">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -111,7 +111,7 @@ export default function ChangeSchedule() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-4">
+                                        <div className="col-sm-3 col-lg-4">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -156,7 +156,7 @@ export default function ChangeSchedule() {
                                         </div>
                                     </div>
                                     <div className="row">
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-md-2">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -165,16 +165,14 @@ export default function ChangeSchedule() {
                                                 </label>
                                                 {job.worker ? (
                                                     <p>
-                                                        {job.worker.firstname +
-                                                            " " +
-                                                            job.worker.lastname}
+                                                        {job.worker.firstname}
                                                     </p>
                                                 ) : (
                                                     <p>NA</p>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="col-sm-2">
+                                        <div className="col-sm-4 col-md-2">
                                             <div className="form-group">
                                                 <label>
                                                     {t(
@@ -186,16 +184,6 @@ export default function ChangeSchedule() {
                                                         .toString()
                                                         .slice(0, 15)}
                                                 </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-2">
-                                            <div className="form-group">
-                                                <label>
-                                                    {t(
-                                                        "client.jobs.change.shift"
-                                                    )}
-                                                </label>
-                                                <p>{job.shifts}</p>
                                             </div>
                                         </div>
                                     </div>

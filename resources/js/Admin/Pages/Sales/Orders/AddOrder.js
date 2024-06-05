@@ -7,11 +7,12 @@ import { SelectPicker } from "rsuite";
 import Swal from "sweetalert2";
 
 import Sidebar from "../../../Layouts/Sidebar";
+import FullPageLoader from "../../../../Components/common/FullPageLoader";
 
 export default function AddOrder() {
     const [selectedClientID, setSelectedClientID] = useState("");
     const [selectedJobID, setSelectedJobID] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [formValues, setFormValues] = useState({
         description: null,
         unitprice: 0,
@@ -150,7 +151,7 @@ export default function AddOrder() {
             return;
         }
 
-        setLoading(true);
+        setIsLoading(true);
         axios
             .post(
                 `/api/admin/create-order`,
@@ -162,14 +163,14 @@ export default function AddOrder() {
                 { headers }
             )
             .then((res) => {
-                setLoading(false);
+                setIsLoading(false);
                 alert.success("Order created successfully");
                 setTimeout(() => {
                     navigate("/admin/payments");
                 }, 1000);
             })
             .catch((e) => {
-                setLoading(false);
+                setIsLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -344,7 +345,7 @@ export default function AddOrder() {
                                         value="Generate Document"
                                         onClick={handleSubmit}
                                         className="btn btn-success saveBtn"
-                                        disabled={totalAmount == 0 || loading}
+                                        disabled={totalAmount == 0 || isLoading}
                                     />
                                 </div>
                             </div>
@@ -352,6 +353,8 @@ export default function AddOrder() {
                     </div>
                 </div>
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

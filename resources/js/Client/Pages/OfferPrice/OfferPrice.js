@@ -25,7 +25,7 @@ export default function ClientOfferPrice() {
                 setPageCount(response.data.offers.last_page);
             } else {
                 setOffers([]);
-                setLoading("No offer found");
+                setLoading(t("client.offer.noOffer"));
             }
         });
     };
@@ -40,7 +40,7 @@ export default function ClientOfferPrice() {
                     setPageCount(response.data.offers.last_page);
                 } else {
                     setOffers([]);
-                    setLoading("No offer found");
+                    setLoading(t("client.offer.noOffer"));
                 }
             });
     };
@@ -54,7 +54,7 @@ export default function ClientOfferPrice() {
                     setPageCount(response.data.offers.last_page);
                 } else {
                     setPageCount(response.data.offers.last_page);
-                    setLoading("No offer found");
+                    setLoading(t("client.offer.noOffer"));
                 }
             });
     };
@@ -152,7 +152,7 @@ export default function ClientOfferPrice() {
                                                                 to={`/client/view-offer/${Base64.encode(
                                                                     ofr.id.toString()
                                                                 )}`}
-                                                                className="ml-auto ml-md-2 btn bg-yellow"
+                                                                className="ml-auto ml-md-2 mt-4 mt-md-0 btn bg-yellow"
                                                             >
                                                                 <i className="fa fa-eye"></i>
                                                             </Link>

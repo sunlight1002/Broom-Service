@@ -66,3 +66,11 @@ export const objectToFormData = (obj, formData, namespace) => {
 
     return fd;
 };
+
+export const workerHours = (s, msg) => {
+    if (s.type === "hourly") {
+        return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
+    }
+
+    return "--";
+};

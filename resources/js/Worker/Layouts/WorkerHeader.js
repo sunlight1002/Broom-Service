@@ -24,7 +24,7 @@ export default function WorkerHeader() {
         localStorage.removeItem("worker-name");
         localStorage.removeItem("worker-id");
         navigate("/worker/login");
-        alert.success("Logged Out Successfully");
+        alert.success(t("global.Logout"));
       }
     });
   };
@@ -60,7 +60,7 @@ export default function WorkerHeader() {
                   <Link className="dropdown-toggle" href="#!" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img src={User} className='img-fluid' alt='Ajay' />
                   </Link>
-                  <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                     <Link className="dropdown-item" to="/worker/my-account">{t('worker.my_account')}</Link>
                     <Link className="dropdown-item" onClick={HandleLogout}>{t('worker.logout')}</Link>
                   </div>

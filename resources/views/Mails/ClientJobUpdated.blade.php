@@ -29,7 +29,7 @@
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.date')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.service')}}</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.shift')}}</th>
+					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.shift')}}</th> -->
 				</tr>
 			</thead>
 			<tbody>
@@ -44,7 +44,7 @@
 						@endif
 
 					</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }} </td>
+					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }} </td> -->
 				</tr>
 			</tbody>
 		</table>

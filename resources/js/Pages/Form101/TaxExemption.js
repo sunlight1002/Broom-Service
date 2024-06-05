@@ -161,7 +161,7 @@ export default function TaxExemption({
                 />
                 {values.TaxExemption && values.TaxExemption.exm3 && (
                     <div className="row">
-                        <div className="col-4">
+                        <div className=" col-md-4 col-sm-6 col-12">
                             <DateField
                                 name="TaxExemption.exm3Date"
                                 label={t("form101.label_from_date")}
@@ -179,7 +179,7 @@ export default function TaxExemption({
                                 required
                             />
                         </div>
-                        <div className="col-4">
+                        <div className="col-md-4 col-sm-6 col-12">
                             <SelectElement
                                 name={"TaxExemption.exm3Locality"}
                                 label={t("form101.Locality")}
@@ -248,7 +248,7 @@ export default function TaxExemption({
                 {values.TaxExemption && values.TaxExemption.exm4 && (
                     <div className="row">
                         {" "}
-                        <div className="col-6">
+                        <div className="col-md-6 col-12">
                             <DateField
                                 name="TaxExemption.exm4FromDate"
                                 label={t("form101.label_from_date")}
@@ -266,7 +266,7 @@ export default function TaxExemption({
                                 required
                             />
                         </div>
-                        <div className="col-6">
+                        <div className="col-md-6 col-12">
                             <label htmlFor="exm4ImmigrationCertificate">
                                 {t("form101.exm4ImmigrationCertificate")}
                             </label>
@@ -911,7 +911,7 @@ export default function TaxExemption({
                 <p className="text-secondary">{t("form101.exm12Note")}</p>
                 {values.TaxExemption.exm14 && (
                     <div className="row">
-                        <div className="col-4">
+                        <div className="col-lg-4 col-md-6 col-12">
                             <DateField
                                 name="TaxExemption.exm14BeginingDate"
                                 label={t("form101.exm14BeginingDate")}
@@ -929,7 +929,7 @@ export default function TaxExemption({
                                 required
                             />
                         </div>
-                        <div className="col-4">
+                        <div className="col-lg-4 col-md-6 col-12">
                             <DateField
                                 name="TaxExemption.exm14EndDate"
                                 label={t("form101.exm14EndDate")}
@@ -947,7 +947,7 @@ export default function TaxExemption({
                                 required
                             />
                         </div>
-                        <div className="col-4">
+                        <div className="col-lg-4 col-md-6 col-12">
                             <label
                                 htmlFor="TaxExemption.exm14Certificate"
                                 className="pt-2"

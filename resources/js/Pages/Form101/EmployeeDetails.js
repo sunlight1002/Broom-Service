@@ -121,7 +121,7 @@ export default function EmployeeDetails({
                 </div>
                 {values.employeeIdentityType === "Passport" ? (
                     <>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-md-4 col-sm-6 col-xs-6">
                             <SelectElement
                                 name={"employeecountry"}
                                 label={t("form101.country_passport")}
@@ -154,7 +154,7 @@ export default function EmployeeDetails({
                                     required
                                 />
                             </div>
-                            <div>
+                            <div className="col-md-4 col-sm-6 col-xs-6">
                                 <label htmlFor="employeepassportCopy">
                                     {t("form101.passport_photo")}
                                 </label>
@@ -180,7 +180,7 @@ export default function EmployeeDetails({
                                     )}
                             </div>
                         </div>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-md-4 col-sm-6 col-xs-6">
                             <label htmlFor="employeeResidencePermit">
                                 {t("form101.PhotoCopyResident")}
                             </label>
@@ -208,7 +208,7 @@ export default function EmployeeDetails({
                     </>
                 ) : (
                     <>
-                        <div className="col-sm-4 col-xs-6">
+                        <div className="col-md-4 col-sm-6 col-xs-6">
                             <TextField
                                 name="employeeIdNumber"
                                 label={t("form101.id_num")}
@@ -285,7 +285,7 @@ export default function EmployeeDetails({
                         />
                     )}
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employeeCity"
                         label={t("form101.City")}
@@ -300,7 +300,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employeeStreet"
                         label={t("form101.street")}
@@ -315,7 +315,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employeeHouseNo"
                         label={t("form101.ho_num")}
@@ -330,7 +330,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-md-3 col-sm-6 col-xs-6">
                     <TextField
                         name="employeePostalCode"
                         label={t("form101.postal_code")}
@@ -346,7 +346,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-6">
+                <div className="col-md-6">
                     <TextField
                         name="employeeMobileNo"
                         label={t("form101.mob_num")}
@@ -362,7 +362,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-6">
+                <div className="col-md-6">
                     <TextField
                         name="employeePhoneNo"
                         label={t("form101.label_phNum")}
@@ -392,7 +392,7 @@ export default function EmployeeDetails({
                         required={true}
                     />
                 </div>
-                <div className="col-sm-2 col-xs-6">
+                <div className="col-lg-2 col-sm-4 col-xs-6">
                     <RadioButtonGroup
                         name="employeeSex"
                         label={t("form101.label_sex")}
@@ -408,7 +408,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-2 col-xs-6">
+                <div className="col-lg-2 col-sm-4 col-xs-6">
                     <RadioButtonGroup
                         name="employeeMaritalStatus"
                         label={t("form101.martial_status")}
@@ -425,7 +425,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-2 col-xs-6">
+                <div className="col-lg-2 col-sm-4 col-xs-6">
                     <RadioButtonGroup
                         name="employeeIsraeliResident"
                         label={t("form101.israeli_resident")}
@@ -442,7 +442,7 @@ export default function EmployeeDetails({
                         required
                     />
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-lg-3 col-sm-4 col-xs-6">
                     <RadioButtonGroup
                         name="employeeCollectiveMoshavMember"
                         label={t("form101.cop_member")}
@@ -476,7 +476,7 @@ export default function EmployeeDetails({
                         />
                     )}
                 </div>
-                <div className="col-sm-3 col-xs-6">
+                <div className="col-lg-3 col-sm-4 col-xs-6">
                     <RadioButtonGroup
                         name="employeeHealthFundMember"
                         label={t("form101.healthFundMem")}

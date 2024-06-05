@@ -28,12 +28,12 @@ export default function card() {
         const _paymentStatus = queryParams.get("cps");
 
         if (_paymentStatus == "payment-success") {
-            // swal(t("work-contract.messages.card_success"), "", "success");
-            swal(
-                "Thanks, card is added successfully, Now you can sign contract!",
-                "",
-                "success"
-            );
+            swal(t("work-contract.messages.card_success"), "", "success");
+            // swal(
+            //     "Thanks, card is added successfully, Now you can sign contract!",
+            //     "",
+            //     "success"
+            // );
             navigate(`/client/settings`);
         } else if (_paymentStatus == "payment-cancelled") {
             swal(t("work-contract.messages.card_adding_failed"), "", "error");
@@ -93,21 +93,21 @@ export default function card() {
 
     const handleDelete = (id) => {
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("work-contract.areYouSure"),
+            text: t("work-contract.willNotRevert"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Card!",
+            confirmButtonText: t("work-contract.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .delete(`/api/client/cards/${id}`, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "card has been deleted.",
+                            t("global.deleted"),
+                            t("work-contract.cardDeleted"),
                             "success"
                         );
                         setTimeout(() => {
@@ -157,7 +157,9 @@ export default function card() {
                                                 {card.card_type}
                                                 {card.is_default && (
                                                     <Badge bg="success ml-3">
-                                                        default
+                                                        {t(
+                                                            "client.settings.default"
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </Td>
@@ -180,7 +182,9 @@ export default function card() {
                                                                     )
                                                                 }
                                                             >
-                                                                Mark as Default
+                                                                {t(
+                                                                    "work-contract.markAsDefault"
+                                                                )}
                                                             </button>
                                                             <button
                                                                 className="btn btn-sm btn-danger ms-2"
@@ -201,7 +205,9 @@ export default function card() {
                                 })
                             ) : (
                                 <Tr>
-                                    <Td colSpan="3">No card added</Td>
+                                    <Td colSpan="3">
+                                        {t("work-contract.NoCardAdded")}
+                                    </Td>
                                 </Tr>
                             )}
                         </Tbody>

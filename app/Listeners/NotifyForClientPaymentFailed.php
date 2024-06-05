@@ -42,12 +42,15 @@ class NotifyForClientPaymentFailed implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            // Notification::create([
-            //     'user_id' => $event->client->id,
-            //     'type' => NotificationTypeEnum::PAYMENT_FAILED,
-            //     'job_id' => $event->job->id,
-            //     'status' => 'reschedule'
-            // ]);
+            Notification::create([
+                'user_id' => $event->client->id,
+                'user_type' => get_class($event->client),
+                'type' => NotificationTypeEnum::PAYMENT_FAILED,
+                'data' => [
+                    'card' => $event->card
+                ],
+                'status' => 'failed'
+            ]);
 
             // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
             //     event(new WhatsappNotificationEvent([

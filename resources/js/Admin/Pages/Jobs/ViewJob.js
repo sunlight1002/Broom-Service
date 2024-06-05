@@ -69,13 +69,13 @@ export default function ViewJob() {
                     <div className="worker-profile">
                         {job && (
                             <div className="row">
-                                <div className="col-sm-6">
+                                <div className="col-lg-6 col-12">
                                     <ClientDetails
                                         client={client}
                                         address={address}
                                     />
                                 </div>
-                                <div className="col-sm-6">
+                                <div className="col-lg-6 col-12">
                                     <div
                                         className="cdiv"
                                         style={{ display: "none" }}

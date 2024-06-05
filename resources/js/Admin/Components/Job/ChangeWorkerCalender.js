@@ -305,28 +305,28 @@ export default function ChangeWorkerCalender({ job }) {
                         </div>
                         <FilterButtons
                             text="Current Week"
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
                             text="Next Week"
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
                             text="Next Next Week"
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
                             text="Custom"
-                            className="px-3 mr-2"
+                            className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />

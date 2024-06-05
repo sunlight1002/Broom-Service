@@ -14,7 +14,18 @@
         "fullday": "Full Day",
         "night": "Night",
         "accepted": "Accepted",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "day": "Day",
+        "week": "Week",
+        "previous_week": "Previous Week",
+        "next_week": "Next Week",
+        "to": "To",
+        "no_record_found": "No record found",
+        "areYouSure": "Are you sure?",
+        "notAbleToRevert": "You won't be able to revert this!",
+        "yesDelete": "Yes, Delete!",
+        "deleted": "Deleted!",
+        "Logout": "Logged Out Successfully"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -222,6 +233,7 @@
         }
     },
     "work-contract": {
+        "pleaseSign": "Please sign the contract",
         "action": "Action",
         "inHead": "Broom Service L.M. Ltd Private Company no. 515184208 \n Exclusive Framework Agreement with Tenants/Clients",
         "signed": "Made and Signed in :",
@@ -377,6 +389,7 @@
             "settings": "Settings"
         },
         "dashboard": {
+            "noJobFound": "No job found",
             "contracts": "Contracts",
             "offered_price": "Offered Price",
             "meetings": "Meetings",
@@ -394,6 +407,8 @@
             "action": "Action"
         },
         "meeting": {
+            "noMeetingSchedule": "No meeting scheduled yet",
+            "noMeetingFound": "No meeting found",
             "title": "Schedule meetings",
             "id": "ID",
             "attender": "Meeting Attender",
@@ -402,6 +417,13 @@
             "files": "Files",
             "address_txt": "Address",
             "cfiles": {
+                "fileNotAllowed": "This file is not allowed",
+                "areYouSure": "Are you sure?",
+                "notAbleToRevert": "You won't be able to revert this!",
+                "yesDelete": "Yes, Delete File",
+                "pleaseAdd": "Please add file",
+                "noFIleAdded": "No file added for this meeting",
+                "deleted": "Deleted!",
                 "title": "Meeting Files",
                 "button": "Add Files",
                 "upload_date": "Upload Date",
@@ -419,6 +441,7 @@
             }
         },
         "offer": {
+            "noOffer": "No offer found",
             "title": "Offered Prices",
             "ofr_date": "Date",
             "services": "Services",
@@ -447,6 +470,7 @@
             }
         },
         "contract": {
+            "NoContract": "No contract found",
             "title": "Contracts",
             "c_date": "Date",
             "services": "Services",
@@ -455,6 +479,7 @@
             "action": "Action"
         },
         "jobs": {
+            "noJobFound": "No Job found",
             "title": "Jobs",
             "date": "Date",
             "job_date": "Job Dated",
@@ -482,7 +507,33 @@
                 "shift": "Shift",
                 "date": "Date",
                 "worker": "Worker",
-                "pending": "Request is pending."
+                "pending": "Request is pending.",
+                "pleaseSelectAllWorker": "Please select all workers.",
+                "pleaseWait": "please wait ...",
+                "viewJob": "View Job",
+                "pleaseSelectWorker": "Please Select the Workers",
+                "alreadyOtherWorker": "Already other workers selected.",
+                "currentWeek": "Current Week",
+                "nextWeek": "Next Week",
+                "nextnextWeek": "Next Next Week",
+                "Custom": "Custom",
+                "Search": "Search",
+                "Worker": "Worker",
+                "shiftFreezedByAdmin": "Shift is freezed by Administrator",
+                "shiftFreezed": "Shift is freezed",
+                "workNotAvail": "Worker is not available",
+                "notAvail": "Not Available",
+                "selectDate": "Select Date Range",
+                "Cancellationfee": "Cancellation fee of {{feeInAmount}} ILS will be charged.",
+                "Repeatancy": "Repeatancy",
+                "oneTime": "One Time ( for single job )",
+                "UntilDate": "Until Date",
+                "Forever": "Forever",
+                "Close": "Close",
+                "SaveAndSend": "Save and Send",
+                "SelectService": "Select Service",
+                "KeepSameWorker": "Keep same worker",
+                "Continue": "Continue"
             },
             "view": {
                 "worker_details": "Worker Details",
@@ -505,6 +556,8 @@
                 "cancel": "Cancel",
                 "back": "Back",
                 "add_cmt": "Add Comment",
+                "pleaseEnterCmt": "Please Enter Comment",
+                "commentDeleted": "Comment has been deleted.",
                 "cancel_text": "cancalation fee may apply are you sure you would like to cancel and pay the fee of",
                 "cancel_warning": "Are you sure?",
                 "confirm_cancel_btn": "Yes, Cancel Job",
@@ -512,6 +565,25 @@
                 "updated": "Updated!",
                 "with_cancel": "with cancellation fees of",
                 "file": "Upload files"
+            },
+            "review": {
+                "ratingReq": "The Rating is required",
+                "reviewReq": "The Review field is required",
+                "Error": "Error!",
+                "title": "Review and Rating Job",
+                "Services": "Services",
+                "Frequency": "Frequency",
+                "timeToComplete": "Time to Complete",
+                "hours": "hours",
+                "Property": "Property",
+                "PetAnimals": "Pet animals",
+                "GenderPreference": "Gender preference",
+                "Worker": "Worker",
+                "Date": "Date",
+                "Shift": "Shift",
+                "Rating": "Rating",
+                "Review": "Review",
+                "Submit": "Submit"
             }
         },
         "invoice": {
@@ -553,7 +625,19 @@
             "c_pass": "Current password",
             "u_pass": "New password",
             "cn_pass": "Confirm new password",
-            "save": "Save"
+            "save": "Save",
+            "updateSuccess": "Account details has been updated successfully",
+            "select": "--- Select language ---",
+            "Hebrew": "Hebrew",
+            "English": "English",
+            "passwordUpdateSuccess": "Password has been updated successfully",
+            "areYouSure": "Are you sure?",
+            "willNotRevert": "You won't be able to revert this!",
+            "yesDelete": "Yes, Delete Card!",
+            "cardDeleted": "card has been deleted.",
+            "default": "default",
+            "markAsDefault": "Mark as Default",
+            "NoCardAdded": "No card added"
         }
     },
     "admin": {
@@ -1019,6 +1103,7 @@
             "action": "Action"
         },
         "jobs": {
+            "noJobFound": "No Job found",
             "all_jobs": "All Jobs",
             "current_week": "Current Jobs",
             "next_week": "Next Jobs",
@@ -1036,6 +1121,10 @@
             "action": "Action",
             "viewbtn": "View",
             "job_details": "Job details",
+            "date_period": "Date Period",
+            "custom_date_range": "Custom Date Range",
+            "custom_range": "Custom Range",
+            "commentDeleted": "Comment has been deleted.",
             "view": {
                 "c_details": "Client Details",
                 "c_name": "Name",
@@ -1069,7 +1158,10 @@
                 "close": "Close",
                 "file": "Upload files",
                 "going_to_start": "I'm leaving for work now",
-                "approve": "Approve"
+                "approve": "Approve",
+                "selectAllComment": "Please select all comments",
+                "jobMarkCompleted": "Job Mark as Completed.",
+                "CompleteJob": "Complete Job"
             }
         },
         "schedule": {
@@ -1087,9 +1179,24 @@
             "start_time": "Start Time",
             "end_time": "End Time",
             "save_date": "Save Date",
-            "close": "Close"
+            "close": "Close",
+            "untilDate": "Default until date not selected",
+            "somethingWrong": "Something went wrong!",
+            "pleaseAddStartEndTime": "Please add start & end time!",
+            "pleaseSelectBothStartEnd": "Please select both Start Time and End Time, or leave both empty.",
+            "endTimeGreater": "End Time must be greater than Start Time.",
+            "DateDeleted": "Date has been deleted."
         },
         "settings": {
+            "profileUpdated": "Profile has been updated successfully",
+            "selectLang": "--- Select language ---",
+            "Hebrew": "Hebrew",
+            "English": "English",
+            "areYouAfraid": "Are you afraid of any follwing pet animals ?",
+            "pleaseSelect": "--- Please select ---",
+            "Enable": "Enable",
+            "Disable": "Disable",
+            "formUplodSuccess": "Form Upload Successfully",
             "edit_account": "Edit Account",
             "manage_form": "Manage Form",
             "view_contract": "View Contract",
@@ -1488,7 +1595,8 @@
             "employeeEmail": "Employee email is required",
             "employerEmail": "Employer email is required",
             "sign": "Signature is required",
-            "incomeReq": "Income is required"
+            "incomeReq": "Income is required",
+            "pleaseSelectOneIncomeType": "Please select at least one income type"
         }
     },
     "credit-card": {
@@ -1530,7 +1638,9 @@
         "Clear": "Clear",
         "Submit": "Submit",
         "Accept": "Accept",
-        "errorMsg": "Signature is required"
+        "errorMsg": "Signature is required",
+        "successfullySigned": "Successfuly signed",
+        "error": "Error!"
     },
     "israilContract": {
         "title1": "Notice to the employee regarding details of working conditions",
@@ -1644,6 +1754,7 @@
         "Broom": "Broom Service L.M. Ltd",
         "Submit": "Submit",
         "Accept": "Accept",
+        "Date": "Date",
         "errorMsg": {
             "FullName": "Full name is required",
             "Role": "Role is required",
@@ -1833,6 +1944,52 @@
         "Close": "Close",
         "Previous": "Previous",
         "Page": "Page",
-        "Next": "Next"
+        "Next": "Next",
+        "generalQesMwdical": "General questions on the medical state",
+        "Height": "Height",
+        "andWidth": "and Width",
+        "Yes": "Yes",
+        "No": "No",
+        "isthereChangeInWeight": "Has there been any change in your weight (5 kg and more) in the course of the last twelve months (not as a result of a diet)?",
+        "alcohol": "Do you now, or did you in the past, consume alcohol – more than one glass a day of beer/wine or another alcoholic beverage?",
+        "smoke": " Do you smoke or have you smoked in the past?",
+        "Today": "Today",
+        "InThePast": "In The Past",
+        "whenStop": "When did you stop?",
+        "drugs": "Do you now, or have you in the past, consumed Drugs?",
+        "surgery": "Did you undergo surgery in the course of the last 10 years or was surgery recommended to you?",
+        "hospitalized": " Were you hospitalized in the course of the last 10 years at a hospital or a medical institution?",
+        "hospitalizedReason": "Which one, when, the reason",
+        "chronicCondition": "Do you regularly take medication for a chronic condition?",
+        "DidAnyTest": "Have you undergone in the course of the last 10 years or have you been given a recommendation to undergo one or more of the following tests: catheterization, a cardiac scan, echocardiogram, MRI, CT, endoscopy, tests for detection of a cancerous tumor, biopsy and occult blood?",
+        "Qestiondiseases": "Questions about diseases Were you ever diagnosed with the diseases and/or disorders and/or medical problems listed below?",
+        "heartAndBlood": "Heart and blood Heart disease, angina pectoris, myocardial infarction, arrhythmias, heart valve problems, congenital heart disease, cardiomyopathy or pericardial disorders. High blood pressure, blood vessel, blood clots, varicose roses, circulation problems, narrowing of the arteries.",
+        "nervousSys": "The nervous system and the brain Multiple sclerosis, muscular dystrophy, paralysis, spasms (epilepsy), T.I.A, stroke, brain hemorrhage (c.v.a), tremor, ataxia, Parkinson.",
+        "attemptedSuicide": "Diagnosed mental disorders and attempted suicide",
+        "Respiratory": "Respiratory system Asthma, chronic bronchitis, emphysema, tuberculosis, hemoptysis, repeat respiratory tract infections.",
+        "Gastrointestinal": "Gastrointestinal tract and liver Ulcer (gastric or duodenal ulcers), heartburn, chronic inflammatory intestinal infection, gastrointestinal bleeding, hemorrhoids, rectal problems, chronic liver disease, hepatitis, gallstones, pancreatitis, hepatitis (viral or otherwise).",
+        "Kidneys": "Kidneys and urinary tract Kidney stones, kidney infections, urinary tract defects, blood or protein in the urine, renal cysts, renal dysfunction, Prostate.",
+        "Metabolic": "Metabolic and endocrine diseases Diabetes, thyroid disorder, adrenal 16. disorder, kidney cysts, pituitary and other glands, high blood lipids.",
+        "Dermatology": " Dermatology and Venereology Syphilis, herpes, skin tumors, moles, warts and/or infertility and/or fertility problems.",
+        "Malignant": "Malignant diseases, malignant or precancerous tumor/s, polyps Detail 18. the type and method of treatment",
+        "pathology": "Enclose reports and pathology",
+        "Infectious": "Infectious diseases, autoimmune diseases, polio, venereal diseases and AIDS/ HIV. Enclose medical documents",
+        "JointsAndfBone": "Joints and bones - arthritis, rheumatism (Galt), neck or back pain, herniated disc, dislocation of shoulder, knee, bone disease.",
+        "eyesCataract": "Eyes - cataract, glaucoma, strabismus, blindness, retinal disease, cornea disease, visual disturbances, diopter number.",
+        "Otolaryngology": "Otolaryngology (nose/ ear/ throat) - ear recurrent or throat infections, sinusitis, hearing disorders, sleep apnea syndrome.",
+        "Hernia": "Hernia (hernia break) - of the abdominal wall, groin, surgical scars, navel and solar plexus. Medical documents must be enclosed",
+        "womenOnly": "For women only: Do you suffer or have you suffered from any women’s illnesses: irregular menstruation, fertility problems, bleeding and breast cysts, problems in the uterus and ovaries, irregular findings in a gynecological exam (such as PAP)? Are you pregnant? What is the number of fetuses?",
+        "Caesarean": "Have you suffered from any problems in previous pregnancies or in the current pregnancy? Have you given birth by a Caesarean Section?",
+        "Signature": "Signature"
+    },
+    "formTxt": {
+        "saftyAndGear": "Safety and Gear",
+        "insuranceForm": "Insurance",
+        "form101Form": "Form101",
+        "contractForm": "Contract",
+        "workerFormPlural": "Worker Forms",
+        "hii": "Hii",
+        "greetingTxt": "Greetings from Broom Service.",
+        "formContent": "You have successfully registered on our portal.Please sign the below forms to start working on job."
     }
 }

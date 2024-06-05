@@ -7,6 +7,8 @@ import ReactPaginate from "react-paginate";
 import { RotatingLines } from "react-loader-spinner";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
+import FilterButtons from "../../../Components/common/FilterButton";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Jobs({ contracts, client }) {
     const todayFilter = {
@@ -51,6 +53,7 @@ export default function Jobs({ contracts, client }) {
         q: "",
     });
     const [selectedFilter, setselectedFilter] = useState("Week");
+    const [isLoading, setIsLoading] = useState(false);
 
     const alert = useAlert();
 
@@ -194,13 +197,16 @@ export default function Jobs({ contracts, client }) {
             return;
         }
 
+        setIsLoading(true);
         axios
             .post(`/api/admin/multiple-invoices`, order_id_arr, { headers })
             .then((res) => {
+                setIsLoading(false);
                 getJobs();
                 alert.success("Job Invoice(s) created successfully");
             })
             .catch((e) => {
+                setIsLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -643,32 +649,8 @@ export default function Jobs({ contracts, client }) {
                     />
                 )}
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }
-
-const FilterButtons = ({
-    text,
-    className,
-    selectedFilter,
-    setselectedFilter,
-    onClick,
-}) => (
-    <button
-        className={`btn border rounded ${className}`}
-        style={
-            selectedFilter === text
-                ? { background: "white" }
-                : {
-                      background: "#2c3f51",
-                      color: "white",
-                  }
-        }
-        onClick={() => {
-            onClick?.();
-            setselectedFilter(text);
-        }}
-    >
-        {text}
-    </button>
-);

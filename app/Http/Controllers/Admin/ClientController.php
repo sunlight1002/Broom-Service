@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
-use App\Enums\TransactionStatusEnum;
 use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
 use App\Models\Admin;
 use App\Models\Client;
-use App\Models\ClientCard;
 use App\Models\Files;
 use App\Models\Note;
 use App\Models\Offer;
@@ -19,17 +17,13 @@ use App\Models\Services;
 use App\Models\Contract;
 use App\Models\Job;
 use App\Models\JobService;
-use App\Models\Shift;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Models\ClientPropertyAddress;
 use App\Models\Comment;
-use App\Models\Transaction;
 use App\Models\User;
 use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
@@ -38,6 +32,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
 {
@@ -50,69 +45,52 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $request->q;
+        $action = $request->get('action');
 
-        $result = Client::with('lead_status')->where('status', 2);
+        $query = Client::query()
+            ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
+            ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
+            ->where('clients.status', 2)
+            ->when($action == 'booked', function ($q) {
+                return $q->has('jobs');
+            })
+            ->when($action == 'notbooked', function ($q) {
+                return $q->whereDoesntHave('jobs');
+            })
+            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status')
+            ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
+            ->groupBy('clients.id');
 
-        if (!is_null($q)) {
-            // $result->where('email',      'like', '%' . $q . '%');
-            // $result->orwhere('firstname',    'like', '%' . $ex[0] . '%');
-            // $result->orWhere('lastname',   'like', '%' . $q2 . '%');
-            // $result->orWhere('geo_address',   'like', '%' . $q . '%');
-            // $result->orWhere('phone',   'like', '%' . $q . '%');
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-            // $result->orWhere('phone',      'like', '%' . $q . '%');
-            // $result->orWhere('city',       'like', '%' . $q . '%');
-            // $result->orWhere('street_n_no', 'like', '%' . $q . '%');
-            // $result->orWhere('zipcode',    'like', '%' . $q . '%');
-            // $result->orWhere('email',      'like', '%' . $q . '%');
-            // $result->where('status','2');
-
-            $result->where(function ($query) use ($q) {
-                $ex = explode(' ', $q);
-                $q2 = isset($ex[1]) ? $ex[1] : $q;
-                $query->where('email', 'like', '%' . $q . '%')
-                    ->orWhere('firstname', 'like', '%' . $ex[0] . '%')
-                    ->orWhere('lastname', 'like', '%' . $q2 . '%')
-                    ->orWhere('phone', 'like', '%' . $q . '%')
-                    ->orWhere('geo_address', 'like', '%' . $q . '%');
-            });
-        }
-
-        if (isset($request->action)) {
-            $result = '';
-            $ac = $request->action;
-
-            if ($ac == 'booked') {
-                $result = Client::with('jobs')->has('jobs');
-            }
-
-            if ($ac == 'notbooked') {
-                $result = Client::whereDoesntHave('jobs');
-            }
-        }
-
-        $result = $result->where('status', '2')->orderBy('id', 'desc')->paginate(20);
-
-        if (isset($result)) {
-            foreach ($result as $k => $res) {
-                $contract = Contract::query()
-                    ->where('client_id', $res->id)
-                    ->where('status', ContractStatusEnum::VERIFIED)
-                    ->get()
-                    ->last();
-
-                if ($contract != null) {
-                    $result[$k]->latest_contract = $contract->id;
-                } else {
-                    $result[$k]->latest_contract = 0;
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('clients.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
+                        });
+                    }
                 }
-            }
-        }
-
-        return response()->json([
-            'clients' => $result,
-        ]);
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function AllClients()

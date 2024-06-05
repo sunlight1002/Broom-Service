@@ -3,11 +3,13 @@
 namespace App\Traits;
 
 use App\Enums\InvoiceStatusEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Events\ClientPaymentFailed;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
+use App\Models\Notification;
 use App\Models\Order;
 use Carbon\Carbon;
 use Exception;
@@ -182,6 +184,18 @@ trait ICountDocument
                 ->update([
                     'is_paid' => true
                 ]);
+        }
+
+        if ($isPaymentProcessed) {
+            Notification::create([
+                'user_id'   => $client->id,
+                'user_type' => get_class($client),
+                'type'      => NotificationTypeEnum::PAYMENT_PAID,
+                'data'      => [
+                    'amount' => $subtotal
+                ],
+                'status' => 'paid'
+            ]);
         }
     }
 }

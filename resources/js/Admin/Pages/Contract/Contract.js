@@ -1,24 +1,186 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import Sidebar from "../../Layouts/Sidebar";
+import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import { useNavigate } from "react-router-dom";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function Contract() {
-    const [contracts, setContracts] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [pageCount, setPageCount] = useState(0);
-    const [filter, setFilter] = useState("");
     const navigate = useNavigate();
+    const tableRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/contract",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Client",
+                    data: "client_name",
+                    render: function (data, type, row, meta) {
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                    },
+                },
+                {
+                    title: "Email",
+                    data: "email",
+                },
+                {
+                    title: "Phone",
+                    data: "phone",
+                },
+                {
+                    title: "Service",
+                    data: "services",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        if (data == null) {
+                            return "-";
+                        }
+
+                        return data.map((s, j) => {
+                            return data.length - 1 != j
+                                ? s.service == "10"
+                                    ? s.other_title + " | "
+                                    : s.name + " | "
+                                : s.name;
+                        });
+                    },
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                    render: function (data, type, row, meta) {
+                        let color = "";
+                        if (data == "un-verified" || data == "not-signed") {
+                            color = "purple";
+                        } else if (data == "verified") {
+                            color = "green";
+                        } else {
+                            color = "red";
+                        }
+
+                        return `<span style="color: ${color};">${data}</span>`;
+                    },
+                },
+                {
+                    title: "Total",
+                    data: "subtotal",
+                    render: function (data, type, row, meta) {
+                        return data ? `${data} ILS + VAT` : "NA";
+                    },
+                },
+                {
+                    title: "Job Status",
+                    data: "job_status",
+                    render: function (data, type, row, meta) {
+                        return data ? "Inactive" : "Active";
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        if (row.status == "verified") {
+                            _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                        }
+
+                        if (row.job_status == 1 && row.status == "verified") {
+                            _html += `<button type="button" class="dropdown-item dt-cancel-job-btn" data-id="${row.id}">Cancel Job</button>`;
+                        }
+
+                        if (row.job_status == 0 && row.status == "verified") {
+                            _html += `<button type="button" class="dropdown-item dt-resume-job-btn" data-id="${row.id}">Resume Job</button>`;
+                        }
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-client-name") &&
+                !e.target.closest(".dtr-control")
+            ) {
+                const _id = $(this).data("id");
+                navigate(`/admin/view-contract/${_id}`);
+            }
+        });
+
+        $(tableRef.current).on("click", ".dt-create-job-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-contract/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-cancel-job-btn", function () {
+            const _id = $(this).data("id");
+            cancelJob(_id, "disable");
+        });
+
+        $(tableRef.current).on("click", ".dt-resume-job-btn", function () {
+            const _id = $(this).data("id");
+            cancelJob(_id, "enable");
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/view-contract/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
+
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -39,103 +201,18 @@ export default function Contract() {
                             "success"
                         );
                         setTimeout(() => {
-                            window.location.reload(true);
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
         });
     };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/admin/contract?page=" + currentPage + "&q=" + filter, {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.contracts.data.length > 0) {
-                    setContracts(response.data.contracts.data);
-                    setPageCount(response.data.contracts.last_page);
-                } else {
-                    setLoading("No contract found");
-                }
-            });
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
-    const filterContracts = (e) => {
-        axios
-            .get(`/api/admin/contract?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.contracts.data.length > 0) {
-                    setContracts(response.data.contracts.data);
-                    setPageCount(response.data.contracts.last_page);
-                } else {
-                    setContracts([]);
-                    setPageCount(response.data.contracts.last_page);
-                    setLoading("No contract found");
-                }
-            });
-    };
-
-    const getContract = () => {
-        axios.get(`/api/admin/contract`, { headers }).then((res) => {
-            if (res.data.contracts.data.length > 0) {
-                setContracts(res.data.contracts.data);
-                setPageCount(res.data.contracts.last_page);
-            } else {
-                setLoading("No contract found");
-            }
-        });
-    };
-    useEffect(() => {
-        getContract();
-    }, []);
-
-    const handleNavigate = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-contract/${id}`);
-    };
-
-    const copy = [...contracts];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setContracts(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setContracts(sortData);
-            setOrder("ASC");
-        }
-    };
-
-    const cancelJob = (e, id, job) => {
-        e.preventDefault();
+    const cancelJob = (id, job) => {
         let stext = job == "disable" ? "Yes, Cancel Jobs" : "Yes, Resume Jobs";
         Swal.fire({
             title: "Are you sure ?",
@@ -157,7 +234,7 @@ export default function Contract() {
                     .then((response) => {
                         Swal.fire(response.data.msg, "", "success");
                         setTimeout(() => {
-                            getContract();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     });
             }
@@ -173,26 +250,13 @@ export default function Contract() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Contracts</h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="mr-0 form-control"
-                                    onChange={(e) => {
-                                        filterContracts(e);
-                                        setFilter(e.target.value);
-                                    }}
-                                    placeholder="Search"
-                                />
-                            </div>
-                        </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="status">Status</option>
+                                <option value="4">Status</option>
                             </select>
                         </div>
                     </div>
@@ -200,367 +264,10 @@ export default function Contract() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {contracts.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">Client</Th>
-                                                <Th scope="col">Email</Th>
-                                                {/* <Th
-                                                    scope="col"
-                                                    style={{ width: "16%" }}
-                                                >
-                                                    Address
-                                                </Th> */}
-                                                <Th scope="col">Phone</Th>
-                                                <Th scope="col">
-                                                    Service Name
-                                                </Th>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) =>
-                                                        sortTable(e, "status")
-                                                    }
-                                                    scope="col"
-                                                >
-                                                    Status{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th scope="col">Total</Th>
-                                                <Th scope="col">Job Status</Th>
-                                                <Th scope="col">Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {contracts &&
-                                                contracts.map((c, i) => {
-                                                    if (c.client) {
-                                                        // let address = c.client
-                                                        //     .address_name
-                                                        //     ? c.client
-                                                        //           .address_name
-                                                        //     : "NA";
-                                                        // let cords =
-                                                        //     c.client.latitude &&
-                                                        //     c.client.longitude
-                                                        //         ? c.client
-                                                        //               .latitude +
-                                                        //           "," +
-                                                        //           c.client
-                                                        //               .longitude
-                                                        //         : "";
-
-                                                        let services = c.offer
-                                                            ? JSON.parse(
-                                                                  c.offer
-                                                                      .services
-                                                              )
-                                                            : [];
-                                                        //let services = [];
-                                                        let color = "";
-                                                        if (
-                                                            c.status ==
-                                                                "un-verified" ||
-                                                            c.status ==
-                                                                "not-signed"
-                                                        ) {
-                                                            color = "purple";
-                                                        } else if (
-                                                            c.status ==
-                                                            "verified"
-                                                        ) {
-                                                            color = "green";
-                                                        } else {
-                                                            color = "red";
-                                                        }
-
-                                                        let phone =
-                                                            c.client.phone !=
-                                                            undefined
-                                                                ? c.client.phone.split(
-                                                                      ","
-                                                                  )
-                                                                : [];
-
-                                                        return (
-                                                            <Tr
-                                                                style={{
-                                                                    cursor: "pointer",
-                                                                }}
-                                                                key={i}
-                                                            >
-                                                                <Td>
-                                                                    <Link
-                                                                        to={`/admin/view-client/${c.client.id}`}
-                                                                    >
-                                                                        {c.client
-                                                                            ? c
-                                                                                  .client
-                                                                                  .firstname +
-                                                                              " " +
-                                                                              c
-                                                                                  .client
-                                                                                  .lastname
-                                                                            : ""}
-                                                                    </Link>
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            c.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        c.client
-                                                                            .email
-                                                                    }
-                                                                </Td>
-                                                                {/* <Td>
-                                                                    <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
-                                                                    >
-                                                                        {
-                                                                            address
-                                                                        }
-                                                                    </Link>
-                                                                </Td> */}
-                                                                <Td>
-                                                                    {phone &&
-                                                                        phone.map(
-                                                                            (
-                                                                                p,
-                                                                                i
-                                                                            ) => {
-                                                                                return phone.length >
-                                                                                    1 ? (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                        |{" "}
-                                                                                    </a>
-                                                                                ) : (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                    </a>
-                                                                                );
-                                                                            }
-                                                                        )}
-                                                                </Td>
-
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            c.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {services &&
-                                                                        services.map(
-                                                                            (
-                                                                                s,
-                                                                                j
-                                                                            ) => {
-                                                                                return services.length -
-                                                                                    1 !=
-                                                                                    j
-                                                                                    ? s.service ==
-                                                                                      "10"
-                                                                                        ? s.other_title +
-                                                                                          " | "
-                                                                                        : s.name +
-                                                                                          " | "
-                                                                                    : s.name;
-                                                                            }
-                                                                        )}
-                                                                </Td>
-                                                                <Td
-                                                                    style={{
-                                                                        color,
-                                                                    }}
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            c.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {c.status}
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            c.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {c.offer
-                                                                        ? c
-                                                                              .offer
-                                                                              .subtotal +
-                                                                          " ILS + VAT"
-                                                                        : "NA"}{" "}
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            c.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {c.job_status
-                                                                        ? "Active"
-                                                                        : "InActive"}
-                                                                </Td>
-                                                                <Td>
-                                                                    <div className="action-dropdown dropdown">
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn btn-default dropdown-toggle"
-                                                                            data-toggle="dropdown"
-                                                                        >
-                                                                            <i className="fa fa-ellipsis-vertical"></i>
-                                                                        </button>
-                                                                        <div className="dropdown-menu">
-                                                                            {c.status ==
-                                                                                "verified" && (
-                                                                                <Link
-                                                                                    to={`/admin/create-job/${c.id}`}
-                                                                                    className="dropdown-item"
-                                                                                >
-                                                                                    Create
-                                                                                    Job
-                                                                                </Link>
-                                                                            )}
-                                                                            {c.job_status ==
-                                                                                1 &&
-                                                                                c.status ==
-                                                                                    "verified" && (
-                                                                                    <Link
-                                                                                        onClick={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            cancelJob(
-                                                                                                e,
-                                                                                                c.id,
-                                                                                                "disable"
-                                                                                            )
-                                                                                        }
-                                                                                        className="dropdown-item"
-                                                                                    >
-                                                                                        Cancel
-                                                                                        Job
-                                                                                    </Link>
-                                                                                )}
-                                                                            {c.job_status ==
-                                                                                0 &&
-                                                                                c.status ==
-                                                                                    "verified" && (
-                                                                                    <Link
-                                                                                        onClick={(
-                                                                                            e
-                                                                                        ) =>
-                                                                                            cancelJob(
-                                                                                                e,
-                                                                                                c.id,
-                                                                                                "enable"
-                                                                                            )
-                                                                                        }
-                                                                                        className="dropdown-item"
-                                                                                    >
-                                                                                        Resume
-                                                                                        Job
-                                                                                    </Link>
-                                                                                )}
-                                                                            <Link
-                                                                                to={`/admin/view-contract/${c.id}`}
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                View
-                                                                            </Link>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() =>
-                                                                                    handleDelete(
-                                                                                        c.id
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                Delete
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </Td>
-                                                            </Tr>
-                                                        );
-                                                    }
-                                                })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <div className="form-control text-center">
-                                        {loading}
-                                    </div>
-                                )}
-                            </div>
-                            {contracts.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                ""
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

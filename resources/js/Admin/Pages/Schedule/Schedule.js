@@ -1,70 +1,174 @@
-import React, { useState, useEffect } from "react";
-import Sidebar from "../../Layouts/Sidebar";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
 import Moment from "moment";
 import Swal from "sweetalert2";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useNavigate } from "react-router-dom";
 
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
+import Sidebar from "../../Layouts/Sidebar";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
+
 export default function Schedule() {
-    const [schedules, setSchedules] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [pageCount, setPageCount] = useState(0);
     const navigate = useNavigate();
-    const [filter, setFilter] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const tableRef = useRef(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .get("/api/admin/schedule?page=" + currentPage + "&q=" + filter, {
-                headers,
-            })
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading("No meeting scheduled yet");
-                }
-            });
-    };
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/schedule",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "ID",
+                    data: "id",
+                    visible: false,
+                },
+                {
+                    title: "Name",
+                    data: "name",
+                    render: function (data, type, row, meta) {
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
+                    },
+                },
+                {
+                    title: "Contact",
+                    data: "phone",
+                },
+                {
+                    title: "Address",
+                    data: "address_name",
+                    render: function (data, type, row, meta) {
+                        if (data) {
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                        } else {
+                            return "NA";
+                        }
+                    },
+                },
+                {
+                    title: "Attender",
+                    data: "attender_name",
+                },
+                {
+                    title: "Scheduled",
+                    data: "start_date",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html = "";
 
-    const getSchedules = () => {
-        axios.get(`/api/admin/schedule`, { headers }).then((response) => {
-            if (response.data.schedules.data.length > 0) {
-                setSchedules(response.data.schedules.data);
-                setPageCount(response.data.schedules.last_page);
-            } else {
-                setSchedules([]);
-                setLoading("No meeting scheduled yet");
+                        if (row.start_date) {
+                            _html += `<span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("DD/MM/Y")} </span>`;
+
+                            _html += `<br /> <span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("dddd")} </span>`;
+
+                            if (row.start_time && row.end_time) {
+                                _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
+                                _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+                            }
+                        }
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Status",
+                    data: "booking_status",
+                    render: function (data, type, row, meta) {
+                        let color = "";
+                        if (data == "pending") {
+                            color = "purple";
+                        } else if (data == "confirmed" || data == "completed") {
+                            color = "green";
+                        } else {
+                            color = "red";
+                        }
+
+                        return `<span style="color: ${color};">${data}</span>`;
+                    },
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        let _html =
+                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">View</button>`;
+
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+                        _html += "</div> </div>";
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass("dt-row");
+                $(row).attr("data-id", data.id);
+                $(row).attr("data-client-id", data.client_id);
+            },
+        });
+
+        $(tableRef.current).on("click", ".dt-row", function (e) {
+            if (
+                !e.target.closest(".dropdown-toggle") &&
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-client-link") &&
+                !e.target.closest(".dt-address-link") &&
+                !e.target.closest(".dtr-control")
+            ) {
+                const _id = $(this).data("id");
+                const _clientID = $(this).data("client-id");
+                navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
             }
         });
-    };
 
-    const filterSchedules = (e) => {
-        axios
-            .get(`/api/admin/schedule?q=${e.target.value}`, { headers })
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setSchedules([]);
-                    setPageCount(response.data.schedules.last_page);
-                    setLoading("No meeting found");
-                }
-            });
-    };
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
+        });
 
-    useEffect(() => {
-        getSchedules();
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
     }, []);
 
     const handleDelete = (id) => {
@@ -78,19 +182,25 @@ export default function Schedule() {
             confirmButtonText: "Yes, Delete Meeting!",
         }).then((result) => {
             if (result.isConfirmed) {
+                setIsLoading(true);
+
                 axios
                     .delete(`/api/admin/schedule/${id}`, { headers })
                     .then((response) => {
+                        setIsLoading(false);
+
                         Swal.fire(
                             "Deleted!",
                             "Meeting has been deleted.",
                             "success"
                         );
                         setTimeout(() => {
-                            getSchedules();
+                            $(tableRef.current).DataTable().draw();
                         }, 1000);
                     })
                     .catch((e) => {
+                        setIsLoading(false);
+
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
@@ -100,47 +210,9 @@ export default function Schedule() {
             }
         });
     };
-    const handleNavigate = (e, cid, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-schedule/${cid}?sid=${id}`);
-    };
 
-    const copy = [...schedules];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setSchedules(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setSchedules(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     return (
@@ -152,28 +224,15 @@ export default function Schedule() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Scheduled meetings</h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                        filterSchedules(e);
-                                        setFilter(e.target.value);
-                                    }}
-                                    placeholder="Search"
-                                />
-                            </div>
-                        </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="id">ID</option>
-                                <option value="start_date">Scheduled</option>
-                                <option value="booking_status">Status</option>
+                                <option value="0">ID</option>
+                                <option value="5">Scheduled</option>
+                                <option value="6">Status</option>
                             </select>
                         </div>
                     </div>
@@ -181,378 +240,16 @@ export default function Schedule() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {schedules.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) => {
-                                                        sortTable(e, "id");
-                                                    }}
-                                                >
-                                                    ID{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th>Client</Th>
-                                                <Th>Contact</Th>
-                                                <Th>Address</Th>
-                                                <Th>Attender</Th>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) => {
-                                                        sortTable(
-                                                            e,
-                                                            "start_date"
-                                                        );
-                                                    }}
-                                                >
-                                                    Scheduled{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                    onClick={(e) => {
-                                                        sortTable(
-                                                            e,
-                                                            "booking_status"
-                                                        );
-                                                    }}
-                                                >
-                                                    Status{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th>Action</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {schedules &&
-                                                schedules.map((item, index) => {
-                                                    if (item.client) {
-                                                        let address =
-                                                            item.property_address;
-
-                                                        let address_name =
-                                                            address &&
-                                                            address.address_name
-                                                                ? address.address_name
-                                                                : "NA";
-                                                        let cords =
-                                                            address &&
-                                                            address.latitude &&
-                                                            address.longitude
-                                                                ? address.latitude +
-                                                                  "," +
-                                                                  address.longitude
-                                                                : "NA";
-                                                        let color = "";
-                                                        if (
-                                                            item.booking_status ==
-                                                            "pending"
-                                                        ) {
-                                                            color = "purple";
-                                                        } else if (
-                                                            item.booking_status ==
-                                                                "confirmed" ||
-                                                            item.booking_status ==
-                                                                "completed"
-                                                        ) {
-                                                            color = "green";
-                                                        } else {
-                                                            color = "red";
-                                                        }
-
-                                                        let phone =
-                                                            item.client.phone !=
-                                                            undefined
-                                                                ? item.client.phone.split(
-                                                                      ","
-                                                                  )
-                                                                : [];
-
-                                                        return (
-                                                            <Tr
-                                                                style={{
-                                                                    cursor: "pointer",
-                                                                }}
-                                                                key={index}
-                                                            >
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            item
-                                                                                .client
-                                                                                .id,
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {item.id}
-                                                                </Td>
-                                                                <Td>
-                                                                    <Link
-                                                                        to={`/admin/view-client/${item.client.id}`}
-                                                                    >
-                                                                        {item.client
-                                                                            ? item
-                                                                                  .client
-                                                                                  .firstname +
-                                                                              " " +
-                                                                              item
-                                                                                  .client
-                                                                                  .lastname
-                                                                            : "NA"}
-                                                                    </Link>
-                                                                </Td>
-                                                                <Td>
-                                                                    {phone &&
-                                                                        phone.map(
-                                                                            (
-                                                                                p,
-                                                                                i
-                                                                            ) => {
-                                                                                return phone.length >
-                                                                                    1 ? (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                        |{" "}
-                                                                                    </a>
-                                                                                ) : (
-                                                                                    <a
-                                                                                        href={`tel:${p}`}
-                                                                                        key={
-                                                                                            i
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            p
-                                                                                        }{" "}
-                                                                                    </a>
-                                                                                );
-                                                                            }
-                                                                        )}
-                                                                </Td>
-                                                                <Td>
-                                                                    {cords !==
-                                                                    "NA" ? (
-                                                                        <Link
-                                                                            to={`https://maps.google.com?q=${cords}`}
-                                                                            target="_blank"
-                                                                        >
-                                                                            {
-                                                                                address_name
-                                                                            }
-                                                                        </Link>
-                                                                    ) : (
-                                                                        <>
-                                                                            {
-                                                                                address_name
-                                                                            }
-                                                                        </>
-                                                                    )}
-                                                                </Td>
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            item
-                                                                                .client
-                                                                                .id,
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {item.team
-                                                                        ? item
-                                                                              .team
-                                                                              .name
-                                                                        : "NA"}
-                                                                </Td>
-
-                                                                <Td
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            item
-                                                                                .client
-                                                                                .id,
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {item.start_date && (
-                                                                        <>
-                                                                            <span
-                                                                                style={{
-                                                                                    color: "blue",
-                                                                                }}
-                                                                            >
-                                                                                {Moment(
-                                                                                    item.start_date
-                                                                                ).format(
-                                                                                    "DD/MM/Y"
-                                                                                ) +
-                                                                                    "\n"}
-                                                                            </span>
-                                                                            <br />
-                                                                            <span
-                                                                                style={{
-                                                                                    color: "blue",
-                                                                                }}
-                                                                            >
-                                                                                {Moment(
-                                                                                    item.start_date
-                                                                                ).format(
-                                                                                    "dddd"
-                                                                                )}
-                                                                            </span>
-                                                                            {item.start_time &&
-                                                                                item.end_time && (
-                                                                                    <>
-                                                                                        <br />
-                                                                                        <span
-                                                                                            style={{
-                                                                                                color: "green",
-                                                                                            }}
-                                                                                        >
-                                                                                            {"Start :" +
-                                                                                                item.start_time}
-                                                                                        </span>
-                                                                                        <br />
-                                                                                        <span
-                                                                                            style={{
-                                                                                                color: "red",
-                                                                                            }}
-                                                                                        >
-                                                                                            {"End   :" +
-                                                                                                item.end_time}
-                                                                                        </span>
-                                                                                    </>
-                                                                                )}
-                                                                        </>
-                                                                    )}
-                                                                </Td>
-
-                                                                <Td
-                                                                    style={{
-                                                                        color,
-                                                                    }}
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleNavigate(
-                                                                            e,
-                                                                            item
-                                                                                .client
-                                                                                .id,
-                                                                            item.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        item.booking_status
-                                                                    }
-                                                                </Td>
-                                                                <Td>
-                                                                    <div className="action-dropdown dropdown">
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn btn-default dropdown-toggle"
-                                                                            data-toggle="dropdown"
-                                                                        >
-                                                                            <i className="fa fa-ellipsis-vertical"></i>
-                                                                        </button>
-                                                                        <div className="dropdown-menu">
-                                                                            <Link
-                                                                                to={`/admin/view-schedule/${item.client.id}?sid=${item.id}`}
-                                                                                className="dropdown-item"
-                                                                            >
-                                                                                View
-                                                                            </Link>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() =>
-                                                                                    handleDelete(
-                                                                                        item.id
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                Delete
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </Td>
-                                                            </Tr>
-                                                        );
-                                                    }
-                                                })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                            </div>
-                            {schedules.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                ""
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

@@ -25,6 +25,7 @@ class Invoices extends Model
         'receipt_id',
         'status',
         'invoice_icount_status',
+        'is_webhook_created'
     ];
 
     /**
@@ -38,6 +39,7 @@ class Invoices extends Model
         'total_amount' => 'double',
         'amount_with_tax' => 'double',
         'paid_amount' => 'double',
+        'is_webhook_created' => 'boolean',
     ];
 
     public function client()

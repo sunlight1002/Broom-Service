@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\NotificationTypeEnum;
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Job;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,10 +21,8 @@ class JobCommentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(request $request)
+    public function index($jobID)
     {
-        $jobID = base64_decode($request->id);
-
         $comments = JobComments::query()
             ->with(['attachments'])
             ->where('job_id', $jobID)
@@ -50,23 +51,34 @@ class JobCommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
-            'job_id' => ['required'],
             'comment' => ['required']
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-        $comment = new JobComments();
-        $comment->name = $request->name;
-        $comment->job_id = base64_decode($request->job_id);
-        $comment->comment_for = 'worker';
-        $comment->comment = $request->comment;
-        $comment->save();
+
+        $job = Job::query()
+            ->where('client_id', Auth::id())
+            ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        $comment = JobComments::create([
+            'name' => $request->name,
+            'job_id' => $job->id,
+            'comment_for' => 'worker',
+            'comment' => $request->comment,
+        ]);
+
         $filesArr = $request->file('files');
         if ($request->hasFile('files') && count($filesArr) > 0) {
             if (!Storage::disk('public')->exists('uploads/attachments')) {
@@ -87,6 +99,14 @@ class JobCommentController extends Controller
             $comment->attachments()->createMany($resultArr);
         }
 
+        Notification::create([
+            'user_id' => $job->client->id,
+            'user_type' => get_class($job->client),
+            'type' => NotificationTypeEnum::CLIENT_COMMENTED,
+            'job_id' => $job->id,
+            'status' => 'commented'
+        ]);
+
         return response()->json([
             'message' => 'Comment has been created successfully'
         ]);
@@ -98,8 +118,18 @@ class JobCommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($jobID, $id)
     {
+        $job = Job::query()
+            ->where('client_id', Auth::id())
+            ->find($jobID);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
         $comment = JobComments::query()
             ->whereHasMorph(
                 'commenter',
@@ -113,7 +143,7 @@ class JobCommentController extends Controller
         if (!$comment) {
             return response()->json([
                 'message' => 'Comment not found'
-            ]);
+            ], 404);
         }
 
         foreach ($comment->attachments()->get() as $attachment) {
