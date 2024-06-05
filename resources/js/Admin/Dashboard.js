@@ -219,7 +219,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-lg-9 col-12">
+                        <div className="col-xl-9 col-12">
                             <div className="view-applicant">
                                 <h2 className="page-title">
                                     {t("admin.dashboard.jobsSchedule")}
@@ -268,7 +268,7 @@ export default function Dashboard() {
                                 </>
                             )}
                         </div>
-                        <div className="col-lg-3 col-12 mt-3 mt-lg-0">
+                        <div className="col-xl-3 col-12 mt-3 mt-lg-0">
                             <h2 className="page-title pt-0">
                                 {t("admin.dashboard.recentUser")}
                             </h2>

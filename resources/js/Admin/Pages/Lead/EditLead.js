@@ -548,7 +548,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Color")}
                                         </label>
                                     </div>
-                                    <div className="swatch white">
+                                    <div className="swatch white mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -564,7 +564,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.white")}
                                         </span>
                                     </div>
-                                    <div className="swatch green">
+                                    <div className="swatch green mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -583,7 +583,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Green")}
                                         </span>
                                     </div>
-                                    <div className="swatch blue">
+                                    <div className="swatch blue mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -601,7 +601,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Blue")}
                                         </span>
                                     </div>
-                                    <div className="swatch purple">
+                                    <div className="swatch purple mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -620,7 +620,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Voilet")}
                                         </span>
                                     </div>
-                                    <div className="swatch red">
+                                    <div className="swatch red mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -638,7 +638,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Red")}
                                         </span>
                                     </div>
-                                    <div className="swatch orange">
+                                    <div className="swatch orange mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"
@@ -657,7 +657,7 @@ export default function EditWorker() {
                                             {t("admin.leads.AddLead.Orange")}
                                         </span>
                                     </div>
-                                    <div className="swatch yellow">
+                                    <div className="swatch yellow mb-3">
                                         <input
                                             type="radio"
                                             name="swatch_demo"

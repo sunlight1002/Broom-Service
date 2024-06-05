@@ -713,3 +713,7 @@ footer .copyright{
     border-radius: 5px;
     font-weight: bold;
 }
+
+.word-break{
+    word-wrap: break-word  !important;
+}

@@ -217,10 +217,12 @@ export default function ProfileDetails({
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="col-sm-4">
+                                        <div className="col-sm-4  ">
                                             <div className="form-group">
                                                 <label>Email</label>
-                                                <p>{email}</p>
+                                                <p className="word-break">
+                                                    {email}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
@@ -248,7 +250,7 @@ export default function ProfileDetails({
                                         <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Login details</label>
-                                                <p>
+                                                <p className="word-break">
                                                     <span>Email:</span> {email}
                                                 </p>
                                                 <p>

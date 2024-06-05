@@ -105,7 +105,7 @@ export default function WorkerProfile({ worker }) {
                                     <label className="control-label">
                                         Worker email
                                     </label>
-                                    <p>{worker.email}</p>
+                                    <p className="word-break">{worker.email}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">

@@ -43,7 +43,7 @@ export default function ClientDetails({ client, address }) {
                                     {" "}
                                     {t("admin.schedule.jobs.Email")}
                                 </label>
-                                <p>{client.email}</p>
+                                <p className="word-break">{client.email}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">

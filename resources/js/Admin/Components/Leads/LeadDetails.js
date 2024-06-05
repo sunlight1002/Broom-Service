@@ -290,7 +290,7 @@ export default function LeadDetails({ lead }) {
                             </div>
                         </div>
                     </div>
-                    <div className="col-lg-4 col-12">
+                    <div className="col-lg-4 col-12 mt-3 mt-lg-0">
                         <div className="dashBox p-4">
                             <div className="form-group">
                                 <label className="d-block">
