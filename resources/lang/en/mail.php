@@ -434,6 +434,27 @@ return [
         'worker_forms'  =>  [
             'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the below forms to start working on the job.\nClick the below button to fill forms.",
         ],
+        'worker_job_opening_notification' => [
+            'content'  => 'The :client_name is now on his way to work.'
+        ],
+        'worker_job_status_notification' => [
+            'content' => "Greetings from Broom Service. A worker changed the Job status to :status. Please check the details below.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status",
+        ],
+        'admin_job_status_notification' => [
+            'content' => "Greetings from Broom Service. The job has been canceled. Please check the details.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status\nComment: :comment",
+        ],
+        'admin_reschedule_meeting' => [
+            'content'   =>  "Greetings from Broom Service. Just a friendly reminder that you have an upcoming appointment with :client_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link"
+        ],
+        'team_reschedule_meeting' => [
+            'content'   =>  "Greetings from Broom Service. Just a friendly reminder that you have an upcoming appointment with :client_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link"
+        ],
+        'admin_lead_files' => [
+            'content'   =>  "Greetings from Broom Service. :client_name added New files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
+        ],
+        'team_lead_files' => [
+            'content'   =>  "Greetings from Broom Service. :client_name added New files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -446,7 +467,9 @@ return [
             'change_shift' => 'Change shift',
             'approve' => 'Approve',
             'safety_and_gear' => 'Check Safety And Gear',
-            'check_form' => 'Check Forms'
+            'check_form' => 'Check Forms',
+            'view_worker' => 'View worker',
+            'check_file' => 'Check file'
         ]
     ]
 ];

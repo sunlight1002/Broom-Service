@@ -73,4 +73,14 @@ return [
         'url' => env('WHAPI_API_URL'),
         'token' => env('WHAPI_API_TOKEN'),
     ],
+
+    'whatsapp_groups' => [
+        'payment_status' => env('PAYMENT_STATUS'),
+        'changes_cancelation' => env('CHANGES_CANCELATION'),
+        'lead_client' => env('LEAD_CLIENT'),
+        'workers_availability' => env('WORKERS_AVAILABILITY'),
+        'reviews_of_clients' => env('REVIEWS_OF_CLIENTS'),
+        'problem_with_workers' => env('PROBLEM_WITH_WORKERS'),
+    ],
+
 ];
