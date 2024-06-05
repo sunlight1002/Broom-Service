@@ -419,6 +419,21 @@ return [
         'worker_remind_job' => [
             'content' => "Greetings from Broom Service. This is to inform you about your tomorrow job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nShift: :shift\nStart Time: :start_time\nStatus: :status",
         ],
+        'worker_unassigned_job' => [
+            'content' => "Greetings from Broom Service. You have been unassigned from a job.Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nShift: :shift",
+        ],
+        'client_job_status_notification' => [
+            'content' => "Greetings from Broom Service. The job has been canceled. Please check the details.\n\nDate/Time: :date\nClient: :client_name\nService: :service_name\nComment: :comment",
+        ],
+        'worker_safe_gear'  =>  [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the contract form to start working on the job.\nClick the below button to check the Safety And Gear.",
+        ],
+        'client_reschedule_meeting'  =>  [
+            'content' => "Greetings from Broom Service. Just a friendly reminder that you have an upcoming appointment with :client_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link",
+        ],
+        'worker_forms'  =>  [
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the below forms to start working on the job.\nClick the below button to fill forms.",
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -429,7 +444,9 @@ return [
             'view_job' => 'View Job',
             'change_worker' => 'Change worker',
             'change_shift' => 'Change shift',
-            'approve' => 'Approve'
+            'approve' => 'Approve',
+            'safety_and_gear' => 'Check Safety And Gear',
+            'check_form' => 'Check Forms'
         ]
     ]
 ];
