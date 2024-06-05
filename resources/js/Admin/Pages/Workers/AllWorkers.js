@@ -76,7 +76,7 @@ export default function AllWorkers() {
                     orderable: false,
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
                         } else {
                             return "NA";
                         }
@@ -126,7 +126,9 @@ export default function AllWorkers() {
         $(tableRef.current).on("click", ".dt-row", function (e) {
             if (
                 !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu")
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-address-link") &&
+                !e.target.closest(".dtr-control")
             ) {
                 const _id = $(this).data("id");
                 navigate(`/admin/view-worker/${_id}`);
@@ -291,6 +293,7 @@ export default function AllWorkers() {
                             }
                             onClick={() => {
                                 setFilters({
+                                    ...filters,
                                     status: "active",
                                 });
                             }}
@@ -309,6 +312,7 @@ export default function AllWorkers() {
                             }
                             onClick={() => {
                                 setFilters({
+                                    ...filters,
                                     status: "past",
                                 });
                             }}
@@ -324,6 +328,25 @@ export default function AllWorkers() {
                             Manpower Company
                         </div>
                         <div>
+                            <button
+                                className={`btn border rounded px-3 mr-1 float-left`}
+                                style={
+                                    filters.manpower_company_id === null
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: null,
+                                    });
+                                }}
+                            >
+                                All
+                            </button>
                             {manpowerCompanies.map((company, _index) => (
                                 <button
                                     key={_index}

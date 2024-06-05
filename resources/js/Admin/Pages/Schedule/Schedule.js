@@ -50,7 +50,7 @@ export default function Schedule() {
                     title: "Name",
                     data: "name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank"> ${data} </a>`;
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
                     },
                 },
                 {
@@ -62,7 +62,7 @@ export default function Schedule() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
                         } else {
                             return "NA";
                         }
@@ -144,7 +144,10 @@ export default function Schedule() {
         $(tableRef.current).on("click", ".dt-row", function (e) {
             if (
                 !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu")
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-client-link") &&
+                !e.target.closest(".dt-address-link") &&
+                !e.target.closest(".dtr-control")
             ) {
                 const _id = $(this).data("id");
                 const _clientID = $(this).data("client-id");

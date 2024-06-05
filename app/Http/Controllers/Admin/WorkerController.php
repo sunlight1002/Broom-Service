@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
+use App\Models\Job;
+use App\Models\WorkerAvailability;
+use App\Models\WorkerFreezeDate;
+use App\Models\WorkerNotAvailableDate;
 use App\Http\Controllers\Controller;
+use App\Enums\Form101FieldEnum;
+use App\Enums\WorkerFormTypeEnum;
+use App\Events\WorkerCreated;
+use App\Events\WorkerForm101Requested;
+use App\Traits\JobSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\WorkerAvailability;
-use App\Models\Job;
-use App\Models\WorkerFreezeDate;
-use App\Models\WorkerNotAvailableDate;
-use App\Traits\JobSchedule;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use App\Events\WorkerCreated;
 use Illuminate\Validation\Rule;
-use App\Enums\Form101FieldEnum;
-use App\Enums\WorkerFormTypeEnum;
 use Yajra\DataTables\Facades\DataTables;
 
 class WorkerController extends Controller
@@ -332,6 +334,7 @@ class WorkerController extends Controller
         $defaultFields['employeeMobileNo'] = $worker->phone;
         $defaultFields['employeeEmail'] = $worker->email;
         $defaultFields['sender']['employeeEmail'] = $worker->email;
+        $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
         $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
 
         $worker->forms()->create([
@@ -563,16 +566,32 @@ class WorkerController extends Controller
                 }
             }
 
-            $form_insurance = $request->file('form_insurance');
-            if ($form_insurance) {
-                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+            $safety_and_gear_form = $request->file('safety_and_gear_form');
+            if ($safety_and_gear_form) {
+                $filename = 'safety_gear_' . $worker->id . '_' . date('s') . "_." . $safety_and_gear_form->getClientOriginalExtension();
                 if (!Storage::disk('public')->exists('uploads/worker/safetygear')) {
                     Storage::disk('public')->makeDirectory('uploads/worker/safetygear');
                 }
-                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->form_insurance)) {
-                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->form_insurance);
+                if (!empty($worker->safety_and_gear_form) && Storage::drive('public')->exists('uploads/worker/safetygear/' . $worker->safety_and_gear_form)) {
+                    Storage::drive('public')->delete('uploads/worker/safetygear/' . $worker->safety_and_gear_form);
                 }
-                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $form_insurance, $filename)) {
+                if (Storage::disk('public')->putFileAs("uploads/worker/safetygear", $safety_and_gear_form, $filename)) {
+                    $worker->update([
+                        'safety_and_gear_form' => $filename
+                    ]);
+                }
+            }
+
+            $form_insurance = $request->file('form_insurance');
+            if ($form_insurance) {
+                $filename = 'insurance_' . $worker->id . '_' . date('s') . "_." . $form_insurance->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('uploads/worker/insurance')) {
+                    Storage::disk('public')->makeDirectory('uploads/worker/insurance');
+                }
+                if (!empty($worker->form_insurance) && Storage::drive('public')->exists('uploads/worker/insurance/' . $worker->form_insurance)) {
+                    Storage::drive('public')->delete('uploads/worker/insurance/' . $worker->form_insurance);
+                }
+                if (Storage::disk('public')->putFileAs("uploads/worker/insurance", $form_insurance, $filename)) {
                     $worker->update([
                         'form_insurance' => $filename
                     ]);
@@ -867,6 +886,7 @@ class WorkerController extends Controller
             $defaultFields['employeeMobileNo'] = $worker->phone;
             $defaultFields['employeeEmail'] = $worker->email;
             $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
             $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
             $form = $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::FORM101,
@@ -877,7 +897,9 @@ class WorkerController extends Controller
         } else {
             $formId = $isExistForm101->id;
         }
-        event(new WorkerCreated($worker, $formType, $formId));
+
+        event(new WorkerForm101Requested($worker, $formType, $formId));
+
         return response()->json([
             'message' => 'Worker created successfully',
         ]);

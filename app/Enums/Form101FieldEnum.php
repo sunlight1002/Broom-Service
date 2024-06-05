@@ -34,7 +34,7 @@ final class Form101FieldEnum extends AbstractEnum
             "employeeMobileNo" => null,
             "employeePhoneNo" => null,
             "employeeEmail" => null,
-            "employeeSex" => "Male",
+            "employeeSex" => null,
             "employeeMaritalStatus" => null,
             "employeeIsraeliResident" => null,
             "employeeCollectiveMoshavMember" => null,

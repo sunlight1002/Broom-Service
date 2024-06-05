@@ -93,7 +93,8 @@ export default function ManageTeam() {
         $(tableRef.current).on("click", ".dt-row", function (e) {
             if (
                 !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu")
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dtr-control")
             ) {
                 const _id = $(this).data("id");
                 navigate(`/admin/teams/${_id}/edit`);

@@ -25,6 +25,7 @@ use App\Events\MeetingReminderEvent;
 use App\Events\OfferAccepted;
 use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
+use App\Events\WorkerForm101Requested;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMettingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
@@ -48,6 +49,7 @@ use App\Listeners\NotifyForContract;
 use App\Listeners\NotifyForOffer;
 use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
+use App\Listeners\SendWorkerForm101Notification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -84,6 +86,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerCreated::class => [
             SendWorkerFormsNotification::class
+        ],
+        WorkerForm101Requested::class => [
+            SendWorkerForm101Notification::class
         ],
         ReScheduleMettingJob::class => [
             ReScheduleMettingNotification::class,

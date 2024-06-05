@@ -31,262 +31,260 @@ class WhatsappNotification
             $eventData = $event;
             $eventType = $eventData->type;
             $eventData = $eventData->notificationData;
-            
+
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
             $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.auth_token');
             $headers[] = 'Content-Type: application/json';
-           
-            
-            if($eventType == WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE){
+
+
+            if ($eventType == WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE) {
                 $clientData = $eventData['client'];
                 $propertyAddress = $eventData['property_address'];
-                if($eventData['purpose'] == "Price offer"){
+                if ($eventData['purpose'] == "Price offer") {
                     $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                }else if($eventData['purpose'] == "Quality check"){
+                } else if ($eventData['purpose'] == "Quality check") {
                     $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                }else{
+                } else {
                     $eventData['purpose'] = $eventData['purpose'];
                 }
                 $params = [
-                        "messaging_product"=> "whatsapp",
-                        "to"=> $clientData['phone'],
-                        "type"=> "template",
-                        "template"=> [
-                            "name"=> WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
-                            "language"=> [
-                                "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+                        "language" => [
+                            "code" => $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [       
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],           
-                                    [
-                                        "type"=> "text",
-                                        "text"=>  \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['start_time']))
+                                        "type" => "text",
+                                        "text" =>  \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['end_time']))
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['start_time']))
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ?$propertyAddress['address_name']: "NA"
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['end_time']))
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['purpose']?$eventData['purpose']:" "
+                                        "type" => "text",
+                                        "text" => isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA"
+                                    ],
+                                    [
+                                        "type" => "text",
+                                        "text" => $eventData['purpose'] ? $eventData['purpose'] : " "
                                     ],
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "meeting-schedule/".base64_encode($eventData['id'])
+                                        "type" => "text",
+                                        "text" => "meeting-schedule/" . base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "1",
-                                "parameters"=> [
+                                "index" => "1",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "meeting-files/".base64_encode($eventData['id'])
+                                        "type" => "text",
+                                        "text" => "meeting-files/" . base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif($eventType == WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER){
+            } elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER) {
                 $propertyAddress = $eventData['property_address'];
-                if($eventData['purpose'] == "Price offer"){
+                if ($eventData['purpose'] == "Price offer") {
                     $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                }else if($eventData['purpose'] == "Quality check"){
+                } else if ($eventData['purpose'] == "Quality check") {
                     $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                }else{
+                } else {
                     $eventData['purpose'] = $eventData['purpose'];
                 }
                 $params = [
-                        "messaging_product"=> "whatsapp",
-                        "to"=> $eventData['phone'],
-                        "type"=> "template",
-                        "template"=> [
-                            "name"=> WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
-                            "language"=> [
-                                "code"=> $eventData['lng'] == "heb"?'he':$eventData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $eventData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
+                        "language" => [
+                            "code" => $eventData['lng'] == "heb" ? 'he' : $eventData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [       
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['firstname'].' '.$eventData['lastname']
-                                    ],           
-                                    [
-                                        "type"=> "text",
-                                        "text"=>  \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
+                                        "type" => "text",
+                                        "text" => $eventData['firstname'] . ' ' . $eventData['lastname']
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['start_time']))
+                                        "type" => "text",
+                                        "text" =>  \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['end_time']))
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['start_time']))
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ?$propertyAddress['address_name']: "NA"
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['end_time']))
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['purpose']?$eventData['purpose']:" "
+                                        "type" => "text",
+                                        "text" => isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA"
+                                    ],
+                                    [
+                                        "type" => "text",
+                                        "text" => $eventData['purpose'] ? $eventData['purpose'] : " "
                                     ],
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "meeting-schedule/".base64_encode($eventData['id'])
+                                        "type" => "text",
+                                        "text" => "meeting-schedule/" . base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "1",
-                                "parameters"=> [
+                                "index" => "1",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "meeting-files/".base64_encode($eventData['id'])
+                                        "type" => "text",
+                                        "text" => "meeting-files/" . base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::OFFER_PRICE) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::OFFER_PRICE) {
                 $clientData = $eventData['client'];
-                $service_names = isset($eventData['service_names']) ? $eventData['service_names']: ' ';
+                $service_names = isset($eventData['service_names']) ? $eventData['service_names'] : ' ';
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $clientData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::OFFER_PRICE,
-                        "language"=> [
-                            "code"=>  $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::OFFER_PRICE,
+                        "language" => [
+                            "code" =>  $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
                                     ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> $service_names
+                                        "type" => "text",
+                                        "text" => $service_names
                                     ],
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "price-offer/".base64_encode($eventData['id'])
+                                        "type" => "text",
+                                        "text" => "price-offer/" . base64_encode($eventData['id'])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::CONTRACT) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::CONTRACT) {
                 $clientData = $eventData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $clientData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::CONTRACT,
-                        "language"=> [
-                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CONTRACT,
+                        "language" => [
+                            "code" => $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "work-contract/".$eventData['contract_id']
+                                        "type" => "text",
+                                        "text" => "work-contract/" . $eventData['contract_id']
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED) {
                 $jobData = $eventData['job'];
                 $clientData = $jobData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $clientData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
-                        "language"=> [
-                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
+                        "language" => [
+                            "code" => $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $clientData['lng'] == 'heb'? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name']
+                                        "type" => "text",
+                                        "text" => $clientData['firstname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $clientData['lng'] == 'heb' ? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name']
                                     ]
                                     // ,[
                                     //     "type"=> "text",
@@ -295,929 +293,924 @@ class WhatsappNotification
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "client/jobs/".base64_encode($jobData['id'])."/review"
+                                        "type" => "text",
+                                        "text" => "client/jobs/" . base64_encode($jobData['id']) . "/review"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::DELETE_MEETING) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::DELETE_MEETING) {
                 $clientData = $eventData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $clientData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::DELETE_MEETING,
-                        "language"=> [
-                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::DELETE_MEETING,
+                        "language" => [
+                            "code" => $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($eventData['team']) && !empty($eventData['team']['name']) ? "with" . $eventData['team']['name'] : ' '
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['start_time']))
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> date("H:i", strtotime($eventData['end_time']))
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($eventData['team']) && !empty($eventData['team']['name']) ? "with" . $eventData['team']['name'] : ' '
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['start_time']))
+                                    ], [
+                                        "type" => "text",
+                                        "text" => date("H:i", strtotime($eventData['end_time']))
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::FORM101) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::FORM101) {
                 $workerData = $eventData;
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::FORM101,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::FORM101,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "form101/".base64_encode($workerData['id'])."/".base64_encode($workerData['formId'])
+                                        "type" => "text",
+                                        "text" => "form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])
                                     ]
                                 ]
-                            ],                                    
+                            ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::NEW_JOB) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::NEW_JOB) {
                 $jobData = $eventData['job'];
                 $workerData = $jobData['worker'];
                 $clientData = $jobData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::NEW_JOB,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::NEW_JOB,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['content_data']?$eventData['content_data']:' '
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') ." ".(isset($jobData['shifts'])? ("(". $jobData['shifts']. ")") :" ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'].', ') : ($jobData['jobservice']['name'].', ')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ucfirst($jobData['status']) 
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['content_data'] ? $eventData['content_data'] : ' '
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " " . (isset($jobData['shifts']) ? ("(" . $jobData['shifts'] . ")") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'] . ', ') : ($jobData['jobservice']['name'] . ', ')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" . $jobData['property_address']['parking'] . "]") :  " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ucfirst($jobData['status'])
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker/login"
+                                        "type" => "text",
+                                        "text" => "worker/login"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST) {
                 $jobData = $eventData['job'];
                 $adminData = $eventData['admin'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
-                        "language"=> [
-                            "code"=> 'en'
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
+                        "language" => [
+                            "code" => 'en'
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['client']['firstname'].' '.$jobData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['jobservice']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=>  $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($jobData['worker'])? ($jobData['worker']['firstname'].' '.$jobData['worker']['lastname']) : "NA"
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['shifts']
+                                        "type" => "text",
+                                        "text" => $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['client']['firstname'] . ' ' . $jobData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['jobservice']['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" =>  $jobData['property_address']['address_name'] ? $jobData['property_address']['address_name'] : 'NA'
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($jobData['worker']) ? ($jobData['worker']['firstname'] . ' ' . $jobData['worker']['lastname']) : "NA"
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['shifts']
                                     ]
                                 ]
-                            ],                         
+                            ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_CONTRACT) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_CONTRACT) {
                 $workerData = $eventData;
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_CONTRACT,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker-contract/".base64_encode($workerData['worker_id'])
+                                        "type" => "text",
+                                        "text" => "worker-contract/" . base64_encode($workerData['worker_id'])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL) {
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> $eventType,
-                        "language"=> [
-                            "code"=> 'en'
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => $eventType,
+                        "language" => [
+                            "code" => 'en'
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " ". ($jobData['shifts'] ? (" ( ".$jobData['shifts']. " ) ") : " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['client']['firstname'] ." " . $jobData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=>  $jobData['worker']['firstname'] ." " . $jobData['worker']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($jobData['jobservice']['name'].', ')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
+                                        "type" => "text",
+                                        "text" => $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts'] ? (" ( " . $jobData['shifts'] . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['client']['firstname'] . " " . $jobData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" =>  $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['jobservice']['name'] . ', ')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['property_address']['address_name'] ? $jobData['property_address']['address_name'] : 'NA'
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL) {
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> $eventType,
-                        "language"=> [
-                            "code"=> 'en'
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => $eventType,
+                        "language" => [
+                            "code" => 'en'
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " ". ($jobData['shifts'] ? (" ( ".$jobData['shifts']. " ) ") : " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['client']['firstname'] ." " . $jobData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=>  $jobData['worker']['firstname'] ." " . $jobData['worker']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($jobData['jobservice']['name'].', ')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name']?$jobData['property_address']['address_name']: 'NA'
+                                        "type" => "text",
+                                        "text" => $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts'] ? (" ( " . $jobData['shifts'] . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['client']['firstname'] . " " . $jobData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" =>  $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['jobservice']['name'] . ', ')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['property_address']['address_name'] ? $jobData['property_address']['address_name'] : 'NA'
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "admin/jobs/".$jobData['id']."/change-worker"
+                                        "type" => "text",
+                                        "text" => "admin/jobs/" . $jobData['id'] . "/change-worker"
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "1", 
-                                "parameters"=> [
+                                "index" => "1",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "admin/jobs/".$jobData['id']."/change-shift"
+                                        "type" => "text",
+                                        "text" => "admin/jobs/" . $jobData['id'] . "/change-shift"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_REMIND_JOB) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_REMIND_JOB) {
                 $jobData = $eventData['job'];
                 $workerData = $jobData['worker'];
                 $clientData = $jobData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_REMIND_JOB,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_REMIND_JOB,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'].', ') : ($jobData['jobservice']['name'].', ')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" .$jobData['property_address']['parking'] . "]" ):  " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['shifts']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($jobData['start_time'])?$jobData['start_time']:" "
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ucfirst($jobData['status']) 
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $workerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'] . ', ') : ($jobData['jobservice']['name'] . ', ')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking'] ? ("[" . $jobData['property_address']['parking'] . "]") :  " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['shifts']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($jobData['start_time']) ? $jobData['start_time'] : " "
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ucfirst($jobData['status'])
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker/".base64_encode($workerData['id'])."/jobs"."/".base64_encode($jobData['id'])."/approve"
+                                        "type" => "text",
+                                        "text" => "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve"
                                     ]
                                 ]
-                            ],                                    
+                            ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_UNASSIGNED) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_UNASSIGNED) {
                 $jobData = $eventData['job'];
                 $oldWorkerData = $eventData['old_worker'];
                 $oldJobData = $eventData['old_job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $oldWorkerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
-                        "language"=> [
-                            "code"=> $oldWorkerData['lng'] == "heb"?'he':$oldWorkerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $oldWorkerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
+                        "language" => [
+                            "code" => $oldWorkerData['lng'] == "heb" ? 'he' : $oldWorkerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $oldWorkerData['firstname'].' '.$oldWorkerData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($oldJobData['start_date'])->format('M d Y')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['client']['firstname'].' '.$jobData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $oldWorkerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'].', ') : ($jobData['jobservice']['name'].', ')
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $oldJobData['shifts']
+                                        "type" => "text",
+                                        "text" => $oldWorkerData['firstname'] . ' ' . $oldWorkerData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($oldJobData['start_date'])->format('M d Y')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['client']['firstname'] . ' ' . $jobData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $oldWorkerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'] . ', ') : ($jobData['jobservice']['name'] . ', ')
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $oldJobData['shifts']
                                     ]
                                 ]
-                            ],                                 
+                            ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION) {
                 $by = $eventData['by'];
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $jobData['client']['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
-                        "language"=> [
-                            "code"=> $jobData['client']['lng'] == "heb"?'he':$jobData['client']['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $jobData['client']['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                        "language" => [
+                            "code" => $jobData['client']['lng'] == "heb" ? 'he' : $jobData['client']['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $jobData['client']['firstname']." ".$jobData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): " ")
+                                        "type" => "text",
+                                        "text" => $jobData['client']['firstname'] . " " . $jobData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " ")
                                     ],
                                     // [
                                     //     "type"=> "text",
                                     //     "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
                                     // ],
                                     [
-                                        "type"=> "text",
-                                        "text"=>  ($jobData['client'] ? ($jobData['client']['firstname'] ." " .$jobData['client']['lastname'] ) : "NA")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['jobservice']['name']
+                                        "type" => "text",
+                                        "text" => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['jobservice']['name']
                                     ],
                                     // [
                                     //     "type"=> "text",
                                     //     "text"=> ucfirst($jobData['status'])
                                     // ],
                                     [
-                                        "type"=> "text",
-                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ." ILS."): " " ):("Job is marked as ".ucfirst($jobData['status'])))
+                                        "type" => "text",
+                                        "text" => ($by == 'client' ? ("Client changed the Job status to " . ucfirst($jobData['status']) . "." . ($jobData['cancellation_fee_amount']) ? ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : ("Job is marked as " . ucfirst($jobData['status'])))
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "client/login"
+                                        "type" => "text",
+                                        "text" => "client/login"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION) {
                 $workerData = $eventData['worker'];
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'] ." ". $workerData['lastname']
+                                        "type" => "text",
+                                        "text" => $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . " " . $workerData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker/view-job/".$jobData['id']
+                                        "type" => "text",
+                                        "text" => "worker/view-job/" . $jobData['id']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "1", 
-                                "parameters"=> [
+                                "index" => "1",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "admin/view-worker/".$jobData['id']
+                                        "type" => "text",
+                                        "text" => "admin/view-worker/" . $jobData['id']
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION) {
                 $comment = $eventData['comment'];
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ucfirst($jobData['status'])
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): " ") 
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=>  ($jobData['client'] ? ($jobData['client']['firstname'] ." " .$jobData['client']['lastname'] ) : "NA")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['jobservice']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ucfirst($jobData['status'])
+                                        "type" => "text",
+                                        "text" => $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ucfirst($jobData['status'])
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['jobservice']['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ucfirst($jobData['status'])
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker/view-job/".$jobData["id"]
+                                        "type" => "text",
+                                        "text" => "worker/view-job/" . $jobData["id"]
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-               
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR) {
                 $workerData = $eventData;
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0", 
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker-safe-gear/".base64_encode($workerData["id"])
+                                        "type" => "text",
+                                        "text" => "worker-safe-gear/" . base64_encode($workerData["id"])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING) {
-                if($eventData['purpose'] == "Price offer"){
+            } elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING) {
+                if ($eventData['purpose'] == "Price offer") {
                     $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                }else if($eventData['purpose'] == "Quality check"){
+                } else if ($eventData['purpose'] == "Quality check") {
                     $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                }else{
+                } else {
                     $eventData['purpose'] = $eventData['purpose'];
                 }
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $eventData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $eventData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                        "type" => "text",
+                                        "text" => $eventData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA'
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['purpose'] ? $eventData['purpose'] : "NA"
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING) {
-                if($eventData['purpose'] == "Price offer"){
+            } elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING) {
+                if ($eventData['purpose'] == "Price offer") {
                     $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                }else if($eventData['purpose'] == "Quality check"){
+                } else if ($eventData['purpose'] == "Quality check") {
                     $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                }else{
+                } else {
                     $eventData['purpose'] = $eventData['purpose'];
                 }
                 $teamData = $eventData['team'];
                 $clientData = $eventData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $teamData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $teamData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $teamData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                        "type" => "text",
+                                        "text" => $teamData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA'
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['purpose'] ? $eventData['purpose'] : "NA"
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING) {
-                if($eventData['purpose'] == "Price offer"){
+            } elseif ($eventType == WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING) {
+                if ($eventData['purpose'] == "Price offer") {
                     $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                }else if($eventData['purpose'] == "Quality check"){
+                } else if ($eventData['purpose'] == "Quality check") {
                     $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                }else{
+                } else {
                     $eventData['purpose'] = $eventData['purpose'];
                 }
                 $teamData = $eventData['team'];
                 $clientData = $eventData['client'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $clientData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
-                        "language"=> [
-                            "code"=> $clientData['lng'] == "heb"?'he':$clientData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $clientData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
+                        "language" => [
+                            "code" => $clientData['lng'] == "heb" ? 'he' : $clientData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $clientData['firstname'].' '.$clientData['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $clientData['lng'] == 'heb' ? $teamData['heb_name'] : $teamData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> isset($eventData['property_address'])?$eventData['property_address']['address_name']:'NA'
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['purpose']?$eventData['purpose']:"NA"
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['meet_link']?$eventData['meet_link']:"NA"
+                                        "type" => "text",
+                                        "text" => $clientData['firstname'] . ' ' . $clientData['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $clientData['lng'] == 'heb' ? $teamData['heb_name'] : $teamData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA'
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['purpose'] ? $eventData['purpose'] : "NA"
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES) {
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $eventData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $eventData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                        "type" => "text",
+                                        "text" => $eventData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0",
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "storage/uploads/ClientFiles/".$eventData["file_name"]
+                                        "type" => "text",
+                                        "text" => "storage/uploads/ClientFiles/" . $eventData["file_name"]
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_LEAD_FILES) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::TEAM_LEAD_FILES) {
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $eventData['team']['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $eventData['team']['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $eventData['team']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $eventData['client']['firstname'].' '.$eventData['client']['lastname']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time']? (" ( ".date("H:i", strtotime($eventData['start_time'])) ." to ". date("H:i", strtotime($eventData['end_time']))." ) " ): " ")
+                                        "type" => "text",
+                                        "text" => $eventData['team']['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0",
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "storage/uploads/ClientFiles/".$eventData["file_name"]
+                                        "type" => "text",
+                                        "text" => "storage/uploads/ClientFiles/" . $eventData["file_name"]
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_FORMS) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::WORKER_FORMS) {
                 $workerData = $eventData;
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $workerData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::WORKER_FORMS,
-                        "language"=> [
-                            "code"=> $workerData['lng'] == "heb"?'he':$workerData['lng']
+                    "messaging_product" => "whatsapp",
+                    "to" => $workerData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::WORKER_FORMS,
+                        "language" => [
+                            "code" => $workerData['lng'] == "heb" ? 'he' : $workerData['lng']
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> $workerData['firstname'].' '.$workerData['lastname']
+                                        "type" => "text",
+                                        "text" => $workerData['firstname'] . ' ' . $workerData['lastname']
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0",
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "worker-forms/".base64_encode($workerData['id'])
+                                        "type" => "text",
+                                        "text" => "worker-forms/" . base64_encode($workerData['id'])
                                     ]
                                 ]
                             ],
                         ]
                     ]
                 ];
-            }elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION) {
+            } elseif ($eventType == WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION) {
                 $by = $eventData['by'];
                 $adminData = $eventData['admin'];
                 $jobData = $eventData['job'];
                 $params = [
-                    "messaging_product"=> "whatsapp",
-                    "to"=> $adminData['phone'],
-                    "type"=> "template",
-                    "template"=> [
-                        "name"=> WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                        "language"=> [
-                            "code"=> "en"
+                    "messaging_product" => "whatsapp",
+                    "to" => $adminData['phone'],
+                    "type" => "template",
+                    "template" => [
+                        "name" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
+                        "language" => [
+                            "code" => "en"
                         ],
-                        "components"=> [
+                        "components" => [
                             [
-                                "type"=> "body",
-                                "parameters"=> [
+                                "type" => "body",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=>  $adminData['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time']? (" ( ".$jobData['start_time'] ." to ". $jobData['end_time']." ) " ): " ")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($jobData['worker'] ? ($jobData['worker']['firstname'] ." " .$jobData['worker']['lastname'] ) : "NA")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=>  ($jobData['client'] ? ($jobData['client']['firstname'] ." " .$jobData['client']['lastname'] ) : "NA")
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> $jobData['jobservice']['name']
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ucfirst($jobData['status'])
-                                    ],[
-                                        "type"=> "text",
-                                        "text"=> ($by == 'client'?("Client changed the Job status to ". ucfirst($jobData['status']). "." .($jobData['cancellation_fee_amount']) ? ("With Cancellation fees ".$jobData['cancellation_fee_amount'] ." ILS."): " " ):("Job is marked as ".ucfirst($jobData['status'])))
+                                        "type" => "text",
+                                        "text" =>  $adminData['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => \Carbon\Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " ")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA")
+                                    ], [
+                                        "type" => "text",
+                                        "text" => $jobData['jobservice']['name']
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ucfirst($jobData['status'])
+                                    ], [
+                                        "type" => "text",
+                                        "text" => ($by == 'client' ? ("Client changed the Job status to " . ucfirst($jobData['status']) . "." . ($jobData['cancellation_fee_amount']) ? ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : ("Job is marked as " . ucfirst($jobData['status'])))
                                     ]
                                 ]
                             ],
                             [
-                                "type"=> "button",
+                                "type" => "button",
                                 "sub_type" => "url",
-                                "index"=> "0",
-                                "parameters"=> [
+                                "index" => "0",
+                                "parameters" => [
                                     [
-                                        "type"=> "text",
-                                        "text"=> "client/login"
+                                        "type" => "text",
+                                        "text" => "client/login"
                                     ]
                                 ]
                             ],

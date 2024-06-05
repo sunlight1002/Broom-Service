@@ -508,8 +508,6 @@
                 "date": "Date",
                 "worker": "Worker",
                 "pending": "Request is pending.",
-                "Repeatancy": "The Repeatancy is missing",
-                "UntilDate": "The Until Date is missing",
                 "pleaseSelectAllWorker": "Please select all workers.",
                 "pleaseWait": "please wait ...",
                 "viewJob": "View Job",

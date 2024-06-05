@@ -10,20 +10,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class WorkerCreated
+class WorkerForm101Requested
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $worker;
+    public $worker, $formType, $formID;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($worker)
+    public function __construct($worker, $formType, $formID)
     {
         $this->worker = $worker;
+        $this->formType = $formType;
+        $this->formID = $formID;
     }
 
     /**

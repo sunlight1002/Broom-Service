@@ -218,14 +218,13 @@ class AuthController extends Controller
         $forms = [];
         if ($user->company_type == 'my-company') {
             $forms['form101Form'] = $form101Form ? $form101Form : null;
-        }
-
-        if ($user->country == 'Israel' && $user->company_type == 'my-company') {
             $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
             $forms['contractForm'] = $contractForm ? $contractForm : null;
-        }
 
-        if ($user->country != 'Israel' && $user->company_type == 'my-company') {
+            if ($user->country == 'Israel') {
+                $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
+            }
+        } else {
             $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
         }
 

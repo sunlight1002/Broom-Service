@@ -17,10 +17,16 @@ const formType = [
         path: "contract",
     },
     {
-        key: "form_insurance",
+        key: "safety_and_gear_form",
         name: "Safety and Gear",
         file: "",
         path: "safetygear",
+    },
+    {
+        key: "form_insurance",
+        name: "Insurance",
+        file: "",
+        path: "insurance",
     },
 ];
 

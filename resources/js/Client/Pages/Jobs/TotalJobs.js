@@ -45,7 +45,7 @@ export default function TotalJobs() {
                     title: "Worker",
                     data: "worker_name",
                     render: function (data, type, row, meta) {
-                        let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+                        let _html = `<span class="worker-name-badge" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
 
                         _html += `<i class="fa-solid fa-user"></i>`;
 
@@ -89,7 +89,7 @@ export default function TotalJobs() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
                         } else {
                             return "NA";
                         }
@@ -193,7 +193,9 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-row", function (e) {
             if (
                 !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu")
+                !e.target.closest(".dropdown-menu") &&
+                !e.target.closest(".dt-address-link") &&
+                !e.target.closest(".dtr-control")
             ) {
                 const _id = Base64.encode($(this).data("id").toString());
                 navigate(`/client/view-job/${_id}`);

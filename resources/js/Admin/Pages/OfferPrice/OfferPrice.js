@@ -115,7 +115,8 @@ export default function OfferPrice() {
             if (
                 !e.target.closest(".dropdown-toggle") &&
                 !e.target.closest(".dropdown-menu") &&
-                !e.target.closest(".dt-client-name")
+                !e.target.closest(".dt-client-name") &&
+                !e.target.closest(".dtr-control")
             ) {
                 const _id = $(this).data("id");
                 navigate(`/admin/view-offer/${_id}`);
