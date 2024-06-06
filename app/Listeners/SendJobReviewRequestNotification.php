@@ -6,8 +6,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobReviewRequest;
 use App\Mail\Client\JobReviewRequestMail;
 

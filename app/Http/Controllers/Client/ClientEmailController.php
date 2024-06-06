@@ -19,13 +19,9 @@ use App\Traits\PriceOffered;
 use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
-use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ContractSigned;
 use App\Events\OfferAccepted;
 use App\Events\ReScheduleMettingJob;
-use App\Events\WhatsappNotificationEvent;
 
 class ClientEmailController extends Controller
 {

@@ -6,8 +6,6 @@ use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ClientPaymentFailed;
 use App\Events\WhatsappNotificationEvent;
-use App\Mail\Admin\Form101SignedMail as AdminForm101SignedMail;
-use App\Mail\Worker\Form101SignedMail;
 use App\Models\Admin;
 use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;

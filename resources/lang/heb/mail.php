@@ -354,6 +354,151 @@ return [
         'worker_job_reminder_subject'   => 'תזכורת משימה | שירותי מטאטא',
         'worker_job_reminder_content'   => 'תזכורת ידידותית שעדיין לא אישרת את המשימה.',
         'worker_job_start_time_content' => 'זמן המשימה הוגדר על ידך.',
-        'extra_amount' => 'כמות נוספת'
+        'extra_amount' => 'כמות נוספת',
+        'check_job_details' => 'בדוק פרטי עבודה',
+        'mark_as_complete' => 'סמן כהושלם',
+        'end_time' => 'זמן סיום',
+        'resume_timer' => 'הפעל טיימר מחדש'
+    ],
+    'forms' => [
+        'worker_forms' => 'טפסי עובד',
+        'content' => 'נרשמת בהצלחה בפורטל שלנו. נא לחתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.',
+        'below_txt' => 'לחץ על הכפתור למטה כדי למלא את הטפסים.',
+        'btn_txt' => 'בדוק טפסים'
+    ],
+    'job_nxt_step' => [
+        'approved_nxt_step_email_subject' => 'עבודה אושרה | השלב הבא | שירות מטאטא',
+        'approved_nxt_step_email_title' => 'עבודה אושרה',
+        'approved_nxt_step_email_content' => 'אישרת את העבודה. בדוק את הקישור למטה ולחץ על :label כאשר תתחיל את עבודתך.',
+        'leaving_for_work_link' => 'אני יוצא לעבודה עכשיו',
+        'opened_nxt_step_email_subject' => 'עבודה נפתחה | השלב הבא | שירות מטאטא',
+        'opened_nxt_step_email_title' => 'עבודה נפתחה',
+        'opened_nxt_step_email_content' => 'אתה עומד להתחיל את עבודתך. בדוק את הקישור למטה ולחץ על :l1 כאשר תתחיל את זמן העבודה שלך או אם אתה רוצה להשלים את העבודה לחץ על :l2.',
+        'completed_nxt_step_email_subject' => 'עבודה הושלמה | השלב הבא | שירות מטאטא',
+        'completed_nxt_step_email_title' => 'עבודה הושלמה',
+        'completed_nxt_step_email_content' => 'השלמת את העבודה # :jobId .תקבל את המשוב ברגע שהעבודה תיבדק על ידי הלקוח.',
+        'start_time_nxt_step_email_subject' => 'זמן עבודה התחיל | השלב הבא | שירות מטאטא',
+        'start_time_nxt_step_email_title' => 'זמן עבודה התחיל',
+        'start_time_nxt_step_email_content' => 'זמן העבודה התחיל על ידך. בדוק את הקישור למטה ולחץ על :label כאשר תרצה להפסיק את זמן עבודתך.',
+        'end_time_nxt_step_email_subject' => 'זמן עבודה הסתיים | השלב הבא | שירות מטאטא',
+        'end_time_nxt_step_email_title' => 'זמן עבודה הסתיים',
+        'end_time_nxt_step_email_content' => 'זמן העבודה הופסק על ידך. בדוק את הקישור למטה ולחץ על :l1 אם אתה רוצה להשלים את העבודה שלך אחרת לחץ על :l2 כדי להמשיך את העבודה.',
+    ],
+    'wa-message' => [
+        'common' => [
+            'salutation' => "שלום, *:name*"
+        ],
+        'client_meeting_schedule' => [
+            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת ב-*:date* בין *:start_time* ל-*:end_time* ב-*:address* עבור *:purpose*. לחץ על כפתור *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתזמן מחדש ולהעלות קבצים.",
+        ],
+        'offer_price' => [
+            'content' => "ברכות משירות מטאטא. נא לבדוק את הצעת המחיר עבור *:service_names*. לאחר אישורך, יישלח אליך הסכם התקשרות שתצטרך למלא ולחתום עליו ואז נהיה מוכנים להתחיל את העבודה.
+            לחץ על הכפתור למטה כדי לראות את הצעת המחיר.",
+        ],
+        'contract' => [
+            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.
+            לחץ על הכפתור למטה כדי לבדוק את החוזה.",
+        ],
+        'client_job_updated' => [
+            'content' => "ברכות משירות מטאטא. העבודה שלך הושלמה.\n\nתאריך: :date\nשירות: :service_name\n\nנא לדרג אותנו ולשלוח את הביקורת שלך.",
+        ],
+        'delete_meeting' => [
+            'content' => "ברכות משירות מטאטא.\n\nרק תזכורת ידידותית שהפגישה שלך עם *:team_name* ב-*:date* בין *:start_time* ל-*:end_time* בוטלה כעת.",
+        ],
+        'form101' => [
+            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס 101 כדי להתחיל לעבוד בעבודה.\n\nלחץ על הכפתור למטה כדי למלא את טופס 101.",
+        ],
+        'new_job' => [
+            'content' => "ברכות משירות מטאטא. :content_txt נא לבדוק את הפרטים.\n\n
+            תאריך/שעה: :date_time\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nסטטוס: :status",
+        ],
+        'worker_change_request' => [
+            'content' => "ברכות משירות מטאטא. יש בקשה מהלקוח להחליף עובד בעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nעובד: :worker_name\nמשמרת: :shift",
+        ],
+        'worker_contract' => [
+            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את החוזה.",
+        ],
+        'worker_job_approval' => [
+            'content' => "ברכות משירות מטאטא. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_job_not_approval' => [
+            'content' => "ברכות משירות מטאטא. העובד עדיין לא אושר לעבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_remind_job' => [
+            'content' => "ברכות משירות מטאטא. זהו הודעה על העבודה שלך למחר. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nמשמרת: :shift\nשעת התחלה: :start_time\nסטטוס: :status",
+        ],
+        'worker_unassigned_job' => [
+            'content' => "ברכות משירות מטאטא. הוסרת מהעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nמשמרת: :shift",
+        ],
+        'client_job_status_notification' => [
+            'content' => "ברכות משירות מטאטא. העבודה בוטלה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nלקוח: :client_name\nשירות: :service_name\nהערה: :comment",
+        ],
+        'worker_safe_gear' => [
+            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את הבטיחות והציוד.",
+        ],
+        'client_reschedule_meeting' => [
+            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
+        ],
+        'worker_forms' => [
+            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי למלא טפסים.",
+        ],
+        'worker_job_opening_notification' => [
+            'content' => ':client_name עכשיו בדרך לעבודה.',
+        ],
+        'worker_job_status_notification' => [
+            'content' => "ברכות משירות מטאטא. עובד שינה את מצב העבודה ל-:status. נא לבדוק את הפרטים למטה.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status",
+        ],
+        'admin_job_status_notification' => [
+            'content' => "ברכות משירות מטאטא. העבודה בוטלה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status\nהערה: :comment",
+        ],
+        'admin_reschedule_meeting' => [
+            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
+        ],
+        'team_reschedule_meeting' => [
+            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
+        ],
+        'admin_lead_files' => [
+            'content' => "ברכות משירות מטאטא. :client_name הוסיף קבצים חדשים בפרטי הפגישה המצוינים למטה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date",
+        ],
+        'team_lead_files' => [
+            'content' => "ברכות משירות מטאטא. :client_name הוסיף קבצים חדשים בפרטי הפגישה המצוינים למטה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date",
+        ],
+        'worker_availability_changed' => [
+            'content' => "ברכות משירות מטאטא. :name שינה את הזמינות המשפיעה על העבודה ב-:date.",
+        ],
+        'worker_form101_signed' => [
+            'content' => "ברכות משירות מטאטא. :name חתם על טופס 101.",
+        ],
+        'worker_contract_signed' => [
+            'content' => "ברכות משירות מטאטא. :name חתם על טופס החוזה.",
+        ],
+        'worker_insurance_signed' => [
+            'content' => "ברכות משירות מטאטא. :name חתם על טופס הביטוח.",
+        ],
+        'worker_safety_gear_signed' => [
+            'content' => "ברכות משירות מטאטא. :name חתם על טופס הבטיחות והציוד.",
+        ],
+        'client_payment_failed' => [
+            'content' => "ברכות משירות מטאטא. התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
+        ],
+        'client_reviewed' => [
+            'content' => "ברכות משירות מטאטא. :client_name השאיר ביקורת עבור עבודה :date_time.",
+        ],
+        'button-label' => [
+            'accept_reject' => 'קבל/דחה',
+            'upload_file' => 'העלה קובץ',
+            'price_offer' => 'הצעת מחיר',
+            'check_contract' => 'בדוק חוזה',
+            'review' => 'ביקורת',
+            'form101' => 'טופס 101',
+            'view_job' => 'הצג עבודה',
+            'change_worker' => 'החלף עובד',
+            'change_shift' => 'החלף משמרת',
+            'approve' => 'אשר',
+            'safety_and_gear' => 'בדוק בטיחות וציוד',
+            'check_form' => 'בדוק טפסים',
+            'view_worker' => 'הצג עובד',
+            'check_file' => 'בדוק קובץ'
+        ]
     ]
 ];

@@ -7,11 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Admin;
-use App\Models\Notification;
-use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ContractSigned;
-use App\Events\WhatsappNotificationEvent;
 
 class SendClientCredentials implements ShouldQueue
 {
