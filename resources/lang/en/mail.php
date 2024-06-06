@@ -39,7 +39,7 @@ return [
         'on'          => 'on',
         'between'     => 'between',
         'to'          => 'to',
-        'cancel_text' => 'has cancelled now.',
+        'cancel_text' => 'has been cancelled now.',
         'for'         => 'for',
         'service'     => 'service',
         'accept'      => 'Accept',
@@ -395,7 +395,7 @@ return [
             'content' => "Greetings from Broom Service. Your job has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
         ],
         'delete_meeting' => [
-            'content' => "Greetings from Broom Service.\n\nJust a friendly reminder that your meeting with *:team_name* on *:date* between *:start_time* to *:end_time* has cancelled now.",
+            'content' => "Greetings from Broom Service.\n\nJust a friendly reminder that your meeting with *:team_name* on *:date* between *:start_time* to *:end_time* has been cancelled now.",
         ],
         'form101' => [
             'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the Form 101 to start working on the job.\n\nClick the below button to fill Form101.",

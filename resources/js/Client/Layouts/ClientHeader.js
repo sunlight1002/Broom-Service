@@ -80,7 +80,7 @@ export default function ClientHeader() {
                                     >
                                         <Link
                                             className="dropdown-item"
-                                            to="/admin/settings"
+                                            to="/client/settings"
                                         >
                                             {t("client.my_account")}
                                         </Link>

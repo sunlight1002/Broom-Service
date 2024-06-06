@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 
@@ -7,10 +7,11 @@ import bars from "../../Assets/image/icons/bars.svg";
 
 export default function ClientMobileHeader() {
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const HandleLogout = (e) => {
+        setIsSubmitting(true);
         fetch("/api/client/logout", {
             method: "POST",
             headers: {
@@ -18,15 +19,20 @@ export default function ClientMobileHeader() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ` + localStorage.getItem("client-token"),
             },
-        }).then((res) => {
-            if (res.status === 200) {
-                localStorage.removeItem("client-token");
-                localStorage.removeItem("client-name");
-                localStorage.removeItem("client-id");
-                navigate("/client/login");
-                alert.success("Logged Out Successfully");
-            }
-        });
+        })
+            .then((res) => {
+                if (res.status === 200) {
+                    localStorage.removeItem("client-token");
+                    localStorage.removeItem("client-name");
+                    localStorage.removeItem("client-id");
+                    navigate("/client/login");
+                    alert.success("Logged Out Successfully");
+                }
+                setIsSubmitting(false);
+            })
+            .catch((e) => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -101,8 +107,10 @@ export default function ClientMobileHeader() {
                     <div className="sideLogout">
                         <div className="logoutBtn">
                             <button
+                                type="button"
                                 className="btn btn-danger"
                                 onClick={HandleLogout}
+                                disabled={isSubmitting}
                             >
                                 Logout
                             </button>

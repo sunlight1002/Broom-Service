@@ -187,7 +187,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/{id}/worker/hours/export', [JobController::class, 'exportJobTrackedReport']);
 
     // Income 
-    Route::post('income', [DashboardController::class, 'income'])->name('income');
+    Route::post('income', [DashboardController::class, 'income']);
 
     // Invoice
     // Route::post('add-invoice', [InvoiceController::class, 'AddInvoice']);

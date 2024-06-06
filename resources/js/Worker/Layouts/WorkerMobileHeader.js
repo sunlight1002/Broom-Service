@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import logo from "../../Assets/image/sample.svg";
@@ -6,11 +6,14 @@ import bars from "../../Assets/image/icons/bars.svg";
 import { useTranslation } from "react-i18next";
 
 export default function WorkerMobileHeader() {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const alert = useAlert();
-    const name = localStorage.getItem("admin-name");
     const navigate = useNavigate();
     const { t } = useTranslation();
+
     const HandleLogout = (e) => {
+        setIsSubmitting(true);
         fetch("/api/logout", {
             method: "POST",
             headers: {
@@ -18,15 +21,20 @@ export default function WorkerMobileHeader() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ` + localStorage.getItem("worker-token"),
             },
-        }).then((res) => {
-            if (res.status === 200) {
-                localStorage.removeItem("worker-token");
-                localStorage.removeItem("worker-name");
-                localStorage.removeItem("worker-id");
-                navigate("/worker/login");
-                alert.success(t("global.Logout"));
-            }
-        });
+        })
+            .then((res) => {
+                if (res.status === 200) {
+                    localStorage.removeItem("worker-token");
+                    localStorage.removeItem("worker-name");
+                    localStorage.removeItem("worker-id");
+                    navigate("/worker/login");
+                    alert.success(t("global.Logout"));
+                }
+                setIsSubmitting(false);
+            })
+            .catch((e) => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -92,8 +100,10 @@ export default function WorkerMobileHeader() {
                     <div className="sideLogout">
                         <div className="logoutBtn">
                             <button
+                                type="button"
                                 className="btn btn-danger"
                                 onClick={HandleLogout}
+                                disabled={isSubmitting}
                             >
                                 {t("worker.logout")}
                             </button>

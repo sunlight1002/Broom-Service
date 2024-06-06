@@ -333,201 +333,204 @@ export default function FreezeShiftWorkers() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="card">
-                                <div className="row mb-3">
-                                    <div className="col-sm-12 d-flex flex-wrap align-items-center">
-                                        <div
-                                            className="mr-3"
-                                            style={{ fontWeight: "bold" }}
-                                        >
-                                            Worker Availability
-                                        </div>
-                                        <FilterButtons
-                                            text="Current Week"
-                                            className="px-3 mr-2 mb-2"
-                                            selectedFilter={currentFilter}
-                                            setselectedFilter={setcurrentFilter}
-                                        />
+                            <div className="row mb-3">
+                                <div className="col-sm-12 d-flex flex-wrap align-items-center">
+                                    <div
+                                        className="mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        Worker Availability
+                                    </div>
+                                    <FilterButtons
+                                        text="Current Week"
+                                        className="px-3 mr-2 mb-2"
+                                        selectedFilter={currentFilter}
+                                        setselectedFilter={setcurrentFilter}
+                                    />
 
-                                        <FilterButtons
-                                            text="Next Week"
-                                            className="px-3 mr-2 mb-2"
-                                            selectedFilter={currentFilter}
-                                            setselectedFilter={setcurrentFilter}
-                                        />
+                                    <FilterButtons
+                                        text="Next Week"
+                                        className="px-3 mr-2 mb-2"
+                                        selectedFilter={currentFilter}
+                                        setselectedFilter={setcurrentFilter}
+                                    />
 
-                                        <FilterButtons
-                                            text="Next Next Week"
-                                            className="px-3 mr-2 mb-2"
-                                            selectedFilter={currentFilter}
-                                            setselectedFilter={setcurrentFilter}
-                                        />
+                                    <FilterButtons
+                                        text="Next Next Week"
+                                        className="px-3 mr-2 mb-2"
+                                        selectedFilter={currentFilter}
+                                        setselectedFilter={setcurrentFilter}
+                                    />
 
-                                        <FilterButtons
-                                            text="Custom"
-                                            className="px-3 mr-2 mb-2"
-                                            selectedFilter={currentFilter}
-                                            setselectedFilter={setcurrentFilter}
+                                    <FilterButtons
+                                        text="Custom"
+                                        className="px-3 mr-2 mb-2"
+                                        selectedFilter={currentFilter}
+                                        setselectedFilter={setcurrentFilter}
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                className="tab-content"
+                                style={{ background: "#fff" }}
+                            >
+                                <div
+                                    style={{
+                                        display:
+                                            currentFilter === "Current Week"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                    id="tab-worker-availability"
+                                    className="tab-pane active show  table-responsive"
+                                    role="tab-panel"
+                                    aria-labelledby="current-job"
+                                >
+                                    <div className="crt-jb-table-scrollable">
+                                        <WorkerAvailabilityTable
+                                            workerAvailabilities={
+                                                workerAvailabilities
+                                            }
+                                            week={week}
+                                            AllWorkers={AllWorkers}
+                                            hasActive={hasActive}
+                                            changeShift={changeShift}
+                                            removeShift={removeShift}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div
+                                    style={{
+                                        display:
+                                            currentFilter === "Next Week"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                    id="tab-current-job"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="current-job"
+                                >
+                                    <div className="crt-jb-table-scrollable">
+                                        <WorkerAvailabilityTable
+                                            workerAvailabilities={
+                                                workerAvailabilities
+                                            }
+                                            week={nextweek}
+                                            AllWorkers={AllWorkers}
+                                            hasActive={hasActive}
+                                            changeShift={changeShift}
+                                            removeShift={removeShift}
                                         />
                                     </div>
                                 </div>
                                 <div
-                                    className="tab-content"
-                                    style={{ background: "#fff" }}
+                                    style={{
+                                        display:
+                                            currentFilter === "Next Next Week"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                    id="tab-current-next-job"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="current-job"
                                 >
-                                    <div
-                                        style={{
-                                            display:
-                                                currentFilter === "Current Week"
-                                                    ? "block"
-                                                    : "none",
-                                        }}
-                                        id="tab-worker-availability"
-                                        className="tab-pane active show  table-responsive"
-                                        role="tab-panel"
-                                        aria-labelledby="current-job"
-                                    >
-                                        <div className="crt-jb-table-scrollable">
-                                            <WorkerAvailabilityTable
-                                                week={week}
-                                                AllWorkers={AllWorkers}
-                                                hasActive={hasActive}
-                                                changeShift={changeShift}
-                                                removeShift={removeShift}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            display:
-                                                currentFilter === "Next Week"
-                                                    ? "block"
-                                                    : "none",
-                                        }}
-                                        id="tab-current-job"
-                                        className="tab-pane"
-                                        role="tab-panel"
-                                        aria-labelledby="current-job"
-                                    >
-                                        <div className="crt-jb-table-scrollable">
-                                            <WorkerAvailabilityTable
-                                                week={nextweek}
-                                                AllWorkers={AllWorkers}
-                                                hasActive={hasActive}
-                                                changeShift={changeShift}
-                                                removeShift={removeShift}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display:
-                                                currentFilter ===
-                                                "Next Next Week"
-                                                    ? "block"
-                                                    : "none",
-                                        }}
-                                        id="tab-current-next-job"
-                                        className="tab-pane"
-                                        role="tab-panel"
-                                        aria-labelledby="current-job"
-                                    >
-                                        <div className="crt-jb-table-scrollable">
-                                            <WorkerAvailabilityTable
-                                                week={nextnextweek}
-                                                AllWorkers={AllWorkers}
-                                                hasActive={hasActive}
-                                                changeShift={changeShift}
-                                                removeShift={removeShift}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display:
-                                                currentFilter === "Custom"
-                                                    ? "block"
-                                                    : "none",
-                                        }}
-                                        id="tab-current-next-job"
-                                        className="tab-pane"
-                                        role="tab-panel"
-                                        aria-labelledby="current-job"
-                                    >
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                Select Date Range
-                                            </label>
-                                            <Flatpickr
-                                                name="date"
-                                                className="form-control"
-                                                onChange={(
-                                                    selectedDates,
-                                                    dateStr,
-                                                    instance
-                                                ) => {
-                                                    let start = moment(
-                                                        selectedDates[0]
-                                                    );
-                                                    let end = moment(
-                                                        selectedDates[1]
-                                                    );
-                                                    const datesArray = [];
-
-                                                    for (
-                                                        let date =
-                                                            start.clone();
-                                                        date.isSameOrBefore(
-                                                            end
-                                                        );
-                                                        date.add(1, "day")
-                                                    ) {
-                                                        datesArray.push(
-                                                            date.format(
-                                                                "YYYY-MM-DD"
-                                                            )
-                                                        );
-                                                    }
-                                                    setCustomDateRange(
-                                                        datesArray
-                                                    );
-                                                }}
-                                                options={{
-                                                    disableMobile: true,
-                                                    minDate: moment(
-                                                        nextnextweek[
-                                                            nextnextweek.length -
-                                                                1
-                                                        ]
-                                                    )
-                                                        .add(1, "days")
-                                                        .format("YYYY-MM-DD"),
-                                                    mode: "range",
-                                                }}
-                                            />
-                                        </div>
-                                        {customDateRange.length > 0 && (
-                                            <div className="crt-jb-table-scrollable">
-                                                <WorkerAvailabilityTable
-                                                    week={customDateRange}
-                                                    AllWorkers={AllWorkers}
-                                                    hasActive={hasActive}
-                                                    changeShift={changeShift}
-                                                    removeShift={removeShift}
-                                                />
-                                            </div>
-                                        )}
+                                    <div className="crt-jb-table-scrollable">
+                                        <WorkerAvailabilityTable
+                                            workerAvailabilities={
+                                                workerAvailabilities
+                                            }
+                                            week={nextnextweek}
+                                            AllWorkers={AllWorkers}
+                                            hasActive={hasActive}
+                                            changeShift={changeShift}
+                                            removeShift={removeShift}
+                                        />
                                     </div>
                                 </div>
-                                <div className="form-group text-center mt-3">
-                                    <input
-                                        type="button"
-                                        value="Save"
-                                        className="btn btn-pink viewBtn"
-                                        onClick={handleSubmit}
-                                    />
+                                <div
+                                    style={{
+                                        display:
+                                            currentFilter === "Custom"
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                    id="tab-current-next-job"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="current-job"
+                                >
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Select Date Range
+                                        </label>
+                                        <Flatpickr
+                                            name="date"
+                                            className="form-control"
+                                            onChange={(
+                                                selectedDates,
+                                                dateStr,
+                                                instance
+                                            ) => {
+                                                let start = moment(
+                                                    selectedDates[0]
+                                                );
+                                                let end = moment(
+                                                    selectedDates[1]
+                                                );
+                                                const datesArray = [];
+
+                                                for (
+                                                    let date = start.clone();
+                                                    date.isSameOrBefore(end);
+                                                    date.add(1, "day")
+                                                ) {
+                                                    datesArray.push(
+                                                        date.format(
+                                                            "YYYY-MM-DD"
+                                                        )
+                                                    );
+                                                }
+                                                setCustomDateRange(datesArray);
+                                            }}
+                                            options={{
+                                                disableMobile: true,
+                                                minDate: moment(
+                                                    nextnextweek[
+                                                        nextnextweek.length - 1
+                                                    ]
+                                                )
+                                                    .add(1, "days")
+                                                    .format("YYYY-MM-DD"),
+                                                mode: "range",
+                                            }}
+                                        />
+                                    </div>
+                                    {customDateRange.length > 0 && (
+                                        <div className="crt-jb-table-scrollable">
+                                            <WorkerAvailabilityTable
+                                                workerAvailabilities={
+                                                    workerAvailabilities
+                                                }
+                                                week={customDateRange}
+                                                AllWorkers={AllWorkers}
+                                                hasActive={hasActive}
+                                                changeShift={changeShift}
+                                                removeShift={removeShift}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
+                            </div>
+                            <div className="form-group text-center mt-3">
+                                <input
+                                    type="button"
+                                    value="Save"
+                                    className="btn btn-pink viewBtn"
+                                    onClick={handleSubmit}
+                                />
                             </div>
                         </div>
                     </div>

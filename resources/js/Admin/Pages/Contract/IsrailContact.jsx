@@ -42,8 +42,8 @@ export function IsrailContact({
             .required(t("israilContract.errorMsg.FullName")),
         role: yup.string().trim().required(t("israilContract.errorMsg.Role")),
         IdNumber: yup
-            .number()
-            .typeError(t("israilContract.errorMsg.invalidNumber"))
+            .string()
+            .trim()
             .required(t("israilContract.errorMsg.idRequired")),
         Address: yup
             .string()

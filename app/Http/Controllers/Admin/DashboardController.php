@@ -302,13 +302,12 @@ class DashboardController extends Controller
       ->with(['client', 'worker', 'offer', 'hours'])
       ->where('status', JobStatusEnum::COMPLETED);
 
-    $startDate = $requestData['dateRange']['start_date'];
-    $endDate = $requestData['dateRange']['end_date'];
-
-    if (empty($startDate) || empty($endDate)) {
-      $tasks = $tasks->get();
-    } else {
+    if (isset($requestData['dateRange'])) {
+      $startDate = $requestData['dateRange']['start_date'];
+      $endDate = $requestData['dateRange']['end_date'];
       $tasks = $tasks->whereBetween('created_at', [$startDate, $endDate])->get();
+    } else {
+      $tasks = $tasks->get();
     }
     $inc = 0;
     foreach ($tasks as $t1 => $task) {

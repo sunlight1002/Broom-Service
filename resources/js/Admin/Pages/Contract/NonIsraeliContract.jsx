@@ -57,8 +57,8 @@ export function NonIsraeliContract({
         //     .trim()
         //     .required(t("nonIsrailContract.errorMsg.Role")),
         IdNumber: yup
-            .number()
-            .typeError(t("nonIsrailContract.errorMsg.invalidId"))
+            .string()
+            .trim()
             .required(t("nonIsrailContract.errorMsg.idRequired")),
         Address: yup
             .string()
