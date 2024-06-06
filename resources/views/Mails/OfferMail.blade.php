@@ -35,7 +35,7 @@
 
 		<p style="text-align: center;margin-bottom: 20px">{{__('mail.offer.below_txt')}}</p>
 		<div style="text-align: center;">
-			<a href='{{ url("price-offer/".base64_encode($id))}}' target="_blank" style="text-decoration: none;background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer">{{__('mail.offer.btn_txt')}}</a> 
+			<a href='{{ url("price-offer/".base64_encode($id))}}' target="_blank" style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.offer.btn_txt')}}</a> 
 		</div>
 		<p style="margin-top: 40px">{{__('mail.offer.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.offer.regards')}}</p>

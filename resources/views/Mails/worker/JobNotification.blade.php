@@ -59,7 +59,7 @@
 			</tbody>
 		</table>
 		<div style="text-align: center;margin-top: 40px;">
-			<a href='{{ url("worker/view-job/".$job["id"]) }}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;margin-top: 25px;margin-bottom: 25px">{{__('mail.job_common.check_job_details')}}</a>
+			<a href='{{ url("worker/view-job/".$job["id"]) }}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.job_common.check_job_details')}}</a>
 		</div>
 		<p style="margin-top: 40px">{{__('mail.job_common.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.job_common.regards')}}</p>

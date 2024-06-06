@@ -50,7 +50,7 @@
 		</table>
 
 		<p style="margin-top: 40px">{{__('mail.client.review-request.message')}}</p>
-		<a href='{{ url("client/jobs").'/'.base64_encode($job['id']).'/review' }}' style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.client_job_status.review')}}</a>
+		<a href='{{ url("client/jobs").'/'.base64_encode($job['id']).'/review' }}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.client_job_status.review')}}</a>
 
 		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>

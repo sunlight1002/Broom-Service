@@ -67,14 +67,14 @@
 		@endif
 
 		<div style="display:flex;justify-content: center">
-			<a href='{{ url("thankyou/".base64_encode($schedule["id"])."/accept")}}' target='_blank' style="background: green;color: #fff;border: 1px solid green;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center">{{__('mail.meeting.accept')}}</a>
-			<a href='{{ url("thankyou/".base64_encode($schedule["id"])."/reject")}}' style="background: red;color: #fff;border: 1px solid red;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;margin: 0 15px;text-align: center">{{__('mail.meeting.reject')}}</a>
+			<a href='{{ url("thankyou/".base64_encode($schedule["id"])."/accept")}}' target='_blank' style="background: #187ddb;color: #fff;border: 1px solid #187ddb;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center; margin-right: 10px;">{{__('mail.meeting.accept')}}</a>
+			<a href='{{ url("thankyou/".base64_encode($schedule["id"])."/reject")}}' style="background: red;color: #fff;border: 1px solid red;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center; margin-right: 10px;">{{__('mail.meeting.reject')}}</a>
 
 			@if($schedule['start_date'])
-			<a href='{{ url("meeting-status/".base64_encode($schedule["id"])."/reschedule")}}' target='_blank' style="background: #4385f5;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.reschedule')}}</a>
+			<a href='{{ url("meeting-status/".base64_encode($schedule["id"])."/reschedule")}}' target='_blank' style="background: #de9400;color: #fff;border: 1px solid #de9400;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center; margin-right: 10px;">{{__('mail.meeting.reschedule')}}</a>
 			@endif
 
-			<a href='{{ url("meeting-files/".base64_encode($schedule["id"]))}}' target='_blank' style="background: #ADD8E6;color: #fff;border: 1px solid #ADD8E6;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;text-align: center">{{__('mail.meeting.upload_job_description')}}</a>
+			<a href='{{ url("meeting-files/".base64_encode($schedule["id"]))}}' target='_blank' style="background: #151021;color: #fff;border: 1px solid #151021;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.meeting.upload_job_description')}}</a>
 		</div>
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>

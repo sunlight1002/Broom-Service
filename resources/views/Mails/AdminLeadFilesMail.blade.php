@@ -9,7 +9,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<title>Metting Files</title>
+	<title>Meeting Files</title>
 </head>
 <body style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;">
 
@@ -28,7 +28,7 @@
 		
 		<p style="text-align: center;">{{$client['firstname']}} {{$client['lastname']}} {{__('mail.meeting.file_content')}}</p>
 		
-		<p> Metting 
+		<p> Meeting 
 		@if($start_date)
 		{{__('mail.meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
 		{{__('mail.meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>

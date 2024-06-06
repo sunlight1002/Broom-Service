@@ -3,17 +3,18 @@
 namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ReScheduleMeetingJob;
+use App\Events\WhatsappNotificationEvent;
+use App\Models\Admin;
+use App\Models\Client;
+use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Notification;
-use App\Models\Admin;
-use App\Events\WhatsappNotificationEvent;
-use App\Enums\WhatsappMessageTemplateEnum;
-use App\Models\Client;
 
-class AdminReScheduleMettingNotification implements ShouldQueue
+class ReScheduleMeetingNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -31,10 +32,9 @@ class AdminReScheduleMettingNotification implements ShouldQueue
      * @param  object  $event
      * @return void
      */
-    public function handle($event)
+    public function handle(ReScheduleMeetingJob $event)
     {
         $schedules = $event->schedules;
-
         $scheduleArr = $schedules->toArray();
         $teamEmail = $schedules->team['email'];
         $teamId = $schedules->team['id'];
@@ -45,7 +45,6 @@ class AdminReScheduleMettingNotification implements ShouldQueue
             ->where("id", '!=', $teamId)
             ->get(['name', 'email', 'id', 'phone']);
 
-        //admin mail's
         foreach ($admins as $key => $admin) {
             $adminEmail = $admin->email;
 
@@ -65,7 +64,19 @@ class AdminReScheduleMettingNotification implements ShouldQueue
             "notificationData" => $scheduleArr
         ]));
 
-        // admin bell icon notification
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
+        //     "notificationData" => $scheduleArr
+        // ]));
+
+        Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
+            $messages->to($teamEmail);
+
+            $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
+
+            $messages->subject($subject);
+        });
+
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {
             Notification::create([
                 'user_id' => $schedules->client_id,
@@ -75,35 +86,5 @@ class AdminReScheduleMettingNotification implements ShouldQueue
                 'status' => $schedules->booking_status
             ]);
         }
-
-        //team mail
-        // event(new WhatsappNotificationEvent([
-        //     "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
-        //     "notificationData" => $scheduleArr
-        // ]));
-        Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
-            $messages->to($teamEmail);
-
-            $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-
-            $messages->subject($subject);
-        });
-
-        //customer mail
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
-            "notificationData" => $scheduleArr
-        ]));
-        Mail::send('/Mails/ClientReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
-            $messages->to($teamEmail);
-
-            if ($scheduleArr['client']['lng'] == 'en') {
-                $subject = __('mail.meeting.subject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-            } else {
-                $subject = $scheduleArr['id'] . "# " . __('mail.meeting.subject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company');
-            }
-
-            $messages->subject($subject);
-        });
     }
 }

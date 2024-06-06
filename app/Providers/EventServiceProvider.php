@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Events\AdminLeadFilesNotificationJob;
-use App\Events\AdminReScheduleMettingJob;
+use App\Events\AdminReScheduleMeetingJob;
 use App\Events\ClientPaymentFailed;
 use App\Events\ClientReviewed;
 use App\Events\ContractFormSigned;
@@ -13,7 +13,7 @@ use App\Events\InsuranceFormSigned;
 use App\Events\JobReviewRequest;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
-use App\Events\ReScheduleMettingJob;
+use App\Events\ReScheduleMeetingJob;
 use App\Events\SafetyAndGearFormSigned;
 use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
@@ -28,13 +28,13 @@ use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
 use App\Events\WorkerForm101Requested;
 use App\Listeners\AdminLeadFilesNotification;
-use App\Listeners\AdminReScheduleMettingNotification;
+use App\Listeners\AdminReScheduleMeetingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
 use App\Listeners\NotifyForContractFormSigned;
 use App\Listeners\NotifyForForm101Signed;
 use App\Listeners\NotifyForInsuranceFormSigned;
 use App\Listeners\NotifyForSafetyAndGearFormSigned;
-use App\Listeners\ReScheduleMettingNotification;
+use App\Listeners\ReScheduleMeetingNotification;
 use App\Listeners\SendJobApprovedNotification;
 use App\Listeners\SendJobNotApprovedNotification;
 use App\Listeners\SendJobReviewRequestNotification;
@@ -92,11 +92,11 @@ class EventServiceProvider extends ServiceProvider
         WorkerForm101Requested::class => [
             SendWorkerForm101Notification::class
         ],
-        ReScheduleMettingJob::class => [
-            ReScheduleMettingNotification::class,
+        ReScheduleMeetingJob::class => [
+            ReScheduleMeetingNotification::class,
         ],
-        AdminReScheduleMettingJob::class => [
-            AdminReScheduleMettingNotification::class,
+        AdminReScheduleMeetingJob::class => [
+            AdminReScheduleMeetingNotification::class,
         ],
         AdminLeadFilesNotificationJob::class => [
             AdminLeadFilesNotification::class,

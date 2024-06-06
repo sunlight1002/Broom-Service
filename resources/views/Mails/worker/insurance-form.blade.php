@@ -23,7 +23,7 @@
 		<p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}. {{__('mail.worker.insurance-form.message')}}</p>
 		<p style="text-align: center;">{{__('mail.worker.insurance-form.secondary_message')}}</p>
 		<div style="text-align: center;">
-			<a href='{{ url("insurance-form/".base64_encode($id))}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;margin-top: 25px;margin-bottom: 25px">{{__('mail.worker.insurance-form.btn_txt')}}</a>
+			<a href='{{ url("insurance-form/".base64_encode($id))}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.worker.insurance-form.btn_txt')}}</a>
 		</div>
 		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>

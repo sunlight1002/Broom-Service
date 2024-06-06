@@ -4,7 +4,7 @@ return [
         'subject'     => 'Meeting schedule',
         'resubject'     => 'Re-schedule Meeting',
         'file'     => 'Files',
-        'file_content'     => "Added New files in below mentions metting details",
+        'file_content'     => "Added New files in below mentions meeting details",
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',

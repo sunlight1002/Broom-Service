@@ -35,7 +35,7 @@
 
 		<p style="text-align: center;">{{__('mail.contract.below_txt')}}</p>
 		<div style="text-align: center;">
-			<a href='{{ url("work-contract/".$contract_id)}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;margin-top: 25px;margin-bottom: 25px">{{__('mail.contract.btn_txt')}}</a> 
+			<a href='{{ url("work-contract/".$contract_id)}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.contract.btn_txt')}}</a> 
 		</div>
 		<p style="margin-top: 40px">{{__('mail.contract.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.contract.regards')}}</p>

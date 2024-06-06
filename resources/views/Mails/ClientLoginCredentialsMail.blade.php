@@ -36,7 +36,7 @@
 		<p style="text-align: center;">{{__('mail.client_credentials.email')}} :  {{ $email }} </p>
 		<p style="text-align: center;">{{__('mail.client_credentials.password')}} : {{ $passcode }}</p>
 		<div style="text-align: center;">
-			<a href='{{ url("client/login")}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;margin-top: 25px;margin-bottom: 25px">{{__('mail.client_credentials.btn_txt')}}</a> 
+			<a href='{{ url("client/login")}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.client_credentials.btn_txt')}}</a> 
 		</div>
 		<p style="margin-top: 40px">{{__('mail.contract.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.contract.regards')}}</p>

@@ -21,7 +21,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Events\ContractSigned;
 use App\Events\OfferAccepted;
-use App\Events\ReScheduleMettingJob;
+use App\Events\ReScheduleMeetingJob;
 
 class ClientEmailController extends Controller
 {
@@ -282,7 +282,7 @@ class ClientEmailController extends Controller
     $this->saveGoogleCalendarEvent($schedule);
 
     $schedule->load(['client', 'team', 'propertyAddress']);
-    event(new ReScheduleMettingJob($schedule));
+    event(new ReScheduleMeetingJob($schedule));
 
     return response()->json([
       'message' => 'Thanks, your meeting is rescheduled'
