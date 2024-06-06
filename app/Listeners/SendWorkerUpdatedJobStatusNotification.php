@@ -52,12 +52,14 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
             'status' => 'reschedule'
         ]);
 
-        if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-                "notificationData" => $data
-            ]));
-        }
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
+            "notificationData" => array(
+                'comment'    => $event->comment && $event->comment->comment ? $event->comment->comment : '-',
+                'job'        => $event->job->toArray(),
+            )
+        ]));
+
         // Mail::send('/WorkerPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
         //     $messages->to($data['email']);
         //     $sub = __('mail.job_status.subject');

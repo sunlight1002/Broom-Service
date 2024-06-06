@@ -455,6 +455,27 @@ return [
         'team_lead_files' => [
             'content'   =>  "Greetings from Broom Service. :client_name added New files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
         ],
+        'worker_availability_changed' => [
+            'content' => "Greetings from Broom Service. :name has changed availability that affectes job on :date.",
+        ],
+        'worker_form101_signed' => [
+            'content' => "Greetings from Broom Service. :name have signed Form 101.",
+        ],
+        'worker_contract_signed' => [
+            'content' => "Greetings from Broom Service. :name have signed Contract form.",
+        ],
+        'worker_insurance_signed' => [
+            'content' => "Greetings from Broom Service. :name have signed Insurance form.",
+        ],
+        'worker_safety_gear_signed' => [
+            'content' => "Greetings from Broom Service. :name have signed Safety and Gear form.",
+        ],
+        'client_payment_failed' => [
+            'content' => "Greetings from Broom Service. :name's payment with card [**** **** **** :card_number] has been failed.",
+        ],
+        'client_reviewed' => [
+            'content' => "Greetings from Broom Service. :client_name has reviewed for job :date_time.",
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

@@ -35,6 +35,13 @@ class NotifyForContractFormSigned implements ShouldQueue
      */
     public function handle(ContractFormSigned $event)
     {
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT_SIGNED,
+            "notificationData" => [
+                'worker' => $event->worker
+            ]
+        ]));
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -48,13 +55,6 @@ class NotifyForContractFormSigned implements ShouldQueue
                 'type' => NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
                 'status' => 'signed'
             ]);
-
-            // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-            //         "notificationData" => $data
-            //     ]));
-            // }
 
             Mail::to($admin->email)->send(new AdminContractFormSignedMail($admin, $event->worker, $event->form));
         }

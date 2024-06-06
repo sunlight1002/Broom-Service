@@ -35,6 +35,13 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
      */
     public function handle(InsuranceFormSigned $event)
     {
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_INSURANCE_SIGNED,
+            "notificationData" => [
+                'worker' => $event->worker
+            ]
+        ]));
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -48,13 +55,6 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
                 'type' => NotificationTypeEnum::INSURANCE_SIGNED,
                 'status' => 'signed'
             ]);
-
-            // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-            //         "notificationData" => $data
-            //     ]));
-            // }
 
             Mail::to($admin->email)->send(new AdminInsuranceFormSignedMail($admin, $event->worker, $event->form));
         }

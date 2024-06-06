@@ -260,7 +260,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
                     $adminData = $eventData['admin'];
 
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
@@ -303,14 +303,14 @@ class WhatsappNotification
                     break;
 
                 case WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL:
-                    $adminData = $eventData['admin'];
+                    // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
 
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
@@ -330,14 +330,14 @@ class WhatsappNotification
                     break;
 
                 case WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL:
-                    $adminData = $eventData['admin'];
+                    // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
 
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
+                    $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
@@ -389,7 +389,9 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.approve') . ": " . url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve");
+
                     break;
+
                 case WhatsappMessageTemplateEnum::WORKER_UNASSIGNED:
                     $jobData = $eventData['job'];
                     $oldWorkerData = $eventData['old_worker'];
@@ -410,9 +412,11 @@ class WhatsappNotification
                         'service_name' => $oldWorkerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'] . ', ') : ($jobData['jobservice']['name'] . ', '),
                         'shift' => $oldJobData['shifts']
                     ]);
+
                     break;
+
                 case WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION:
-                    $by = isset($eventData['by'])?$eventData['by']:'client';
+                    $by = isset($eventData['by']) ? $eventData['by'] : 'client';
                     $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
 
@@ -433,7 +437,58 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("client/login");
+
                     break;
+
+                case WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION:
+                    $workerData = $eventData['worker'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_job_opening_notification.content', [
+                        'client_name' => $workerData['firstname'] . " " . $workerData['lastname']
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData['id']);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['id']);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
+                    $comment = $eventData['comment'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_job_status_notification.content', [
+                        'status' => ucfirst($jobData['status']),
+                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " "),
+                        'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
+                        'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
+                        'service_name' => $jobData['jobservice']['name'],
+                        'status' => ucfirst($jobData['status'])
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData["id"]);
+
+                    break;
+
                 case WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR:
                     $workerData = $eventData;
 
@@ -449,7 +504,67 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.worker_safe_gear.content');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.safety_and_gear') . ": " . url("worker-safe-gear/" . base64_encode($workerData["id"]));
+
                     break;
+
+                case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
+                    if ($eventData['purpose'] == "Price offer") {
+                        $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                    } else if ($eventData['purpose'] == "Quality check") {
+                        $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                    } else {
+                        $eventData['purpose'] = $eventData['purpose'];
+                    }
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.admin_reschedule_meeting.content', [
+                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " "),
+                        'address' => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA',
+                        'purpose' => $eventData['purpose'] ? $eventData['purpose'] : "NA",
+                        'meet_link' => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
+                    ]);
+
+                    break;
+
+                    // case WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING:
+                    //     if ($eventData['purpose'] == "Price offer") {
+                    //         $eventData['purpose'] =  trans('mail.meeting.price_offer');
+                    //     } else if ($eventData['purpose'] == "Quality check") {
+                    //         $eventData['purpose'] =  trans('mail.meeting.quality_check');
+                    //     } else {
+                    //         $eventData['purpose'] = $eventData['purpose'];
+                    //     }
+                    //     $teamData = $eventData['team'];
+                    //     $clientData = $eventData['client'];
+
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('en');
+
+                    //     $text = __('mail.wa-message.common.salutation', [
+                    //         'name' => $teamData['name']
+                    //     ]);
+
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.team_reschedule_meeting.content', [
+                    //         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //         'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " "),
+                    //         'address' => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA',
+                    //         'purpose' => $eventData['purpose'] ? $eventData['purpose'] : "NA",
+                    //         'meet_link' => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
+                    //     ]);
+
+                    //     break;
+
                 case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
                     if ($eventData['purpose'] == "Price offer") {
                         $eventData['purpose'] =  trans('mail.meeting.price_offer');
@@ -477,7 +592,47 @@ class WhatsappNotification
                         'purpose' => $eventData['purpose'] ? $eventData['purpose'] : "NA",
                         'meet_link' => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
                     ]);
+
                     break;
+
+                case WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES:
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.admin_lead_files.content', [
+                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.check_file') . ": " . url("storage/uploads/ClientFiles/" . $eventData["file_name"]);
+
+                    break;
+
+                    // case WhatsappMessageTemplateEnum::TEAM_LEAD_FILES:
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('en');
+
+                    //     $text = __('mail.wa-message.common.salutation', [
+                    //         'name' => $eventData['team']['name']
+                    //     ]);
+
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.team_lead_files.content', [
+                    //         'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                    //         'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                    //     ]);
+
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.check_file') . ": " . url("storage/uploads/ClientFiles/" . $eventData["file_name"]);
+
+                    //     break;
+
                 case WhatsappMessageTemplateEnum::WORKER_FORMS:
                     $workerData = $eventData;
 
@@ -493,64 +648,18 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.worker_forms.content');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.check_form') . ": " . url("worker-forms/" . base64_encode($workerData['id']));
+
                     break;
-                case WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION:
-                    $workerData = $eventData['worker'];
-                    $adminData = $eventData['admin'];
-                    $jobData = $eventData['job'];
 
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
-                    App::setLocale('en');
-
-                    $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
-                    ]);
-
-                    $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.worker_job_opening_notification.content', [
-                        'client_name' => $workerData['firstname'] . " " . $workerData['lastname']
-                    ]);
-
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData['id']);
-
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['id']);
-                    break;
-                case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
-                    $comment = $eventData['comment'];
-                    $adminData = $eventData['admin'];
-                    $jobData = $eventData['job'];
-
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
-                    App::setLocale('en');
-
-                    $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
-                    ]);
-
-                    $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.worker_job_status_notification.content', [
-                        'status' => ucfirst($jobData['status']),
-                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " "),
-                        'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
-                        'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
-                        'service_name' => $jobData['jobservice']['name'],
-                        'status' => ucfirst($jobData['status'])
-                    ]);
-
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData["id"]);
-                    break;
                 case WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION:
                     $by = $eventData['by'];
-                    $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
 
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancelation');
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
@@ -565,97 +674,143 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("admin/view-job/" . $jobData["id"]);
-                    break;
-                case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
-                    if ($eventData['purpose'] == "Price offer") {
-                        $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                    } else if ($eventData['purpose'] == "Quality check") {
-                        $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                    } else {
-                        $eventData['purpose'] = $eventData['purpose'];
-                    }
 
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_AVAILABILITY_CHANGED:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.workers_availability');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $eventData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.admin_reschedule_meeting.content', [
-                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
-                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " "),
-                        'address' => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA',
-                        'purpose' => $eventData['purpose'] ? $eventData['purpose'] : "NA",
-                        'meet_link' => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
+                    $text .= __('mail.wa-message.worker_availability_changed.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                        'date' => Carbon::parse($eventData['date'])->format('M d Y'),
                     ]);
+
                     break;
-                case WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING:
-                    if ($eventData['purpose'] == "Price offer") {
-                        $eventData['purpose'] =  trans('mail.meeting.price_offer');
-                    } else if ($eventData['purpose'] == "Quality check") {
-                        $eventData['purpose'] =  trans('mail.meeting.quality_check');
-                    } else {
-                        $eventData['purpose'] = $eventData['purpose'];
-                    }
-                    $teamData = $eventData['team'];
+
+                case WhatsappMessageTemplateEnum::WORKER_FORM101_SIGNED:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.workers_availability');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_form101_signed.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_CONTRACT_SIGNED:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.workers_availability');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_contract_signed.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_INSURANCE_SIGNED:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.workers_availability');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_insurance_signed.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_SAFETY_GEAR_SIGNED:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.workers_availability');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_safety_gear_signed.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
                     $clientData = $eventData['client'];
+                    $cardData = $eventData['card'];
 
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $teamData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.team_reschedule_meeting.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " "),
-                        'address' => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA',
-                        'purpose' => $eventData['purpose'] ? $eventData['purpose'] : "NA",
-                        'meet_link' => $eventData['meet_link'] ? $eventData['meet_link'] : "NA"
+                    $text .= __('mail.wa-message.client_payment_failed.content', [
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'card_number' => $cardData['card_number']
                     ]);
+
                     break;
-                case WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES:
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+
+                case WhatsappMessageTemplateEnum::CLIENT_REVIEWED:
+                    $clientData = $eventData['client'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => $eventData['name']
+                        'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.admin_lead_files.content', [
-                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
-                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
+                    $text .= __('mail.wa-message.client_reviewed.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts']
+                            ? (" ( " . $jobData['shifts'] . " ) ")
+                            : " "),
+                        'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.check_file') . ": " . url("storage/uploads/ClientFiles/" . $eventData["file_name"]);
-                    break;
-                case WhatsappMessageTemplateEnum::TEAM_LEAD_FILES:
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
-
-                    $text = __('mail.wa-message.common.salutation', [
-                        'name' => $eventData['team']['name']
-                    ]);
-
-                    $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.team_lead_files.content', [
-                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
-                        'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " ")
-                    ]);
-
-                    $text .= "\n\n" . __('mail.wa-message.button-label.check_file') . ": " . url("storage/uploads/ClientFiles/" . $eventData["file_name"]);
                     break;
             }
-            
+
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
 
@@ -1862,7 +2017,9 @@ class WhatsappNotification
             // ob_end_clean();
         } catch (\Throwable $th) {
             // dd($th);
-            throw $th;
+            // throw $th;
+            Log::alert('WA NOTIFICATION ERROR');
+            Log::alert($th->getMessage());
         }
     }
 }
