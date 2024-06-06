@@ -35,6 +35,14 @@ class NotifyForClientPaymentFailed implements ShouldQueue
      */
     public function handle(ClientPaymentFailed $event)
     {
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED,
+            "notificationData" => [
+                'client' => $event->client->toArray(),
+                'card' => $event->card->toArray()
+            ]
+        ]));
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -51,13 +59,6 @@ class NotifyForClientPaymentFailed implements ShouldQueue
                 ],
                 'status' => 'failed'
             ]);
-
-            // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-            //         "notificationData" => $data
-            //     ]));
-            // }
 
             $emailData = [
                 'client' => $event->client,

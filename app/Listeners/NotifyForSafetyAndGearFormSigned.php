@@ -35,6 +35,13 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
      */
     public function handle(SafetyAndGearFormSigned $event)
     {
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_SAFETY_GEAR_SIGNED,
+            "notificationData" => [
+                'worker' => $event->worker
+            ]
+        ]));
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -48,13 +55,6 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
                 'type' => NotificationTypeEnum::SAFETY_GEAR_SIGNED,
                 'status' => 'signed'
             ]);
-
-            // if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
-            //         "notificationData" => $data
-            //     ]));
-            // }
 
             Mail::to($admin->email)->send(new AdminSafetyAndGearFormSignedMail($admin, $event->worker, $event->form));
         }

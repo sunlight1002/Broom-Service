@@ -6,6 +6,7 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ClientReviewed;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\CreateJobOrder;
@@ -206,12 +207,14 @@ class JobController extends Controller
                 'admin'      => $admin->toArray(),
                 'job'        => $job->toArray(),
             );
-            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                    "notificationData" => $data
-                ]));
-            }
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
+                "notificationData" => array(
+                    'by'         => 'client',
+                    'job'        => $job->toArray(),
+                )
+            ]));
             // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
             //     $messages->to($data['email']);
             //     $sub = __('mail.client_job_status.subject');
@@ -523,6 +526,8 @@ class JobController extends Controller
             'type' => NotificationTypeEnum::JOB_REVIEWED,
             'status' => 'reviewed'
         ]);
+
+        event(new ClientReviewed($job->client, $job));
 
         return response()->json([
             'message' => 'Job rating submitted successfully',

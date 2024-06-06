@@ -52,11 +52,6 @@ class AdminReScheduleMettingNotification implements ShouldQueue
 
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
-                "notificationData" => $emailDataWithAdditional
-            ]));
-
             Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
                 $messages->to($adminEmail);
 
@@ -65,6 +60,11 @@ class AdminReScheduleMettingNotification implements ShouldQueue
                 $messages->subject($subject);
             });
         }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+            "notificationData" => $scheduleArr
+        ]));
 
         // admin bell icon notification
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {
@@ -78,10 +78,10 @@ class AdminReScheduleMettingNotification implements ShouldQueue
         }
 
         //team mail
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
-            "notificationData" => $scheduleArr
-        ]));
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
+        //     "notificationData" => $scheduleArr
+        // ]));
         Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
             $messages->to($teamEmail);
 

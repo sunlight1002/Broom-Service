@@ -58,29 +58,31 @@ class SendJobNotApprovedNotification implements ShouldQueue
         event(new JobNotificationToWorker($worker, $job, $emailData));
 
         //old
-        $admins = Admin::query()
-            ->where('role', 'admin')
-            ->whereNotNull('email')
-            ->get(['name', 'email', 'id', 'phone']);
+        // $admins = Admin::query()
+        //     ->where('role', 'admin')
+        //     ->whereNotNull('email')
+        //     ->get(['name', 'email', 'id', 'phone']);
 
-        App::setLocale('en');
-        foreach ($admins as $key => $admin) {
-            $emailData = array(
-                'admin' => $admin->toArray(),
-                'email' => $admin->email,
+        // App::setLocale('en');
+        // foreach ($admins as $key => $admin) {
+        //     $emailData = array(
+        //         'admin' => $admin->toArray(),
+        //         'email' => $admin->email,
+        //         'job' => $event->job->toArray(),
+        //         'content' => 'Worker has not approved the job yet.'
+        //     );
+        //     // Mail::send('/Mails/WorkerJobApprovalMail', $emailData, function ($messages) use ($emailData) {
+        //     //     $messages->to($emailData['email']);
+        //     //     $messages->subject('Job Not Approved | Broom Service');
+        //     // });
+        // }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL,
+            "notificationData" => array(
                 'job' => $event->job->toArray(),
                 'content' => 'Worker has not approved the job yet.'
-            );
-            if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL,
-                    "notificationData" => $emailData
-                ]));
-            }
-            // Mail::send('/Mails/WorkerJobApprovalMail', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['email']);
-            //     $messages->subject('Job Not Approved | Broom Service');
-            // });
-        }
+            )
+        ]));
     }
 }

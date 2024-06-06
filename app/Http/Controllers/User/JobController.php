@@ -399,20 +399,23 @@ class JobController extends Controller
             event(new JobNotificationToWorker($worker, $job, $emailData));
 
             //old
-            App::setLocale('en');
-            $admin = Admin::where('role', 'admin')->first();
-            $data = array(
-                'email'      => $admin->email,
-                'admin'      => $admin->toArray(),
-                'worker'     => $job->worker,
-                'job'        => $job->toArray(),
-            );
-            if (isset($data['admin']) && !empty($data['admin']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
-                    "notificationData" => $data
-                ]));
-            }
+            // App::setLocale('en');
+            // $admin = Admin::where('role', 'admin')->first();
+            // $data = array(
+            //     'email'      => $admin->email,
+            //     'admin'      => $admin->toArray(),
+            //     'worker'     => $job->worker,
+            //     'job'        => $job->toArray(),
+            // );
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                "notificationData" => array(
+                    'worker'     => $job->worker,
+                    'job'        => $job->toArray(),
+                )
+            ]));
+
             // Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
             //     $messages->to($data['email']);
             //     $sub = __('mail.job_status.subject');

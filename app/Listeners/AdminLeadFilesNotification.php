@@ -57,11 +57,6 @@ class AdminLeadFilesNotification implements ShouldQueue
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
             $emailDataWithAdditional['file_name'] = $fileName;
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
-                "notificationData" => $emailDataWithAdditional
-            ]));
-
             Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
                 $messages->to($adminEmail);
 
@@ -73,6 +68,12 @@ class AdminLeadFilesNotification implements ShouldQueue
             });
         }
 
+        $scheduleArr['file_name'] = $fileName;
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
+            "notificationData" => $scheduleArr
+        ]));
+
         // admin bell icon notification
         Notification::create([
             'user_id' => $schedules->client_id,
@@ -83,11 +84,10 @@ class AdminLeadFilesNotification implements ShouldQueue
         ]);
 
         //team mail
-        $scheduleArr['file_name'] = $fileName;
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
-            "notificationData" => $scheduleArr
-        ]));
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
+        //     "notificationData" => $scheduleArr
+        // ]));
         Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
             $messages->to($teamEmail);
 

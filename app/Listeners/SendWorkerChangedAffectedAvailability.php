@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\JobNotificationToAdmin;
-use App\Events\JobNotificationToWorker;
 
 class SendWorkerChangedAffectedAvailability implements ShouldQueue
 {
@@ -33,6 +31,15 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
      */
     public function handle(WorkerChangeAffectedAvailability $event)
     {
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_AVAILABILITY_CHANGED,
+            "notificationData" => array(
+                'worker' => $event->worker->toArray(),
+                'date' => $event->date,
+                'affectedAvailability' => $event->affectedAvailability,
+            )
+        ]));
+
         $admins = Admin::query()
             ->where('role', 'admin')
             ->whereNotNull('email')
@@ -47,13 +54,6 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
                 'date' => $event->date,
                 'affectedAvailability' => $event->affectedAvailability,
             );
-
-            // if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
-            //     event(new WhatsappNotificationEvent([
-            //         "type" => WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL,
-            //         "notificationData" => $emailData
-            //     ]));
-            // }
 
             Mail::send('Mails.admin.worker-availability-changed', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
