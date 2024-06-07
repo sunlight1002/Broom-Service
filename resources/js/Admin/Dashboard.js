@@ -12,7 +12,8 @@ import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
-    const [totalClients, setTotalClients] = useState([0]);
+    const [totalNewClients, setTotalNewClients] = useState([0]);
+    const [totalActiveClients, setTotalActiveClients] = useState([0]);
     const [totalLeads, setTotalLeads] = useState([0]);
     const [totalWorkers, setTotalWorkers] = useState([0]);
     const [totalOffers, setTotalOffers] = useState([0]);
@@ -21,11 +22,11 @@ export default function Dashboard() {
     const [latestJobs, setlatestJobs] = useState([]);
     const [income, setIncome] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    const [latestClient, setLatestClients] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
+    // const [latestClient, setLatestClients] = useState([]);
+    // const [pageCount, setPageCount] = useState(0);
     const [role, setRole] = useState("");
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { t } = useTranslation();
 
     const headers = {
@@ -37,7 +38,8 @@ export default function Dashboard() {
     const getCompletedJobs = () => {
         axios.get("/api/admin/dashboard", { headers }).then((response) => {
             setTotalJobs(response.data.total_jobs);
-            setTotalClients(response.data.total_clients);
+            setTotalNewClients(response.data.total_new_clients);
+            setTotalActiveClients(response.data.total_active_clients);
             setTotalLeads(response.data.total_leads);
             setTotalWorkers(response.data.total_workers);
             setTotalOffers(response.data.total_offers);
@@ -51,29 +53,29 @@ export default function Dashboard() {
         });
     };
 
-    const rowHandle = (e, id) => {
-        e.preventDefault();
-        navigate(`/admin/view-job/${id}`);
-    };
+    // const rowHandle = (e, id) => {
+    //     e.preventDefault();
+    //     navigate(`/admin/view-job/${id}`);
+    // };
 
-    const copy = [...latestJobs];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (col) => {
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setlatestJobs(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setlatestJobs(sortData);
-            setOrder("ASC");
-        }
-    };
+    // const copy = [...latestJobs];
+    // const [order, setOrder] = useState("ASC");
+    // const sortTable = (col) => {
+    //     if (order == "ASC") {
+    //         const sortData = [...copy].sort((a, b) =>
+    //             a[col] < b[col] ? 1 : -1
+    //         );
+    //         setlatestJobs(sortData);
+    //         setOrder("DESC");
+    //     }
+    //     if (order == "DESC") {
+    //         const sortData = [...copy].sort((a, b) =>
+    //             a[col] < b[col] ? -1 : 1
+    //         );
+    //         setlatestJobs(sortData);
+    //         setOrder("ASC");
+    //     }
+    // };
 
     const getIncome = (duration) => {
         axios
@@ -88,17 +90,17 @@ export default function Dashboard() {
             });
     };
 
-    const latestClients = () => {
-        axios.get(`/api/admin/latest-clients`, { headers }).then((res) => {
-            if (res.data.clients.data.length > 0) {
-                setLatestClients(res.data.clients.data);
-                setPageCount(res.data.clients.last_page);
-            } else {
-                setPageCount(0);
-                setLoading("No client found!");
-            }
-        });
-    };
+    // const latestClients = () => {
+    //     axios.get(`/api/admin/latest-clients`, { headers }).then((res) => {
+    //         if (res.data.clients.data.length > 0) {
+    //             setLatestClients(res.data.clients.data);
+    //             setPageCount(res.data.clients.last_page);
+    //         } else {
+    //             setPageCount(0);
+    //             setLoading("No client found!");
+    //         }
+    //     });
+    // };
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
@@ -109,7 +111,7 @@ export default function Dashboard() {
     useEffect(() => {
         getCompletedJobs();
         getIncome();
-        latestClients();
+        // latestClients();
         getAdmin();
     }, []);
 
@@ -144,8 +146,27 @@ export default function Dashboard() {
                                         <i className="fa-regular fa-user"></i>
                                     </div>
                                     <div className="dashText">
-                                        <h3>{totalClients}</h3>
-                                        <p> {t("admin.dashboard.clients")}</p>
+                                        <h3>{totalNewClients}</h3>
+                                        <p>
+                                            {" "}
+                                            {t("admin.dashboard.newClients")}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        </div>
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <Link to="/admin/clients">
+                                <div className="dashBox">
+                                    <div className="dashIcon">
+                                        <i className="fa-regular fa-user"></i>
+                                    </div>
+                                    <div className="dashText">
+                                        <h3>{totalActiveClients}</h3>
+                                        <p>
+                                            {" "}
+                                            {t("admin.dashboard.activeClients")}
+                                        </p>
                                     </div>
                                 </div>
                             </Link>
@@ -158,7 +179,10 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalLeads}</h3>
-                                        <p> Leads</p>
+                                        <p>
+                                            {" "}
+                                            {t("admin.dashboard.pendingLeads")}
+                                        </p>
                                     </div>
                                 </div>
                             </Link>
@@ -171,7 +195,10 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalWorkers}</h3>
-                                        <p> {t("admin.dashboard.workers")}</p>
+                                        <p>
+                                            {" "}
+                                            {t("admin.dashboard.activeWorkers")}
+                                        </p>
                                     </div>
                                 </div>
                             </Link>
@@ -199,7 +226,9 @@ export default function Dashboard() {
                                         <h3>{totalOffers}</h3>
                                         <p>
                                             {" "}
-                                            {t("admin.dashboard.offeredPrice")}
+                                            {t(
+                                                "admin.dashboard.pendingOfferedPrice"
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -213,12 +242,58 @@ export default function Dashboard() {
                                     </div>
                                     <div className="dashText">
                                         <h3>{contracts}</h3>
+                                        <p>
+                                            {" "}
+                                            {t(
+                                                "admin.dashboard.pendingContract"
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
                             </Link>
                         </div>
+                        {role && role == "superadmin" && (
+                            <>
+                                <div className="col-lg-4 col-sm-6  col-xs-6">
+                                    <Link to="/admin/income">
+                                        <div className="dashBox">
+                                            <div className="dashIcon">
+                                                <i className="fa-solid fa-file-contract"></i>
+                                            </div>
+                                            <div className="dashText">
+                                                <h3>{income} ILS</h3>
+                                                <p>
+                                                    {" "}
+                                                    {t(
+                                                        "admin.dashboard.income"
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </div>
+                                <div className="col-lg-4 col-sm-6  col-xs-6">
+                                    <Link to="/admin/income">
+                                        <div className="dashBox">
+                                            <div className="dashIcon">
+                                                <i className="fa-solid fa-file-contract"></i>
+                                            </div>
+                                            <div className="dashText">
+                                                <h3>{0}</h3>
+                                                <p>
+                                                    {" "}
+                                                    {t(
+                                                        "admin.dashboard.outcome"
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
                     </div>
-                    <div className="row">
+                    {/* <div className="row">
                         <div className="col-xl-9 col-12">
                             <div className="view-applicant">
                                 <h2 className="page-title">
@@ -331,7 +406,7 @@ export default function Dashboard() {
                                     })}
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

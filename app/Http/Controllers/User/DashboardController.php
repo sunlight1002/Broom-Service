@@ -29,13 +29,13 @@ class DashboardController extends Controller
             ->first();
 
         $approval_pending_job = Job::query()
-            ->with(['client', 'jobservice'])
+            ->with(['client', 'worker', 'jobservice', 'propertyAddress'])
             ->where('worker_id', $workerID)
             ->whereDate('start_date', Carbon::tomorrow()->toDateString())
             ->whereNull('worker_approved_at')
             ->orderBy('start_date', 'asc')
             ->take(10)
-            ->get(['id', 'start_date', 'shifts', 'status', 'client_id']);
+            ->get();
 
         return response()->json([
             'counts' => $counts,

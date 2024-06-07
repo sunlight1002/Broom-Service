@@ -118,7 +118,7 @@ class AuthController extends Controller
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
             'worker_id' => ['required', 'unique:users,worker_id,' . Auth::user()->id],
-            'status'    => ['required'],
+            // 'status'    => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -133,12 +133,12 @@ class AuthController extends Controller
         $worker->address       = $request->address;
         $worker->renewal_visa  = $request->renewal_visa;
         $worker->gender        = $request->gender;
-        $worker->payment_per_hour  = $request->payment_hour;
+        // $worker->payment_per_hour  = $request->payment_hour;
         $worker->worker_id     = $request->worker_id;
         $worker->lng           = $request->lng;
         $worker->passcode     = $request->password;
         $worker->password      = Hash::make($request->password);
-        $worker->status        = $request->status;
+        // $worker->status        = $request->status;
         $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;

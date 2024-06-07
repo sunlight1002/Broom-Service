@@ -21,34 +21,34 @@ export default function WorkerMyAccount() {
     const [email, setEmail] = useState("");
     const [renewal_date, setRenewalDate] = useState("");
     const [gender, setGender] = useState("male");
-    const [payment_hour, setPaymentHour] = useState(0);
+    // const [payment_hour, setPaymentHour] = useState(0);
     const [worker_id, setWorkerId] = useState(
         Math.random().toString().concat("0".repeat(3)).substr(2, 5)
     );
     const [password, setPassword] = useState("");
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
-    const [skill, setSkill] = useState([]);
-    const [itemStatus, setItemStatus] = useState("");
+    // const [skill, setSkill] = useState([]);
+    // const [itemStatus, setItemStatus] = useState("");
     const [country, setCountry] = useState("Israel");
 
     const [countries, setCountries] = useState([]);
-    const [avl_skill, setAvlSkill] = useState([]);
+    // const [avl_skill, setAvlSkill] = useState([]);
 
     const [errors, setErrors] = useState([]);
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
     const { t } = useTranslation();
-    const handleSkills = (e) => {
-        const value = e.target.value;
-        const checked = e.target.checked;
-        if (checked) {
-            setSkill([...skill, value]);
-        } else {
-            setSkill(skill.filter((e) => e !== value));
-        }
-    };
+    // const handleSkills = (e) => {
+    //     const value = e.target.value;
+    //     const checked = e.target.checked;
+    //     if (checked) {
+    //         setSkill([...skill, value]);
+    //     } else {
+    //         setSkill(skill.filter((e) => e !== value));
+    //     }
+    // };
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -64,11 +64,11 @@ export default function WorkerMyAccount() {
             address: address,
             renewal_visa: renewal_date,
             gender: gender,
-            payment_hour: payment_hour,
+            // payment_hour: payment_hour,
             lng: lng != 0 ? lng : "heb",
             worker_id: worker_id,
             password: password,
-            status: itemStatus,
+            // status: itemStatus,
             country: country,
         };
 
@@ -93,12 +93,12 @@ export default function WorkerMyAccount() {
             setPhone(w.phone);
             setRenewalDate(w.renewal_visa);
             setGender(w.gender);
-            setPaymentHour(w.payment_per_hour);
+            // setPaymentHour(w.payment_per_hour);
             setWorkerId(w.worker_id);
             setPassword(w.passcode);
-            setSkill(w.skill);
+            // setSkill(w.skill);
             setAddress(w.address);
-            setItemStatus(w.status);
+            // setItemStatus(w.status);
             setLng(w.lng);
             setCountry(w.country);
             elementsRef.current.map(
@@ -110,11 +110,11 @@ export default function WorkerMyAccount() {
             );
         });
     };
-    const getAvailableSkill = () => {
-        axios.get(`/api/admin/get_services`, { headers }).then((response) => {
-            setAvlSkill(response.data.services);
-        });
-    };
+    // const getAvailableSkill = () => {
+    //     axios.get(`/api/admin/get_services`, { headers }).then((response) => {
+    //         setAvlSkill(response.data.services);
+    //     });
+    // };
     const getCountries = () => {
         axios.get(`/api/admin/countries`, { headers }).then((response) => {
             setCountries(response.data.countries);
@@ -123,7 +123,7 @@ export default function WorkerMyAccount() {
     useEffect(() => {
         getWorker();
         getCountries();
-        getAvailableSkill();
+        // getAvailableSkill();
     }, []);
     return (
         <>
@@ -137,6 +137,7 @@ export default function WorkerMyAccount() {
                                         {t("worker.settings.f_name")} *
                                     </label>
                                     <input
+                                        readOnly
                                         type="text"
                                         value={firstname}
                                         onChange={(e) =>
@@ -163,6 +164,7 @@ export default function WorkerMyAccount() {
                                         {t("worker.settings.l_name")}
                                     </label>
                                     <input
+                                        readOnly
                                         type="text"
                                         value={lastname}
                                         onChange={(e) =>
@@ -230,6 +232,7 @@ export default function WorkerMyAccount() {
                                     <div className="form-check-inline">
                                         <label className="form-check-label">
                                             <input
+                                                readOnly
                                                 type="radio"
                                                 className="form-check-input"
                                                 value="male"
@@ -238,6 +241,7 @@ export default function WorkerMyAccount() {
                                                     setGender(e.target.value)
                                                 }
                                                 checked={gender === "male"}
+                                                disabled
                                             />
                                             {t("worker.settings.male")}
                                         </label>
@@ -245,6 +249,7 @@ export default function WorkerMyAccount() {
                                     <div className="form-check-inline">
                                         <label className="form-check-label">
                                             <input
+                                                readOnly
                                                 type="radio"
                                                 className="form-check-input"
                                                 value="female"
@@ -253,13 +258,14 @@ export default function WorkerMyAccount() {
                                                     setGender(e.target.value)
                                                 }
                                                 checked={gender === "female"}
+                                                disabled
                                             />
                                             {t("worker.settings.female")}
                                         </label>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-sm-6">
+                            {/* <div className="col-sm-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t("worker.settings.p_ph")}
@@ -274,13 +280,14 @@ export default function WorkerMyAccount() {
                                         placeholder={t("worker.settings.p_ph")}
                                     />
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="col-sm-6">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t("worker.settings.w_id")}
                                     </label>
                                     <input
+                                        readOnly
                                         type="text"
                                         value={worker_id}
                                         onChange={(e) =>
@@ -345,6 +352,7 @@ export default function WorkerMyAccount() {
                                     </label>
 
                                     <select
+                                        disabled
                                         className="form-control"
                                         value={country}
                                         onChange={(e) =>
@@ -403,7 +411,7 @@ export default function WorkerMyAccount() {
                                 ""
                             )}
                         </div>
-                        <div className="col-sm-12">
+                        {/* <div className="col-sm-12">
                             <div className="form-group skills-group">
                                 <label className="control-label">
                                     {t("worker.settings.skills")}
@@ -432,13 +440,13 @@ export default function WorkerMyAccount() {
                                                         ""
                                                     )}
 
-                                                    {/*<input type="checkbox" className="form-check-input" name="skills" value={item.id} onChange={handleSkills} checked={skill.includes((item.id).toString())} /><span>{item.name}</span> */}
+                                                    <input type="checkbox" className="form-check-input" name="skills" value={item.id} onChange={handleSkills} checked={skill.includes((item.id).toString())} /><span>{item.name}</span>
                                                 </div>
                                             );
                                         }
                                     })}
                             </div>
-                        </div>
+                        </div> */}
                         <div className="col-sm-12 mt-4">
                             <div className="form-group">
                                 <label className="control-label">
@@ -461,7 +469,7 @@ export default function WorkerMyAccount() {
                                     </div>
                                 ))}
                         </div>
-                        <div className="form-group mt-4">
+                        {/* <div className="form-group mt-4">
                             <label className="control-label">
                                 {t("worker.settings.status")}
                             </label>
@@ -487,7 +495,7 @@ export default function WorkerMyAccount() {
                             ) : (
                                 ""
                             )}
-                        </div>
+                        </div> */}
                         <div className="form-group text-center">
                             <input
                                 type="submit"

@@ -661,10 +661,16 @@
         "dashboard": {
             "jobPosted": "Job Posted",
             "clients": "Clients",
+            "newClients": "New Clients",
+            "activeClients": "Active Clients",
+            "pendingLeads": "Pending Leads",
             "workers": "Workers",
+            "activeWorkers": "Active Workers",
             "meetings": "Meetings",
             "offeredPrice": "offered Price",
+            "pendingOfferedPrice": "Pending Price Offers",
             "contracts": "Contracts",
+            "pendingContract": "Pending Contracts",
             "jobsSchedule": "Jobs Schedule",
             "income": "Income",
             "outcome": "Outcome",
@@ -1084,7 +1090,8 @@
             "dashboard": "Dashboard",
             "jobs": "Jobs",
             "schedule": "Schedule",
-            "not_available": "Not Available Dates"
+            "not_available": "Not Available Dates",
+            "workingHours": "Hours"
         },
         "dashboard": {
             "past_jobs": "Past Jobs",
@@ -1161,7 +1168,8 @@
                 "approve": "Approve",
                 "selectAllComment": "Please select all comments",
                 "jobMarkCompleted": "Job Mark as Completed.",
-                "CompleteJob": "Complete Job"
+                "CompleteJob": "Complete Job",
+                "onMyWay": "On my way"
             }
         },
         "schedule": {
@@ -1198,7 +1206,7 @@
             "Disable": "Disable",
             "formUplodSuccess": "Form Upload Successfully",
             "edit_account": "Edit Account",
-            "manage_form": "Manage Form",
+            "manage_form": "Documents",
             "view_contract": "View Contract",
             "f_name": "First Name",
             "l_name": "Last Name",

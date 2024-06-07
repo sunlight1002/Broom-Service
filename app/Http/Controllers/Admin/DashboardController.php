@@ -27,13 +27,21 @@ class DashboardController extends Controller
 
   public function dashboard()
   {
-    $total_workers   = User::count();
-    $total_clients   = Client::where('status', 2)->count();
+    $today = Carbon::now()->toDateString();
+    $todayDateTime = Carbon::now()->toDateTimeString();
+
+    $total_jobs      = Job::whereDate('start_date', $today)->count();
+    $total_new_clients   = Client::where('created_at', $todayDateTime)->count();
+    $total_active_clients   = Client::where('status', 2)->count();
     $total_leads   = Client::where('status', '!=', 2)->count();
-    $total_jobs      = Job::count();
-    $total_offers    = Offer::count();
-    $total_schedules  = Schedule::count();
-    $total_contracts  = Contract::count();
+    $total_workers   = User::where(function ($q)  use($today){
+      $q
+          ->whereNull('last_work_date')
+          ->orWhereDate('last_work_date', '>=', $today);
+    })->count();
+    $total_schedules  = Schedule::whereDate('start_date', $today)->count();
+    $total_offers    = Offer::where('status', 'sent')->count();
+    $total_contracts  = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)->count();
     $latest_jobs     = Job::query()
       ->with(['client', 'service', 'worker', 'jobservice'])
       ->where('status', JobStatusEnum::COMPLETED)
@@ -41,14 +49,15 @@ class DashboardController extends Controller
       ->paginate(5);
 
     return response()->json([
-      'total_workers'      => $total_workers,
-      'total_clients'      => $total_clients,
-      'total_leads'        => $total_leads,
       'total_jobs'         => $total_jobs,
-      'total_offers'       => $total_offers,
+      'total_new_clients'     => $total_new_clients,
+      'total_active_clients'  => $total_active_clients,
+      'total_leads'        => $total_leads,
+      'total_workers'      => $total_workers,
       'total_schedules'    => $total_schedules,
+      'total_offers'       => $total_offers,
       'total_contracts'    => $total_contracts,
-      'latest_jobs'        => $latest_jobs
+      'latest_jobs'        => $latest_jobs,
     ]);
   }
 

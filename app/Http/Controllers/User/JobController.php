@@ -510,20 +510,12 @@ class JobController extends Controller
     public function todayJobs()
     {
         $today_jobs = Job::query()
-            ->with(['client', 'jobservice'])
+            ->with(['client', 'jobservice', 'propertyAddress'])
             ->where('worker_id', Auth::id())
             ->whereDate('start_date', Carbon::today()->toDateString())
             ->where('status', '!=', JobStatusEnum::COMPLETED)
             ->take(10)
-            ->get([
-                'id',
-                'start_date',
-                'shifts',
-                'status',
-                'client_id',
-                'job_opening_timestamp',
-                'worker_approved_at',
-            ]);
+            ->get();
 
         $today_jobs = $today_jobs->map(function ($job, $key) {
             $jobArr = $job->toArray();
