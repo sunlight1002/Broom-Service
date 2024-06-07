@@ -7,11 +7,14 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
 import Moment from "moment";
+
 export default function ClientOfferPrice() {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const [pageCount, setPageCount] = useState(0);
+
     const { t } = useTranslation();
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -71,7 +74,7 @@ export default function ClientOfferPrice() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("client.offer.title")}
+                                {t("client.common.offers")}
                             </h1>
                         </div>
                         <div className="col-sm-6">

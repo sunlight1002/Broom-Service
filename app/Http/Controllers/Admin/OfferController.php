@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LeadStatus;
 use App\Models\Offer;
 use App\Traits\PriceOffered;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +27,7 @@ class OfferController extends Controller
     {
         $query = Offer::query()
             ->leftJoin('clients', 'offers.client_id', '=', 'clients.id')
-            ->select('offers.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'offers.status', 'offers.subtotal', 'offers.total');
+            ->select('offers.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'offers.status', 'offers.subtotal', 'offers.total', 'offers.created_at');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -41,6 +42,9 @@ class OfferController extends Controller
                         });
                     }
                 }
+            })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
             })
             ->editColumn('name', function ($data) {
                 return $data->firstname . ' ' . $data->lastname;
@@ -110,7 +114,7 @@ class OfferController extends Controller
                 'client_id' => $offer->client_id,
             ],
             [
-                'lead_status' =>  LeadStatusEnum::POTENTIAL_LEAD
+                'lead_status' =>  LeadStatusEnum::POTENTIAL
             ]
         );
 

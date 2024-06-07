@@ -114,11 +114,8 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
-            'worker_id' => ['required', 'unique:users,worker_id,' . Auth::user()->id],
-            // 'status'    => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -126,20 +123,12 @@ class AuthController extends Controller
         }
 
         $worker                = User::find(Auth::user()->id);
-        $worker->firstname     = $request->firstname;
-        $worker->lastname      = ($request->lastname) ? $request->lastname : '';
         $worker->phone         = $request->phone;
-        // $worker->email         = $request->email;
         $worker->address       = $request->address;
         $worker->renewal_visa  = $request->renewal_visa;
-        $worker->gender        = $request->gender;
-        // $worker->payment_per_hour  = $request->payment_hour;
-        $worker->worker_id     = $request->worker_id;
         $worker->lng           = $request->lng;
-        $worker->passcode     = $request->password;
+        $worker->passcode      = $request->password;
         $worker->password      = Hash::make($request->password);
-        // $worker->status        = $request->status;
-        $worker->country       = $request->country;
         $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
         $worker->save();

@@ -195,12 +195,15 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $total_amount = $subtotal_amount - $discount_amount;
 
+            $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
             $nextJob = Job::create([
                 'worker_id'     => $workerId,
                 'client_id'     => $job->client_id,
                 'contract_id'   => $job->contract_id,
                 'offer_id'      => $job->offer_id,
                 'start_date'    => $next_job_date,
+                'start_time'    => $start_time,
                 'shifts'        => $slotsInString,
                 'schedule'      => $job->schedule,
                 'schedule_id'   => $job->schedule_id,
@@ -239,44 +242,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
             ]);
 
             $this->copyDefaultCommentsToJob($nextJob);
-
-            $nextJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-
-            if ($nextJob->worker_id && !empty($nextJob['worker']['email'])) {
-                try {
-                    // App::setLocale($nextJob->worker->lng);
-
-                    // $emailData = array(
-                    //     'email' => $nextJob['worker']['email'],
-                    //     'job' => $nextJob->toArray(),
-                    //     'start_time' => $mergedContinuousTime[0]['starting_at'],
-                    //     'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                    //     'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-                    // );
-
-                    // sendJobWANotification($emailData);
-
-                    // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                    //     $messages->to($emailData['email']);
-                    //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                    //     $messages->subject($sub);
-                    // });
-
-                    //send notification to admin
-                    // $adminEmailData = [
-                    //     'emailData'   => [
-                    //         'job'   =>  $nextJob->toArray(),
-                    //     ],
-                    //     'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-                    //     'emailTitle'  => 'New Job',
-                    //     'emailContent'  =>__('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
-                    // ];
-                    // event(new JobNotificationToAdmin($adminEmailData));
-
-                } catch (Exception $e) {
-                    logger()->error($e);
-                }
-            }
         }
     }
 }

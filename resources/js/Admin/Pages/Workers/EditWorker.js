@@ -47,6 +47,7 @@ export default function EditWorker() {
     const [countries, setCountries] = useState([]);
     const [avl_skill, setAvlSkill] = useState([]);
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [errors, setErrors] = useState([]);
     const params = useParams();
@@ -102,6 +103,7 @@ export default function EditWorker() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const data = {
             ...formValues,
@@ -129,6 +131,10 @@ export default function EditWorker() {
                         navigate("/admin/workers");
                     }, 1000);
                 }
+                setIsSubmitting(false);
+            })
+            .catch((e) => {
+                setIsSubmitting(false);
             });
     };
 
@@ -792,9 +798,9 @@ export default function EditWorker() {
                             <div className="form-group text-center">
                                 <input
                                     type="submit"
-                                    value="Update"
                                     onClick={handleUpdate}
-                                    className="btn btn-danger saveBtn"
+                                    className="btn btn-danger"
+                                    disabled={isSubmitting}
                                 />
                             </div>
                         </form>

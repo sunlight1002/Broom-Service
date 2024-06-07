@@ -55,6 +55,9 @@ class WorkerController extends Controller
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })
+            ->when($status && !$manpowerCompanyID, function ($q) {
+                return $q->where('company_type', 'my-company');
+            })
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'users.status', 'users.address', 'users.latitude', 'users.longitude');
 
         return DataTables::eloquent($query)
@@ -793,7 +796,7 @@ class WorkerController extends Controller
             ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS minutes')
             ->groupBy('jobs.worker_id');
 
-        $data = User::query()
+        $query = User::query()
             ->leftJoinSub($jobHours, 'job_hours', function ($join) {
                 $join->on('users.id', '=', 'job_hours.worker_id');
             })
@@ -813,13 +816,33 @@ class WorkerController extends Controller
                     ->whereNull('last_work_date')
                     ->orWhereDate('last_work_date', '>=', today()->toDateString());
             })
-            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'job_hours.minutes', 'users.created_at')
-            ->orderBy('users.id', 'desc')
-            ->paginate(20);
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'job_hours.minutes', 'users.created_at');
 
-        return response()->json([
-            'workers' => $data,
-        ]);
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
+
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                                ->orWhere('users.email', 'like', "%" . $keyword . "%")
+                                ->orWhere('users.phone', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->editColumn('name', function ($data) {
+                return $data->firstname . ' ' . $data->lastname;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->orderColumn('name', function ($query, $order) {
+                $query->orderBy('firstname', $order);
+            })
+            ->toJson();
     }
 
     public function exportWorkingHoursReport(Request $request)

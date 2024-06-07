@@ -40,9 +40,8 @@ export default function OfferPrice() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "ID",
-                    data: "id",
-                    visible: false,
+                    title: "Date",
+                    data: "created_at",
                 },
                 {
                     title: "Client",
@@ -86,6 +85,7 @@ export default function OfferPrice() {
                     title: "Action",
                     data: "action",
                     orderable: false,
+                    responsivePriority: 1,
                     render: function (data, type, row, meta) {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -111,14 +111,29 @@ export default function OfferPrice() {
             },
         });
 
-        $(tableRef.current).on("click", ".dt-row", function (e) {
-            if (
-                !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu") &&
-                !e.target.closest(".dt-client-name") &&
-                !e.target.closest(".dtr-control")
-            ) {
-                const _id = $(this).data("id");
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-name") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control"))
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-name")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
+
+            if (_id) {
                 navigate(`/admin/view-offer/${_id}`);
             }
         });
@@ -181,7 +196,7 @@ export default function OfferPrice() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-5">
-                            <h1 className="page-title">Offered Prices</h1>
+                            <h1 className="page-title">Offers</h1>
                         </div>
                         <div className="col-sm-7">
                             <div className="search-data">

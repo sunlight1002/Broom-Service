@@ -32,7 +32,7 @@ class TwilioController extends Controller
 
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+            ['lead_status' => LeadStatusEnum::PENDING]
         );
 
         $webhook_response = WebhookResponse::create([

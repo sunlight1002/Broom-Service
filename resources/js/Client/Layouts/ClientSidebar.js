@@ -52,13 +52,13 @@ export default function ClientSidebar() {
                 <li className="list-group-item">
                     <NavLink to="/client/schedule">
                         <i className="fa-solid fa-video"></i>
-                        {t("client.sidebar.schedule_meet")}
+                        {t("client.common.meetings")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/client/offered-price">
                         <i className="fa-solid fa-tags"></i>
-                        {t("client.sidebar.ofr_price")}
+                        {t("client.common.offers")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -70,13 +70,13 @@ export default function ClientSidebar() {
                 <li className="list-group-item">
                     <NavLink to="/client/jobs">
                         <i className="fa-solid fa-briefcase"></i>
-                        {t("client.sidebar.jobs")}
+                        {t("client.common.services")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/client/invoices">
                         <i className="fa-solid fa-file-invoice"></i>
-                        {t("client.sidebar.invoices")}
+                        {t("client.common.payments")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">

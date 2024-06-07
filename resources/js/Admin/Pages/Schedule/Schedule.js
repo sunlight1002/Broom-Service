@@ -42,9 +42,28 @@ export default function Schedule() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "ID",
-                    data: "id",
-                    visible: false,
+                    title: "Scheduled",
+                    data: "start_date",
+                    render: function (data, type, row, meta) {
+                        let _html = "";
+
+                        if (row.start_date) {
+                            _html += `<span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("DD/MM/Y")} </span>`;
+
+                            _html += `<br /> <span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("dddd")} </span>`;
+
+                            if (row.start_time && row.end_time) {
+                                _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
+                                _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+                            }
+                        }
+
+                        return _html;
+                    },
                 },
                 {
                     title: "Name",
@@ -73,31 +92,6 @@ export default function Schedule() {
                     data: "attender_name",
                 },
                 {
-                    title: "Scheduled",
-                    data: "start_date",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        let _html = "";
-
-                        if (row.start_date) {
-                            _html += `<span class="text-blue"> ${Moment(
-                                row.start_date
-                            ).format("DD/MM/Y")} </span>`;
-
-                            _html += `<br /> <span class="text-blue"> ${Moment(
-                                row.start_date
-                            ).format("dddd")} </span>`;
-
-                            if (row.start_time && row.end_time) {
-                                _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
-                                _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
-                            }
-                        }
-
-                        return _html;
-                    },
-                },
-                {
                     title: "Status",
                     data: "booking_status",
                     render: function (data, type, row, meta) {
@@ -117,6 +111,7 @@ export default function Schedule() {
                     title: "Action",
                     data: "action",
                     orderable: false,
+                    responsivePriority: 1,
                     render: function (data, type, row, meta) {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -141,16 +136,37 @@ export default function Schedule() {
             },
         });
 
-        $(tableRef.current).on("click", ".dt-row", function (e) {
-            if (
-                !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu") &&
-                !e.target.closest(".dt-client-link") &&
-                !e.target.closest(".dt-address-link") &&
-                !e.target.closest(".dtr-control")
-            ) {
-                const _id = $(this).data("id");
-                const _clientID = $(this).data("client-id");
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            let _clientID = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-link") &&
+                    !e.target.closest(".dt-address-link") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control"))
+                ) {
+                    _id = $(this).data("id");
+                    _clientID = $(this).data("client-id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-link") &&
+                    !e.target.closest(".dt-address-link")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                    _clientID = $(e.target)
+                        .closest("tr.child")
+                        .prev()
+                        .data("client-id");
+                }
+            }
+
+            if (_id) {
                 navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
             }
         });
@@ -222,7 +238,7 @@ export default function Schedule() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Scheduled meetings</h1>
+                            <h1 className="page-title">Meetings</h1>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
@@ -230,9 +246,8 @@ export default function Schedule() {
                                 onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="0">ID</option>
-                                <option value="5">Scheduled</option>
-                                <option value="6">Status</option>
+                                <option value="0">Scheduled</option>
+                                <option value="5">Status</option>
                             </select>
                         </div>
                     </div>

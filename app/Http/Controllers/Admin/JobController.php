@@ -94,7 +94,7 @@ class JobController extends Controller
                 }
             })
             ->editColumn('start_date', function ($data) {
-                return $data->start_date ? Carbon::parse($data->start_date)->format('d/m/Y') : '-';
+                return $data->start_date ? Carbon::parse($data->start_date)->format('d/m/y') : '-';
             })
             ->editColumn('comment', function ($data) {
                 return $data->comment ? $data->comment : '-';
@@ -351,8 +351,11 @@ class JobController extends Controller
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
+                $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
                 $jobData = [
                     'start_date'    => $job_date,
+                    'start_time'    => $start_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -466,12 +469,15 @@ class JobController extends Controller
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
+                $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $contract->client_id,
                     'contract_id'   => $contract->id,
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
+                    'start_time'    => $start_time,
                     'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
                     'schedule_id'   => $s_id,
@@ -517,25 +523,6 @@ class JobController extends Controller
 
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 if ($workerIndex == 0) {
-                    if (!is_null($job['worker']['email']) && $job['worker']['email'] != 'Null') {
-                        // App::setLocale($job->worker->lng);
-
-                        // $emailData = array(
-                        //     'email' => $job['worker']['email'],
-                        //     'job' => $job->toArray(),
-                        //     'start_time' => $mergedContinuousTime[0]['starting_at'],
-                        //     'content'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check'),
-                        //     'content_data'  => __('mail.worker_new_job.new_job_assigned'),
-                        // );
-                        // sendJobWANotification($emailData);
-                        // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                        //     $messages->to($emailData['email']);
-                        //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                        //     $messages->subject($sub);
-                        // });
-                        //send notification to admin
-                    }
-
                     App::setLocale('en');
                     $adminEmailData = [
                         'emailData'   => [
@@ -674,8 +661,11 @@ class JobController extends Controller
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
+                $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
                 $jobData = [
                     'start_date'    => $job_date,
+                    'start_time'    => $start_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -758,9 +748,12 @@ class JobController extends Controller
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
+        $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
             'start_date'    => $job_date,
+            'start_time'    => $start_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
@@ -935,8 +928,11 @@ class JobController extends Controller
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
 
+                $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
                 $jobData = [
                     'start_date'    => $job_date,
+                    'start_time'    => $start_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -1012,8 +1008,11 @@ class JobController extends Controller
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
+        $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
         $jobData = [
             'start_date'    => $job_date,
+            'start_time'    => $start_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,

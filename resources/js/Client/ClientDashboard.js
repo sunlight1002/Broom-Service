@@ -9,9 +9,7 @@ import { Base64 } from "js-base64";
 export default function ClientDashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
     const [totalOffers, setTotalOffers] = useState([0]);
-    const [totalSchedules, setTotalSchedules] = useState([0]);
     const [latestJobs, setlatestJobs] = useState([]);
-    const [contracts, setContract] = useState([]);
     const [loading, setLoading] = useState("Loading...");
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
@@ -25,12 +23,10 @@ export default function ClientDashboard() {
         axios.get("/api/client/dashboard", { headers }).then((response) => {
             setTotalJobs(response.data.total_jobs);
             setTotalOffers(response.data.total_offers);
-            setTotalSchedules(response.data.total_schedules);
-            setContract(response.data.total_contracts);
             if (response.data.latest_jobs.length > 0) {
                 setlatestJobs(response.data.latest_jobs);
             } else {
-                setLoading(t("client.dashboard.noJobFound"));
+                setLoading(t("global.no_record_found"));
             }
         });
     };
@@ -51,66 +47,35 @@ export default function ClientDashboard() {
                     </div>
                     <div className="row">
                         <div className="col-xl-3 col-sm-6 col-xs-6">
-                            <a href="/client/jobs">
+                            <Link to="/client/jobs">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">
                                         <i className="fa-solid fa-suitcase"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalJobs}</h3>
-                                        <p>{t("client.dashboard.jobs")}</p>
+                                        <p>{t("client.common.services")}</p>
                                     </div>
                                 </div>
-                            </a>
-                        </div>
-
-                        <div className="col-xl-3 col-sm-6 col-xs-6">
-                            <a href="/client/schedule">
-                                <div className="dashBox">
-                                    <div className="dashIcon mr-4">
-                                        <i className="fa-solid fa-handshake"></i>
-                                    </div>
-                                    <div className="dashText">
-                                        <h3>{totalSchedules}</h3>
-                                        <p>{t("client.dashboard.meetings")}</p>
-                                    </div>
-                                </div>
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-xl-3 col-sm-6 col-xs-6">
-                            <a href="/client/offered-price">
+                            <Link to="/client/offered-price">
                                 <div className="dashBox">
                                     <div className="dashIcon mr-4">
                                         <i className="fa-solid fa-dollar-sign"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalOffers}</h3>
-                                        <p>
-                                            {t(
-                                                "client.dashboard.offered_price"
-                                            )}
-                                        </p>
+                                        <p>{t("client.common.offers")}</p>
                                     </div>
                                 </div>
-                            </a>
-                        </div>
-                        <div className="col-xl-3 col-sm-6 col-xs-6">
-                            <a href="/client/contracts">
-                                <div className="dashBox">
-                                    <div className="dashIcon mr-4">
-                                        <i className="fa-solid fa-file-contract"></i>
-                                    </div>
-                                    <div className="dashText">
-                                        <h3>{contracts}</h3>
-                                        <p>{t("client.dashboard.contracts")}</p>
-                                    </div>
-                                </div>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div className="latest-users">
                         <h2 className="page-title">
-                            {t("client.dashboard.upcoming_jobs")}
+                            {t("client.dashboard.upcoming_services")}
                         </h2>
                         <div className="boxPanel">
                             <div className="table-responsive">

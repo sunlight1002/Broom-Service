@@ -80,7 +80,7 @@ class AuthController extends Controller
 
         $Client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+            ['lead_status' => LeadStatusEnum::PENDING]
         );
 
         return response()->json($Client);

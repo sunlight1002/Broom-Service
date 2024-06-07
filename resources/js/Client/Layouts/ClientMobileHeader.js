@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 import logo from "../../Assets/image/sample.svg";
 import bars from "../../Assets/image/icons/bars.svg";
@@ -9,6 +10,8 @@ export default function ClientMobileHeader() {
     const alert = useAlert();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { t } = useTranslation();
 
     const HandleLogout = (e) => {
         setIsSubmitting(true);
@@ -72,35 +75,43 @@ export default function ClientMobileHeader() {
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item">
                             <a href="/client/dashboard">
-                                <i className="fa-solid fa-gauge"></i>Dashboard
+                                <i className="fa-solid fa-gauge"></i>
+                                {t("client.sidebar.dashboard")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/client/schedule">
-                                <i className="fa-solid fa-video"></i>Scheduled
-                                Meetings
+                                <i className="fa-solid fa-video"></i>
+                                {t("client.common.meetings")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/client/offered-price">
-                                <i className="fa-solid fa-tags"></i>Offered
-                                Prices
+                                <i className="fa-solid fa-tags"></i>
+                                {t("client.common.offers")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/client/contracts">
                                 <i className="fa-solid fa-clipboard-list"></i>
-                                Contracts
+                                {t("client.sidebar.contracts")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/client/jobs">
-                                <i className="fa-solid fa-briefcase"></i>Jobs
+                                <i className="fa-solid fa-briefcase"></i>
+                                {t("client.common.services")}
+                            </a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="/client/invoices">
+                                <i className="fa-solid fa-briefcase"></i>
+                                {t("client.common.payments")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/client/settings">
-                                <i className="fa-solid fa-gear"></i>Settings
+                                <i className="fa-solid fa-gear"></i>{t("client.sidebar.settings")}
                             </a>
                         </li>
                     </ul>

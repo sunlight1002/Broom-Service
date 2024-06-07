@@ -27,6 +27,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +58,7 @@ class ClientController extends Controller
             ->when($action == 'notbooked', function ($q) {
                 return $q->whereDoesntHave('jobs');
             })
-            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status')
+            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
 
@@ -75,6 +76,9 @@ class ClientController extends Controller
                         });
                     }
                 }
+            })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
             })
             ->editColumn('name', function ($data) {
                 return $data->firstname . ' ' . $data->lastname;
@@ -154,7 +158,7 @@ class ClientController extends Controller
 
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+            ['lead_status' => LeadStatusEnum::PENDING]
         );
 
         $addressIds = [];
@@ -853,8 +857,8 @@ class ClientController extends Controller
     {
         $data = $request->all();
         $statusArr = [
-            LeadStatusEnum::PENDING_LEAD => 0,
-            LeadStatusEnum::POTENTIAL_LEAD => 0,
+            LeadStatusEnum::PENDING => 0,
+            LeadStatusEnum::POTENTIAL => 0,
             LeadStatusEnum::IRRELEVANT => 0,
             LeadStatusEnum::UNINTERESTED => 0,
             LeadStatusEnum::UNANSWERED => 0,

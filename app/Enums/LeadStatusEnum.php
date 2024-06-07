@@ -6,8 +6,8 @@ namespace App\Enums;
 
 final class LeadStatusEnum extends AbstractEnum
 {
-    public const PENDING_LEAD = 'pending lead';
-    public const POTENTIAL_LEAD = 'potential lead';
+    public const PENDING = 'pending';
+    public const POTENTIAL = 'potential';
     public const IRRELEVANT = 'irrelevant';
     public const UNINTERESTED = 'uninterested';
     public const UNANSWERED = 'unanswered';

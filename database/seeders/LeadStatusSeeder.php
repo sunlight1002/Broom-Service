@@ -49,11 +49,11 @@ class LeadStatusSeeder extends Seeder
                         break;
 
                     case 'sent':
-                        $leadStatus = LeadStatusEnum::POTENTIAL_LEAD;
+                        $leadStatus = LeadStatusEnum::POTENTIAL;
                         break;
                 }
             } else {
-                $leadStatus = LeadStatusEnum::PENDING_LEAD;
+                $leadStatus = LeadStatusEnum::PENDING;
             }
 
             if ($leadStatus) {

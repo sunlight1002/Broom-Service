@@ -379,10 +379,16 @@
         "search": "Поиск",
         "next": "Далее",
         "previous": "Назад",
+        "common": {
+            "offers": "Предложения",
+            "meetings": "Встречи",
+            "services": "Услуги",
+            "payments": "Платежи"
+        },
         "sidebar": {
             "dashboard": "Панель управления",
             "schedule_meet": "Запланированные встречи",
-            "ofr_price": "Предложенные цены",
+            "offers": "Предложения",
             "contracts": "Контракты",
             "jobs": "Задания",
             "invoices": "Счета",
@@ -391,10 +397,10 @@
         "dashboard": {
             "noJobFound": "Заданий не найдено",
             "contracts": "Контракты",
-            "offered_price": "Предложенная цена",
+            "offers": "Предложения",
             "meetings": "Встречи",
             "jobs": "Задания",
-            "upcoming_jobs": "Предстоящие задания",
+            "upcoming_services": "Предстоящие услуги",
             "client": "Клиент",
             "service": "Услуга",
             "date": "Дата",
@@ -442,7 +448,7 @@
         },
         "offer": {
             "noOffer": "Предложение не найдено",
-            "title": "Предложенные цены",
+            "title": "Предложения",
             "ofr_date": "Дата",
             "services": "Услуги",
             "status": "Статус",
@@ -661,10 +667,16 @@
         "dashboard": {
             "jobPosted": "Размещенные работы",
             "clients": "Клиенты",
+            "newClients": "Новые клиенты",
+            "activeClients": "Активные клиенты",
+            "pendingLeads": "Ожидаемые лиды",
             "workers": "Работники",
+            "activeWorkers": "Активные работники",
             "meetings": "Встречи",
             "offeredPrice": "Предложенная цена",
+            "pendingOfferedPrice": "Ожидаемые ценовые предложения",
             "contracts": "Контракты",
+            "pendingContract": "Ожидаемые контракты",
             "jobsSchedule": "Расписание работ",
             "income": "Доход",
             "outcome": "Расход",
@@ -1084,7 +1096,8 @@
             "dashboard": "Панель управления",
             "jobs": "Работы",
             "schedule": "График",
-            "not_available": "Недоступные даты"
+            "not_available": "Недоступные даты",
+            "workingHours": "Часы"
         },
         "dashboard": {
             "past_jobs": "Прошлые работы",
@@ -1161,7 +1174,8 @@
                 "approve": "Одобрить",
                 "selectAllComment": "Пожалуйста, выберите все комментарии",
                 "jobMarkCompleted": "Работа отмечена как завершенная.",
-                "CompleteJob": "Завершить работу"
+                "CompleteJob": "Завершить работу",
+                "onMyWay": "На моем пути"
             }
         },
         "schedule": {
@@ -1198,7 +1212,7 @@
             "Disable": "Отключить",
             "formUplodSuccess": "Форма успешно загружена",
             "edit_account": "Редактировать аккаунт",
-            "manage_form": "Управление формой",
+            "manage_form": "Документы",
             "view_contract": "Просмотр контракта",
             "f_name": "Имя",
             "l_name": "Фамилия",

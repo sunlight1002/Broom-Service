@@ -29,8 +29,6 @@ class DashboardController extends Controller
     {
         $total_jobs      = Job::where('client_id', Auth::user()->id)->count();
         $total_offers    = Offer::where('client_id', Auth::user()->id)->count();
-        $total_schedules = Schedule::where('client_id', Auth::user()->id)->count();
-        $total_contracts = Contract::where('client_id', Auth::user()->id)->count();
         $latest_jobs     = Job::query()
             ->with(['client', 'service', 'worker', 'jobservice'])
             ->where('client_id', Auth::user()->id)
@@ -42,8 +40,6 @@ class DashboardController extends Controller
         return response()->json([
             'total_jobs'         => $total_jobs,
             'total_offers'       => $total_offers,
-            'total_schedules'    => $total_schedules,
-            'total_contracts'    => $total_contracts,
             'latest_jobs'        => $latest_jobs
         ]);
     }

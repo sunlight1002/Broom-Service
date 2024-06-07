@@ -377,9 +377,12 @@ class JobController extends Controller
             $status = JobStatusEnum::UNSCHEDULED;
         }
 
+        $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
             'start_date'    => $job_date,
+            'start_time'    => $start_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
@@ -444,41 +447,6 @@ class JobController extends Controller
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
         event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
-
-        // $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-
-        // //send notification to admin
-        // $adminEmailData = [
-        //     'emailData'   => [
-        //         'job'   =>  $job->toArray(),
-        //     ],
-        //     'emailSubject'  => __('mail.change_worker_request.subject'),
-        //     'emailTitle'  => 'Change Worker Request',
-        //     'emailContent'  => __('mail.change_worker_request.content') . ' ' . __('mail.change_worker_request.please_check')
-        // ];
-        // event(new JobNotificationToAdmin($adminEmailData));
-
-        // $admins = Admin::where('role', 'admin')->get();
-
-        // foreach ($admins as $key => $admin) {
-        //     // App::setLocale($admin->lng);
-
-        //     $emailData = array(
-        //         'email' => $admin->email,
-        //         'admin' => $admin->toArray(),
-        //         'job' => $job->toArray(),
-        //     );
-        //     if (isset($emailData['admin']) && !empty($emailData['admin']['phone'])) {
-        //         event(new WhatsappNotificationEvent([
-        //             "type" => WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST,
-        //             "notificationData" => $emailData
-        //         ]));
-        //     }
-        //     // Mail::send('/Mails/WorkerChangeRequestMail', $emailData, function ($messages) use ($emailData) {
-        //     //     $messages->to($emailData['email']);
-        //     //     $messages->subject(__('mail.change_worker_request.subject'));
-        //     // });
-        // }
 
         return response()->json([
             'message' => 'Worker changed successfully'

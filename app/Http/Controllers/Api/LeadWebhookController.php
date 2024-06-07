@@ -77,7 +77,7 @@ class LeadWebhookController extends Controller
             if (!$lead_exists) {
                 $lead->lead_status()->updateOrCreate(
                     [],
-                    ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                    ['lead_status' => LeadStatusEnum::PENDING]
                 );
             }
 
@@ -1302,7 +1302,7 @@ If you would like to speak to a human representative, please send a message with
         if (!$lead_exists) {
             $lead->lead_status()->updateOrCreate(
                 [],
-                ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                ['lead_status' => LeadStatusEnum::PENDING]
             );
         }
     }

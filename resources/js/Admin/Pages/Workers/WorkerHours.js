@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import ReactPaginate from "react-paginate";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Moment from "moment";
 import { CSVLink } from "react-csv";
+import { useAlert } from "react-alert";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
-import { useAlert } from "react-alert";
 
 export default function WorkerHours() {
     const alert = useAlert();
@@ -39,11 +42,6 @@ export default function WorkerHours() {
             .format("YYYY-MM-DD"),
     };
 
-    const [workers, setWorkers] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
-    const [loading, setLoading] = useState("Loading...");
-    const [searchVal, setSearchVal] = useState("");
-    const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
         start_date: currentWeekFilter.start_date,
         end_date: currentWeekFilter.end_date,
@@ -55,51 +53,71 @@ export default function WorkerHours() {
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
+    const tableRef = useRef(null);
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
+    const manpowerCompanyRef = useRef(null);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getWorkers = () => {
-        let _filters = {};
-
-        if (searchVal) {
-            _filters.keyword = searchVal;
-        }
-
-        if (filters.manpower_company_id) {
-            _filters.manpower_company_id = filters.manpower_company_id;
-        }
-
-        _filters.start_date = dateRange.start_date;
-        _filters.end_date = dateRange.end_date;
-
-        axios
-            .get("/api/admin/workers/working-hours", {
-                headers,
-                params: {
-                    page: currentPage,
-                    ..._filters,
+    useEffect(() => {
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/workers/working-hours",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("admin-token")
+                    );
                 },
-            })
-            .then((response) => {
-                if (response.data.workers.data.length > 0) {
-                    setWorkers(response.data.workers.data);
-                    setPageCount(response.data.workers.last_page);
-                } else {
-                    setWorkers([]);
-                    setLoading("No Workers found");
-                }
-            });
-    };
+                data: function (d) {
+                    d.manpower_company_id = manpowerCompanyRef.current.value;
+                    d.start_date = startDateRef.current.value;
+                    d.end_date = endDateRef.current.value;
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Worker",
+                    data: "name",
+                    render: function (data, type, row, meta) {
+                        return `<a href="/admin/view-worker/${row.id}" class="dt-worker-link" data-worker-id="${row.id}"> ${data} </a>`;
+                    },
+                },
+                {
+                    title: "Hours",
+                    data: "minutes",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return data ? convertMinsToDecimalHrs(data) : "NA";
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-worker-link", function () {
+            const _workerID = $(this).data("worker-id");
+            navigate(`/admin/view-worker/${_workerID}`);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
+    }, []);
 
     const handleExport = async () => {
         let _filters = {};
-
-        if (searchVal) {
-            _filters.keyword = searchVal;
-        }
 
         if (filters.manpower_company_id) {
             _filters.manpower_company_id = filters.manpower_company_id;
@@ -112,7 +130,6 @@ export default function WorkerHours() {
             .get("/api/admin/workers/working-hours/export", {
                 headers,
                 params: {
-                    page: currentPage,
                     ..._filters,
                 },
             })
@@ -139,8 +156,8 @@ export default function WorkerHours() {
     };
 
     useEffect(() => {
-        getWorkers();
-    }, [currentPage, searchVal, dateRange, filters]);
+        $(tableRef.current).DataTable().draw();
+    }, [dateRange, filters]);
 
     const getManpowerCompanies = async () => {
         await axios
@@ -177,42 +194,8 @@ export default function WorkerHours() {
             ")",
     };
 
-    const copy = [...workers];
-    const [order, setOrder] = useState("ASC");
-    const sortTable = (e, col) => {
-        let n = e.target.nodeName;
-        if (n != "SELECT") {
-            if (n == "TH") {
-                let q = e.target.querySelector("span");
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            } else {
-                let q = e.target;
-                if (q.innerHTML === "↑") {
-                    q.innerHTML = "↓";
-                } else {
-                    q.innerHTML = "↑";
-                }
-            }
-        }
-
-        if (order == "ASC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? 1 : -1
-            );
-            setWorkers(sortData);
-            setOrder("DESC");
-        }
-        if (order == "DESC") {
-            const sortData = [...copy].sort((a, b) =>
-                a[col] < b[col] ? -1 : 1
-            );
-            setWorkers(sortData);
-            setOrder("ASC");
-        }
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
     return (
@@ -224,29 +207,13 @@ export default function WorkerHours() {
                         <div className="col-sm-6">
                             <h1 className="page-title">Worker Hours</h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                        setSearchVal(e.target.value);
-                                    }}
-                                    placeholder="Search"
-                                />
-                            </div>
-                        </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
-                                onChange={(e) => sortTable(e, e.target.value)}
+                                onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="id">ID</option>
-                                <option value="firstname">Worker Name</option>
-                                <option value="address">Address</option>
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
+                                <option value="0">Worker Name</option>
                             </select>
                         </div>
                     </div>
@@ -309,6 +276,24 @@ export default function WorkerHours() {
                                 }
                                 selectedFilter={selectedFilter}
                                 setselectedFilter={setselectedFilter}
+                            />
+
+                            <input
+                                type="hidden"
+                                value={filters.manpower_company_id}
+                                ref={manpowerCompanyRef}
+                            />
+
+                            <input
+                                type="hidden"
+                                value={dateRange.start_date}
+                                ref={startDateRef}
+                            />
+
+                            <input
+                                type="hidden"
+                                value={dateRange.end_date}
+                                ref={endDateRef}
                             />
                         </div>
                     </div>
@@ -379,6 +364,25 @@ export default function WorkerHours() {
                             Manpower Company
                         </div>
                         <div>
+                            <button
+                                className={`btn border rounded px-3 mr-1 float-left`}
+                                style={
+                                    filters.manpower_company_id === null
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: null,
+                                    });
+                                }}
+                            >
+                                All
+                            </button>
                             {manpowerCompanies.map((company, _index) => (
                                 <button
                                     key={_index}
@@ -408,114 +412,10 @@ export default function WorkerHours() {
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="Table-responsive">
-                                {workers.length > 0 ? (
-                                    <Table className="table table-bordered">
-                                        <Thead>
-                                            <Tr style={{ cursor: "pointer" }}>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "id");
-                                                    }}
-                                                >
-                                                    ID{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(
-                                                            e,
-                                                            "firstname"
-                                                        );
-                                                    }}
-                                                >
-                                                    Worker{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th
-                                                    onClick={(e) => {
-                                                        sortTable(e, "email");
-                                                    }}
-                                                >
-                                                    Email{" "}
-                                                    <span className="arr">
-                                                        {" "}
-                                                        &darr;{" "}
-                                                    </span>
-                                                </Th>
-                                                <Th>Hours</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {workers.map((item, index) => {
-                                                return (
-                                                    <Tr
-                                                        style={{
-                                                            cursor: "pointer",
-                                                        }}
-                                                        key={index}
-                                                    >
-                                                        <Td>{item.id}</Td>
-                                                        <Td>
-                                                            <Link
-                                                                to={`/admin/view-worker/${item.id}`}
-                                                            >
-                                                                {item.firstname}{" "}
-                                                                {item.lastname}
-                                                            </Link>
-                                                        </Td>
-                                                        <Td>{item.email}</Td>
-                                                        <Td>
-                                                            <div className="text-center text-sm-left ml-5 ml-sm-0">
-                                                                {item.minutes
-                                                                    ? convertMinsToDecimalHrs(
-                                                                          item.minutes
-                                                                      )
-                                                                    : "NA"}
-                                                            </div>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                                {workers.length > 0 && (
-                                    <ReactPaginate
-                                        previousLabel={"Previous"}
-                                        nextLabel={"Next"}
-                                        breakLabel={"..."}
-                                        pageCount={pageCount}
-                                        marginPagesDisplayed={2}
-                                        pageRangeDisplayed={3}
-                                        onPageChange={(data) => {
-                                            setCurrentPage(data.selected + 1);
-                                        }}
-                                        containerClassName={
-                                            "pagination justify-content-end mt-3"
-                                        }
-                                        pageClassName={"page-item"}
-                                        pageLinkClassName={"page-link"}
-                                        previousClassName={"page-item"}
-                                        previousLinkClassName={"page-link"}
-                                        nextClassName={"page-item"}
-                                        nextLinkClassName={"page-link"}
-                                        breakClassName={"page-item"}
-                                        breakLinkClassName={"page-link"}
-                                        activeClassName={"active"}
-                                    />
-                                )}
-                            </div>
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

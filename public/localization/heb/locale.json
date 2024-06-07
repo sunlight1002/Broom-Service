@@ -379,10 +379,16 @@
         "search": "חפש",
         "next": "הבא",
         "previous": "הקודם",
+        "common": {
+            "offers": "הצעות",
+            "meetings": "פגישות",
+            "services": "שירותים",
+            "payments": "תשלומים"
+        },
         "sidebar": {
             "dashboard": "דף הבית",
             "schedule_meet": "פגישות",
-            "ofr_price": "הצעות מחיר",
+            "offers": "הצעות",
             "contracts": "הסכמי התקשרות",
             "jobs": "שירותים שהזמנתי",
             "invoices": "חשבוניות",
@@ -391,10 +397,10 @@
         "dashboard": {
             "noJobFound": "לא נמצאה משרה",
             "contracts": "חוזים",
-            "offered_price": "הצעת מחיר",
+            "offers": "הצעות",
             "meetings": "פגישות",
             "jobs": "שירותים שהזמנתי",
-            "upcoming_jobs": "מקומות עבודה קרובים",
+            "upcoming_services": "שירותים קרובים",
             "client": "לָקוּחַ",
             "service": "שֵׁרוּת",
             "date": "תאריך",
@@ -442,7 +448,7 @@
         },
         "offer": {
             "noOffer": "לא נמצאה הצעה",
-            "title": "הצעת מחיר",
+            "title": "הצעות",
             "ofr_date": "תאריך",
             "services": "שירותים",
             "status": "סטטוס",
@@ -663,10 +669,16 @@
         "dashboard": {
             "jobPosted": "פוסט עבודה",
             "clients": "לקוחות",
+            "newClients": "לקוחות חדשים",
+            "activeClients": "לקוחות פעילים",
+            "pendingLeads": "לידים ממתינים",
             "workers": "עובדים",
+            "activeWorkers": "עובדים פעילים",
             "meetings": "פגישות",
             "offeredPrice": "מחיר הצעה",
+            "pendingOfferedPrice": "הצעות מחיר ממתינות",
             "contracts": "חוזים",
+            "pendingContract": "חוזים ממתינים",
             "jobsSchedule": "לוח עבודות",
             "income": "הכנסה",
             "outcome": "הוצאה",
@@ -1086,7 +1098,8 @@
             "dashboard": "לוּחַ מַחווָנִים",
             "jobs": "מקומות תעסוקה",
             "schedule": "לוח זמנים",
-            "not_available": "תאריכים לא זמינים"
+            "not_available": "תאריכים לא זמינים",
+            "workingHours": "שעה (ות"
         },
         "dashboard": {
             "past_jobs": "משרות קודמות",
@@ -1163,7 +1176,8 @@
                 "approve": "לְאַשֵׁר",
                 "selectAllComment": "אנא בחר את כל ההערות",
                 "jobMarkCompleted": "המשימה סומנה כהושלמה.",
-                "CompleteJob": "השלם את המשימה"
+                "CompleteJob": "השלם את המשימה",
+                "onMyWay": "בדרכי"
             }
         },
         "schedule": {
@@ -1200,8 +1214,8 @@
             "Disable": "השבת",
             "formUplodSuccess": "הטופס הועלה בהצלחה",
             "edit_account": "ערוך חשבון",
-            "manage_form": "נהל טופס",
-            "view_contract": "View Contract",
+            "manage_form": "מסמכים",
+            "view_contract": "צפה בחוזה",
             "f_name": "שם פרטי",
             "l_name": "שם משפחה",
             "email": "אימייל",

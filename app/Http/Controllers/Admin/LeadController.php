@@ -12,6 +12,7 @@ use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -35,7 +36,7 @@ class LeadController extends Controller
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->where('clients.status', '!=', 2)
-            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status');
+            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -51,6 +52,9 @@ class LeadController extends Controller
                         });
                     }
                 }
+            })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
             })
             ->editColumn('name', function ($data) {
                 return $data->firstname . ' ' . $data->lastname;
@@ -112,7 +116,7 @@ class LeadController extends Controller
 
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+            ['lead_status' => LeadStatusEnum::PENDING]
         );
 
         return response()->json([
@@ -474,7 +478,7 @@ class LeadController extends Controller
                         }
                         $client->lead_status()->updateOrCreate(
                             [],
-                            ['lead_status' => LeadStatusEnum::PENDING_LEAD]
+                            ['lead_status' => LeadStatusEnum::PENDING]
                         );
                     } else {
                         Log::info('Error : Failed to create lead of lead id - ' . $changes['value']['leadgen_id']);

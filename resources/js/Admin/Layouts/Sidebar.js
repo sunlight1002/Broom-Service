@@ -81,12 +81,12 @@ export default function Sidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/schedule">
-                        <i className="fa-solid fa-video"></i>Scheduled Meetings
+                        <i className="fa-solid fa-video"></i>Meetings
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/offered-price">
-                        <i className="fa-solid fa-tags"></i>Offered Prices
+                        <i className="fa-solid fa-tags"></i>Offers
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -96,7 +96,7 @@ export default function Sidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/jobs">
-                        <i className="fa-solid fa-briefcase"></i>Jobs
+                        <i className="fa-solid fa-briefcase"></i>Schedule
                     </NavLink>
                 </li>
 
@@ -203,7 +203,7 @@ export default function Sidebar() {
                 {role !== "member" && (
                     <li className="list-group-item">
                         <NavLink to="/admin/income">
-                            <i className="fa-solid fa-ils"></i>Income / Outcome
+                            <i className="fa-solid fa-ils"></i>Earnings
                         </NavLink>
                     </li>
                 )}

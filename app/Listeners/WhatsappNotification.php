@@ -585,7 +585,7 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.worker_remind_job.content', [
+                    $text .= __('mail.wa-message.client_reschedule_meeting.content', [
                         'client_name' => $clientData['lng'] == 'heb' ? $teamData['heb_name'] : $teamData['name'],
                         'date' => Carbon::parse($eventData['start_date'])->format('d-m-Y')  . ($eventData['start_time'] && $eventData['end_time'] ? (" ( " . date("H:i", strtotime($eventData['start_time'])) . " to " . date("H:i", strtotime($eventData['end_time'])) . " ) ") : " "),
                         'address' => isset($eventData['property_address']) ? $eventData['property_address']['address_name'] : 'NA',

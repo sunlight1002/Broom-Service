@@ -26,7 +26,6 @@
 		<h1 style="text-align: center;">{{__('mail.client_new_job.hi')}}, {{ $name }}</h1>
 		
 		@if($lng == 'heb')
-		<!--<p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}}{{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>-->
 		<p style="text-align: center;line-height: 30px"> לקוח יקר, זהו אישור על השירות שהזמנת. לצפיה בפרטים. </p>
 		@else
         <p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}} {{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>
@@ -36,11 +35,8 @@
 			 <thead>
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.date')}}</th>
-					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.worker')}}</th> -->
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.service')}}</th>
-					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.shift')}}</th> -->
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.start_time')}}</th>
-					<!-- <th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.status')}}</th> -->
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.action')}}</th>
 				</tr>
 			</thead>
@@ -48,7 +44,6 @@
 				@foreach($jobs as $job)
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['job']['start_date'])->format('M d Y') }}</td>
-					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ @if($job["job"]['worker']) $job["job"]['worker']['firstname'] }} {{ $job["job"]['worker']['lastname'] }} @else NA @endif</td> -->
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 					
 					@if($lng == 'heb')
@@ -58,9 +53,7 @@
 					@endif
 
 				    </td>
-					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['job']['shifts'] }} </td> -->
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['start_time'] }} </td>
-					<!-- <td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.scheduled')}}</td> -->
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px;display:flex;height: 38px">
 						<a href='{{ url("client/login") }}'  style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.client_new_job.view_job')}}</a>
 					</td>

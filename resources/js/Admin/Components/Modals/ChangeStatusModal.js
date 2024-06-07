@@ -4,8 +4,8 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 
 const statusArr = {
-    "pending lead": "Pending lead",
-    "potential lead": "Potential lead",
+    pending: "Pending",
+    potential: "Potential",
     irrelevant: "Irrelevant",
     uninterested: "Uninterested",
     unanswered: "Unanswered",
@@ -24,7 +24,7 @@ export default function ChangeStatusModal({
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         reason: "",
-        status: "pending lead",
+        status: "pending",
         id: clientId,
     });
     const [isLoading, setIsLoading] = useState(false);

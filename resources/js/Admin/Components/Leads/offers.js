@@ -70,6 +70,7 @@ export default function OfferedPrice() {
                     title: "Action",
                     data: "action",
                     orderable: false,
+                    responsivePriority: 1,
                     render: function (data, type, row, meta) {
                         let _html = '<div class="d-flex">';
 
@@ -94,13 +95,27 @@ export default function OfferedPrice() {
             },
         });
 
-        $(tableRef.current).on("click", ".dt-row", function (e) {
-            if (
-                !e.target.closest(".dropdown-toggle") &&
-                !e.target.closest(".dropdown-menu") &&
-                !e.target.closest(".dtr-control")
-            ) {
-                const _id = $(this).data("id");
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control"))
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
+
+            if (_id) {
                 navigate(`/admin/view-offer/${_id}`);
             }
         });

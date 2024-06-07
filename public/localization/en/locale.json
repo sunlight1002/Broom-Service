@@ -379,10 +379,16 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
+        "common": {
+            "offers": "Offers",
+            "meetings": "Meetings",
+            "services": "Services",
+            "payments": "Payments"
+        },
         "sidebar": {
             "dashboard": "Dashboard",
             "schedule_meet": "Scheduled Meetings",
-            "ofr_price": "Offered Prices",
+            "offers": "Offers",
             "contracts": "Contracts",
             "jobs": "Jobs",
             "invoices": "Invoices",
@@ -391,10 +397,10 @@
         "dashboard": {
             "noJobFound": "No job found",
             "contracts": "Contracts",
-            "offered_price": "Offered Price",
+            "offers": "Offers",
             "meetings": "Meetings",
             "jobs": "Jobs",
-            "upcoming_jobs": "Upcoming Jobs",
+            "upcoming_services": "Upcoming Services",
             "client": "Client",
             "service": "Service",
             "date": "Date",
@@ -442,7 +448,7 @@
         },
         "offer": {
             "noOffer": "No offer found",
-            "title": "Offered Prices",
+            "title": "Offers",
             "ofr_date": "Date",
             "services": "Services",
             "status": "Status",

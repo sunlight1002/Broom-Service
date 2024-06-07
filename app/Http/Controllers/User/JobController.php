@@ -265,7 +265,6 @@ class JobController extends Controller
             $job->save();
             //send notification to worker
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-            $job->start_time = $currentDateTime;
             $jobData = $job->toArray();
             $worker = $jobData['worker'];
 

@@ -20,7 +20,7 @@ class JobOpeningTime extends Seeder
             $start_date = Carbon::parse($job['start_date'])->format('Y-m-d');
             $opening_time = $start_date . ' ' . $job['start_time'];
             $jobObj = Job::find($job['id']);
-            $jobObj->job_opening_timestamp = Carbon::createFromFormat('Y-m-d H:i', $opening_time)->toDateTimeString();
+            $jobObj->job_opening_timestamp = Carbon::parse($opening_time)->toDateTimeString();
             $jobObj->save();
         }
     }

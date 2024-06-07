@@ -21,39 +21,26 @@ export default function WorkerMyAccount() {
     const [email, setEmail] = useState("");
     const [renewal_date, setRenewalDate] = useState("");
     const [gender, setGender] = useState("male");
-    // const [payment_hour, setPaymentHour] = useState(0);
     const [worker_id, setWorkerId] = useState(
         Math.random().toString().concat("0".repeat(3)).substr(2, 5)
     );
     const [password, setPassword] = useState("");
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
-    // const [skill, setSkill] = useState([]);
-    // const [itemStatus, setItemStatus] = useState("");
     const [country, setCountry] = useState("Israel");
 
     const [countries, setCountries] = useState([]);
-    // const [avl_skill, setAvlSkill] = useState([]);
 
     const [errors, setErrors] = useState([]);
-    const params = useParams();
-    const navigate = useNavigate();
     const alert = useAlert();
     const { t } = useTranslation();
-    // const handleSkills = (e) => {
-    //     const value = e.target.value;
-    //     const checked = e.target.checked;
-    //     if (checked) {
-    //         setSkill([...skill, value]);
-    //     } else {
-    //         setSkill(skill.filter((e) => e !== value));
-    //     }
-    // };
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
+
     const handleUpdate = (e) => {
         e.preventDefault();
 
@@ -93,12 +80,9 @@ export default function WorkerMyAccount() {
             setPhone(w.phone);
             setRenewalDate(w.renewal_visa);
             setGender(w.gender);
-            // setPaymentHour(w.payment_per_hour);
             setWorkerId(w.worker_id);
             setPassword(w.passcode);
-            // setSkill(w.skill);
             setAddress(w.address);
-            // setItemStatus(w.status);
             setLng(w.lng);
             setCountry(w.country);
             elementsRef.current.map(
@@ -110,21 +94,18 @@ export default function WorkerMyAccount() {
             );
         });
     };
-    // const getAvailableSkill = () => {
-    //     axios.get(`/api/admin/get_services`, { headers }).then((response) => {
-    //         setAvlSkill(response.data.services);
-    //     });
-    // };
+
     const getCountries = () => {
         axios.get(`/api/admin/countries`, { headers }).then((response) => {
             setCountries(response.data.countries);
         });
     };
+
     useEffect(() => {
         getWorker();
         getCountries();
-        // getAvailableSkill();
     }, []);
+
     return (
         <>
             <div className="edit-customer worker-account">
@@ -265,22 +246,6 @@ export default function WorkerMyAccount() {
                                     </div>
                                 </div>
                             </div>
-                            {/* <div className="col-sm-6">
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("worker.settings.p_ph")}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={payment_hour}
-                                        onChange={(e) =>
-                                            setPaymentHour(e.target.value)
-                                        }
-                                        className="form-control"
-                                        placeholder={t("worker.settings.p_ph")}
-                                    />
-                                </div>
-                            </div> */}
                             <div className="col-sm-6">
                                 <div className="form-group">
                                     <label className="control-label">
@@ -411,91 +376,25 @@ export default function WorkerMyAccount() {
                                 ""
                             )}
                         </div>
-                        {/* <div className="col-sm-12">
-                            <div className="form-group skills-group">
-                                <label className="control-label">
-                                    {t("worker.settings.skills")}
-                                </label>
-                                {avl_skill &&
-                                    avl_skill.map((item, index) => {
-                                        if (
-                                            skill !== "null" &&
-                                            skill != null &&
-                                            skill.length > 0
-                                        ) {
-                                            return (
-                                                <div key={index}>
-                                                    {JSON.parse(skill).includes(
-                                                        item.id.toString()
-                                                    ) ? (
-                                                        <div className="form-check col-sm-12">
-                                                            <label className="form-check-label col-3 text-center">
-                                                                <p className="form-control">
-                                                                    {" "}
-                                                                    {item.name}
-                                                                </p>
-                                                            </label>
-                                                        </div>
-                                                    ) : (
-                                                        ""
-                                                    )}
-
-                                                    <input type="checkbox" className="form-check-input" name="skills" value={item.id} onChange={handleSkills} checked={skill.includes((item.id).toString())} /><span>{item.name}</span>
-                                                </div>
-                                            );
-                                        }
-                                    })}
-                            </div>
-                        </div> */}
-                        <div className="col-sm-12 mt-4">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("worker.settings.areYouAfraid")}
-                                </label>
-                            </div>
-                            {animalArray &&
-                                animalArray.map((item, index) => (
-                                    <div className="form-check" key={item.key}>
-                                        <label className="form-check-label">
-                                            <input
-                                                ref={elementsRef.current[index]}
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                name={item.key}
-                                                value={item.key}
-                                            />
-                                            {item.name}
-                                        </label>
-                                    </div>
-                                ))}
-                        </div>
-                        {/* <div className="form-group mt-4">
+                        <div className="form-group">
                             <label className="control-label">
-                                {t("worker.settings.status")}
+                                {t("worker.settings.areYouAfraid")}
                             </label>
-                            <select
-                                className="form-control"
-                                value={itemStatus}
-                                onChange={(e) => setItemStatus(e.target.value)}
-                            >
-                                <option value="">
-                                    {t("worker.settings.pleaseSelect")}
-                                </option>
-                                <option value="1">
-                                    {t("worker.settings.Enable")}
-                                </option>
-                                <option value="0">
-                                    {t("worker.settings.Disable")}
-                                </option>
-                            </select>
-                            {errors.status ? (
-                                <small className="text-danger mb-1">
-                                    {errors.status}
-                                </small>
-                            ) : (
-                                ""
-                            )}
-                        </div> */}
+                        </div>
+                        {animalArray.map((item, index) => (
+                            <div className="form-check" key={item.key}>
+                                <label className="form-check-label">
+                                    <input
+                                        ref={elementsRef.current[index]}
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        name={item.key}
+                                        value={item.key}
+                                    />
+                                    {item.name}
+                                </label>
+                            </div>
+                        ))}
                         <div className="form-group text-center">
                             <input
                                 type="submit"

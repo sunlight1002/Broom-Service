@@ -70,7 +70,7 @@ export default function Invoices() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("client.invoice.title")}
+                                {t("client.common.payments")}
                             </h1>
                         </div>
                         <div className="col-sm-6">

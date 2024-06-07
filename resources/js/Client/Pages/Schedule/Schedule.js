@@ -82,7 +82,7 @@ export default function Schedule() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("client.meeting.title")}
+                                {t("client.common.meetings")}
                             </h1>
                         </div>
                         <div className="col-sm-6">

@@ -97,14 +97,12 @@ export default function MobileHeader() {
                         </li>
                         <li className="nav-item">
                             <a href="/admin/schedule">
-                                <i className="fa-solid fa-video"></i>Scheduled
-                                Meetings
+                                <i className="fa-solid fa-video"></i>Meetings
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/offered-price">
-                                <i className="fa-solid fa-tags"></i>Offered
-                                Prices
+                                <i className="fa-solid fa-tags"></i>Offers
                             </a>
                         </li>
                         <li className="nav-item">
@@ -115,7 +113,8 @@ export default function MobileHeader() {
                         </li>
                         <li className="nav-item">
                             <a href="/admin/jobs">
-                                <i className="fa-solid fa-briefcase"></i>Jobs
+                                <i className="fa-solid fa-briefcase"></i>
+                                Schedule
                             </a>
                         </li>
 
@@ -225,8 +224,7 @@ export default function MobileHeader() {
                         {role !== "member" && (
                             <li className="nav-item">
                                 <a href="/admin/income">
-                                    <i className="fa-solid fa-ils"></i>Income /
-                                    Outcome
+                                    <i className="fa-solid fa-ils"></i>Earnings
                                 </a>
                             </li>
                         )}
