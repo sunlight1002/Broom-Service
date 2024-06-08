@@ -10,7 +10,6 @@ use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\WorkerFormService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -146,22 +145,6 @@ class AuthController extends Controller
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename=form101.pdf');
-    }
-
-    public function upload(Request $request, $id)
-    {
-        $worker = User::find($id);
-
-        $pdf = $request->file('pdf');
-        $filename = 'form101_' . $worker->id . '.' . $pdf->getClientOriginalExtension();
-        $path = storage_path() . '/app/public/uploads/worker/form101/' . $worker->id;
-        $pdf->move($path, $filename);
-
-        $worker->update([
-            'form_101' => $filename
-        ]);
-
-        return response()->json(['success' => true]);
     }
 
     public function getWorkerDetail(Request $request)

@@ -25,7 +25,8 @@
         "notAbleToRevert": "Вы не сможете отменить это!",
         "yesDelete": "Да, удалить!",
         "deleted": "Удалено!",
-        "Logout": "Успешный выход из системы"
+        "Logout": "Успешный выход из системы",
+        "select_default_option": "--Выбирать--"
     },
     "front_meet": {
         "title": "Время и дата встречи",
@@ -1236,7 +1237,9 @@
             "file": "Файл",
             "close": "Закрыть",
             "save_file": "Сохранить файл",
-            "forms": "Формы"
+            "forms": "Формы",
+            "document_type": "Тип документа",
+            "document_name": "Название документа"
         }
     },
     "worker_contract": {

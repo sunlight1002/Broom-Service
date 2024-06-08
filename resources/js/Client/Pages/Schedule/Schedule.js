@@ -1,77 +1,121 @@
-import React, { useState, useEffect, useTransition } from "react";
-import Sidebar from "../../Layouts/ClientSidebar";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import axios from "axios";
-import ReactPaginate from "react-paginate";
+import React, { useEffect, useRef } from "react";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { Base64 } from "js-base64";
+import { useNavigate } from "react-router-dom";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
+import Sidebar from "../../Layouts/ClientSidebar";
 
 export default function Schedule() {
-    const [schedules, setSchedules] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [pageCount, setPageCount] = useState(0);
-    const id = localStorage.getItem("client-id");
+    const navigate = useNavigate();
     const { t } = useTranslation();
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("client-token"),
-    };
-
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .post(
-                "/api/client/schedule?page=" + currentPage,
-                { id: id },
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading(t("client.meeting.noMeetingSchedule"));
-                }
-            });
-    };
-
-    const getSchedules = () => {
-        axios
-            .post(`/api/client/schedule`, { id: id }, { headers })
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setLoading(t("client.meeting.noMeetingSchedule"));
-                }
-            });
-    };
-
-    const filterSchedules = (e) => {
-        axios
-            .post(
-                `/api/client/schedule?q=${e.target.value}`,
-                { id: id },
-                { headers }
-            )
-            .then((response) => {
-                if (response.data.schedules.data.length > 0) {
-                    setSchedules(response.data.schedules.data);
-                    setPageCount(response.data.schedules.last_page);
-                } else {
-                    setSchedules([]);
-                    setPageCount(response.data.schedules.last_page);
-                    setLoading(t("client.meeting.noMeetingFound"));
-                }
-            });
-    };
+    const tableRef = useRef(null);
 
     useEffect(() => {
-        getSchedules();
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/client/schedule",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("client-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Attender",
+                    data: "attender_name",
+                },
+                {
+                    title: "Address",
+                    data: "address_name",
+                    render: function (data, type, row, meta) {
+                        if (data) {
+                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                        } else {
+                            return "NA";
+                        }
+                    },
+                },
+                {
+                    title: "Scheduled",
+                    data: "start_date",
+                    render: function (data, type, row, meta) {
+                        let _html = "";
+
+                        if (row.start_date) {
+                            _html += `<span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("DD/MM/Y")} </span>`;
+
+                            _html += `<br /> <span class="text-blue"> ${Moment(
+                                row.start_date
+                            ).format("dddd")} </span>`;
+
+                            if (row.start_time && row.end_time) {
+                                _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
+                                _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+                            }
+                        }
+
+                        return _html;
+                    },
+                },
+                {
+                    title: "Purpose",
+                    data: "purpose",
+                },
+                {
+                    title: "Status",
+                    data: "booking_status",
+                },
+                {
+                    title: "Files",
+                    data: "action",
+                    orderable: false,
+                    responsivePriority: 1,
+                    render: function (data, type, row, meta) {
+                        const _id = Base64.encode(row.id.toString());
+
+                        let _html = `<a href="/client/files/${_id}" class="d-block d-md-flex text-center pl-5 pl-md-0 dt-file-button" data-id="${_id}">`;
+
+                        if (row.file_exists == 1) {
+                            _html += `<i class="fa fa-image" style="font-size: 24px"></i></a>`;
+                        } else {
+                            _html += `<i class="fa fa-upload" style="font-size: 24px"></i></a>`;
+                        }
+
+                        _html += `</a>`;
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-file-button", function (e) {
+            e.preventDefault();
+            const _id = $(this).data("id").toString();
+            navigate(`/client/files/${_id}`);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
     }, []);
 
     return (
@@ -85,200 +129,15 @@ export default function Schedule() {
                                 {t("client.common.meetings")}
                             </h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    onChange={filterSchedules}
-                                    placeholder={t("client.search")}
-                                />
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {schedules.length > 0 ? (
-                                    <Table className="table table-bordered responsiveTable">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.meeting.attender"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.meeting.address_txt"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.meeting.scheduled"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.meeting.status")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.meeting.files")}
-                                                </Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {schedules &&
-                                                schedules.map((item, index) => {
-                                                    let address =
-                                                        item.property_address;
-
-                                                    let address_name =
-                                                        address &&
-                                                        address.address_name
-                                                            ? address.address_name
-                                                            : "NA";
-                                                    let cords =
-                                                        address &&
-                                                        address.latitude &&
-                                                        address.longitude
-                                                            ? address.latitude +
-                                                              "," +
-                                                              address.longitude
-                                                            : "NA";
-                                                    return (
-                                                        <Tr key={index}>
-                                                            <Td>
-                                                                {item.team
-                                                                    ? item.team
-                                                                          .name
-                                                                    : "NA"}
-                                                            </Td>
-                                                            <Td>
-                                                                {cords !==
-                                                                "NA" ? (
-                                                                    <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
-                                                                        target="_blank"
-                                                                    >
-                                                                        {
-                                                                            address_name
-                                                                        }
-                                                                    </Link>
-                                                                ) : (
-                                                                    <>
-                                                                        {
-                                                                            address_name
-                                                                        }
-                                                                    </>
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {item.start_date && (
-                                                                    <>
-                                                                        <span
-                                                                            style={{
-                                                                                color: "blue",
-                                                                            }}
-                                                                        >
-                                                                            {Moment(
-                                                                                item.start_date
-                                                                            ).format(
-                                                                                "DD/MM/Y"
-                                                                            ) +
-                                                                                "\n"}
-                                                                        </span>
-                                                                        <br />
-                                                                        <span
-                                                                            style={{
-                                                                                color: "blue",
-                                                                            }}
-                                                                        >
-                                                                            {Moment(
-                                                                                item.start_date
-                                                                            ).format(
-                                                                                "dddd"
-                                                                            )}
-                                                                        </span>
-                                                                        <br />
-                                                                        <span
-                                                                            style={{
-                                                                                color: "green",
-                                                                            }}
-                                                                        >
-                                                                            {"Start :" +
-                                                                                item.start_time}
-                                                                        </span>
-                                                                        <br />
-                                                                        <span
-                                                                            style={{
-                                                                                color: "red",
-                                                                            }}
-                                                                        >
-                                                                            {"End   :" +
-                                                                                item.end_time}
-                                                                        </span>
-                                                                    </>
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {
-                                                                    item.booking_status
-                                                                }
-                                                            </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/client/files/${Base64.encode(
-                                                                        item.id.toString()
-                                                                    )}`}
-                                                                    className="d-block d-md-flex text-center pl-5 pl-md-0"
-                                                                >
-                                                                    <i
-                                                                        className="fa fa-image"
-                                                                        style={{
-                                                                            fontSize:
-                                                                                "36px",
-                                                                        }}
-                                                                    ></i>
-                                                                </Link>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center mt-5">
-                                        {loading}
-                                    </p>
-                                )}
-                            </div>
-                            {schedules.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={t("client.previous")}
-                                    nextLabel={t("client.next")}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                ""
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>

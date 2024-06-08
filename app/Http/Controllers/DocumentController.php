@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\DocumentType;
 use App\Models\User;
 use App\Models\Document;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,8 +77,12 @@ class DocumentController extends Controller
                     $file_name = $tmp_file_name;
                 }
             }
+
+            $docType = DocumentType::find($data['doc_id']);
+
             $user->documents()->create([
                 'document_type_id' => $data['doc_id'],
+                'name' => $docType->name,
                 'file' => $file_name,
             ]);
         }

@@ -42,13 +42,11 @@ class JobController extends Controller
         $service_column = Auth::user()->lng == 'en' ? 'job_services.name' : 'job_services.heb_name';
 
         $query = Job::query()
-            ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
             ->leftJoin('client_property_addresses', 'jobs.address_id', '=', 'client_property_addresses.id')
             ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
             ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
             ->where('jobs.client_id', Auth::user()->id)
-            ->select('jobs.id', 'jobs.start_date', 'users.id as worker_id', 'jobs.shifts', 'jobs.status', 'job_services.duration_minutes', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'job_services.total', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude')
-            ->selectRaw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name")
+            ->select('jobs.id', 'jobs.start_date', 'jobs.shifts', 'jobs.status', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'jobs.start_time')
             ->selectRaw("$service_column AS service_name")
             ->groupBy('jobs.id');
 
@@ -59,8 +57,8 @@ class JobController extends Controller
 
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
-                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
-                                ->orWhere('job_services.name', 'like', "%" . $keyword . "%")
+                            $sq
+                                ->where('job_services.name', 'like', "%" . $keyword . "%")
                                 ->orWhere('job_services.heb_name', 'like', "%" . $keyword . "%")
                                 ->orWhere('jobs.shifts', 'like', "%" . $keyword . "%");
                         });
@@ -70,11 +68,18 @@ class JobController extends Controller
             ->editColumn('start_date', function ($data) {
                 return $data->start_date ? Carbon::parse($data->start_date)->format('d M, Y') : '-';
             })
+            ->editColumn('start_time', function ($data) {
+                if (!$data->start_time) {
+                    return '-';
+                } else {
+                    $hour1 = Carbon::now()->setTimeFromTimeString($data->start_time)->format('H:i');
+                    $hour2 = Carbon::now()->setTimeFromTimeString($data->start_time)->addHours(2)->format('H:i');
+
+                    return $hour1 . ' - ' . $hour2;
+                }
+            })
             ->editColumn('comment', function ($data) {
                 return $data->comment ? $data->comment : '-';
-            })
-            ->editColumn('worker_name', function ($data) {
-                return $data->worker_name ? $data->worker_name : 'NA';
             })
             ->addColumn('action', function ($data) {
                 return '';

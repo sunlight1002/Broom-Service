@@ -11,7 +11,7 @@ class Document extends Model
 
     protected $table = 'documents';
 
-    protected $fillable = ['document_type_id', 'file'];
+    protected $fillable = ['document_type_id', 'name', 'file'];
 
     public function userable()
     {

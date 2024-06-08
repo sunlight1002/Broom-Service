@@ -25,7 +25,8 @@
         "notAbleToRevert": "לא תוכל לבטל את הפעולה!",
         "yesDelete": "כן, מחק!",
         "deleted": "נמחק!",
-        "Logout": "התנתקת בהצלחה"
+        "Logout": "התנתקת בהצלחה",
+        "select_default_option": "--בחר--"
     },
     "front_meet": {
         "title": "שעה ותאריך לפגישה",
@@ -1238,7 +1239,9 @@
             "file": "קוֹבֶץ",
             "close": "סגור",
             "save_file": "שמור את הקובץ",
-            "forms": "טפסים"
+            "forms": "טפסים",
+            "document_type": "סוג מסמך",
+            "document_name": "שם המסמך"
         }
     },
     "worker_contract": {

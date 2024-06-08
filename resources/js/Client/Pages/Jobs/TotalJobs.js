@@ -42,21 +42,6 @@ export default function TotalJobs() {
                     data: "start_date",
                 },
                 {
-                    title: "Worker",
-                    data: "worker_name",
-                    render: function (data, type, row, meta) {
-                        let _html = `<span class="worker-name-badge" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
-
-                        _html += `<i class="fa-solid fa-user"></i>`;
-
-                        _html += data;
-
-                        _html += `</span>`;
-
-                        return _html;
-                    },
-                },
-                {
                     title: "Service",
                     data: "service_name",
                     render: function (data, type, row, meta) {
@@ -72,16 +57,10 @@ export default function TotalJobs() {
                     },
                 },
                 {
-                    title: "Shift",
-                    data: "shifts",
+                    title: "Arrival Time",
+                    data: "start_time",
                     render: function (data, type, row, meta) {
-                        const _slots = data.split(",");
-
-                        return _slots
-                            .map((_slot, index) => {
-                                return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
-                            })
-                            .join(" ");
+                        return `<div class="rounded mb-1 shifts-badge"> ${data} </div>`;
                     },
                 },
                 {
@@ -93,15 +72,6 @@ export default function TotalJobs() {
                         } else {
                             return "NA";
                         }
-                    },
-                },
-                {
-                    title: "Complete Time",
-                    data: "duration_minutes",
-                    render: function (data, type, row, meta) {
-                        return `<span class="text-nowrap"> ${minutesToHours(
-                            data
-                        )} </span>`;
                     },
                 },
                 {
@@ -140,19 +110,6 @@ export default function TotalJobs() {
                     //                                 status =
                     //                                     t("j_status.cancel");
                     //                             }
-                },
-                {
-                    title: "Total",
-                    data: "total",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        return (
-                            `${data} ` +
-                            t("global.currency") +
-                            " + " +
-                            t("global.vat")
-                        );
-                    },
                 },
                 {
                     title: "Action",

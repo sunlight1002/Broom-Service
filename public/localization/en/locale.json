@@ -25,7 +25,8 @@
         "notAbleToRevert": "You won't be able to revert this!",
         "yesDelete": "Yes, Delete!",
         "deleted": "Deleted!",
-        "Logout": "Logged Out Successfully"
+        "Logout": "Logged Out Successfully",
+        "select_default_option": "--Select--"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -1236,7 +1237,9 @@
             "file": "File",
             "close": "Close",
             "save_file": "Save File",
-            "forms": "Forms"
+            "forms": "Forms",
+            "document_type": "Document type",
+            "document_name": "Document name"
         }
     },
     "worker_contract": {

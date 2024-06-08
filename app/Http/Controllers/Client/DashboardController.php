@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\ClientPropertyAddress;
 use App\Models\ManageTime;
 use App\Traits\PriceOffered;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
 {
@@ -47,28 +49,35 @@ class DashboardController extends Controller
     //Schedules
     public function meetings(Request $request)
     {
-        $result = Schedule::with(['team', 'propertyAddress']);
+        $query = Schedule::query()
+            ->leftJoin('admins', 'schedules.team_id', '=', 'admins.id')
+            ->leftJoin('client_property_addresses', 'schedules.address_id', '=', 'client_property_addresses.id')
+            ->leftJoin('files', 'files.meeting', '=', 'schedules.id')
+            ->where('schedules.client_id', Auth::user()->id)
+            ->select('schedules.id', 'schedules.booking_status', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'schedules.purpose')
+            ->selectRaw('IF(files.id IS NULL, 0, 1) as file_exists');
 
-        if (isset($request->q)) {
-            $q = $request->q;
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if (request()->has('search')) {
+                    $keyword = request()->get('search')['value'];
 
-            $result = $result->orWhereHas('team', function ($qr) use ($q) {
-                $qr->where('name', 'like', '%' . $q . '%');
-            });
-
-            $result->orWhere(function ($qry) use ($q) {
-                $qry->where('booking_status', 'like', '%' . $q . '%')
-                    ->orWhere('end_time',   'like', '%' . $q . '%')
-                    ->orWhere('start_date', 'like', '%' . $q . '%')
-                    ->orWhere('start_time', 'like', '%' . $q . '%');
-            });
-        }
-
-        $result = $result->where('client_id', Auth::user()->id)->paginate(20);
-
-        return response()->json([
-            'schedules' => $result
-        ]);
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('admins.name', 'like', "%" . $keyword . "%");
+                        });
+                    }
+                }
+            })
+            ->orderColumn('start_date', function ($query, $order) {
+                $query->orderBy('start_date', $order)
+                    ->orderBy('start_time_standard_format', $order);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function showMeetings($id)
@@ -83,24 +92,24 @@ class DashboardController extends Controller
         ]);
     }
 
-    //Offers
     public function offers(Request $request)
     {
-        $result = Offer::query();
+        $query = Offer::query()
+            ->where('offers.client_id', Auth::user()->id)
+            ->select('offers.id', 'offers.status', 'offers.subtotal', 'offers.total', 'offers.created_at', 'offers.services');
 
-        if (isset($request->q)) {
-            $q = $request->q;
-            $result->orWhere(function ($qry) use ($q) {
-                $qry->where('status', 'like', '%' . $q . '%')
-                    ->orWhere('total',   'like', '%' . $q . '%');
-            });
-        }
-
-        $result = $result->orderBy('id', 'desc')->where('client_id', Auth::user()->id)->paginate(20);
-
-        return response()->json([
-            'offers' => $result
-        ]);
+        return DataTables::eloquent($query)
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
+            })
+            ->editColumn('services', function ($data) {
+                return json_decode($data->services);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function viewOffer(Request $request)
@@ -128,34 +137,25 @@ class DashboardController extends Controller
         ]);
     }
 
-    //Contracts
     public function contracts(Request $request)
     {
-        $q = $request->q;
-        $result = Contract::with('client', 'offer');
-        if (!is_null($q)) {
-            $result = $result->orWhereHas('client', function ($qr) use ($q) {
-                $qr->where(function ($qr) use ($q) {
-                    $qr->where('firstname', 'like', '%' . $q . '%');
-                    $qr->orWhere('lastname', 'like', '%' . $q . '%');
-                    $qr->orWhere('email', 'like', '%' . $q . '%');
-                    $qr->orWhere('city', 'like', '%' . $q . '%');
-                    $qr->orWhere('street_n_no', 'like', '%' . $q . '%');
-                    $qr->orWhere('zipcode', 'like', '%' . $q . '%');
-                    $qr->orWhere('phone', 'like', '%' . $q . '%');
-                });
-            });
+        $query = Contract::query()
+            ->leftJoin('offers', 'offers.id', '=', 'contracts.offer_id')
+            ->where('contracts.client_id', Auth::user()->id)
+            ->select('contracts.id', 'contracts.status', 'contracts.job_status', 'offers.services', 'contracts.created_at', 'contracts.unique_hash');
 
-            $result->orWhere(function ($qry) use ($q) {
-                $qry->where('status', 'like', '%' . $q . '%');
-            });
-        }
-
-        $result = $result->orderBy('id', 'desc')->where('client_id', Auth::user()->id)->paginate(20);
-
-        return response()->json([
-            'contracts' => $result
-        ]);
+        return DataTables::eloquent($query)
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
+            })
+            ->editColumn('services', function ($data) {
+                return json_decode($data->services);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function getContract($id)

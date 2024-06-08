@@ -2,6 +2,10 @@ import Moment from "moment";
 const arr = ["visa", "passport"];
 
 const DocumentList = ({ documents, worker, handleDelete }) => {
+    const getExtension = (filename) => {
+        return filename.split(".").pop();
+    };
+
     return (
         <div>
             {arr.map(
@@ -119,7 +123,7 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
                                         href={`/storage/uploads/documents/${d.file}`}
                                         target={"_blank"}
                                     >
-                                        {d.file}
+                                        {d.name}.{getExtension(d.file)}
                                     </a>
                                 </span>
                             </div>

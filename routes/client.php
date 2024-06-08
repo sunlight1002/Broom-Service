@@ -29,12 +29,12 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 
     // Dashboard Routes
     Route::get('dashboard', [DashboardController::class, 'dashboard']);
-    Route::post('schedule', [DashboardController::class, 'meetings'])->name('schedule');
-    Route::post('offers', [DashboardController::class, 'offers'])->name('offers');
-    Route::post('view-offer', [DashboardController::class, 'viewOffer'])->name('view-offer');
-    Route::post('contracts', [DashboardController::class, 'contracts'])->name('contracts');
-    Route::post('view-contract', [DashboardController::class, 'viewContract'])->name('view-contract');
-    Route::post('get-contract/{id}', [DashboardController::class, 'getContract'])->name('get-contract');
+    Route::get('schedule', [DashboardController::class, 'meetings']);
+    Route::get('offers', [DashboardController::class, 'offers']);
+    Route::post('view-offer', [DashboardController::class, 'viewOffer']);
+    Route::get('contracts', [DashboardController::class, 'contracts']);
+    Route::post('view-contract', [DashboardController::class, 'viewContract']);
+    Route::post('get-contract/{id}', [DashboardController::class, 'getContract']);
 
     //job APis
     Route::get('jobs', [JobController::class, 'index']);
@@ -67,14 +67,14 @@ Route::post('login', [AuthController::class, 'login']);
 
 // Emails Routes
 Route::get('{id}/info', [ClientEmailController::class, 'getClientInfo']);
-Route::get('get-schedule/{id}', [ClientEmailController::class, 'getSchedule'])->name('get-schedule');
-Route::post('add-meet', [ClientEmailController::class, 'addMeet'])->name('add-meet');
+Route::get('get-schedule/{id}', [ClientEmailController::class, 'getSchedule']);
+Route::post('add-meet', [ClientEmailController::class, 'addMeet']);
 Route::post('meeting', [ClientEmailController::class, 'ShowMeeting']);
 Route::post('accept-meeting', [ClientEmailController::class, 'acceptMeeting']);
 Route::post('reject-meeting', [ClientEmailController::class, 'rejectMeeting']);
 Route::post('meeting/{id}/reschedule', [ClientEmailController::class, 'rescheduleMeeting']);
 Route::post('meetings/{id}/slot-save', [ClientEmailController::class, 'saveMeetingSlot']);
-Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer'])->name('get-offer');
+Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer']);
 Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer']);
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer']);
 Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);

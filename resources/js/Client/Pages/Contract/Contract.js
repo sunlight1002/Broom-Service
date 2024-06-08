@@ -1,67 +1,96 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import Sidebar from "../../Layouts/ClientSidebar";
-import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
-import Moment from "moment";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
+import Sidebar from "../../Layouts/ClientSidebar";
 
 export default function Contract() {
-    const [contracts, setContracts] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
-    const [pageCount, setPageCount] = useState(0);
     const { t } = useTranslation();
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("client-token"),
-    };
 
-    const handlePageClick = async (data) => {
-        let currentPage = data.selected + 1;
-        axios
-            .post("/api/client/contracts?page=" + currentPage, {}, { headers })
-            .then((response) => {
-                if (response.data.contracts.data.length > 0) {
-                    setContracts(response.data.contracts.data);
-                    setPageCount(response.data.contracts.last_page);
-                } else {
-                    setLoading(t("client.contract.NoContract"));
-                }
-            });
-    };
+    const tableRef = useRef(null);
+    const navigate = useNavigate();
 
-    const filterContracts = (e) => {
-        axios
-            .post(`/api/client/contracts?q=${e.target.value}`, {}, { headers })
-            .then((response) => {
-                if (response.data.contracts.data.length > 0) {
-                    setContracts(response.data.contracts.data);
-                    setPageCount(response.data.contracts.last_page);
-                } else {
-                    setContracts([]);
-                    setPageCount(response.data.contracts.last_page);
-                    setLoading(t("client.contract.NoContract"));
-                }
-            });
-    };
-
-    const getContract = () => {
-        axios
-            .post(`/api/client/contracts`, {}, { headers })
-            .then((response) => {
-                if (response.data.contracts.data.length > 0) {
-                    setContracts(response.data.contracts.data);
-                    setPageCount(response.data.contracts.last_page);
-                } else {
-                    setLoading(t("client.contract.NoContract"));
-                }
-            });
-    };
     useEffect(() => {
-        getContract();
+        $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/client/contracts",
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader(
+                        "Authorization",
+                        `Bearer ` + localStorage.getItem("client-token")
+                    );
+                },
+            },
+            order: [[0, "desc"]],
+            columns: [
+                {
+                    title: "Date",
+                    data: "created_at",
+                },
+                {
+                    title: "Service",
+                    data: "services",
+                    name: "offers.services",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        if (data == null) {
+                            return "-";
+                        }
+
+                        return data.map((s, j) => {
+                            return data.length - 1 != j
+                                ? s.service == "10"
+                                    ? s.other_title + " | "
+                                    : s.name + " | "
+                                : s.name;
+                        });
+                    },
+                },
+                {
+                    title: "Status",
+                    data: "status",
+                },
+                {
+                    title: "Action",
+                    data: "action",
+                    orderable: false,
+                    responsivePriority: 1,
+                    render: function (data, type, row, meta) {
+                        let _html = `<a href="/work-contract/${row.unique_hash}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn bg-yellow dt-view-button" data-unique-hash="${row.unique_hash}">`;
+
+                        _html += `<i class="fa fa-eye"></i></a>`;
+
+                        _html += `</a>`;
+
+                        return _html;
+                    },
+                },
+            ],
+            ordering: true,
+            searching: true,
+            responsive: true,
+        });
+
+        $(tableRef.current).on("click", ".dt-view-button", function (e) {
+            e.preventDefault();
+            const _uniqueHash = $(this).data("unique-hash").toString();
+
+            navigate(`/work-contract/${_uniqueHash}`);
+        });
+
+        return function cleanup() {
+            $(tableRef.current).DataTable().destroy(true);
+        };
     }, []);
 
     return (
@@ -75,145 +104,15 @@ export default function Contract() {
                                 {t("client.contract.title")}
                             </h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <input
-                                    type="text"
-                                    className="mr-0 form-control"
-                                    onChange={filterContracts}
-                                    placeholder={t("client.search")}
-                                />
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
-                            <div className="table-responsive">
-                                {contracts.length > 0 ? (
-                                    <Table className="table table-bordered responsiveTable">
-                                        <Thead>
-                                            <Tr>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.contract.c_date"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.contract.services"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.contract.status"
-                                                    )}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t("client.contract.total")}
-                                                </Th>
-                                                <Th scope="col">
-                                                    {t(
-                                                        "client.contract.action"
-                                                    )}
-                                                </Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {contracts &&
-                                                contracts.map((c, i) => {
-                                                    let services = JSON.parse(
-                                                        c.offer.services
-                                                    );
-
-                                                    return (
-                                                        <Tr key={i}>
-                                                            <Td>
-                                                                {Moment(
-                                                                    c.created_at
-                                                                ).format(
-                                                                    "D MMM, Y"
-                                                                )}
-                                                            </Td>
-                                                            <Td>
-                                                                {services &&
-                                                                    services.map(
-                                                                        (
-                                                                            s,
-                                                                            j
-                                                                        ) => {
-                                                                            return services.length -
-                                                                                1 !=
-                                                                                j
-                                                                                ? s.name +
-                                                                                      " | "
-                                                                                : s.name;
-                                                                        }
-                                                                    )}
-                                                            </Td>
-                                                            <Td>{c.status}</Td>
-                                                            <Td>
-                                                                {
-                                                                    c.offer
-                                                                        .subtotal
-                                                                }{" "}
-                                                                {t(
-                                                                    "global.currency"
-                                                                ) +
-                                                                    " + " +
-                                                                    t(
-                                                                        "global.vat"
-                                                                    )}
-                                                            </Td>
-                                                            <Td>
-                                                                <Link
-                                                                    to={`/client/view-contract/${Base64.encode(
-                                                                        c.id.toString()
-                                                                    )}/${
-                                                                        c.unique_hash
-                                                                    }`}
-                                                                    className="ml-2 ml-md-2 mt-4  mt-md-0 btn bg-yellow"
-                                                                >
-                                                                    <i className="fa fa-eye"></i>
-                                                                </Link>
-                                                            </Td>
-                                                        </Tr>
-                                                    );
-                                                })}
-                                        </Tbody>
-                                    </Table>
-                                ) : (
-                                    <div className="form-control text-center">
-                                        {loading}
-                                    </div>
-                                )}
-                            </div>
-                            {contracts.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={t("client.previous")}
-                                    nextLabel={t("client.next")}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                ""
-                            )}
+                            <table
+                                ref={tableRef}
+                                className="display table table-bordered"
+                            />
                         </div>
                     </div>
                 </div>
