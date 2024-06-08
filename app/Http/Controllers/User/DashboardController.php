@@ -19,11 +19,12 @@ class DashboardController extends Controller
     {
         $workerID = Auth::id();
         $todayDate = today()->toDateString();
+        $monthStartDate = today()->startOfMonth()->toDateString();
 
         $counts = Job::query()
             ->where('worker_id', $workerID)
             ->selectRaw("count(case when date(start_date) < ? then 1 end) as past_job_count", [$todayDate])
-            ->selectRaw("sum(case when date(start_date) < ? then actual_time_taken_minutes else 0 end) as past_job_minutes", [$todayDate])
+            ->selectRaw("sum(case when date(start_date) >= ? and date(start_date) < ? then actual_time_taken_minutes else 0 end) as past_job_minutes", [$monthStartDate, $todayDate])
             ->selectRaw("count(case when date(start_date) > ? then 1 end) as upcoming_job_count", [$todayDate])
             ->selectRaw("count(case when date(start_date) = ? then 1 end) as today_job_count", [$todayDate])
             ->first();

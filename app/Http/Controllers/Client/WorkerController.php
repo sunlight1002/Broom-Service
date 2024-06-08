@@ -59,8 +59,8 @@ class WorkerController extends Controller
                             $query->where('date', '>=', Carbon::now()->toDateString());
                         });
                         $qu->orWhereHas('defaultAvailabilities', function ($query) {
-                            $query->where('until_date', '>=', Carbon::now()->toDateString());
-                            $query->orWhereNull('until_date');
+                            $query->where('until_date', '>=', Carbon::now()->toDateString())
+                                ->orWhereNull('until_date');
                         });
                     })
                     // ->whereRelation('jobs', function ($query) {
@@ -88,7 +88,11 @@ class WorkerController extends Controller
                 $workerArr = $worker->toArray();
 
                 $defaultAvailabilities = $worker->defaultAvailabilities
-                    ->where('until_date', '>=', date('Y-m-d'))
+                    ->where(function ($q) {
+                        $q
+                            ->whereNull('until_date')
+                            ->orWhereDate('until_date', '>=', date('Y-m-d'));
+                    })
                     ->groupBy('weekday');
 
                 $workerAvailabilitiesByDate = $worker

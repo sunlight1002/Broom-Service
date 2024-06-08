@@ -171,7 +171,11 @@ class JobController extends Controller
 
             $oldTimeSlotsByWeekDay = $worker->defaultAvailabilities()
                 ->where('weekday', $weekDay)
-                ->whereDate('until_date', '>=', $dateString)
+                ->where(function ($q) use ($dateString) {
+                    $q
+                        ->whereNull('until_date')
+                        ->orWhereDate('until_date', '>=', $dateString);
+                })
                 ->selectRaw('DATE_FORMAT(start_time, "%H:%i") AS start_time')
                 ->selectRaw('DATE_FORMAT(end_time, "%H:%i") AS end_time')
                 ->get()

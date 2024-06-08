@@ -348,6 +348,14 @@ export default function WorkerDashboard() {
                                                                             "worker.jobs.view.approve"
                                                                         )}
                                                                     </button>
+
+                                                                    <a
+                                                                        href={`/worker/view-job/${item.id}`}
+                                                                        target="_blank"
+                                                                        className="btn btn-warning"
+                                                                    >
+                                                                        <i className="fa fa-eye"></i>
+                                                                    </a>
                                                                 </div>
                                                             </Td>
                                                         </Tr>
@@ -595,6 +603,14 @@ export default function WorkerDashboard() {
                                                                         )}
                                                                 </>
                                                             )}
+
+                                                            <a
+                                                                href={`/worker/view-job/${item.id}`}
+                                                                target="_blank"
+                                                                className="btn btn-warning"
+                                                            >
+                                                                <i className="fa fa-eye"></i>
+                                                            </a>
                                                         </Td>
                                                     </Tr>
                                                 );

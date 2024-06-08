@@ -18,6 +18,7 @@ export default function WorkerAvailabilty() {
     const [activeTab, setActiveTab] = useState("current-week");
     const [defaultTimeSlots, setDefaultTimeSlots] = useState([]);
     const [formValues, setFormValues] = useState({
+        default_repeatancy: "forever",
         default_until_date: null,
         custom_start_date: null,
         custom_end_date: null,
@@ -202,7 +203,10 @@ export default function WorkerAvailabilty() {
             return false;
         }
 
-        if (!formValues.default_until_date) {
+        if (
+            formValues.default_repeatancy == "until_date" &&
+            !formValues.default_until_date
+        ) {
             alert.error(t("worker.schedule.untilDate"));
             return false;
         }
@@ -251,12 +255,22 @@ export default function WorkerAvailabilty() {
         }
     };
 
+    useEffect(() => {
+        if (formValues.default_repeatancy == "forever") {
+            setFormValues({
+                ...formValues,
+                default_until_date: null,
+            });
+        }
+    }, [formValues.default_repeatancy]);
+
     return (
         <div className="boxPanel">
             <div className="d-flex mb-2 flex-wrap">
-                {tabList.map((t) => {
+                {tabList.map((t, _index) => {
                     return (
                         <FilterButtons
+                            key={_index}
                             text={t.label}
                             value={t.key}
                             selectedFilter={activeTab}
@@ -426,28 +440,56 @@ export default function WorkerAvailabilty() {
                         <div className="offset-sm-4 col-sm-4">
                             <div className="form-group">
                                 <label className="control-label">
-                                    {t("worker.schedule.until_date")}
+                                    {t("worker.schedule.Repeatancy")}
                                 </label>
-                                <Flatpickr
-                                    name="date"
+                                <select
                                     className="form-control"
-                                    onChange={(
-                                        selectedDates,
-                                        dateStr,
-                                        instance
-                                    ) => {
+                                    value={formValues.default_repeatancy}
+                                    onChange={(e) => {
                                         setFormValues({
                                             ...formValues,
-                                            default_until_date: dateStr,
+                                            default_repeatancy: e.target.value,
                                         });
                                     }}
-                                    value={formValues.default_until_date}
-                                    options={{
-                                        disableMobile: true,
-                                    }}
-                                    ref={flatpickrRef}
-                                />
+                                >
+                                    <option value="">
+                                        {t("global.select_default_option")}
+                                    </option>
+                                    <option value="forever">
+                                        {t("worker.schedule.Forever")}
+                                    </option>
+                                    <option value="until_date">
+                                        {t("worker.schedule.until_date")}
+                                    </option>
+                                </select>
                             </div>
+
+                            {formValues.default_repeatancy == "until_date" && (
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("worker.schedule.until_date")}
+                                    </label>
+                                    <Flatpickr
+                                        name="date"
+                                        className="form-control"
+                                        onChange={(
+                                            selectedDates,
+                                            dateStr,
+                                            instance
+                                        ) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                default_until_date: dateStr,
+                                            });
+                                        }}
+                                        value={formValues.default_until_date}
+                                        options={{
+                                            disableMobile: true,
+                                        }}
+                                        ref={flatpickrRef}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

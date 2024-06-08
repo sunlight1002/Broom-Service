@@ -31,6 +31,7 @@ export default function WorkerAvailabilty({ days }) {
     const [activeTab, setActiveTab] = useState("current-week");
     const [defaultTimeSlots, setDefaultTimeSlots] = useState([]);
     const [formValues, setFormValues] = useState({
+        default_repeatancy: "forever",
         default_until_date: null,
         custom_start_date: null,
         custom_end_date: null,
@@ -191,7 +192,10 @@ export default function WorkerAvailabilty({ days }) {
             return false;
         }
 
-        if (!formValues.default_until_date) {
+        if (
+            formValues.default_repeatancy == "until_date" &&
+            !formValues.default_until_date
+        ) {
             alert.error("Default until date not selected");
             return false;
         }
@@ -246,6 +250,15 @@ export default function WorkerAvailabilty({ days }) {
         getWorkerAvailabilty();
         getDates();
     }, []);
+
+    useEffect(() => {
+        if (formValues.default_repeatancy == "forever") {
+            setFormValues({
+                ...formValues,
+                default_until_date: null,
+            });
+        }
+    }, [formValues.default_repeatancy]);
 
     return (
         <div className="boxPanel">
@@ -449,28 +462,52 @@ export default function WorkerAvailabilty({ days }) {
                         <div className="offset-sm-4 col-sm-4">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Until Date
+                                    Repeatancy
                                 </label>
-                                <Flatpickr
-                                    name="date"
+                                <select
                                     className="form-control"
-                                    onChange={(
-                                        selectedDates,
-                                        dateStr,
-                                        instance
-                                    ) => {
+                                    value={formValues.default_repeatancy}
+                                    onChange={(e) => {
                                         setFormValues({
                                             ...formValues,
-                                            default_until_date: dateStr,
+                                            default_repeatancy: e.target.value,
                                         });
                                     }}
-                                    value={formValues.default_until_date}
-                                    options={{
-                                        disableMobile: true,
-                                    }}
-                                    ref={flatpickrRef}
-                                />
+                                >
+                                    <option value="">--Select--</option>
+                                    <option value="forever">Forever</option>
+                                    <option value="until_date">
+                                        Until Date
+                                    </option>
+                                </select>
                             </div>
+
+                            {formValues.default_repeatancy == "until_date" && (
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Until Date
+                                    </label>
+                                    <Flatpickr
+                                        name="date"
+                                        className="form-control"
+                                        onChange={(
+                                            selectedDates,
+                                            dateStr,
+                                            instance
+                                        ) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                default_until_date: dateStr,
+                                            });
+                                        }}
+                                        value={formValues.default_until_date}
+                                        options={{
+                                            disableMobile: true,
+                                        }}
+                                        ref={flatpickrRef}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
