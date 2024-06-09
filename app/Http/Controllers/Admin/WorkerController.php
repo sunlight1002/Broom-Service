@@ -163,12 +163,13 @@ class WorkerController extends Controller
             $workers = $workers->map(function ($worker, $key) {
                 $workerArr = $worker->toArray();
 
-                $defaultAvailabilities = $worker->defaultAvailabilities
+                $defaultAvailabilities = $worker->defaultAvailabilities()
                     ->where(function ($q) {
                         $q
                             ->whereNull('until_date')
                             ->orWhereDate('until_date', '>=', date('Y-m-d'));
                     })
+                    ->get()
                     ->groupBy('weekday');
 
                 $workerAvailabilitiesByDate = $worker
