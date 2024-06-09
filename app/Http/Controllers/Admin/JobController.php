@@ -51,7 +51,9 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $payment_filter = $request->get('payment_filter');
+        $done_filter = $request->get('done_filter');
+        $start_time_filter = $request->get('start_time_filter');
+        $actual_time_exceed_filter = $request->get('actual_time_exceed_filter');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
 
@@ -67,8 +69,24 @@ class JobController extends Controller
             ->when($end_date, function ($q) use ($end_date) {
                 return $q->whereDate('jobs.start_date', '<=', $end_date);
             })
-            ->when(isset($payment_filter), function ($q) use ($payment_filter) {
-                return $q->where('jobs.is_paid', $payment_filter);
+            ->when($done_filter == 'done', function ($q) {
+                return $q->where('jobs.is_job_done', 1);
+            })
+            ->when($done_filter == 'undone', function ($q) {
+                return $q->where('jobs.is_job_done', 0);
+            })
+            ->when($start_time_filter == 'morning', function ($q) {
+                return $q->where('jobs.start_time', '<=', '12:00:00');
+            })
+            ->when($start_time_filter == 'noon', function ($q) {
+                return $q->where('jobs.start_time', '>', '12:00:00')
+                    ->where('jobs.start_time', '<=', '16:00:00');
+            })
+            ->when($start_time_filter == 'afternoon', function ($q) {
+                return $q->where('jobs.start_time', '>', '16:00:00');
+            })
+            ->when($actual_time_exceed_filter == 1, function ($q) {
+                return $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes');
             })
             ->select('jobs.id', 'jobs.start_date', 'clients.id as client_id', 'clients.color as client_color', 'users.id as worker_id', 'services.color_code as service_color', 'jobs.shifts', 'jobs.is_job_done', 'jobs.status', 'job_services.duration_minutes', 'jobs.actual_time_taken_minutes', 'jobs.comment', 'jobs.review', 'jobs.rating', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id')
             ->selectRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name")

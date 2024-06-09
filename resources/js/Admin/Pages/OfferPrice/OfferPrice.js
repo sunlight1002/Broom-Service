@@ -189,6 +189,10 @@ export default function OfferPrice() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
+    const handleFilterByStatus = (_status) => {
+        $(tableRef.current).DataTable().column(4).search(_status).draw();
+    };
+
     return (
         <div id="container">
             <Sidebar />
@@ -224,6 +228,30 @@ export default function OfferPrice() {
                 </div>
                 <div className="card">
                     <div className="card-body">
+                        <div className="row">
+                            <div className="col-md-3">
+                                <div className="form-group">
+                                    <select
+                                        className="form-control"
+                                        onChange={(e) => {
+                                            handleFilterByStatus(
+                                                e.target.value
+                                            );
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        <option value="sent">Sent</option>
+                                        <option value="accepted">
+                                            Accepted
+                                        </option>
+                                        <option value="declined">
+                                            Declined
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

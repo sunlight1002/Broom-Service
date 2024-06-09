@@ -34,10 +34,10 @@ class DashboardController extends Controller
     $total_new_clients   = Client::where('created_at', $todayDateTime)->count();
     $total_active_clients   = Client::where('status', 2)->count();
     $total_leads   = Client::where('status', '!=', 2)->count();
-    $total_workers   = User::where(function ($q)  use($today){
+    $total_workers   = User::where(function ($q)  use ($today) {
       $q
-          ->whereNull('last_work_date')
-          ->orWhereDate('last_work_date', '>=', $today);
+        ->whereNull('last_work_date')
+        ->orWhereDate('last_work_date', '>=', $today);
     })->count();
     $total_schedules  = Schedule::whereDate('start_date', $today)->count();
     $total_offers    = Offer::where('status', 'sent')->count();
@@ -102,31 +102,52 @@ class DashboardController extends Controller
 
       if ($request->all) {
         $noticeAll = Notification::with('client')
-          ->when($groupType == 'schedule-and-worker', function ($q) {
-            return $q->whereIn('type', [
-              NotificationTypeEnum::FORM101_SIGNED,
-              NotificationTypeEnum::INSURANCE_SIGNED,
-              NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
-              NotificationTypeEnum::SAFETY_GEAR_SIGNED,
-              NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
-              NotificationTypeEnum::OPENING_JOB,
-              NotificationTypeEnum::CLIENT_CANCEL_JOB,
-            ]);
-          })
-          ->when($groupType == 'converted-to-client', function ($q) {
-            return $q->where('type', NotificationTypeEnum::CONVERTED_TO_CLIENT);
-          })
-          ->when($groupType == 'client-comments-reviews', function ($q) {
-            return $q->whereIn('type', [
-              NotificationTypeEnum::CLIENT_COMMENTED,
-              NotificationTypeEnum::JOB_REVIEWED,
-            ]);
-          })
           ->when($groupType == 'payment-status', function ($q) {
             return $q->whereIn('type', [
               NotificationTypeEnum::PAYMENT_FAILED,
               NotificationTypeEnum::PAYMENT_PAID,
               NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
+            ]);
+          })
+          ->when($groupType == 'changes-and-cancellation', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::JOB_SCHEDULE_CHANGE,
+              NotificationTypeEnum::OPENING_JOB,
+              NotificationTypeEnum::CLIENT_CANCEL_JOB,
+              NotificationTypeEnum::WORKER_RESCHEDULE,
+            ]);
+          })
+          ->when($groupType == 'lead-client', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::CONVERTED_TO_CLIENT,
+              NotificationTypeEnum::SENT_MEETING,
+              NotificationTypeEnum::ACCEPT_MEETING,
+              NotificationTypeEnum::REJECT_MEETING,
+              NotificationTypeEnum::ACCEPT_OFFER,
+              NotificationTypeEnum::REJECT_OFFER,
+              NotificationTypeEnum::CONTRACT_ACCEPT,
+              NotificationTypeEnum::CONTRACT_REJECT,
+              NotificationTypeEnum::RESCHEDULE_MEETING,
+              NotificationTypeEnum::FILES,
+            ]);
+          })
+          ->when($groupType == 'workers-and-availability', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::FORM101_SIGNED,
+              NotificationTypeEnum::INSURANCE_SIGNED,
+              NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
+              NotificationTypeEnum::SAFETY_GEAR_SIGNED,
+            ]);
+          })
+          ->when($groupType == 'reviews-of-clients', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::CLIENT_COMMENTED,
+              NotificationTypeEnum::JOB_REVIEWED,
+            ]);
+          })
+          ->when($groupType == 'problem-with-workers', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
             ]);
           })
           ->orderBy('id', 'desc')
@@ -270,6 +291,13 @@ class DashboardController extends Controller
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PARTIAL_PAID) {
             $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> has been paid partially";
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_APPROVED_JOB) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't approved the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
           }
         }
       }

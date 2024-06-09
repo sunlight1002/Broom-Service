@@ -29,4 +29,5 @@ final class NotificationTypeEnum extends AbstractEnum
     public const INSURANCE_SIGNED = 'insurance-signed';
     public const CLIENT_COMMENTED = 'client-commented';
     public const JOB_SCHEDULE_CHANGE = 'job-schedule-change';
+    public const WORKER_NOT_APPROVED_JOB = 'worker-not-approved-job';
 }

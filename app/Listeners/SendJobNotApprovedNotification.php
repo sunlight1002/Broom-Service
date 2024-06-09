@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationTypeEnum;
 use App\Events\WorkerNotApprovedJob;
 use App\Models\Admin;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,6 +13,7 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
+use App\Models\Notification;
 
 class SendJobNotApprovedNotification implements ShouldQueue
 {
@@ -57,25 +59,13 @@ class SendJobNotApprovedNotification implements ShouldQueue
         ];
         event(new JobNotificationToWorker($worker, $job, $emailData));
 
-        //old
-        // $admins = Admin::query()
-        //     ->where('role', 'admin')
-        //     ->whereNotNull('email')
-        //     ->get(['name', 'email', 'id', 'phone']);
-
-        // App::setLocale('en');
-        // foreach ($admins as $key => $admin) {
-        //     $emailData = array(
-        //         'admin' => $admin->toArray(),
-        //         'email' => $admin->email,
-        //         'job' => $event->job->toArray(),
-        //         'content' => 'Worker has not approved the job yet.'
-        //     );
-        //     // Mail::send('/Mails/WorkerJobApprovalMail', $emailData, function ($messages) use ($emailData) {
-        //     //     $messages->to($emailData['email']);
-        //     //     $messages->subject('Job Not Approved | Broom Service');
-        //     // });
-        // }
+        Notification::create([
+            'user_id' => $worker['id'],
+            'user_type' => get_class($event->job->worker),
+            'type' => NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
+            'status' => 'not-approved',
+            'job_id' => $job['id']
+        ]);
 
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL,

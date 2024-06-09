@@ -55,15 +55,18 @@ export default function TotalJobs() {
         start_date: currentWeekFilter.start_date,
         end_date: currentWeekFilter.end_date,
     });
-    const [paymentFilter, setPaymentFilter] = useState("");
+    const [doneFilter, setDoneFilter] = useState("");
+    const [startTimeFilter, setStartTimeFilter] = useState("");
     const [selectedFilter, setselectedFilter] = useState("Week");
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
 
     const tableRef = useRef(null);
-    const paymentFilterRef = useRef(null);
+    const doneFilterRef = useRef(null);
+    const startTimeFilterRef = useRef(null);
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
+    const actualTimeExceedFilterRef = useRef(null);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -93,7 +96,12 @@ export default function TotalJobs() {
                     );
                 },
                 data: function (d) {
-                    d.payment_filter = paymentFilterRef.current.value;
+                    d.done_filter = doneFilterRef.current.value;
+                    d.start_time_filter = startTimeFilterRef.current.value;
+                    d.actual_time_exceed_filter = actualTimeExceedFilterRef
+                        .current.checked
+                        ? 1
+                        : 0;
                     d.start_date = startDateRef.current.value;
                     d.end_date = endDateRef.current.value;
                 },
@@ -435,7 +443,7 @@ export default function TotalJobs() {
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
-    }, [paymentFilter, dateRange]);
+    }, [doneFilter, startTimeFilter, dateRange]);
 
     const handleJobDone = (_jobID, _checked) => {
         if (_checked) {
@@ -578,20 +586,32 @@ export default function TotalJobs() {
                         <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                             <div className="d-flex align-items-center">
                                 <div style={{ fontWeight: "bold" }}>Filter</div>
-                                <div className="mx-3 d-flex align-items-center border rounded">
-                                    <div className="mx-2 text-nowrap">
-                                        By Payment
-                                    </div>
+                                <div className="mx-3 d-flex align-items-center">
                                     <select
                                         className="form-control"
-                                        value={paymentFilter}
+                                        value={doneFilter}
                                         onChange={(e) => {
-                                            setPaymentFilter(e.target.value);
+                                            setDoneFilter(e.target.value);
                                         }}
                                     >
                                         <option value="">All</option>
-                                        <option value="1">Only Paid</option>
-                                        <option value="0">Only Unpaid</option>
+                                        <option value="done">Done</option>
+                                        <option value="undone">Undone</option>
+                                    </select>
+
+                                    <select
+                                        className="form-control ml-3"
+                                        value={startTimeFilter}
+                                        onChange={(e) => {
+                                            setStartTimeFilter(e.target.value);
+                                        }}
+                                    >
+                                        <option value="">All Time</option>
+                                        <option value="morning">Morning</option>
+                                        <option value="noon">Noon</option>
+                                        <option value="afternoon">
+                                            Afternoon
+                                        </option>
                                     </select>
                                 </div>
                                 <div
@@ -709,8 +729,14 @@ export default function TotalJobs() {
 
                                 <input
                                     type="hidden"
-                                    value={paymentFilter}
-                                    ref={paymentFilterRef}
+                                    value={startTimeFilter}
+                                    ref={startTimeFilterRef}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    value={doneFilter}
+                                    ref={doneFilterRef}
                                 />
 
                                 <input
@@ -724,6 +750,30 @@ export default function TotalJobs() {
                                     value={dateRange.end_date}
                                     ref={endDateRef}
                                 />
+                            </div>
+                        </div>
+
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="inlineCheckbox1"
+                                        onChange={() => {
+                                            $(tableRef.current)
+                                                .DataTable()
+                                                .draw();
+                                        }}
+                                        ref={actualTimeExceedFilterRef}
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        for="inlineCheckbox1"
+                                    >
+                                        Actual Time Exceed
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         {/* Mobile */}

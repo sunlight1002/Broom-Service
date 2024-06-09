@@ -231,6 +231,10 @@ export default function Schedule() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
+    const handleFilterByStatus = (_status) => {
+        $(tableRef.current).DataTable().column(5).search(_status).draw();
+    };
+
     return (
         <div id="container">
             <Sidebar />
@@ -254,6 +258,35 @@ export default function Schedule() {
                 </div>
                 <div className="card">
                     <div className="card-body">
+                        <div className="row">
+                            <div className="col-md-3">
+                                <div className="form-group">
+                                    <select
+                                        className="form-control"
+                                        onChange={(e) => {
+                                            handleFilterByStatus(
+                                                e.target.value
+                                            );
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="confirmed">
+                                            Confirmed
+                                        </option>
+                                        <option value="declined">
+                                            Declined
+                                        </option>
+                                        <option value="completed">
+                                            Completed
+                                        </option>
+                                        <option value="rescheduled">
+                                            Rescheduled
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

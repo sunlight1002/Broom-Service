@@ -117,34 +117,52 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="schedule-and-worker"
-                                    className="px-3 mr-1"
-                                    selectedFilter={notificationGrpTypeFilter}
-                                    setselectedFilter={
-                                        setNotificationGrpTypeFilter
-                                    }
-                                />
-
-                                <FilterButtons
-                                    text="converted-to-client"
-                                    className="px-3 mr-1"
-                                    selectedFilter={notificationGrpTypeFilter}
-                                    setselectedFilter={
-                                        setNotificationGrpTypeFilter
-                                    }
-                                />
-
-                                <FilterButtons
-                                    text="client-comments-reviews"
-                                    className="px-3 mr-1"
-                                    selectedFilter={notificationGrpTypeFilter}
-                                    setselectedFilter={
-                                        setNotificationGrpTypeFilter
-                                    }
-                                />
-
-                                <FilterButtons
                                     text="payment-status"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="changes-and-cancellation"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="lead-client"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="workers-and-availability"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="reviews-of-clients"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="problem-with-workers"
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
