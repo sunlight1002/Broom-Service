@@ -19,6 +19,12 @@ import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
+const statusArr = {
+    "pending client": "Pending client",
+    "freeze client": "Freeze client",
+    "active client": "Active client",
+};
+
 export default function Clients() {
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
@@ -220,7 +226,11 @@ export default function Clients() {
     };
 
     useEffect(() => {
-        $(tableRef.current).DataTable().draw();
+        if (filters.action == "") {
+            $(tableRef.current).DataTable().column(4).search(null).draw();
+        } else {
+            $(tableRef.current).DataTable().column(4).search(filters.action).draw();
+        }
     }, [filters]);
 
     const handleDelete = (id) => {
@@ -377,22 +387,34 @@ export default function Clients() {
                                             className="dropdown-item"
                                             onClick={(e) => {
                                                 setFilters({
-                                                    action: "booked",
+                                                    action: "pending client",
                                                 });
                                             }}
                                         >
-                                            {t("admin.client.BookedCustomer")}
+                                            {t("admin.client.PendingClient")}
                                         </button>
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
                                                 setFilters({
-                                                    action: "notbooked",
+                                                    action: "active client",
                                                 });
                                             }}
                                         >
                                             {t(
-                                                "admin.client.NotBookedCustomer"
+                                                "admin.client.ActiveClient"
+                                            )}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={(e) => {
+                                                setFilters({
+                                                    action: "freeze client",
+                                                });
+                                            }}
+                                        >
+                                            {t(
+                                                "admin.client.FreezeClient"
                                             )}
                                         </button>
                                         <button
@@ -451,23 +473,34 @@ export default function Clients() {
                         />
 
                         <FilterButtons
-                            text={t("admin.client.BookedCustomer")}
-                            value="booked"
+                            text={t("admin.client.PendingClient")}
+                            value="pending client"
                             className="px-3 mr-1"
                             onClick={() => {
                                 setFilters({
-                                    action: "booked",
+                                    action: "pending client",
                                 });
                             }}
                             selectedFilter={filters.action}
                         />
                         <FilterButtons
-                            text={t("admin.client.NotBookedCustomer")}
+                            text={t("admin.client.ActiveClient")}
                             className="px-3 mr-1"
-                            value="notbooked"
+                            value="active client"
                             onClick={() => {
                                 setFilters({
-                                    action: "notbooked",
+                                    action: "active client",
+                                });
+                            }}
+                            selectedFilter={filters.action}
+                        />
+                        <FilterButtons
+                            text={t("admin.client.FreezeClient")}
+                            className="px-3 mr-1"
+                            value="freeze client"
+                            onClick={() => {
+                                setFilters({
+                                    action: "freeze client",
                                 });
                             }}
                             selectedFilter={filters.action}
@@ -528,6 +561,7 @@ export default function Clients() {
                     isOpen={changeStatusModal.isOpen}
                     clientId={changeStatusModal.id}
                     getUpdatedData={updateData}
+                    statusArr={statusArr}
                 />
             )}
         </div>

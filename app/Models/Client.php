@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use App\Enums\LeadStatusEnum;
 use Laravel\Passport\HasApiTokens;
 
 class Client extends Authenticatable
@@ -71,6 +72,17 @@ class Client extends Authenticatable
     public static function boot()
     {
         parent::boot();
+        static::created(function ($model) {
+            LeadStatus::firstOrCreate(
+                [
+                    'client_id' => $model->id,
+                ],
+                [
+                    'client_id' => $model->id,
+                    'lead_status' => LeadStatusEnum::PENDING
+                ]
+            );
+        });
         static::deleting(function ($model) {
             Schedule::where('client_id', $model->id)->delete();
             Offer::where('client_id', $model->id)->delete();

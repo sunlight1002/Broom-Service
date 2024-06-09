@@ -212,7 +212,7 @@ class AuthController extends Controller
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
 
-        $worker = User::find($id);
+        $worker = User::where('worker_id', $id)->first();
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',

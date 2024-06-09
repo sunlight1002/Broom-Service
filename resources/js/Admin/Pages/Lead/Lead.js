@@ -16,6 +16,18 @@ import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
+const statusArr = {
+    pending: "Pending",
+    potential: "Potential",
+    irrelevant: "Irrelevant",
+    uninterested: "Uninterested",
+    unanswered: "Unanswered",
+    "potential client": "Potential client",
+    "pending client": "Pending client",
+    "freeze client": "Freeze client",
+    "active client": "Active client",
+};
+
 export default function Lead() {
     const [filter, setFilter] = useState("All");
     const [changeStatusModal, setChangeStatusModal] = useState({
@@ -34,9 +46,6 @@ export default function Lead() {
         "uninterested",
         "unanswered",
         "potential client",
-        "pending client",
-        "freeze client",
-        "active client",
     ];
 
     const headers = {
@@ -348,6 +357,7 @@ export default function Lead() {
                     isOpen={changeStatusModal.isOpen}
                     clientId={changeStatusModal.id}
                     getUpdatedData={updateData}
+                    statusArr={statusArr}
                 />
             )}
         </div>

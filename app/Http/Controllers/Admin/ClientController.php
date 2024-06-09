@@ -51,7 +51,7 @@ class ClientController extends Controller
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
-            ->where('clients.status', 2)
+            ->where('clients.status', '>', 0)
             ->when($action == 'booked', function ($q) {
                 return $q->has('jobs');
             })
@@ -92,6 +92,10 @@ class ClientController extends Controller
             })
             ->addColumn('action', function ($data) {
                 return '';
+            })
+            ->filterColumn('lead_status', function ($query, $keyword) {
+                $sql = "leadstatus.lead_status like ?";
+                $query->whereRaw($sql, ["{$keyword}"]);
             })
             ->rawColumns(['action'])
             ->toJson();
@@ -862,7 +866,7 @@ class ClientController extends Controller
             LeadStatusEnum::IRRELEVANT => 0,
             LeadStatusEnum::UNINTERESTED => 0,
             LeadStatusEnum::UNANSWERED => 0,
-            LeadStatusEnum::FREEZE_CLIENT => 0,
+            LeadStatusEnum::FREEZE_CLIENT => 2,
             LeadStatusEnum::POTENTIAL_CLIENT => 1,
             LeadStatusEnum::PENDING_CLIENT => 2,
             LeadStatusEnum::ACTIVE_CLIENT => 2,

@@ -957,6 +957,9 @@
             "clientName": "Client Name",
             "BookedCustomer": "Active client",
             "NotBookedCustomer": "Pending client",
+            "ActiveClient": "Active client",
+            "PendingClient": "Pending client",
+            "FreezeClient": "Freeze client",
             "Export": "Export",
             "Options": {
                 "sortBy": "-- Sort By--",

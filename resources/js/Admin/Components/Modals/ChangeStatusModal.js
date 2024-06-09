@@ -3,23 +3,12 @@ import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 
-const statusArr = {
-    pending: "Pending",
-    potential: "Potential",
-    irrelevant: "Irrelevant",
-    uninterested: "Uninterested",
-    unanswered: "Unanswered",
-    "potential client": "Potential client",
-    "pending client": "Pending client",
-    "freeze client": "Freeze client",
-    "active client": "Active client",
-};
-
 export default function ChangeStatusModal({
     handleChangeStatusModalClose,
     isOpen,
     clientId,
     getUpdatedData,
+    statusArr
 }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({

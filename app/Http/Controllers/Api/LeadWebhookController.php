@@ -170,7 +170,7 @@ class LeadWebhookController extends Controller
                 $lead->lastname      = '';
                 $lead->phone         = $from;
                 $lead->email         = $from . '@lead.com';
-                $lead->status        = 3;
+                $lead->status        = 0;
                 $lead->password      = Hash::make($from);
                 $lead->passcode      = $from;
                 $lead->geo_address   = '';

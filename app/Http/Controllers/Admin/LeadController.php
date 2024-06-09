@@ -48,7 +48,7 @@ class LeadController extends Controller
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
                                 ->orWhere('clients.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
-                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
+                                ->orWhere('leadstatus.lead_status', 'like', $keyword);
                         });
                     }
                 }
@@ -68,7 +68,7 @@ class LeadController extends Controller
             })
             ->filterColumn('lead_status', function ($query, $keyword) {
                 $sql = "leadstatus.lead_status like ?";
-                $query->whereRaw($sql, ["%{$keyword}%"]);
+                $query->whereRaw($sql, ["{$keyword}"]);
             })
             ->addColumn('action', function ($data) {
                 return '';
