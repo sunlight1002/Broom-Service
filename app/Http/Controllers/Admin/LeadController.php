@@ -474,7 +474,11 @@ class LeadController extends Controller
                             'phone'             => $phone,
                         ]);
                         if (!empty($phone)) {
-                            $result = sendWhatsappMessage($phone, 'bot_main_menu', array('name' => ''), $lng == 'heb' ? 'he' : 'en');
+                            $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+                            if($lng == 'heb') {
+                                $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
+                            }
+                            $result = sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                         }
                         $client->lead_status()->updateOrCreate(
                             [],

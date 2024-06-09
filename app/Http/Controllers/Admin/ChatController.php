@@ -71,7 +71,7 @@ class ChatController extends Controller
 
     public function chatReply(Request $request)
     {
-        $result = sendWhatsappMessage($request->number, '', array('message' => $request->message));
+        $result = sendWhatsappMessage($request->number, array('message' => $request->message));
 
         $response = WebhookResponse::create([
             'status'        => 1,
@@ -122,7 +122,7 @@ class ChatController extends Controller
 
     public function chatRestart(Request $request)
     {
-        sendWhatsappMessage($request->number, $request->template, array('name' => ''));
+        sendWhatsappMessage($request->number, array('name' => '', 'message' => ''));
         $client = Client::where('phone', 'like', '%' . $request->number . '%')->first();
         $_msg = TextResponse::where('status', '1')->where('keyword', 'main_menu')->first();
 
