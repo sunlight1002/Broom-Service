@@ -293,7 +293,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                         $client->lead_status()->updateOrCreate(
                             [],
-                            ['lead_status' => LeadStatusEnum::POTENTIAL]
+                            ['lead_status' => LeadStatusEnum::POTENTIAL_CLIENT]
                         );
                     } else {
                         $offer->update([

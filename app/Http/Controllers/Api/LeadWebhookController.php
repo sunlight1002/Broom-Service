@@ -787,6 +787,11 @@ If you would like to speak to a human representative, please send a message with
 
                                 $schedule = Schedule::create($scheduleData);
 
+                                $client->lead_status()->updateOrCreate(
+                                    [],
+                                    ['lead_status' => LeadStatusEnum::POTENTIAL]
+                                );
+
                                 $googleAccessToken = Setting::query()
                                     ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
                                     ->value('value');

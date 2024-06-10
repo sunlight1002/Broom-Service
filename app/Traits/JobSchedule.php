@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Enums\JobStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
@@ -614,5 +616,54 @@ trait JobSchedule
         }
 
         return $isConflicting;
+    }
+
+    private function getClientLeadStatusBasedOnJobs($client)
+    {
+        $hasFutureJob = Job::query()
+            ->where('client_id', $client->id)
+            ->where(function ($q1) {
+                $q1->whereDate('start_date', '>=', date('Y-m-d'))
+                    ->orWhereDate('next_start_date', '>=', date('Y-m-d'));
+            })
+            ->where(function ($q2) {
+                $q2
+                    ->whereIn('status', [
+                        JobStatusEnum::PROGRESS,
+                        JobStatusEnum::SCHEDULED,
+                        JobStatusEnum::UNSCHEDULED,
+                        JobStatusEnum::COMPLETED,
+                    ])
+                    ->orWhere(function ($sq1) {
+                        $sq1->where('status', JobStatusEnum::CANCEL)
+                            ->where('cancelled_for', '!=', 'forever');
+                    });
+            })
+            ->exists();
+
+        if (!$hasFutureJob) {
+            $status = LeadStatusEnum::PAST;
+        } else {
+            $today = Carbon::today()->toDateString();
+            $weekEndDate = Carbon::today()->endOfWeek()->toDateString();
+
+            $hasJobCurrentWeek = Job::query()
+                ->where('client_id', $client->id)
+                ->whereDate('start_date', '>=', $today)
+                ->whereDate('start_date', '<=', $weekEndDate)
+                ->where(function ($q2) {
+                    $q2->whereNull('cancelled_for')
+                        ->orWhere('cancelled_for', '!=', 'forever');
+                })
+                ->exists();
+
+            if ($hasJobCurrentWeek) {
+                $status = LeadStatusEnum::ACTIVE_CLIENT;
+            } else {
+                $status = LeadStatusEnum::FREEZE_CLIENT;
+            }
+        }
+
+        return $status;
     }
 }

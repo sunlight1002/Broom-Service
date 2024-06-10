@@ -43,9 +43,6 @@ export default function AddLeadClient() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        {
-            /* Job Data*/
-        }
         let to = 0;
         let taxper = 17;
         if (cjob == 1) {

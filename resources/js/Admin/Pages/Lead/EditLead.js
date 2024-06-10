@@ -59,9 +59,6 @@ export default function EditWorker() {
     const handleUpdate = (e) => {
         e.preventDefault();
 
-        {
-            /*lead data */
-        }
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {

@@ -114,7 +114,7 @@ class OfferController extends Controller
                 'client_id' => $offer->client_id,
             ],
             [
-                'lead_status' =>  LeadStatusEnum::POTENTIAL
+                'lead_status' =>  LeadStatusEnum::POTENTIAL_CLIENT
             ]
         );
 

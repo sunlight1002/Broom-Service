@@ -67,9 +67,6 @@ export default function AddClient() {
             services: JSON.stringify(formValues),
         };
 
-        {
-            /*Client Data */
-        }
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {

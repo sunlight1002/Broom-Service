@@ -67,9 +67,6 @@ export default function EditClient() {
             services: JSON.stringify(formValues),
         };
 
-        {
-            /*Client data */
-        }
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {
