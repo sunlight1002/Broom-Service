@@ -44,7 +44,7 @@ class Form101SignedMail extends Mailable
                 'lng' => 'en'
             ])
             ->attach($pdfPath, [
-                'as' => __('mail.form101.form_name'),
+                'as' => __('mail.form101.form_name') . '.pdf',
                 'mime' => 'application/pdf'
             ])
             ->subject(__('mail.worker.form101-signed.subject'));

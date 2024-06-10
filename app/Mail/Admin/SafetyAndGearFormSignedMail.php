@@ -44,7 +44,7 @@ class SafetyAndGearFormSignedMail extends Mailable
                 'lng' => 'en'
             ])
             ->attach($pdfPath, [
-                'as' => __('mail.safety-and-gear-form.form_name'),
+                'as' => __('mail.safety-and-gear-form.form_name') . '.pdf',
                 'mime' => 'application/pdf'
             ])
             ->subject(__('mail.worker.safety-and-gear-signed.subject'));
