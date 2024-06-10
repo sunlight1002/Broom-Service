@@ -405,7 +405,7 @@ return [
             Date/Time: :date_time\nClient: :client_name\nService: :service_name\nProperty: :address\nStatus: :status",
         ],
         'worker_change_request' => [
-            'content' => "Greetings from Broom Service. There is request from client to change worker of a job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nWorker: :worker_name\nShift: :shift",
+            'content' => "Greetings from Broom Service. There is request from client to change worker of a job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nWorker: :worker_name\nStart Time: :start_time",
         ],
         'worker_contract' => [
             'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the contract form to start working on the job.\nClick the below button to check the contract.",
@@ -417,10 +417,10 @@ return [
             'content' => "Greetings from Broom Service. The worker has not been approved for the job yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_remind_job' => [
-            'content' => "Greetings from Broom Service. This is to inform you about your tomorrow job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nShift: :shift\nStart Time: :start_time\nStatus: :status",
+            'content' => "Greetings from Broom Service. This is to inform you about your tomorrow job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",
         ],
         'worker_unassigned_job' => [
-            'content' => "Greetings from Broom Service. You have been unassigned from a job.Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nShift: :shift",
+            'content' => "Greetings from Broom Service. You have been unassigned from a job.Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nStart Time: :start_time",
         ],
         'client_job_status_notification' => [
             'content' => "Greetings from Broom Service. The job has been canceled. Please check the details.\n\nDate/Time: :date\nClient: :client_name\nService: :service_name\nComment: :comment",

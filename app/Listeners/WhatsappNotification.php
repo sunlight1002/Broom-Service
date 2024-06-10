@@ -239,9 +239,7 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.new_job.content', [
                         'content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
-                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . (isset($jobData['shifts'])
-                            ? ("(" . $jobData['shifts'] . ")")
-                            : " "),
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'service_name' => $workerData['lng'] == 'heb'
                             ? ($jobData['jobservice']['heb_name'] . ', ')
@@ -279,7 +277,7 @@ class WhatsappNotification
                         'worker_name' => isset($jobData['worker'])
                             ? ($jobData['worker']['firstname'] . ' ' . $jobData['worker']['lastname'])
                             : "NA",
-                        'shift' => $jobData['shifts']
+                        'start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i')
                     ]);
 
                     break;
@@ -316,9 +314,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.worker_job_approval.content', [
-                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts']
-                            ? (" ( " . $jobData['shifts'] . " ) ")
-                            : " "),
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
                         'service_name' => ($jobData['jobservice']['name'] . ', '),
@@ -343,9 +339,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.worker_job_not_approval.content', [
-                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts']
-                            ? (" ( " . $jobData['shifts'] . " ) ")
-                            : " "),
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
                         'service_name' => ($jobData['jobservice']['name'] . ', '),
@@ -383,8 +377,7 @@ class WhatsappNotification
                         'address' => $jobData['property_address']['address_name'] . " " . ($jobData['property_address']['parking']
                             ? ("[" . $jobData['property_address']['parking'] . "]")
                             :  " "),
-                        'shift' => $jobData['shifts'],
-                        'start_time' => isset($jobData['start_time']) ? $jobData['start_time'] : " ",
+                        'start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'status' => ucfirst($jobData['status'])
                     ]);
 
@@ -410,7 +403,7 @@ class WhatsappNotification
                         'date' => Carbon::parse($oldJobData['start_date'])->format('M d Y'),
                         'client_name' => $jobData['client']['firstname'] . ' ' . $jobData['client']['lastname'],
                         'service_name' => $oldWorkerData['lng'] == 'heb' ? ($jobData['jobservice']['heb_name'] . ', ') : ($jobData['jobservice']['name'] . ', '),
-                        'shift' => $oldJobData['shifts']
+                        'start_time' => Carbon::today()->setTimeFromTimeString($oldJobData['start_time'])->format('H:i')
                     ]);
 
                     break;
@@ -430,7 +423,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.client_job_status_notification.content', [
-                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " "),
+                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y')  . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
                         'service_name' => $jobData['jobservice']['name'],
                         'comment' => ($by == 'client' ? ("Client changed the Job status to " . ucfirst($jobData['status']) . "." . ($jobData['cancellation_fee_amount']) ? ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : ("Job is marked as " . ucfirst($jobData['status'])))
@@ -478,7 +471,7 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.worker_job_status_notification.content', [
                         'status' => ucfirst($jobData['status']),
-                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " "),
+                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
                         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
                         'service_name' => $jobData['jobservice']['name'],
@@ -665,7 +658,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.admin_job_status_notification.content', [
-                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y')  . ($jobData['start_time'] && $jobData['end_time'] ? (" ( " . $jobData['start_time'] . " to " . $jobData['end_time'] . " ) ") : " "),
+                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y')  . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
                         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
                         'service_name' => $jobData['jobservice']['name'],
@@ -802,9 +795,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.client_reviewed.content', [
-                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . ($jobData['shifts']
-                            ? (" ( " . $jobData['shifts'] . " ) ")
-                            : " "),
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
                     ]);
 

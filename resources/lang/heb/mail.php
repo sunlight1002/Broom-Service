@@ -413,7 +413,7 @@ return [
             תאריך/שעה: :date_time\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nסטטוס: :status",
         ],
         'worker_change_request' => [
-            'content' => "ברכות משירות מטאטא. יש בקשה מהלקוח להחליף עובד בעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nעובד: :worker_name\nמשמרת: :shift",
+            'content' => "ברכות משירות מטאטא. יש בקשה מהלקוח להחליף עובד בעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nעובד: :worker_name\nשעת התחלה: :start_time",
         ],
         'worker_contract' => [
             'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את החוזה.",
@@ -425,10 +425,10 @@ return [
             'content' => "ברכות משירות מטאטא. העובד עדיין לא אושר לעבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_remind_job' => [
-            'content' => "ברכות משירות מטאטא. זהו הודעה על העבודה שלך למחר. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nמשמרת: :shift\nשעת התחלה: :start_time\nסטטוס: :status",
+            'content' => "ברכות משירות מטאטא. זהו הודעה על העבודה שלך למחר. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nשעת התחלה: :start_time\nסטטוס: :status",
         ],
         'worker_unassigned_job' => [
-            'content' => "ברכות משירות מטאטא. הוסרת מהעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nמשמרת: :shift",
+            'content' => "ברכות משירות מטאטא. הוסרת מהעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nשעת התחלה: :start_time",
         ],
         'client_job_status_notification' => [
             'content' => "ברכות משירות מטאטא. העבודה בוטלה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nלקוח: :client_name\nשירות: :service_name\nהערה: :comment",

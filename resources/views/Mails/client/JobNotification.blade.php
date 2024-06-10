@@ -48,7 +48,7 @@
 						@endif
 					</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['property_address']) && $job['property_address'] ? $job['property_address']['address_name'] : "-" }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['start_time'])?$job['start_time']:'-' }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::today()->setTimeFromTimeString($job['start_time'])->format('H:i') }}</td>
 				</tr>
 			</tbody>
 		</table>
