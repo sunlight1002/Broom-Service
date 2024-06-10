@@ -41,7 +41,7 @@ class InsuranceFormSignedMail extends Mailable
                 'worker' => $this->worker,
             ])
             ->attach($pdfPath, [
-                'as' => __('mail.insurance-form.form_name'),
+                'as' => __('mail.insurance-form.form_name') . '.pdf',
                 'mime' => 'application/pdf'
             ])
             ->subject(__('mail.worker.insurance-signed.subject'));

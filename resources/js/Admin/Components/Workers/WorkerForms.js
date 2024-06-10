@@ -206,6 +206,26 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         </span>
                                     )}
                                 </div>
+                                <div className="col-sm-2 col-2">
+                                    {((contractForm || worker.form_insurance) && contractForm?.pdf_name) ? (
+                                        <div>
+                                            <a
+                                                href={`/storage/signed-docs/${contractForm.pdf_name}`}
+                                                target={"_blank"}
+                                                download={`${contractForm.type}.pdf`}
+                                                className="m-2 m-2 btn btn-pink"
+                                            >
+                                                <span className="btn-default">
+                                                    <i className="fa fa-download"></i>
+                                                </span>
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <span className="btn btn-warning m-3">
+                                            -
+                                        </span>
+                                    )}
+                                </div>
                                 {Object.is(worker.worker_contract, null) &&
                                 worker.is_exist
                                     ? uploadFormDiv("worker_contract")
@@ -265,6 +285,26 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 >
                                                     View Form
                                                 </Link>
+                                            </div>
+                                        ) : (
+                                            <span className="btn btn-warning m-3">
+                                                -
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="col-sm-2 col-2">
+                                        {((form || worker.form_insurance) && form?.pdf_name) ? (
+                                            <div>
+                                                <a
+                                                    href={`/storage/signed-docs/${form.pdf_name}`}
+                                                    target={"_blank"}
+                                                    download={`${form.type}.pdf`}
+                                                    className="m-2 m-2 btn btn-pink"
+                                                >
+                                                    <span className="btn-default">
+                                                        <i className="fa fa-download"></i>
+                                                    </span>
+                                                </a>
                                             </div>
                                         ) : (
                                             <span className="btn btn-warning m-3">
@@ -342,6 +382,26 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         </span>
                                     )}
                                 </div>
+                                <div className="col-sm-2 col-2">
+                                    {((safetyAndGearForm || worker.form_insurance) && safetyAndGearForm?.pdf_name) ? (
+                                        <div>
+                                            <a
+                                                href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
+                                                target={"_blank"}
+                                                download={`${safetyAndGearForm.type}.pdf`}
+                                                className="m-2 m-2 btn btn-pink"
+                                            >
+                                                <span className="btn-default">
+                                                    <i className="fa fa-download"></i>
+                                                </span>
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <span className="btn btn-warning m-3">
+                                            -
+                                        </span>
+                                    )}
+                                </div>
                                 {Object.is(worker.safety_and_gear_form, null) &&
                                 worker.is_exist
                                     ? uploadFormDiv("safety_and_gear_form")
@@ -404,6 +464,26 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         >
                                             View Insurance Form
                                         </Link>
+                                    </div>
+                                ) : (
+                                    <span className="btn btn-warning m-3">
+                                        -
+                                    </span>
+                                )}
+                            </div>
+                            <div className="col-sm-2 col-2">
+                                {((insuranceForm || worker.form_insurance) && insuranceForm?.pdf_name) ? (
+                                    <div>
+                                        <a
+                                            href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
+                                            target={"_blank"}
+                                            download={`${insuranceForm.type}.pdf`}
+                                            className="m-2 m-2 btn btn-pink"
+                                        >
+                                            <span className="btn-default">
+                                                <i className="fa fa-download"></i>
+                                            </span>
+                                        </a>
                                     </div>
                                 ) : (
                                     <span className="btn btn-warning m-3">
