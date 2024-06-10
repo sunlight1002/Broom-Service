@@ -51,6 +51,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
     public function handle()
     {
         $job = Job::query()
+            ->with('client')
             ->where('schedule', '!=', 'na')
             ->where('is_next_job_created', false)
             ->where(function ($q) {
@@ -63,6 +64,8 @@ class ScheduleNextJobOccurring implements ShouldQueue
         $workingWeekDays = json_decode($manageTime->days);
 
         if ($job) {
+            $client = $job->client;
+
             $offerServices = $this->formatServices($job->offer, false);
             $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
                 return $value['service'] == $job->schedule_id;
@@ -242,6 +245,11 @@ class ScheduleNextJobOccurring implements ShouldQueue
             ]);
 
             $this->copyDefaultCommentsToJob($nextJob);
+
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+            );
         }
     }
 }

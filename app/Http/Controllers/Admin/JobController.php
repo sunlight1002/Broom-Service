@@ -567,7 +567,7 @@ class JobController extends Controller
 
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
         );
 
         return response()->json([
@@ -825,6 +825,11 @@ class JobController extends Controller
             'until_date' => $request->until_date,
         ]);
 
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+        );
+
         Notification::create([
             'user_id' => $job->client->id,
             'user_type' => get_class($job->client),
@@ -1077,6 +1082,11 @@ class JobController extends Controller
             'duration' => $request->repeatancy,
             'until_date' => $request->until_date,
         ]);
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+        );
 
         Notification::create([
             'user_id' => $job->client->id,

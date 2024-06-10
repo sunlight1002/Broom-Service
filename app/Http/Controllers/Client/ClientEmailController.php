@@ -89,15 +89,6 @@ class ClientEmailController extends Controller
 
     $ofr = $offer->toArray();
 
-    LeadStatus::UpdateOrCreate(
-      [
-        'client_id' => $ofr['client']['id']
-      ],
-      [
-        'lead_status' => LeadStatusEnum::POTENTIAL_CLIENT
-      ]
-    );
-
     $hash = md5($ofr['client']['email'] . $ofr['id']);
 
     $contract = Contract::create([
@@ -106,6 +97,15 @@ class ClientEmailController extends Controller
       'unique_hash' => $hash,
       'status'     => ContractStatusEnum::NOT_SIGNED
     ]);
+
+    LeadStatus::updateOrCreate(
+      [
+        'client_id' => $ofr['client']['id']
+      ],
+      [
+        'lead_status' => LeadStatusEnum::PENDING_CLIENT
+      ]
+    );
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
@@ -464,6 +464,15 @@ class ClientEmailController extends Controller
       'start_time_standard_format'       => $start_time_standard_format,
       'client_id'      => $request['data']['client']['id'],
     ]);
+
+    LeadStatus::updateOrCreate(
+      [
+        'client_id' => $schedule->client_id,
+      ],
+      [
+        'lead_status' =>  LeadStatusEnum::POTENTIAL
+      ]
+    );
 
     $schedule->load(['client', 'team', 'propertyAddress']);
 

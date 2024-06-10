@@ -441,6 +441,11 @@ class JobController extends Controller
             'until_date' => $data['until_date'],
         ]);
 
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+        );
+
         Notification::create([
             'user_id' => $job->client->id,
             'user_type' => get_class($job->client),
