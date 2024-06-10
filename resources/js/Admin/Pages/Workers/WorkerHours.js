@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Moment from "moment";
-import { CSVLink } from "react-csv";
 import { useAlert } from "react-alert";
 
 import $ from "jquery";
@@ -47,11 +46,11 @@ export default function WorkerHours() {
         end_date: currentWeekFilter.end_date,
     });
     const [selectedFilter, setselectedFilter] = useState("Week");
-    const [exportData, setExportData] = useState([]);
     const [filters, setFilters] = useState({
-        manpower_company_id: null,
+        manpower_company_id: "",
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
+    const [selectedWorkerIDs, setSelectedWorkerIDs] = useState([]);
 
     const tableRef = useRef(null);
     const startDateRef = useRef(null);
@@ -83,8 +82,16 @@ export default function WorkerHours() {
                     d.end_date = endDateRef.current.value;
                 },
             },
-            order: [[0, "desc"]],
+            order: [[1, "desc"]],
             columns: [
+                {
+                    title: `<input type="checkbox" class="form-control dt-select-all" />`,
+                    data: "id",
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return `<input type="checkbox" value="${data}" class="form-control dt-check-worker"/>`;
+                    },
+                },
                 {
                     title: "Worker",
                     data: "name",
@@ -104,6 +111,52 @@ export default function WorkerHours() {
             ordering: true,
             searching: true,
             responsive: true,
+            drawCallback: function (settings) {
+                setSelectedWorkerIDs([]);
+            },
+        });
+
+        $(tableRef.current).on("change", ".dt-select-all", function (e) {
+            if (e.target.checked) {
+                const _workerIDs = $(tableRef.current)
+                    .find(".dt-check-worker")
+                    .map(function () {
+                        return this.value;
+                    })
+                    .get();
+
+                setSelectedWorkerIDs(_workerIDs);
+                $(tableRef.current)
+                    .find(".dt-check-worker")
+                    .prop("checked", true);
+            } else {
+                setSelectedWorkerIDs([]);
+                $(tableRef.current)
+                    .find(".dt-check-worker")
+                    .prop("checked", false);
+            }
+        });
+
+        $(tableRef.current).on("change", ".dt-check-worker", function (e) {
+            const _workerID = e.target.value;
+
+            if (e.target.checked) {
+                setSelectedWorkerIDs((_workerIDs) => {
+                    if (!_workerIDs.includes(_workerID)) {
+                        return _workerIDs.concat([_workerID]);
+                    }
+
+                    return _workerIDs;
+                });
+            } else {
+                setSelectedWorkerIDs((_workerIDs) => {
+                    if (_workerIDs.includes(_workerID)) {
+                        return _workerIDs.filter((i) => i != _workerID);
+                    }
+
+                    return _workerIDs;
+                });
+            }
         });
 
         $(tableRef.current).on("click", ".dt-worker-link", function () {
@@ -119,39 +172,46 @@ export default function WorkerHours() {
     const handleExport = async () => {
         let _filters = {};
 
-        if (filters.manpower_company_id) {
+        if (filters.manpower_company_id !== "") {
             _filters.manpower_company_id = filters.manpower_company_id;
         }
 
+        _filters.worker_ids = selectedWorkerIDs;
         _filters.start_date = dateRange.start_date;
         _filters.end_date = dateRange.end_date;
 
         await axios
-            .get("/api/admin/workers/working-hours/export", {
-                headers,
-                params: {
+            .post(
+                "/api/admin/workers/working-hours/export",
+                {
                     ..._filters,
                 },
-            })
-            .then((response) => {
-                if (
-                    response.data &&
-                    response.data.workers &&
-                    response.data.workers.length > 0
-                ) {
-                    const mappedData = response.data.workers.map((w) => {
-                        return {
-                            "Start Date": w.start_date,
-                            [w.worker_name]: w.time
-                                ? convertMinsToDecimalHrs(w.time)
-                                : 0.0,
-                        };
-                    });
-                    setExportData(mappedData);
-                    document.querySelector("#csv").click();
-                } else {
-                    alert.error("Worker data not found!");
+                {
+                    headers,
+                    responseType: "blob",
                 }
+            )
+            .then((response) => {
+                const fileName =
+                    "Worker Hours - (" +
+                    dateRange.start_date +
+                    " - " +
+                    dateRange.end_date +
+                    ")";
+
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+
+                // create "a" HTML element with href to file & click
+                const link = document.createElement("a");
+                link.href = href;
+                link.setAttribute("download", `${fileName}.csv`); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
             });
     };
 
@@ -176,23 +236,6 @@ export default function WorkerHours() {
     useEffect(() => {
         getManpowerCompanies();
     }, []);
-
-    const header = [
-        { label: "Worker Name", key: "worker_name" },
-        { label: "Worker ID", key: "worker_id" },
-        { label: "Hours", key: "hours" },
-    ];
-
-    const csvReport = {
-        data: exportData,
-        // headers: header,
-        filename:
-            "Worker Hours - (" +
-            dateRange.start_date +
-            " - " +
-            dateRange.end_date +
-            ")",
-    };
 
     const sortTable = (colIdx) => {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
@@ -349,12 +392,6 @@ export default function WorkerHours() {
                                 Export
                             </button>
                         </div>
-
-                        <div className="App" style={{ display: "none" }}>
-                            <CSVLink {...csvReport} id="csv">
-                                Export to CSV
-                            </CSVLink>
-                        </div>
                     </div>
                     <div className="col-sm-12 hidden-xs d-sm-flex justify-content-between mt-2">
                         <div
@@ -367,7 +404,7 @@ export default function WorkerHours() {
                             <button
                                 className={`btn border rounded px-3 mr-1 float-left`}
                                 style={
-                                    filters.manpower_company_id === null
+                                    filters.manpower_company_id === ""
                                         ? { background: "white" }
                                         : {
                                               background: "#2c3f51",
@@ -377,7 +414,7 @@ export default function WorkerHours() {
                                 onClick={() => {
                                     setFilters({
                                         ...filters,
-                                        manpower_company_id: null,
+                                        manpower_company_id: "",
                                     });
                                 }}
                             >

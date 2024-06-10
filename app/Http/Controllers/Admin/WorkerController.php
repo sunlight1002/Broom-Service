@@ -12,6 +12,7 @@ use App\Enums\Form101FieldEnum;
 use App\Enums\WorkerFormTypeEnum;
 use App\Events\WorkerCreated;
 use App\Events\WorkerForm101Requested;
+use App\Exports\WorkerHoursExport;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class WorkerController extends Controller
@@ -785,7 +787,6 @@ class WorkerController extends Controller
 
     public function workingHoursReport(Request $request)
     {
-        $keyword = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
@@ -804,14 +805,6 @@ class WorkerController extends Controller
         $query = User::query()
             ->leftJoinSub($jobHours, 'job_hours', function ($join) {
                 $join->on('users.id', '=', 'job_hours.worker_id');
-            })
-            ->when($keyword, function ($query, $keyword) {
-                $query
-                    ->where('users.firstname',  'like', '%' . $keyword . '%')
-                    ->orWhere('users.lastname', 'like', '%' . $keyword . '%')
-                    ->orWhere('users.phone',    'like', '%' . $keyword . '%')
-                    ->orWhere('users.address',  'like', '%' . $keyword . '%')
-                    ->orWhere('users.email',  'like', '%' . $keyword . '%');
             })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
@@ -852,43 +845,12 @@ class WorkerController extends Controller
 
     public function exportWorkingHoursReport(Request $request)
     {
-        $keyword = $request->get('keyword');
+        $worker_ids = $request->get('worker_ids') ?? [];
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
 
-        $data = Job::whereNotNull('jobs.worker_id')
-            ->whereNotNull('jobs.actual_time_taken_minutes')
-            ->join('users', 'jobs.worker_id', '=', 'users.id')
-            ->when($start_date, function ($q) use ($start_date) {
-                return $q->whereDate('jobs.start_date', '>=', $start_date);
-            })
-            ->when($end_date, function ($q) use ($end_date) {
-                return $q->whereDate('jobs.start_date', '<=', $end_date);
-            })
-            ->when($keyword, function ($query, $keyword) {
-                $q->where('users.firstname', 'like', '%' . $keyword . '%')
-                    ->orWhere('users.lastname', 'like', '%' . $keyword . '%')
-                    ->orWhere('users.phone', 'like', '%' . $keyword . '%')
-                    ->orWhere('users.address', 'like', '%' . $keyword . '%')
-                    ->orWhere('users.email', 'like', '%' . $keyword . '%');
-            })
-            ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
-                $q->where('users.manpower_company_id', $manpowerCompanyID);
-            })
-            ->where(function ($q) {
-                $q->whereNull('users.last_work_date')
-                    ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
-            })
-            ->select('jobs.start_date', DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'))
-            ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS time')
-            ->groupBy('jobs.start_date')
-            ->orderBy('jobs.start_date', 'desc')
-            ->get();
-
-        return response()->json([
-            'workers' => $data,
-        ]);
+        return Excel::download(new WorkerHoursExport($worker_ids, $start_date, $end_date, $manpowerCompanyID), 'Worker Hours.csv');
     }
 
     public function formSend(Request $request, Form101FieldEnum $formEnum)

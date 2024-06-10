@@ -335,36 +335,27 @@ class DashboardController extends Controller
   public function income(Request $request)
   {
     $requestData = $request->all();
+
     $tasks = Job::query()
-      ->with(['client', 'worker', 'offer', 'hours'])
-      ->where('status', JobStatusEnum::COMPLETED);
+      ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+      ->where('jobs.status', JobStatusEnum::COMPLETED);
 
     if (isset($requestData['dateRange'])) {
       $startDate = $requestData['dateRange']['start_date'];
       $endDate = $requestData['dateRange']['end_date'];
-      $tasks = $tasks->whereBetween('created_at', [$startDate, $endDate])->get();
-    } else {
-      $tasks = $tasks->get();
+      $tasks = $tasks->whereBetween('jobs.created_at', [$startDate, $endDate]);
     }
-    $inc = 0;
-    foreach ($tasks as $t1 => $task) {
-      if (isset($task->hours)) {
-        $tsec = 0;
-        foreach ($task->hours as $t => $hour) {
-          $tsec += $hour->time_diff;
-        }
-        $tasks[$t1]->total_sec = $tsec;
-      }
 
-      if (isset($task->offer)) {
-        $inc += $task->offer->subtotal;
-      }
-    }
+    $data = $tasks
+      ->selectRaw('SUM(jobs.subtotal_amount) as income')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
+      ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
+      ->selectRaw('COUNT(jobs.id) as total_jobs')
+      ->first();
 
     return response()->json([
-      'tasks' => $tasks,
-      'total_tasks' => $tasks->count(),
-      'income' => $inc,
+      'data' => $data,
     ]);
   }
 

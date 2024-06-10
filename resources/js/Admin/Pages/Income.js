@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../Layouts/Sidebar";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import axios from "axios";
 import Moment from "moment";
 
@@ -22,10 +20,11 @@ const thisWeekFilter = {
 };
 
 export default function income() {
-    const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
     const [totalTask, setTotalTask] = useState(0);
     const [income, setIncome] = useState(0);
+    const [totalMins, setTotalMins] = useState(0);
+    const [totalActualMins, setTotalActualMins] = useState(0);
+    const [totalDiffMins, setTotalDiffMins] = useState(0);
     const [role, setRole] = useState();
 
     const navigate = useNavigate();
@@ -45,36 +44,23 @@ export default function income() {
         axios
             .post("/api/admin/income", { dateRange }, { headers })
             .then((res) => {
-                if (res.data.tasks.length > 0) {
-                    setTasks(res.data.tasks);
-                    setTotalTask(res.data.total_tasks);
-                    setIncome(res.data.income);
-                } else {
-                    setTasks([]);
-                    setLoading("No Completed Tasks found.");
-                }
+                setTotalTask(res.data.data.total_jobs);
+                setIncome(res.data.data.income);
+                setTotalMins(res.data.data.duration_minutes);
+                setTotalActualMins(res.data.data.actual_time_taken_minutes);
+                setTotalDiffMins(res.data.data.difference_minutes);
             });
     };
-
-    function toHoursAndMinutes(totalSeconds) {
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return decimalHours(h, m, s);
-    }
-
-    function decimalHours(h, m, s) {
-        var hours = parseInt(h, 10);
-        var minutes = m ? parseInt(m, 10) : 0;
-        var min = minutes / 60;
-        return hours + ":" + min.toString().substring(0, 4);
-    }
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
+    };
+
+    const minutesToHours = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours`;
     };
 
     useEffect(() => {
@@ -97,6 +83,17 @@ export default function income() {
                         <div className="col-sm-6">
                             <h4 className="page-title">
                                 Total Jobs : {totalTask}
+                            </h4>
+                            <h4 className="page-title">
+                                Total Job Hours : {minutesToHours(totalMins)}
+                            </h4>
+                            <h4 className="page-title">
+                                Total Actual Hours :{" "}
+                                {minutesToHours(totalActualMins)}
+                            </h4>
+                            <h4 className="page-title">
+                                Total Exceed Hours :{" "}
+                                {minutesToHours(totalDiffMins)}
                             </h4>
                             <h4 className="page-title">Income : {income}</h4>
                             <h4 className="page-title">Outcome : 0</h4>
@@ -196,104 +193,6 @@ export default function income() {
                                     });
                                 }}
                             />
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <div className="card">
-                    <div className="card-body">
-                        <div className="boxPanel">
-                            {tasks.length > 0 ? (
-                                <Table className="table table-bordered">
-                                    <Thead>
-                                        <Tr style={{ cursor: "pointer" }}>
-                                            <Th>ID</Th>
-                                            <Th>Worker</Th>
-                                            <Th>Client</Th>
-                                            <Th>Time Takes</Th>
-                                            <Th>Income</Th>
-                                            <Th>Outcome</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {tasks &&
-                                            tasks.map((item, index) => {
-                                                let time =
-                                                    item.total_sec != null
-                                                        ? toHoursAndMinutes(
-                                                              item.total_sec
-                                                          )
-                                                        : 0;
-                                                return (
-                                                    <Tr key={index}>
-                                                        <Td>{item.id}</Td>
-                                                        <Td>
-                                                            {
-                                                                item.worker
-                                                                    .firstname
-                                                            }{" "}
-                                                            {
-                                                                item.worker
-                                                                    .lastname
-                                                            }
-                                                        </Td>
-                                                        <Td>
-                                                            {" "}
-                                                            {
-                                                                item.client
-                                                                    .firstname
-                                                            }{" "}
-                                                            {
-                                                                item.client
-                                                                    .lastname
-                                                            }
-                                                        </Td>
-                                                        <Td>{time}</Td>
-                                                        <Td>
-                                                            {item.offer
-                                                                ? item.offer
-                                                                      .subtotal +
-                                                                  " ILS + VAT "
-                                                                : ""}
-                                                        </Td>
-                                                        <Td>
-                                                            <span className="d-flex justify-content-center justify-content-sm-start ml-4 ml-sm-0">
-                                                                {0}
-                                                            </span>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                    </Tbody>
-                                </Table>
-                            ) : (
-                                <p className="text-center mt-5">{loading}</p>
-                            )}
-                            {/*clients.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
-                                />
-                            ) : (
-                                <></>
-                            )*/}
                         </div>
                     </div>
                 </div>

@@ -81,12 +81,7 @@ export default function Dashboard() {
         axios
             .post("/api/admin/income", { duration }, { headers })
             .then((res) => {
-                if (res.data.tasks.length > 0) {
-                    setIncome(res.data.income);
-                } else {
-                    setIncome(0);
-                    setLoading("No Completed Tasks found.");
-                }
+                setIncome(res.data.data.income);
             });
     };
 
